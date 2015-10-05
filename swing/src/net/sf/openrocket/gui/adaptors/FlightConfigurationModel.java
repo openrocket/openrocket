@@ -2,41 +2,36 @@ package net.sf.openrocket.gui.adaptors;
 
 
 import java.util.EventObject;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import net.sf.openrocket.formatting.RocketDescriptor;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A ComboBoxModel that contains a list of flight configurations.  The list can
  * optionally contain a last element that opens up the configuration edit dialog.
  */
-public class FlightConfigurationModel implements ComboBoxModel, StateChangeListener {
-	private static final Translator trans = Application.getTranslator();
+public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurationID>, StateChangeListener {
+	//private static final Translator trans = Application.getTranslator();
 	
-	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
-	
+	//private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private EventListenerList listenerList = new EventListenerList();
 	
-	private final Configuration config;
+	private FlightConfiguration config;
 	private final Rocket rocket;
+	Vector<FlightConfigurationID> ids= new Vector<FlightConfigurationID>();
 	
-	private Map<String, ID> map = new HashMap<String, ID>();
-	
-	
-	public FlightConfigurationModel(Configuration config) {
+	public FlightConfigurationModel(FlightConfiguration config) {
 		this.config = config;
 		this.rocket = config.getRocket();
 		config.addChangeListener(this);
@@ -44,25 +39,26 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	
 	
 	@Override
-	public Object getElementAt(int index) {
-		String[] ids = rocket.getFlightConfigurationIDs();
+	public FlightConfigurationID getElementAt(int index) {
+		this.ids = rocket.getSortedConfigurationIDs();
 		
-		if (index < 0)
-			return null;
-		if ( index >= ids.length) 
-			return null;
+		if (index < 0){
+			return FlightConfigurationID.ERROR_CONFIGURATION_ID;
+		}else if ( index >= this.ids.size()){ 
+			return FlightConfigurationID.ERROR_CONFIGURATION_ID;
+		}
 		
-		return get(ids[index]);
+		return this.ids.get(index);
 	}
 	
 	@Override
 	public int getSize() {
-		return rocket.getFlightConfigurationIDs().length;
+		return this.ids.size();
 	}
 	
 	@Override
 	public Object getSelectedItem() {
-		return get(config.getFlightConfigurationID());
+		return config.getFlightConfigurationID();
 	}
 	
 	@Override
@@ -71,12 +67,15 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 			// Clear selection - huh?
 			return;
 		}
-		if (!(item instanceof ID)) {
+		if (!(item instanceof FlightConfigurationID)) {
 			throw new IllegalArgumentException("MotorConfigurationModel item=" + item);
 		}
 		
-		ID idObject = (ID) item;
-		config.setFlightConfigurationID(idObject.getID());
+		FlightConfigurationID fcid= (FlightConfigurationID) item;
+		FlightConfigurationSet<FlightConfiguration> configs= rocket.getConfigurationSet();
+		
+		configs.setDefault( configs.get(fcid));
+		this.config = rocket.getDefaultConfiguration();
 	}
 	
 	
@@ -116,42 +115,6 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 				return;
 		}
 		fireListDataEvent();
-	}
-	
-	
-	
-	/*
-	 * The ID class is an adapter, that contains the actual configuration ID,
-	 * but gives the configuration description as its String representation.
-	 * The get(id) method retrieves ID objects and caches them for reuse.
-	 */
-	
-	private ID get(String id) {
-		ID idObject = map.get(id);
-		if (idObject != null)
-			return idObject;
-		
-		idObject = new ID(id);
-		map.put(id, idObject);
-		return idObject;
-	}
-	
-	
-	private class ID {
-		private final String id;
-		
-		public ID(String id) {
-			this.id = id;
-		}
-		
-		public String getID() {
-			return id;
-		}
-		
-		@Override
-		public String toString() {
-			return descriptor.format(rocket, id);
-		}
 	}
 	
 }

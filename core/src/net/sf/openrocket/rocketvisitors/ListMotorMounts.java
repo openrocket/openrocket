@@ -11,7 +11,7 @@ public class ListMotorMounts extends ListComponents<RocketComponent> {
 	
 	@Override
 	protected void doAction(RocketComponent visitable) {
-		if (visitable instanceof MotorMount && ((MotorMount) visitable).isMotorMount()) {
+		if (visitable instanceof MotorMount && ((MotorMount) visitable).isActive()) {
 			components.add(visitable);
 		}
 	}

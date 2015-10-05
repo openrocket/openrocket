@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -16,9 +19,6 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -62,20 +62,13 @@ public class Rocket extends RocketComponent {
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
 	
 	
-	// The default configuration used in dialogs
-	private final Configuration defaultConfiguration;
-	
-	
 	private String designer = "";
 	private String revision = "";
 	
 	
 	// Flight configuration list
-	private ArrayList<String> flightConfigurationIDs = new ArrayList<String>();
-	private HashMap<String, String> flightConfigurationNames = new HashMap<String, String>();
-	{
-		flightConfigurationIDs.add(null);
-	}
+	private FlightConfigurationSet<FlightConfiguration> configurations;
+	private final Vector<FlightConfigurationID> ids = new Vector<FlightConfigurationID>();
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -91,11 +84,11 @@ public class Rocket extends RocketComponent {
 		aeroModID = modID;
 		treeModID = modID;
 		functionalModID = modID;
-		defaultConfiguration = new Configuration(this);
-		
+		FlightConfiguration defaultConfiguration = new FlightConfiguration(null, this);
+		//FlightConfigurationID defaultFCID = defaultConfiguration.getFlightConfigurationID();
+		defaultConfiguration.setName( "Default Configuration" );
+		this.configurations = new FlightConfigurationSet<FlightConfiguration>(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
 	}
-	
-	
 	
 	public String getDesigner() {
 		checkState();
@@ -282,19 +275,17 @@ public class Rocket extends RocketComponent {
 	
 	
 	
-	
-	
 	/**
-	 * Make a deep copy of the Rocket structure.  This method is exposed as public to allow
+	 * Make a shallow copy of the Rocket structure.  This method is exposed as public to allow
 	 * for undo/redo system functionality.
+	 * 
+	 * note:  the <hashmap>.clone() function returns a shallow copy-- which is probably appropriate. 
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.flightConfigurationIDs = this.flightConfigurationIDs.clone();
-		copy.flightConfigurationNames =
-				(HashMap<String, String>) this.flightConfigurationNames.clone();
+		copy.configurations = new FlightConfigurationSet<FlightConfiguration>(
+				this.configurations, copy, ComponentChangeEvent.ALL_CHANGE);
 		copy.resetListeners();
 		
 		return copy;
@@ -310,7 +301,6 @@ public class Rocket extends RocketComponent {
 	 * and therefore fires an UNDO_EVENT, masked with all applicable mass/aerodynamic/tree
 	 * changes.
 	 */
-	@SuppressWarnings("unchecked")
 	public void loadFrom(Rocket r) {
 		
 		// Store list of components to invalidate after event has been fired
@@ -332,14 +322,9 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.flightConfigurationIDs = r.flightConfigurationIDs.clone();
-		this.flightConfigurationNames =
-				(HashMap<String, String>) r.flightConfigurationNames.clone();
+		this.configurations = new FlightConfigurationSet<FlightConfiguration>(
+				r.configurations, this, ComponentChangeEvent.ALL_CHANGE);
 		this.perfectFinish = r.perfectFinish;
-		
-		String id = defaultConfiguration.getFlightConfigurationID();
-		if (!this.flightConfigurationIDs.contains(id))
-			defaultConfiguration.setFlightConfigurationID(null);
 		
 		this.checkComponentStructure();
 		
@@ -510,53 +495,45 @@ public class Rocket extends RocketComponent {
 	 * to ensure a consistent rocket configuration between dialogs.  It should NOT
 	 * be used in simulations not relating to the UI.
 	 *
-	 * @return   the default {@link Configuration}.
+	 * @return   the default {@link FlightConfiguration}.
 	 */
-	public Configuration getDefaultConfiguration() {
+	public FlightConfiguration getDefaultConfiguration() {
 		checkState();
-		return defaultConfiguration;
+		return this.configurations.getDefault();
 	}
 	
-	
-	/**
-	 * Return an array of the flight configuration IDs.  This array is guaranteed
-	 * to contain the <code>null</code> ID as the first element.
-	 *
-	 * @return  an array of the flight configuration IDs.
-	 */
-	public String[] getFlightConfigurationIDs() {
+	public FlightConfiguration createFlightConfiguration( final FlightConfigurationID fcid) {
 		checkState();
-		return flightConfigurationIDs.toArray(new String[0]);
-	}
-	
-	/**
-	 * Add a new flight configuration ID to the flight configurations.  The new ID
-	 * is returned.
-	 *
-	 * @return  the new flight configuration ID.
-	 */
-	public String newFlightConfigurationID() {
-		checkState();
-		String id = UUID.randomUUID().toString();
-		flightConfigurationIDs.add(id);
+		FlightConfiguration nextConfig = null;
+		if( configurations.containsKey(fcid)){
+			nextConfig = this.configurations.get(fcid);
+		}else{
+			nextConfig = new FlightConfiguration(fcid, this);
+			this.configurations.set(fcid, nextConfig);
+		}
+
+		this.setFlightConfiguration( fcid, nextConfig );
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-		return id;
+		return nextConfig;
 	}
 	
-	/**
-	 * Add a specified motor configuration ID to the motor configurations.
-	 *
-	 * @param id	the motor configuration ID.
-	 * @return		true if successful, false if the ID was already used.
-	 */
-	public boolean addMotorConfigurationID(String id) {
+	public FlightConfigurationSet<FlightConfiguration> getConfigurationSet(){
 		checkState();
-		if (id == null || flightConfigurationIDs.contains(id))
-			return false;
-		flightConfigurationIDs.add(id);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-		return true;
+		return this.configurations;
 	}
+	
+	public Vector<FlightConfigurationID> getSortedConfigurationIDs(){
+		// if the configuration list has changed, refresh it. 
+		if( configurations.size() != ids.size()){
+			this.ids.clear();
+			//this.ids = new Vector<FlightConfigurationID>( idSet );
+			this.ids.addAll( this.configurations.getIDs() );
+			this.ids .sort( null );
+		}
+	
+		return this.ids;
+	}
+
 	
 	/**
 	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
@@ -564,18 +541,14 @@ public class Rocket extends RocketComponent {
 	 *
 	 * @param id   the flight configuration ID to remove
 	 */
-	public void removeFlightConfigurationID(String id) {
+	public void removeFlightConfigurationID(FlightConfigurationID fcid) {
 		checkState();
-		if (id == null)
+		if (fcid == null)
 			return;
+		
 		// Get current configuration:
-		String currentId = getDefaultConfiguration().getFlightConfigurationID();
-		// If we're removing the current configuration, we need to switch to a different one first.
-		if (currentId != null && currentId.equals(id)) {
-			getDefaultConfiguration().setFlightConfigurationID(null);
-		}
-		flightConfigurationIDs.remove(id);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		this.configurations.set(fcid, null);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	
@@ -585,22 +558,22 @@ public class Rocket extends RocketComponent {
 	 * @param id	the configuration ID.
 	 * @return		whether a motor configuration with that ID exists.
 	 */
-	public boolean isFlightConfigurationID(String id) {
+	public boolean containsFlightConfigurationID(FlightConfigurationID id) {
 		checkState();
-		return flightConfigurationIDs.contains(id);
+		FlightConfiguration config = configurations.get( id);
+		return (null != config);
 	}
-	
 	
 	
 	/**
 	 * Check whether the given motor configuration ID has motors defined for it.
 	 *
-	 * @param id	the motor configuration ID (may be invalid).
+	 * @param id	the FlightConfigurationID containing the motor (may be invalid).
 	 * @return		whether any motors are defined for it.
 	 */
-	public boolean hasMotors(String id) {
+	public boolean hasMotors(FlightConfigurationID fcid) {
 		checkState();
-		if (id == null)
+		if (fcid == null)
 			return false;
 		
 		Iterator<RocketComponent> iterator = this.iterator();
@@ -609,9 +582,9 @@ public class Rocket extends RocketComponent {
 			
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
-				if (!mount.isMotorMount())
+				if (!mount.isActive())
 					continue;
-				if (mount.getMotorConfiguration().get(id).getMotor() != null) {
+				if (mount.getMotorInstance(fcid).getMotor() != null) {
 					return true;
 				}
 			}
@@ -621,20 +594,14 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return the user-set name of the flight configuration.  If no name has been set,
-	 * returns the default name ({@link #DEFAULT_NAME}).
+	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
 	 * @param id   the flight configuration id
-	 * @return	   the configuration name
+	 * @return	   a FlightConfiguration instance 
 	 */
-	public String getFlightConfigurationName(String id) {
+	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID id) {
 		checkState();
-		if (!isFlightConfigurationID(id))
-			return DEFAULT_NAME;
-		String s = flightConfigurationNames.get(id);
-		if (s == null)
-			return DEFAULT_NAME;
-		return s;
+		return configurations.get(id);
 	}
 	
 	
@@ -645,12 +612,13 @@ public class Rocket extends RocketComponent {
 	 * @param id	the flight configuration id
 	 * @param name	the name for the flight configuration
 	 */
-	public void setFlightConfigurationName(String id, String name) {
+	public void setFlightConfiguration(final FlightConfigurationID fcid, FlightConfiguration newConfig) {
 		checkState();
-		if (name == null || name.equals("") || DEFAULT_NAME.equals(name)) {
-			flightConfigurationNames.remove(id);
-		} else {
-			flightConfigurationNames.put(id, name);
+		if (( null == fcid ) || (null == newConfig)){
+			// silently ignore
+			return;
+		}else{
+			configurations.set(fcid, newConfig);
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}

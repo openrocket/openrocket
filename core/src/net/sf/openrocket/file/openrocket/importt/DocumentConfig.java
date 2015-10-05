@@ -360,14 +360,14 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
 		setters.put("RecoveryDevice:deployevent", new EnumSetter<DeployEvent>(
-				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfigurations"),
 				Reflection.findMethod(DeploymentConfiguration.class, "setDeployEvent", DeployEvent.class),
 				DeployEvent.class));
 		setters.put("RecoveryDevice:deployaltitude", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfigurations"),
 				Reflection.findMethod(DeploymentConfiguration.class, "setDeployAltitude", double.class)));
 		setters.put("RecoveryDevice:deploydelay", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfigurations"),
 				Reflection.findMethod(DeploymentConfiguration.class, "setDeployDelay", double.class)));
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
@@ -404,11 +404,11 @@ class DocumentConfig {
 		
 		// Stage
 		setters.put("AxialStage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
-				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
+				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
 				StageSeparationConfiguration.SeparationEvent.class));
 		setters.put("AxialStage:separationdelay", new DoubleSetter(
-				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
+				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		
 		setters.put("ComponentAssembly:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));

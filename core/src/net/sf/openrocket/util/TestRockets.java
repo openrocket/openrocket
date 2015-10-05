@@ -11,11 +11,13 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -24,14 +26,14 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -39,7 +41,6 @@ import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
@@ -153,7 +154,7 @@ public class TestRockets {
 		body.setThickness(rnd(0.002));
 		body.setFilled(rnd.nextBoolean());
 		body.setLength(rnd(0.3));
-		body.setMotorMount(rnd.nextBoolean());
+		//body.setMotorMount(rnd.nextBoolean());
 		body.setMotorOverhang(rnd.nextGaussian() * 0.03);
 		body.setOuterRadius(rnd(0.06));
 		body.setOuterRadiusAutomatic(rnd.nextBoolean());
@@ -279,19 +280,17 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
-		String id = rocket.newFlightConfigurationID();
-		bodytube.setMotorMount(true);
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfigurationID fcid = config.getFlightConfigurationID();
 		
-		MotorConfiguration motorConfig = new MotorConfiguration();
 		ThrustCurveMotor motor = getTestMotor();
-		motorConfig.setMotor(motor);
-		motorConfig.setEjectionDelay(5);
+		MotorInstance instance = motor.getNewInstance();
+		instance.setEjectionDelay(5);
 		
-		bodytube.getMotorConfiguration().set(id, motorConfig);
+		bodytube.setMotorInstance(fcid, instance);
 		bodytube.setMotorOverhang(0.005);
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
 		
-		rocket.getDefaultConfiguration().setAllStages();
+		config.setAllStages();
 		
 		return rocket;
 	}
@@ -352,15 +351,13 @@ public class TestRockets {
 		//		bodytube.setMaterial(material);
 		//		finset.setMaterial(material);
 		
-		String id = rocket.newFlightConfigurationID();
-		bodytube.setMotorMount(true);
+//		FlightConfiguration config = rocket.getDefaultConfiguration();
+//		FlightConfigurationID fcid = config.getFlightConfigurationID();
+//		config.setAllStages();
 		
 		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "F12J", Double.NaN, Double.NaN).get(0);
 		//		bodytube.setMotor(id, m);
 		//		bodytube.setMotorOverhang(0.005);
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
-		
-		rocket.getDefaultConfiguration().setAllStages();
 		
 		return rocket;
 	}
@@ -533,17 +530,16 @@ public class TestRockets {
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
 		
-		String id = rocket.newFlightConfigurationID();
-		tube3.setMotorMount(true);
-		
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+//		FlightConfigurationID fcid = config.getFlightConfigurationID();
+
 		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
 		//		tube3.setMotor(id, m);
 		//		tube3.setMotorOverhang(0.02);
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
 		
 		//		tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);
 		
-		rocket.getDefaultConfiguration().setAllStages();
+		config.setAllStages();
 		
 		return rocket;
 	}
@@ -631,6 +627,9 @@ public class TestRockets {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v104_withMotorConfig");
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfigurationID fcid = config.getFlightConfigurationID();
+		config.setName("F12X");
 		
 		// make stage
 		AxialStage stage = new AxialStage();
@@ -643,21 +642,15 @@ public class TestRockets {
 		
 		// make inner tube with motor mount flag set
 		InnerTube innerTube = new InnerTube();
-		innerTube.setMotorMount(true);
 		bodyTube.addChild(innerTube);
 		
 		// create motor config and add a motor to it
-		MotorConfiguration motorConfig = new MotorConfiguration();
 		ThrustCurveMotor motor = getTestMotor();
-		motorConfig.setMotor(motor);
-		motorConfig.setEjectionDelay(5);
+		MotorInstance motorInst = motor.getNewInstance();
+		motorInst.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
-		innerTube.getMotorConfiguration().set("F12X", motorConfig);
-		
-		// add motor config to rocket's flight config
-		rocket.newFlightConfigurationID();
-		rocket.addMotorConfigurationID("F12X");
+		innerTube.setMotorInstance(fcid, motorInst);
 		
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
@@ -669,6 +662,9 @@ public class TestRockets {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v104_withSimulationData");
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfigurationID fcid = config.getFlightConfigurationID();
+		config.setName("F12X");
 		
 		// make stage
 		AxialStage stage = new AxialStage();
@@ -681,27 +677,24 @@ public class TestRockets {
 		
 		// make inner tube with motor mount flag set
 		InnerTube innerTube = new InnerTube();
-		innerTube.setMotorMount(true);
 		bodyTube.addChild(innerTube);
 		
 		// create motor config and add a motor to it
-		MotorConfiguration motorConfig = new MotorConfiguration();
 		ThrustCurveMotor motor = getTestMotor();
-		motorConfig.setMotor(motor);
+		MotorInstance motorConfig = motor.getNewInstance();
 		motorConfig.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
-		innerTube.getMotorConfiguration().set("F12X", motorConfig);
+		innerTube.setMotorInstance(fcid, motorConfig);
 		
 		// add motor config to rocket's flight config
-		//rocket.newFlightConfigurationID();
-		rocket.addMotorConfigurationID("F12X");
+		assert( rocket.containsFlightConfigurationID( fcid) );
 		
 		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		
 		// create simulation data
 		SimulationOptions options = new SimulationOptions(rocket);
-		options.setMotorConfigurationID("F12X");
+		options.setMotorConfigurationID(fcid);
 		Simulation simulation1 = new Simulation(rocket);
 		
 		rocketDoc.addSimulation(simulation1);
@@ -791,7 +784,7 @@ public class TestRockets {
 		RecoveryDevice parachute = new Parachute();
 		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
 		deploymentConfig.setDeployEvent(DeployEvent.LOWER_STAGE_SEPARATION);
-		parachute.getDeploymentConfiguration().setDefault(deploymentConfig);
+		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
 		bodyTube1.addChild(parachute);
 		
 		// make 2nd stage
@@ -829,6 +822,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v106_withMotorMountIgnitionConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withwithMotorMountIgnitionConfig");
+		FlightConfigurationID fcid = new FlightConfigurationID("2SecondDelay");
 		
 		// make stage
 		AxialStage stage = new AxialStage();
@@ -841,13 +835,15 @@ public class TestRockets {
 		
 		// make inner tube with motor mount flag set
 		InnerTube innerTube = new InnerTube();
-		innerTube.setMotorMount(true);
 		bodyTube.addChild(innerTube);
 		
-		// set ignition configuration for motor mount
-		IgnitionConfiguration ignitionConfig = new IgnitionConfiguration();
-		ignitionConfig.setIgnitionDelay(2);
-		innerTube.getIgnitionConfiguration().set("2SecondDelay", ignitionConfig);
+		// make inner tube with motor mount flag set
+		MotorInstance inst = getTestMotor().getNewInstance();
+		innerTube.setMotorInstance(fcid, inst);
+		
+		// set ignition parameters for motor mount
+		// inst.setIgnitionEvent( IgnitionEvent.AUTOMATIC);
+		inst.setIgnitionDelay(2);
 		
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
@@ -858,6 +854,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v106_withRecoveryDeviceDeploymentConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withRecoveryDeviceDeploymentConfig");
+		FlightConfigurationID testFCID = new FlightConfigurationID("testParachute");
 		
 		// make stage
 		AxialStage stage = new AxialStage();
@@ -872,7 +869,7 @@ public class TestRockets {
 		RecoveryDevice parachute = new Parachute();
 		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
 		deploymentConfig.setDeployAltitude(1000);
-		parachute.getDeploymentConfiguration().set("testParachute", deploymentConfig);
+		parachute.getDeploymentConfigurations().set(testFCID, deploymentConfig);
 		bodyTube.addChild(parachute);
 		
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
@@ -884,7 +881,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v106_withStageSeparationConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withStageSeparationConfig");
-		
+		FlightConfigurationID fcid = new FlightConfigurationID("3SecondDelay");
 		// make 1st stage
 		AxialStage stage1 = new AxialStage();
 		stage1.setName("Stage1");
@@ -901,7 +898,7 @@ public class TestRockets {
 		// set stage separation configuration
 		StageSeparationConfiguration stageSepConfig = new StageSeparationConfiguration();
 		stageSepConfig.setSeparationDelay(3);
-		stage1.getStageSeparationConfiguration().set("3SecondDelay", stageSepConfig);
+		stage1.getSeparationConfigurations().set(fcid, stageSepConfig);
 		
 		// make 2nd stage
 		AxialStage stage2 = new AxialStage();
@@ -926,6 +923,13 @@ public class TestRockets {
 		ext.setScript(script);
 		sim.getSimulationExtensions().add(ext);
 		document.addSimulation(sim);
+		return document;
+	}
+	
+	public static OpenRocketDocument makeTestRocket_v108_withBoosters() {
+		Rocket rocket = new Rocket();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		
 		return document;
 	}
 	
@@ -955,7 +959,7 @@ public class TestRockets {
 		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
 		deploymentConfig.setDeployEvent(DeployEvent.LOWER_STAGE_SEPARATION);
 		deploymentConfig.setDeployEvent(DeployEvent.ALTITUDE);
-		parachute.getDeploymentConfiguration().setDefault(deploymentConfig);
+		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
 		bodyTube1.addChild(parachute);
 		
 		// make 2nd stage

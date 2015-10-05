@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -23,9 +26,6 @@ import net.sf.openrocket.util.SafetyMutex;
 import net.sf.openrocket.util.SimpleStack;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
@@ -1526,17 +1526,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * IllegalStateException if a Stage is not in the parentage of this component.
 	 *
 	 * @return	The Stage component this component belongs to.
-	 * @throws	IllegalStateException   if a Stage component is not in the parentage.
+	 * @throws	IllegalStateException   if we cannot find an AxialStage above <code>this</code> 
 	 */
 	public final AxialStage getStage() {
 		checkState();
-		RocketComponent c = this;
-		while (c != null) {
-			if (c instanceof AxialStage)
-				return (AxialStage) c;
-			c = c.getParent();
+
+		RocketComponent curComponent = this;
+		while ( null != curComponent ) {
+			if (curComponent instanceof AxialStage)
+				return (AxialStage) curComponent;
+			curComponent = curComponent.parent;
 		}
-		throw new IllegalStateException("getStage() called without Stage as a parent.");
+		throw new IllegalStateException("getStage() called on hierarchy without an AxialStage.");
 	}
 	
 	/**
@@ -1547,21 +1548,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public int getStageNumber() {
 		checkState();
-		if (parent == null) {
-			throw new IllegalArgumentException("getStageNumber() called for root component");
-		}
 		
-		RocketComponent curComponent = this;
-		while (!(curComponent instanceof AxialStage)) {
-			curComponent = curComponent.parent;
-			if (curComponent == null || curComponent.parent == null) {
-				throw new IllegalStateException("getStageNumber() could not find parent " +
-						"stage.");
-			}
-		}
-		AxialStage stage = (AxialStage) curComponent;
-		
-		return stage.getStageNumber();
+		// obviously, this depends on AxialStage overriding <code> .getStageNumber() </code>.
+		// It does as of this writing, but check it just to be sure.... 
+		return this.getStage().getStageNumber();
 	}
 	
 	/**

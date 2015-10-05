@@ -9,6 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.DecalImage;
@@ -18,7 +21,8 @@ import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -26,9 +30,6 @@ import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
@@ -61,7 +62,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private static boolean undoErrorReported = false;
 	
 	private final Rocket rocket;
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
@@ -164,7 +165,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-	public Configuration getDefaultConfiguration() {
+	public FlightConfiguration getDefaultConfiguration() {
 		return configuration;
 	}
 	
@@ -272,13 +273,13 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return simulation;
 	}
 	
-	public void removeFlightConfigurationAndSimulations(String configId) {
+	public void removeFlightConfigurationAndSimulations(FlightConfigurationID configId) {
 		if (configId == null) {
 			return;
 		}
 		for (Simulation s : getSimulations()) {
 			// Assumes modifiable collection - which it is
-			if (configId.equals(s.getConfiguration().getFlightConfigurationID())) {
+			if (configId.equals(s.getOptions().getConfigID())) {
 				removeSimulation(s);
 			}
 		}
@@ -587,7 +588,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public OpenRocketDocument copy() {
 		Rocket rocketCopy = rocket.copyWithOriginalID();
 		OpenRocketDocument documentCopy = OpenRocketDocumentFactory.createDocumentFromRocket(rocketCopy);
-		documentCopy.getDefaultConfiguration().setFlightConfigurationID(configuration.getFlightConfigurationID());
+		
 		for (Simulation s : simulations) {
 			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));
 		}

@@ -7,7 +7,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
@@ -65,8 +65,8 @@ public class StabilityDomain implements SimulationDomain {
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
 		MassCalculator massCalculator = new MassCalculator();
 		
-		
-		Configuration configuration = simulation.getConfiguration();
+	
+		FlightConfiguration configuration = simulation.getRocket().getDefaultConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);

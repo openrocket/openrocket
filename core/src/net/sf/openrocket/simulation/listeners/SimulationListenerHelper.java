@@ -8,7 +8,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -167,7 +167,7 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return	<code>true</code> to handle the event normally, <code>false</code> to skip event.
 	 */
-	public static boolean fireMotorIgnition(SimulationStatus status, MotorId motorId, MotorMount mount,
+	public static boolean fireMotorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
 			MotorInstance instance) throws SimulationException {
 		boolean b;
 		int modID = status.getModID(); // Contains also motor instance

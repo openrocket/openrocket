@@ -12,7 +12,7 @@ import javax.swing.JToggleButton;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
@@ -22,11 +22,11 @@ public class StageSelector extends JPanel implements StateChangeListener {
 
 	private static final Translator trans = Application.getTranslator();
 	
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	
 	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
 	
-	public StageSelector(Configuration configuration) {
+	public StageSelector(FlightConfiguration configuration) {
 		super(new MigLayout("gap 0!"));
 		this.configuration = configuration;
 		

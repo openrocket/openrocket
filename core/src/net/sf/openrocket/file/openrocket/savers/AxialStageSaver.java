@@ -6,6 +6,8 @@ import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
@@ -43,24 +45,27 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 		
 		if (stage.getStageNumber() > 0) {
 			// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
-			elements.addAll(separationConfig(stage.getStageSeparationConfiguration().getDefault(), false));
+			elements.addAll(separationConfig(stage.getSeparationConfigurations().getDefault(), false));
 			
 			Rocket rocket = stage.getRocket();
 			// Note - getFlightConfigurationIDs returns at least one element.  The first element
 			// is null and means "default".
-			String[] configs = rocket.getFlightConfigurationIDs();
-			if (configs.length > 1) {
+			
+			int configCount = rocket.getConfigurationSet().size();
+			if (1 < configCount ){
 				
-				for (String id : configs) {
-					if (id == null) {
+				for (FlightConfiguration curConfig : rocket.getConfigurationSet()){
+					FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+					if (fcid == null) {
 						continue;
 					}
-					if (stage.getStageSeparationConfiguration().isDefault(id)) {
+					if (stage.getSeparationConfigurations().isDefault(fcid)) {
 						continue;
 					}
-					StageSeparationConfiguration config = stage.getStageSeparationConfiguration().get(id);
-					elements.add("<separationconfiguration configid=\"" + id + "\">");
-					elements.addAll(separationConfig(config, true));
+					
+					StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
+					elements.add("<separationconfiguration configid=\"" + fcid + "\">");
+					elements.addAll(separationConfig(separationConfig, true));
 					elements.add("</separationconfiguration>");
 					
 				}

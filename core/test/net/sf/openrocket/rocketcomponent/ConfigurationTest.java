@@ -5,14 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.util.BitSet;
 import java.util.EventObject;
+
+import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Test;
 
 public class ConfigurationTest extends BaseTestCase {
 	
@@ -24,7 +23,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeEmptyRocket();
-		Configuration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getDefaultConfiguration();
 		
 		StateChangeListener listener1 = new StateChangeListener() {
 			@Override
@@ -63,96 +62,17 @@ public class ConfigurationTest extends BaseTestCase {
 	
 	
 	/**
-	 * Test configuration rocket component and motor iterators
-	 */
-	@Test
-	public void testConfigIterators() {
-		
-		/* Setup */
-		Rocket r1 = makeSingleStageTestRocket();
-		Configuration config = r1.getDefaultConfiguration();
-		
-		/* Test */
-		// Test rocket component iterator
-		// the component iterator is no longer a custom iterator.... 
-		// use the standard iterator over the Collection<> returned by config.getActiveComponents()  
-		
-		// Test motor iterator
-		/* TODO: no motors in model Iterator<MotorMount> motorIterator() 
-		 * TODO: validate iterator iterates correctly
-		for (Iterator<MotorMount> i = config.motorIterator(); i.hasNext();) {
-			i.next();
-		}
-		*/
-		
-		//		// Motor iterator remove method is unsupported, should throw exception
-		//		try {
-		//			Iterator<MotorMount> motorIterator = config.motorIterator();
-		//			motorIterator.remove();
-		//		} catch (UnsupportedOperationException e) {
-		//			assertTrue(e.getMessage().equals("remove unsupported"));
-		//		}
-		//		
-		/* Cleanup */
-		config.release();
-		
-	}
-	
-	
-	/**
 	 * Empty rocket (no components) specific configuration tests
 	 */
 	@Test
 	public void testEmptyRocket() {
 		Rocket r1 = makeEmptyRocket();
-		Configuration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getDefaultConfiguration();
 		
-		Configuration configClone = config.clone(); // TODO validate clone worked
-		assertFalse(config.getRocket() == null);
-		//		assertFalse(config.hasMotors());
+		FlightConfiguration configClone = config.clone();
 		
-		config.release();
-	}
-	
-	
-	/**
-	 * Test flight configuration ID methods
-	 */
-	@Test
-	public void testFlightConfigID() {
+		assertTrue(config.getRocket() == configClone.getRocket());
 		
-		/* Setup */
-		Rocket r1 = makeSingleStageTestRocket();
-		Configuration config = r1.getDefaultConfiguration();
-		
-		/* Test */
-		
-		// Test flight configuration ID setting
-		String origFlightConfigID = config.getFlightConfigurationID(); // save for later
-		String testFlightConfigID = origFlightConfigID + "_ConfigurationTest";
-		
-		// if id is already set (ie, not null), setting to null should work
-		assertFalse(config.getFlightConfigurationID() == null);
-		config.setFlightConfigurationID(null);
-		assertTrue(config.getFlightConfigurationID() == null);
-		
-		// now that id is set to null, setting to null should not set again (do for coverage)
-		config.setFlightConfigurationID(null);
-		assertTrue(config.getFlightConfigurationID() == null);
-		
-		// reset the id from null to a test value
-		config.setFlightConfigurationID(testFlightConfigID);
-		assertTrue(config.getFlightConfigurationID().equals(testFlightConfigID));
-		
-		// setting it to the same non-null value should just return (do for coverage)
-		config.setFlightConfigurationID(testFlightConfigID);
-		assertTrue(config.getFlightConfigurationID().equals(testFlightConfigID));
-		
-		// set back to original value
-		config.setFlightConfigurationID(origFlightConfigID);
-		assertTrue(config.getFlightConfigurationID().equals(origFlightConfigID));
-		
-		/* Cleanup */
 		config.release();
 	}
 	
@@ -165,12 +85,12 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeSingleStageTestRocket();
-		Configuration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getDefaultConfiguration();
 		
 		/* Test */
 		
 		// general method tests
-		Configuration configClone = config.clone(); // TODO validate clone worked
+		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
 		
 		assertFalse(config.getRocket() == null);
 		
@@ -199,12 +119,12 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeSingleStageTestRocket();
-		Configuration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getDefaultConfiguration();
 		
 		/* Test */
 		
 		// test cloning of single stage rocket
-		Configuration configClone = config.clone(); // TODO validate clone worked
+		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
 		configClone.release();
 		
 		// test explicitly setting only first stage active
@@ -243,10 +163,10 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeTwoStageTestRocket();
-		Configuration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getDefaultConfiguration();
 		
 		// test cloning of two stage rocket
-		Configuration configClone = config.clone(); // TODO validate clone worked
+		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
 		configClone.release();
 		
 		int expectedStageCount;
@@ -299,59 +219,59 @@ public class ConfigurationTest extends BaseTestCase {
 	}
 	
 	///////////////////// Helper Methods ////////////////////////////
-	
-	public void validateStages(Configuration config, int expectedStageCount, BitSet activeStageFlags) {
-		
-		// test that getStageCount() returns correct value
-		int stageCount = config.getStageCount();
-		assertTrue(stageCount == expectedStageCount);
-		
-		// test that getActiveStageCount() and getActiveStages() returns correct values
-		int expectedActiveStageCount = 0;
-		for (int i = 0; i < expectedStageCount; i++) {
-			if (activeStageFlags.get(i)) {
-				expectedActiveStageCount++;
-			}
-		}
-		assertTrue(config.getActiveStageCount() == expectedActiveStageCount);
-		
-		assertTrue("this test is not yet written.", false);
-		//		int[] stages = config.getActiveStages();
-		//		
-		//		assertTrue(stages.length == expectedActiveStageCount);
-		//		
-		//		// test if isHead() detects first stage being active or inactive
-		//		if (activeStageFlags.get(0)) {
-		//			assertTrue(config.isHead());
-		//		} else {
-		//			assertFalse(config.isHead());
-		//		}
-		//		
-		//		// test if isStageActive() detects stage x being active or inactive
-		//		for (int i = 0; i < expectedStageCount; i++) {
-		//			if (activeStageFlags.get(i)) {
-		//				assertTrue(config.isStageActive(i));
-		//			} else {
-		//				assertFalse(config.isStageActive(i));
-		//			}
-		//		}
-		//		
-		//		// test boundary conditions 
-		//		
-		//		// stage -1 should not exist, and isStageActive() should throw exception
-		//		boolean IndexOutOfBoundsExceptionFlag = false;
-		//		try {
-		//			assertFalse(config.isStageActive(-1));
-		//		} catch (IndexOutOfBoundsException e) {
-		//			IndexOutOfBoundsExceptionFlag = true;
-		//		}
-		//		assertTrue(IndexOutOfBoundsExceptionFlag);
-		//		
-		//		// n+1 stage should not exist, isStageActive() should return false
-		//		// TODO: isStageActive(stageCount + 1) really should throw IndexOutOfBoundsException
-		//		assertFalse(config.isStageActive(stageCount + 1));
-		
-	}
+//	
+//	public void validateStages(Configuration config, int expectedStageCount, BitSet activeStageFlags) {
+//		
+//		// test that getStageCount() returns correct value
+//		int stageCount = config.getStageCount();
+//		assertTrue(stageCount == expectedStageCount);
+//		
+//		// test that getActiveStageCount() and getActiveStages() returns correct values
+//		int expectedActiveStageCount = 0;
+//		for (int i = 0; i < expectedStageCount; i++) {
+//			if (activeStageFlags.get(i)) {
+//				expectedActiveStageCount++;
+//			}
+//		}
+//		assertTrue(config.getActiveStageCount() == expectedActiveStageCount);
+//		
+//		assertTrue("this test is not yet written.", false);
+//		//		int[] stages = config.getActiveStages();
+//		//		
+//		//		assertTrue(stages.length == expectedActiveStageCount);
+//		//		
+//		//		// test if isHead() detects first stage being active or inactive
+//		//		if (activeStageFlags.get(0)) {
+//		//			assertTrue(config.isHead());
+//		//		} else {
+//		//			assertFalse(config.isHead());
+//		//		}
+//		//		
+//		//		// test if isStageActive() detects stage x being active or inactive
+//		//		for (int i = 0; i < expectedStageCount; i++) {
+//		//			if (activeStageFlags.get(i)) {
+//		//				assertTrue(config.isStageActive(i));
+//		//			} else {
+//		//				assertFalse(config.isStageActive(i));
+//		//			}
+//		//		}
+//		//		
+//		//		// test boundary conditions 
+//		//		
+//		//		// stage -1 should not exist, and isStageActive() should throw exception
+//		//		boolean IndexOutOfBoundsExceptionFlag = false;
+//		//		try {
+//		//			assertFalse(config.isStageActive(-1));
+//		//		} catch (IndexOutOfBoundsException e) {
+//		//			IndexOutOfBoundsExceptionFlag = true;
+//		//		}
+//		//		assertTrue(IndexOutOfBoundsExceptionFlag);
+//		//		
+//		//		// n+1 stage should not exist, isStageActive() should return false
+//		//		// TODO: isStageActive(stageCount + 1) really should throw IndexOutOfBoundsException
+//		//		assertFalse(config.isStageActive(stageCount + 1));
+//		
+//	}
 	
 	//////////////////// Test Rocket Creation Methods /////////////////////////
 	
@@ -424,7 +344,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		// Motor mount
 		InnerTube inner = new InnerTube();
-		inner.setMotorMount(true);
+		
 		inner.setPositionValue(0.5);
 		inner.setRelativePosition(Position.BOTTOM);
 		inner.setOuterRadius(1.9 / 2);
@@ -432,8 +352,9 @@ public class ConfigurationTest extends BaseTestCase {
 		inner.setLength(7.5);
 		tube1.addChild(inner);
 		
-		// Centering rings for motor mount
+		// Motor 
 		
+		// Centering rings for motor mount
 		CenteringRing center = new CenteringRing();
 		center.setInnerRadiusAutomatic(true);
 		center.setOuterRadiusAutomatic(true);
@@ -481,18 +402,29 @@ public class ConfigurationTest extends BaseTestCase {
 		// Stage construction
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
+
+		final int expectedStageCount = 1;
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		assertThat(" configuration updates stage Count correctly: ", config.getActiveStageCount(), equalTo(expectedStageCount));
+		assertThat(" configuration list contains : ", rocket.getConfigurationSet().size(), equalTo(1));
 		
-		// Flight configuration
-		String id = rocket.newFlightConfigurationID();
-		
-		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
-		//		tube3.setMotor(id, m);
-		//		tube3.setMotorOverhang(0.02);
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
-		
-		//		tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);
-		
-		rocket.getDefaultConfiguration().setAllStages();
+		//FlightConfigurationID fcid = config.getFlightConfigurationID();
+//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
+//		MotorInstance inst = m.getNewInstance();
+//		inner.setMotorInstance( fcid, inst);
+//		inner.setMotorOverhang(0.02);
+//		
+//		//inner.setMotorMount(true);
+//		assertThat(" configuration updates stage Count correctly: ", inner.hasMotor(), equalTo(true));
+//		
+//		final int expectedMotorCount = 1;
+//		assertThat(" configuration updates correctly: ", inner.getMotorCount(), equalTo(expectedMotorCount));
+//		
+//		// Flight configuration
+//		//FlightConfigurationID id = rocket.newFlightConfigurationID();
+//		
+//		
+//		//	tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);
 		
 		return rocket;
 	}

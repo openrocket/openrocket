@@ -1,11 +1,9 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -18,12 +16,12 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -31,6 +29,7 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public class MotorConfig extends JPanel {
 	
+	private static final long serialVersionUID = -4974509134239867067L;
 	private final MotorMount mount;
 	private static final Translator trans = Application.getTranslator();
 	
@@ -41,7 +40,7 @@ public class MotorConfig extends JPanel {
 		
 		BooleanModel model;
 		
-		model = new BooleanModel(motorMount, "MotorMount");
+		model = new BooleanModel(motorMount, "Active");
 		JCheckBox check = new JCheckBox(model);
 		////This component is a motor mount
 		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
@@ -70,15 +69,17 @@ public class MotorConfig extends JPanel {
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat") + " " + CommonStrings.dagger), "");
 		
-		IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().getDefault();
-		JComboBox combo = new JComboBox(new EnumModel<IgnitionConfiguration.IgnitionEvent>(ignitionConfig, "IgnitionEvent"));
+		MotorInstance motorInstance = mount.getDefaultMotorInstance();
+		
+		
+		JComboBox<IgnitionEvent> combo = new JComboBox<IgnitionEvent>( IgnitionEvent.events );
 		panel.add(combo, "growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
-		dm = new DoubleModel(ignitionConfig, "IgnitionDelay", 0);
+		dm = new DoubleModel(motorInstance, "IgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");
@@ -112,11 +113,11 @@ public class MotorConfig extends JPanel {
 		
 		// Set enabled status
 		
-		setDeepEnabled(panel, motorMount.isMotorMount());
+		setDeepEnabled(panel, motorMount.isActive());
 		check.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				setDeepEnabled(panel, mount.isMotorMount());
+				setDeepEnabled(panel, mount.isActive());
 			}
 		});
 		

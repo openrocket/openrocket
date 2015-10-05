@@ -17,23 +17,19 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
+import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
-import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -63,7 +59,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	public static final double SELECTED_WIDTH = 2.0;
 	
 
-	private Configuration configuration;
+	private FlightConfiguration configuration;
 	private RocketComponent[] selection = new RocketComponent[0];
 	private double figureWidth = 0, figureHeight = 0;
 	protected int figureWidthPx = 0, figureHeightPx = 0;
@@ -95,7 +91,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	/**
 	 * Creates a new rocket figure.
 	 */
-	public RocketFigure(Configuration configuration) {
+	public RocketFigure(FlightConfiguration configuration) {
 		super();
 		
 		this.configuration = configuration;
@@ -112,7 +108,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * 
 	 * @param configuration		the configuration to display.
 	 */
-	public void setConfiguration(Configuration configuration) {
+	public void setConfiguration(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		updateFigure();
 	}
@@ -344,8 +340,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 		
-		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
-		for( MotorInstance curInstance : configuration.getActiveMotors(mic)){
+		//MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
+		for( MotorInstance curInstance : configuration.getActiveMotors()){
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
@@ -437,12 +433,11 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	// facade for the recursive function below
-	private void getShapes(ArrayList<RocketComponentShape> allShapes, Configuration configuration){
-		System.err.println("getting shapes for stages: " + this.configuration.toDebug());
+	private void getShapes(ArrayList<RocketComponentShape> allShapes, FlightConfiguration configuration){
 		for( AxialStage stage : configuration.getActiveStages()){
 			int stageNumber = stage.getStageNumber();
-			String activeString = ( configuration.isStageActive(stageNumber) ? "active" : "inactive");
-			System.err.println("    "+stage.getName()+ "[" + stageNumber + "] is " + activeString );
+			// for debug...
+			//String activeString = ( configuration.isStageActive(stageNumber) ? "active" : "inactive");
 			
 			getShapeTree( allShapes, stage, Coordinate.ZERO);
 		}

@@ -2,6 +2,9 @@ package net.sf.openrocket.masscalc;
 
 //import junit.framework.TestCase;
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.BoosterSet;
@@ -15,8 +18,6 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Test;
 
 public class MassCalculatorTest extends BaseTestCase {
 	
@@ -57,7 +58,8 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		InnerTube motorCluster = new InnerTube();
 		motorCluster.setName("Core Motor Cluster");
-		motorCluster.setMotorMount(true);
+		// outdated.  Just add an actual motor + motor instance
+		//motorCluster.setMotorMount(true);
 		motorCluster.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[5]);
 		coreBody.addChild(motorCluster);
 		

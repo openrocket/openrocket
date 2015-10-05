@@ -7,17 +7,20 @@ package net.sf.openrocket.motor;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public final class MotorId {
+public final class MotorInstanceId {
 	
 	private final String componentId;
 	private final int number;
 	
-	private final String COMPONENT_ERROR_ID = "Error Motor Instance";
-	private final int ERROR_NUMBER = -1;
-	public final static MotorId ERROR_ID = new MotorId();
+	private final static String COMPONENT_ERROR_TEXT = "Error Motor Instance";
+	private final static int ERROR_NUMBER = -1;
+	public final static MotorInstanceId ERROR_ID = new MotorInstanceId();
+	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Instance";
+	private final static int EMPTY_NUMBER = 1;
+	public final static MotorInstanceId EMPTY_ID = new MotorInstanceId(EMPTY_COMPONENT_TEXT, EMPTY_NUMBER);
 	
-	public MotorId() {
-		this.componentId = COMPONENT_ERROR_ID;
+	public MotorInstanceId() {
+		this.componentId = COMPONENT_ERROR_TEXT;
 		this.number = ERROR_NUMBER;
 	}
 	
@@ -25,9 +28,9 @@ public final class MotorId {
 	 * Sole constructor.
 	 * 
 	 * @param componentId	the component ID, must not be null
-	 * @param number		a positive motor doun5 number
+	 * @param number		a positive motor number
 	 */
-	public MotorId(String componentId, int number) {
+	public MotorInstanceId(String componentId, int number) {
 		
 		if (componentId == null) {
 			throw new IllegalArgumentException("Component ID was null");
@@ -46,20 +49,16 @@ public final class MotorId {
 		return componentId;
 	}
 	
-	public int getNumber() {
-		return number;
-	}
-	
 	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		
-		if (!(o instanceof MotorId))
+			
+		if (!(o instanceof MotorInstanceId))
 			return false;
-		
-		MotorId other = (MotorId) o;
+			
+		MotorInstanceId other = (MotorInstanceId) o;
 		// Comparison with == ok since string is intern()'ed
 		return this.componentId == other.componentId && this.number == other.number;
 	}

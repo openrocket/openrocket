@@ -3,7 +3,7 @@ package net.sf.openrocket.simulation;
 import java.util.Iterator;
 
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -20,7 +20,7 @@ public class BasicTumbleStatus extends SimulationStatus {
 	
 	private final double drag;
 	
-	public BasicTumbleStatus(Configuration configuration,
+	public BasicTumbleStatus(FlightConfiguration configuration,
 			MotorInstanceConfiguration motorConfiguration,
 			SimulationConditions simulationConditions) {
 		super(configuration, motorConfiguration, simulationConditions);

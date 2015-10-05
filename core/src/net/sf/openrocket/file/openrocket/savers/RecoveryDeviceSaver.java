@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -24,25 +27,28 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		elements.add(materialParam(dev.getMaterial()));
 		
 		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
-		DeploymentConfiguration defaultConfig = dev.getDeploymentConfiguration().getDefault();
+		DeploymentConfiguration defaultConfig = dev.getDeploymentConfigurations().getDefault();
 		elements.addAll(deploymentConfiguration(defaultConfig, false));
 		
 		Rocket rocket = c.getRocket();
 		// Note - getFlightConfigurationIDs returns at least one element.  The first element
 		// is null and means "default".
-		String[] configs = rocket.getFlightConfigurationIDs();
-		if (configs.length > 1) {
+		FlightConfigurationSet<FlightConfiguration> configList = rocket.getConfigurationSet(); 
+		
+		if (configList.size() > 1) {
 			
-			for (String id : configs) {
-				if (id == null) {
+			for (FlightConfiguration config : configList) {
+				FlightConfigurationID fcid = config.getFlightConfigurationID();
+				if (fcid == null) {
 					continue;
 				}
-				if (dev.getDeploymentConfiguration().isDefault(id)) {
+				if (dev.getDeploymentConfigurations().isDefault(fcid)) {
 					continue;
 				}
-				DeploymentConfiguration config = dev.getDeploymentConfiguration().get(id);
-				elements.add("<deploymentconfiguration configid=\"" + id + "\">");
-				elements.addAll(deploymentConfiguration(config, true));
+				
+				DeploymentConfiguration deployConfig = dev.getDeploymentConfigurations().get(fcid);
+				elements.add("<deploymentconfiguration configid=\"" + fcid + "\">");
+				elements.addAll(deploymentConfiguration(deployConfig, true));
 				elements.add("</deploymentconfiguration>");
 			}
 		}

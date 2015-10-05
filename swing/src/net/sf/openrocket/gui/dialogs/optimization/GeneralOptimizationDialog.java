@@ -54,6 +54,8 @@ import javax.swing.tree.TreePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.itextpdf.text.Font;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -86,6 +88,8 @@ import net.sf.openrocket.optimization.rocketoptimization.goals.MaximizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.MinimizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.ValueSeekGoal;
 import net.sf.openrocket.optimization.services.OptimizationServiceHelper;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -97,8 +101,6 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.TextUtil;
-
-import com.itextpdf.text.Font;
 
 /**
  * General rocket optimization dialog. 
@@ -138,10 +140,10 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final DescriptionArea selectedModifierDescription;
 	private final SimulationModifierTree availableModifierTree;
 	
-	private final JComboBox simulationSelectionCombo;
-	private final JComboBox optimizationParameterCombo;
+	private final JComboBox<?> simulationSelectionCombo;
+	private final JComboBox<?> optimizationParameterCombo;
 	
-	private final JComboBox optimizationGoalCombo;
+	private final JComboBox<?> optimizationGoalCombo;
 	private final JSpinner optimizationGoalSpinner;
 	private final UnitSelector optimizationGoalUnitSelector;
 	private final DoubleModel optimizationSeekValue;
@@ -500,7 +502,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "span 2, grow, wrap para*2");
 		
 		// // Rocket figure
-		figure = new RocketFigure(getSelectedSimulation().getConfiguration());
+		FlightConfigurationID fcid = getSelectedSimulation().getOptions().getConfigID();
+		FlightConfiguration config = this.getSelectedSimulation().getRocket().getFlightConfiguration( fcid);
+		figure = new RocketFigure( config );
 		figure.setBorderPixels(1, 1);
 		ScaleScrollPane figureScrollPane = new ScaleScrollPane(figure);
 		figureScrollPane.setFitting(true);
@@ -951,23 +955,27 @@ public class GeneralOptimizationDialog extends JDialog {
 		Rocket rocket = documentCopy.getRocket();
 		
 		for (Simulation s : documentCopy.getSimulations()) {
-			String id = s.getConfiguration().getFlightConfigurationID();
+			//FlightConfigurationID id = s.getConfiguration().getFlightConfigurationID();
+			FlightConfigurationID id = new FlightConfigurationID( "stub id value - General Optimizer");
+			
 			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
-		for (String id : rocket.getFlightConfigurationIDs()) {
-			if (id == null) {
-				continue;
+		for (FlightConfiguration config : rocket.getConfigurationSet()) {
+			FlightConfigurationID fcid = config.getFlightConfigurationID();
+			if ( fcid == null) {
+				throw new NullPointerException(" flightconfiguration has a null id... bug.");
 			}
+			
 			Simulation sim = new Simulation(rocket);
-			sim.getConfiguration().setFlightConfigurationID(id);
-			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, id));
+			FlightConfiguration fc = new FlightConfiguration(fcid, rocket);
+			
+			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, fcid));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
 		Simulation sim = new Simulation(rocket);
-		sim.getConfiguration().setFlightConfigurationID(null);
 		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
 		simulations.add(new Named<Simulation>(sim, name));
 		
@@ -1160,7 +1168,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update the figure
-		figure.setConfiguration(getSelectedSimulation().getConfiguration());
+		FlightConfigurationID fcid = getSelectedSimulation().getOptions().getConfigID();
+		FlightConfiguration config = this.getSelectedSimulation().getRocket().getFlightConfiguration( fcid);
+		figure.setConfiguration( config);
 		
 		updating = false;
 	}

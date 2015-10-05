@@ -1,7 +1,8 @@
 package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
-import java.util.Locale;
+
+import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -9,11 +10,11 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-
-import org.xml.sax.SAXException;
 
 class MotorMountHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
@@ -24,7 +25,7 @@ class MotorMountHandler extends AbstractElementHandler {
 	public MotorMountHandler(MotorMount mount, DocumentLoadingContext context) {
 		this.mount = mount;
 		this.context = context;
-		mount.setMotorMount(true);
+		mount.setActive(true);
 	}
 	
 	@Override
@@ -58,37 +59,39 @@ class MotorMountHandler extends AbstractElementHandler {
 			String content, WarningSet warnings) throws SAXException {
 		
 		if (element.equals("motor")) {
-			String id = attributes.get("configid");
-			if (id == null || id.equals("")) {
+			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
+			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
 			
-			MotorConfiguration config = new MotorConfiguration();
-			config.setMotor(motorHandler.getMotor(warnings));
-			config.setEjectionDelay(motorHandler.getDelay(warnings));
-			mount.getMotorConfiguration().set(id, config);
-			
+			Motor motor = motorHandler.getMotor(warnings);
+			MotorInstance motorInstance = motor.getNewInstance();
+			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
+			mount.setMotorInstance(fcid, motorInstance);
 			return;
 		}
 		
 		if (element.equals("ignitionconfiguration")) {
-			String id = attributes.get("configid");
-			if (id == null || id.equals("")) {
+			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
+			if ( ! fcid.isValid()){
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
 			
-			IgnitionConfiguration def = mount.getIgnitionConfiguration().getDefault();
-			mount.getIgnitionConfiguration().set(id, ignitionConfigHandler.getConfiguration(def));
+			MotorInstance inst = mount.getDefaultMotorInstance();
+			// ignitionConfigHandler.getConfiguration(null); // all the parsing / loading into the confighandler should already be done...
+			inst.setIgnitionDelay(ignitionConfigHandler.ignitionDelay);
+			inst.setIgnitionEvent(ignitionConfigHandler.ignitionEvent);
+			
 			return;
 		}
 		
 		if (element.equals("ignitionevent")) {
-			IgnitionConfiguration.IgnitionEvent event = null;
-			for (IgnitionConfiguration.IgnitionEvent e : IgnitionConfiguration.IgnitionEvent.values()) {
-				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
-					event = e;
+			IgnitionEvent event = null;
+			for (IgnitionEvent ie : IgnitionEvent.events) {
+				if (ie.equals(content)) {
+					event = ie;
 					break;
 				}
 			}
@@ -96,7 +99,9 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
 				return;
 			}
-			mount.getIgnitionConfiguration().getDefault().setIgnitionEvent(event);
+			
+			mount.getDefaultMotorInstance().setIgnitionEvent(event);
+			
 			return;
 		}
 		
@@ -108,7 +113,8 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
 				return;
 			}
-			mount.getIgnitionConfiguration().getDefault().setIgnitionDelay(d);
+			
+			mount.getDefaultMotorInstance().setIgnitionDelay(d);
 			return;
 		}
 		

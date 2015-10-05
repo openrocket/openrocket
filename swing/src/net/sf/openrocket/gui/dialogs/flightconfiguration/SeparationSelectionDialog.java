@@ -21,8 +21,10 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
@@ -30,6 +32,8 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public class SeparationSelectionDialog extends JDialog {
 	
+	private static final long serialVersionUID = 5121844286782432500L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -38,9 +42,9 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectseparationconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationID id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
-		newConfiguration = component.getStageSeparationConfiguration().get(id).clone();
+		newConfiguration = component.getSeparationConfigurations().get(id).clone();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
@@ -48,7 +52,7 @@ public class SeparationSelectionDialog extends JDialog {
 		// Select separation event
 		panel.add(new JLabel(trans.get("SeparationSelectionDialog.opt.title")), "span, wrap rel");
 		
-		boolean isDefault = component.getStageSeparationConfiguration().isDefault(id);
+		boolean isDefault = component.getSeparationConfigurations().isDefault(id);
 		final JRadioButton defaultButton = new JRadioButton(trans.get("SeparationSelectionDialog.opt.default"), isDefault);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("SeparationSelectionDialog.opt.override");
@@ -62,7 +66,7 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		// Select the button based on current configuration.  If the configuration is overridden
 		// The the overrideButton is selected.
-		boolean isOverridden = !component.getStageSeparationConfiguration().isDefault(id);
+		boolean isOverridden = !component.getSeparationConfigurations().isDefault(id);
 		if (isOverridden) {
 			overrideButton.setSelected(true);
 		}
@@ -90,9 +94,13 @@ public class SeparationSelectionDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (defaultButton.isSelected()) {
-					component.getStageSeparationConfiguration().setDefault(newConfiguration);
+					FlightConfigurationSet<StageSeparationConfiguration> sepConfigSet = component.getSeparationConfigurations();
+					StageSeparationConfiguration sepConfig = sepConfigSet.get(FlightConfigurationID.DEFAULT_CONFIGURATION_ID);
+					component.getSeparationConfigurations().setDefault( sepConfig);  
+					// old version
+					//component.getSeparationConfigurations().setDefault( fcid?, newConfiguration);
 				} else {
-					component.getStageSeparationConfiguration().set(id, newConfiguration);
+					component.getSeparationConfigurations().set(id, newConfiguration);
 				}
 				SeparationSelectionDialog.this.setVisible(false);
 			}

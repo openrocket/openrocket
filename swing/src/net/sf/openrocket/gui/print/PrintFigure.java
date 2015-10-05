@@ -4,7 +4,7 @@
 package net.sf.openrocket.gui.print;
 
 import net.sf.openrocket.gui.scalefigure.RocketFigure;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 
 /**
  * A figure used to override the scale factor in RocketFigure.  This allows pinpoint scaling to allow a diagram
@@ -17,7 +17,7 @@ public class PrintFigure extends RocketFigure {
 	 * 
 	 * @param configuration  the configuration
 	 */
-	public PrintFigure(final Configuration configuration) {
+	public PrintFigure(final FlightConfiguration configuration) {
 		super(configuration);
 	}
 	

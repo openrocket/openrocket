@@ -7,6 +7,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -52,7 +53,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 			if (content.equals("")) {
 				conditions.setMotorConfigurationID(null);
 			} else {
-				conditions.setMotorConfigurationID(content);
+				conditions.setMotorConfigurationID(new FlightConfigurationID(content));
 			}
 		} else if (element.equals("launchrodlength")) {
 			if (Double.isNaN(d)) {

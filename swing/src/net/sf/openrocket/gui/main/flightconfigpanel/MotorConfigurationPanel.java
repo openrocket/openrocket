@@ -1,10 +1,7 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -13,19 +10,14 @@ import java.awt.event.MouseEvent;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -33,18 +25,16 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Pair;
 
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
 
@@ -151,7 +141,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 			@Override
 			protected boolean includeComponent(MotorMount component) {
-				return component.isMotorMount();
+				return component.isActive();
 			}
 
 		};
@@ -190,7 +180,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	protected void updateButtonState() {
 		if( configurationTableModel.getColumnCount() > 1 ) {
 			showContent();
-			String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			FlightConfigurationID currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 			MotorMount currentMount = getSelectedComponent();
 			selectMotorButton.setEnabled(currentMount != null && currentID != null);
 			removeMotorButton.setEnabled(currentMount != null && currentID != null);
@@ -207,12 +197,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 
 	private void selectMotor() {
-		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationID  id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount mount = getSelectedComponent();
 		if (id == null || mount == null)
 			return;
 
-		MotorConfiguration config = mount.getMotorConfiguration().get(id);
+		MotorInstance inst = mount.getMotorInstance(id);
 
 		motorChooserDialog.setMotorMountAndConfig(mount, id);
 
@@ -222,28 +212,27 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		double d = motorChooserDialog.getSelectedDelay();
 
 		if (m != null) {
-			config = new MotorConfiguration();
-			config.setMotor(m);
-			config.setEjectionDelay(d);
-			mount.getMotorConfiguration().set(id, config);
+			inst = m.getNewInstance();
+			inst.setEjectionDelay(d);
+			mount.setMotorInstance(id, inst);
 		}
 
 		fireTableDataChanged();
 	}
 
 	private void removeMotor() {
-		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationID  id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount mount = getSelectedComponent();
 		if (id == null || mount == null)
 			return;
 
-		mount.getMotorConfiguration().resetDefault(id);
+		mount.setMotorInstance( id, null);
 
 		fireTableDataChanged();
 	}
 
 	private void selectIgnition() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationID  currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount currentMount = getSelectedComponent();
 		if (currentID == null || currentMount == null)
 			return;
@@ -259,12 +248,15 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 
 	private void resetIgnition() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationID currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount currentMount = getSelectedComponent();
 		if (currentID == null || currentMount == null)
 			return;
 
-		currentMount.getIgnitionConfiguration().resetDefault(currentID);
+		MotorInstance curInstance = currentMount.getMotorInstance(currentID);
+		MotorInstance defInstance = currentMount.getDefaultMotorInstance();
+		curInstance.setIgnitionDelay( defInstance.getIgnitionDelay());
+		curInstance.setIgnitionEvent( defInstance.getIgnitionEvent());
 
 		fireTableDataChanged();
 	}
@@ -273,10 +265,10 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private class MotorTableCellRenderer extends FlightConfigurablePanel<MotorMount>.FlightConfigurableCellRenderer {
 
 		@Override
-		protected JLabel format( MotorMount mount, String configId, JLabel l ) {
+		protected JLabel format( MotorMount mount, FlightConfigurationID  configId, JLabel l ) {
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
-			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(configId);
+			MotorInstance motorConfig = mount.getMotorInstance( configId);
 			String motorString = getMotorSpecification(mount, motorConfig);
 			JLabel motorDescriptionLabel = new JLabel(motorString);
 			label.add(motorDescriptionLabel);
@@ -287,7 +279,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return label;
 		}
 
-		private String getMotorSpecification(MotorMount mount, MotorConfiguration motorConfig) {
+		private String getMotorSpecification(MotorMount mount, MotorInstance motorConfig) {
 			Motor motor = motorConfig.getMotor();
 
 			if (motor == null)
@@ -306,13 +298,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return c.toAbsolute(Coordinate.NUL).length;
 		}
 
-		private JLabel getIgnitionEventString(String id, MotorMount mount) {
-			IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(id);
-			IgnitionConfiguration.IgnitionEvent ignitionEvent = ignitionConfig.getIgnitionEvent();
-
-			Double ignitionDelay = ignitionConfig.getIgnitionDelay();
-			boolean isDefault = mount.getIgnitionConfiguration().isDefault(id);
-
+		private JLabel getIgnitionEventString(FlightConfigurationID id, MotorMount mount) {
+			MotorInstance curInstance = mount.getMotorInstance(id);
+			
+			IgnitionEvent ignitionEvent = curInstance.getIgnitionEvent();
+			Double ignitionDelay = curInstance.getIgnitionDelay();
+			boolean isDefault = mount.isDefaultMotorInstance(curInstance);				
+				
 			JLabel label = new JLabel();
 			String str = trans.get("MotorMount.IgnitionEvent.short." + ignitionEvent.name());
 			if (ignitionEvent != IgnitionEvent.NEVER && ignitionDelay > 0.001) {

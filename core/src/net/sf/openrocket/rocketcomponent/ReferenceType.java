@@ -7,7 +7,7 @@ public enum ReferenceType {
 	
 	NOSECONE {
 		@Override
-		public double getReferenceLength(Configuration config) {
+		public double getReferenceLength(FlightConfiguration config) {
 			for (RocketComponent c : config.getActiveComponents()) {
 				if (c instanceof SymmetricComponent) {
 					SymmetricComponent s = (SymmetricComponent) c;
@@ -23,7 +23,7 @@ public enum ReferenceType {
 	
 	MAXIMUM {
 		@Override
-		public double getReferenceLength(Configuration config) {
+		public double getReferenceLength(FlightConfiguration config) {
 			double r = 0;
 			for (RocketComponent c : config.getActiveComponents()) {
 				if (c instanceof SymmetricComponent) {
@@ -41,10 +41,10 @@ public enum ReferenceType {
 	
 	CUSTOM {
 		@Override
-		public double getReferenceLength(Configuration config) {
+		public double getReferenceLength(FlightConfiguration config) {
 			return config.getRocket().getCustomReferenceLength();
 		}
 	};
 	
-	public abstract double getReferenceLength(Configuration rocket);
+	public abstract double getReferenceLength(FlightConfiguration rocket);
 }

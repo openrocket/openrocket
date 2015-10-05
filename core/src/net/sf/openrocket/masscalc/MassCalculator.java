@@ -6,19 +6,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MassCalculator implements Monitorable {
 	
@@ -73,7 +75,7 @@ public class MassCalculator implements Monitorable {
 	 * @param type				the state of the motors (none, launch mass, burnout mass)
 	 * @return					the CG of the configuration
 	 */
-	public Coordinate getCG(Configuration configuration, MassCalcType type) {
+	public Coordinate getCG(FlightConfiguration configuration, MassCalcType type) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -102,7 +104,7 @@ public class MassCalculator implements Monitorable {
 	 * @param motors			the motor configuration
 	 * @return					the CG of the configuration
 	 */
-	public Coordinate getCG(Configuration configuration, MotorInstanceConfiguration motors) {
+	public Coordinate getCG(FlightConfiguration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -113,17 +115,29 @@ public class MassCalculator implements Monitorable {
 		return totalCG;
 	}
 	
-	public Coordinate getMotorCG(Configuration config, MotorInstanceConfiguration motors, MassCalcType type) {
+	public Coordinate getMotorCG(FlightConfiguration config, MotorInstanceConfiguration motors, MassCalcType type) {
 		Coordinate motorCG = Coordinate.ZERO;
+		
 		// Add motor CGs
 		if (motors != null) {
-			for (MotorInstance inst : config.getActiveMotors(motors)) {
-				int stage = ((RocketComponent) inst.getMount()).getStageNumber();
-				if (config.isStageActive(stage)) {
-					Coordinate position = inst.getPosition();
-					Coordinate curCG = type.getCG(inst.getMotor()).add(position);
-					motorCG = motorCG.average(curCG);
+			for (MotorInstance inst : config.getActiveMotors()) {
+				// DEVEL
+				if(MotorInstanceId.EMPTY_ID == inst.getID()){
+					throw new IllegalArgumentException("  detected empty motor");
 				}
+				MotorMount mount = inst.getMount();
+				if( null == mount ){
+					throw new NullPointerException("  detected null mount");
+				}
+				if( null == inst.getMotor()){
+					throw new NullPointerException("  detected null motor");
+				}
+				// END DEVEL
+				
+				Coordinate position = inst.getPosition();
+				Coordinate curCG = type.getCG(inst.getMotor()).add(position);
+				motorCG = motorCG.average(curCG);
+				
 			}
 		}
 		return motorCG;
@@ -137,7 +151,7 @@ public class MassCalculator implements Monitorable {
 	 * @param motors			the motor configuration
 	 * @return					the longitudinal inertia of the rocket
 	 */
-	public double getLongitudinalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
+	public double getLongitudinalInertia(FlightConfiguration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -156,7 +170,7 @@ public class MassCalculator implements Monitorable {
 		
 		// Motors
 		if (motors != null) {
-			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+			for (MotorInstance motor : configuration.getActiveMotors()) {
 				int stage = ((RocketComponent) motor.getMount()).getStageNumber();
 				if (configuration.isStageActive(stage)) {
 					Coordinate position = motor.getPosition();
@@ -179,7 +193,7 @@ public class MassCalculator implements Monitorable {
 	 * @param motors			the motor configuration
 	 * @return					the rotational inertia of the configuration
 	 */
-	public double getRotationalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
+	public double getRotationalInertia(FlightConfiguration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -199,7 +213,7 @@ public class MassCalculator implements Monitorable {
 		
 		// Motors
 		if (motors != null) {
-			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+			for (MotorInstance motor : configuration.getActiveMotors()) {
 				int stage = ((RocketComponent) motor.getMount()).getStageNumber();
 				if (configuration.isStageActive(stage)) {
 					Coordinate position = motor.getPosition();
@@ -223,12 +237,12 @@ public class MassCalculator implements Monitorable {
 	 * @param configuration		the current motor instance configuration
 	 * @return					the total mass of all motors
 	 */
-	public double getPropellantMass(Configuration configuration, MotorInstanceConfiguration motors) {
+	public double getPropellantMass(FlightConfiguration configuration, MotorInstanceConfiguration motors) {
 		double mass = 0;
 		
 		// add up the masses of all motors in the rocket
 		if (motors != null) {
-			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+			for (MotorInstance motor : configuration.getActiveMotors()) {
 				mass = mass + motor.getCG().weight - motor.getMotor().getEmptyCG().weight;
 			}
 		}
@@ -246,7 +260,7 @@ public class MassCalculator implements Monitorable {
 	 * @param type				the state of the motors (none, launch mass, burnout mass)
 	 * @return					a map from each rocket component to its corresponding CG.
 	 */
-	public Map<RocketComponent, Coordinate> getCGAnalysis(Configuration configuration, MassCalcType type) {
+	public Map<RocketComponent, Coordinate> getCGAnalysis(FlightConfiguration configuration, MassCalcType type) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -268,7 +282,7 @@ public class MassCalculator implements Monitorable {
 	
 	////////  Cache computations  ////////
 	
-	private void calculateStageCache(Configuration config) {
+	private void calculateStageCache(FlightConfiguration config) {
 		if (cgCache == null) {
 			ArrayList<AxialStage> stageList = new ArrayList<AxialStage>();
 			stageList.addAll(config.getRocket().getStageList());
@@ -388,7 +402,7 @@ public class MassCalculator implements Monitorable {
 	 * 
 	 * @param	configuration	the configuration of the current call
 	 */
-	protected final void checkCache(Configuration configuration) {
+	protected final void checkCache(FlightConfiguration configuration) {
 		if (rocketMassModID != configuration.getRocket().getMassModID() ||
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketMassModID = configuration.getRocket().getMassModID();

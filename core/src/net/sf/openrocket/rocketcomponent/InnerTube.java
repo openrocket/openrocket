@@ -1,10 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -25,11 +28,9 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
 	
-	private boolean motorMount = false;
 	private double overhang = 0;
-	
-	private FlightConfigurationImpl<MotorConfiguration> motorConfigurations;
-	private FlightConfigurationImpl<IgnitionConfiguration> ignitionConfigurations;
+	private boolean isActiveMount;
+	private FlightConfigurationSet<MotorInstance> motors;
 	
 	/**
 	 * Main constructor.
@@ -40,8 +41,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 		
-		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
-		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
+		this.motors = new MotorConfigurationSet(this, MotorInstance.EMPTY_INSTANCE);
 	}
 	
 	
@@ -221,67 +221,72 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	////////////////  Motor mount  /////////////////
-	
+
+	@Override
+	public MotorInstance getDefaultMotorInstance(){
+		return this.motors.getDefault();
+	}
 	
 	@Override
-	public FlightConfiguration<MotorConfiguration> getMotorConfiguration() {
-		return motorConfigurations;
+	public boolean isDefaultMotorInstance( final MotorInstance testInstance){
+		return this.motors.getDefault() == testInstance;
+	}
+	
+	@Override
+	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
+		return this.motors.get(fcid);
+	}
+
+	@Override 
+	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
+		this.motors.set(fcid,newMotorInstance);
+		if( null != newMotorInstance ){
+			newMotorInstance.setMount( this);
+			if( MotorInstanceId.EMPTY_ID != newMotorInstance.getID()){
+				this.setActive(true);
+			}
+		}
+	}
+	
+	@Override
+	public Iterator<MotorInstance> getMotorIterator(){
+		return this.motors.iterator();
+	}
+	
+	@Override
+	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	
 	@Override
-	public FlightConfiguration<IgnitionConfiguration> getIgnitionConfiguration() {
-		return ignitionConfigurations;
-	}
-	
-	
+    public void setActive(boolean _active){
+    	if (this.isActiveMount == _active)
+    		return;
+    	this.isActiveMount = _active;
+    	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+    }
+
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
-		motorConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
-		ignitionConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public boolean isActive(){
+		return this.isActiveMount;
 	}
 	
-	
-	@Override
-	public boolean isMotorMount() {
-		return motorMount;
+	//@Override
+	public boolean hasMotor() {
+		return ( 0 < this.motors.size());
 	}
-	
-	
-	@Override
-	public void setMotorMount(boolean mount) {
-		if (motorMount == mount)
-			return;
-		motorMount = mount;
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
 	
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Deprecated
 	@Override
 	public int getMotorCount() {
-		return getClusterCount();
+		return this.motors.size();
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public Motor getMotor(String id) {
-		return this.motorConfigurations.get(id).getMotor();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public double getMotorDelay(String id) {
-		return this.motorConfigurations.get(id).getEjectionDelay();
-	}
 	
 	@Override
 	public double getMotorOverhang() {
@@ -297,8 +302,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
-	public Coordinate getMotorPosition(String id) {
-		Motor motor = getMotor(id);
+	public Coordinate getMotorPosition(FlightConfigurationID id) {
+		Motor motor = motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
@@ -309,8 +314,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
-		copy.motorConfigurations = new FlightConfigurationImpl<MotorConfiguration>(motorConfigurations, copy, ComponentChangeEvent.MOTOR_CHANGE);
-		copy.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(ignitionConfigurations, copy, ComponentChangeEvent.EVENT_CHANGE);
+		copy.motors = new FlightConfigurationSet<MotorInstance>(motors, copy, ComponentChangeEvent.MOTOR_CHANGE);
 		return copy;
 	}
 	

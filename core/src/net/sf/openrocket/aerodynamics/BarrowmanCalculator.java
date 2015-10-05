@@ -10,7 +10,7 @@ import java.util.Map;
 
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -55,7 +55,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * Calculate the CP according to the extended Barrowman method.
 	 */
 	@Override
-	public Coordinate getCP(Configuration configuration, FlightConditions conditions,
+	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 		checkCache(configuration);
 		AerodynamicForces forces = calculateNonAxialForces(configuration, conditions, null, warnings);
@@ -65,7 +65,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	@Override
-	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(Configuration configuration,
+	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings) {
 		checkCache(configuration);
 		
@@ -121,7 +121,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	@Override
-	public AerodynamicForces getAerodynamicForces(Configuration configuration,
+	public AerodynamicForces getAerodynamicForces(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings) {
 		checkCache(configuration);
 		
@@ -155,7 +155,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	/*
 	 * Perform the actual CP calculation.
 	 */
-	private AerodynamicForces calculateNonAxialForces(Configuration configuration, FlightConditions conditions,
+	private AerodynamicForces calculateNonAxialForces(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		checkCache(configuration);
@@ -252,7 +252,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	////////////////  DRAG CALCULATIONS  ////////////////
 	
 	
-	private double calculateFrictionDrag(Configuration configuration, FlightConditions conditions,
+	private double calculateFrictionDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
 		double c1 = 1.0, c2 = 1.0;
 		
@@ -461,7 +461,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	
-	private double calculatePressureDrag(Configuration configuration, FlightConditions conditions,
+	private double calculatePressureDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		double stagnation, base, total;
@@ -509,7 +509,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
-	private double calculateBaseDrag(Configuration configuration, FlightConditions conditions,
+	private double calculateBaseDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		double base, total;
@@ -623,7 +623,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
-	private void calculateDampingMoments(Configuration configuration, FlightConditions conditions,
+	private void calculateDampingMoments(FlightConfiguration configuration, FlightConditions conditions,
 			AerodynamicForces total) {
 		
 		// Calculate pitch and yaw damping moments
@@ -644,7 +644,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	// TODO: MEDIUM: Are the rotation etc. being added correctly?  sin/cos theta?
 	
 	
-	private double getDampingMultiplier(Configuration configuration, FlightConditions conditions,
+	private double getDampingMultiplier(FlightConfiguration configuration, FlightConditions conditions,
 			double cgx) {
 		if (cacheDiameter < 0) {
 			double area = 0;
@@ -698,7 +698,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
-	private void buildCalcMap(Configuration configuration) {
+	private void buildCalcMap(FlightConfiguration configuration) {
 		Iterator<RocketComponent> iterator;
 		
 		calcMap = new HashMap<RocketComponent, RocketComponentCalc>();

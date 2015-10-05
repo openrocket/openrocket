@@ -1,6 +1,6 @@
 package net.sf.openrocket.simulation.listeners;
 
-import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -43,7 +43,7 @@ public interface SimulationEventListener {
 	 * @param instance	the motor instance being ignited
 	 * @return			<code>true</code> to ignite the motor, <code>false</code> to abort ignition
 	 */
-	public boolean motorIgnition(SimulationStatus status, MotorId motorId, MotorMount mount,
+	public boolean motorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
 			MotorInstance instance) throws SimulationException;
 	
 	

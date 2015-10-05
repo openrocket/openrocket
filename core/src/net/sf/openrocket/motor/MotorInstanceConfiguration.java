@@ -6,12 +6,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
 
 /**
@@ -21,11 +19,12 @@ import net.sf.openrocket.util.Monitorable;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInstance>, Monitorable {
-	protected final HashMap<MotorId, MotorInstance> motors = new HashMap<MotorId, MotorInstance>();
+	protected final HashMap<MotorInstanceId, MotorInstance> motors = new HashMap<MotorInstanceId, MotorInstance>();
 	
 	private int modID = 0;
 	
 	private MotorInstanceConfiguration() {
+		
 	}
 	
 	/**
@@ -33,9 +32,9 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 *
 	 * @param configuration		the rocket configuration.
 	 */
-	public MotorInstanceConfiguration(Configuration configuration) {
+	public MotorInstanceConfiguration(FlightConfiguration configuration) {
 		// motors == this
-		final String flightConfigId = configuration.getFlightConfigurationID();
+		final FlightConfigurationID fcid = configuration.getFlightConfigurationID();
 		
 		Iterator<RocketComponent> iterator = configuration.getRocket().iterator(false);
 		while (iterator.hasNext()) {
@@ -43,27 +42,30 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 			if (component instanceof MotorMount) {
 				MotorMount mount = (MotorMount) component;
 				
-				MotorConfiguration motorConfig = mount.getMotorConfiguration().get(flightConfigId);
-				IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
-				Motor motor = motorConfig.getMotor();
+				// MotorInstance motorInst = mount.getMotorInstance(flightConfigId);
+				// IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
+//				
+//				Iterator<MotorInstance> iter = mount.getMotorIterator();
+//					
+//				// because we've changed the meaning of getting motors from a motor mount, the meaning of this block will likewise change....
+//				// it's no longer a single-flightConfig slice across the rocket, but now a comprehensive list of ALL motors, across flightConfigs and mounts
+//				while (iter.hasNext()) {
+//					MotorInstance curMotorInstance = iter.next();
+//					
+////						Coordinate position = curMotorInstance.getCG();
+////						MotorId id = new MotorId(component.getID(), i + 1);
+////						MotorInstance inst = motor.getNewInstance();
+////						inst.setID(id);
+////						inst.setEjectionDelay(motorConfig.getEjectionDelay());
+////						inst.setMount(mount);
+////						inst.setIgnitionDelay(ignitionConfig.getIgnitionDelay());
+////						inst.setIgnitionEvent(ignitionConfig.getIgnitionEvent());
+////						inst.setPosition(position);
+//					
+//					MotorId curID = curMotorInstance.getID();
+//					motors.put(curID, curMotorInstance);
+//				}
 				
-				if (motor != null) {
-					int count = mount.getMotorConfiguration().size();
-					Coordinate[] positions = component.toAbsolute(mount.getMotorPosition(flightConfigId));
-					for (int i = 0; i < positions.length; i++) {
-						Coordinate position = positions[i];
-						MotorId id = new MotorId(component.getID(), i + 1);
-						MotorInstance inst = motor.getInstance();
-						inst.setID(id);
-						inst.setEjectionDelay(motorConfig.getEjectionDelay());
-						inst.setMount(mount);
-						inst.setIgnitionDelay(ignitionConfig.getIgnitionDelay());
-						inst.setIgnitionEvent(ignitionConfig.getIgnitionEvent());
-						inst.setPosition(position);
-						
-						motors.put(id, inst);
-					}
-				}
 			}
 		}
 		
@@ -107,7 +109,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
 	public void addMotor(MotorInstance motor) {
-		MotorId id = motor.getID();
+		MotorInstanceId id = motor.getID();
 		if (this.motors.containsKey(id)) {
 			throw new IllegalArgumentException("MotorInstanceConfiguration already " +
 					"contains a motor with id " + id);
@@ -125,11 +127,11 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 		return motors.size();
 	}
 	
-	public Set<MotorId> getMotorIDs() {
+	public Set<MotorInstanceId> getMotorIDs() {
 		return this.motors.keySet();
 	}
 	
-	public MotorInstance getMotorInstance(MotorId id) {
+	public MotorInstance getMotorInstance(MotorInstanceId id) {
 		return motors.get(id);
 	}
 	
@@ -168,7 +170,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	public MotorInstanceConfiguration clone() {
 		MotorInstanceConfiguration clone = new MotorInstanceConfiguration();
 		for (MotorInstance motor : this.motors.values()) {
-			clone.motors.put(motor.id, motor.clone());
+			clone.motors.put(motor.getID(), motor.clone());
 		}
 		clone.modID = this.modID;
 		return clone;

@@ -7,9 +7,9 @@ import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -28,7 +28,7 @@ import net.sf.openrocket.util.WorldCoordinate;
 public class SimulationStatus implements Monitorable {
 	
 	private SimulationConditions simulationConditions;
-	private Configuration configuration;
+	private FlightConfiguration configuration;
 	private MotorInstanceConfiguration motorConfiguration;
 	private FlightDataBranch flightData;
 	
@@ -46,7 +46,7 @@ public class SimulationStatus implements Monitorable {
 	private double effectiveLaunchRodLength;
 	
 	// Set of burnt out motors
-	Set<MotorId> motorBurntOut = new HashSet<MotorId>();
+	Set<MotorInstanceId> motorBurntOut = new HashSet<MotorInstanceId>();
 	
 	
 	/** Nanosecond time when the simulation was started. */
@@ -85,7 +85,7 @@ public class SimulationStatus implements Monitorable {
 	private int modID = 0;
 	private int modIDadd = 0;
 	
-	public SimulationStatus(Configuration configuration,
+	public SimulationStatus(FlightConfiguration configuration,
 			MotorInstanceConfiguration motorConfiguration,
 			SimulationConditions simulationConditions) {
 		
@@ -210,7 +210,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public void setConfiguration(Configuration configuration) {
+	public void setConfiguration(FlightConfiguration configuration) {
 		if (this.configuration != null)
 			this.modIDadd += this.configuration.getModID();
 		this.modID++;
@@ -218,7 +218,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public Configuration getConfiguration() {
+	public FlightConfiguration getConfiguration() {
 		return configuration;
 	}
 	
@@ -290,7 +290,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public boolean addBurntOutMotor(MotorId motor) {
+	public boolean addBurntOutMotor(MotorInstanceId motor) {
 		return motorBurntOut.add(motor);
 	}
 	

@@ -32,7 +32,7 @@ public class InnerTubeSaver extends ThicknessRingComponentSaver {
 		elements.add("<clusterrotation>" + (tube.getClusterRotation() * 180.0 / Math.PI)
 				+ "</clusterrotation>");
 
-		if (tube.isMotorMount()) {
+		if (tube.isActive()) {
 			elements.addAll(motorMountParams(tube));
 		}
 

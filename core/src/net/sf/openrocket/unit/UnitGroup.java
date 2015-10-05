@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
 
@@ -456,7 +456,7 @@ public class UnitGroup {
 	 * @param config	the rocket configuration from which to calculate the caliber
 	 * @return			the unit group
 	 */
-	public static UnitGroup stabilityUnits(Configuration config) {
+	public static UnitGroup stabilityUnits(FlightConfiguration config) {
 		return new StabilityUnitGroup(config);
 	}
 	
@@ -716,7 +716,7 @@ public class UnitGroup {
 			this(new CaliberUnit(rocket));
 		}
 		
-		public StabilityUnitGroup(Configuration config) {
+		public StabilityUnitGroup(FlightConfiguration config) {
 			this(new CaliberUnit(config));
 		}
 		

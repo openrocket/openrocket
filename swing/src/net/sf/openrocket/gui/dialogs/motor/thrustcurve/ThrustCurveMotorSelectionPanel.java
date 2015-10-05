@@ -39,6 +39,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.jfree.chart.ChartColor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -50,16 +54,13 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.utils.MotorCorrelation;
-
-import org.jfree.chart.ChartColor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSelectionPanel.class);
@@ -97,7 +98,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 
-	public ThrustCurveMotorSelectionPanel(MotorMount mount, String currentConfig) {
+	public ThrustCurveMotorSelectionPanel(MotorMount mount, FlightConfigurationID currentConfig) {
 		this();
 		setMotorMountAndConfig( mount, currentConfig );
 
@@ -309,14 +310,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	}
 
-	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+	public void setMotorMountAndConfig( MotorMount mount, FlightConfigurationID  currentConfigId ) {
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
 		
 		ThrustCurveMotor motorToSelect = null;
-		if (currentConfig != null && mount != null) {
-			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
+		if (currentConfigId != null && mount != null) {
+			MotorInstance motorConf = mount.getMotorInstance( currentConfigId);
 			motorToSelect = (ThrustCurveMotor) motorConf.getMotor();
 			selectedDelay = motorConf.getEjectionDelay();
 		}

@@ -10,16 +10,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -38,9 +45,6 @@ import net.sf.openrocket.util.Config;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenRocketSaver extends RocketSaver {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketSaver.class);
@@ -222,6 +226,10 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 * 
+		 * File version 1.8 is required for:
+		 *  - external or parallel booster stages
+		 *  - external pods
+		 * 
 		 * File version 1.7 is required for:
 		 *  - simulation extensions
 		 *  - saving tube fins.
@@ -244,6 +252,17 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * Otherwise use version 1.0.
 		 */
+		
+		
+		/////////////////
+		// Version 1.8 // 
+		/////////////////
+		// Search the rocket for any Boosters or Pods (version 1.8)
+		for (RocketComponent c : document.getRocket()) {
+			if ((c instanceof BoosterSet) || (c instanceof PodSet)) {
+				return FILE_VERSION_DIVISOR + 8;
+			}
+		}
 		
 		/////////////////
 		// Version 1.7 // 
@@ -274,19 +293,19 @@ public class OpenRocketSaver extends RocketSaver {
 			if (c instanceof FlightConfigurableComponent) {
 				if (c instanceof MotorMount) {
 					MotorMount mmt = (MotorMount) c;
-					if (mmt.getIgnitionConfiguration().size() > 0) {
+					if (mmt.getMotorCount() > 0) {
 						return FILE_VERSION_DIVISOR + 6;
 					}
 				}
 				if (c instanceof RecoveryDevice) {
 					RecoveryDevice recovery = (RecoveryDevice) c;
-					if (recovery.getDeploymentConfiguration().size() > 0) {
+					if (recovery.getDeploymentConfigurations().size() > 0) {
 						return FILE_VERSION_DIVISOR + 6;
 					}
 				}
 				if (c instanceof AxialStage) {
 					AxialStage stage = (AxialStage) c;
-					if (stage.getStageSeparationConfiguration().size() > 0) {
+					if (stage.getSeparationConfigurations().size() > 0) {
 						return FILE_VERSION_DIVISOR + 6;
 					}
 				}
@@ -307,7 +326,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Search for recovery device deployment type LOWER_STAGE_SEPARATION (version 1.5)
 		for (RocketComponent c : document.getRocket()) {
 			if (c instanceof RecoveryDevice) {
-				if (((RecoveryDevice) c).getDeploymentConfiguration().getDefault().getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
+				if (((RecoveryDevice) c).getDeploymentConfigurations().getDefault().getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
 					return FILE_VERSION_DIVISOR + 5;
 				}
 			}
@@ -333,8 +352,9 @@ public class OpenRocketSaver extends RocketSaver {
 				continue;
 			
 			MotorMount mount = (MotorMount) c;
-			for (String id : document.getRocket().getFlightConfigurationIDs()) {
-				if (mount.getMotor(id) != null) {
+			for( FlightConfiguration config : document.getRocket().getConfigurationSet()) {
+				FlightConfigurationID fcid = config.getFlightConfigurationID();
+				if (mount.getMotorInstance(fcid) != null) {
 					return FILE_VERSION_DIVISOR + 4;
 				}
 			}
@@ -482,7 +502,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<conditions>");
 		indent++;
 		
-		writeElement("configid", cond.getMotorConfigurationID());
+		writeElement("configid", cond.getConfigID());
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));

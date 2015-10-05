@@ -179,6 +179,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 		that.deployEvent = this.deployEvent;
 		return that;
 	}
-	
+
 	
 }

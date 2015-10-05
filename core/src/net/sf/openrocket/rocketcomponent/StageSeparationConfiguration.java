@@ -102,8 +102,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
 	private double separationDelay = 0;
-	
-	
+		
 	public SeparationEvent getSeparationEvent() {
 		return separationEvent;
 	}

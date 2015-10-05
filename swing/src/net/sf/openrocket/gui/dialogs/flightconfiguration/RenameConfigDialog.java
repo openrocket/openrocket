@@ -14,22 +14,23 @@ import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 
 public class RenameConfigDialog extends JDialog {
-	
+	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public RenameConfigDialog(final Window parent, final Rocket rocket) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
-		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationID configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name")), "span, wrap rel");
 		
-		final JTextField textbox = new JTextField(rocket.getFlightConfigurationName(configId));
+		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(configId).getName());
 		panel.add(textbox, "span, w 200lp, growx, wrap para");
 		
 		panel.add(new JPanel(), "growx");
@@ -39,17 +40,20 @@ public class RenameConfigDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newName = textbox.getText();
-				rocket.setFlightConfigurationName(configId, newName);
+				
+				rocket.getFlightConfiguration(configId).setName( newName);
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
 		panel.add(okButton);
 		
-		JButton defaultButton = new JButton(trans.get("RenameConfigDialog.but.reset"));
+		JButton defaultButton = new JButton(trans.get("RenameConfigDialog.but.reset")+" (NYI)- what do I do? ");
 		defaultButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				rocket.setFlightConfigurationName(configId, null);
+				// why would I bother setting to null? 
+				System.err.println(" NYI: defaultButton (ln:55) in RenameConfigDialog... not sure what it's for...");
+				//rocket.getFlightConfiguration(configId).setName(null);
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});

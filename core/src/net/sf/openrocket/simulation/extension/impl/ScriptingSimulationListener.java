@@ -9,7 +9,7 @@ import javax.script.ScriptException;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -105,7 +105,7 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	}
 	
 	@Override
-	public boolean motorIgnition(SimulationStatus status, MotorId motorId, MotorMount mount, MotorInstance instance) throws SimulationException {
+	public boolean motorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount, MotorInstance instance) throws SimulationException {
 		return invoke(Boolean.class, true, "motorIgnition", status, motorId, mount, instance);
 	}
 	

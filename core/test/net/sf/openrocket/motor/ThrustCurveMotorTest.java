@@ -1,10 +1,11 @@
 package net.sf.openrocket.motor;
 
 import static org.junit.Assert.assertEquals;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Inertia;
 
 import org.junit.Test;
+
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Inertia;
 
 public class ThrustCurveMotorTest {
 	
@@ -40,7 +41,7 @@ public class ThrustCurveMotorTest {
 	
 	@Test
 	public void testInstance() {
-		MotorInstance instance = motor.getInstance();
+		MotorInstance instance = motor.getNewInstance();
 		
 		verify(instance, 0, 0.05, 0.02);
 		instance.step(0.0, 0, null);

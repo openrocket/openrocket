@@ -3,20 +3,20 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BoosterSet extends AxialStage implements FlightConfigurableComponent, OutsideComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
 	
-	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
+	private FlightConfigurationSet<StageSeparationConfiguration> separationConfigurations;
 	
 	public BoosterSet() {
 		this.count = 2;
@@ -70,7 +70,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
 		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	

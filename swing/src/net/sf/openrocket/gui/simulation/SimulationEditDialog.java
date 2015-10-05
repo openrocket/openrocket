@@ -24,7 +24,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
@@ -36,7 +36,7 @@ public class SimulationEditDialog extends JDialog {
 	private final Simulation[] simulation;
 	private final OpenRocketDocument document;
 	private final SimulationOptions conditions;
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	private static final Translator trans = Application.getTranslator();
 	
 	JPanel cards;
@@ -50,7 +50,7 @@ public class SimulationEditDialog extends JDialog {
 		this.parentWindow = parent;
 		this.simulation = sims;
 		this.conditions = simulation[0].getOptions();
-		configuration = simulation[0].getConfiguration();
+		configuration = simulation[0].getRocket().getDefaultConfiguration();
 		
 		this.cards = new JPanel(new CardLayout());
 		this.add(cards);

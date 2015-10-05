@@ -39,7 +39,7 @@ import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.Splash;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -74,7 +74,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static final int CARET_SIZE = 20;
 	
 	private final OpenRocketDocument document;
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	private Component canvas;
 	
 	
@@ -95,7 +95,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	RocketRenderer rr = new FigureRenderer();
 	
-	public RocketFigure3d(final OpenRocketDocument document, final Configuration config) {
+	public RocketFigure3d(final OpenRocketDocument document, final FlightConfiguration config) {
 		this.document = document;
 		this.configuration = config;
 		this.setLayout(new BorderLayout());

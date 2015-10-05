@@ -16,8 +16,9 @@ import javax.swing.SwingUtilities;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -106,8 +107,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		if (stage == null) {
 			return;
 		}
-		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		stage.getStageSeparationConfiguration().resetDefault(id);
+				FlightConfigurationID id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+				stage.getSeparationConfigurations().resetDefault(id);
 		fireTableDataChanged();
 	}
 	public void updateButtonState() {
@@ -119,11 +120,11 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	private class SeparationTableCellRenderer extends FlightConfigurablePanel<AxialStage>.FlightConfigurableCellRenderer {
 		
 		@Override
-		protected JLabel format(AxialStage stage, String configId, JLabel label) {
-			StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(configId);
+		protected JLabel format(AxialStage stage, FlightConfigurationID configId, JLabel label) {
+			StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(configId);
 			String spec = getSeparationSpecification(sepConfig);
 			label.setText(spec);
-			if (stage.getStageSeparationConfiguration().isDefault(configId)) {
+			if (stage.getSeparationConfigurations().isDefault(configId)) {
 				shaded(label);
 			} else {
 				regular(label);

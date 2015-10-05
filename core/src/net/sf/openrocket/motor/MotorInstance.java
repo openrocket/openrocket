@@ -1,62 +1,50 @@
 package net.sf.openrocket.motor;
 
-import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Monitorable;
+import java.util.EventObject;
+import java.util.List;
 
-public abstract class MotorInstance implements Cloneable, Monitorable {
+import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.StateChangeListener;
+
+/**
+ * A single motor configuration.  This includes the selected motor
+ * and the ejection charge delay.
+ */
+public class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
 	
-	protected MotorId id = null;
-	protected Motor parentMotor = null;
+	protected MotorInstanceId id = null;	
 	protected MotorMount mount = null;
-	protected IgnitionConfiguration.IgnitionEvent ignitionEvent = null;
+	//protected Motor motor = null;  // deferred to subclasses
 	protected double ejectionDelay = 0.0;
 	protected double ignitionDelay = 0.0;
-	protected Coordinate position = null;
+	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
+	protected Coordinate position = Coordinate.ZERO;
 	protected double ignitionTime = 0.0;
 	
+	// comparison threshold
+	private static final double EPSILON = 0.01;
+	
 	protected int modID = 0;
+	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	public MotorInstance() {
-		
+	/** Immutable configuration with no motor and zero delay. */
+	public static final MotorInstance EMPTY_INSTANCE = new MotorInstance();
+	
+	protected MotorInstance() {
+		this.id = MotorInstanceId.EMPTY_ID;
 		modID++;
 	}
 	
-	/**
-	 * Add a motor instance to this configuration.  The motor is placed at
-	 * the specified position and with an infinite ignition time (never ignited).
-	 * 
-	 * @param id			the ID of this motor instance.
-	 * @param motor			the motor instance.
-	 * @param mount			the motor mount containing this motor
-	 * @param ignitionEvent	the ignition event for the motor
-	 * @param ignitionDelay	the ignition delay for the motor
-	 * @param position		the position of the motor in absolute coordinates.
-	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
-	 */
-	public MotorInstance(MotorId _id, Motor _motor, MotorMount _mount, double _ejectionDelay,
-			IgnitionEvent _ignitionEvent, double _ignitionDelay, Coordinate _position) {
-		
-		this.id = _id;
-		this.parentMotor = _motor;
-		this.mount = _mount;
-		this.ejectionDelay = _ejectionDelay;
-		this.ignitionEvent = _ignitionEvent;
-		this.ignitionDelay = _ignitionDelay;
-		this.position = _position;
-		this.ignitionTime = Double.POSITIVE_INFINITY;
-		
-		modID++;
-	}
-	
-	public MotorId getID() {
+	public MotorInstanceId getID() {
 		return this.id;
 	}
 	
-	public void setID(final MotorId _id) {
+	public void setID(final MotorInstanceId _id) {
 		this.id = _id;
 	}
 	
@@ -64,18 +52,17 @@ public abstract class MotorInstance implements Cloneable, Monitorable {
 		return this.ejectionDelay;
 	}
 	
-	public void setEjectionDelay(final double newDelay) {
-		this.ejectionDelay = newDelay;
+	public void setMotor(Motor motor) {
+		throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
 	}
-	
-	@Override
-	public int getModID() {
-		return this.modID;
-	}
-	
+
 	public Motor getMotor() {
-		return this.parentMotor;
+		throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
 	}
+	
+	public void setEjectionDelay(double delay) {
+		throw new UnsupportedOperationException("Trying to modify immutable no-motors configuration");
+	};
 	
 	public MotorMount getMount() {
 		return this.mount;
@@ -93,7 +80,7 @@ public abstract class MotorInstance implements Cloneable, Monitorable {
 		this.position = _position;
 		modID++;
 	}
-	
+		
 	public double getIgnitionTime() {
 		return this.ignitionTime;
 	}
@@ -104,7 +91,7 @@ public abstract class MotorInstance implements Cloneable, Monitorable {
 	}
 	
 	public double getIgnitionDelay() {
-		return ignitionDelay;
+		return this.ignitionDelay;
 	}
 	
 	public void setIgnitionDelay(final double _delay) {
@@ -112,7 +99,7 @@ public abstract class MotorInstance implements Cloneable, Monitorable {
 	}
 	
 	public IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
+		return this.ignitionEvent;
 	}
 	
 	public void setIgnitionEvent(final IgnitionEvent _event) {
@@ -126,49 +113,119 @@ public abstract class MotorInstance implements Cloneable, Monitorable {
 	 * @param acceleration	the average acceleration during the step.
 	 * @param cond			the average atmospheric conditions during the step.
 	 */
-	public abstract void step(double time, double acceleration, AtmosphericConditions cond);
+	public void step(double time, double acceleration, AtmosphericConditions cond) {
+		// no-op
+	}
 	
 	
 	/**
 	 * Return the time to which this motor has been stepped.
 	 * @return	the current step time.
 	 */
-	public abstract double getTime();
+	public double getTime() {
+		return 0;
+	}
 	
 	/**
 	 * Return the average thrust during the last step.
 	 */
-	public abstract double getThrust();
+	public double getThrust() {
+		return Double.NaN;
+	}
 	
 	/**
 	 * Return the average CG location during the last step.
 	 */
-	public abstract Coordinate getCG();
+	public Coordinate getCG() {
+		return Coordinate.NaN;
+	}
 	
 	/**
 	 * Return the average longitudinal moment of inertia during the last step.
 	 * This is the actual inertia, not the unit inertia!
 	 */
-	public abstract double getLongitudinalInertia();
+	public double getLongitudinalInertia() {
+		return Double.NaN;
+	}
 	
 	/**
 	 * Return the average rotational moment of inertia during the last step.
 	 * This is the actual inertia, not the unit inertia!
 	 */
-	public abstract double getRotationalInertia();
+	public double getRotationalInertia() {
+		return Double.NaN;
+	}
 	
 	/**
 	 * Return whether this motor still produces thrust.  If this method returns false
 	 * the motor has burnt out, and will not produce any significant thrust anymore.
 	 */
-	public abstract boolean isActive();
+	public boolean isActive() {
+		return false;
+	}
 	
+	@Override 
+	public boolean equals( Object other ){
+		if( other == null )
+			return false;
+		if( other instanceof MotorInstance ){
+			MotorInstance omi = (MotorInstance)other;
+			if( this.id.equals( omi.id)){
+				return true;
+			}else if( this.mount != omi.mount ){
+				return false;
+			}else if( this.ignitionEvent == omi.ignitionEvent ){
+				return false;
+			}else if( EPSILON < Math.abs(this.ignitionDelay - omi.ignitionDelay )){
+				return false;
+			}else if( EPSILON < Math.abs( this.ejectionDelay - omi.ejectionDelay )){
+				return false;
+			}else if( ! this.position.equals( omi.position )){
+				return false;
+			}else if( EPSILON < Math.abs( this.ignitionTime - omi.ignitionTime )){
+				return false;
+			}
+			
+			return true;	
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
+	}
 	
 	/**
 	 * Create a new instance of this motor instance.  The state of the motor is
 	 * identical to this instance and can be used independently from this one.
 	 */
 	@Override
-	public abstract MotorInstance clone();
+	public MotorInstance clone( ){
+		return EMPTY_INSTANCE;
+	}
+	
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	protected void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		Object[] list = listeners.toArray();
+		for (Object l : list) {
+			((StateChangeListener) l).stateChanged(event);
+		}
+	}
+
+	
+	public int getModID() {
+		return modID;
+	}
 	
 }

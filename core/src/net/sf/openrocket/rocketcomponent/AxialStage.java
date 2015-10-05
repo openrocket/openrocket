@@ -12,12 +12,13 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
-	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
+	private FlightConfigurationSet<StageSeparationConfiguration> separationConfigurations;
 	
 	protected int stageNumber;
 	
-	public AxialStage() {
-		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
+	public AxialStage(){
+		this.separationConfigurations = new FlightConfigurationSet<StageSeparationConfiguration>(
+				this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
 		this.stageNumber = 0;
 	}
@@ -33,7 +34,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return trans.get("Stage.Stage");
 	}
 	
-	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
+	public FlightConfigurationSet<StageSeparationConfiguration> getSeparationConfigurations() {
 		return separationConfigurations;
 	}
 	
@@ -72,14 +73,14 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
 		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		AxialStage copy = (AxialStage) super.copyWithOriginalID();
-		copy.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(separationConfigurations,
+		copy.separationConfigurations = new FlightConfigurationSet<StageSeparationConfiguration>(separationConfigurations,
 				copy, ComponentChangeEvent.EVENT_CHANGE);
 		return copy;
 	}

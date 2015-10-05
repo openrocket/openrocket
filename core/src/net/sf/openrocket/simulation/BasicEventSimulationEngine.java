@@ -2,16 +2,20 @@ package net.sf.openrocket.simulation;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -26,9 +30,6 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.SimpleStack;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class BasicEventSimulationEngine implements SimulationEngine {
@@ -53,7 +54,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private SimulationStatus status;
 	
-	private String flightConfigurationId;
+	private FlightConfigurationID fcid;
 	
 	private SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
 	
@@ -65,8 +66,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		FlightData flightData = new FlightData();
 		
 		// Set up rocket configuration
-		Configuration configuration = setupConfiguration(simulationConditions);
-		flightConfigurationId = configuration.getFlightConfigurationID();
+		FlightConfiguration configuration = setupConfiguration(simulationConditions);
+		this.fcid = configuration.getFlightConfigurationID();
 		MotorInstanceConfiguration motorConfiguration = new MotorInstanceConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
@@ -194,7 +195,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for burnt out motors
-				for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
+				for (MotorInstanceId motorId : status.getMotorConfiguration().getMotorIDs()) {
 					MotorInstance motor = status.getMotorConfiguration().getMotorInstance(motorId);
 					if (!motor.isActive() && status.addBurntOutMotor(motorId)) {
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
@@ -250,10 +251,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param simulation	the launch conditions.
 	 * @return				a rocket configuration with all stages attached.
 	 */
-	private Configuration setupConfiguration(SimulationConditions simulation) {
-		Configuration configuration = new Configuration(simulation.getRocket());
+	private FlightConfiguration setupConfiguration(SimulationConditions simulation) {
+		FlightConfiguration configuration = new FlightConfiguration(simulation.getMotorConfigurationID(), simulation.getRocket());
 		configuration.setAllStages();
-		configuration.setFlightConfigurationID(simulation.getMotorConfigurationID());
 		
 		return configuration;
 	}
@@ -275,7 +275,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			// Ignore events for components that are no longer attached to the rocket
 			if (event.getSource() != null && event.getSource().getParent() != null &&
-					!status.getConfiguration().isStageActive(event.getSource().getStageNumber())) {
+					!status.getConfiguration().isComponentActive(event.getSource())) {
 				continue;
 			}
 			
@@ -290,7 +290,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			if (event.getType() == FlightEvent.Type.IGNITION) {
 				MotorMount mount = (MotorMount) event.getSource();
-				MotorId motorId = (MotorId) event.getData();
+				MotorInstanceId motorId = (MotorInstanceId) event.getData();
 				MotorInstance instance = status.getMotorConfiguration().getMotorInstance(motorId);
 				if (!SimulationListenerHelper.fireMotorIgnition(status, motorId, mount, instance)) {
 					continue;
@@ -307,9 +307,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
+			for (MotorInstanceId id : status.getMotorConfiguration().getMotorIDs()) {
 				MotorInstance inst = status.getMotorConfiguration().getMotorInstance(id);
-				IgnitionConfiguration.IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
+				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
 				MotorMount mount = inst.getMount();
 				RocketComponent component = (RocketComponent) mount;
 				
@@ -329,7 +329,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (stageNo == 0)
 					continue;
 				
-				StageSeparationConfiguration separationConfig = stage.getStageSeparationConfiguration().get(flightConfigurationId);
+				StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(this.fcid);
 				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
 					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
 							event.getTime() + separationConfig.getSeparationDelay(), stage));
@@ -341,7 +341,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			for (RocketComponent c : status.getConfiguration().getActiveComponents()) {
 				if (!(c instanceof RecoveryDevice))
 					continue;
-				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfiguration().get(flightConfigurationId);
+				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfigurations().get(this.fcid);
 				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
 					addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
@@ -360,7 +360,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			case IGNITION: {
 				// Ignite the motor
-				MotorId motorId = (MotorId) event.getData();
+				MotorInstanceId motorId = (MotorInstanceId) event.getData();
 				MotorInstanceConfiguration motorConfig = status.getMotorConfiguration();
 				MotorInstance inst = motorConfig.getMotorInstance(motorId);
 				inst.setIgnitionTime(event.getTime());
@@ -391,7 +391,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
 				}
 				// Add ejection charge event
-				MotorId motorId = (MotorId) event.getData();
+				MotorInstanceId motorId = (MotorInstanceId) event.getData();
 				double delay = status.getMotorConfiguration().getMotorInstance(motorId).getEjectionDelay();
 				if (delay != Motor.PLUGGED) {
 					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, status.getSimulationTime() + delay,
@@ -446,9 +446,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// TODO: HIGH: Check stage activeness for other events as well?
 					
 					// Check whether any motor in the active stages is active anymore
-					List<MotorInstance> activeMotors = status.getConfiguration().getActiveMotors(status.getMotorConfiguration());
+					List<MotorInstance> activeMotors = status.getConfiguration().getActiveMotors();
 					for (MotorInstance curInstance : activeMotors) {
-						MotorId curID = curInstance.getID();
+						MotorInstanceId curID = curInstance.getID();
 						RocketComponent comp = ((RocketComponent) curInstance.getMount());
 						int stage = comp.getStageNumber();
 						if (!status.getConfiguration().isStageActive(stage))

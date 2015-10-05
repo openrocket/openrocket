@@ -18,11 +18,11 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -34,19 +34,20 @@ public class IgnitionSelectionDialog extends JDialog {
 	
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
-	
-	private IgnitionConfiguration newConfiguration;
+	private MotorInstance curMotor;
+	//private IgnitionConfiguration newConfiguration;
 	
 	public IgnitionSelectionDialog(Window parent, final Rocket rocket, final MotorMount component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationID id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
-		newConfiguration = component.getIgnitionConfiguration().get(id).clone();
-		
+		curMotor = component.getMotorInstance(id);
+		MotorInstance defMotor = component.getDefaultMotorInstance();
+				
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Edit default or override option
-		boolean isDefault = component.getIgnitionConfiguration().isDefault(id);
+		boolean isDefault = (defMotor.equals( curMotor));
 		panel.add(new JLabel(trans.get("IgnitionSelectionDialog.opt.title")), "span, wrap rel");
 		final JRadioButton defaultButton = new JRadioButton(trans.get("IgnitionSelectionDialog.opt.default"), isDefault);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
@@ -61,7 +62,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		
 		// Select the button based on current configuration.  If the configuration is overridden
 		// The the overrideButton is selected.
-		boolean isOverridden = !component.getIgnitionConfiguration().isDefault(id);
+		boolean isOverridden = !isDefault;
 		if (isOverridden) {
 			overrideButton.setSelected(true);
 		}
@@ -70,14 +71,15 @@ public class IgnitionSelectionDialog extends JDialog {
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
 		
-		final JComboBox event = new JComboBox(new EnumModel<IgnitionEvent>(newConfiguration, "IgnitionEvent"));
-		panel.add(event, "growx, wrap");
+		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>(IgnitionEvent.events);
+		//eventBox.setTit
+		panel.add(eventBox, "growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
-		DoubleModel delay = new DoubleModel(newConfiguration, "IgnitionDelay", UnitGroup.UNITS_SHORT_TIME, 0);
+		DoubleModel delay = new DoubleModel(curMotor, "IgnitionDelay", UnitGroup.UNITS_SHORT_TIME, 0);
 		JSpinner spin = new JSpinner(delay.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");
@@ -85,17 +87,18 @@ public class IgnitionSelectionDialog extends JDialog {
 		//// seconds
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.seconds")), "wrap unrel");
 		
-		
 		panel.add(new JPanel(), "span, split, growx");
 		
 		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				MotorInstance defMotor = component.getDefaultMotorInstance();
+				
 				if (defaultButton.isSelected()) {
-					component.getIgnitionConfiguration().setDefault(newConfiguration);
+					component.setMotorInstance(id, defMotor);
 				} else {
-					component.getIgnitionConfiguration().set(id, newConfiguration);
+					component.setMotorInstance(id, curMotor);
 				}
 				IgnitionSelectionDialog.this.setVisible(false);
 			}

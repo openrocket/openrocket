@@ -11,11 +11,13 @@ import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -142,28 +144,33 @@ public class RocketComponentSaver {
 	
 	
 	protected final List<String> motorMountParams(MotorMount mount) {
-		if (!mount.isMotorMount())
+		if (!mount.isActive())
 			return Collections.emptyList();
-		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
+		
+		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
+		FlightConfigurationSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
 		List<String> elements = new ArrayList<String>();
+		
+		MotorInstance defaultInstance = mount.getDefaultMotorInstance();
 		
 		elements.add("<motormount>");
 		
 		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
 		elements.add("  <ignitionevent>"
-				+ mount.getIgnitionConfiguration().getDefault().getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+				+ defaultInstance.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
-		elements.add("  <ignitiondelay>" + mount.getIgnitionConfiguration().getDefault().getIgnitionDelay() + "</ignitiondelay>");
+		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for (String id : motorConfigIDs) {
-			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(id);
-			Motor motor = motorConfig.getMotor();
+		for (FlightConfiguration curConfig : configs) {
+			FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+			MotorInstance motorInstance = mount.getMotorInstance(fcid);
+			Motor motor = motorInstance.getMotor();
 			// Nothing is stored if no motor loaded
 			if (motor == null)
 				continue;
 			
-			elements.add("  <motor configid=\"" + id + "\">");
+			elements.add("  <motor configid=\"" + fcid + "\">");
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
 			}
@@ -178,19 +185,19 @@ public class RocketComponentSaver {
 			elements.add("    <length>" + motor.getLength() + "</length>");
 			
 			// Motor delay
-			if (motorConfig.getEjectionDelay() == Motor.PLUGGED) {
+			if (motorInstance.getEjectionDelay() == Motor.PLUGGED) {
 				elements.add("    <delay>none</delay>");
 			} else {
-				elements.add("    <delay>" + motorConfig.getEjectionDelay() + "</delay>");
+				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");
 			}
 			
 			elements.add("  </motor>");
 			
-			if (!mount.getIgnitionConfiguration().isDefault(id)) {
-				IgnitionConfiguration ignition = mount.getIgnitionConfiguration().get(id);
-				elements.add("  <ignitionconfiguration configid=\"" + id + "\">");
-				elements.add("    <ignitionevent>" + ignition.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
-				elements.add("    <ignitiondelay>" + ignition.getIgnitionDelay() + "</ignitiondelay>");
+			// i.e. if this has overridden parameters....
+			if( ! motorInstance.equals( defaultInstance)){
+				elements.add("  <ignitionconfiguration configid=\"" + fcid + "\">");
+				elements.add("    <ignitionevent>" + motorInstance.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
+				elements.add("    <ignitiondelay>" + motorInstance.getIgnitionDelay() + "</ignitiondelay>");
 				elements.add("  </ignitionconfiguration>");
 				
 			}

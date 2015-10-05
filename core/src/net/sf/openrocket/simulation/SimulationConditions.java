@@ -9,6 +9,7 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.wind.WindModel;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BugException;
@@ -27,7 +28,7 @@ import net.sf.openrocket.util.WorldCoordinate;
 public class SimulationConditions implements Monitorable, Cloneable {
 	
 	private Rocket rocket;
-	private String motorID = null;
+	private FlightConfigurationID motorID = null;
 	
 	private Simulation simulation; // The parent simulation 
 	
@@ -114,12 +115,12 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 	
 	
-	public String getMotorConfigurationID() {
+	public FlightConfigurationID getMotorConfigurationID() {
 		return motorID;
 	}
 	
 	
-	public void setMotorConfigurationID(String motorID) {
+	public void setMotorConfigurationID(FlightConfigurationID motorID) {
 		this.motorID = motorID;
 		this.modID++;
 	}

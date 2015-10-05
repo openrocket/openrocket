@@ -20,7 +20,6 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -130,7 +129,6 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		
 		// Simulation is used to calculate default min/max values
 		Simulation simulation = new Simulation(rocket);
-		simulation.getConfiguration().setFlightConfigurationID(null);
 		
 		for (RocketComponent c : rocket) {
 			
@@ -181,7 +179,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			// Conditional motor mount parameters
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
-				if (mount.isMotorMount()) {
+				if (mount.isActive()) {
 					
 					SimulationModifier mod = new GenericComponentModifier(
 							trans.get("optimization.modifier.motormount.overhang"),
@@ -191,20 +189,21 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 					setDefaultMinMax(mod, simulation);
 					modifiers.add(mod);
 					
-					mod = new FlightConfigurationModifier<IgnitionConfiguration>(
-							trans.get("optimization.modifier.motormount.delay"),
-							trans.get("optimization.modifier.motormount.delay.desc"),
-							c, UnitGroup.UNITS_SHORT_TIME,
-							1.0,
-							c.getClass(),
-							c.getID(),
-							"IgnitionConfiguration",
-							IgnitionConfiguration.class,
-							"IgnitionDelay");
-					
-					mod.setMinValue(0);
-					mod.setMaxValue(5);
-					modifiers.add(mod);
+//	TODO: reimplement motor ignition optimization				
+//					mod = new FlightConfigurationModifier<MotorInstance>(
+//							trans.get("optimization.modifier.motormount.delay"),
+//							trans.get("optimization.modifier.motormount.delay.desc"),
+//							c, UnitGroup.UNITS_SHORT_TIME,
+//							1.0,
+//							c.getClass(),
+//							c.getID(),
+//							"IgnitionConfiguration",
+//							IgnitionConfiguration.class,
+//							"IgnitionDelay");
+//					
+//					mod.setMinValue(0);
+//					mod.setMaxValue(5);
+//					modifiers.add(mod);
 				}
 			}
 			

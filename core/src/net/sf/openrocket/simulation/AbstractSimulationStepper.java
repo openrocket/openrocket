@@ -6,7 +6,7 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.util.BugException;
@@ -170,7 +170,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			return thrust;
 		}
 		
-		Configuration configuration = status.getConfiguration();
+		FlightConfiguration configuration = status.getConfiguration();
 		MotorInstanceConfiguration mic = status.getMotorConfiguration();
 		
 		// Iterate over the motors and calculate combined thrust
@@ -180,7 +180,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		mic.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
 		
-		List<MotorInstance> activeMotors = configuration.getActiveMotors(mic);
+		List<MotorInstance> activeMotors = configuration.getActiveMotors();
 		for (MotorInstance currentMotorInstance : activeMotors) {
 			thrust += currentMotorInstance.getThrust();
 		}

@@ -24,6 +24,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -44,20 +47,15 @@ import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimulationPanel extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
@@ -336,7 +334,7 @@ public class SimulationPanel extends JPanel {
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
 							return null;
-						Configuration c = document.getSimulation(row).getConfiguration();
+						FlightConfiguration c = new FlightConfiguration( null, document.getSimulation(row).getRocket());
 						return descriptor.format(c.getRocket(), c.getFlightConfigurationID());
 					}
 
@@ -489,6 +487,9 @@ public class SimulationPanel extends JPanel {
 				}
 
 				) {
+	
+				private static final long serialVersionUID = 8686456963492628476L;
+
 			@Override
 			public int getRowCount() {
 				return document.getSimulationCount();
@@ -498,6 +499,9 @@ public class SimulationPanel extends JPanel {
 		// Override processKeyBinding so that the JTable does not catch
 		// key bindings used in menu accelerators
 		simulationTable = new ColumnTable(simulationTableModel) {
+
+			private static final long serialVersionUID = -5799340181229735630L;
+
 			@Override
 			protected boolean processKeyBinding(KeyStroke ks,
 					KeyEvent e,

@@ -31,6 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
@@ -40,7 +45,8 @@ import net.sf.openrocket.gui.figure3d.TextureCache;
 import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -49,11 +55,6 @@ import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 
 public class PhotoPanel extends JPanel implements GLEventListener {
 	private static final long serialVersionUID = 1L;
@@ -65,7 +66,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 	}
 
-	private Configuration configuration;
+	private FlightConfiguration configuration;
 	private Component canvas;
 	private TextureCache textureCache = new TextureCache();
 	private double ratio;
@@ -418,7 +419,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
 		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
 		
-		final String motorID = configuration.getFlightConfigurationID();
+		final FlightConfigurationID motorID = configuration.getFlightConfigurationID();
 		
 		
 		final Iterator<RocketComponent> iter = configuration.getActiveComponents().iterator();
@@ -434,7 +435,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					continue;
 				}
 				
-				final Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
+				final Motor motor = mount.getMotorInstance(motorID).getMotor();
 				final double length = motor.getLength();
 	
 				Coordinate[] position = ((RocketComponent) mount)
