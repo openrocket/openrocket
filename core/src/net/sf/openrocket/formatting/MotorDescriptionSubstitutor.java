@@ -72,7 +72,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 				MotorInstance inst = mount.getMotorInstance(fcid);
 				Motor motor = inst.getMotor();
 				
-				if (mount.isActive() && motor != null) {
+				if (mount.isMotorMount() && motor != null) {
 					String designation = motor.getDesignation(inst.getEjectionDelay());
 					
 					for (int i = 0; i < mount.getMotorCount(); i++) {

@@ -7,7 +7,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 
-public class CenteringRing extends RadiusRingComponent {
+public class CenteringRing extends RadiusRingComponent implements LineInstanceable {
 
 	public CenteringRing() {
 		setOuterRadiusAutomatic(true);

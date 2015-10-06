@@ -141,7 +141,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 			@Override
 			protected boolean includeComponent(MotorMount component) {
-				return component.isActive();
+				return component.isMotorMount();
 			}
 
 		};

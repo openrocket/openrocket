@@ -10,23 +10,28 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	
 
 	/**
-	 * is this mount currently configured to carry a motor? 
+	 * Does this mount contain at least one motor?  
 	 * 
 	 * @return  whether the component holds a motor
 	 */
 	public boolean hasMotor();
 
     /**
-     * Set whether the component is acting as a motor mount.
+     * Programmatically : implementing classes will always be <code>(x instanceof MotorMount)</code>
+     * The component may potentially act as a mount, or just a structural component.
+     * This flag indicates how the component behaves. 
+     * 
+     *  @param acting if the component should behave like a motor mount.  False if it's structural only. 
      */
-    public void setActive(boolean mount);
-
+    public void setMotorMount(boolean acting);
+    
 	/**
-	 * Is the component currently acting as a motor mount.
-	 * 
-	 * @return if the motor mount is turned on
+     * Programmatically : implementing classes will always be <code>(x instanceof MotorMount)</code>
+     * This flag indicates whether the component is acting as a motor mount, or just a structural component
+     *  
+	 * @return true if the component is acting as a motor mount
 	 */
-	public boolean isActive();
+	public boolean isMotorMount();
 	
 	/**
 	 * Get all motors configured for this mount.

@@ -25,7 +25,7 @@ class MotorMountHandler extends AbstractElementHandler {
 	public MotorMountHandler(MotorMount mount, DocumentLoadingContext context) {
 		this.mount = mount;
 		this.context = context;
-		mount.setActive(true);
+		mount.setMotorMount(true);
 	}
 	
 	@Override

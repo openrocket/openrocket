@@ -240,7 +240,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
                             RocketComponent rocketComponent =  iter.next();
 							if (rocketComponent instanceof InnerTube) {
 								InnerTube it = (InnerTube) rocketComponent;
-								if (it.isActive()) {
+								if (it.isMotorMount()) {
 									double depth = ((Coaxial) parent).getOuterRadius() - it.getOuterRadius();
 									//Set fin tab depth
 									if (depth >= 0.0d) {

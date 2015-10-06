@@ -188,11 +188,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 			// DEVEL
 			// see planning notes...
-			if (comp instanceof MotorMount) { // is instance, AND is activeMount 
+			if ( comp instanceof MotorMount ){ 
 				MotorMount mount = (MotorMount)comp;
 				//if( mount.isActive() ){
 						
 				// if( mount instanceof Clusterable ){
+				// if( 1 < comp.getInstanceCount() ){
 				// if comp is clustered, it will be clustered from the innerTube, no? 
 				//List<MotorInstance> instanceList = mount.getMotorInstance(this.fcid);
 			    	

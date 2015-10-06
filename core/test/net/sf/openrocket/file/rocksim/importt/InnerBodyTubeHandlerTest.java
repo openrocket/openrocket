@@ -98,11 +98,11 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
         warnings.clear();
 
         handler.closeElement("IsMotorMount", attributes, "1", warnings);
-        Assert.assertTrue(component.isActive());
+        Assert.assertTrue(component.isMotorMount());
         handler.closeElement("IsMotorMount", attributes, "0", warnings);
-        Assert.assertFalse(component.isActive());
+        Assert.assertFalse(component.isMotorMount());
         handler.closeElement("IsMotorMount", attributes, "foo", warnings);
-        Assert.assertFalse(component.isActive());
+        Assert.assertFalse(component.isMotorMount());
 
         handler.closeElement("EngineOverhang", attributes, "-1", warnings);
         Assert.assertEquals(-1d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);

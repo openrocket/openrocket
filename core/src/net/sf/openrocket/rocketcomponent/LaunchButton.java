@@ -10,9 +10,12 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
-
-
-public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanceable {
+/** 
+ * WARNING!  This class is stubbed out, partially implemented, but DEFINITELY not ready for use.
+ * @author widget (Daniel Williams)
+ *
+ */
+public abstract class LaunchButton extends ExternalComponent implements LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -29,7 +32,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	
 
-	public LaunchLug() {
+	public LaunchButton() {
 		super(Position.MIDDLE);
 		radius = 0.01 / 2;
 		thickness = 0.001;
@@ -37,35 +40,35 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	}
 	
 	
-	@Override
-	public double getOuterRadius() {
-		return radius;
-	}
+//	@Override
+//	public double getOuterRadius() {
+//		return radius;
+//	}
+//	
+//	@Override
+//	public void setOuterRadius(double radius) {
+//		if (MathUtil.equals(this.radius, radius))
+//			return;
+//		this.radius = radius;
+//		this.thickness = Math.min(this.thickness, this.radius);
+//		clearPreset();
+//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+//	}
 	
-	@Override
-	public void setOuterRadius(double radius) {
-		if (MathUtil.equals(this.radius, radius))
-			return;
-		this.radius = radius;
-		this.thickness = Math.min(this.thickness, this.radius);
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	public double getInnerRadius() {
-		return radius - thickness;
-	}
-	
-	@Override
-	public void setInnerRadius(double innerRadius) {
-		setOuterRadius(innerRadius + thickness);
-	}
-	
-	@Override
-	public double getThickness() {
-		return thickness;
-	}
+//	@Override
+//	public double getInnerRadius() {
+//		return radius - thickness;
+//	}
+//	
+//	@Override
+//	public void setInnerRadius(double innerRadius) {
+//		setOuterRadius(innerRadius + thickness);
+//	}
+//	
+//	@Override
+//	public double getThickness() {
+//		return thickness;
+//	}
 	
 	public void setThickness(double thickness) {
 		if (MathUtil.equals(this.thickness, thickness))
@@ -211,20 +214,22 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	@Override
 	public String getComponentName() {
-		//// Launch lug
-		return trans.get("LaunchLug.Launchlug");
+		// Launch Button
+		return trans.get("LaunchButton.LaunchButton");
 	}
 	
 	@Override
 	public double getLongitudinalUnitInertia() {
 		// 1/12 * (3 * (r2^2 + r1^2) + h^2)
-		return (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLength())) / 12;
+//		return (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLength())) / 12;
+		return 0.0;
 	}
 	
 	@Override
 	public double getRotationalUnitInertia() {
 		// 1/2 * (r1^2 + r2^2)
-		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) / 2;
+//		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) / 2;
+		return 0.0;
 	}
 	
 	@Override
@@ -234,7 +239,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		// Allow nothing to be attached to a LaunchLug
+		// Allow nothing to be attached to a LaunchButton
 		return false;
 	}
 	

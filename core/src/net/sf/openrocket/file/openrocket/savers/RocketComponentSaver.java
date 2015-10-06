@@ -144,7 +144,7 @@ public class RocketComponentSaver {
 	
 	
 	protected final List<String> motorMountParams(MotorMount mount) {
-		if (!mount.isActive())
+		if (!mount.isMotorMount())
 			return Collections.emptyList();
 		
 		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();

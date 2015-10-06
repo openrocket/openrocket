@@ -87,7 +87,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
         setID(theORBodyTube.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setOD(theORBodyTube.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorDia((theORBodyTube.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setMotorMount(theORBodyTube.isActive());
+        setMotorMount(theORBodyTube.isMotorMount());
 
         List<RocketComponent> children = theORBodyTube.getChildren();
         for (int i = 0; i < children.size(); i++) {

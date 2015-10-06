@@ -3,7 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import net.sf.openrocket.motor.MotorInstance;
 
 /**
- * FlightConfiguration implementation that prevents changing the default value.
+ * FlightConfigurationSet for motors.
  * This is used for motors, where the default value is always no motor.
  */
 public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance> {
@@ -15,7 +15,7 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 	}
 	
 	/**
-	 * Construct a copy of an existing FlightConfigurationImpl.
+	 * Construct a copy of an existing FlightConfigurationSet.
 	 * 
 	 * @param flightConfiguration another flightConfiguration to copy data from.
 	 * @param component		the rocket component on which events are fired when the parameter values are changed

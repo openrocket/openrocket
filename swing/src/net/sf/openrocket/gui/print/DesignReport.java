@@ -356,11 +356,11 @@ public class DesignReport {
 				topBorder = true;
 			}
 			
-			if (c instanceof MotorMount && ((MotorMount) c).isActive()) {
+			if (c instanceof MotorMount && ((MotorMount) c).isMotorMount()) {
 				MotorMount mount = (MotorMount) c;
 				
 				// TODO: refactor this... it's redundant with containing if, and could probably be simplified 
-				if (mount.isActive() && (mount.getMotorInstance(motorId) != null) &&(null != mount.getMotorInstance(motorId).getMotor())) {
+				if (mount.isMotorMount() && (mount.getMotorInstance(motorId) != null) &&(null != mount.getMotorInstance(motorId).getMotor())) {
 					Motor motor = mount.getMotorInstance(motorId).getMotor();
 					int motorCount = mount.getMotorCount();
 					

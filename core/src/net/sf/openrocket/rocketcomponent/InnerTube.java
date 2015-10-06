@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
@@ -23,13 +26,14 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
 	
 	private double overhang = 0;
-	private boolean isActiveMount;
+	private boolean isActing;
 	private FlightConfigurationSet<MotorInstance> motors;
 	
 	/**
@@ -63,6 +67,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return trans.get("InnerTube.InnerTube");
 	}
 	
+	@Override
+	public String getPatternName() {
+		return this.cluster.getXMLName();
+	}
+	
+
 	@Override
 	public boolean allowsChildren() {
 		return true;
@@ -133,6 +143,11 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return cluster.getClusterCount();
 	}
 	
+	@Override
+	public void setInstanceCount( final int newCount ){
+		log.error("Programmer Error:  cannot set the instance count of an "+this.getClass().getSimpleName()+" directly.  Please set setClusterConfiguration(ClusterConfiguration) instead.");
+	}
+	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
 	 * touching each other, larger values separate the tubes and smaller values
@@ -142,6 +157,11 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return clusterScale;
 	}
 	
+	@Override
+	public boolean isCenterline() {
+		return (1 == this.getClusterCount());
+	}
+
 	/**
 	 * Set the cluster scaling.
 	 * @see #getClusterScale()
@@ -243,7 +263,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		if( null != newMotorInstance ){
 			newMotorInstance.setMount( this);
 			if( MotorInstanceId.EMPTY_ID != newMotorInstance.getID()){
-				this.setActive(true);
+				this.setMotorMount(true);
 			}
 		}
 	}
@@ -260,21 +280,22 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	
 	@Override
-    public void setActive(boolean _active){
-    	if (this.isActiveMount == _active)
+    public void setMotorMount(boolean _active){
+    	if (this.isActing == _active)
     		return;
-    	this.isActiveMount = _active;
+    	this.isActing = _active;
     	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
-	public boolean isActive(){
-		return this.isActiveMount;
+	public boolean isMotorMount(){
+		return this.isActing;
 	}
 	
-	//@Override
+	@Override
 	public boolean hasMotor() {
-		return ( 0 < this.motors.size());
+		// the default MotorInstance is the EMPTY_INSTANCE.  If we have more than that, then the other instance will have a motor.
+		return ( 1 < this.motors.size());
 	}
 	
 	@Override
@@ -338,5 +359,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		copy.setName(splitName);
 		return copy;
 	}
+
+
 	
 }

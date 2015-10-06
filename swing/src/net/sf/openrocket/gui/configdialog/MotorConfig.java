@@ -40,7 +40,7 @@ public class MotorConfig extends JPanel {
 		
 		BooleanModel model;
 		
-		model = new BooleanModel(motorMount, "Active");
+		model = new BooleanModel(motorMount, "MotorMount");
 		JCheckBox check = new JCheckBox(model);
 		////This component is a motor mount
 		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
@@ -62,7 +62,6 @@ public class MotorConfig extends JPanel {
 		
 		panel.add(new UnitSelector(dm), "width :30lp:");
 		panel.add(new BasicSlider(dm.getSliderModel(-0.02, 0.06)), "w 100lp, wrap unrel");
-		
 		
 		
 		// Select ignition event
@@ -113,11 +112,11 @@ public class MotorConfig extends JPanel {
 		
 		// Set enabled status
 		
-		setDeepEnabled(panel, motorMount.isActive());
+		setDeepEnabled(panel, motorMount.isMotorMount());
 		check.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				setDeepEnabled(panel, mount.isActive());
+				setDeepEnabled(panel, mount.isMotorMount());
 			}
 		});
 		

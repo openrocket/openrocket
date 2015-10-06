@@ -28,7 +28,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	// When changing the inner radius, thickness is modified
 	private double overhang = 0;
-	private boolean isActiveMount = false;
+	private boolean isActing = false;
 	
 	private MotorConfigurationSet motors;
 	
@@ -382,7 +382,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		if( null != newMotorInstance ){
 			newMotorInstance.setMount( this);
 			if( MotorInstanceId.EMPTY_ID != newMotorInstance.getID()){
-				this.setActive(true);
+				this.setMotorMount(true);
 			}
 		}
 	}
@@ -398,21 +398,23 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	@Override
-    public void setActive(boolean _active){
-    	if (this.isActiveMount == _active)
+    public void setMotorMount(boolean _active){
+    	if (this.isActing == _active)
     		return;
-    	this.isActiveMount = _active;
+    	this.isActing = _active;
     	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
-	public boolean isActive(){
-		return this.isActiveMount;
+	public boolean isMotorMount(){
+		return this.isActing;
 	}
 	
-	//@Override
+	@Override
 	public boolean hasMotor() {
-		return ( 0 < this.motors.size());
+		// the default MotorInstance is the EMPTY_INSTANCE.  
+		// If the class contains more instances, at least one will have motors.
+		return ( 1 < this.motors.size());
 	}
 		
 	@Override

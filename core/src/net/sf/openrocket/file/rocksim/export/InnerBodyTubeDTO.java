@@ -49,7 +49,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 		setID(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 		setOD(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 		setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-		setMotorMount(bt.isActive());
+		setMotorMount(bt.isMotorMount());
 		setInsideTube(true);
 		setRadialAngle(bt.getRadialDirection());
 		setRadialLoc(bt.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);

@@ -582,7 +582,7 @@ public class Rocket extends RocketComponent {
 			
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
-				if (!mount.isActive())
+				if (!mount.isMotorMount())
 					continue;
 				if (mount.getMotorInstance(fcid).getMotor() != null) {
 					return true;

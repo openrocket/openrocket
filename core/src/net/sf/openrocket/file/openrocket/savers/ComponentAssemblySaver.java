@@ -6,7 +6,9 @@ import java.util.List;
 
 import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class ComponentAssemblySaver extends RocketComponentSaver {
@@ -50,13 +52,16 @@ public class ComponentAssemblySaver extends RocketComponentSaver {
 		final String startangle_tag = "angleoffset";
 		
 		
-		if (null != currentStage) {
+		if ( currentStage instanceof Instanceable) {
 			int instanceCount = currentStage.getInstanceCount();
 			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
-			double radialOffset = currentStage.getRadialOffset();
-			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
-			double angularOffset = currentStage.getAngularOffset();
-			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
+			if( currentStage instanceof RingInstanceable ){
+				RingInstanceable ring = (RingInstanceable) currentStage;
+				double radialOffset = ring.getRadialOffset();
+				elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
+				double angularOffset = ring.getAngularOffset();
+				elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
+			}
 		}
 		
 		return elementsToReturn;

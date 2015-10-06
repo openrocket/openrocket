@@ -12,7 +12,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
-	private FlightConfigurationSet<StageSeparationConfiguration> separationConfigurations;
+	protected FlightConfigurationSet<StageSeparationConfiguration> separationConfigurations;
 	
 	protected int stageNumber;
 	

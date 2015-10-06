@@ -21,7 +21,9 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -31,6 +33,7 @@ import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.RingComponent;
+import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
@@ -411,10 +414,28 @@ class DocumentConfig {
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		
-		setters.put("ComponentAssembly:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
-		setters.put("ComponentAssembly:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
-		setters.put("ComponentAssembly:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
+		/*
+		 * The keys are of the form Class:param, where Class is the class name and param
+		 * the element name.  Setters are searched for in descending class order.
+		 * A setter of null means setting the parameter is not allowed.
+		 */
 		
+//		setters.put("ComponentAssembly:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
+//		setters.put("ComponentAssembly:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
+//		setters.put("ComponentAssembly:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
+		
+		setters.put("Instanceable:instancecount", new IntSetter(
+				Reflection.findMethod(Instanceable.class, "setInstanceCount",int.class)));
+		setters.put("RingInstanceable:radialoffset", new DoubleSetter(
+				Reflection.findMethod(RingInstanceable.class, "setRadialOffset", double.class)));
+		setters.put("RingInstance:angleoffset", new DoubleSetter(
+				Reflection.findMethod(RingInstanceable.class, "setAngularOffset", double.class)));
+		
+		setters.put("LineInstanceable:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( LineInstanceable.class, "setInstanceSeparation", double.class)));
+		
+
+
 	}
 	
 	

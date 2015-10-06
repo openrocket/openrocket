@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import net.sf.openrocket.util.Coordinate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.sf.openrocket.util.Coordinate;
 
 
 
@@ -22,12 +22,6 @@ import org.slf4j.LoggerFactory;
 public abstract class ComponentAssembly extends RocketComponent {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAssembly.class);
 	
-	protected double angularPosition_rad = 0;
-	protected double radialPosition_m = 0;
-	
-	protected int count = 1;
-	protected double angularSeparation = Math.PI;
-	
 	/**
 	 * Sets the position of the components to POSITION_RELATIVE_AFTER.
 	 * (Should have no effect.)
@@ -36,23 +30,11 @@ public abstract class ComponentAssembly extends RocketComponent {
 		super(RocketComponent.Position.AFTER);
 	}
 	
-	
-	@Override
-	public int getInstanceCount() {
-		return this.count;
-	}
-	
-	public double getAngularOffset() {
-		return this.angularPosition_rad;
-	}
-	
-	
 	@Override
 	public double getAxialOffset() {
 		return super.asPositionValue(this.relativePosition);
 	}
-	
-	
+
 	/**
 	 * Null method (ComponentAssembly has no bounds of itself).
 	 */
@@ -76,11 +58,6 @@ public abstract class ComponentAssembly extends RocketComponent {
 	public double getComponentMass() {
 		return 0;
 	}
-	
-	public double getRadialOffset() {
-		return this.radialPosition_m;
-	}
-	
 	
 	/**
 	 * Null method (ComponentAssembly has no mass of itself).
@@ -119,16 +96,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	public boolean isMassive() {
 		return false;
 	}
-	
-	
-	public void setAngularOffset(final double angle_rad) {
-		if (this.isCenterline()) {
-			return;
-		}
-		
-		this.angularPosition_rad = angle_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
+
 	
 	@Override
 	public void setAxialOffset(final double _pos) {
@@ -151,16 +119,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 			return;
 		}
 		
-		this.count = _count;
-		this.angularSeparation = Math.PI * 2 / this.count;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	public void setRadialOffset(final double radius) {
-		if (false == this.isCenterline()) {
-			this.radialPosition_m = radius;
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		}
 	}
 	
 	public void setRelativePositionMethod(final Position _newPosition) {
@@ -190,31 +149,6 @@ public abstract class ComponentAssembly extends RocketComponent {
 	@Override
 	public boolean isOverrideSubcomponentsEnabled() {
 		return false;
-	}
-	
-	
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
-		
-		if (this.isCenterline()) {
-			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
-		} else {
-			buffer.append(String.format("    (offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
-			Coordinate[] absCoords = this.getLocation();
-			
-			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
-			}
-		}
-		
 	}
 	
 	@Override

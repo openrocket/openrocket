@@ -179,7 +179,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			// Conditional motor mount parameters
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
-				if (mount.isActive()) {
+				if (mount.isMotorMount()) {
 					
 					SimulationModifier mod = new GenericComponentModifier(
 							trans.get("optimization.modifier.motormount.overhang"),

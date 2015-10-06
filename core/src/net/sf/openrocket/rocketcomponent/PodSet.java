@@ -8,13 +8,16 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class PodSet extends ComponentAssembly implements OutsideComponent {
+public class PodSet extends ComponentAssembly implements RingInstanceable, OutsideComponent {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(PodSet.class);
+	//private static final Logger log = LoggerFactory.getLogger(PodSet.class);
+	
+	protected int count = 1;
+
+	protected double angularSeparation = Math.PI;
+	protected double angularPosition_rad = 0;
+	protected double radialPosition_m = 0;
 	
 	public PodSet() {
 		this.count = 2;
@@ -151,6 +154,22 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 		
 		return returnValue;
 	}
+
+	@Override
+	public double getAngularOffset() {
+		return this.angularPosition_rad;
+	}
+
+	@Override
+	public String getPatternName(){
+		return (this.getInstanceCount() + "-ring");
+	}
+
+	@Override
+	public double getRadialOffset() {
+		return this.radialPosition_m;
+	}
+
 	
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
@@ -189,6 +208,18 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
 		//		}
 		return buf;
+	}
+
+	@Override
+	public void setAngularOffset(double angle_rad) {
+		this.angularPosition_rad = angle_rad;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);		
+	}
+
+	@Override
+	public void setRadialOffset(double radius_m) {
+		this.radialPosition_m = radius_m;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 }

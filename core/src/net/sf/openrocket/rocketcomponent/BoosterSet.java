@@ -11,16 +11,28 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
-public class BoosterSet extends AxialStage implements FlightConfigurableComponent, OutsideComponent {
+public class BoosterSet extends AxialStage implements FlightConfigurableComponent, RingInstanceable, OutsideComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
 	
-	private FlightConfigurationSet<StageSeparationConfiguration> separationConfigurations;
+	protected int count = 1;
+
+	protected double angularSeparation = Math.PI;
+	protected double angularPosition_rad = 0;
+	protected double radialPosition_m = 0;
 	
 	public BoosterSet() {
 		this.count = 2;
 		this.relativePosition = Position.BOTTOM;
+		this.angularSeparation = Math.PI * 2 / this.count;
+	}
+	
+	public BoosterSet( final int _count ){
+		this();
+		
+		this.count = _count;
+		this.angularSeparation = Math.PI * 2 / this.count;
 	}
 	
 	@Override
@@ -71,13 +83,28 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
-		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+		this.separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		BoosterSet copy = (BoosterSet) (super.copyWithOriginalID());
 		return copy;
+	}
+
+	@Override
+	public double getAngularOffset() {
+		return this.angularPosition_rad;
+	}
+
+	@Override
+	public int getInstanceCount() {
+		return this.count;
+	}
+	
+	@Override
+	public double getRadialOffset() {
+		return this.radialPosition_m;
 	}
 	
 	@Override
@@ -102,6 +129,11 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		return !isCenterline();
 	}
 	
+	@Override
+	public String getPatternName(){
+		return (this.getInstanceCount() + "-ring");
+	}
+
 	/**
 	 * Boosters are, by definition, not centerline. 
 	 * 
@@ -128,6 +160,18 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		mutex.verify();
 		
 		return this.getAxialOffset();
+	}
+	
+	@Override
+	public void setRadialOffset(final double radius) {
+		this.radialPosition_m = radius;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
+	}
+
+	@Override
+	public void setAngularOffset(final double angle_rad) {
+		this.angularPosition_rad = angle_rad;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
@@ -158,5 +202,32 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		
 		return toReturn;
 	}
+	
+
+	
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		
+		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
+		
+		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
+		
+		if (this.isCenterline()) {
+			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
+		} else {
+			buffer.append(String.format("    (offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
+			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+			Coordinate[] absCoords = this.getLocation();
+			
+			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+				Coordinate instanceRelativePosition = relCoords[instanceNumber];
+				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
+						instanceRelativePosition, instanceAbsolutePosition));
+			}
+		}
+		
+	}
+	
 	
 }

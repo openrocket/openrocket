@@ -270,7 +270,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	////////////  Methods that may be overridden  ////////////
-	
+	/**
+	 * This enables one-line testing if a component is on the rocket center-line or not.
+	 *   
+	 * @return indicates if this component is centered around the rocket's centerline
+	 */
+	public boolean isCenterline() {
+		return true;
+	}
+
 	
 	/**
 	 * Shift the coordinates in the array corresponding to radial movement.  A component
@@ -958,15 +966,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		return this.asPositionValue(this.relativePosition);
 	}
-	
-	/**
-	 * 
-	 * @return always returns false for base components.  This enables one-line testing if a component is on the rocket center-line or not.
-	 */
-	public boolean isCenterline() {
-		return true;
-	}
-	
+		
 	public boolean isAncestor(final RocketComponent testComp) {
 		RocketComponent curComp = testComp.parent;
 		while (curComp != null) {
