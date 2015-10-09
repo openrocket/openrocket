@@ -31,12 +31,12 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
-import net.sf.openrocket.util.Coordinate;
 
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
+
+	private static final long serialVersionUID = -5046535300435793744L;
 
 	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
 
@@ -61,6 +61,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			subpanel.add(label, "wrap");
 
 			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this,rocket) {
+				private static final long serialVersionUID = -238261338962282816L;
+
 				@Override
 				public void onDataChanged() {
 					MotorConfigurationPanel.this.fireTableDataChanged();
@@ -139,6 +141,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		//// Motor selection table.
 		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket) {
 
+			private static final long serialVersionUID = -1210899988369000567L;
+
 			@Override
 			protected boolean includeComponent(MotorMount component) {
 				return component.isMotorMount();
@@ -201,8 +205,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		MotorMount mount = getSelectedComponent();
 		if (id == null || mount == null)
 			return;
-
 		MotorInstance inst = mount.getMotorInstance(id);
+		if( inst.isEmpty() )
+			return;
 
 		motorChooserDialog.setMotorMountAndConfig(mount, id);
 
@@ -263,13 +268,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 
 	private class MotorTableCellRenderer extends FlightConfigurablePanel<MotorMount>.FlightConfigurableCellRenderer {
+		private static final long serialVersionUID = -7462331042920067984L;
 
 		@Override
 		protected JLabel format( MotorMount mount, FlightConfigurationID  configId, JLabel l ) {
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
-			MotorInstance motorConfig = mount.getMotorInstance( configId);
-			String motorString = getMotorSpecification(mount, motorConfig);
+			MotorInstance curMotor = mount.getMotorInstance( configId);
+			String motorString = getMotorSpecification( curMotor );
 			JLabel motorDescriptionLabel = new JLabel(motorString);
 			label.add(motorDescriptionLabel);
 			label.add( Box.createRigidArea(new Dimension(10,0)));
@@ -279,23 +285,20 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return label;
 		}
 
-		private String getMotorSpecification(MotorMount mount, MotorInstance motorConfig) {
-			Motor motor = motorConfig.getMotor();
-
-			if (motor == null)
+		private String getMotorSpecification(MotorInstance curMotorInstance ) {
+			if( curMotorInstance.isEmpty()){
 				return NONE;
+			}
 
-			String str = motor.getDesignation(motorConfig.getEjectionDelay());
-			int count = getMountMultiplicity(mount);
+			MotorMount mount = curMotorInstance.getMount();
+			Motor motor = curMotorInstance.getMotor();
+
+			String str = motor.getDesignation(curMotorInstance.getEjectionDelay());
+			int count = mount.getInstanceCount();
 			if (count > 1) {
 				str = "" + count + Chars.TIMES + " " + str;
 			}
 			return str;
-		}
-
-		private int getMountMultiplicity(MotorMount mount) {
-			RocketComponent c = (RocketComponent) mount;
-			return c.toAbsolute(Coordinate.NUL).length;
 		}
 
 		private JLabel getIgnitionEventString(FlightConfigurationID id, MotorMount mount) {

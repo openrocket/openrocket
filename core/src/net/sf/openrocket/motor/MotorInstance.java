@@ -164,6 +164,10 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		return false;
 	}
 	
+	public boolean isEmpty(){
+		return this == MotorInstance.EMPTY_INSTANCE;
+	}
+	
 	@Override 
 	public boolean equals( Object other ){
 		if( other == null )

@@ -27,7 +27,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class FlightConfigurationPanel extends JPanel implements StateChangeListener {
-	
 	private static final long serialVersionUID = -5467500312467789009L;
 	//private static final Logger log = LoggerFactory.getLogger(FlightConfigurationPanel.class);
 	private static final Translator trans = Application.getTranslator();
@@ -124,9 +123,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void addConfiguration() {
+		FlightConfigurationID newFCID = new FlightConfigurationID();
+		FlightConfiguration newConfig = new FlightConfiguration( newFCID, rocket );
 		
-		//FlightConfiguration newConfig = new FlightConfiguration( rocket );
-		//FlightConfigurationID newFCID = newConfig.getFlightConfigurationID();
+		rocket.setFlightConfiguration(newFCID, newConfig);
 		
 		// Create a new simulation for this configuration.
 		createSimulationForNewConfiguration();

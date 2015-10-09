@@ -29,9 +29,9 @@ import net.sf.openrocket.util.StateChangeListener;
 public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, ChangeSource, ComponentChangeListener, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
 	
-	public final static String DEFAULT_CONFIGURATION_NAME = "default configuration";
+	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
 	
-	protected String configurationName = FlightConfiguration.DEFAULT_CONFIGURATION_NAME;
+	protected String configurationName ;
 	
 	protected final Rocket rocket;
 	protected final FlightConfigurationID fcid;
@@ -62,6 +62,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	private int modID = 0;
 	
+	public FlightConfiguration( ){
+		this.fcid = FlightConfigurationID.ERROR_CONFIGURATION_ID;
+		this.rocket = new Rocket();
+		this.configurationName = "<ERROR: FlightConfiguration created without an id or rocket instance. ERROR!> ";
+	}
+	
 	/**
 	 * Create a new configuration with the specified <code>Rocket</code>.
 	 * 
@@ -75,6 +81,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
+		this.setName( fcid.key);
 		
 		updateStageMap();
 		rocket.addComponentChangeListener(this);
@@ -449,6 +456,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if( null == newName ){
 			return;
 		}else if( "".equals(newName)){
+			return;
+		}else if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_ID)){
+			this.configurationName = FlightConfiguration.DEFAULT_CONFIGURATION_NAME;
+			return;
+		}else if( ! this.getFlightConfigurationID().isValid()){
 			return;
 		}else if( newName.equals(this.configurationName)){
 			return;

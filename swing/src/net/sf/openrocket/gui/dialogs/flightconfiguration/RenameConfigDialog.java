@@ -47,17 +47,17 @@ public class RenameConfigDialog extends JDialog {
 		});
 		panel.add(okButton);
 		
-		JButton defaultButton = new JButton(trans.get("RenameConfigDialog.but.reset")+" (NYI)- what do I do? ");
-		defaultButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// why would I bother setting to null? 
-				System.err.println(" NYI: defaultButton (ln:55) in RenameConfigDialog... not sure what it's for...");
-				//rocket.getFlightConfiguration(configId).setName(null);
-				RenameConfigDialog.this.setVisible(false);
-			}
-		});
-		panel.add(defaultButton);
+//		JButton renameToDefaultButton = new JButton(trans.get("RenameConfigDialog.but.reset")+" (in Devel: is this fixed yet?)");
+//		renameToDefaultButton.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				// why would I bother setting to null? 
+//				System.err.println(" NYI: defaultButton (ln:55) in RenameConfigDialog... not sure what it's for...");
+//				//rocket.getFlightConfiguration(configId).setName(null);
+//				RenameConfigDialog.this.setVisible(false);
+//			}
+//		});
+//		panel.add(renameToDefaultButton);
 		
 		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {

@@ -47,6 +47,14 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 */
 	public MotorInstance getDefaultMotorInstance();
 	
+	/** 
+	 * Default implementatino supplied by RocketComponent (returns 1);
+	 * 
+	 * @return number of times this component is instanced
+	 */
+	public int getInstanceCount();
+	
+	
 	/**
 	 * 
 	 * @param testInstance  instance to test
