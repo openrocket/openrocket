@@ -64,7 +64,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 					}
 					
 					StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
-					elements.add("<separationconfiguration configid=\"" + fcid + "\">");
+					elements.add("<separationconfiguration configid=\"" + fcid.key + "\">");
 					elements.addAll(separationConfig(separationConfig, true));
 					elements.add("</separationconfiguration>");
 					

@@ -47,7 +47,7 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 				}
 				
 				DeploymentConfiguration deployConfig = dev.getDeploymentConfigurations().get(fcid);
-				elements.add("<deploymentconfiguration configid=\"" + fcid + "\">");
+				elements.add("<deploymentconfiguration configid=\"" + fcid.key + "\">");
 				elements.addAll(deploymentConfiguration(deployConfig, true));
 				elements.add("</deploymentconfiguration>");
 			}

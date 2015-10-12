@@ -69,5 +69,8 @@ public final class MotorInstanceId {
 		return componentId.hashCode() + (number << 12);
 	}
 	
-	// TODO: toString()
+	@Override
+	public String toString(){
+		return Integer.toString( this.hashCode());
+	}
 }

@@ -10,7 +10,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +23,6 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -58,7 +56,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 	public void fireTableDataChanged() {
 		int selectedRow = table.getSelectedRow();
-		int selectedColumn = table.getSelectedColumn();
+		int selectedColumn = table.getSelectedColumn();	
 		((AbstractTableModel)table.getModel()).fireTableDataChanged();
 		restoreSelection(selectedRow,selectedColumn);
 		updateButtonState();
@@ -70,9 +68,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		FlightConfigurationID defaultFCID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		FlightConfigurationID selectedFCID = getSelectedConfigurationId();
 		
-		if ( defaultFCID == null && selectedFCID == null ) {
-			// Nothing to do
-		} else if ( selectedFCID == null ) {
+		if ( selectedFCID == null ) {
 			// need to unselect
 			table.clearSelection();
 		} else if ( !defaultFCID.equals(selectedFCID)){			
@@ -85,7 +81,6 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			Vector<FlightConfigurationID> ids = rocket.getSortedConfigurationIDs();
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
 				FlightConfigurationID rowFCID = ids.get(rowNum );
-				
 				if ( rowFCID.equals(selectedFCID) ) {
 					table.changeSelection(rowNum, col, true, false);
 					break;
@@ -114,17 +109,16 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if ( e.getValueIsAdjusting() ) {
 					return;
 				}
-				int firstrow = e.getFirstIndex();
-				int lastrow = e.getLastIndex();
-				ListSelectionModel model = (ListSelectionModel) e.getSource();
-				for( int row = firstrow; row <= lastrow; row ++) {
-					if ( model.isSelectedIndex(row) ) {
-						FlightConfigurationID fcid = (FlightConfigurationID) table.getValueAt(row, table.convertColumnIndexToView(0));
-						FlightConfiguration config = rocket.getConfigurationSet().get(fcid);
-						rocket.getConfigurationSet().setDefault(config);
-						return;
-					}
-				}
+//				int firstrow = e.getFirstIndex();
+//				int lastrow = e.getLastIndex();
+//				ListSelectionModel model = (ListSelectionModel) e.getSource();
+//				for( int row = firstrow; row <= lastrow; row ++) {
+//					if ( model.isSelectedIndex(row) ) {
+//						FlightConfigurationID fcid = (FlightConfigurationID) table.getValueAt(row, table.convertColumnIndexToView(0));
+//						FlightConfiguration config = rocket.getConfigurationSet().get(fcid);
+//						return;
+//					}
+//				}
 			}
 
 		});
@@ -160,12 +154,16 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
-			Pair<String,T> selectedComponent = (Pair<String,T>) tableValue;
-			return new FlightConfigurationID( selectedComponent.getU() );
+			Pair<FlightConfigurationID,T> selectedComponent = (Pair<FlightConfigurationID,T>) tableValue;
+			return selectedComponent.getU();
 		} else if ( tableValue instanceof String ){
-			return new FlightConfigurationID((String) tableValue);
+			// DEPRECATED
+			System.err.println(" found String instance where expected a Pair....Bug!");
+			throw new IllegalStateException("!!Found String instance where expected a Pair....Bug!");
+			// this really should be un-implemented. 
+			//return new FlightConfigurationID((String) tableValue);
 		}
-		return null;
+		return FlightConfigurationID.ERROR_CONFIGURATION_ID;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
@@ -183,9 +181,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				return label;
 			}
 			default: {
-				Pair<String, T> v = (Pair<String, T>) value;
+				@SuppressWarnings("unchecked")
+				Pair<FlightConfigurationID, T> v = (Pair<FlightConfigurationID, T>) value;
+				
 				if(v!=null){
-					FlightConfigurationID fcid = new FlightConfigurationID (v.getU());
+					FlightConfigurationID fcid = v.getU();
 					T component = v.getV();
 					label = format(component, fcid, label );
 				}

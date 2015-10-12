@@ -98,11 +98,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 
-	public ThrustCurveMotorSelectionPanel(MotorMount mount, FlightConfigurationID currentConfig) {
+	public ThrustCurveMotorSelectionPanel( final FlightConfigurationID fcid, MotorMount mount ) {
 		this();
-		setMotorMountAndConfig( mount, currentConfig );
+		setMotorMountAndConfig( fcid, mount );
 
 	}
+	
 	/**
 	 * Sole constructor.
 	 * 
@@ -310,18 +311,39 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	}
 
-	public void setMotorMountAndConfig( MotorMount mount, FlightConfigurationID  currentConfigId ) {
+	public void setMotorMountAndConfig( final FlightConfigurationID _fcid,  MotorMount _mount ) {
+		if ( null == _fcid ){
+			throw new NullPointerException(" attempted to set mount with a null FCID. bug.  ");
+		}else if ( null == _mount ){
+			throw new NullPointerException(" attempted to set mount with a null mount. bug. ");
+		}
+		
+		// DEBUG
+		MotorInstance curMotorInstance = _mount.getMotorInstance(_fcid);
+		System.err.println("(A) motor ID: "+ curMotorInstance.getMotorID().hashCode());
+		if( curMotorInstance.isEmpty()){
+			System.err.println("(B) MotorInstance: Motor: Empty.");
+			System.err.println("(C) MotorInstance: mount: Empty.");
+		}else{
+			System.err.println("(B) MotorInstance: has motor: "+curMotorInstance.getMotor() );
+			System.err.println("(C) MotorInstance: set mount: "+curMotorInstance.getMount());
+		}
+		System.err.println("(D) MotorInstance: parent mount: "+_mount);
+		System.err.println("(F) FCID: "+ _fcid.key);
+		
+		System.err.println("(K) MotorInstance: IgnitionEvent: "+curMotorInstance.getIgnitionEvent().name);
+		System.err.println("(I) MotorInstance: Ign delay: "+curMotorInstance.getIgnitionDelay());
+		// DEBUG		
+		
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
-		
 		ThrustCurveMotor motorToSelect = null;
-		if (currentConfigId != null && mount != null) {
-			MotorInstance motorConf = mount.getMotorInstance( currentConfigId);
-			motorToSelect = (ThrustCurveMotor) motorConf.getMotor();
-			selectedDelay = motorConf.getEjectionDelay();
+		if ( curMotorInstance.hasMotor()){ 
+			motorToSelect = (ThrustCurveMotor) curMotorInstance.getMotor();
+			selectedDelay = curMotorInstance.getEjectionDelay();
 		}
-
+		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
 		if (motorToSelect != null) {
 			ThrustCurveMotorSet motorSetToSelect = null;
@@ -333,13 +355,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				database.add(extra);
 				Collections.sort(database);
 			}
+			
+			select(motorToSelect);
+			MotorMount mount = curMotorInstance.getMount();
+			
+			//? have we added this motor to the given mount? 
+			motorFilterPanel.setMotorMount(mount);
 		}
-
-		select(motorToSelect);
-
-		motorFilterPanel.setMotorMount(mount);
 		scrollSelectionVisible();
-
 	}
 
 	@Override

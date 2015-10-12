@@ -72,10 +72,9 @@ public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurati
 		}
 		
 		FlightConfigurationID fcid= (FlightConfigurationID) item;
-		FlightConfigurationSet<FlightConfiguration> configs= rocket.getConfigurationSet();
-		
-		configs.setDefault( configs.get(fcid));
-		this.config = rocket.getDefaultConfiguration();
+		FlightConfigurationSet<FlightConfiguration> configSet = rocket.getConfigurationSet();
+
+		this.config = configSet.get(fcid);
 	}
 	
 	

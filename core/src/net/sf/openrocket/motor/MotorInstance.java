@@ -17,9 +17,10 @@ import net.sf.openrocket.util.StateChangeListener;
  */
 public class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
 	
-	protected MotorInstanceId id = null;	
-	protected MotorMount mount = null;
-	//protected Motor motor = null;  // deferred to subclasses
+	protected MotorInstanceId id = null;
+	// deferred to subclasses
+	//protected MotorMount mount = null;
+	//protected Motor motor = null;
 	protected double ejectionDelay = 0.0;
 	protected double ignitionDelay = 0.0;
 	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
@@ -27,7 +28,7 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	protected double ignitionTime = 0.0;
 	
 	// comparison threshold
-	private static final double EPSILON = 0.01;
+	//private static final double EPSILON = 0.01;
 	
 	protected int modID = 0;
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
@@ -40,7 +41,7 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		modID++;
 	}
 	
-	public MotorInstanceId getID() {
+	public MotorInstanceId getMotorID() {
 		return this.id;
 	}
 	
@@ -65,11 +66,11 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	};
 	
 	public MotorMount getMount() {
-		return this.mount;
+		throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
 	}
 	
 	public void setMount(final MotorMount _mount) {
-		this.mount = _mount;
+		throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
 	}
 	
 	public Coordinate getPosition() {
@@ -165,7 +166,11 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	}
 	
 	public boolean isEmpty(){
-		return this == MotorInstance.EMPTY_INSTANCE;
+		return true;
+	}
+
+	public boolean hasMotor(){
+		return ! this.isEmpty();
 	}
 	
 	@Override 
@@ -176,19 +181,20 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 			MotorInstance omi = (MotorInstance)other;
 			if( this.id.equals( omi.id)){
 				return true;
-			}else if( this.mount != omi.mount ){
-				return false;
-			}else if( this.ignitionEvent == omi.ignitionEvent ){
-				return false;
-			}else if( EPSILON < Math.abs(this.ignitionDelay - omi.ignitionDelay )){
-				return false;
-			}else if( EPSILON < Math.abs( this.ejectionDelay - omi.ejectionDelay )){
-				return false;
-			}else if( ! this.position.equals( omi.position )){
-				return false;
-			}else if( EPSILON < Math.abs( this.ignitionTime - omi.ignitionTime )){
-				return false;
 			}
+//			}else if( this.mount != omi.mount ){
+//				return false;
+//			}else if( this.ignitionEvent == omi.ignitionEvent ){
+//				return false;
+//			}else if( EPSILON < Math.abs(this.ignitionDelay - omi.ignitionDelay )){
+//				return false;
+//			}else if( EPSILON < Math.abs( this.ejectionDelay - omi.ejectionDelay )){
+//				return false;
+//			}else if( ! this.position.equals( omi.position )){
+//				return false;
+//			}else if( EPSILON < Math.abs( this.ignitionTime - omi.ignitionTime )){
+//				return false;
+//			}
 			
 			return true;	
 		}

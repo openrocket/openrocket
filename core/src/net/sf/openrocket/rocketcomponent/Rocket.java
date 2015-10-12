@@ -401,6 +401,9 @@ public class Rocket extends RocketComponent {
 				return;
 			}
 			
+			if( -1 == e.getType()){
+				log.debug(">>fireComponentChangeEvent()>> . . .");
+			}
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
@@ -513,13 +516,22 @@ public class Rocket extends RocketComponent {
 		}
 
 		this.setFlightConfiguration( fcid, nextConfig );
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		return nextConfig;
+	}
+	
+	public int getConfigurationCount(){
+		return this.configurations.size();
 	}
 	
 	public FlightConfigurationSet<FlightConfiguration> getConfigurationSet(){
 		checkState();
 		return this.configurations;
+	}
+
+	public FlightConfiguration getFlightConfig( final FlightConfigurationID fcid ){
+		checkState();
+		return this.configurations.get(fcid);
 	}
 	
 	public Vector<FlightConfigurationID> getSortedConfigurationIDs(){

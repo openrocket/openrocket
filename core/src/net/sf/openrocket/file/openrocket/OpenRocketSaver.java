@@ -502,7 +502,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<conditions>");
 		indent++;
 		
-		writeElement("configid", cond.getConfigID());
+		writeElement("configid", cond.getConfigID().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));

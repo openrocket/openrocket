@@ -23,6 +23,8 @@ import net.sf.openrocket.startup.Application;
 
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	
+	private static final long serialVersionUID = 6903386330489783515L;
+
 	private final ThrustCurveMotorSelectionPanel selectionPanel;
 	
 	private boolean okClicked = false;
@@ -30,7 +32,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	
 	public MotorChooserDialog(MotorMount mount, FlightConfigurationID currentConfigID, Window owner) {
 		this(owner);
-		setMotorMountAndConfig(mount, currentConfigID);
+		setMotorMountAndConfig( currentConfigID, mount);
 	}
 	
 	public MotorChooserDialog(Window owner) {
@@ -82,8 +84,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		selectionPanel.setCloseableDialog(this);
 	}
 	
-	public void setMotorMountAndConfig( MotorMount mount, FlightConfigurationID currentConfig ) {
-		selectionPanel.setMotorMountAndConfig(mount, currentConfig);
+	public void setMotorMountAndConfig( FlightConfigurationID _fcid, MotorMount _mount ) {
+		selectionPanel.setMotorMountAndConfig( _fcid, _mount );
 	}
 	
 	/**

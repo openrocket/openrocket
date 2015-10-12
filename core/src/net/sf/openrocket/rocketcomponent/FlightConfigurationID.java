@@ -26,7 +26,17 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		}else if (5 >_val.length()){
 			this.key = FlightConfigurationID.ERROR_CONFIGURATION_KEY;
 		} else {
-			this.key = _val;
+			// vv temp vv
+			String temp_val = _val;
+			final String extra = "key: ";
+			if( _val.contains(extra)){
+				int index = temp_val.lastIndexOf(extra);
+				temp_val = _val.substring(index+extra.length());
+				System.err.println("  correcting FCID from \""+_val+"\" to \""+temp_val+"\".");
+			}
+			// ^^ temp ^^
+			
+			this.key = temp_val;
 		}
 	}
 	
@@ -63,7 +73,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	@Override
 	public String toString() {
-		return ("key: "+this.key);
+		return this.key;
 	}
 
 	@Override

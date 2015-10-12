@@ -205,9 +205,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				//List<MotorInstance> instanceList = mount.getMotorInstance(this.fcid);
 			    	
 				MotorInstance inst = mount.getMotorInstance(this.fcid);
-				if( MotorInstance.EMPTY_INSTANCE == inst){
+				if(( mount.isMotorMount()) && ( MotorInstance.EMPTY_INSTANCE == inst)){
 					// DEVEL
-					log.error("Detected 'Empty' Motor Instance in configuration: "+this.getName()+" / "+comp.getName()+" / (#)");
+					log.error("Detected 'Empty' Motor Instance on Activated MotorMount: "+this.getName()+" / "+comp.getName()+" / (#)");
 					continue;
 				}
 				

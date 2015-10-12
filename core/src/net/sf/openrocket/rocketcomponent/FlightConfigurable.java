@@ -42,6 +42,16 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	public E get(FlightConfigurationID id);
 	
 	/**
+	 * Return the parameter value for the provided flight configuration ID.
+	 * This returns either the value specified for this flight config ID,
+	 * or the default value.
+	 * 
+	 * @param    value the parameter to find
+	 * @return   the flight configuration ID
+	 */
+	public FlightConfigurationID get(E value);
+	
+	/**
 	 * Set the parameter value for the provided flight configuration ID.
 	 * This sets the override for this flight configuration ID.
 	 * 

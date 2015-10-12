@@ -28,7 +28,7 @@ import net.sf.openrocket.util.WorldCoordinate;
 public class SimulationConditions implements Monitorable, Cloneable {
 	
 	private Rocket rocket;
-	private FlightConfigurationID motorID = null;
+	private FlightConfigurationID configID= null;
 	
 	private Simulation simulation; // The parent simulation 
 	
@@ -116,12 +116,11 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	
 	public FlightConfigurationID getMotorConfigurationID() {
-		return motorID;
+		return configID;
 	}
 	
-	
-	public void setMotorConfigurationID(FlightConfigurationID motorID) {
-		this.motorID = motorID;
+	public void setFlightConfigurationID(FlightConfigurationID _fcid) {
+		this.configID = _fcid;
 		this.modID++;
 	}
 	

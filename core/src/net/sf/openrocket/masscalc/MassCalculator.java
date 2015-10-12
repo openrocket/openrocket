@@ -122,8 +122,8 @@ public class MassCalculator implements Monitorable {
 		if (motors != null) {
 			for (MotorInstance inst : config.getActiveMotors()) {
 				// DEVEL
-				if(MotorInstanceId.EMPTY_ID == inst.getID()){
-					throw new IllegalArgumentException("  detected empty motor");
+				if(MotorInstanceId.EMPTY_ID == inst.getMotorID()){
+					throw new IllegalArgumentException("  detected empty motor from <FlightConfiguration>.getActiveMotors()");
 				}
 				MotorMount mount = inst.getMount();
 				if( null == mount ){

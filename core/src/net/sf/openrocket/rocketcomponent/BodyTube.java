@@ -7,9 +7,9 @@ import java.util.Iterator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -28,7 +28,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	// When changing the inner radius, thickness is modified
 	private double overhang = 0;
-	private boolean isActing = false;
+	private boolean isActingMount = false;
 	
 	private MotorConfigurationSet motors;
 	
@@ -370,7 +370,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	public boolean isDefaultMotorInstance( final MotorInstance testInstance){
 		return this.motors.getDefault() == testInstance;
 	}
-	
+
 	@Override
 	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
 		return this.motors.get(fcid);
@@ -378,14 +378,24 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
+		if( null == fcid){
+			throw new NullPointerException(" null FCID passed passed to 'setMotorInstance(...)': bug ");
+		}
+		if( null == newMotorInstance){
+			throw new NullPointerException(" null passed as MotorInstance to add to MotorSet ... bug ");
+		}
+		
 		this.motors.set(fcid,newMotorInstance);
-		if( null != newMotorInstance ){
-			newMotorInstance.setMount( this);
-			if( MotorInstanceId.EMPTY_ID != newMotorInstance.getID()){
-				this.setMotorMount(true);
-			}
+		
+		if( newMotorInstance.isEmpty() ){
+			return;
+		}else if( null == newMotorInstance.getMount()){
+			newMotorInstance.setMount(this);
+		}else if( !this.equals( newMotorInstance.getMount())){
+			throw new BugException(" adding a MotorInstance to a mount that it isn't owned by... ");
 		}
 	}
+	
 	
 	@Override
 	public Iterator<MotorInstance> getMotorIterator(){
@@ -399,15 +409,15 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
     public void setMotorMount(boolean _active){
-    	if (this.isActing == _active)
+    	if (this.isActingMount == _active)
     		return;
-    	this.isActing = _active;
+    	this.isActingMount = _active;
     	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
 	public boolean isMotorMount(){
-		return this.isActing;
+		return this.isActingMount;
 	}
 	
 	@Override

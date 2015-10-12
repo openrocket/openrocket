@@ -448,7 +448,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// Check whether any motor in the active stages is active anymore
 					List<MotorInstance> activeMotors = status.getConfiguration().getActiveMotors();
 					for (MotorInstance curInstance : activeMotors) {
-						MotorInstanceId curID = curInstance.getID();
+						MotorInstanceId curID = curInstance.getMotorID();
 						RocketComponent comp = ((RocketComponent) curInstance.getMount());
 						int stage = comp.getStageNumber();
 						if (!status.getConfiguration().isStageActive(stage))

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -259,12 +258,21 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
+		if( null == fcid){
+			throw new NullPointerException(" null FCID passed passed to 'setMotorInstance(...)': bug ");
+		}
+		if( null == newMotorInstance){
+			throw new NullPointerException(" null passed as MotorInstance to add to MotorSet ... bug ");
+		}
+		
 		this.motors.set(fcid,newMotorInstance);
-		if( null != newMotorInstance ){
-			newMotorInstance.setMount( this);
-			if( MotorInstanceId.EMPTY_ID != newMotorInstance.getID()){
-				this.setMotorMount(true);
-			}
+		
+		if( newMotorInstance.isEmpty() ){
+			return;
+		}else if( null == newMotorInstance.getMount()){
+			newMotorInstance.setMount(this);
+		}else if( !this.equals( newMotorInstance.getMount())){
+			throw new BugException(" adding a MotorInstance to a mount that it isn't owned by... ");
 		}
 	}
 	

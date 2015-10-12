@@ -621,7 +621,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		SimulationConditions conditions = new SimulationConditions();
 		
 		conditions.setRocket((Rocket) getRocket().copy());
-		conditions.setMotorConfigurationID(this.getConfigID());
+		conditions.setFlightConfigurationID(this.getConfigID());
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());

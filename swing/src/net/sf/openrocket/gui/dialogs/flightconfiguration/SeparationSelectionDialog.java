@@ -23,7 +23,6 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
@@ -94,9 +93,9 @@ public class SeparationSelectionDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (defaultButton.isSelected()) {
-					FlightConfigurationSet<StageSeparationConfiguration> sepConfigSet = component.getSeparationConfigurations();
-					StageSeparationConfiguration sepConfig = sepConfigSet.get(FlightConfigurationID.DEFAULT_CONFIGURATION_ID);
-					component.getSeparationConfigurations().setDefault( sepConfig);  
+//					FlightConfigurationSet<StageSeparationConfiguration> sepConfigSet = component.getSeparationConfigurations();
+//					StageSeparationConfiguration sepConfig = sepConfigSet.get(FlightConfigurationID.DEFAULT_CONFIGURATION_ID);
+//					component.getSeparationConfigurations().setDefault( sepConfig);  
 					// old version
 					//component.getSeparationConfigurations().setDefault( fcid?, newConfiguration);
 				} else {

@@ -7,9 +7,6 @@ import java.util.Set;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Monitorable;
 
 /**
@@ -34,16 +31,16 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 */
 	public MotorInstanceConfiguration(FlightConfiguration configuration) {
 		// motors == this
-		final FlightConfigurationID fcid = configuration.getFlightConfigurationID();
+//		final FlightConfigurationID fcid = configuration.getFlightConfigurationID();
 		
-		Iterator<RocketComponent> iterator = configuration.getRocket().iterator(false);
-		while (iterator.hasNext()) {
-			RocketComponent component = iterator.next();
-			if (component instanceof MotorMount) {
-				MotorMount mount = (MotorMount) component;
-				
-				// MotorInstance motorInst = mount.getMotorInstance(flightConfigId);
-				// IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
+//		Iterator<RocketComponent> iterator = configuration.getRocket().iterator(false);
+//		while (iterator.hasNext()) {
+//			RocketComponent component = iterator.next();
+//			if (component instanceof MotorMount) {
+//				MotorMount mount = (MotorMount) component;
+//				
+//				// MotorInstance motorInst = mount.getMotorInstance(flightConfigId);
+//				// IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
 //				
 //				Iterator<MotorInstance> iter = mount.getMotorIterator();
 //					
@@ -65,10 +62,9 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 //					MotorId curID = curMotorInstance.getID();
 //					motors.put(curID, curMotorInstance);
 //				}
-				
-			}
-		}
-		
+//				
+//			}
+//		}
 		
 	}
 	
@@ -109,7 +105,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
 	public void addMotor(MotorInstance motor) {
-		MotorInstanceId id = motor.getID();
+		MotorInstanceId id = motor.getMotorID();
 		if (this.motors.containsKey(id)) {
 			throw new IllegalArgumentException("MotorInstanceConfiguration already " +
 					"contains a motor with id " + id);
@@ -170,7 +166,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	public MotorInstanceConfiguration clone() {
 		MotorInstanceConfiguration clone = new MotorInstanceConfiguration();
 		for (MotorInstance motor : this.motors.values()) {
-			clone.motors.put(motor.getID(), motor.clone());
+			clone.motors.put(motor.getMotorID(), motor.clone());
 		}
 		clone.modID = this.modID;
 		return clone;

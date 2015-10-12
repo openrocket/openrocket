@@ -164,13 +164,15 @@ public class RocketComponentSaver {
 		
 		for (FlightConfiguration curConfig : configs) {
 			FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
-			MotorInstance motorInstance = mount.getMotorInstance(fcid);
-			Motor motor = motorInstance.getMotor();
-			// Nothing is stored if no motor loaded
-			if (motor == null)
-				continue;
 			
-			elements.add("  <motor configid=\"" + fcid + "\">");
+			MotorInstance motorInstance = mount.getMotorInstance(fcid);
+			// Nothing is stored if no motor loaded
+			if( motorInstance.isEmpty()){
+				continue;
+			}
+			Motor motor = motorInstance.getMotor();
+			
+			elements.add("  <motor configid=\"" + fcid.key + "\">");
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
 			}

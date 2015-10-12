@@ -17,7 +17,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
-public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel  implements ComponentChangeListener{
+public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel implements ComponentChangeListener{
 
 	private static final long serialVersionUID = 3168465083803936363L;
 	private static final Translator trans = Application.getTranslator();
@@ -37,8 +37,8 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	}
 
 	@Override
-	public void componentChanged(ComponentChangeEvent e) {
-		if ( e.isMotorChange() || e.isTreeChange() ) {
+	public void componentChanged(ComponentChangeEvent cce) {
+		if ( cce.isMotorChange() || cce.isTreeChange() ) {
 			initialize();
 			fireTableStructureChanged();
 		}
@@ -66,7 +66,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public int getRowCount() {
-		return rocket.getConfigurationSet().size() - 1;
+		return rocket.getConfigurationSet().size();
 	}
 
 	@Override
@@ -76,15 +76,16 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		FlightConfigurationID id = getConfiguration(row);
+		FlightConfigurationID fcid = getConfigurationID(row);
+		
 		switch (column) {
 		case 0: {
-			return id;
+			return fcid;
 		}
 		default: {
 			int index = column - 1;
 			T d = components.get(index);
-			return new Pair<String, T>(id.toString(), d);
+			return new Pair<FlightConfigurationID, T>(fcid, d);
 		}
 		}
 	}
@@ -104,11 +105,12 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		}
 	}
 
-	private FlightConfigurationID getConfiguration(int rowNum) {
-		this.ids = rocket.getSortedConfigurationIDs();
+	private FlightConfigurationID getConfigurationID(int rowNum) {
+		if( rocket.getConfigurationCount() != ids.size()){
+			this.ids = rocket.getSortedConfigurationIDs();
+		}
 		
-		FlightConfigurationID id = this.ids.get(rowNum + 1);
-		return id;
+		return this.ids.get(rowNum);
 	}
 
 }

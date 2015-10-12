@@ -26,8 +26,8 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change to the 3D texture assigned to a component*/
 	public static final int TEXTURE_CHANGE = 128;
 	
-	/** A bit-field that contains all possible change types. */
-	public static final int ALL_CHANGE = 0xFFFFFFFF;
+	/** A bit-field that contains all possible change types. Will output as -1 */
+	public static final int ALL_CHANGE = 0xFFFFFFFF;  // =-1; // because int is a signed type.
 	
 	private final int type;
 	

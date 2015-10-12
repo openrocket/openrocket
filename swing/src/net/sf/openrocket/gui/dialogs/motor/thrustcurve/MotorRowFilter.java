@@ -67,7 +67,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 			Iterator<MotorInstance> iter = mount.getMotorIterator();
 			while( iter.hasNext()){
 				MotorInstance mi = iter.next();
-				this.usedMotors.add((ThrustCurveMotor) mi.getMotor());
+				if( !mi.isEmpty()){
+					this.usedMotors.add((ThrustCurveMotor) mi.getMotor());
+				}
 			}
 		}
 	}

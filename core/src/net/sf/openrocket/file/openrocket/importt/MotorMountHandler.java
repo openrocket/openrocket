@@ -57,8 +57,11 @@ class MotorMountHandler extends AbstractElementHandler {
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
+		// DEBUG ONLY
+		// System.err.println("closing MotorMount element: "+ element);
 		
 		if (element.equals("motor")) {
+			// yes, this is confirmed to be the FLIGHT config id, instead of the motor inastance id.
 			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
@@ -69,6 +72,20 @@ class MotorMountHandler extends AbstractElementHandler {
 			MotorInstance motorInstance = motor.getNewInstance();
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
 			mount.setMotorInstance(fcid, motorInstance);
+//			// vvvvvvv DEBUG vvvvvvv
+//			System.err.println("  processing <motor> element:"+fcid.key);
+//			MotorInstance justSet = mount.getMotorInstance(fcid);
+//			System.err.println("    just set Motor: "+motor.getDesignation()+" to Mount: "+((RocketComponent)mount).getName()+".");
+//			String contains;
+//			if( justSet.isEmpty()){
+//				contains = "empty";
+//			}else{
+//				contains = justSet.getMotor().getDesignation();
+//			}
+//			System.err.println("    to Motor: "+justSet.getMotorID()+ " containing: "+contains);
+//			System.err.println("    mount now contains "+mount.getMotorCount()+" motors.");
+//			// ... well, we know it's at least 2 configurations now.... 
+//			// ^^^^^^^ DEBUG ^^^^^^^^
 			return;
 		}
 		

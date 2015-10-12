@@ -3,6 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -99,7 +100,23 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		return map.size();
 	}
 	
-
+	@Override
+	public FlightConfigurationID get(E testValue) {
+		if( null == testValue ){
+			return null;
+		}
+		for( Entry<FlightConfigurationID, E> curEntry : this.map.entrySet()){
+			FlightConfigurationID curKey = curEntry.getKey();
+			E curValue = curEntry.getValue();
+			
+			if( testValue.equals(curValue)){
+				return curKey;
+			}
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public E get(FlightConfigurationID id) {
 		E toReturn;

@@ -48,7 +48,7 @@ public class RocketSaver extends RocketComponentSaver {
 			if (fcid == null)
 				continue;
 			
-			String str = "<motorconfiguration configid=\"" + fcid + "\"";
+			String str = "<motorconfiguration configid=\"" + fcid.key + "\"";
 			if (fcid.equals(defId))
 				str += " default=\"true\"";
 			

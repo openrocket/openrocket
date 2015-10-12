@@ -1,6 +1,7 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
@@ -11,6 +12,7 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	
 	private int timeIndex = -1;
 	
+	protected MotorMount mount = null;
 	protected ThrustCurveMotor motor = null;
 	
 	// Previous time step value
@@ -98,6 +100,21 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	@Override
 	public Motor getMotor(){
 		return this.motor;
+	}
+
+	@Override
+	public boolean isEmpty(){
+		return false;
+	}
+	
+	@Override
+	public MotorMount getMount() {
+		return this.mount;
+	}
+	
+	@Override
+	public void setMount(final MotorMount _mount) {
+		this.mount = _mount;
 	}
 	
 	@Override
