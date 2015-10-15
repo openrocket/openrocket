@@ -31,7 +31,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
 	
-	protected String configurationName ;
+	protected boolean overrideName = false;
+	protected String configurationName;
 	
 	protected final Rocket rocket;
 	protected final FlightConfigurationID fcid;
@@ -199,7 +200,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			if ( comp instanceof MotorMount ){ 
 				MotorMount mount = (MotorMount)comp;
 				MotorInstance inst = mount.getMotorInstance(this.fcid);
-				
+
+				// NYI: if clustered... 
 				// if( mount instanceof Clusterable ){
 				// if( 1 < comp.getInstanceCount() ){
 				// if comp is clustered, it will be clustered from the innerTube, no? 
@@ -217,8 +219,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 //				}
 //				// ^^^^ DEVEL ^^^^
 				
-				
-				// motors go inactive after burnout, so we 
+				// motors go inactive after burnout, so include this filter too
 				if (inst.isActive()){
 					toReturn.add(inst);
 				}
@@ -460,23 +461,28 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public void setName( final String newName) {
-		if( null == newName ){
-			return;
-		}else if( "".equals(newName)){
-			return;
-		}else if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_FCID)){
+		if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_FCID)){
 			this.configurationName = FlightConfiguration.DEFAULT_CONFIGURATION_NAME;
+			return;
+		}else if( null == newName ){
+			this.overrideName = false;
+		}else if( "".equals(newName)){
 			return;
 		}else if( ! this.getFlightConfigurationID().isValid()){
 			return;
 		}else if( newName.equals(this.configurationName)){
 			return;
 		}
+		this.overrideName = true;
 		this.configurationName = newName;
 	}
 	
 	public String getName() {
-		return this.configurationName;
+		if( overrideName ){
+			return this.configurationName;
+		}else{
+			return " NYI - motor digest string";
+		}
 	}
 	
 	

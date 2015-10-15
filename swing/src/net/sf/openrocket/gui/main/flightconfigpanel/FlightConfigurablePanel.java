@@ -155,18 +155,17 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
 			Pair<FlightConfigurationID,T> selectedComponent = (Pair<FlightConfigurationID,T>) tableValue;
-			return selectedComponent.getU();
-		} else if ( tableValue instanceof String ){
-			// DEPRECATED
-			System.err.println(" found String instance where expected a Pair....Bug!");
-			throw new IllegalStateException("!!Found String instance where expected a Pair....Bug!");
-			// this really should be un-implemented. 
-			//return new FlightConfigurationID((String) tableValue);
+			FlightConfigurationID fcid = selectedComponent.getU();
+			return fcid;
+		} else if ( tableValue instanceof FlightConfigurationID ){
+			return (FlightConfigurationID) tableValue;
 		}
 		return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 2026945220957913776L;
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

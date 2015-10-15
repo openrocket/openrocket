@@ -156,11 +156,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void renameConfiguration() {
-		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket).setVisible(true);
+		FlightConfigurationID currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
+		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, currentId).setVisible(true);
 	}
 	
 	private void removeConfiguration() {
-		FlightConfigurationID currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationID currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		if (currentId == null)
 			return;
 		document.removeFlightConfigurationAndSimulations(currentId);

@@ -10,9 +10,9 @@ import java.util.UUID;
 public final class FlightConfigurationID implements Comparable<FlightConfigurationID> {
 	final public String key;
 	
-	private final static String ERROR_CONFIGURATION_KEYTEXT = "j567uryk2489yfjbr8i1fi";
-	private final static String DEFAULT_CONFIGURATION_KEYTEXT = "default_configuration_662002";
-	private final static String DEFAULT_VALUE_KEYTEXT = "default_value_567866";
+	private final static String ERROR_CONFIGURATION_KEYTEXT = "error_key_2489";
+	private final static String DEFAULT_CONFIGURATION_KEYTEXT = "default_configuration_6602";
+	private final static String DEFAULT_VALUE_KEYTEXT = "default_value_5676";
 	
 	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT);
 	public final static FlightConfigurationID DEFAULT_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_CONFIGURATION_KEYTEXT );

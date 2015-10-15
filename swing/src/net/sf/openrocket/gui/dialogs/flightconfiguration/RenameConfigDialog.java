@@ -22,15 +22,14 @@ public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public RenameConfigDialog(final Window parent, final Rocket rocket) {
+	public RenameConfigDialog(final Window parent, final Rocket rocket, final FlightConfigurationID fcid) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
-		final FlightConfigurationID configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name")), "span, wrap rel");
 		
-		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(configId).getName());
+		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(fcid).getName());
 		panel.add(textbox, "span, w 200lp, growx, wrap para");
 		
 		panel.add(new JPanel(), "growx");
@@ -40,24 +39,23 @@ public class RenameConfigDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newName = textbox.getText();
-				
-				rocket.getFlightConfiguration(configId).setName( newName);
+				rocket.getFlightConfiguration(fcid).setName( newName);
+				System.err.println("    << just renamed: "+fcid.toShortKey()+" with: "+newName+"  to: "+ rocket.getFlightConfiguration(fcid).getName());
+				rocket.getConfigurationSet().printDebug();
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
 		panel.add(okButton);
 		
-//		JButton renameToDefaultButton = new JButton(trans.get("RenameConfigDialog.but.reset")+" (in Devel: is this fixed yet?)");
-//		renameToDefaultButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				// why would I bother setting to null? 
-//				System.err.println(" NYI: defaultButton (ln:55) in RenameConfigDialog... not sure what it's for...");
-//				//rocket.getFlightConfiguration(configId).setName(null);
-//				RenameConfigDialog.this.setVisible(false);
-//			}
-//		});
-//		panel.add(renameToDefaultButton);
+		JButton renameToDefaultButton = new JButton(trans.get("RenameConfigDialog.but.reset"));
+		renameToDefaultButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				rocket.getFlightConfiguration(fcid).setName(null);
+				RenameConfigDialog.this.setVisible(false);
+			}
+		});
+		panel.add(renameToDefaultButton);
 		
 		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {

@@ -219,14 +219,10 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		System.err.println("====== Dumping ConfigurationSet for comp: '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
 		System.err.println("        >> FlightConfigurationSet ("+this.size()+ " configurations)");
 		
-		for( FlightConfigurationID loopFCID : this.map.keySet()){
+		for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
 			String shortKey = loopFCID.toShortKey();
 			
-			
 			E inst = this.map.get(loopFCID);
-			if( this.isDefault(inst)){
-				shortKey = "*"+shortKey+"*";
-			}
 			String designation;
 			if( inst instanceof FlightConfiguration){
 				FlightConfiguration fc = (FlightConfiguration) inst;
