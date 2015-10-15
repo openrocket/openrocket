@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,6 @@ public class Rocket extends RocketComponent {
 	
 	// Flight configuration list
 	private FlightConfigurationSet<FlightConfiguration> configurations;
-	private final Vector<FlightConfigurationID> ids = new Vector<FlightConfigurationID>();
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -85,7 +83,7 @@ public class Rocket extends RocketComponent {
 		treeModID = modID;
 		functionalModID = modID;
 		
-		FlightConfigurationID defaultFCID = FlightConfigurationID.DEFAULT_CONFIGURATION_ID;
+		FlightConfigurationID defaultFCID = FlightConfigurationID.DEFAULT_CONFIGURATION_FCID;
 		FlightConfiguration defaultConfiguration = new FlightConfiguration( defaultFCID, this);
 		this.configurations = new FlightConfigurationSet<FlightConfiguration>(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
 	}
@@ -528,22 +526,9 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return this.configurations;
 	}
-
-	public FlightConfiguration getFlightConfig( final FlightConfigurationID fcid ){
-		checkState();
-		return this.configurations.get(fcid);
-	}
 	
-	public Vector<FlightConfigurationID> getSortedConfigurationIDs(){
-		// if the configuration list has changed, refresh it. 
-		if( configurations.size() != ids.size()){
-			this.ids.clear();
-			//this.ids = new Vector<FlightConfigurationID>( idSet );
-			this.ids.addAll( this.configurations.getIDs() );
-			this.ids .sort( null );
-		}
-	
-		return this.ids;
+	public List<FlightConfigurationID> getSortedConfigurationIDs(){
+		return configurations.getSortedConfigurationIDs();
 	}
 
 	
@@ -613,7 +598,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID id) {
 		checkState();
-		return configurations.get(id);
+		return this.configurations.get(id);
 	}
 	
 	

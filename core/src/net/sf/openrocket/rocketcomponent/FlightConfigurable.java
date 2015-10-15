@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.List;
+
 import net.sf.openrocket.util.ChangeSource;
 
 /**
@@ -60,6 +62,11 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 */
 	public void set(FlightConfigurationID id, E value);
 	
+	/**
+	 * 
+	 * @return a sorted list of all the contained FlightConfigurationIDs
+	 */
+	public List<FlightConfigurationID> getSortedConfigurationIDs();
 	
 	/**
 	 * Return whether a specific flight configuration ID is using the
@@ -75,7 +82,7 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 * 
 	 * @param id	the flight configuration ID
 	 */
-	public void resetDefault(FlightConfigurationID id);
+	public void reset(FlightConfigurationID id);
 	
 	/**
 	 * Return the number of specific flight configurations other than the default.

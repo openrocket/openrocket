@@ -26,7 +26,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	protected final Rocket rocket;
 	protected final Class<T> clazz;
 	private final List<T> components = new ArrayList<T>();
-	private Vector<FlightConfigurationID> ids = new Vector<FlightConfigurationID>();
+	private List<FlightConfigurationID> ids = new Vector<FlightConfigurationID>();
 	
 	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
 		super();
@@ -66,7 +66,8 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public int getRowCount() {
-		return rocket.getConfigurationSet().size();
+		// the -1 removes the DEFAULT_VALUE row, which is hidden.
+		return (rocket.getConfigurationCount()-1);
 	}
 
 	@Override
@@ -106,8 +107,9 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	}
 
 	private FlightConfigurationID getConfigurationID(int rowNum) {
-		if( rocket.getConfigurationCount() != ids.size()){
+		if( rocket.getConfigurationCount() != (1+ ids.size() ) ){
 			this.ids = rocket.getSortedConfigurationIDs();
+			this.ids.remove(FlightConfigurationID.DEFAULT_VALUE_FCID);
 		}
 		
 		return this.ids.get(rowNum);

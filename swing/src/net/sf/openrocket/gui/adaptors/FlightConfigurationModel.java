@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.adaptors;
 
 
 import java.util.EventObject;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ComboBoxModel;
@@ -29,7 +30,7 @@ public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurati
 	
 	private FlightConfiguration config;
 	private final Rocket rocket;
-	Vector<FlightConfigurationID> ids= new Vector<FlightConfigurationID>();
+	List<FlightConfigurationID> ids= new Vector<FlightConfigurationID>();
 	
 	public FlightConfigurationModel(FlightConfiguration config) {
 		this.config = config;
@@ -43,9 +44,9 @@ public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurati
 		this.ids = rocket.getSortedConfigurationIDs();
 		
 		if (index < 0){
-			return FlightConfigurationID.ERROR_CONFIGURATION_ID;
+			return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 		}else if ( index >= this.ids.size()){ 
-			return FlightConfigurationID.ERROR_CONFIGURATION_ID;
+			return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 		}
 		
 		return this.ids.get(index);

@@ -16,6 +16,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -70,9 +71,9 @@ public class MotorConfig extends JPanel {
 		
 		MotorInstance motorInstance = mount.getDefaultMotorInstance();
 		
-		
-		JComboBox<IgnitionEvent> combo = new JComboBox<IgnitionEvent>( IgnitionEvent.events );
-		panel.add(combo, "growx, wrap");
+		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorMount, "IgnitionEvent", IgnitionEvent.values());
+		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
+		panel.add(eventBox , "growx, wrap");
 		
 		// ... and delay
 		//// plus

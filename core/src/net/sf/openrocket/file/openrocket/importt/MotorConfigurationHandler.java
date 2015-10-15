@@ -61,7 +61,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		}
 		
 		if ("true".equals(attributes.remove("default"))) {
-			rocket.getConfigurationSet().resetDefault(fcid);
+			rocket.getConfigurationSet().reset(fcid);
 		}
 		
 		super.closeElement(element, attributes, content, warnings);

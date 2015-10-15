@@ -27,8 +27,46 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 	
 	
 	@Override
-	public void setDefault(MotorInstance value) {
+	public void setDefault( MotorInstance value) {
 		throw new UnsupportedOperationException("Cannot change default value of motor configuration");
 	}
+	
+	@Override
+	public void printDebug(){
+		System.err.println("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
+		System.err.println("        >> motorSet ("+this.size()+ " motors)");
+		
+		for( FlightConfigurationID loopFCID : this.map.keySet()){
+			String shortKey = loopFCID.toShortKey();
+			
+			MotorInstance curInstance = this.map.get(loopFCID);
+			String designation;
+			if( MotorInstance.EMPTY_INSTANCE == curInstance){
+				designation = "EMPTY_INSTANCE";
+			}else{
+				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
+			}
+			System.err.println("              >> ["+shortKey+"]= "+designation);
+			
+		}
+	}
+	
+//	public void printDebug(FlightConfigurationID curFCID){
+//		if( this.map.containsKey(curFCID)){
+//			// no-op
+//		}else{
+//			String shortKey = curFCID.toShortKey();
+//			MotorInstance curInstance= this.get(curFCID);
+//			
+//			String designation;
+//			if( MotorInstance.EMPTY_INSTANCE == curInstance){
+//				designation = "EMPTY_INSTANCE";
+//			}else{
+//				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
+//			}
+//			System.err.println(" Queried FCID:");
+//			System.err.println("              >> ["+shortKey+"]= "+designation);
+//		}		
+//	}
 	
 }

@@ -51,7 +51,7 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 		
 		if (element.equals("ignitionevent")) {
 			
-			for (IgnitionEvent ie : IgnitionEvent.events) {
+			for (IgnitionEvent ie : IgnitionEvent.values()) {
 				if (ie.equals(content)) {
 					ignitionEvent = ie;
 					break;

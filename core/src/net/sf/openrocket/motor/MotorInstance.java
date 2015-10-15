@@ -38,6 +38,9 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	
 	protected MotorInstance() {
 		this.id = MotorInstanceId.EMPTY_ID;
+		ejectionDelay = 0.0;
+		ignitionEvent = IgnitionEvent.NEVER;
+		ignitionDelay = 0.0;
 		modID++;
 	}
 	

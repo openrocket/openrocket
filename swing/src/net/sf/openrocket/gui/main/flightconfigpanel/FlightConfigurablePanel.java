@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.EventObject;
-import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -78,7 +77,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			if ( col < 0 ) {
 				col = (table.getColumnCount() > 1) ? 1 : 0;
 			}
-			Vector<FlightConfigurationID> ids = rocket.getSortedConfigurationIDs();
+			
+			java.util.List<FlightConfigurationID> ids = rocket.getSortedConfigurationIDs();
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
 				FlightConfigurationID rowFCID = ids.get(rowNum );
 				if ( rowFCID.equals(selectedFCID) ) {
@@ -163,7 +163,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			// this really should be un-implemented. 
 			//return new FlightConfigurationID((String) tableValue);
 		}
-		return FlightConfigurationID.ERROR_CONFIGURATION_ID;
+		return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {

@@ -63,7 +63,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private int modID = 0;
 	
 	public FlightConfiguration( ){
-		this.fcid = FlightConfigurationID.ERROR_CONFIGURATION_ID;
+		this.fcid = FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 		this.rocket = new Rocket();
 		this.configurationName = "<ERROR: FlightConfiguration created without an id or rocket instance. ERROR!> ";
 	}
@@ -194,22 +194,29 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				log.error( "Detected inactive component in list returned from <config>.getActiveComponents()");
 			}
 			// DEVEL
+			
 			// see planning notes...
 			if ( comp instanceof MotorMount ){ 
 				MotorMount mount = (MotorMount)comp;
-				//if( mount.isActive() ){
-						
+				MotorInstance inst = mount.getMotorInstance(this.fcid);
+				
 				// if( mount instanceof Clusterable ){
 				// if( 1 < comp.getInstanceCount() ){
 				// if comp is clustered, it will be clustered from the innerTube, no? 
 				//List<MotorInstance> instanceList = mount.getMotorInstance(this.fcid);
-			    	
-				MotorInstance inst = mount.getMotorInstance(this.fcid);
-				if(( mount.isMotorMount()) && ( MotorInstance.EMPTY_INSTANCE == inst)){
-					// DEVEL
-					log.error("Detected 'Empty' Motor Instance on Activated MotorMount: "+this.getName()+" / "+comp.getName()+" / (#)");
-					continue;
-				}
+			    
+//				// vvvv DEVEL vvvv
+//				
+//				if(( mount.isMotorMount()) && ( MotorInstance.EMPTY_INSTANCE == inst)){
+//					if( mount instanceof BodyTube){
+//						MotorInstance bt_inst = ((BodyTube)mount).getMotorInstance(this.fcid);
+//						log.error("Detected EMPTY_INSTANCE in config: "+this.fcid.key.substring(0,8)+", mount: \""+comp.getName()+"\"");
+//						((BodyTube)mount).printMotorDebug();
+//					}
+//					continue;
+//				}
+//				// ^^^^ DEVEL ^^^^
+				
 				
 				// motors go inactive after burnout, so we 
 				if (inst.isActive()){
@@ -457,7 +464,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return;
 		}else if( "".equals(newName)){
 			return;
-		}else if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_ID)){
+		}else if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_FCID)){
 			this.configurationName = FlightConfiguration.DEFAULT_CONFIGURATION_NAME;
 			return;
 		}else if( ! this.getFlightConfigurationID().isValid()){

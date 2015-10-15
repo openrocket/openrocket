@@ -280,8 +280,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		protected JLabel format( MotorMount mount, FlightConfigurationID configId, JLabel l ) {
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
+			
 			MotorInstance curMotor = mount.getMotorInstance( configId);
 			String motorString = getMotorSpecification( curMotor );
+//			if( mount instanceof BodyTube ){
+//				System.err.println("Formatting Cell: fcid="+configId.key.substring(0, 8));
+//				((BodyTube) mount).printMotorDebug();
+//			}
+			
 			JLabel motorDescriptionLabel = new JLabel(motorString);
 			label.add(motorDescriptionLabel);
 			label.add( Box.createRigidArea(new Dimension(10,0)));

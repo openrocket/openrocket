@@ -6,35 +6,29 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 
-public class IgnitionEvent {
+public enum IgnitionEvent {
 	
-	private static final Translator trans = Application.getTranslator();
-	public final String name;
-	private final String key;
-	protected String description=null;
-	
-	public static final IgnitionEvent AUTOMATIC = new IgnitionEvent( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
+	//// Automatic (launch or ejection charge)
+	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
 		@Override
-		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
+		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 			int count = source.getRocket().getStageCount();
 			int stage = source.getStageNumber();
 			
 			if (stage == count - 1) {
-				return LAUNCH.isActivationEvent( fe, source);
-			} else {
-				return EJECTION_CHARGE.isActivationEvent( fe, source);
-			}
-		}
-	};
-	
-	public static final IgnitionEvent LAUNCH = new IgnitionEvent( "LAUNCH", "MotorMount.IgnitionEvent.LAUNCH"){
+				return LAUNCH.isActivationEvent(e, source);
+				} else {
+						return EJECTION_CHARGE.isActivationEvent(e, source);
+				}	
+		}	
+	},	
+	LAUNCH ( "LAUNCH", "MotorMount.IgnitionEvent.LAUNCH"){
 		@Override
 		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
 			return (fe.getType() == FlightEvent.Type.LAUNCH);
 		}
-	};
-	
-	public static final IgnitionEvent EJECTION_CHARGE= new IgnitionEvent("EJECTION_CHARGE", "MotorMount.IgnitionEvent.EJECTION_CHARGE"){
+	},
+	EJECTION_CHARGE ("EJECTION_CHARGE", "MotorMount.IgnitionEvent.EJECTION_CHARGE"){
 		@Override
 		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
 			if (fe.getType() != FlightEvent.Type.EJECTION_CHARGE){
@@ -44,9 +38,8 @@ public class IgnitionEvent {
 			int mount = source.getStageNumber();
 			return (mount + 1 == charge);
 		}
-	};
-	
-	public static final IgnitionEvent BURNOUT = new IgnitionEvent("BURNOUT", "MotorMount.IgnitionEvent.BURNOUT"){
+	},
+	BURNOUT ("BURNOUT", "MotorMount.IgnitionEvent.BURNOUT"){
 		@Override
 		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
 			if (fe.getType() != FlightEvent.Type.BURNOUT)
@@ -56,30 +49,33 @@ public class IgnitionEvent {
 			int mount = source.getStageNumber();
 			return (mount + 1 == charge);
 		}
-	};
-
-	public static final IgnitionEvent NEVER= new IgnitionEvent("NEVER", "MotorMount.IgnitionEvent.NEVER");
+	},
+	NEVER("NEVER", "MotorMount.IgnitionEvent.NEVER")
+	;
 	
-	public static final IgnitionEvent[] events = {AUTOMATIC, LAUNCH, EJECTION_CHARGE, BURNOUT, NEVER};
+	private static final Translator trans = Application.getTranslator();
+	public final String name;
+	private final String key;
+	protected String description=null;
+
+	//public static final IgnitionEvent[] events = {AUTOMATIC, LAUNCH, EJECTION_CHARGE, BURNOUT, NEVER};
 	
 	public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
 		// default behavior. Also for the NEVER case. 
 		return false;
 	}		
 	
-	public IgnitionEvent(final String _name, final String _key) {
+	private IgnitionEvent(final String _name, final String _key) {
 		this.name = _name;
 		this.key = _key; 
-		this.description = trans.get(this.key);
 	}
 	
 	public boolean equals( final String content){
 		String comparator = this.name.toLowerCase(Locale.ENGLISH).replaceAll("_", "");
-		
 		return comparator.equals(content);
 	}
 	
-	public String name(){
+	public String getName(){
 		return this.name;
 	}
 	

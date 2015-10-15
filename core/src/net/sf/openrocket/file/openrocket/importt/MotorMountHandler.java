@@ -15,6 +15,8 @@ import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 class MotorMountHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
@@ -57,6 +59,7 @@ class MotorMountHandler extends AbstractElementHandler {
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
+
 		// DEBUG ONLY
 		// System.err.println("closing MotorMount element: "+ element);
 		
@@ -72,20 +75,32 @@ class MotorMountHandler extends AbstractElementHandler {
 			MotorInstance motorInstance = motor.getNewInstance();
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
 			mount.setMotorInstance(fcid, motorInstance);
+			
+			Rocket rkt = ((RocketComponent)mount).getRocket();
+			rkt.createFlightConfiguration(fcid);
+			
 //			// vvvvvvv DEBUG vvvvvvv
-//			System.err.println("  processing <motor> element:"+fcid.key);
-//			MotorInstance justSet = mount.getMotorInstance(fcid);
-//			System.err.println("    just set Motor: "+motor.getDesignation()+" to Mount: "+((RocketComponent)mount).getName()+".");
-//			String contains;
-//			if( justSet.isEmpty()){
-//				contains = "empty";
-//			}else{
-//				contains = justSet.getMotor().getDesignation();
+//			if( mount instanceof BodyTube ){
+//				System.err.println("  processing <"+element+"> element with mount: "+((RocketComponent)mount).getName()+" with content: "+content);
+//				MotorInstance justSet = mount.getMotorInstance(fcid);
+//				String shortKey = fcid.key.substring(0,8);
+//				String motorKey = justSet.getMotorID().toString().substring(0,8);
+//				String contains;
+//				if( justSet.isEmpty()){
+//					contains = "empty";
+//				}else{
+//					contains = justSet.getMotor().getDesignation();
+//				}
+//				System.err.println("        set( key:"+ shortKey + " to Motor: "+motorKey+ " containing: "+contains);
+//				
+//				// exhaustive part... 
+//				
+//				((BodyTube)mount).printMotorDebug( fcid );
+//				
+//				rkt.getConfigurationSet().printDebug();
 //			}
-//			System.err.println("    to Motor: "+justSet.getMotorID()+ " containing: "+contains);
-//			System.err.println("    mount now contains "+mount.getMotorCount()+" motors.");
-//			// ... well, we know it's at least 2 configurations now.... 
 //			// ^^^^^^^ DEBUG ^^^^^^^^
+			
 			return;
 		}
 		
@@ -106,7 +121,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		
 		if (element.equals("ignitionevent")) {
 			IgnitionEvent event = null;
-			for (IgnitionEvent ie : IgnitionEvent.events) {
+			for (IgnitionEvent ie : IgnitionEvent.values()) {
 				if (ie.equals(content)) {
 					event = ie;
 					break;

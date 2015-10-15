@@ -3,8 +3,10 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +23,11 @@ import net.sf.openrocket.util.Utils;
 public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
 	
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurationSet.class);
-	private final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
-	private E defaultValue = null;
+	protected final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
+	protected final static FlightConfigurationID DEFAULT_VALUE_FCID = FlightConfigurationID.DEFAULT_VALUE_FCID;
 	
-	private final RocketComponent component;
-	private final int eventType;
+	protected final RocketComponent component;
+	protected final int eventType;
 	
 	private final Listener listener = new Listener();
 	
@@ -40,13 +42,9 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		this.component = component;
 		this.eventType = eventType;
 		
-		this.defaultValue = _defaultValue;
-		if ( null == defaultValue ) {
-			throw new NullPointerException("defaultValue is null");
-		}
-		this.map.put( FlightConfigurationID.DEFAULT_CONFIGURATION_ID, defaultValue );
+		this.map.put( DEFAULT_VALUE_FCID, _defaultValue );
 		
-		add(defaultValue);
+		addListener(_defaultValue);
 	}
 	
 	
@@ -60,7 +58,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		this.component = component;
 		this.eventType = eventType;
 		
-		this.defaultValue = flightConfiguration.defaultValue.clone();
+		this.map.put( DEFAULT_VALUE_FCID, flightConfiguration.getDefault().clone());
 		for (FlightConfigurationID key : flightConfiguration.map.keySet()) {
 			this.map.put(key, flightConfiguration.map.get(key).clone());
 		}
@@ -72,21 +70,18 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	
 	@Override
 	public E getDefault(){
-		return defaultValue;
+		return this.map.get(DEFAULT_VALUE_FCID);
 	}
-
+	
 	@Override
-	public void setDefault(E value) {
-		if (value == null) {
-			throw new NullPointerException("value is null");
+	public void setDefault(E nextDefaultValue) {
+		if (nextDefaultValue == null) {
+			throw new NullPointerException("new Default Value is null");
 		}
-		if( this.isDefault(value)){
+		if( this.isDefault(nextDefaultValue)){
 			return;
 		}
-		remove(this.defaultValue);
-		this.defaultValue = value;
-		add(value);
-		fireEvent();
+		this.set( DEFAULT_VALUE_FCID, nextDefaultValue);
 	}
 	
 	@Override
@@ -123,11 +118,21 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		if (map.containsKey(id)) {
 			toReturn = map.get(id);
 		} else {
-			toReturn = defaultValue;
+			toReturn = this.getDefault();
 		}
 		return toReturn;
 	}
 
+	@Override
+	public List<FlightConfigurationID> getSortedConfigurationIDs(){
+		Vector<FlightConfigurationID> toReturn = new Vector<FlightConfigurationID>(); 
+		
+		toReturn.addAll( this.getIDs() );
+		toReturn.sort( null );
+			
+		return toReturn;
+	}
+	
 	public Set<FlightConfigurationID> getIDs(){
 		return this.map.keySet();
 	}
@@ -136,93 +141,67 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	public void set(FlightConfigurationID fcid, E nextValue) {
 		if (null == fcid) {
 			throw new NullPointerException("id is null");
+		}else if( !fcid.isValid()){
+			throw new IllegalStateException("  Attempt to reset the default value on with an invalid key: "+fcid.toString());
 		}
-		if (nextValue == null) {
+		if ( nextValue == null) {
 			// null value means to delete this fcid
-			this.remove(fcid);	
+			if ( DEFAULT_VALUE_FCID == fcid ) {
+				// NEVER delete the default value....
+				return;
+			}
+   
+			E previousValue = map.remove(fcid);
+			removeListener(previousValue);
 		}else{
 			E previousValue = map.put(fcid, nextValue);
-			remove(previousValue);
-			if (previousValue == this.defaultValue) {
-				this.defaultValue = nextValue;
-			}
-			add(nextValue);
+			removeListener(previousValue);
+			addListener(nextValue);
 		}
 
 		fireEvent();
 	}
 	
-	public boolean isDefault(E _value) {
-		return (Utils.equals(this.defaultValue, _value));
+	public boolean isDefault(E testVal) {
+		 return (Utils.equals( this.getDefault(), testVal));
 	}
 	
 	@Override
-	public boolean isDefault(FlightConfigurationID id) {
-		return (this.defaultValue == map.get(id));
+	public boolean isDefault( FlightConfigurationID fcid) {
+		return (getDefault() == map.get(fcid));
 	}
 	
 	@Override
-	public void resetDefault(FlightConfigurationID id) {
-		if( null == id){
-			this.resetDefault();
-		}else if( !id.isValid()){
-			throw new IllegalStateException("  Attempt to reset the default value on with an invalid key: "+id.toString());
+	public void reset( FlightConfigurationID fcid) {
+		// enforce at least one value in the set
+		if( 1 < this.map.size() ){
+			set( fcid, null);
+		}else{
+			log.warn(" attempted to remove last element from the FlightConfigurationSet<"+this.getDefault().getClass().getSimpleName()+"> attached to: "+component.getName()+".  Ignoring. ");
+			return;
 		}
-		
-		E previous = map.get(id);
-		remove(previous);
-		
-		if ( previous == this.defaultValue ) {
-			this.defaultValue = null;
-			resetDefault();
-		}
-		fireEvent();
-	}
-	
-	private void resetDefault(){
-		if( 0 == this.map.keySet().size()){
-			throw new IllegalStateException("  Attempt to reset the default value on an empty configurationSet.");
-		}
-		
-		FlightConfigurationID firstFCID = map.keySet().iterator().next();
-		this.defaultValue = map.get( firstFCID);
 	}
 	
 	private void fireEvent() {
 		component.fireComponentChangeEvent(eventType);
 	}
 	
-	
+ 
 	@Override
 	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
-		if (isDefault(oldConfigId)) {
-			this.resetDefault(newConfigId);
-		} else {
-			E original = this.get(oldConfigId);
-			this.set(newConfigId, original.clone());
-		}
+		// clones the ENTRIES for the given fcid's.		
+		E oldValue = this.get(oldConfigId);
+		this.set(newConfigId, oldValue.clone());
+		fireEvent();
 	}
 	
-	private void add(E value) {
+	private void addListener(E value) {
 		if (value != null) {
 			value.addChangeListener(listener);
 		}
 	}
 	
-	public void remove(FlightConfigurationID fcid) {
-		// enforce at least one value in the set
-		if( 1 < this.map.size() ){
-			this.map.remove(fcid);
-			if( this.isDefault(fcid)){
-				this.defaultValue = map.values().iterator().next();
-			}
-		}else{
-			log.warn(" attempted to remove last element from the FlightConfigurationSet<"+this.defaultValue.getClass().getSimpleName()+">.  Action not allowed. ");
-			return;
-			}			
-	}
-	
-	private void remove(E value) {
+	private void removeListener(E value) {
 		if (value != null) {
 			value.removeChangeListener(listener);
 		}
@@ -234,6 +213,30 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		public void stateChanged(EventObject e) {
 			fireEvent();
 		}
+	}
+	
+	public void printDebug(){
+		System.err.println("====== Dumping ConfigurationSet for comp: '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
+		System.err.println("        >> FlightConfigurationSet ("+this.size()+ " configurations)");
+		
+		for( FlightConfigurationID loopFCID : this.map.keySet()){
+			String shortKey = loopFCID.toShortKey();
+			
+			
+			E inst = this.map.get(loopFCID);
+			if( this.isDefault(inst)){
+				shortKey = "*"+shortKey+"*";
+			}
+			String designation;
+			if( inst instanceof FlightConfiguration){
+				FlightConfiguration fc = (FlightConfiguration) inst;
+				designation = fc.getName();
+			}else{
+				designation = inst.toString();
+			}
+			System.err.println("              >> ["+shortKey+"]= "+designation);
+		}
+					
 	}
 	
 }

@@ -33,7 +33,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	private double overhang = 0;
 	private boolean isActing;
-	private FlightConfigurationSet<MotorInstance> motors;
+	private MotorConfigurationSet motors;
 	
 	/**
 	 * Main constructor.
@@ -248,7 +248,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public boolean isDefaultMotorInstance( final MotorInstance testInstance){
-		return this.motors.getDefault() == testInstance;
+		return this.motors.isDefault( testInstance);
 	}
 	
 	@Override
@@ -343,7 +343,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
-		copy.motors = new FlightConfigurationSet<MotorInstance>(motors, copy, ComponentChangeEvent.MOTOR_CHANGE);
+		copy.motors = new MotorConfigurationSet(motors, copy, ComponentChangeEvent.MOTOR_CHANGE);
 		return copy;
 	}
 	
@@ -368,6 +368,9 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return copy;
 	}
 
+	public void printMotorDebug( FlightConfigurationID fcid ){
+		this.motors.printDebug();
+	}
 
 	
 }

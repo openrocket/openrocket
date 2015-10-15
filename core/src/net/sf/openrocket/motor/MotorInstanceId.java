@@ -12,10 +12,10 @@ public final class MotorInstanceId {
 	private final String componentId;
 	private final int number;
 	
-	private final static String COMPONENT_ERROR_TEXT = "Error Motor Instance";
+	private final static String COMPONENT_ERROR_TEXT = "Error Motor Id";
 	private final static int ERROR_NUMBER = -1;
 	public final static MotorInstanceId ERROR_ID = new MotorInstanceId();
-	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Instance";
+	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Id";
 	private final static int EMPTY_NUMBER = 1;
 	public final static MotorInstanceId EMPTY_ID = new MotorInstanceId(EMPTY_COMPONENT_TEXT, EMPTY_NUMBER);
 	
@@ -71,6 +71,12 @@ public final class MotorInstanceId {
 	
 	@Override
 	public String toString(){
-		return Integer.toString( this.hashCode());
+		if( this == ERROR_ID){
+			return "ERROR_ID";
+		}else if( this == EMPTY_ID){
+			return "EMPTY_ID";
+		}else{
+			return Integer.toString( this.hashCode());
+		}
 	}
 }
