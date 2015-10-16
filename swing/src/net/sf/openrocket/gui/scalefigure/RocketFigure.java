@@ -228,7 +228,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		
+		System.err.println(" paintingComponent... ");
 
 		AffineTransform baseTransform = g2.getTransform();
 		

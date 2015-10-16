@@ -21,9 +21,8 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.Instanceable;
+import net.sf.openrocket.rocketcomponent.LaunchButton;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -33,7 +32,6 @@ import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.RingComponent;
-import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
@@ -143,6 +141,20 @@ class DocumentConfig {
 		// BodyComponent
 		setters.put("BodyComponent:length", new DoubleSetter(
 				Reflection.findMethod(BodyComponent.class, "setLength", double.class)));
+
+		// BodyTube
+		setters.put("BodyTube:radius", new DoubleSetter(
+				Reflection.findMethod(BodyTube.class, "setOuterRadius", double.class),
+				"auto",
+				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
+
+		// BoosterSet
+		setters.put("BoosterSet:instancecount", new IntSetter(
+				Reflection.findMethod(BoosterSet.class, "setInstanceCount",int.class)));
+		setters.put("BoosterSet:radialoffset", new DoubleSetter(
+				Reflection.findMethod(BoosterSet.class, "setRadialOffset", double.class)));
+		setters.put("BoosterSet:angleoffset", new DoubleSetter(
+				Reflection.findMethod(BoosterSet.class, "setAngularOffset", double.class)));
 		
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
@@ -150,12 +162,18 @@ class DocumentConfig {
 				"filled",
 				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class)));
 		
-		// BodyTube
-		setters.put("BodyTube:radius", new DoubleSetter(
-				Reflection.findMethod(BodyTube.class, "setOuterRadius", double.class),
-				"auto",
-				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
-		
+		// LaunchButton
+		setters.put("LaunchButton:instancecount", new IntSetter(
+				Reflection.findMethod(LaunchButton.class, "setInstanceCount",int.class)));
+		setters.put("LaunchButton:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( LaunchButton.class, "setInstanceSeparation", double.class)));
+
+		// LaunchLug
+		setters.put("LaunchLug:instancecount", new IntSetter(
+				Reflection.findMethod(LaunchLug.class, "setInstanceCount",int.class)));
+		setters.put("LaunchLug:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
+
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
 				Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
@@ -305,6 +323,8 @@ class DocumentConfig {
 		setters.put("InnerTube:clusterrotation", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterRotation", double.class),
 				Math.PI / 180.0));
+		setters.put("InnerTube:instancecount", new IntSetter(
+				Reflection.findMethod(InnerTube.class, "setInstanceCount",int.class)));
 		
 		// RadiusRingComponent
 		
@@ -325,7 +345,12 @@ class DocumentConfig {
 				Reflection.findMethod(CenteringRing.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
+		setters.put("CenteringRing:instancecount", new IntSetter(
+				Reflection.findMethod(CenteringRing.class, "setInstanceCount",int.class)));
+		setters.put("CenteringRing:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( CenteringRing.class, "setInstanceSeparation", double.class)));
 		
+
 		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
@@ -387,6 +412,14 @@ class DocumentConfig {
 				Reflection.findMethod(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));
 		
+		// PodSet
+		setters.put("PodSet:instancecount", new IntSetter(
+				Reflection.findMethod(PodSet.class, "setInstanceCount",int.class)));
+		setters.put("PodSet:radialoffset", new DoubleSetter(
+				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class)));
+		setters.put("PodSet:angleoffset", new DoubleSetter(
+				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class)));
+				
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
 				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));
@@ -414,6 +447,10 @@ class DocumentConfig {
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		
+		// to place...
+		
+
+
 		/*
 		 * The keys are of the form Class:param, where Class is the class name and param
 		 * the element name.  Setters are searched for in descending class order.
@@ -424,18 +461,8 @@ class DocumentConfig {
 //		setters.put("ComponentAssembly:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
 //		setters.put("ComponentAssembly:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
 		
-		setters.put("Instanceable:instancecount", new IntSetter(
-				Reflection.findMethod(Instanceable.class, "setInstanceCount",int.class)));
-		setters.put("RingInstanceable:radialoffset", new DoubleSetter(
-				Reflection.findMethod(RingInstanceable.class, "setRadialOffset", double.class)));
-		setters.put("RingInstance:angleoffset", new DoubleSetter(
-				Reflection.findMethod(RingInstanceable.class, "setAngularOffset", double.class)));
 		
-		setters.put("LineInstanceable:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( LineInstanceable.class, "setInstanceSeparation", double.class)));
 		
-
-
 	}
 	
 	

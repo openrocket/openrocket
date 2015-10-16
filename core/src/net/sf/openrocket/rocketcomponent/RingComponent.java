@@ -16,7 +16,7 @@ import net.sf.openrocket.util.MathUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RingComponent extends StructuralComponent implements Coaxial, LineInstanceable {
+public abstract class RingComponent extends StructuralComponent implements Coaxial {
 	
 	protected boolean outerRadiusAutomatic = false;
 	protected boolean innerRadiusAutomatic = false;
@@ -27,10 +27,6 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	
 	private double shiftY = 0;
 	private double shiftZ = 0;
-	
-	protected int instanceCount = 1;
-	// front-front along the positive rocket axis. i.e. [1,0,0];
-	protected double instanceSeparation = 0; 
 	
 
 	@Override
@@ -219,35 +215,6 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	@Override
 	public double getRotationalUnitInertia() {
 		return ringRotationalUnitInertia(getOuterRadius(), getInnerRadius());
-	}
-	
-
-
-	@Override
-	public double getInstanceSeparation(){
-		return this.instanceSeparation;
-	}
-	
-	@Override
-	public void setInstanceSeparation(final double _separation){
-		this.instanceSeparation = _separation;
-	}
-	
-	@Override
-	public void setInstanceCount( final int newCount ){
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
-		}
-	}
-	
-	@Override
-	public int getInstanceCount(){
-		return this.instanceCount;
-	}
-
-	@Override
-	public String getPatternName(){
-		return (this.getInstanceCount() + "-Line");
 	}
 	
 }
