@@ -5,6 +5,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -27,7 +28,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	
 	 	// only stages which are actually off-centerline will get the dialog here:
 		if(( component instanceof ComponentAssembly )&&( ! component.isCenterline() )){
-			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (ComponentAssembly) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 2);
+			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (ComponentAssembly) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 1);
 		}
 	}
 	

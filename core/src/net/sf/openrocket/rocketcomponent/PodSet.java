@@ -164,12 +164,33 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-ring");
 	}
+	
+	
 
 	@Override
 	public double getRadialOffset() {
 		return this.radialPosition_m;
 	}
 
+
+	@Override
+	public int getInstanceCount() {
+		return this.count;
+	}
+	
+	
+	@Override 
+	public void setInstanceCount( final int newCount ){
+		mutex.verify();
+		if ( newCount < 1) {
+			// there must be at least one instance....   
+			return;
+		}
+		
+        this.count = newCount;
+        this.angularSeparation = Math.PI * 2 / this.count;
+        fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 	
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
@@ -212,12 +233,14 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 
 	@Override
 	public void setAngularOffset(double angle_rad) {
+		mutex.verify();
 		this.angularPosition_rad = angle_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);		
 	}
 
 	@Override
 	public void setRadialOffset(double radius_m) {
+		mutex.verify();
 		this.radialPosition_m = radius_m;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}

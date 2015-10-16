@@ -29,7 +29,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		if (component.getStageNumber() > 0) {
 			JPanel tab = separationTab((AxialStage) component);
 			tabbedPane.insertTab(trans.get("StageConfig.tab.Separation"), null, tab,
-					trans.get("StageConfig.tab.Separation.ttip"), 1);
+					trans.get("StageConfig.tab.Separation.ttip"), 2);
 		}
 	 	
 	}

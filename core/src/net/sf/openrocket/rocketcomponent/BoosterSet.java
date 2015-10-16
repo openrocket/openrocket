@@ -102,6 +102,20 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		return this.count;
 	}
 	
+	
+	@Override 
+	public void setInstanceCount( final int newCount ){
+		mutex.verify();
+		if ( newCount < 1) {
+			// there must be at least one instance....   
+			return;
+		}
+		
+        this.count = newCount;
+        this.angularSeparation = Math.PI * 2 / this.count;
+        fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+	
 	@Override
 	public double getRadialOffset() {
 		return this.radialPosition_m;
@@ -164,12 +178,14 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	public void setRadialOffset(final double radius) {
+		mutex.verify();
 		this.radialPosition_m = radius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
 	}
 
 	@Override
 	public void setAngularOffset(final double angle_rad) {
+		mutex.verify();
 		this.angularPosition_rad = angle_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
