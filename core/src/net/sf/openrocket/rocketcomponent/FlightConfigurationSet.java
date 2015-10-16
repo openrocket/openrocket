@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -24,8 +23,8 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurationSet.class);
 	protected final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
-	protected final static FlightConfigurationID DEFAULT_VALUE_FCID = FlightConfigurationID.DEFAULT_VALUE_FCID;
 	
+	protected E defaultValue;
 	protected final RocketComponent component;
 	protected final int eventType;
 	
@@ -42,7 +41,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		this.component = component;
 		this.eventType = eventType;
 		
-		this.map.put( DEFAULT_VALUE_FCID, _defaultValue );
+		this.defaultValue= _defaultValue;
 		
 		addListener(_defaultValue);
 	}
@@ -58,7 +57,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		this.component = component;
 		this.eventType = eventType;
 		
-		this.map.put( DEFAULT_VALUE_FCID, flightConfiguration.getDefault().clone());
+		this.defaultValue= flightConfiguration.getDefault().clone();
 		for (FlightConfigurationID key : flightConfiguration.map.keySet()) {
 			this.map.put(key, flightConfiguration.map.get(key).clone());
 		}
@@ -70,7 +69,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	
 	@Override
 	public E getDefault(){
-		return this.map.get(DEFAULT_VALUE_FCID);
+		return this.defaultValue;
 	}
 	
 	@Override
@@ -81,7 +80,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		if( this.isDefault(nextDefaultValue)){
 			return;
 		}
-		this.set( DEFAULT_VALUE_FCID, nextDefaultValue);
+		this.defaultValue = nextDefaultValue;
 	}
 	
 	@Override
@@ -127,16 +126,16 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	public List<FlightConfigurationID> getSortedConfigurationIDs(){
 		Vector<FlightConfigurationID> toReturn = new Vector<FlightConfigurationID>(); 
 		
-		toReturn.addAll( this.getIDs() );
+		toReturn.addAll( this.map.keySet() );
 		toReturn.sort( null );
 			
 		return toReturn;
 	}
 	
-	public Set<FlightConfigurationID> getIDs(){
-		return this.map.keySet();
+	public List<FlightConfigurationID> getIDs(){
+		return this.getSortedConfigurationIDs();
 	}
-	
+    
 	@Override
 	public void set(FlightConfigurationID fcid, E nextValue) {
 		if (null == fcid) {
@@ -146,11 +145,6 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		}
 		if ( nextValue == null) {
 			// null value means to delete this fcid
-			if ( DEFAULT_VALUE_FCID == fcid ) {
-				// NEVER delete the default value....
-				return;
-			}
-   
 			E previousValue = map.remove(fcid);
 			removeListener(previousValue);
 		}else{
@@ -168,7 +162,7 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 	
 	@Override
 	public boolean isDefault( FlightConfigurationID fcid) {
-		return (getDefault() == map.get(fcid));
+		return ( this.getDefault() == this.map.get(fcid));
 	}
 	
 	@Override
@@ -219,16 +213,32 @@ public class FlightConfigurationSet<E extends FlightConfigurableParameter<E>> im
 		System.err.println("====== Dumping ConfigurationSet for comp: '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
 		System.err.println("        >> FlightConfigurationSet ("+this.size()+ " configurations)");
 		
-		for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
-			String shortKey = loopFCID.toShortKey();
+		if( 0 == this.size() ){
+			String designation = "";
+			E inst = this.getDefault();
 			
-			E inst = this.map.get(loopFCID);
-			String designation;
 			if( inst instanceof FlightConfiguration){
-				FlightConfiguration fc = (FlightConfiguration) inst;
-				designation = fc.getName();
+				designation = ((FlightConfiguration) inst).getFlightConfigurationID().getShortKey();
 			}else{
 				designation = inst.toString();
+			}
+		
+			System.err.println("              ( DEFAULT_VALUE = "+designation + ")");		
+		}
+		
+		for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
+			String shortKey = loopFCID.getShortKey();
+			String designation = "";
+			
+			E inst = this.map.get(loopFCID);
+			if( inst instanceof FlightConfiguration){
+				FlightConfiguration fc = (FlightConfiguration) inst;
+				designation = ( fc.isNameOverridden() ? "" : fc.getName());
+			}else{
+				designation = inst.toString();
+			}
+			if( this.isDefault(inst)){
+				shortKey = "*"+shortKey+"*";
 			}
 			System.err.println("              >> ["+shortKey+"]= "+designation);
 		}

@@ -83,8 +83,7 @@ public class Rocket extends RocketComponent {
 		treeModID = modID;
 		functionalModID = modID;
 		
-		FlightConfigurationID defaultFCID = FlightConfigurationID.DEFAULT_CONFIGURATION_FCID;
-		FlightConfiguration defaultConfiguration = new FlightConfiguration( defaultFCID, this);
+		FlightConfiguration defaultConfiguration = new FlightConfiguration( null, this);
 		this.configurations = new FlightConfigurationSet<FlightConfiguration>(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
 	}
 	

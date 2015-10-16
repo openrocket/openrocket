@@ -139,7 +139,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	protected JTable initializeTable() {
 		//// Motor selection table.
 		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket) {
-
 			private static final long serialVersionUID = -1210899988369000567L;
 
 			@Override
@@ -206,7 +205,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         if ( (null == fcid )||( null == curMount )){
             return;
         }
-        System.err.println("?? selected FCID: "+ fcid.key);
         
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
@@ -286,6 +284,11 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 //			if( mount instanceof BodyTube ){
 //				System.err.println("Formatting Cell: fcid="+configId.key.substring(0, 8));
 //				((BodyTube) mount).printMotorDebug();
+//			}
+//			System.err.println("rendering "+configId.getShortKey()+" cell: " );
+//			if( rocket.getConfigurationSet().isDefault( configId) ){
+//				String newText = label.getText() + "  (default)";
+//				System.err.println("     "+label.getText()+" >> "+newText);
 //			}
 			
 			JLabel motorDescriptionLabel = new JLabel(motorString);

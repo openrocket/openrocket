@@ -31,21 +31,22 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		elements.addAll(deploymentConfiguration(defaultConfig, false));
 		
 		Rocket rocket = c.getRocket();
-		// Note - getFlightConfigurationIDs returns at least one element.  The first element
-		// is null and means "default".
-		FlightConfigurationSet<FlightConfiguration> configList = rocket.getConfigurationSet(); 
 		
-		if (configList.size() > 1) {
+		// DEBUG
+		//System.err.println("printing deployment info for: "+dev.getName());
+		//dev.getDeploymentConfigurations().printDebug();
+		// DEBUG 
+		
+		FlightConfigurationSet<FlightConfiguration> configList = rocket.getConfigurationSet(); 
+		for (FlightConfigurationID fcid : configList.getSortedConfigurationIDs()) {
+			//System.err.println("checking FlightConfiguration:"+fcid.getShortKey()+ " save?");
 			
-			for (FlightConfiguration config : configList) {
-				FlightConfigurationID fcid = config.getFlightConfigurationID();
-				if (fcid == null) {
-					continue;
-				}
-				if (dev.getDeploymentConfigurations().isDefault(fcid)) {
-					continue;
-				}
-				
+			if (dev.getDeploymentConfigurations().isDefault(fcid)) {
+				//System.err.println("    >> skipping: fcid="+fcid.getShortKey());
+				continue;
+			}else if( dev.getDeploymentConfigurations().containsKey(fcid)){
+				// only print configurations which override the default.
+				//System.err.println("    >> printing data.");
 				DeploymentConfiguration deployConfig = dev.getDeploymentConfigurations().get(fcid);
 				elements.add("<deploymentconfiguration configid=\"" + fcid.key + "\">");
 				elements.addAll(deploymentConfiguration(deployConfig, true));

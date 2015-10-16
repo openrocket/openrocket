@@ -18,7 +18,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
 public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel implements ComponentChangeListener{
-
 	private static final long serialVersionUID = 3168465083803936363L;
 	private static final Translator trans = Application.getTranslator();
 	private static final String CONFIGURATION = trans.get("edtmotorconfdlg.col.configuration");
@@ -66,8 +65,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public int getRowCount() {
-		// the -1 removes the DEFAULT_VALUE row, which is hidden.
-		return (rocket.getConfigurationCount()-1);
+		return rocket.getConfigurationCount();
 	}
 
 	@Override
@@ -107,9 +105,8 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	}
 
 	private FlightConfigurationID getConfigurationID(int rowNum) {
-		if( rocket.getConfigurationCount() != (1+ ids.size() ) ){
+		if( rocket.getConfigurationCount() != (ids.size() ) ){
 			this.ids = rocket.getSortedConfigurationIDs();
-			this.ids.remove(FlightConfigurationID.DEFAULT_VALUE_FCID);
 		}
 		
 		return this.ids.get(rowNum);

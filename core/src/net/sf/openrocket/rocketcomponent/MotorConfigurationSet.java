@@ -37,7 +37,7 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 		System.err.println("        >> motorSet ("+this.size()+ " motors)");
 		
 		for( FlightConfigurationID loopFCID : this.map.keySet()){
-			String shortKey = loopFCID.toShortKey();
+			String shortKey = loopFCID.getShortKey();
 			
 			MotorInstance curInstance = this.map.get(loopFCID);
 			String designation;

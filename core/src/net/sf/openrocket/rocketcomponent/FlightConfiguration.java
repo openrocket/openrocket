@@ -82,8 +82,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
-		this.setName( fcid.key);
-		
+		this.overrideName = false;
+		this.configurationName = "<WARN: attempt to access unset configurationName. WARN!> ";
+				
 		updateStageMap();
 		rocket.addComponentChangeListener(this);
 	}
@@ -461,10 +462,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public void setName( final String newName) {
-		if( this.getFlightConfigurationID().equals( FlightConfigurationID.DEFAULT_CONFIGURATION_FCID)){
-			this.configurationName = FlightConfiguration.DEFAULT_CONFIGURATION_NAME;
-			return;
-		}else if( null == newName ){
+		if( null == newName ){
 			this.overrideName = false;
 		}else if( "".equals(newName)){
 			return;
@@ -477,11 +475,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.configurationName = newName;
 	}
 	
+	public boolean isNameOverridden(){
+		return this.overrideName;
+	}
+	
 	public String getName() {
 		if( overrideName ){
 			return this.configurationName;
 		}else{
-			return " NYI - motor digest string";
+			return fcid.key;
 		}
 	}
 	

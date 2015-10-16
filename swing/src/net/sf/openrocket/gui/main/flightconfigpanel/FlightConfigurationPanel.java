@@ -127,7 +127,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		FlightConfiguration newConfig = new FlightConfiguration( newFCID, rocket );
 		
 		rocket.setFlightConfiguration(newFCID, newConfig);
-		//System.err.println("Adding new config: "+newFCID.key+" called: "+newConfig.getName()+" (sz: "+newConfig?+")");
 		
 		// Create a new simulation for this configuration.
 		createSimulationForNewConfiguration();
