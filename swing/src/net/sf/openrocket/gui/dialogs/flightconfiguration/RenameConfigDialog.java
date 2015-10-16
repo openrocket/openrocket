@@ -40,7 +40,6 @@ public class RenameConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				String newName = textbox.getText();
 				rocket.getFlightConfiguration(fcid).setName( newName);
-				System.err.println("    << just renamed: "+fcid.getShortKey()+" with: "+newName+"  to: "+ rocket.getFlightConfiguration(fcid).getName());
 				rocket.getConfigurationSet().printDebug();
 				RenameConfigDialog.this.setVisible(false);
 			}

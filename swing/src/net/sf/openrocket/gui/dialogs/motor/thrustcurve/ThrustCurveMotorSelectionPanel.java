@@ -318,23 +318,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			throw new NullPointerException(" attempted to set mount with a null mount. bug. ");
 		}
 		
-		// DEBUG
 		MotorInstance curMotorInstance = _mount.getMotorInstance(_fcid);
-		System.err.println("(A) motor ID: "+ curMotorInstance.getMotorID().hashCode());
-		if( curMotorInstance.isEmpty()){
-			System.err.println("(B) MotorInstance: Motor: Empty.");
-			System.err.println("(C) MotorInstance: mount: Empty.");
-		}else{
-			System.err.println("(B) MotorInstance: has motor: "+curMotorInstance.getMotor() );
-			System.err.println("(C) MotorInstance: set mount: "+curMotorInstance.getMount());
-		}
-		System.err.println("(D) MotorInstance: parent mount: "+_mount);
-		System.err.println("(F) FCID: "+ _fcid.key);
-		
-		System.err.println("(K) MotorInstance: IgnitionEvent: "+curMotorInstance.getIgnitionEvent().name);
-		System.err.println("(I) MotorInstance: Ign delay: "+curMotorInstance.getIgnitionDelay());
-		// DEBUG		
-		
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
