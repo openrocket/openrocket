@@ -210,14 +210,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		document.getRocket().addComponentChangeListener(new ComponentChangeListener() {
 			@Override
 			public void componentChanged(ComponentChangeEvent e) {
-				// System.out.println("Configuration changed, calling updateFigure");
 				if (is3d) {
-					if (e instanceof ComponentChangeEvent) {
-						if (((ComponentChangeEvent) e).isTextureChange()) {
-							figure3d.flushTextureCaches();
-						}
+					if (e.isTextureChange()) {
+						figure3d.flushTextureCaches();
 					}
 				}
+				updateFigures();
 			}
 		});
 
@@ -495,7 +493,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event) {
-
 		// If no component is clicked, do nothing
 		if (clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
@@ -801,8 +798,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure3d.setSelection(components);
 	}
 
-		//
-		//
 		// /**
 		// * An <code>Action</code> that shows whether the figure type is the
 		// type
@@ -838,5 +833,4 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
 		// }
 		// }
-		//
 }

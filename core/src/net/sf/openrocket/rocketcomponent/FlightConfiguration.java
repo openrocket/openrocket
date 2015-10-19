@@ -351,6 +351,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 	}
 	
+	@Override
+	public String toString() {
+		if( this.overrideName){
+			return this.fcid.key;
+		}else{
+			return this.getName() + "["+this.fcid.getShortKey()+"]";
+		}
+	}
+	
 	// DEBUG / DEVEL
 	public String toDebug() {
 		StringBuilder buf = new StringBuilder();
