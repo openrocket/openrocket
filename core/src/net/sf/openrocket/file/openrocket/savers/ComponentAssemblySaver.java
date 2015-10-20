@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -23,10 +24,11 @@ public class ComponentAssemblySaver extends RocketComponentSaver {
 				list.add("<podset>");
 				instance.addParams(c, list);
 				list.add("</podset>");
+			} else if (c instanceof BoosterSet) {
+				list.add("<boosterset>");
+				instance.addParams(c, list);
+				list.add("</boosterset>");
 			}
-			// BoosterSets are saved from subclass AxialStageSaver
-            // else if (c instanceof BoosterSet) {
-			
 		}
 		
 		return list;

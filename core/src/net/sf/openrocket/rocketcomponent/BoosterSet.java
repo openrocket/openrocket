@@ -104,7 +104,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	public boolean isAfter(){ 
-		return true;
+		return false;
 	}
 
 	@Override 
