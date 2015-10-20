@@ -166,6 +166,12 @@ public class TubeFinSet extends ExternalComponent {
 		return fins;
 	}
 	
+
+	@Override
+	public boolean isAfter(){ 
+		return false;
+	}
+	
 	/**
 	 * Sets the number of fins in the set.
 	 * @param n The number of fins, greater of equal to one.

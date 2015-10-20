@@ -39,7 +39,6 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 		length = 0.03;
 	}
 	
-	
 //	@Override
 //	public double getOuterRadius() {
 //		return radius;
@@ -102,7 +101,7 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 	
 	
 	@Override
-	public boolean isCenterline() {
+	public boolean isAfter() {
 		return false;
 	}
 	
@@ -146,7 +145,7 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 	
 	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 		array = super.shiftCoordinates(array);
 		
 		for (int i = 0; i < array.length; i++) {

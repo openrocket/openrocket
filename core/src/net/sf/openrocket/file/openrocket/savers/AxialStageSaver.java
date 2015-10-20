@@ -19,7 +19,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 	public static ArrayList<String> getElements(net.sf.openrocket.rocketcomponent.RocketComponent c) {
 		ArrayList<String> list = new ArrayList<String>();
 		
-		if (c.isCenterline()) {
+		if (c.isAfter()) {
 			// yes, this test is redundant.  I'm merely paranoid, and attempting to future-proof it
 			if (c.getClass().equals(AxialStage.class)) {
 				// kept as simply 'stage' for backward compatability

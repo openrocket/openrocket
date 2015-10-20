@@ -116,6 +116,10 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		return filled;
 	}
 	
+	@Override
+	public boolean isAfter(){ 
+		return true;
+	}
 	
 	/**
 	 * Sets whether the component is set as filled.  If the component is filled, then
@@ -276,8 +280,6 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		return rotationalInertia;
 	}
 	
-	
-
 	/**
 	 * Performs integration over the length of the component and updates the cached variables.
 	 */

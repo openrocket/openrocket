@@ -11,7 +11,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
-public class BoosterSet extends AxialStage implements FlightConfigurableComponent, RingInstanceable, OutsideComponent {
+public class BoosterSet extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
@@ -49,7 +49,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
 		
-		Coordinate[] instanceLocations = this.getLocation();
+		Coordinate[] instanceLocations = this.getLocations();
 		
 		for (Coordinate currentInstanceLocation : instanceLocations) {
 			if (x_min > (currentInstanceLocation.x)) {
@@ -102,7 +102,11 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		return this.count;
 	}
 	
-	
+	@Override
+	public boolean isAfter(){ 
+		return true;
+	}
+
 	@Override 
 	public void setInstanceCount( final int newCount ){
 		mutex.verify();
@@ -110,7 +114,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 			// there must be at least one instance....   
 			return;
 		}
-		
+		System.err.println("?! Setting BoosterSet instance count to: "+newCount );
         this.count = newCount;
         this.angularSeparation = Math.PI * 2 / this.count;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -122,40 +126,26 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
-	public Coordinate[] getLocation() {
+	public Coordinate[] getLocations() {
 		if (null == this.parent) {
 			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
 		}
 		
-		Coordinate[] parentInstances = this.parent.getLocation();
+		Coordinate[] parentInstances = this.parent.getLocations();
 		if (1 != parentInstances.length) {
 			throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
 					"(assumed reason for getting multiple parent locations into an external stage.)");
 		}
 		
+		parentInstances[0] = parentInstances[0].add( this.position);
 		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
 		
 		return toReturn;
 	}
 	
 	@Override
-	public boolean getOutside() {
-		return !isCenterline();
-	}
-	
-	@Override
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-ring");
-	}
-
-	/**
-	 * Boosters are, by definition, not centerline. 
-	 * 
-	 * @return whether this Stage is along the center line of the Rocket. Always false.
-	 */
-	@Override
-	public boolean isCenterline() {
-		return false;
 	}
 	
 	@Override
@@ -191,28 +181,23 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] c) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
 		
-		if (this.isCenterline()) {
-			return c;
-		}
-		
 		if (1 < c.length) {
-			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; this is not true, and may produce unexpected behavior! ");
+			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; The length here is "+c.length+"! ");
 		}
 		
 		double radius = this.radialPosition_m;
 		double angle0 = this.angularPosition_rad;
 		double angleIncr = this.angularSeparation;
-		Coordinate center = this.position;
+		Coordinate center = c[0];
 		Coordinate[] toReturn = new Coordinate[this.count];
-		Coordinate thisOffset;
+		//Coordinate thisOffset;
 		double thisAngle = angle0;
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			thisOffset = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
+			toReturn[instanceNumber] = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
 			
-			toReturn[instanceNumber] = thisOffset.add(c[0]);
 			thisAngle += angleIncr;
 		}
 		
@@ -223,24 +208,16 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		buffer.append(String.format("%s    %-24s (stage: %d)", prefix, this.getName(), this.getStageNumber()));
+		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
-		
-		if (this.isCenterline()) {
-			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
-		} else {
-			buffer.append(String.format("    (offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
-			Coordinate[] absCoords = this.getLocation();
-			
-			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
-			}
+		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+		Coordinate[] absCoords = this.getLocations();
+		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+			Coordinate instanceRelativePosition = relCoords[instanceNumber];
+			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+			buffer.append(String.format("%s         [instance %2d of %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+					instanceRelativePosition, instanceAbsolutePosition));
 		}
 		
 	}

@@ -271,12 +271,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	////////////  Methods that may be overridden  ////////////
 	/**
-	 * This enables one-line testing if a component is on the rocket center-line or not.
+	 * Convenience method.   
 	 *   
-	 * @return indicates if this component is centered around the rocket's centerline
+	 * @return indicates if a component is positioned via AFTER
 	 */
-	public boolean isCenterline() {
-		return true;
+	public boolean isAfter(){ 
+		return (Position.AFTER == this.getRelativePositionMethod());
 	}
 
 	
@@ -292,7 +292,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return    an array of shifted coordinates.  The method may modify the contents
 	 * 			  of the passed array and return the array itself.
 	 */
-	public Coordinate[] shiftCoordinates(Coordinate[] c) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
 		return c;
 	}
@@ -927,7 +927,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			result = thisX - relativeLength;
 			break;
 		case ABSOLUTE:
-			Coordinate[] insts = this.getLocation();
+			Coordinate[] insts = this.getLocations();
 			result = insts[0].x;
 			break;
 		case TOP:
@@ -1032,8 +1032,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// if this is the root of a hierarchy, constrain the position to zero.
 		if (null == this.parent) {
 			return;
-		} else if ((this.isCenterline()) && (this instanceof AxialStage)) {
-			// enforce AFTER
+		} else if ( this.isAfter()){
 			positionMethod = Position.AFTER;
 		}
 		checkState();
@@ -1098,12 +1097,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
-	public Coordinate[] getLocation() {
+	public Coordinate[] getLocations() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 
 			return new Coordinate[] { Coordinate.ZERO };
 		} else {
-			Coordinate[] parentPositions = this.parent.getLocation();
+			Coordinate[] parentPositions = this.parent.getLocations();
 			int instCount = parentPositions.length;
 			Coordinate[] thesePositions = new Coordinate[instCount];
 			
@@ -1128,7 +1127,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		final String lockText = "toAbsolute";
 		mutex.lock(lockText);
-		Coordinate[] thesePositions = this.getLocation();
+		Coordinate[] thesePositions = this.getLocations();
 		
 		final int instanceCount = thesePositions.length;
 		
@@ -1177,10 +1176,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		// not sure if this will give us an answer, or THE answer... 
 		//final Coordinate sourceLoc = this.getLocation()[0];
-		final Coordinate[] destLocs = dest.getLocation();
+		final Coordinate[] destLocs = dest.getLocations();
 		Coordinate[] toReturn = new Coordinate[destLocs.length];
 		for (int coordIndex = 0; coordIndex < destLocs.length; coordIndex++) {
-			toReturn[coordIndex] = this.getLocation()[0].add(c).sub(destLocs[coordIndex]);
+			toReturn[coordIndex] = this.getLocations()[0].add(c).sub(destLocs[coordIndex]);
 		}
 		
 		mutex.unlock("toRelative");
@@ -2087,7 +2086,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
 		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
-				this.getOffset(), this.getLocation()[0]));
+				this.getOffset(), this.getLocations()[0]));
 	}
 	
 	public void dumpTreeHelper(StringBuilder buffer, final String prefix) {

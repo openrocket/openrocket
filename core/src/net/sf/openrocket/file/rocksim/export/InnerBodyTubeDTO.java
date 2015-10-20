@@ -104,8 +104,13 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	 */
 	private void handleCluster(InnerTube it, AttachableParts p) {
 		
-		Coordinate[] coords = { Coordinate.NUL };
-		coords = it.shiftCoordinates(coords);
+		// old version - Oct, 19 2015
+		//Coordinate[] coords = { Coordinate.NUL };
+		//coords = it.shiftCoordinates(coords);
+				
+		// new version
+		Coordinate[] coords = it.getLocations();
+
 		for (int x = 0; x < coords.length; x++) {
 			InnerTube partialClone = InnerTube.makeIndividualClusterComponent(coords[x], it.getName() + " #" + (x + 1), it);
 			p.addAttachedPart(new InnerBodyTubeDTO(partialClone, p));

@@ -19,7 +19,7 @@ public class LaunchLugShapes extends RocketComponentShape {
 
 		double length = lug.getLength();
 		double radius = lug.getOuterRadius();
-		Coordinate[] start = transformation.transform( lug.getLocation());
+		Coordinate[] start = transformation.transform( lug.getLocations());
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {

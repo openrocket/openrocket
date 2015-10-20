@@ -135,8 +135,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void setStageActive(final int stageNumber, final boolean _active) {
 		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
-			String activeString = (_active ? "active" : "inactive");
-			log.error("debug: setting stage " + stageNumber + " to " + activeString + "    " + this.toDebug());
 			stageMap.get(stageNumber).active = _active;
 			fireChangeEvent();
 			return;
@@ -149,8 +147,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
 			StageFlags flags = stageMap.get(stageNumber);
 			flags.active = !flags.active;
-			String activeString = (flags.active ? "active" : "inactive");
-			log.error("debug: toggling stage " + stageNumber + " to " + activeString + "    " + this.toDebug());
 			fireChangeEvent();
 			return;
 		}

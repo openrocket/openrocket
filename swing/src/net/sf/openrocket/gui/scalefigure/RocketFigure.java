@@ -228,8 +228,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		System.err.println(" paintingComponent... ");
-
+		
 		AffineTransform baseTransform = g2.getTransform();
 		
 		// Update figure shapes if necessary
@@ -353,13 +352,19 @@ public class RocketFigure extends AbstractScaleFigure {
 			// 3) therefore <component>.getLocation() will return all the instances of this owning component
 			// 4) Then, for each instance of the component, draw each cluster.
 			RocketComponent mountComponent = ((RocketComponent) mount);
-			Coordinate[] mountLocations = mountComponent.getLocation();
+			Coordinate[] mountLocations = mountComponent.getLocations();
 			
 			double mountLength = mountComponent.getLength();
 			for ( Coordinate curInstanceLocation : mountLocations ){
 				Coordinate[] motorPositions;
 				Coordinate[] clusterCenterTop = new Coordinate[]{ curInstanceLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0)};
-				motorPositions = mountComponent.shiftCoordinates(clusterCenterTop);
+				
+				// old code... 
+				// motorPositions = mountComponent.shiftCoordinates(clusterCenterTop);
+				
+				// new code 
+				motorPositions = mountComponent.getLocations();
+				System.err.println("the motors are probably being drawn wrong, and its probably from here.... ");
 				
 				for (int i = 0; i < motorPositions.length; i++) {
 					motorPositions[i] = transformation.transform(motorPositions[i]);
@@ -451,7 +456,7 @@ public class RocketFigure extends AbstractScaleFigure {
    
     	RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
     	Transformation viewTransform = this.transformation;
-    	Coordinate[] locs = comp.getLocation();
+    	Coordinate[] locs = comp.getLocations();
     	
         // generate shapes
     	for( Coordinate curLocation : locs){

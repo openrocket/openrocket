@@ -42,7 +42,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		Coordinate[] instanceLocations = this.getLocation();
+		Coordinate[] instanceLocations = this.getLocations();
 		double x_min = instanceLocations[0].x;
 		double x_max = x_min + this.length;
 		double r_max = 0;
@@ -101,7 +101,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public int getRelativeToStage() {
 		if (null == this.parent) {
 			return -1;
-		} else if (this.isCenterline()) {
+		} else if(1 == this.getInstanceCount()){
 			return --this.stageNumber;
 		} else {
 			return this.parent.getStageNumber();
@@ -113,14 +113,13 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return this.stageNumber;
 	}
 	
+	@Override
+	public boolean isAfter(){ 
+		return true;
+	}
+
 	public void setStageNumber(final int newStageNumber) {
 		this.stageNumber = newStageNumber;
-	}
-	
-	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] c) {
-		checkState();
-		return c;
 	}
 	
 	@Override

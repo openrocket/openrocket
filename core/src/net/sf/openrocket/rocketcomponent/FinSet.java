@@ -144,7 +144,10 @@ public abstract class FinSet extends ExternalComponent {
 		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
-	
+	@Override
+	public boolean isAfter(){ 
+		return false; 
+	}
 	
 	/**
 	 * Return the number of fins in the set.

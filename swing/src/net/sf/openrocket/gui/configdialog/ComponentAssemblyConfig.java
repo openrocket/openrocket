@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -26,8 +27,14 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	public ComponentAssemblyConfig(OpenRocketDocument document, RocketComponent component) {
 		super(document, component);
 	
+		// For DEBUG purposes
+		if( component instanceof AxialStage ){
+			System.err.println(" Dumping AxialStage tree info for devel / debugging.");
+			System.err.println(component.toDebugTree());
+		}
+				
 	 	// only stages which are actually off-centerline will get the dialog here:
-		if(( component instanceof ComponentAssembly )&&( ! component.isCenterline() )){
+		if(( component instanceof ComponentAssembly )&&( 1 < component.getInstanceCount() )){
 			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (ComponentAssembly) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 1);
 		}
 	}
@@ -93,7 +100,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		motherPanel.add(axialOffsetUnitSelector, "growx 1, wrap");
 		
 		// For DEBUG purposes
-		//System.err.println(stage.getRocket().toDebugTree());
+		//System.err.println(assembly.getRocket().toDebugTree());
 		
 		return motherPanel;
 	}

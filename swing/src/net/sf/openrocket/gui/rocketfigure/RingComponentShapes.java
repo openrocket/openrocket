@@ -23,8 +23,13 @@ public class RingComponentShapes extends RocketComponentShape {
 		double or = tube.getOuterRadius();
 		double ir = tube.getInnerRadius();
 		
-		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		// old version
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] instanceOffsets = transformation.transform( component.getLocations());
+
 
 		if ((or-ir >= 0.0012) && (ir > 0)) {
 			// Draw outer and inner
@@ -58,8 +63,12 @@ public class RingComponentShapes extends RocketComponentShape {
 		double ir = tube.getInnerRadius();
 
 		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		instanceOffsets = component.shiftCoordinates(instanceOffsets);
-
+		
+		// old version 
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		instanceOffsets = component.getLocations();
 
 		if ((ir < or) && (ir > 0)) {
 			// Draw inner and outer

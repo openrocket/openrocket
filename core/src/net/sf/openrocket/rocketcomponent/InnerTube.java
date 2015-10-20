@@ -157,10 +157,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
-	public boolean isCenterline() {
-		return (1 == this.getClusterCount());
+	public boolean isAfter(){ 
+		return false;
 	}
-
+	
 	/**
 	 * Set the cluster scaling.
 	 * @see #getClusterScale()
@@ -215,9 +215,23 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return list;
 	}
 	
+	@Override
+	public Coordinate[] getLocations(){
+		if (null == this.parent) {
+			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
+		}
+		
+		Coordinate[] parentInstances = this.parent.getLocations();
+		for( int i=0; i< parentInstances.length; i++){
+			parentInstances[i] = parentInstances[i].add( this.position );
+		}
+		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
+		
+		return toReturn;
+	}
 	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 		array = super.shiftCoordinates(array);
 		
 		int count = getClusterCount();
@@ -372,5 +386,34 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.motors.printDebug();
 	}
 
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, this.getName(), this.getPatternName()));
+		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+		
+		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+		Coordinate[] absCoords = this.getLocations();
+		int count = this.getInstanceCount();
+		for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
+			Coordinate instanceRelativePosition = relCoords[instanceNumber];
+			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+			buffer.append(String.format("%s        [instance %2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+					instanceRelativePosition, instanceAbsolutePosition));
+		}
+		
+		if( this.hasMotor()){
+			MotorInstance curInstance = this.getMotorInstance(null);
+			Motor curMotor = curInstance.getMotor();
+			buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, curMotor.getDesignation(), this.getPatternName()));
+			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
+				Coordinate instanceRelativePosition = relCoords[instanceNumber];
+				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s        [MotorInstance %2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+						instanceRelativePosition, instanceAbsolutePosition));
+			}
+		}else{
+			buffer.append(prefix+"    [X] This Instance doesn't have any motors.\n");
+		}
+	}
 	
 }

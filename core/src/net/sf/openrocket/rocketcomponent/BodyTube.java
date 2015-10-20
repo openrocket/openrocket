@@ -311,7 +311,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		double x_max_shape = this.length;
 		double r_max_shape = getOuterRadius();
 		
-		Coordinate[] locs = this.getLocation();
+		Coordinate[] locs = this.getLocations();
 		// not strictly accurate, but this should provide an acceptable estimate for total vehicle size
 		double x_min_inst = Double.MAX_VALUE;
 		double x_max_inst = Double.MIN_VALUE;

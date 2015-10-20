@@ -8,7 +8,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
-public class PodSet extends ComponentAssembly implements RingInstanceable, OutsideComponent {
+public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(PodSet.class);
@@ -44,7 +44,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
 		
-		Coordinate[] instanceLocations = this.getLocation();
+		Coordinate[] instanceLocations = this.getLocations();
 		
 		for (Coordinate currentInstanceLocation : instanceLocations) {
 			if (x_min > (currentInstanceLocation.x)) {
@@ -77,15 +77,15 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 	}
 	
 	@Override
-	public Coordinate[] getLocation() {
+	public Coordinate[] getLocations() {
 		if (null == this.parent) {
 			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
 		}
 		
-		if (this.isCenterline()) {
-			return super.getLocation();
+		if (this.isAfter()) {
+			return super.getLocations();
 		} else {
-			Coordinate[] parentInstances = this.parent.getLocation();
+			Coordinate[] parentInstances = this.parent.getLocations();
 			if (1 != parentInstances.length) {
 				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
 						"(assumed reason for getting multiple parent locations into an external stage.)");
@@ -99,18 +99,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 	}
 	
 	@Override
-	public boolean getOutside() {
-		return !isCenterline();
-	}
-	
-	/**
-	 * Detects if this Stage is attached directly to the Rocket (and is thus centerline)
-	 * Or if this stage is a parallel (external) stage.
-	 * 
-	 * @return whether this Stage is along the center line of the Rocket.
-	 */
-	@Override
-	public boolean isCenterline() {
+	public boolean isAfter() {
 		return false;
 	}
 	
@@ -141,7 +130,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 	public double getAxialOffset() {
 		double returnValue = Double.NaN;
 		
-		if ((this.isCenterline() && (Position.AFTER != this.relativePosition))) {
+		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
 			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
 		} else {
@@ -193,7 +182,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable, Outsi
 	}
 	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] c) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
 		
 		if (1 < c.length) {

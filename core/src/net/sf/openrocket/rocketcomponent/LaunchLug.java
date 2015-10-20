@@ -99,7 +99,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	
 	@Override
-	public boolean isCenterline() {
+	public boolean isAfter() {
 		return false;
 	}
 	
@@ -143,7 +143,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 		array = super.shiftCoordinates(array);
 		
 		for (int i = 0; i < array.length; i++) {

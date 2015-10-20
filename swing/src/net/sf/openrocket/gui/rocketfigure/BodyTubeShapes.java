@@ -1,11 +1,11 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Transformation;
-
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
 
 
 public class BodyTubeShapes extends RocketComponentShape {
@@ -18,9 +18,14 @@ public class BodyTubeShapes extends RocketComponentShape {
 
 		double length = tube.getLength();
 		double radius = tube.getOuterRadius();
-		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		instanceOffsets = component.shiftCoordinates(instanceOffsets);
 		
+		// old version
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] instanceOffsets = transformation.transform( component.getLocations());
+
 		Shape[] s = new Shape[instanceOffsets.length];
 		for (int i=0; i < instanceOffsets.length; i++) {
 			s[i] = new Rectangle2D.Double((instanceOffsets[i].x)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
@@ -41,7 +46,10 @@ public class BodyTubeShapes extends RocketComponentShape {
 		double or = tube.getOuterRadius();
 		
 		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		instanceOffsets = component.getLocations();
+
 		
 		Shape[] s = new Shape[instanceOffsets.length];
 		for (int i=0; i < instanceOffsets.length; i++) {

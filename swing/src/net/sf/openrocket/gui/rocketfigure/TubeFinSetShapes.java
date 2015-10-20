@@ -1,11 +1,11 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Transformation;
-
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
 
 
 public class TubeFinSetShapes extends RocketComponentShape {
@@ -21,9 +21,12 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		double length = finset.getLength();
 		double outerRadius = finset.getOuterRadius();
 		double bodyRadius = finset.getBodyRadius();
-
-		Coordinate[] start = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		start = component.shiftCoordinates( start);
+		// old version - Oct, 19 2015
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] start = transformation.transform( component.getLocations());
 
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();
@@ -55,8 +58,12 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		double outerradius = finset.getOuterRadius();
 		double bodyradius = finset.getBodyRadius();
 		
-		Coordinate[] start = new Coordinate[]{ transformation.transform( componentAbsoluteLocation.sub( 0, 0, 0) )};
-		start = component.shiftCoordinates( start);
+		// old version - Oct, 19 2015
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] start = transformation.transform( component.getLocations());
 
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();

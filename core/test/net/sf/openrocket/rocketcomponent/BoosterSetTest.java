@@ -4,11 +4,12 @@ package net.sf.openrocket.rocketcomponent;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Test;
 
 public class BoosterSetTest extends BaseTestCase {
 	
@@ -127,21 +128,21 @@ public class BoosterSetTest extends BaseTestCase {
 		double sustainerX;
 		sustainerX = sustainer.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Relative position: ", sustainerX, equalTo(expectedSustainerX));
-		sustainerX = sustainer.getLocation()[0].x;
+		sustainerX = sustainer.getLocations()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Absolute position: ", sustainerX, equalTo(expectedSustainerX));
 		
 		double expectedSustainerNoseX = 0;
 		double sustainerNosePosition = sustainerNose.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Nose X position: ", sustainerNosePosition, equalTo(expectedSustainerNoseX));
 		expectedSustainerNoseX = 0;
-		sustainerNosePosition = sustainerNose.getLocation()[0].x;
+		sustainerNosePosition = sustainerNose.getLocations()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Nose X position: ", sustainerNosePosition, equalTo(expectedSustainerNoseX));
 		
 		double expectedSustainerBodyX = 2;
 		double sustainerBodyX = sustainerBody.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer body rel X position: ", sustainerBodyX, equalTo(expectedSustainerBodyX));
 		expectedSustainerBodyX = 2;
-		sustainerBodyX = sustainerBody.getLocation()[0].x;
+		sustainerBodyX = sustainerBody.getLocations()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer body abs X position: ", sustainerBodyX, equalTo(expectedSustainerBodyX));
 		
 	}
@@ -167,7 +168,7 @@ public class BoosterSetTest extends BaseTestCase {
 		
 		coreX = core.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core Relative position: ", coreX, equalTo(expectedCoreX));
-		coreX = core.getLocation()[0].x;
+		coreX = core.getLocations()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core Absolute position: ", coreX, equalTo(expectedCoreX));
 		
 		RocketComponent coreUpperBody = core.getChild(0);
@@ -175,7 +176,7 @@ public class BoosterSetTest extends BaseTestCase {
 		double resultantX = coreUpperBody.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core body rel X: ", resultantX, equalTo(expectedX));
 		expectedX = expectedCoreX;
-		resultantX = coreUpperBody.getLocation()[0].x;
+		resultantX = coreUpperBody.getLocations()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core body abs X: ", resultantX, equalTo(expectedX));
 		
 		RocketComponent coreLowerBody = core.getChild(1);
@@ -183,7 +184,7 @@ public class BoosterSetTest extends BaseTestCase {
 		resultantX = coreLowerBody.getOffset().x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core body rel X: ", expectedX, resultantX, EPSILON);
 		expectedX = expectedCoreX + coreUpperBody.getLength();
-		resultantX = coreLowerBody.getLocation()[0].x;
+		resultantX = coreLowerBody.getLocations()[0].x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core body abs X: ", expectedX, resultantX, EPSILON);
 		
 		
@@ -195,7 +196,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// 5 + 1.8 + 4.2 = 11
 		//                 11 - 4 = 7;
 		expectedX = 7.0;
-		resultantX = coreFins.getLocation()[0].x;
+		resultantX = coreFins.getLocations()[0].x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core Fins abs X: ", expectedX, resultantX, EPSILON);
 		
 	}
@@ -211,7 +212,7 @@ public class BoosterSetTest extends BaseTestCase {
 		
 		// without making the rocket 'external' and the Stage should be restricted to AFTER positioning.
 		sustainer.setRelativePositionMethod(Position.ABSOLUTE);
-		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.isCenterline(), equalTo(true));
+		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.isAfter(), equalTo(true));
 		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.getRelativePosition(), equalTo(Position.AFTER));
 		
 		// vv function under test
@@ -222,7 +223,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Coordinate resultantRelativePosition = sustainer.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Relative position: ", resultantRelativePosition.x, equalTo(expectedPosition.x));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = sustainer.getLocation()[0];
+		Coordinate resultantAbsolutePosition = sustainer.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedPosition.x));
 		
 	}
@@ -249,7 +250,7 @@ public class BoosterSetTest extends BaseTestCase {
 		assertThat(" 'setInstancecount(int)' failed: ", instanceCount, equalTo(expectedInstanceCount));
 		
 		double expectedAbsX = 6.0;
-		double resultantX = set0.getLocation()[0].x;
+		double resultantX = set0.getLocations()[0].x;
 		assertEquals(">>'setAxialOffset()' failed:\n" + treeDump + "  1st Inst absolute position", expectedAbsX, resultantX, EPSILON);
 		
 		double expectedRadialOffset = 4.0;
@@ -285,7 +286,7 @@ public class BoosterSetTest extends BaseTestCase {
 		double angle = Math.PI * 2 / targetInstanceCount;
 		double radius = targetRadialOffset;
 		
-		Coordinate[] instanceAbsoluteCoords = set0.getLocation();
+		Coordinate[] instanceAbsoluteCoords = set0.getLocations();
 		//		Coordinate[] instanceRelativeCoords = new Coordinate[] { componentAbsolutePosition };
 		//		instanceRelativeCoords = boosterSet.shiftCoordinates(instanceRelativeCoords);
 		
@@ -317,7 +318,7 @@ public class BoosterSetTest extends BaseTestCase {
 		core.addChild(booster);
 		
 		double targetX = +17.0;
-		double expectedX = targetX - core.getLocation()[0].x;
+		double expectedX = targetX - core.getLocations()[0].x;
 		
 		// when subStages should be freely movable		
 		// vv function under test
@@ -332,7 +333,7 @@ public class BoosterSetTest extends BaseTestCase {
 		double resultantAxialPosition = booster.getAxialOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantAxialPosition, equalTo(targetX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
+		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(targetX));
 	}
 	
@@ -367,7 +368,7 @@ public class BoosterSetTest extends BaseTestCase {
 		double resultantAxialOffset = sustainer.getAxialOffset();
 		assertThat(" 'getAxialPosition()' failed: \n" + treeDump + " Relative position: ", resultantAxialOffset, equalTo(expectedAxialOffset));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = sustainer.getLocation()[0];
+		Coordinate resultantAbsolutePosition = sustainer.getLocations()[0];
 		assertThat(" 'setAbsolutePositionVector()' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedX));
 	}
 	
@@ -390,7 +391,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
+		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantAxialOffset = booster.getAxialOffset();
@@ -420,7 +421,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
+		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantPositionValue = booster.getPositionValue();
@@ -449,7 +450,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
+		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantPositionValue = booster.getPositionValue();

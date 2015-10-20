@@ -177,7 +177,7 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	 * Shift the coordinates according to the radial position and direction.
 	 */
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
+	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 		for (int i = 0; i < array.length; i++) {
 			array[i] = array[i].add(0, shiftY, shiftZ);
 		}

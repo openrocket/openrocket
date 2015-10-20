@@ -210,7 +210,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			forces.zero();
 			calcMap.get(component).calculateNonaxialForces(conditions, forces, warnings);
 			
-			int instanceCount = component.getLocation().length;
+			int instanceCount = component.getLocations().length;
 			Coordinate x_cp_comp = forces.getCP();
 			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight * instanceCount);
 			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
