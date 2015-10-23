@@ -140,7 +140,7 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final DescriptionArea selectedModifierDescription;
 	private final SimulationModifierTree availableModifierTree;
 	
-	private final JComboBox<?> simulationSelectionCombo;
+	private final JComboBox<String> simulationSelectionCombo;
 	private final JComboBox<?> optimizationParameterCombo;
 	
 	private final JComboBox<?> optimizationGoalCombo;
@@ -375,7 +375,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		simulationSelectionCombo = new JComboBox();
+		simulationSelectionCombo = new JComboBox<String>();
 		simulationSelectionCombo.setToolTipText(tip);
 		populateSimulations();
 		simulationSelectionCombo.addActionListener(clearHistoryActionListener);
@@ -389,7 +389,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationParameterCombo = new JComboBox();
+		optimizationParameterCombo = new JComboBox<String>();
 		optimizationParameterCombo.setToolTipText(tip);
 		populateParameters();
 		optimizationParameterCombo.addActionListener(clearHistoryActionListener);
@@ -403,7 +403,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationGoalCombo = new JComboBox(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
+		optimizationGoalCombo = new JComboBox<String>(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
 		optimizationGoalCombo.setToolTipText(tip);
 		optimizationGoalCombo.setEditable(false);
 		optimizationGoalCombo.addActionListener(clearHistoryActionListener);
@@ -502,9 +502,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "span 2, grow, wrap para*2");
 		
 		// // Rocket figure
-		FlightConfigurationID fcid = getSelectedSimulation().getOptions().getConfigID();
-		FlightConfiguration config = this.getSelectedSimulation().getRocket().getFlightConfiguration( fcid);
-		figure = new RocketFigure( config );
+		figure = new RocketFigure( getSelectedSimulation().getRocket() );
 		figure.setBorderPixels(1, 1);
 		ScaleScrollPane figureScrollPane = new ScaleScrollPane(figure);
 		figureScrollPane.setFitting(true);
@@ -969,8 +967,6 @@ public class GeneralOptimizationDialog extends JDialog {
 			}
 			
 			Simulation sim = new Simulation(rocket);
-			FlightConfiguration fc = new FlightConfiguration(fcid, rocket);
-			
 			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, fcid));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
@@ -980,7 +976,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		simulations.add(new Named<Simulation>(sim, name));
 		
 		
-		simulationSelectionCombo.setModel(new DefaultComboBoxModel(simulations.toArray()));
+		simulationSelectionCombo.setModel(new DefaultComboBoxModel<String>((String[])simulations.toArray()));
 		simulationSelectionCombo.setSelectedIndex(0);
 		if (current != null) {
 			for (int i = 0; i < simulations.size(); i++) {
@@ -1167,10 +1163,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			selectedModifierDescription.setText("");
 		}
 		
-		// Update the figure
+		// Update the active configuration
 		FlightConfigurationID fcid = getSelectedSimulation().getOptions().getConfigID();
-		FlightConfiguration config = this.getSelectedSimulation().getRocket().getFlightConfiguration( fcid);
-		figure.setConfiguration( config);
+		getSelectedSimulation().getRocket().setDefaultConfiguration(fcid);
 		
 		updating = false;
 	}

@@ -10,6 +10,9 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
@@ -22,7 +25,7 @@ import net.sf.openrocket.util.StateChangeListener;
  */
 public class ParameterSetModel<T extends FlightConfigurableParameter<T>> implements ComboBoxModel<FlightConfigurationID>, StateChangeListener {
 	//private static final Translator trans = Application.getTranslator();
-	
+	private static final Logger log = LoggerFactory.getLogger(ParameterSetModel.class); 
 	//private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private EventListenerList listenerList = new EventListenerList();
@@ -69,6 +72,7 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 		}
 		
 		if (!(item instanceof FlightConfigurationID)) {
+			
 			throw new IllegalArgumentException("MotorConfigurationModel item=" + item);
 		}
 		FlightConfigurationID fcid= (FlightConfigurationID) item;

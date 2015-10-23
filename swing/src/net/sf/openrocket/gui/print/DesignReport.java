@@ -168,7 +168,7 @@ public class DesignReport {
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
 		
-		final PrintFigure figure = new PrintFigure(configuration);
+		final PrintFigure figure = new PrintFigure(rocket);
 		figure.setRotation(rotation);
 		
 		FigureElement cp = panel.getExtraCP();

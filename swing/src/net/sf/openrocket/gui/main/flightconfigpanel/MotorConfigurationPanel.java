@@ -27,6 +27,7 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfiguration
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.ThrustCurveMotorInstance;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -212,11 +213,17 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		Motor m = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 
-		MotorInstance curInstance = curMount.getMotorInstance(fcid);
+		//System.err.println("Just selected motor: "+m+" for config: "+fcid);
 		if (m != null) {
-			curInstance = m.getNewInstance();
+			// DEBUG
+			//System.err.println("     >> new motor: "+m.getDesignation()+" delay: "+d);
+			
+			ThrustCurveMotorInstance curInstance = (ThrustCurveMotorInstance) m.getNewInstance();
 			curInstance.setEjectionDelay(d);
 			curMount.setMotorInstance( fcid, curInstance);
+
+			// DEBUG
+			//System.err.println("        set?: "+curMount.getMotorInstance(fcid).getMotor().getDesignation());			
 		}
 
 		fireTableDataChanged();
@@ -281,9 +288,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			
 			MotorInstance curMotor = mount.getMotorInstance( configId);
 			String motorString = getMotorSpecification( curMotor );
-//			if( mount instanceof BodyTube ){
+//			if( mount instanceof InnerTube ){
 //				System.err.println("Formatting Cell: fcid="+configId.key.substring(0, 8));
-//				((BodyTube) mount).printMotorDebug();
+//				System.err.println( ((InnerTube) mount).toDebugString() );
 //			}
 //			System.err.println("rendering "+configId.getShortKey()+" cell: " );
 //			if( rocket.getConfigurationSet().isDefault( configId) ){

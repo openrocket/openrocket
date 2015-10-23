@@ -219,8 +219,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 		}
 		
-		System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
-		System.err.println(this.rocket.getConfigurationSet().toDebug());
+		//System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
+		//System.err.println(this.rocket.getConfigurationSet().toDebug());
 		return toReturn;
 	}
 	

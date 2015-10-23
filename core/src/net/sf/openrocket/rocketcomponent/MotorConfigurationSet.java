@@ -51,6 +51,7 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 		}
 		return buffer.toString();
 	}
+
 	
 //	public void printDebug(FlightConfigurationID curFCID){
 //		if( this.map.containsKey(curFCID)){

@@ -59,7 +59,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	public static final double SELECTED_WIDTH = 2.0;
 	
 
-	private FlightConfiguration configuration;
+	private Rocket rocket;
+	
 	private RocketComponent[] selection = new RocketComponent[0];
 	private double figureWidth = 0, figureHeight = 0;
 	protected int figureWidthPx = 0, figureHeightPx = 0;
@@ -91,10 +92,9 @@ public class RocketFigure extends AbstractScaleFigure {
 	/**
 	 * Creates a new rocket figure.
 	 */
-	public RocketFigure(FlightConfiguration configuration) {
+	public RocketFigure(Rocket _rkt) {
 		super();
-		
-		this.configuration = configuration;
+		this.rocket = _rkt;
 		
 		this.rotation = 0.0;
 		this.transformation = Transformation.rotate_x(0.0);
@@ -102,15 +102,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		updateFigure();
 	}
 	
-	
-	/**
-	 * Set the configuration displayed by the figure.  It may use the same or different rocket.
-	 * 
-	 * @param configuration		the configuration to display.
-	 */
-	public void setConfiguration(FlightConfiguration configuration) {
-		this.configuration = configuration;
-		updateFigure();
+	public FlightConfiguration getConfiguration() {
+		return this.rocket.getDefaultConfiguration();
 	}
 	
 	
@@ -184,7 +177,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		figureShapes.clear();
 		
 		calculateSize();
-		getShapes( figureShapes, configuration);
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		getShapes( figureShapes, config);
 		
 		repaint();
 		fireChangeEvent();
@@ -340,7 +334,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 		
 		//MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
-		for( MotorInstance curInstance : configuration.getActiveMotors()){
+		FlightConfiguration config = rocket.getDefaultConfiguration(); 
+		for( MotorInstance curInstance : config.getActiveMotors()){
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
@@ -352,11 +347,9 @@ public class RocketFigure extends AbstractScaleFigure {
 			Coordinate[] mountLocations = mountComponent.getLocations();
 			
 			double mountLength = mountComponent.getLength();
-			System.err.println("motors are drawing wrong... from here?");
+			//System.err.println("Drawing motor from here. Motor: "+motor.getDesignation()+" of length: "+motor.getLength());
 			for ( Coordinate curMountLocation : mountLocations ){
 				Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
-				System.err.println("Translating from mount at "+curMountLocation+" to motor at "+curMotorLocation);
-				
 				
 				Coordinate coord = curMotorLocation;
 				{
@@ -523,7 +516,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * The bounds are stored in the variables minX, maxX and maxR.
 	 */
 	private void calculateFigureBounds() {
-		Collection<Coordinate> bounds = configuration.getBounds();
+		Collection<Coordinate> bounds = rocket.getDefaultConfiguration().getBounds();
 		
 		if (bounds.isEmpty()) {
 			minX = 0;

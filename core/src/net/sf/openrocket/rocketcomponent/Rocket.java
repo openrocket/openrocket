@@ -599,10 +599,23 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return this.configSet.get(id);
 	}
+
 	
+	public void setDefaultConfiguration(final FlightConfigurationID fcid) {
+		checkState();
+		if ( null == fcid ){
+			// silently ignore
+			return;
+		}else if( this.configSet.containsKey(fcid)){
+			configSet.setDefault( configSet.get(fcid));
+		}else{
+			return;
+		}
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}	
 	
 	/**
-	 * Set the name of the flight configuration.  A name can be unset by passing
+	 * Associate the given ID and flight configuration.
 	 * <code>null</code> or an empty string.
 	 *
 	 * @param id	the flight configuration id
