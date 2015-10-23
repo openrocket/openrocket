@@ -17,7 +17,7 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
+import net.sf.openrocket.rocketcomponent.ParameterSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -148,7 +148,7 @@ public class RocketComponentSaver {
 			return Collections.emptyList();
 		
 		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
-		FlightConfigurationSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
+		ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
 		List<String> elements = new ArrayList<String>();
 		
 		MotorInstance defaultInstance = mount.getDefaultMotorInstance();

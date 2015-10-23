@@ -11,55 +11,54 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationSet;
-import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.ParameterSet;
 import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A ComboBoxModel that contains a list of flight configurations.  The list can
  * optionally contain a last element that opens up the configuration edit dialog.
  */
-public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurationID>, StateChangeListener {
+public class ParameterSetModel<T extends FlightConfigurableParameter<T>> implements ComboBoxModel<FlightConfigurationID>, StateChangeListener {
 	//private static final Translator trans = Application.getTranslator();
 	
 	//private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private EventListenerList listenerList = new EventListenerList();
 	
-	private FlightConfiguration config;
-	private final Rocket rocket;
-	List<FlightConfigurationID> ids= new Vector<FlightConfigurationID>();
+	private T selected;
+	private final ParameterSet<T> sourceSet;
+	List<FlightConfigurationID> idList= new Vector<FlightConfigurationID>();
 	
-	public FlightConfigurationModel(FlightConfiguration config) {
-		this.config = config;
-		this.rocket = config.getRocket();
-		config.addChangeListener(this);
-	}
-	
+	public ParameterSetModel(ParameterSet<T> set ) {
+		this.sourceSet = set;
+		this.selected = this.sourceSet.getDefault();
+	}	
 	
 	@Override
 	public FlightConfigurationID getElementAt(int index) {
-		this.ids = rocket.getSortedConfigurationIDs();
 		
+		this.idList = this.sourceSet.getSortedConfigurationIDs();
+
 		if (index < 0){
 			return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
-		}else if ( index >= this.ids.size()){ 
+		}else if ( index >= this.idList.size()){ 
 			return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
 		}
 		
-		return this.ids.get(index);
+		return this.idList.get(index);
 	}
 	
 	@Override
 	public int getSize() {
-		return this.ids.size();
+		this.idList = this.sourceSet.getSortedConfigurationIDs();
+		return this.idList.size();
 	}
 	
 	@Override
 	public Object getSelectedItem() {
-		return config.getFlightConfigurationID();
+		return selected;
 	}
 	
 	@Override
@@ -68,14 +67,13 @@ public class FlightConfigurationModel implements ComboBoxModel<FlightConfigurati
 			// Clear selection - huh?
 			return;
 		}
+		
 		if (!(item instanceof FlightConfigurationID)) {
 			throw new IllegalArgumentException("MotorConfigurationModel item=" + item);
 		}
-		
 		FlightConfigurationID fcid= (FlightConfigurationID) item;
-		FlightConfigurationSet<FlightConfiguration> configSet = rocket.getConfigurationSet();
 
-		this.config = configSet.get(fcid);
+		this.selected = sourceSet.get(fcid);
 	}
 	
 	

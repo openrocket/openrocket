@@ -6,7 +6,7 @@ import net.sf.openrocket.motor.MotorInstance;
  * FlightConfigurationSet for motors.
  * This is used for motors, where the default value is always no motor.
  */
-public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance> {
+public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 	
 	public static final int DEFAULT_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
 	
@@ -21,7 +21,7 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public MotorConfigurationSet(FlightConfigurationSet<MotorInstance> flightConfiguration, RocketComponent component, int eventType) {
+	public MotorConfigurationSet(ParameterSet<MotorInstance> flightConfiguration, RocketComponent component, int eventType) {
 		super(flightConfiguration, component, eventType);
 	}
 	
@@ -32,9 +32,10 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 	}
 	
 	@Override
-	public void printDebug(){
-		System.err.println("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
-		System.err.println("        >> motorSet ("+this.size()+ " motors)");
+	public String toDebug(){
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
+		buffer.append("        >> motorSet ("+this.size()+ " motors)");
 		
 		for( FlightConfigurationID loopFCID : this.map.keySet()){
 			String shortKey = loopFCID.getShortKey();
@@ -46,9 +47,9 @@ public class MotorConfigurationSet extends FlightConfigurationSet<MotorInstance>
 			}else{
 				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
 			}
-			System.err.println("              >> ["+shortKey+"]= "+designation);
-			
+			buffer.append("              >> ["+shortKey+"]= "+designation);
 		}
+		return buffer.toString();
 	}
 	
 //	public void printDebug(FlightConfigurationID curFCID){

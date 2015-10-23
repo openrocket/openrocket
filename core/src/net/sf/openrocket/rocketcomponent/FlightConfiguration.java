@@ -184,14 +184,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return toReturn;
 	}
 
+
 	public List<MotorInstance> getActiveMotors() {
 		ArrayList<MotorInstance> toReturn = new ArrayList<MotorInstance>();
 		for ( RocketComponent comp : this.getActiveComponents() ){
-			// DEVEL
-			if (!this.isComponentActive(comp)){
-				log.error( "Detected inactive component in list returned from <config>.getActiveComponents()");
-			}
-			// DEVEL
 			
 			// see planning notes...
 			if ( comp instanceof MotorMount ){ 
@@ -223,7 +219,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 		}
 		
-		
+		System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
+		System.err.println(this.rocket.getConfigurationSet().toDebug());
 		return toReturn;
 	}
 	
@@ -368,7 +365,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	// DEBUG / DEVEL
-	public String toDebugDetail() {
+	public String toStageListDetail() {
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping stage config: \n"));
 		for (StageFlags flags : this.stageMap.values()) {
@@ -491,6 +488,5 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return fcid.key;
 		}
 	}
-	
 	
 }

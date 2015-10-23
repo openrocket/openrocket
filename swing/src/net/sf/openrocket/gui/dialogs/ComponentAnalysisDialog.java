@@ -46,7 +46,7 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
+import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -56,8 +56,9 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -176,8 +177,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JLabel label = new JLabel(trans.get("componentanalysisdlg.lbl.motorconf"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
-		panel.add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
 		
+		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
+		JComboBox<FlightConfigurationID> combo = new JComboBox<FlightConfigurationID>(psm);
+		panel.add(combo, "wrap");
 		
 		
 		// Tabbed pane

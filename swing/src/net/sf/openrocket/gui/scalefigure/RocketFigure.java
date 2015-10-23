@@ -345,33 +345,21 @@ public class RocketFigure extends AbstractScaleFigure {
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
 			double motorRadius = motor.getDiameter() / 2;
-		
-			// Steps for instancing:
-			// 1) mountComponent has an instanced ancestor:
-			// 2) which may be an arbitrary number of levels up, so calling mount.parent.getInstances is not enough.   
-			// 3) therefore <component>.getLocation() will return all the instances of this owning component
-			// 4) Then, for each instance of the component, draw each cluster.
 			RocketComponent mountComponent = ((RocketComponent) mount);
+			
+			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
+			// so, just draw a motor once for each Coordinate returned... 
 			Coordinate[] mountLocations = mountComponent.getLocations();
 			
 			double mountLength = mountComponent.getLength();
-			for ( Coordinate curInstanceLocation : mountLocations ){
-				Coordinate[] motorPositions;
-				Coordinate[] clusterCenterTop = new Coordinate[]{ curInstanceLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0)};
-				
-				// old code... 
-				// motorPositions = mountComponent.shiftCoordinates(clusterCenterTop);
-				
-				// new code 
-				motorPositions = mountComponent.getLocations();
-				System.err.println("the motors are probably being drawn wrong, and its probably from here.... ");
-				
-				for (int i = 0; i < motorPositions.length; i++) {
-					motorPositions[i] = transformation.transform(motorPositions[i]);
-				}
+			System.err.println("motors are drawing wrong... from here?");
+			for ( Coordinate curMountLocation : mountLocations ){
+				Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
+				System.err.println("Translating from mount at "+curMountLocation+" to motor at "+curMotorLocation);
 				
 				
-				for (Coordinate coord : motorPositions) {
+				Coordinate coord = curMotorLocation;
+				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
 						s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,

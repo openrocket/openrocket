@@ -37,7 +37,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
+import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -304,7 +304,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
-		add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
+		
+		// ?? this model should operate off of either: the rocket (or the FlightConfigurationSet contained in the rocket... )
+				
+		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
+		JComboBox<FlightConfigurationID> flightConfigurationcomboBox = new JComboBox<FlightConfigurationID>(psm);
+		add(flightConfigurationcomboBox, "wrap");
 
 		// Create slider and scroll pane
 

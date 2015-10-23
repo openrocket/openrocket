@@ -62,7 +62,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private static boolean undoErrorReported = false;
 	
 	private final Rocket rocket;
-	private final FlightConfiguration configuration;
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
@@ -104,7 +103,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
 	
 	OpenRocketDocument(Rocket rocket) {
-		this.configuration = rocket.getDefaultConfiguration();
 		this.rocket = rocket;
 		init();
 	}
@@ -166,7 +164,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	
 	public FlightConfiguration getDefaultConfiguration() {
-		return configuration;
+		return rocket.getDefaultConfiguration();
 	}
 	
 	public File getFile() {

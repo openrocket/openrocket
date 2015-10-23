@@ -114,7 +114,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 			// there must be at least one instance....   
 			return;
 		}
-		System.err.println("?! Setting BoosterSet instance count to: "+newCount );
+		
         this.count = newCount;
         this.angularSeparation = Math.PI * 2 / this.count;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

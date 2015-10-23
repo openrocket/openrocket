@@ -383,7 +383,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 
 	public void printMotorDebug( FlightConfigurationID fcid ){
-		this.motors.printDebug();
+		System.err.println(this.motors.toDebug());
 	}
 
 	@Override
@@ -393,26 +393,29 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		
 		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
 		Coordinate[] absCoords = this.getLocations();
+		FlightConfigurationID curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
 		int count = this.getInstanceCount();
-		for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
-			Coordinate instanceRelativePosition = relCoords[instanceNumber];
-			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-			buffer.append(String.format("%s        [instance %2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
-					instanceRelativePosition, instanceAbsolutePosition));
-		}
-		
-		if( this.hasMotor()){
-			MotorInstance curInstance = this.getMotorInstance(null);
-			Motor curMotor = curInstance.getMotor();
-			buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, curMotor.getDesignation(), this.getPatternName()));
+		MotorInstance curInstance = this.motors.get(curId);
+		if( curInstance.isEmpty() ){
+			// print just the tube locations
+			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
 			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
 				Coordinate instanceRelativePosition = relCoords[instanceNumber];
 				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s        [MotorInstance %2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+				buffer.append(String.format("%s        [%2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
 						instanceRelativePosition, instanceAbsolutePosition));
 			}
 		}else{
-			buffer.append(prefix+"    [X] This Instance doesn't have any motors.\n");
+			// curInstance has a motor ... 
+			Motor curMotor = curInstance.getMotor();
+			buffer.append(String.format("%s    %-24s (in cluster: %s)\n", prefix, curMotor.getDesignation(), this.getPatternName()));
+			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
+				Coordinate instanceRelativePosition = relCoords[instanceNumber];
+				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s        [%2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+						instanceRelativePosition, instanceAbsolutePosition));
+			}
+		
 		}
 	}
 	

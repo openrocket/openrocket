@@ -7,8 +7,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.MutableComboBoxModel;
 
-import org.jfree.util.Log;
-
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
@@ -131,8 +129,6 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 			this.fireContentsChanged(this, 0, values.length);
 		}
 	}
-	
-	
 
 	@Override
 	public String toString() {

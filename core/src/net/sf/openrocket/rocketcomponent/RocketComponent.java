@@ -1358,25 +1358,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	/**
 	 * Removes a child from the rocket component tree.
+	 * (redirect to the removed-by-component
 	 *
 	 * @param n  remove the n'th child.
 	 * @throws IndexOutOfBoundsException  if n is out of bounds
 	 */
 	public final void removeChild(int n) {
 		checkState();
-		RocketComponent component = children.remove(n);
-		component.parent = null;
-		
-		if (component instanceof AxialStage) {
-			AxialStage nStage = (AxialStage) component;
-			this.getRocket().forgetStage(nStage);
-		}
-		
-		this.checkComponentStructure();
-		component.checkComponentStructure();
-		
-		updateBounds();
-		fireAddRemoveEvent(component);
+		RocketComponent component = this.getChild(n); 
+		this.removeChild(component);
 	}
 	
 	/**
@@ -1391,8 +1381,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		component.checkComponentStructure();
 		
+
 		if (children.remove(component)) {
 			component.parent = null;
+			
+			if (component instanceof AxialStage) {
+				AxialStage stage = (AxialStage) component;
+				this.getRocket().forgetStage(stage);
+			}
 			
 			this.checkComponentStructure();
 			component.checkComponentStructure();

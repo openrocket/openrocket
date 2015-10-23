@@ -12,11 +12,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	private final static String ERROR_CONFIGURATION_KEYTEXT = "error_key_2489";
 //	private final static String DEFAULT_CONFIGURATION_KEYTEXT = "default_configuration_6602";
-//	private final static String DEFAULT_VALUE_KEYTEXT = "default_value_5676";
+	private final static String DEFAULT_VALUE_KEYTEXT = "default_value_5676";
 	
 	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT);
 //	public final static FlightConfigurationID DEFAULT_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_CONFIGURATION_KEYTEXT );
-//	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_KEYTEXT ); 
+	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_KEYTEXT ); 
 	
 	public FlightConfigurationID() {
 		this(UUID.randomUUID().toString());

@@ -66,7 +66,7 @@ public class Rocket extends RocketComponent {
 	
 	
 	// Flight configuration list
-	private FlightConfigurationSet<FlightConfiguration> configurations;
+	private FlightConfigurationSet configSet;
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -84,7 +84,7 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		
 		FlightConfiguration defaultConfiguration = new FlightConfiguration( null, this);
-		this.configurations = new FlightConfigurationSet<FlightConfiguration>(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
+		this.configSet = new FlightConfigurationSet(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
 	}
 	
 	public String getDesigner() {
@@ -281,8 +281,8 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.configurations = new FlightConfigurationSet<FlightConfiguration>(
-				this.configurations, copy, ComponentChangeEvent.ALL_CHANGE);
+		copy.configSet = new FlightConfigurationSet(
+				this.configSet, copy, ComponentChangeEvent.ALL_CHANGE);
 		copy.resetListeners();
 		
 		return copy;
@@ -319,8 +319,8 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.configurations = new FlightConfigurationSet<FlightConfiguration>(
-				r.configurations, this, ComponentChangeEvent.ALL_CHANGE);
+		this.configSet = new FlightConfigurationSet(
+				r.configSet, this, ComponentChangeEvent.ALL_CHANGE);
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();
@@ -499,17 +499,17 @@ public class Rocket extends RocketComponent {
 	 */
 	public FlightConfiguration getDefaultConfiguration() {
 		checkState();
-		return this.configurations.getDefault();
+		return this.configSet.getDefault();
 	}
 	
 	public FlightConfiguration createFlightConfiguration( final FlightConfigurationID fcid) {
 		checkState();
 		FlightConfiguration nextConfig = null;
-		if( configurations.containsKey(fcid)){
-			nextConfig = this.configurations.get(fcid);
+		if( configSet.containsKey(fcid)){
+			nextConfig = this.configSet.get(fcid);
 		}else{
 			nextConfig = new FlightConfiguration(fcid, this);
-			this.configurations.set(fcid, nextConfig);
+			this.configSet.set(fcid, nextConfig);
 		}
 
 		this.setFlightConfiguration( fcid, nextConfig );
@@ -518,16 +518,16 @@ public class Rocket extends RocketComponent {
 	}
 	
 	public int getConfigurationCount(){
-		return this.configurations.size();
+		return this.configSet.size();
 	}
 	
-	public FlightConfigurationSet<FlightConfiguration> getConfigurationSet(){
+	public ParameterSet<FlightConfiguration> getConfigurationSet(){
 		checkState();
-		return this.configurations;
+		return this.configSet;
 	}
 	
 	public List<FlightConfigurationID> getSortedConfigurationIDs(){
-		return configurations.getSortedConfigurationIDs();
+		return configSet.getSortedConfigurationIDs();
 	}
 
 	
@@ -543,7 +543,7 @@ public class Rocket extends RocketComponent {
 			return;
 		
 		// Get current configuration:
-		this.configurations.set(fcid, null);
+		this.configSet.set(fcid, null);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -556,7 +556,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public boolean containsFlightConfigurationID(FlightConfigurationID id) {
 		checkState();
-		FlightConfiguration config = configurations.get( id);
+		FlightConfiguration config = configSet.get( id);
 		return (null != config);
 	}
 	
@@ -597,7 +597,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID id) {
 		checkState();
-		return this.configurations.get(id);
+		return this.configSet.get(id);
 	}
 	
 	
@@ -614,7 +614,7 @@ public class Rocket extends RocketComponent {
 			// silently ignore
 			return;
 		}else{
-			configurations.set(fcid, newConfig);
+			configSet.set(fcid, newConfig);
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
