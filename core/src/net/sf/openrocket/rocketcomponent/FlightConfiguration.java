@@ -31,7 +31,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
 	
-	protected boolean overrideName = false;
+	protected boolean isNamed = false;
 	protected String configurationName;
 	
 	protected final Rocket rocket;
@@ -63,12 +63,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	private int modID = 0;
 	
-	public FlightConfiguration( ){
-		this.fcid = FlightConfigurationID.ERROR_CONFIGURATION_FCID;
-		this.rocket = new Rocket();
-		this.configurationName = "<ERROR: FlightConfiguration created without an id or rocket instance. ERROR!> ";
-	}
-	
 	/**
 	 * Create a new configuration with the specified <code>Rocket</code>.
 	 * 
@@ -76,13 +70,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param rocket  the rocket
 	 */
 	public FlightConfiguration(final FlightConfigurationID _fcid, Rocket rocket ) {
+		System.err.println("  creating FlightConfiguration, with fcid: "+_fcid);
 		if( null == _fcid){
 			this.fcid = new FlightConfigurationID();
 		}else{
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
-		this.overrideName = false;
+		this.isNamed = false;
 		this.configurationName = "<WARN: attempt to access unset configurationName. WARN!> ";
 				
 		updateStageMap();
@@ -344,21 +339,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 	}
 	
-	@Override
-	public String toString() {
-		if( this.overrideName){
-			return fcid.getFullKey();
-		}else{
-			return configurationName + "["+fcid.getShortKey()+"]";
-		}
-	}
-
 	public boolean isNameOverridden(){
-		return overrideName;
+		return isNamed;
 	}
 	
 	public String getName() {
-		if( overrideName ){
+		if( isNamed ){
 			return configurationName;
 		}else{
 			return fcid.getFullKey();
@@ -389,6 +375,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return buf.toString();
 	}
 	
+
+	@Override
+	public String toString() {
+		if( this.isNamed){
+			return configurationName + "["+fcid.getShortKey()+"]";
+		}else{
+			return fcid.getFullKey();
+		}
+	}
+
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		// update according to incoming events 
@@ -478,7 +474,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public void setName( final String newName) {
 		if( null == newName ){
-			this.overrideName = false;
+			this.isNamed = false;
 		}else if( "".equals(newName)){
 			return;
 		}else if( ! this.getFlightConfigurationID().isValid()){
@@ -486,7 +482,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}else if( newName.equals(this.configurationName)){
 			return;
 		}
-		this.overrideName = true;
+		this.isNamed = true;
 		this.configurationName = newName;
 	}
 	
