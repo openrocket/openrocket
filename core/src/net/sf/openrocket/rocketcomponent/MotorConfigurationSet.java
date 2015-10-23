@@ -34,8 +34,10 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 	@Override
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======");
-		buffer.append("        >> motorSet ("+this.size()+ " motors)");
+		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======\n");
+		buffer.append("        >> motorSet ("+this.size()+ " motors)\n");
+		MotorInstance emptyInstance = this.getDefault();
+		buffer.append("              >> (["+emptyInstance.toString()+"]=  @ "+ emptyInstance.getIgnitionEvent().name +"  +"+emptyInstance.getIgnitionDelay()+"sec )\n");
 		
 		for( FlightConfigurationID loopFCID : this.map.keySet()){
 			String shortKey = loopFCID.getShortKey();
@@ -47,7 +49,12 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 			}else{
 				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
 			}
-			buffer.append("              >> ["+shortKey+"]= "+designation);
+			String ignition = curInstance.getIgnitionEvent().name;
+			double delay = curInstance.getIgnitionDelay();
+			if( 0 != delay ){
+				ignition += " +"+delay;
+			}
+			buffer.append("              >> ["+shortKey+"]= "+designation+"  @ "+ignition+"\n");
 		}
 		return buffer.toString();
 	}

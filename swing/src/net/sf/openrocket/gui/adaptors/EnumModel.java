@@ -82,6 +82,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		return currentValue;
 	}
 
+	
 	@Override
 	public void setSelectedItem(Object item) {
 		if (item == null) {
@@ -101,6 +102,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		// Comparison with == ok, since both are enums
 		if (currentValue == item)
 			return;
+		// @SuppressWarnings("unchecked")
+		this.currentValue = (Enum<T>) item;
 		setMethod.invoke(source, item);
 	}
 

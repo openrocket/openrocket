@@ -236,6 +236,10 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		}
 	}
 
+	@Override
+	public String toString(){
+		return MotorInstanceId.EMPTY_ID.getComponentId();
+	}
 	
 	public int getModID() {
 		return modID;

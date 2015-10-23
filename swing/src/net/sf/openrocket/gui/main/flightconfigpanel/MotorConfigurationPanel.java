@@ -288,15 +288,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			
 			MotorInstance curMotor = mount.getMotorInstance( configId);
 			String motorString = getMotorSpecification( curMotor );
-//			if( mount instanceof InnerTube ){
-//				System.err.println("Formatting Cell: fcid="+configId.key.substring(0, 8));
-//				System.err.println( ((InnerTube) mount).toDebugString() );
-//			}
-//			System.err.println("rendering "+configId.getShortKey()+" cell: " );
-//			if( rocket.getConfigurationSet().isDefault( configId) ){
-//				String newText = label.getText() + "  (default)";
-//				System.err.println("     "+label.getText()+" >> "+newText);
-//			}
 			
 			JLabel motorDescriptionLabel = new JLabel(motorString);
 			label.add(motorDescriptionLabel);
@@ -327,11 +318,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		private JLabel getIgnitionEventString(FlightConfigurationID id, MotorMount mount) {
+			MotorInstance defInstance = mount.getDefaultMotorInstance();
 			MotorInstance curInstance = mount.getMotorInstance(id);
 			
 			IgnitionEvent ignitionEvent = curInstance.getIgnitionEvent();
 			Double ignitionDelay = curInstance.getIgnitionDelay();
-			boolean isDefault = mount.isDefaultMotorInstance(curInstance);				
+			boolean isDefault = (defInstance.getIgnitionEvent() == curInstance.getIgnitionEvent());				
 				
 			JLabel label = new JLabel();
 			String str = trans.get("MotorMount.IgnitionEvent.short." + ignitionEvent.name());

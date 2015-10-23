@@ -53,7 +53,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Edit default or override option
-		boolean isDefault = curMount.isDefaultMotorInstance( curMotorInstance );
+		boolean isDefault = curMotorInstance.isEmpty();
 		panel.add(new JLabel(trans.get("IgnitionSelectionDialog.opt.title")), "span, wrap rel");
 		final JRadioButton defaultButton = new JRadioButton(trans.get("IgnitionSelectionDialog.opt.default"), isDefault);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
@@ -101,11 +101,16 @@ public class IgnitionSelectionDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (defaultButton.isSelected()) {
-					// change the default... 
-					IgnitionEvent cie = curMotorInstance.getIgnitionEvent();
+					// retrieve our just-set values
 					double cid = curMotorInstance.getIgnitionDelay();
+					IgnitionEvent cie = curMotorInstance.getIgnitionEvent();
 					
-					// and change all remaining configs?
+					// update the default instance
+					final MotorInstance defaultMotorInstance = curMount.getDefaultMotorInstance();
+					defaultMotorInstance.setIgnitionDelay( cid);
+					defaultMotorInstance.setIgnitionEvent( cie);
+					
+					// and change all remaining configs
 					// this seems like odd behavior to me, but it matches the text on the UI dialog popup. -teyrana (equipoise@gmail.com) 
 					Iterator<MotorInstance> iter = curMount.getMotorIterator();
 					while( iter.hasNext() ){
@@ -114,16 +119,13 @@ public class IgnitionSelectionDialog extends JDialog {
 						next.setIgnitionEvent( cie);
 					}
 					
-					final MotorInstance defaultMotorInstance = curMount.getDefaultMotorInstance();
-					System.err.println("setting default motor ignition ("+defaultMotorInstance.getMotorID().toString()+") to: ");
-					System.err.println("    event: "+defaultMotorInstance.getIgnitionEvent()+" w/delay: "+defaultMotorInstance.getIgnitionDelay());
-					
-				}
-//				else {
+//					System.err.println("setting default motor ignition ("+defaultMotorInstance.getMotorID().toString()+") to: ");
+//					System.err.println("    event: "+defaultMotorInstance.getIgnitionEvent().name+" w/delay: "+defaultMotorInstance.getIgnitionDelay());
+//				}else {
 //					System.err.println("setting motor ignition to.... new values: ");
 //					//destMotorInstance.setIgnitionEvent((IgnitionEvent)eventBox.getSelectedItem());
 //					System.err.println("    "+curMotorInstance.getIgnitionEvent()+" w/ "+curMotorInstance.getIgnitionDelay());
-//				}
+				}
 				IgnitionSelectionDialog.this.setVisible(false);
 			}
 		});

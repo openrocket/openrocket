@@ -367,11 +367,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	@Override
-	public boolean isDefaultMotorInstance( final MotorInstance testInstance){
-		return this.motors.getDefault() == testInstance;
-	}
-
-	@Override
 	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
 		return this.motors.get(fcid);
 	}

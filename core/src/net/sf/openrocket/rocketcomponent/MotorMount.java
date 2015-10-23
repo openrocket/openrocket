@@ -53,15 +53,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @return number of times this component is instanced
 	 */
 	public int getInstanceCount();
-	
-	
-	/**
-	 * 
-	 * @param testInstance  instance to test
-	 * @return  if this motor is the default instance
-	 */
-	public boolean isDefaultMotorInstance( final MotorInstance testInstance);
-	
+		
 	/**
 	 * 
 	 * @param fcid  id for which to return the motor (null retrieves the default)
@@ -116,4 +108,10 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 */
 	public Coordinate getMotorPosition(FlightConfigurationID id);
 	
+	/**
+	 * Development / Debug method.
+	 * 
+	 * @return table describing all the motors configured for this mount.
+	 */
+	public String toMotorDebug( );
 }

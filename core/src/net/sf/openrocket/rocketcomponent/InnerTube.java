@@ -259,12 +259,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public MotorInstance getDefaultMotorInstance(){
 		return this.motors.getDefault();
 	}
-	
-	@Override
-	public boolean isDefaultMotorInstance( final MotorInstance testInstance){
-		return this.motors.isDefault( testInstance);
-	}
-	
+		
 	@Override
 	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
 		return this.motors.get(fcid);
@@ -376,9 +371,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		copy.setName(splitName);
 		return copy;
 	}
-
-	public void printMotorDebug( FlightConfigurationID fcid ){
-		System.err.println(this.motors.toDebug());
+	
+	@Override
+	public String toMotorDebug( ){
+		return this.motors.toDebug();
 	}
 
 	@Override
