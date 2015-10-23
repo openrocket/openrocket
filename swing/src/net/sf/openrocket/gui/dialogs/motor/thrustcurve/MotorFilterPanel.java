@@ -22,6 +22,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.itextpdf.text.Font;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -36,8 +38,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-
-import com.itextpdf.text.Font;
 
 public abstract class MotorFilterPanel extends JPanel {
 
@@ -283,10 +283,28 @@ public abstract class MotorFilterPanel extends JPanel {
 
 			JSpinner spin = new JSpinner(minimumLength.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
+			minimumLength.addChangeListener( new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					lengthSlider.setValueAt(0, (int)(1000* minimumLength.getValue())); 
+				}
+			});
 			sub.add(spin, "split 5, growx");
 
 			sub.add(new UnitSelector(minimumLength), "");
+			
+			spin = new JSpinner(maximumLength.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			maximumLength.addChangeListener( new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					lengthSlider.setValueAt(1, (int) (1000* maximumLength.getValue()));
+				}
+			});
+			sub.add(spin, "growx");
 
+			sub.add(new UnitSelector(maximumLength), "wrap");
+			
 			lengthSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, 1000, 0, 1000);
 			lengthSlider.setBounded(true); // thumbs cannot cross
 			lengthSlider.setMajorTickSpacing(100);
@@ -303,22 +321,9 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 
-			minimumLength.addChangeListener( new ChangeListener() {
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(0, (int)(1000* minimumLength.getValue())); 
-					lengthSlider.setValueAt(1, (int) (1000* maximumLength.getValue()));
-				}
+			sub.add( lengthSlider, "growx,wrap");
 
-			});
-
-			sub.add( lengthSlider, "growx");
-
-			spin = new JSpinner(maximumLength.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			sub.add(spin, "growx");
-
-			sub.add(new UnitSelector(maximumLength), "wrap");
+			
 		}
 		this.add(sub, "grow,wrap");
 
