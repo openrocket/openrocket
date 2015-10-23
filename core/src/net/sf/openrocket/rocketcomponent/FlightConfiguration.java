@@ -347,11 +347,24 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	@Override
 	public String toString() {
 		if( this.overrideName){
-			return this.fcid.key;
+			return fcid.getFullKey();
 		}else{
-			return this.getName() + "["+this.fcid.getShortKey()+"]";
+			return configurationName + "["+fcid.getShortKey()+"]";
 		}
 	}
+
+	public boolean isNameOverridden(){
+		return overrideName;
+	}
+	
+	public String getName() {
+		if( overrideName ){
+			return configurationName;
+		}else{
+			return fcid.getFullKey();
+		}
+	}
+	
 	
 	// DEBUG / DEVEL
 	public String toDebug() {
@@ -475,18 +488,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 		this.overrideName = true;
 		this.configurationName = newName;
-	}
-	
-	public boolean isNameOverridden(){
-		return this.overrideName;
-	}
-	
-	public String getName() {
-		if( overrideName ){
-			return this.configurationName;
-		}else{
-			return fcid.key;
-		}
 	}
 	
 }

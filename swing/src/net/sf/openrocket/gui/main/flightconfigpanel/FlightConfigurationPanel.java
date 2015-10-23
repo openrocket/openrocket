@@ -145,7 +145,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				((FlightConfigurableComponent) c).cloneFlightConfiguration(oldId, newId);
 			}
 		}
-		newConfig.setName( newId.key );
 		rocket.setFlightConfiguration(newId, newConfig);
 		
 		// Create a new simulation for this configuration.

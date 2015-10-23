@@ -8,37 +8,30 @@ import java.util.UUID;
  * straight-up <code>String</code> Key in previous implementations. 
  */
 public final class FlightConfigurationID implements Comparable<FlightConfigurationID> {
-	final public String key;
+	final public UUID key;
 	
-	private final static String ERROR_CONFIGURATION_KEYTEXT = "error_key_2489";
+	private final static long DEFAULT_MOST_SIG_BITS = 0xF4F2F1F0;
+	private final static UUID ERROR_CONFIGURATION_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 2489);
 //	private final static String DEFAULT_CONFIGURATION_KEYTEXT = "default_configuration_6602";
-	private final static String DEFAULT_VALUE_KEYTEXT = "default_value_5676";
+	private final static UUID DEFAULT_VALUE_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 5676);
 	
-	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT);
+	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_UUID);
 //	public final static FlightConfigurationID DEFAULT_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_CONFIGURATION_KEYTEXT );
-	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_KEYTEXT ); 
+	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_UUID ); 
 	
 	public FlightConfigurationID() {
-		this(UUID.randomUUID().toString());
+		this(UUID.randomUUID());
 	}
 	
-	public FlightConfigurationID(final String _val) {
+	public FlightConfigurationID(final String _str) {
+		this.key = UUID.fromString( _str);
+	}
+	
+	public FlightConfigurationID(final UUID _val) {
 		if (null == _val){
-			this.key = FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT;
-		}else if (5 >_val.length()){
-			this.key = FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT;
+			this.key = FlightConfigurationID.ERROR_CONFIGURATION_UUID;
 		} else {
-			// vv temp vv
-			String temp_val = _val;
-			final String extra = "key: ";
-			if( _val.contains(extra)){
-				int index = temp_val.lastIndexOf(extra);
-				temp_val = _val.substring(index+extra.length());
-				System.err.println("  correcting FCID from \""+_val+"\" to \""+temp_val+"\".");
-			}
-			// ^^ temp ^^
-			
-			this.key = temp_val;
+			this.key = _val;
 		}
 	}
 	
@@ -53,7 +46,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public String getShortKey(){
-		return this.key.substring(0,8);
+		return this.key.toString().substring(0,8);
+	}
+
+	public String getFullKey(){
+		return this.key.toString();
 	}
 	
 	@Override
@@ -61,25 +58,17 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		return this.key.hashCode();
 	}
 	
-	public String intern() {
-		return this.key.intern();
+	public UUID intern() {
+		return this.key;
 	}
 	
 	public boolean isValid() {
-		if (this.key.intern() == FlightConfigurationID.ERROR_CONFIGURATION_KEYTEXT) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public int length() {
-		return this.key.length();
+		return (this.key != ERROR_CONFIGURATION_UUID);
 	}
 	
 	@Override
 	public String toString() {
-		return this.key;
+		return this.key.toString();
 	}
 
 	@Override
