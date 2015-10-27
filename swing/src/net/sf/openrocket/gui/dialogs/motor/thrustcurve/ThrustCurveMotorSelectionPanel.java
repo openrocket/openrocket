@@ -311,14 +311,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	}
 
-	public void setMotorMountAndConfig( final FlightConfigurationID _fcid,  MotorMount _mount ) {
+	public void setMotorMountAndConfig( final FlightConfigurationID _fcid,  MotorMount mountToEdit ) {
 		if ( null == _fcid ){
 			throw new NullPointerException(" attempted to set mount with a null FCID. bug.  ");
-		}else if ( null == _mount ){
+		}else if ( null == mountToEdit ){
 			throw new NullPointerException(" attempted to set mount with a null mount. bug. ");
 		}
+		motorFilterPanel.setMotorMount(mountToEdit);
 		
-		MotorInstance curMotorInstance = _mount.getMotorInstance(_fcid);
+		MotorInstance curMotorInstance = mountToEdit.getMotorInstance(_fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
@@ -341,11 +342,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 			
 			select(motorToSelect);
-			MotorMount mount = curMotorInstance.getMount();
-			
-			//? have we added this motor to the given mount? 
-			motorFilterPanel.setMotorMount(mount);
+
 		}
+		motorFilterPanel.setMotorMount(mountToEdit);
 		scrollSelectionVisible();
 	}
 

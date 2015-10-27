@@ -26,6 +26,7 @@ import com.itextpdf.text.Font;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.CheckList;
@@ -40,10 +41,11 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class MotorFilterPanel extends JPanel {
+	private static final long serialVersionUID = -2068101000195158181L;
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static Hashtable diameterLabels = new Hashtable();
+	private static Hashtable<Integer,JLabel> diameterLabels = new Hashtable<Integer,JLabel>();
 	private static double[] diameterValues = new double[] {
 		0,
 		.013,
@@ -66,7 +68,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 	}
 
-	private static Hashtable impulseLabels = new Hashtable();
+	private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<Integer,JLabel>();
 	static {
 		int i =0;
 		for( ImpulseClass impulseClass : ImpulseClass.values() ) {
@@ -79,8 +81,9 @@ public abstract class MotorFilterPanel extends JPanel {
 
 	private final MotorRowFilter filter;
 
-	private final JCheckBox limitLengthCheckBox;
-	private boolean limitLength = false;
+	private final JCheckBox limitByLengthCheckBox; 
+	//private final BooleanModel limitByLengthModel;
+	//private boolean limitLength = false;
 	private Double mountLength = null;
 	
 	private final JCheckBox limitDiameterCheckBox;
@@ -99,7 +102,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
 
-		limitLength = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
+		boolean limitByLengthPref = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
 		limitDiameter = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitDiameter", false);
 		
 		//// Hide used motor files
@@ -261,21 +264,24 @@ public abstract class MotorFilterPanel extends JPanel {
 			sub.add( diameterSlider, "growx, wrap");
 		}
 
-		{
+		{ // length selection
+			
 			sub.add( new JLabel(trans.get("TCMotorSelPan.Length")), "split 2, wrap");
-			limitLengthCheckBox = new JCheckBox( trans.get("TCMotorSelPan.checkbox.limitlength"));
-			GUIUtil.changeFontSize(limitLengthCheckBox, -1);
-			limitLengthCheckBox.setSelected(limitLength);
-			limitLengthCheckBox.addActionListener(new ActionListener() {
+			final BooleanModel limitByLengthModel = new BooleanModel(limitByLengthPref);
+			limitByLengthCheckBox = new JCheckBox( limitByLengthModel );
+			limitByLengthCheckBox.setText( trans.get("TCMotorSelPan.checkbox.limitlength"));
+			GUIUtil.changeFontSize(limitByLengthCheckBox, -1);
+			
+			limitByLengthCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					limitLength = limitLengthCheckBox.isSelected();
+					//boolean limitByLength = limitByLengthCheckBox.isSelected();
 					MotorFilterPanel.this.setLimitLength();
 					onSelectionChanged();
 				}
 			});
 
-			sub.add( limitLengthCheckBox, "gapleft para, spanx, growx, wrap" );
+			sub.add( limitByLengthCheckBox, "gapleft para, spanx, growx, wrap" );
 			
 			
 			final DoubleModel minimumLength = new DoubleModel(filter, "MinimumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
@@ -290,7 +296,7 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 			sub.add(spin, "split 5, growx");
-
+			limitByLengthModel.addEnableComponent(spin,false);
 			sub.add(new UnitSelector(minimumLength), "");
 			
 			spin = new JSpinner(maximumLength.getSpinnerModel());
@@ -302,7 +308,7 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 			sub.add(spin, "growx");
-
+			limitByLengthModel.addEnableComponent(spin,false);
 			sub.add(new UnitSelector(maximumLength), "wrap");
 			
 			lengthSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, 1000, 0, 1000);
@@ -313,6 +319,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			lengthSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
+					
 					int minLength = lengthSlider.getValueAt(0);
 					minimumLength.setValue(minLength/1000.0);
 					int maxLength = lengthSlider.getValueAt(1);
@@ -322,7 +329,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			});
 
 			sub.add( lengthSlider, "growx,wrap");
-
+			limitByLengthModel.addEnableComponent(lengthSlider,false);
 			
 		}
 		this.add(sub, "grow,wrap");
@@ -348,8 +355,9 @@ public abstract class MotorFilterPanel extends JPanel {
 	}
 
 	private void setLimitLength( ) {
-		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitLength);
-		if ( mountLength != null  & limitLength ) {
+		boolean limitByLength = limitByLengthCheckBox.isSelected();
+		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
+		if ( mountLength != null  & limitByLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
 		}
 	}
