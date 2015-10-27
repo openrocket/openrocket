@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +12,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 
@@ -124,10 +127,14 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 
 	@Override
 	public List<FlightConfigurationID> getSortedConfigurationIDs(){
-		Vector<FlightConfigurationID> toReturn = new Vector<FlightConfigurationID>(); 
+		ArrayList<FlightConfigurationID> toReturn = new ArrayList<FlightConfigurationID>(); 
 		
 		toReturn.addAll( this.map.keySet() );
-		toReturn.sort( null );
+		// Java 1.8:
+		//toReturn.sort( null );
+		
+		// Java 1.7: 
+	    Collections.sort(toReturn);
 			
 		return toReturn;
 	}
