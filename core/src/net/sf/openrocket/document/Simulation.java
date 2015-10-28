@@ -12,7 +12,7 @@ import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
@@ -275,12 +275,13 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 		}
 		
-		FlightConfiguration c = new FlightConfiguration( options.getConfigID(), this.getRocket());
-		MotorInstanceConfiguration motors = new MotorInstanceConfiguration(c);
-				
+		FlightConfiguration config = rocket.getFlightConfiguration(options.getConfigID());
+		List<MotorInstance> motorList = config.getActiveMotors();
+						
 		//Make sure this simulation has motors.
-		if (0 == motors.getMotorCount()) {
+		if (0 == motorList.size()){
 			status = Status.CANT_RUN;
+			log.warn("    Unable to simulate: no motors loaded.");
 		}
 		
 		return status;

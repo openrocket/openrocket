@@ -70,7 +70,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param rocket  the rocket
 	 */
 	public FlightConfiguration(final FlightConfigurationID _fcid, Rocket rocket ) {
-		System.err.println("  creating FlightConfiguration, with fcid: "+_fcid);
 		if( null == _fcid){
 			this.fcid = new FlightConfigurationID();
 		}else{
@@ -456,10 +455,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	@SuppressWarnings("unchecked")
 	@Override
 	public FlightConfiguration clone() {
-		FlightConfiguration config = new FlightConfiguration( null, this.getRocket() );
+		FlightConfiguration config = new FlightConfiguration( this.fcid, this.getRocket() );
 		config.listenerList = new ArrayList<EventListener>();
 		config.stageMap = (HashMap<Integer, StageFlags>) this.stageMap.clone();
-		config.cachedBounds = new ArrayList<Coordinate>();
+		config.cachedBounds = this.cachedBounds.clone();
 		config.boundsModID = -1;
 		config.refLengthModID = -1;
 		rocket.addComponentChangeListener(config);
