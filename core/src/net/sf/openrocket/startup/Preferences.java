@@ -61,6 +61,8 @@ public abstract class Preferences implements ChangeSource {
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
+	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	private static final String SHOW_FILE_EXTENSION_WARNING = "SHOW_FILE_EXTENSION_WARNING";
 	
 	//Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
@@ -160,6 +162,22 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setLaunchIntoWind(boolean check) {
 		this.putBoolean(LAUNCH_INTO_WIND, check);
+	}
+	
+	public final boolean getShowRockSimFormatWarning() {
+		return this.getBoolean(SHOW_ROCKSIM_FORMAT_WARNING, true);
+	}
+	
+	public final void setShowRockSimFormatWarning(boolean check) {
+		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
+	}
+	
+	public final boolean getShowFileExtensionWarning() {
+		return this.getBoolean(SHOW_FILE_EXTENSION_WARNING, true);
+	}
+	
+	public final void setShowFileExtensionWarning(boolean check) {
+		this.putBoolean(SHOW_FILE_EXTENSION_WARNING, check);
 	}
 	
 	public final double getDefaultMach() {
@@ -533,7 +551,7 @@ public abstract class Preferences implements ChangeSource {
 		String color = get("componentColors", c, StaticFieldHolder.DEFAULT_COLORS);
 		if (color == null)
 			return Color.BLACK;
-		
+			
 		Color clr = parseColor(color);
 		if (clr != null) {
 			return clr;
@@ -584,7 +602,7 @@ public abstract class Preferences implements ChangeSource {
 	public Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
-		
+			
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
@@ -613,7 +631,7 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public void setDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass, Material material) {
-		
+			
 		putString("componentMaterials", componentClass.getSimpleName(),
 				material == null ? null : material.toStorableString());
 	}
@@ -689,7 +707,7 @@ public abstract class Preferences implements ChangeSource {
 	protected String get(String directory,
 			Class<? extends RocketComponent> componentClass,
 			Map<Class<?>, String> defaultMap) {
-		
+			
 		// Search preferences
 		Class<?> c = componentClass;
 		while (c != null && RocketComponent.class.isAssignableFrom(c)) {
@@ -701,7 +719,7 @@ public abstract class Preferences implements ChangeSource {
 		
 		if (defaultMap == null)
 			return null;
-		
+			
 		// Search defaults
 		c = componentClass;
 		while (RocketComponent.class.isAssignableFrom(c)) {
@@ -736,12 +754,14 @@ public abstract class Preferences implements ChangeSource {
 		 */
 		
 		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<Class<?>, String>();
+		
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
 		}
 		
 		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
+		
 		static {
 			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
 			DEFAULT_COLORS.put(TubeFinSet.class, "0,0,200");

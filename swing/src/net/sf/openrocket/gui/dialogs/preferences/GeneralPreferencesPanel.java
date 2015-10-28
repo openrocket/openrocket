@@ -208,6 +208,40 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(button, "right, wrap");
+		
+		//// Open most recent file on startup
+		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));
+		openRecentOnStartupBox.setSelected(preferences.isAutoOpenLastDesignOnStartupEnabled());
+		openRecentOnStartupBox.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoOpenLastDesignOnStartup(openRecentOnStartupBox.isSelected());
+			}
+		});
+		this.add(openRecentOnStartupBox,"spanx, wrap");
+		
+		//// Save RockSim Format warning dialog
+		final JCheckBox rocksimWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RockSimWarning"));
+		rocksimWarningDialogBox.setSelected(preferences.getShowRockSimFormatWarning());
+		rocksimWarningDialogBox.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setShowRockSimFormatWarning(rocksimWarningDialogBox.isSelected());
+			}
+		});
+		this.add(rocksimWarningDialogBox,"spanx, wrap");
+		
+		//// Extension Format warning dialog
+		final JCheckBox extensionWarningDialoBox = new JCheckBox(trans.get("pref.dlg.lbl.FileExtensionWarning"));
+		extensionWarningDialoBox.setSelected(preferences.getShowFileExtensionWarning());
+		extensionWarningDialoBox.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setShowFileExtensionWarning(extensionWarningDialoBox.isSelected());
+			}
+		});
+		this.add(extensionWarningDialoBox,"spanx, wrap");
+		
 	}
 
 
