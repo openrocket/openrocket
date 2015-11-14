@@ -24,6 +24,7 @@ public abstract class RocketUtils {
 		return length;
 	}
 	
+	// get rid of this method.... we can sure come up with a better way to do this....
 	public static Coordinate getCG(Rocket rocket, MassCalcType calcType) {
 		MassCalculator massCalculator = new MassCalculator();
 		Coordinate cg = massCalculator.getCG(rocket.getDefaultConfiguration(), calcType);

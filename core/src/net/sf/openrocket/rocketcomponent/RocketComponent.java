@@ -1083,9 +1083,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return this.position;
 	}
 	
+//	public Coordinate[] getOffset() {
+//		return new Coordinate[]{this.position};
+//	}
+	
 	
 	/**
-	 * @deprecated kept around as example code. instead use 
+	 * @deprecated kept around as example code. instead use getLocations
 	 * @return
 	 */
 	private Coordinate getAbsoluteVector() {
@@ -2081,7 +2085,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
+		buffer.append(String.format("%s    %-24s;  %5.3f; %24s; %24s;\n", prefix, this.getName(), this.getLength(),
 				this.getOffset(), this.getLocations()[0]));
 	}
 	

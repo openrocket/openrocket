@@ -32,7 +32,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	private double clusterRotation = 0.0;
 	
 	private double overhang = 0;
-	private boolean isActing;
+	private boolean isActingMount;
 	private MotorConfigurationSet motors;
 	
 	/**
@@ -216,6 +216,11 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
+	public Coordinate[] getInstanceOffsets(){
+		return this.shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
+	}
+	
+	@Override
 	public Coordinate[] getLocations(){
 		if (null == this.parent) {
 			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
@@ -277,6 +282,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 			}
 		}
 		
+		this.isActingMount = true;
 		this.motors.set(fcid,newMotorInstance);
 	}
 	
@@ -293,15 +299,15 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
     public void setMotorMount(boolean _active){
-    	if (this.isActing == _active)
+    	if (this.isActingMount == _active)
     		return;
-    	this.isActing = _active;
+    	this.isActingMount = _active;
     	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
 	public boolean isMotorMount(){
-		return this.isActing;
+		return this.isActingMount;
 	}
 	
 	@Override
@@ -382,29 +388,38 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, this.getName(), this.getPatternName()));
 		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { this.getOffset() });
 		Coordinate[] absCoords = this.getLocations();
 		FlightConfigurationID curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
 		int count = this.getInstanceCount();
 		MotorInstance curInstance = this.motors.get(curId);
-		if( curInstance.isEmpty() ){
+		//if( curInstance.isEmpty() ){
+		{
 			// print just the tube locations
-			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
+			
 			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s        [%2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
+				Coordinate tubeRelativePosition = relCoords[instanceNumber];
+				Coordinate tubeAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber, count,
+						tubeRelativePosition, tubeAbsolutePosition));
 			}
+		}
+		
+		if( curInstance.isEmpty() ){
+			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
 		}else{
 			// curInstance has a motor ... 
 			Motor curMotor = curInstance.getMotor();
-			buffer.append(String.format("%s    %-24s (in cluster: %s)\n", prefix, curMotor.getDesignation(), this.getPatternName()));
+			double motorOffset = this.getLength() - curMotor.getLength();
+			
+			buffer.append(String.format("%s    %-24s Thrust: %f N;   (Length: %f); \n", 
+					prefix, curMotor.getDesignation(), curMotor.getMaxThrustEstimate(), curMotor.getLength() ));
 			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s        [%2d / %2d]  %28s  %28s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
+				Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
+				Coordinate tubeAbs = absCoords[instanceNumber];
+				Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber, count,
+						motorRelativePosition, motorAbsolutePosition));
 			}
 		
 		}

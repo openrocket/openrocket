@@ -49,6 +49,10 @@ public final class MotorInstanceId {
 		return componentId;
 	}
 	
+	public int getInstanceNumber() {
+		return number;
+	}
+	
 	
 	@Override
 	public boolean equals(Object o) {

@@ -118,8 +118,18 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+	@Override
+	public Coordinate[] getInstanceOffsets(){
+		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
+		toReturn[0] = Coordinate.ZERO;
+		
+		for ( int index=1 ; index < this.getInstanceCount(); index++){
+			toReturn[index] = new Coordinate(index*this.instanceSeparation,0,0,0);
+		}
+		
+		return toReturn;
+	}
 	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {

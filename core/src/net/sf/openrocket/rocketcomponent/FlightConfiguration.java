@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
@@ -180,36 +181,46 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 
 	public List<MotorInstance> getActiveMotors() {
+		
 		ArrayList<MotorInstance> toReturn = new ArrayList<MotorInstance>();
 		for ( RocketComponent comp : this.getActiveComponents() ){
-			
-			// see planning notes...
 			if ( comp instanceof MotorMount ){ 
 				MotorMount mount = (MotorMount)comp;
 				MotorInstance inst = mount.getMotorInstance(this.fcid);
+				
+				// this merely accounts for instancing of this component:
+				// int instancCount = comp.getInstanceCount();
 
-				// NYI: if clustered... 
-				// if( mount instanceof Clusterable ){
-				// if( 1 < comp.getInstanceCount() ){
-				// if comp is clustered, it will be clustered from the innerTube, no? 
-				//List<MotorInstance> instanceList = mount.getMotorInstance(this.fcid);
-			    
-//				// vvvv DEVEL vvvv
-//				
-//				if(( mount.isMotorMount()) && ( MotorInstance.EMPTY_INSTANCE == inst)){
-//					if( mount instanceof BodyTube){
-//						MotorInstance bt_inst = ((BodyTube)mount).getMotorInstance(this.fcid);
-//						log.error("Detected EMPTY_INSTANCE in config: "+this.fcid.key.substring(0,8)+", mount: \""+comp.getName()+"\"");
-//						((BodyTube)mount).printMotorDebug();
-//					}
-//					continue;
-//				}
-//				// ^^^^ DEVEL ^^^^
+				// we account for instances this way because it counts *all* the instancing between here 
+				// and the rocket root.
+				Coordinate[] instanceLocations= comp.getLocations();
 				
 				// motors go inactive after burnout, so include this filter too
 				if (inst.isActive()){
-					toReturn.add(inst);
-				}
+//					System.err.println(String.format(",,,,,,,,       : %s (%s)",  
+//		                       inst.getMotor().getDigest(), inst.getMotorID() ));
+					int instanceNumber = 0;
+					for (  Coordinate curMountLocation : instanceLocations ){
+							MotorInstance curInstance = inst.clone();
+							curInstance.setID( new MotorInstanceId( comp.getName(), instanceNumber+1) );
+							
+							// 1) mount location 
+							// == curMountLocation
+							
+							// 2) motor location w/in mount: parent.refpoint -> motor.refpoint 
+							Coordinate curMotorOffset = curInstance.getOffset();
+							curInstance.setPosition( curMountLocation.add(curMotorOffset) );
+							toReturn.add( curInstance);	
+							
+							// vvvv DEVEL vvvv
+//								System.err.println(String.format(",,,,,,,,[ %2d]:  %s. (%s)",
+//										instanceNumber, curInstance.getMotor().getDigest(), curInstance));
+							// ^^^^ DEVEL ^^^^
+							instanceNumber ++;
+					}
+					
+				 }
+				 
 			}
 		}
 		
@@ -350,6 +361,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 	}
 	
+	public String toShort() {
+		return this.fcid.getShortKey();
+	}
 	
 	// DEBUG / DEVEL
 	public String toDebug() {

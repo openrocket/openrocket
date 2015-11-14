@@ -100,6 +100,19 @@ public class CenteringRing extends RadiusRingComponent implements LineInstanceab
 	}
 	
 	@Override
+	public Coordinate[] getInstanceOffsets(){
+		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
+		toReturn[0] = Coordinate.ZERO;
+		
+		for ( int index=1 ; index < this.getInstanceCount(); index++){
+			toReturn[index] = new Coordinate(index*this.instanceSeparation,0,0,0);
+			
+		}
+		
+		return toReturn;
+	}
+	
+	@Override
 	public int getInstanceCount(){
 		return this.instanceCount;
 	}

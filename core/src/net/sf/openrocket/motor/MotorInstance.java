@@ -76,6 +76,10 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
 	}
 	
+	public Coordinate getOffset(){
+		return this.position;
+	}
+	
 	public Coordinate getPosition() {
 		return this.position;
 	}

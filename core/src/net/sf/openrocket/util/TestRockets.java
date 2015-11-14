@@ -12,15 +12,19 @@ import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.motor.ThrustCurveMotorInstance;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -40,6 +44,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -83,6 +88,66 @@ public class TestRockets {
 		
 	}
 	
+	private static MotorInstance generateMotorInstance_M1350_75mm(){
+		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+		//			Motor.Type type, double[] delays, double diameter, double length,
+		//			double[] time, double[] thrust,
+		//          Coordinate[] cg, String digest);
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("AeroTech"),"M1350", "Desc", 
+				Motor.Type.SINGLE, new double[] {}, 0.075, 0.622,
+				new double[] { 0, 1, 2 }, new double[] { 0, 1357, 0 },
+				new Coordinate[] {
+					new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)}, 
+				"digest M1350 test");
+		return mtr.getNewInstance();
+	}
+	
+	private static MotorInstance generateMotorInstance_G77_29mm(){
+		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+		//			Motor.Type type, double[] delays, double diameter, double length,
+		//			double[] time, double[] thrust,
+		//          Coordinate[] cg, String digest);
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("AeroTech"),"G77", "Desc", 
+				Motor.Type.SINGLE, new double[] {4,7,10},0.029, 0.124,
+				new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+				new Coordinate[] {
+					new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)}, 
+				"digest G77 test");
+		return  mtr.getNewInstance(); 
+	}
+	
+	// 
+	public static Rocket makeNoMotorRocket() {
+		Rocket rocket;
+		AxialStage stage;
+		NoseCone nosecone;
+		BodyTube bodytube;
+		
+		
+		rocket = new Rocket();
+		stage = new AxialStage();
+		stage.setName("Stage1");
+		// Stage construction
+		rocket.addChild(stage);
+				
+		nosecone = new NoseCone(Transition.Shape.ELLIPSOID, 0.105, 0.033);
+		nosecone.setThickness(0.001);
+		bodytube = new BodyTube(0.69, 0.033, 0.001);
+		bodytube.setMotorMount(true);
+		
+		TrapezoidFinSet finset = new TrapezoidFinSet(3, 0.495, 0.1, 0.3, 0.185);
+		finset.setThickness(0.005);
+		bodytube.addChild(finset);
+		
+		// Component construction
+		stage.addChild(nosecone);
+		stage.addChild(bodytube);
+		
+		
+		return rocket;
+	}
 	
 	/**
 	 * Create a new test rocket based on the value 'key'.  The rocket utilizes most of the 
@@ -544,6 +609,157 @@ public class TestRockets {
 		return rocket;
 	}
 	
+	public static Rocket makeFalcon9Heavy() {
+		Rocket rocket = new Rocket();
+		rocket.setName("Falcon9H Scale Rocket");
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		
+		// ====== Payload Stage ======
+		// ====== ====== ====== ======
+		AxialStage payloadStage = new AxialStage();
+		payloadStage.setName("Payload Fairing");
+		rocket.addChild(payloadStage);
+
+		{
+			NoseCone payloadFairingNoseCone = new NoseCone(Transition.Shape.POWER, 0.118, 0.052);
+			payloadFairingNoseCone.setName("PL Fairing Nose");
+			payloadFairingNoseCone.setThickness(0.001);
+			payloadFairingNoseCone.setShapeParameter(0.5);
+			//payloadFairingNoseCone.setLength(0.118);
+			//payloadFairingNoseCone.setAftRadius(0.052);
+			payloadFairingNoseCone.setAftShoulderRadius( 0.051 );
+	        payloadFairingNoseCone.setAftShoulderLength( 0.02 );
+	        payloadFairingNoseCone.setAftShoulderThickness( 0.001 );
+	        payloadFairingNoseCone.setAftShoulderCapped( false );
+	        payloadStage.addChild(payloadFairingNoseCone);
+			
+			BodyTube payloadBody = new BodyTube(0.132, 0.052, 0.001);
+			payloadBody.setName("PL Fairing Body");
+			payloadStage.addChild(payloadBody);
+			
+			Transition payloadFairingTail = new Transition();
+			payloadFairingTail.setName("PL Fairing Transition");
+			payloadFairingTail.setLength(0.014);
+			payloadFairingTail.setThickness(0.002);
+			payloadFairingTail.setForeRadiusAutomatic(true);
+			payloadFairingTail.setAftRadiusAutomatic(true);
+			payloadStage.addChild(payloadFairingTail);
+			
+			BodyTube upperStageBody= new BodyTube(0.18, 0.0385, 0.001);
+			upperStageBody.setName("Upper Stage Body ");
+			payloadStage.addChild( upperStageBody);
+			
+			{
+				// Parachute
+				Parachute upperChute= new Parachute();
+				upperChute.setName("Parachute");
+				upperChute.setRelativePosition(Position.MIDDLE);
+				upperChute.setPositionValue(0.0);
+				upperChute.setDiameter(0.3);
+				upperChute.setLineCount(6);
+				upperChute.setLineLength(0.3);
+				upperStageBody.addChild( upperChute);
+				
+				// Cord
+				ShockCord cord = new ShockCord();
+				cord.setName("Shock Cord");
+				cord.setRelativePosition(Position.BOTTOM);
+				cord.setPositionValue(0.0);
+				cord.setCordLength(0.4);
+		    	upperStageBody.addChild( cord);
+			}
+			
+			BodyTube interstage= new BodyTube(0.12, 0.0385, 0.001);
+			interstage.setName("Interstage");
+			payloadStage.addChild( interstage);
+		}
+
+		// ====== Core Stage ====== 
+		// ====== ====== ====== ======
+		AxialStage coreStage = new AxialStage();
+		coreStage.setName("Core Stage");
+		rocket.addChild(coreStage);
+
+		{
+			BodyTube coreBody = new BodyTube(0.8, 0.0385, 0.001);
+			// 74 mm inner dia
+			coreBody.setName("Core Stage Body");
+			coreBody.setMotorMount(true);
+			coreStage.addChild( coreBody);
+			{
+				MotorInstance motorInstance = TestRockets.generateMotorInstance_M1350_75mm();
+				motorInstance.setID( new MotorInstanceId( coreBody.getName(), 1) );
+				coreBody.setMotorMount( true);
+				FlightConfigurationID motorConfigId = config.getFlightConfigurationID();
+				coreBody.setMotorInstance( motorConfigId, motorInstance);	 
+			}
+			
+			TrapezoidFinSet coreFins = new TrapezoidFinSet();
+			coreFins.setName("Core Fins");
+			coreFins.setFinCount(4);
+			coreFins.setRelativePosition(Position.BOTTOM);
+			coreFins.setPositionValue(0.0);
+			coreFins.setBaseRotation( Math.PI / 4);
+			coreFins.setThickness(0.003);
+			coreFins.setCrossSection(CrossSection.ROUNDED);
+			coreFins.setRootChord(0.32);
+			coreFins.setTipChord(0.12);
+			coreFins.setHeight(0.12);
+			coreFins.setSweep(0.18);
+			coreBody.addChild(coreFins);
+		}
+		
+		// ====== Booster Stage Set ======
+		// ====== ====== ====== ======
+		BoosterSet boosterStage = new BoosterSet();
+		boosterStage.setName("Booster Stage");
+		coreStage.addChild( boosterStage);
+		boosterStage.setRelativePositionMethod(Position.BOTTOM);
+		boosterStage.setAxialOffset(0.0);
+		boosterStage.setInstanceCount(2);
+		boosterStage.setRadialOffset(0.075);
+		
+		{
+			NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
+			boosterCone.setShapeParameter(0.5);
+			boosterCone.setName("Booster Nose");
+			boosterCone.setThickness(0.002);
+			//payloadFairingNoseCone.setLength(0.118);
+			//payloadFairingNoseCone.setAftRadius(0.052);
+			boosterCone.setAftShoulderRadius( 0.051 );
+	        boosterCone.setAftShoulderLength( 0.02 );
+	        boosterCone.setAftShoulderThickness( 0.001 );
+	        boosterCone.setAftShoulderCapped( false );
+	        boosterStage.addChild( boosterCone);
+			
+			BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
+			boosterBody.setName("Booster Body");
+			boosterBody.setOuterRadiusAutomatic(true);
+			boosterStage.addChild( boosterBody);
+			
+			{
+				InnerTube boosterMotorTubes = new InnerTube();
+				boosterMotorTubes.setName("Booster Motor Tubes");
+				boosterMotorTubes.setLength(0.15);
+				boosterMotorTubes.setOuterRadius(0.015); // => 29mm motors
+				boosterMotorTubes.setThickness(0.0005);
+				boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
+				//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
+				boosterMotorTubes.setClusterScale(1.0);
+				boosterBody.addChild( boosterMotorTubes);
+				
+				FlightConfigurationID motorConfigId = config.getFlightConfigurationID();
+				MotorInstance motorInstance = TestRockets.generateMotorInstance_G77_29mm();
+				motorInstance.setID( new MotorInstanceId( boosterMotorTubes.getName(), 1) );
+				boosterMotorTubes.setMotorInstance( motorConfigId, motorInstance);
+				boosterMotorTubes.setMotorOverhang(0.01234);
+			}
+		}
+		
+		config.setAllStages(true);
+		
+		return rocket;
+	}
 	
 	/*
 	 * Create a new file version 1.00 rocket

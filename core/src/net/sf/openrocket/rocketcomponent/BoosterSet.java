@@ -126,6 +126,11 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
+	public Coordinate[] getInstanceOffsets(){
+		return this.shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
+	}
+	
+	@Override
 	public Coordinate[] getLocations() {
 		if (null == this.parent) {
 			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
@@ -211,12 +216,12 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		buffer.append(String.format("%s    %-24s (stage: %d)", prefix, this.getName(), this.getStageNumber()));
 		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { this.getOffset() });
 		Coordinate[] absCoords = this.getLocations();
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
 			Coordinate instanceRelativePosition = relCoords[instanceNumber];
 			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-			buffer.append(String.format("%s         [instance %2d of %2d]  %28s  %28s\n", prefix, instanceNumber, count,
+			buffer.append(String.format("%s         [%2d/%2d];       %28s;  %28s;\n", prefix, instanceNumber+1, count,
 					instanceRelativePosition, instanceAbsolutePosition));
 		}
 		

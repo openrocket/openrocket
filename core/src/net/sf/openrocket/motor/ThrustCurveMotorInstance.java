@@ -2,6 +2,7 @@ package net.sf.openrocket.motor;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
@@ -65,6 +66,17 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	}
 	
 	@Override
+	public Coordinate getOffset( ){
+		if( null == mount ){
+			return Coordinate.NaN;
+		}else{
+			RocketComponent comp = (RocketComponent) mount;
+			double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
+			return new Coordinate(delta_x, 0, 0);
+		}
+	}
+	
+	@Override
 	public double getLongitudinalInertia() {
 		return unitLongitudinalInertia * stepCG.weight;
 	}
@@ -94,6 +106,7 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		}
 		
 		this.motor = (ThrustCurveMotor)motor;
+		
 		fireChangeEvent();
 	}
 	
@@ -115,6 +128,7 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	@Override
 	public void setMount(final MotorMount _mount) {
 		this.mount = _mount;
+		
 	}
 	
 	@Override
@@ -222,5 +236,10 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		return clone;
 	}
 
+	@Override
+	public String toString(){
+		return this.id.toString();
+	}
+	
 }
 	

@@ -3,6 +3,8 @@ package net.sf.openrocket.simulation;
 import java.util.List;
 
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
@@ -124,10 +126,11 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
-		cg = calc.getCG(status.getConfiguration(), status.getMotorConfiguration());
-		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(), status.getMotorConfiguration());
-		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(), status.getMotorConfiguration());
-		propellantMass = calc.getPropellantMass(status.getConfiguration(), status.getMotorConfiguration());
+		// not sure if this is actually Launch mass or not...
+		cg = calc.getCG(status.getConfiguration(), MassCalcType.LAUNCH_MASS);  
+		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
+		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
+		propellantMass = calc.getPropellantMass(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
 		mass = new MassData(cg, longitudinalInertia, rotationalInertia, propellantMass);
 		
 		// Call post-listener

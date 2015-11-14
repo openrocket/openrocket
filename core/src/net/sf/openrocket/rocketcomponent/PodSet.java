@@ -77,6 +77,11 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
+	public Coordinate[] getInstanceOffsets(){
+		return shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
+	}
+	
+	@Override
 	public Coordinate[] getLocations() {
 		if (null == this.parent) {
 			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
