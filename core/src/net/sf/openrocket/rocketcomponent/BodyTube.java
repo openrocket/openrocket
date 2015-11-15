@@ -453,6 +453,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 
+	@Override
 	public String toMotorDebug(){
 		return this.motors.toDebug();
 	}

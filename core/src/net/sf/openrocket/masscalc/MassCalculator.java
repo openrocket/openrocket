@@ -66,7 +66,7 @@ public class MassCalculator implements Monitorable {
 //	private Vector< MassData> motorData =  new Vector<MassData>(); 
 	
 	// unless in active development, this should be set to false.
-	public boolean debug = false; 
+	//public boolean debug = false; 
 	
 	//////////////////  Constructors ///////////////////
 	public MassCalculator() {
@@ -100,9 +100,9 @@ public class MassCalculator implements Monitorable {
 				throw new BugException("method: calculateStageCache(...) is faulty-- returned null data for an active stage: "+stage.getName()+"("+stage.getStageNumber()+")");
 			}
 			dryCM = stageData.cm.average(dryCM);
-			if( debug){
-				System.err.println("    stageData <<@"+stageNumber+"mass: "+dryCM.weight+" @"+dryCM.toString());
-			}
+//			if( debug){
+//				System.err.println("    stageData <<@"+stageNumber+"mass: "+dryCM.weight+" @"+dryCM.toString());
+//			}
 		}
 		
 		Coordinate totalCM=null;
@@ -114,11 +114,11 @@ public class MassCalculator implements Monitorable {
 			totalCM = dryCM.average(motorCM);
 		}
 		
-		if(debug){
-			Coordinate cm = totalCM;
-			System.err.println(String.format("==>> Combined Mass: %5.3gg @( %g, %g, %g)",
-					cm.weight, cm.x, cm.y, cm.z ));
-		}	
+//		if(debug){
+//			Coordinate cm = totalCM;
+//			System.err.println(String.format("==>> Combined Mass: %5.3gg @( %g, %g, %g)",
+//					cm.weight, cm.x, cm.y, cm.z ));
+//		}	
 
 		return totalCM;
 	}
@@ -140,13 +140,13 @@ public class MassCalculator implements Monitorable {
 		MassData motorData = MassData.ZERO_DATA;
 		
 		// vvvv DEVEL vvvv
-		if( debug){
-			System.err.println("====== ====== getMotorCM: (type: "+type.name()+") ====== ====== ====== ====== ====== ======");
-			System.err.println("    [Number]     [Name]           [mass]");  
-		}
+//		if( debug){
+//			System.err.println("====== ====== getMotorCM: (type: "+type.name()+") ====== ====== ====== ====== ====== ======");
+//			System.err.println("    [Number]     [Name]           [mass]");  
+//		}
 		// ^^^^ DEVEL ^^^^
 
-		int motorCount = 0;
+//		int motorCount = 0;
 		for (MotorInstance inst : config.getActiveMotors() ) {
 			//ThrustCurveMotor motor = (ThrustCurveMotor) inst.getMotor();
 			
@@ -159,13 +159,13 @@ public class MassCalculator implements Monitorable {
 			motorData = motorData.add( instData );
 			
 			// BEGIN DEVEL
-			if( debug){
-				System.err.println(String.format("    motor %2d: %s                %s", //%5.3gg @( %g, %g, %g)",
-						motorCount, inst.getMotor().getDesignation(), instData.toDebug()));
-				System.err.println(String.format("            >> %s",
-						motorData.toDebug()));
-			}
-			motorCount++;
+//			if( debug){
+//				System.err.println(String.format("    motor %2d: %s                %s", //%5.3gg @( %g, %g, %g)",
+//						motorCount, inst.getMotor().getDesignation(), instData.toDebug()));
+//				System.err.println(String.format("            >> %s",
+//						motorData.toDebug()));
+//			}
+//			motorCount++;
 			// END DEVEL	
 		}
 	
@@ -201,10 +201,10 @@ public class MassCalculator implements Monitorable {
 		
 
 		MassData totalData = structureData.add( motorData);
-		if(debug){
-			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
-			
-		}
+//		if(debug){
+//			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
+//			
+//		}
 		
 		return totalData.getLongitudinalInertia();
 	}
@@ -237,10 +237,10 @@ public class MassCalculator implements Monitorable {
 		}
 		
 		MassData totalData = structureData.add( motorData);
-		if(debug){
-			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
-			
-		}
+//		if(debug){
+//			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
+//			
+//		}
 		
 		return totalData.getRotationalInertia();
 	}
@@ -301,9 +301,9 @@ public class MassCalculator implements Monitorable {
 	
 	private void calculateStageCache(FlightConfiguration config) {
 		int stageCount = config.getActiveStageCount();
-		if(debug){
-			System.err.println(">> Calculating CG cache for config: "+config.toShort()+"  with "+stageCount+" stages");
-		}
+//		if(debug){
+//			System.err.println(">> Calculating CG cache for config: "+config.toShort()+"  with "+stageCount+" stages");
+//		}
 		if( 0 < stageCount ){ 
 			for( AxialStage curStage : config.getActiveStages()){
 				int index = curStage.getStageNumber();
@@ -325,20 +325,20 @@ public class MassCalculator implements Monitorable {
 	 * of the specified component, not global coordinates.
 	 */
 	private MassData calculateAssemblyMassData(RocketComponent component) {
-		return calculateAssemblyMassData(component, "....");
-	}
-	
-	private MassData calculateAssemblyMassData(RocketComponent component, String indent) {
+//		return calculateAssemblyMassData(component, "....");
+//	}
+//	
+//	private MassData calculateAssemblyMassData(RocketComponent component, String indent) {
 		
 		Coordinate parentCM = component.getComponentCG();
 		double parentIx = component.getRotationalUnitInertia() * parentCM.weight;
 		double parentIt = component.getLongitudinalUnitInertia() * parentCM.weight;
 		MassData parentData = new MassData( parentCM, parentIx, parentIt);
 		
-		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < parentCM.weight)){
-			//System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toCMDebug() ));
-			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
-		}
+//		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < parentCM.weight)){
+//			//System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toCMDebug() ));
+//			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
+//		}
 		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
@@ -356,7 +356,7 @@ public class MassCalculator implements Monitorable {
 			}
 			
 			// child data, relative to parent's reference frame
-			MassData childData = calculateAssemblyMassData(child, indent+"....");
+			MassData childData = calculateAssemblyMassData(child);//, indent+"....");
 
 			childrenData  = childrenData.add( childData );
 		}
@@ -367,10 +367,10 @@ public class MassCalculator implements Monitorable {
 		int instanceCount = component.getInstanceCount();
 		boolean hasChildren = ( 0 < component.getChildCount());
 		if (( 1 < instanceCount )&&( hasChildren )){
-			if(( debug )){
-				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
-						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
-			}
+//			if(( debug )){
+//				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
+//						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
+//			}
 			
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
@@ -380,10 +380,10 @@ public class MassCalculator implements Monitorable {
 			MassData instAccumData = new MassData();  // accumulator for instance MassData
 			Coordinate[] instanceLocations = ((Instanceable) component).getInstanceOffsets();
          	for( Coordinate curOffset : instanceLocations ){
-         		if( debug){
-         			//System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toCMDebug() ));
-         			System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toDebug() ));
-				}
+//         		if( debug){
+//         			//System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toCMDebug() ));
+//         			System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toDebug() ));
+//				}
          		
 				Coordinate instanceCM = curOffset.add(eachCM);
 				
@@ -425,10 +425,10 @@ public class MassCalculator implements Monitorable {
 //		
 		// move to parent's reference point
 		resultantData = resultantData.move( component.getOffset() );
-		if( debug){
-			//System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toCMDebug()));
-			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toDebug()));
-		}
+//		if( debug){
+//			//System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toCMDebug()));
+//			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toDebug()));
+//		}
 				
 		
 		return resultantData;
