@@ -65,8 +65,9 @@ public class MassCalculator implements Monitorable {
 //	private MassData launchData = null;
 //	private Vector< MassData> motorData =  new Vector<MassData>(); 
 	
-	// unless in active development, this should be set to false.
-	//public boolean debug = false; 
+	// this turns on copious amounts of debug.  Recommend leaving this false 
+	// until reaching code that causes interesting conditions.
+	public boolean debug = false; 
 	
 	//////////////////  Constructors ///////////////////
 	public MassCalculator() {
@@ -301,17 +302,13 @@ public class MassCalculator implements Monitorable {
 	
 	private void calculateStageCache(FlightConfiguration config) {
 		int stageCount = config.getActiveStageCount();
-//		if(debug){
-//			System.err.println(">> Calculating CG cache for config: "+config.toShort()+"  with "+stageCount+" stages");
-//		}
+		if(debug){
+			System.err.println(">> Calculating massData cache for config: "+config.toShort()+"  with "+stageCount+" stages");
+		}
 		if( 0 < stageCount ){ 
 			for( AxialStage curStage : config.getActiveStages()){
 				int index = curStage.getStageNumber();
 				MassData stageData = calculateAssemblyMassData( curStage);
-				if( curStage instanceof BoosterSet ){
-					// hacky correction for the fact Booster Stages aren't direct subchildren to the rocket
-					stageData = stageData.move( curStage.getParent().getOffset() );
-				}
 				cache.put(index, stageData);
 			}
 		}
@@ -325,26 +322,24 @@ public class MassCalculator implements Monitorable {
 	 * of the specified component, not global coordinates.
 	 */
 	private MassData calculateAssemblyMassData(RocketComponent component) {
-//		return calculateAssemblyMassData(component, "....");
-//	}
-//	
-//	private MassData calculateAssemblyMassData(RocketComponent component, String indent) {
+		return calculateAssemblyMassData(component, "....");
+	}
+	
+	private MassData calculateAssemblyMassData(RocketComponent component, String indent) {
 		
 		Coordinate parentCM = component.getComponentCG();
 		double parentIx = component.getRotationalUnitInertia() * parentCM.weight;
 		double parentIt = component.getLongitudinalUnitInertia() * parentCM.weight;
 		MassData parentData = new MassData( parentCM, parentIx, parentIt);
 		
-//		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < parentCM.weight)){
-//			//System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toCMDebug() ));
-//			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
-//		}
-		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
 				parentCM = parentCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
 			if (component.isCGOverridden())
 				parentCM = parentCM.setXYZ(component.getOverrideCG());
+		}
+		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < parentCM.weight)){
+			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
 		}
 		
 		MassData childrenData = MassData.ZERO_DATA;
@@ -356,7 +351,7 @@ public class MassCalculator implements Monitorable {
 			}
 			
 			// child data, relative to parent's reference frame
-			MassData childData = calculateAssemblyMassData(child);//, indent+"....");
+			MassData childData = calculateAssemblyMassData(child, indent+"....");
 
 			childrenData  = childrenData.add( childData );
 		}
@@ -400,35 +395,47 @@ public class MassCalculator implements Monitorable {
 		// combine the parent's and children's data
 		resultantData = parentData.add( childrenData);
 		
-		
-		// Override total data
-//		if (component.getOverrideSubcomponents()) {
-//			if (component.isMassOverridden()) {
-//				double oldMass = parentCM.weight;
-//				double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
-//				longitudinalInertia = longitudinalInertia * newMass / oldMass;
-//				rotationalInertia = rotationalInertia * newMass / oldMass;
-//				parentCM = parentCM.setWeight(newMass);
-//			}
-//			if (component.isCGOverridden()) {
-//				double oldx = parentCM.x;
-//				double newx = component.getOverrideCGX();
-//				longitudinalInertia += parentCM.weight * MathUtil.pow2(oldx - newx);
-//				parentCM = parentCM.setX(newx);
-//			}
-//		}
-		
-//		if( debug){
-//			//System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toCMDebug()));
-//			System.err.println(String.format("%-32s: %s ", indent+"@@["+component.getName()+"][asbly]", resultantData.toDebug()));
-//		}
-//		
+		if( debug){
+			System.err.println(String.format("%-32s: %s ", indent+"<==>["+component.getName()+"][asbly]", resultantData.toDebug()));
+		}
+
 		// move to parent's reference point
 		resultantData = resultantData.move( component.getOffset() );
-//		if( debug){
-//			//System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toCMDebug()));
-//			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toDebug()));
-//		}
+		if( component instanceof BoosterSet ){
+			// hacky correction for the fact Booster Stages aren't direct subchildren to the rocket
+			resultantData = resultantData.move( component.getParent().getOffset() );
+		}
+		
+		// Override total data
+		if (component.getOverrideSubcomponents()) {
+			if( debug){
+				System.err.println(String.format("%-32s: %s ", indent+"vv["+component.getName()+"][asbly]", resultantData.toDebug()));
+			}
+			if (component.isMassOverridden()) {
+				double oldMass = resultantData.getMass();
+				double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
+				Coordinate newCM = resultantData.getCM().setWeight(newMass);
+				
+				double newIxx = resultantData.getIxx() * newMass / oldMass;
+				double newIyy = resultantData.getIyy() * newMass / oldMass;
+				double newIzz = resultantData.getIzz() * newMass / oldMass;
+
+				resultantData = new MassData( newCM, newIxx, newIyy, newIzz );
+			}
+			if (component.isCGOverridden()) {
+				double oldx = resultantData.getCM().x;
+				double newx = component.getOverrideCGX();
+				Coordinate delta = new Coordinate(newx-oldx, 0, 0);
+				if(debug){
+					System.err.println(String.format("%-32s: x: %g => %g  (%g)", indent+"    88", oldx, newx, delta.x)); 
+				}
+				resultantData = resultantData.move( delta );
+			}
+		}
+		
+		if( debug){
+			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toDebug()));
+		}
 				
 		
 		return resultantData;

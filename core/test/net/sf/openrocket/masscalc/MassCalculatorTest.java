@@ -389,4 +389,101 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
 	
+
+	@Test
+	public void testMassOverride() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
+
+		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		int boostNum = boosters.getStageNumber();
+		config.setAllStages(false);
+		config.setOnlyStage( boostNum);
+		
+//		String treeDump = rocket.toDebugTree();
+//		System.err.println( treeDump);
+		
+		double overrideMass = 0.5;
+		boosters.setMassOverridden(true);
+		boosters.setOverrideMass(overrideMass);
+		
+		{
+			// Validate Mass
+			MassCalculator mc = new MassCalculator();
+			//mc.debug = true;
+			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+			double calcTotalMass = boosterSetCM.weight;
+			
+			double expTotalMass = overrideMass;
+			assertEquals(" Booster Launch Mass is incorrect: ", expTotalMass, calcTotalMass, EPSILON);
+			
+			double expCMx = 0.9615865040919498;
+			Coordinate expCM = new Coordinate( expCMx, 0, 0, expTotalMass);
+			assertEquals(" Booster Launch CM.x is incorrect: ", expCM.x, boosterSetCM.x, EPSILON);
+			assertEquals(" Booster Launch CM.y is incorrect: ", expCM.y, boosterSetCM.y, EPSILON);
+			assertEquals(" Booster Launch CM.z is incorrect: ", expCM.z, boosterSetCM.z, EPSILON);
+			assertEquals(" Booster Launch CM is incorrect: ", expCM, boosterSetCM);
+		
+			// Validate MOI
+			double oldMass = 0.23590802751203407;
+			double scaleMass = overrideMass / oldMass;
+			//mc.debug = true;
+			double expMOI_axial = .00144619 * scaleMass;
+			double boosterMOI_xx= mc.getRotationalInertia( config, MassCalcType.NO_MOTORS);
+			assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
+			
+			double expMOI_tr = 0.01845152840733412 * scaleMass;
+			double boosterMOI_tr= mc.getLongitudinalInertia( config, MassCalcType.NO_MOTORS);
+			assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);	
+		}
+		
+	}
+	
+
+	@Test
+	public void testCMOverride() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
+
+		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		int boostNum = boosters.getStageNumber();
+		config.setAllStages(false);
+		config.setOnlyStage( boostNum);
+		
+		//String treeDump = rocket.toDebugTree();
+		//System.err.println( treeDump);
+		
+		double overrideCMx = 0.5;
+		boosters.setCGOverridden(true);
+		boosters.setOverrideCGX(overrideCMx); // only allows x-axis corrections
+		{
+			// Validate Mass
+			MassCalculator mc = new MassCalculator();
+			//mc.debug = true;
+			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+			
+			double expMass = 0.23590802751203407;
+			double calcTotalMass = boosterSetCM.weight;
+			assertEquals(" Booster Launch Mass is incorrect: ", expMass, calcTotalMass, EPSILON);
+			
+			double expCMx = overrideCMx; //0.9615865040919498;
+			Coordinate expCM = new Coordinate( expCMx, 0, 0, expMass);
+			assertEquals(" Booster Launch CM.x is incorrect: ", expCM.x, boosterSetCM.x, EPSILON);
+			assertEquals(" Booster Launch CM.y is incorrect: ", expCM.y, boosterSetCM.y, EPSILON);
+			assertEquals(" Booster Launch CM.z is incorrect: ", expCM.z, boosterSetCM.z, EPSILON);
+			assertEquals(" Booster Launch CM is incorrect: ", expCM, boosterSetCM);
+		
+			// Validate MOI
+			double expMOI_axial = .00144619 ;
+			double boosterMOI_xx= mc.getRotationalInertia( config, MassCalcType.NO_MOTORS);
+			assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
+			
+			double expMOI_tr = 0.01845152840733412 ;
+			double boosterMOI_tr= mc.getLongitudinalInertia( config, MassCalcType.NO_MOTORS);
+			assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);	
+		}
+		
+	}
 }
