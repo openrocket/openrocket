@@ -602,17 +602,19 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setTheta(cpTheta);
 
 		cg = massCalculator.getCG(curConfig, MassCalcType.LAUNCH_MASS);
-		//		System.out.println("CG computed as "+cg+ " CP as "+cp);
+		
 
-		if (cp.weight > 0.000001)
+		if (cp.weight > MassCalculator.MIN_MASS){
 			cpx = cp.x;
-		else
+		}else{
 			cpx = Double.NaN;
-
-		if (cg.weight > 0.000001)
+		}
+		
+		if (cg.weight > MassCalculator.MIN_MASS){
 			cgx = cg.x;
-		else
+		}else{
 			cgx = Double.NaN;
+		}
 
 		figure3d.setCG(cg);
 		figure3d.setCP(cp);

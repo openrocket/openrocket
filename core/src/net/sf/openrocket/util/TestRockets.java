@@ -88,6 +88,7 @@ public class TestRockets {
 		
 	}
 	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static MotorInstance generateMotorInstance_M1350_75mm(){
 		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
 		//			Motor.Type type, double[] delays, double diameter, double length,
@@ -103,6 +104,7 @@ public class TestRockets {
 		return mtr.getNewInstance();
 	}
 	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static MotorInstance generateMotorInstance_G77_29mm(){
 		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
 		//			Motor.Type type, double[] delays, double diameter, double length,
@@ -307,7 +309,84 @@ public class TestRockets {
 		return values[rnd.nextInt(values.length)];
 	}
 	
+	// This is a Estes Alpha III 
+	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
+	// It is picked as a standard, simple, validation rocket. 
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	public static final Rocket makeEstesAlphaIII(){
+		
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		stage.setName("Stage1");
+		rocket.addChild(stage);
+				
+		double noseconeLength = 0.06985;
+		double noseconeRadius = 0.012395;
+		NoseCone nosecone = new NoseCone(Transition.Shape.ELLIPSOID, noseconeLength, noseconeRadius);
+		nosecone.setAftShoulderLength(0.02479);
+		nosecone.setAftShoulderRadius(0.011811);
+		stage.addChild(nosecone);
+		
+		double bodytubeLength = 0.19685;
+		double bodytubeRadius = 0.012395;
+		double bodytubeThickness = 0.00033;
+		BodyTube bodytube = new BodyTube(bodytubeLength, bodytubeRadius, bodytubeThickness);
+		{
+			LaunchLug lug = new LaunchLug();
+			lug.setRelativePosition(Position.TOP);
+			lug.setAxialOffset(0.111125);
+			lug.setLength(0.0508);
+			lug.setOuterRadius(0.002185);
+			lug.setInnerRadius(0.001981);
+			bodytube.addChild(lug);
+			
+			InnerTube inner = new InnerTube();
+			inner.setRelativePosition(Position.TOP);
+			inner.setAxialOffset(0.13335);
+			inner.setLength(0.06985);
+			inner.setOuterRadius(0.009347);
+			inner.setThickness(0.00033);
+			inner.setMotorMount(true);
+			bodytube.addChild(inner);
+			
+			// omit other internal components... this method does not return a flyable version of the Mk 2
+		}
+		stage.addChild(bodytube);
+		
+		int finCount = 3;
+		double finRootChord = .05715;
+		double finTipChord = .03048;
+		double finSweep = 0.06985455;
+		double finHeight = 0.04064;
+		TrapezoidFinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
+		finset.setThickness( 0.003175);
+		finset.setRelativePosition(Position.BOTTOM);
+		bodytube.addChild(finset);
+		
+		Material material = Application.getPreferences().getDefaultComponentMaterial(null, Material.Type.BULK);
+		nosecone.setMaterial(material);
+		bodytube.setMaterial(material);
+		finset.setMaterial(material);
+		
+		return rocket;
+	}
 	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	public static final MotorInstance getTestD12Motor() {
+		// Estes D12:
+		// http://nar.org/SandT/pdf/Estes/D12.pdf
+		ThrustCurveMotor motor = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("Estes"),
+				"D12-X", "Test Motor", Motor.Type.SINGLE, new double[] {0,3,5,7},
+				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 10.2, 0 },
+				new Coordinate[] { 	new Coordinate(0.0035,0,0,44.0), 
+									new Coordinate(0.0035,0,0,30.0),
+									new Coordinate(0.0035,0,0,21.0)},
+				"digest_D12");
+		MotorInstance inst = motor.getNewInstance(); 
+		inst.setEjectionDelay(5);
+		return inst;
+	}
 	public static Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
@@ -609,6 +688,7 @@ public class TestRockets {
 		return rocket;
 	}
 	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static Rocket makeFalcon9Heavy() {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
@@ -1143,9 +1223,8 @@ public class TestRockets {
 	}
 	
 	public static OpenRocketDocument makeTestRocket_v108_withBoosters() {
-		Rocket rocket = new Rocket();
+		Rocket rocket = makeFalcon9Heavy();
 		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
-		
 		return document;
 	}
 	

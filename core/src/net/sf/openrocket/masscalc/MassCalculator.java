@@ -50,7 +50,7 @@ public class MassCalculator implements Monitorable {
 	
 	private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
 	
-	private static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
+	public static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	
 	private int rocketMassModID = -1;
 	private int rocketTreeModID = -1;

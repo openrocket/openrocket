@@ -24,9 +24,6 @@ public class MassCalculatorTest extends BaseTestCase {
 	// tolerance for compared double test results
 	protected final double EPSILON = MathUtil.EPSILON;
 	
-	protected final Coordinate ZERO = new Coordinate(0., 0., 0.);
-
-	
 	@Test
 	public void testRocketNoMotors() {
 		Rocket rkt = TestRockets.makeNoMotorRocket();
