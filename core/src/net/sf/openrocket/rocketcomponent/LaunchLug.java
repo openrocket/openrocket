@@ -20,15 +20,12 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	private double thickness;
 	
 	private double radialDirection = 0;
+	protected double radialDistance = 0;
 	
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
-	/* These are calculated when the component is first attached to any Rocket */
-	private double shiftY, shiftZ;
 	
-	
-
 	public LaunchLug() {
 		super(Position.MIDDLE);
 		radius = 0.01 / 2;
@@ -113,6 +110,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	@Override
 	public void setPositionValue(double value) {
+		System.err.println(" positioning "+getName()+" to: "+value);
 		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -145,25 +143,29 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
-		toReturn[0] = Coordinate.ZERO;
 		
-		for ( int index=1 ; index < this.getInstanceCount(); index++){
-			toReturn[index] = new Coordinate(index*this.instanceSeparation,0,0,0);
+		final double xOffset = this.position.x;
+		final double yOffset = Math.cos(radialDirection) * (radialDistance);
+		final double zOffset = Math.sin(radialDirection) * (radialDistance);
+		
+		for ( int index=0; index < this.getInstanceCount(); index++){
+			toReturn[index] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;
 	}
 	
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
-		array = super.shiftCoordinates(array);
-		
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i].add(0, shiftY, shiftZ);
-		}
-		
-		return array;
-	}
+//	@Override
+//	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
+//		array = super.shiftCoordinates(array);
+//		
+//		for (int i = 0; i < array.length; i++) {
+//			array[i] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
+//			array[i] = array[i].add(0, shiftY, shiftZ);
+//		}
+//		
+//		return array;
+//	}
 	
 	
 	@Override
@@ -194,10 +196,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
 		}
 		
-		shiftY = Math.cos(radialDirection) * (parentRadius + radius);
-		shiftZ = Math.sin(radialDirection) * (parentRadius + radius);
-		
-		//		System.out.println("Computed shift: y="+shiftY+" z="+shiftZ);
+		this.radialDistance = parentRadius + radius;
 	}
 	
 	

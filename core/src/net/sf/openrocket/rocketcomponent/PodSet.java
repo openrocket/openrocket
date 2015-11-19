@@ -78,8 +78,26 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		return shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
+		checkState();
+		
+		final double radius = this.radialPosition_m;
+		final double startAngle = this.angularPosition_rad;
+		final double angleIncr = this.angularSeparation;
+		Coordinate center = Coordinate.ZERO;
+		
+		double curAngle = startAngle;
+		Coordinate[] toReturn = new Coordinate[this.count];
+		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+			final double curY = radius * Math.cos(curAngle);
+			final double curZ = radius * Math.sin(curAngle);
+			toReturn[instanceNumber] = center.add(0, curY, curZ );
+			
+			curAngle += angleIncr;
+		}
+		
+		return toReturn;
 	}
+		
 	
 	@Override
 	public Coordinate[] getLocations() {
@@ -96,7 +114,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 						"(assumed reason for getting multiple parent locations into an external stage.)");
 			}
 			
-			Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
+			final Coordinate center = parentInstances[0].add( this.position);
+			Coordinate[] instanceLocations = this.getInstanceOffsets();
+			Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
+			for( int i = 0; i < toReturn.length; i++){
+				toReturn[i] = center.add( instanceLocations[i]); 
+			}
 			
 			return toReturn;
 		}
@@ -184,31 +207,6 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
         this.count = newCount;
         this.angularSeparation = Math.PI * 2 / this.count;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
-		checkState();
-		
-		if (1 < c.length) {
-			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; this is not true, and may produce unexpected behavior! ");
-		}
-		
-		double radius = this.radialPosition_m;
-		double angle0 = this.angularPosition_rad;
-		double angleIncr = this.angularSeparation;
-		Coordinate center = this.position;
-		Coordinate[] toReturn = new Coordinate[this.count];
-		Coordinate thisOffset;
-		double thisAngle = angle0;
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			thisOffset = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
-			
-			toReturn[instanceNumber] = thisOffset.add(c[0]);
-			thisAngle += angleIncr;
-		}
-		
-		return toReturn;
 	}
 	
 	@Override

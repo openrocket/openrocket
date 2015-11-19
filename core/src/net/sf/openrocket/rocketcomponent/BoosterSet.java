@@ -14,7 +14,7 @@ import net.sf.openrocket.util.Coordinate;
 public class BoosterSet extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
+	//private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
 	
 	protected int count = 1;
 
@@ -127,7 +127,24 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		return this.shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
+		checkState();
+		
+		final double radius = this.radialPosition_m;
+		final double startAngle = this.angularPosition_rad;
+		final double angleIncr = this.angularSeparation;
+		Coordinate center = Coordinate.ZERO;
+		
+		double curAngle = startAngle;
+		Coordinate[] toReturn = new Coordinate[this.count];
+		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+			final double curY = radius * Math.cos(curAngle);
+			final double curZ = radius * Math.sin(curAngle);
+			toReturn[instanceNumber] = center.add(0, curY, curZ );
+			
+			curAngle += angleIncr;
+		}
+		
+		return toReturn;
 	}
 	
 	@Override
@@ -142,8 +159,12 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 					"(assumed reason for getting multiple parent locations into an external stage.)");
 		}
 		
-		parentInstances[0] = parentInstances[0].add( this.position);
-		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
+		final Coordinate center = parentInstances[0].add( this.position);
+		Coordinate[] instanceLocations = this.getInstanceOffsets();
+		Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
+		for( int i = 0; i < toReturn.length; i++){
+			toReturn[i] = center.add( instanceLocations[i]); 
+		}
 		
 		return toReturn;
 	}
@@ -185,30 +206,30 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
-		checkState();
-		
-		if (1 < c.length) {
-			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; The length here is "+c.length+"! ");
-		}
-		
-		double radius = this.radialPosition_m;
-		double angle0 = this.angularPosition_rad;
-		double angleIncr = this.angularSeparation;
-		Coordinate center = c[0];
-		Coordinate[] toReturn = new Coordinate[this.count];
-		//Coordinate thisOffset;
-		double thisAngle = angle0;
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			toReturn[instanceNumber] = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
-			
-			thisAngle += angleIncr;
-		}
-		
-		return toReturn;
-	}
-	
+//	@Override
+//	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
+//		checkState();
+//		
+//		if (1 < c.length) {
+//			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; The length here is "+c.length+"! ");
+//		}
+//		
+//		double radius = this.radialPosition_m;
+//		double angle0 = this.angularPosition_rad;
+//		double angleIncr = this.angularSeparation;
+//		Coordinate center = c[0];
+//		Coordinate[] toReturn = new Coordinate[this.count];
+//		//Coordinate thisOffset;
+//		double thisAngle = angle0;
+//		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+//			toReturn[instanceNumber] = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
+//			
+//			thisAngle += angleIncr;
+//		}
+//		
+//		return toReturn;
+//	}
+//	
 
 	
 	@Override
@@ -216,7 +237,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		buffer.append(String.format("%s    %-24s (stage: %d)", prefix, this.getName(), this.getStageNumber()));
 		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { this.getOffset() });
+		Coordinate[] relCoords = this.getInstanceOffsets();
 		Coordinate[] absCoords = this.getLocations();
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
 			Coordinate instanceRelativePosition = relCoords[instanceNumber];

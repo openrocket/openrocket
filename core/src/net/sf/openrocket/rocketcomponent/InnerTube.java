@@ -217,46 +217,72 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		return this.shiftCoordinates(new Coordinate[]{Coordinate.ZERO});
-	}
-	
-	@Override
-	public Coordinate[] getLocations(){
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-		}
 		
-		Coordinate[] parentInstances = this.parent.getLocations();
-		for( int i=0; i< parentInstances.length; i++){
-			parentInstances[i] = parentInstances[i].add( this.position );
-		}
-		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
-		
-		return toReturn;
-	}
-	
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
-		array = super.shiftCoordinates(array);
-		
-		int count = getClusterCount();
-		if (count == 1)
-			return array;
+		int instanceCount = getClusterCount();
+		if (instanceCount == 1)
+			return super.getInstanceOffsets();
 		
 		List<Coordinate> points = getClusterPoints();
-		if (points.size() != count) {
-			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
-					" point count=" + points.size());
+		if (points.size() != instanceCount) {
+			throw new BugException("Inconsistent cluster configuration, cluster count(" + instanceCount +
+					") != point count(" + points.size()+")");
 		}
-		Coordinate[] newArray = new Coordinate[array.length * count];
-		for (int i = 0; i < array.length; i++) {
-			for (int j = 0; j < count; j++) {
-				newArray[i * count + j] = array[i].add(points.get(j));
-			}
+		
+		 
+		Coordinate[] newArray = new Coordinate[ instanceCount];
+		for (int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++) {
+			newArray[ instanceNumber] = this.position.add( points.get(instanceNumber));
 		}
 		
 		return newArray;
 	}
+	
+//	@Override
+//	public Coordinate[] getLocations(){
+//		if (null == this.parent) {
+//			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
+//		}
+//		
+//		final Coordinate center = parentInstances[0].add( this.position);
+//		Coordinate[] instanceLocations = this.getInstanceOffsets();
+//		Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
+//		for( int i = 0; i < toReturn.length; i++){
+//			toReturn[i] = center.add( instanceLocations[i]); 
+//		}
+//		
+//		return toReturn;
+//		
+//		Coordinate[] parentInstances = this.parent.getLocations();
+//		for( int i=0; i< parentInstances.length; i++){
+//			parentInstances[i] = parentInstances[i].add( this.position );
+//		}
+//		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
+//		
+//		return toReturn;
+//	}
+	
+//	@Override
+//	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
+//		array = super.shiftCoordinates(array);
+//		
+//		int count = getClusterCount();
+//		if (count == 1)
+//			return array;
+//		
+//		List<Coordinate> points = getClusterPoints();
+//		if (points.size() != count) {
+//			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
+//					" point count=" + points.size());
+//		}
+//		Coordinate[] newArray = new Coordinate[array.length * count];
+//		for (int i = 0; i < array.length; i++) {
+//			for (int j = 0; j < count; j++) {
+//				newArray[i * count + j] = array[i].add(points.get(j));
+//			}
+//		}
+//		
+//		return newArray;
+//	}
 	
 	////////////////  Motor mount  /////////////////
 
@@ -388,19 +414,19 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, this.getName(), this.getPatternName()));
 		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { this.getOffset() });
+		Coordinate[] relCoords = this.getInstanceOffsets();
 		Coordinate[] absCoords = this.getLocations();
 		FlightConfigurationID curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
-		int count = this.getInstanceCount();
+		final int intanceCount = this.getInstanceCount();
 		MotorInstance curInstance = this.motors.get(curId);
 		//if( curInstance.isEmpty() ){
 		{
 			// print just the tube locations
 			
-			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
+			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
 				Coordinate tubeRelativePosition = relCoords[instanceNumber];
 				Coordinate tubeAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber, count,
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
 						tubeRelativePosition, tubeAbsolutePosition));
 			}
 		}
@@ -410,15 +436,15 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		}else{
 			// curInstance has a motor ... 
 			Motor curMotor = curInstance.getMotor();
-			double motorOffset = this.getLength() - curMotor.getLength();
+			final double motorOffset = this.getLength() - curMotor.getLength();
 			
 			buffer.append(String.format("%s    %-24s Thrust: %f N;   (Length: %f); \n", 
 					prefix, curMotor.getDesignation(), curMotor.getMaxThrustEstimate(), curMotor.getLength() ));
-			for (int instanceNumber = 0; instanceNumber < count; instanceNumber++) {
+			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
 				Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
 				Coordinate tubeAbs = absCoords[instanceNumber];
 				Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
-				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber, count,
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
 						motorRelativePosition, motorAbsolutePosition));
 			}
 		

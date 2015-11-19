@@ -171,20 +171,7 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 			return ((Clusterable) this).getClusterConfiguration().getClusterCount();
 		return 1;
 	}
-	
-	
-	/**
-	 * Shift the coordinates according to the radial position and direction.
-	 */
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i].add(0, shiftY, shiftZ);
-		}
-		return array;
-	}
-	
-	
+
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> bounds = new ArrayList<Coordinate>();

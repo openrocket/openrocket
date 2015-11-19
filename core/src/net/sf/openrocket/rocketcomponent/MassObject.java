@@ -109,14 +109,14 @@ public abstract class MassObject extends InternalComponent {
 	/**
 	 * Shift the coordinates according to the radial position and direction.
 	 */
-	@Override
-	protected
-	final Coordinate[] shiftCoordinates(Coordinate[] array) {
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i].add(0, shiftY, shiftZ);
-		}
-		return array;
-	}
+//	@Override
+//	protected
+//	final Coordinate[] shiftCoordinates(Coordinate[] array) {
+//		for (int i = 0; i < array.length; i++) {
+//			array[i] = array[i].add(0, shiftY, shiftZ);
+//		}
+//		return array;
+//	}
 	
 	@Override
 	public final Coordinate getComponentCG() {

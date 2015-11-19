@@ -21,7 +21,7 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.LaunchButton;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
@@ -164,9 +164,9 @@ class DocumentConfig {
 		
 		// LaunchButton
 		setters.put("LaunchButton:instancecount", new IntSetter(
-				Reflection.findMethod(LaunchButton.class, "setInstanceCount",int.class)));
+				Reflection.findMethod(RailButton.class, "setInstanceCount",int.class)));
 		setters.put("LaunchButton:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( LaunchButton.class, "setInstanceSeparation", double.class)));
+				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
 
 		// LaunchLug
 		setters.put("LaunchLug:instancecount", new IntSetter(

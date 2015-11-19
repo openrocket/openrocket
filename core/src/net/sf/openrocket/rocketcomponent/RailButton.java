@@ -15,7 +15,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author widget (Daniel Williams)
  *
  */
-public abstract class LaunchButton extends ExternalComponent implements LineInstanceable {
+public abstract class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -32,7 +32,7 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 	
 	
 
-	public LaunchButton() {
+	public RailButton() {
 		super(Position.MIDDLE);
 		radius = 0.01 / 2;
 		thickness = 0.001;
@@ -154,16 +154,16 @@ public abstract class LaunchButton extends ExternalComponent implements LineInst
 	}
 	
 	
-	@Override
-	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
-		array = super.shiftCoordinates(array);
-		
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i].add(0, shiftY, shiftZ);
-		}
-		
-		return array;
-	}
+//	@Override
+//	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
+//		array = super.shiftCoordinates(array);
+//		
+//		for (int i = 0; i < array.length; i++) {
+//			array[i] = array[i].add(0, shiftY, shiftZ);
+//		}
+//		
+//		return array;
+//	}
 	
 	
 	@Override
