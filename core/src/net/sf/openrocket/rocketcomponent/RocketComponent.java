@@ -914,12 +914,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
 	public double asPositionValue(Position thePosition) {
+		double relativeLength;
 		if (null == this.parent) {
-			return Double.NaN;
+			 relativeLength = 0;
+		}else{
+			relativeLength = this.parent.length;
 		}
 		
 		double thisX = this.position.x;
-		double relativeLength = this.parent.length;
 		double result = Double.NaN;
 		
 		switch (thePosition) {
@@ -1032,8 +1034,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		if (null == this.parent) {
 			// if this is the root of a hierarchy, constrain the position to zero.
+			if( this instanceof Rocket ){
+				this.offset =0;
+				this.position = Coordinate.ZERO;
+				return;
+			}
+			// debug vv
+			else if( this instanceof RingComponent ){
+				log.error("Attempting to set offset of a parent-less class :"+this.getName());
+			}
+			
 			this.offset = newOffset;
-			this.position= Coordinate.ZERO;
+			// best-effort approximation.  this should be corrected later on in the initialization process.
+			this.position= new Coordinate( newOffset, 0, 0); 
 			return;
 		}
 

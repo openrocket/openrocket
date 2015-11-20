@@ -9,6 +9,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
+import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 import org.xml.sax.SAXException;
@@ -83,10 +84,10 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	 */
 	public static void setLocation(RocketComponent component, RocketComponent.Position position, double location) {
 		if (position.equals(RocketComponent.Position.BOTTOM)) {
-			component.setPositionValue(-1d * location);
+			component.setAxialOffset(-1d * location);
 		}
 		else {
-			component.setPositionValue(location);
+			component.setAxialOffset(location);
 		}
 	}
 	
