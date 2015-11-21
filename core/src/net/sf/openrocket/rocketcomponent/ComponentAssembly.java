@@ -81,6 +81,22 @@ public abstract class ComponentAssembly extends RocketComponent {
 		return 0;
 	}
 	
+	public double getOuterRadius(){
+		double outerRadius=0;
+		for( RocketComponent comp : children ){
+			double thisRadius=0;
+			if( comp instanceof BodyTube ){
+				thisRadius = ((BodyTube)comp).getOuterRadius(); 
+			}else if( comp instanceof Transition ){
+				Transition trans = (Transition)comp;
+				thisRadius = Math.max( trans.getForeRadius(), trans.getAftRadius()); 
+			}
+			
+			outerRadius = Math.max( outerRadius, thisRadius);
+		}
+		return outerRadius;
+	}
+	
 	/**
 	 * Components have no aerodynamic effect, so return false.
 	 */
@@ -113,7 +129,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
-		if ((this instanceof BoosterSet ) || ( this instanceof PodSet )){
+		if ((this instanceof ParallelStage ) || ( this instanceof PodSet )){
 			if (Position.AFTER == _newPosition) {
 				log.warn("Stages (or Pods) cannot be relative to other stages via AFTER! Ignoring.");
 				super.setRelativePosition(Position.TOP);

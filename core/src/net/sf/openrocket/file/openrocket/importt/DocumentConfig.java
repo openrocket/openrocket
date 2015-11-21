@@ -9,7 +9,7 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -90,7 +90,7 @@ class DocumentConfig {
 			
 			// Other
 			constructors.put("stage", AxialStage.class.getConstructor(new Class<?>[0]));
-			constructors.put("boosterset", BoosterSet.class.getConstructor(new Class<?>[0]));
+			constructors.put("boosterset", ParallelStage.class.getConstructor(new Class<?>[0]));
 			constructors.put("podset", PodSet.class.getConstructor(new Class<?>[0]));
 			
 		} catch (NoSuchMethodException e) {
@@ -150,11 +150,11 @@ class DocumentConfig {
 
 		// BoosterSet
 		setters.put("BoosterSet:instancecount", new IntSetter(
-				Reflection.findMethod(BoosterSet.class, "setInstanceCount",int.class)));
+				Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
 		setters.put("BoosterSet:radialoffset", new DoubleSetter(
-				Reflection.findMethod(BoosterSet.class, "setRadialOffset", double.class)));
+				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class)));
 		setters.put("BoosterSet:angleoffset", new DoubleSetter(
-				Reflection.findMethod(BoosterSet.class, "setAngularOffset", double.class)));
+				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class)));
 		
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(

@@ -11,7 +11,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
-public class BoosterSet extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
+public class ParallelStage extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(BoosterSet.class);
@@ -20,15 +20,16 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 
 	protected double angularSeparation = Math.PI;
 	protected double angularPosition_rad = 0;
+	protected boolean autoRadialPosition = true;
 	protected double radialPosition_m = 0;
 	
-	public BoosterSet() {
+	public ParallelStage() {
 		this.count = 2;
 		this.relativePosition = Position.BOTTOM;
 		this.angularSeparation = Math.PI * 2 / this.count;
 	}
 	
-	public BoosterSet( final int _count ){
+	public ParallelStage( final int _count ){
 		this();
 		
 		this.count = _count;
@@ -88,7 +89,7 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
-		BoosterSet copy = (BoosterSet) (super.copyWithOriginalID());
+		ParallelStage copy = (ParallelStage) (super.copyWithOriginalID());
 		return copy;
 	}
 
@@ -192,6 +193,15 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		return this.getAxialOffset();
 	}
 	
+	public boolean getAutoRadialOffset(){
+		return this.autoRadialPosition;
+	}
+	
+	public void setAutoRadialOffset( final boolean enabled ){
+		this.autoRadialPosition = enabled;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
+	}
+	
 	@Override
 	public void setRadialOffset(final double radius) {
 		mutex.verify();
@@ -205,32 +215,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		this.angularPosition_rad = angle_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-//	@Override
-//	protected Coordinate[] shiftCoordinates(Coordinate[] c) {
-//		checkState();
-//		
-//		if (1 < c.length) {
-//			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; The length here is "+c.length+"! ");
-//		}
-//		
-//		double radius = this.radialPosition_m;
-//		double angle0 = this.angularPosition_rad;
-//		double angleIncr = this.angularSeparation;
-//		Coordinate center = c[0];
-//		Coordinate[] toReturn = new Coordinate[this.count];
-//		//Coordinate thisOffset;
-//		double thisAngle = angle0;
-//		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-//			toReturn[instanceNumber] = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
-//			
-//			thisAngle += angleIncr;
-//		}
-//		
-//		return toReturn;
-//	}
-//	
-
 	
 	@Override
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
@@ -247,6 +231,21 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		}
 		
 	}
+	
+	@Override
+	protected void update() {
+		super.update();
+		
+		if( this.autoRadialPosition ){
+			AxialStage parentStage = (AxialStage)this.parent;
+			if( null == parentStage ){
+				this.radialPosition_m = this.getOuterRadius();
+			}else{
+				this.radialPosition_m = this.getOuterRadius() + parentStage.getOuterRadius();
+			}
+		}
+	}
+	
 	
 	
 }

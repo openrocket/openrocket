@@ -23,7 +23,7 @@ public class BoosterSetTest extends BaseTestCase {
 	}
 	
 	public Rocket createTestRocket() {
-		double tubeRadius = 1;
+		double tubeRadius = 1.2;
 		// setup
 		Rocket rocket = new Rocket();
 		rocket.setName("Rocket");
@@ -53,28 +53,29 @@ public class BoosterSetTest extends BaseTestCase {
 		return rocket;
 	}
 	
-	public BoosterSet createBooster() {
+	public ParallelStage createBooster() {
 		double tubeRadius = 0.8;
 		
-		BoosterSet booster = new BoosterSet();
-		booster.setName("Booster Stage");
+		ParallelStage strapon = new ParallelStage();
+		strapon.setName("Booster Stage");
+		strapon.setAutoRadialOffset(true);
 		RocketComponent boosterNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
 		boosterNose.setName("Booster Nosecone");
-		booster.addChild(boosterNose);
+		strapon.addChild(boosterNose);
 		RocketComponent boosterBody = new BodyTube(2.0, tubeRadius, 0.01);
 		boosterBody.setName("Booster Body ");
-		booster.addChild(boosterBody);
+		strapon.addChild(boosterBody);
 		Transition boosterTail = new Transition();
 		boosterTail.setName("Booster Tail");
 		boosterTail.setForeRadius(1.0);
 		boosterTail.setAftRadius(0.5);
 		boosterTail.setLength(1.0);
-		booster.addChild(boosterTail);
+		strapon.addChild(boosterTail);
 		
-		booster.setInstanceCount(3);
-		booster.setRadialOffset(1.8);
+		strapon.setInstanceCount(3);
+		strapon.setRadialOffset(1.8);
 		
-		return booster;
+		return strapon;
 	}
 	
 	/* From OpenRocket Technical Documentation
@@ -104,7 +105,7 @@ public class BoosterSetTest extends BaseTestCase {
 	}
 	
 	@Test
-	public void testAddSustainerStage() {
+	public void testCreateSustainer() {
 		RocketComponent rocket = createTestRocket();
 		
 		// Sustainer Stage
@@ -200,7 +201,7 @@ public class BoosterSetTest extends BaseTestCase {
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core Fins abs X: ", expectedX, resultantX, EPSILON);
 		
 	}
-	
+
 	@Test
 	public void testSetStagePosition_topOfStack() {
 		// setup
@@ -233,15 +234,17 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet set0 = createBooster();
+		ParallelStage set0 = createBooster();
 		core.addChild(set0);
 		
 		double targetOffset = 0;
 		set0.setAxialOffset(Position.BOTTOM, targetOffset);
 		// vv function under test
+		set0.setAutoRadialOffset(true);
 		set0.setInstanceCount(2);
 		set0.setRadialOffset(4.0);
 		set0.setAngularOffset(Math.PI / 2);
+		
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
@@ -262,6 +265,49 @@ public class BoosterSetTest extends BaseTestCase {
 		assertEquals(" 'setAngularOffset(double)' failed:\n" + treeDump + "  angular offset: ", expectedAngularOffset, angularOffset, EPSILON);
 	}
 	
+
+	@Test
+	public void testAddStraponAuto() {
+		// setup
+		RocketComponent rocket = createTestRocket();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		ParallelStage strapons = createBooster();
+		core.addChild( strapons);
+		
+		double targetXOffset = +1.0;
+		strapons.setAxialOffset(Position.BOTTOM, targetXOffset);
+		double targetRadialOffset = 0.01;
+		// vv function under test
+		strapons.setRadialOffset(targetRadialOffset);
+		strapons.setAutoRadialOffset(true);
+		// ^^ function under test
+		String treeDump = rocket.toDebugTree();
+
+		double expectedRadialOffset = core.getOuterRadius() + strapons.getOuterRadius();
+		double actualRadialOffset = strapons.getRadialOffset();
+		assertEquals(" 'setAutoRadialOffset()' failed:\n" + treeDump , expectedRadialOffset, actualRadialOffset, EPSILON);
+		
+//		Coordinate[] instanceAbsoluteCoords = set0.getLocations();
+//		//		Coordinate[] instanceRelativeCoords = new Coordinate[] { componentAbsolutePosition };
+//		//		instanceRelativeCoords = boosterSet.shiftCoordinates(instanceRelativeCoords);
+//		
+//		int inst = 0;
+//		Coordinate expectedPosition0 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
+//		Coordinate resultantPosition0 = instanceAbsoluteCoords[inst];
+//		assertEquals(" 'setAngularOffset(double)' failed:\n" + treeDump + "  angular offset: ", resultantPosition0, equalTo(expectedPosition0));
+//		
+//		inst = 1;
+//		Coordinate expectedPosition1 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
+//		Coordinate resultantPosition1 = instanceAbsoluteCoords[inst];
+//		assertThat(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", resultantPosition1, equalTo(expectedPosition1));
+//		
+//		inst = 2;
+//		Coordinate expectedPosition2 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
+//		Coordinate resultantPosition2 = instanceAbsoluteCoords[inst];
+//		assertThat(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", resultantPosition2, equalTo(expectedPosition2));
+//		
+	}
+	
 	// because even though this is an "outside" stage, it's relative to itself -- i.e. an error.  
 	// also an error with a well-defined failure result (i.e. just failover to AFTER placement as the first stage of a rocket. 
 	@Test
@@ -269,7 +315,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet set0 = createBooster();
+		ParallelStage set0 = createBooster();
 		core.addChild(set0);
 		
 		double targetOffset = 0;
@@ -314,7 +360,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetX = +17.0;
@@ -376,7 +422,7 @@ public class BoosterSetTest extends BaseTestCase {
 	public void testSetStagePosition_outsideTOP() {
 		Rocket rocket = this.createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +2.0;
@@ -406,7 +452,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		// when 'external' the stage should be freely movable
@@ -436,7 +482,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		// vv function under test
@@ -465,7 +511,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -489,7 +535,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -513,7 +559,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -538,7 +584,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		
@@ -563,7 +609,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet booster = createBooster();
+		ParallelStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -587,7 +633,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Rocket rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
 		
-		BoosterSet booster = new BoosterSet();
+		ParallelStage booster = new ParallelStage();
 		booster.setName("Booster Stage");
 		core.addChild(booster);
 		final double targetOffset = +2.50;
@@ -623,10 +669,10 @@ public class BoosterSetTest extends BaseTestCase {
 	public void testStageInitializationMethodValueOrder() {
 		Rocket rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet boosterA = createBooster();
+		ParallelStage boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
-		BoosterSet boosterB = createBooster();
+		ParallelStage boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		
@@ -653,11 +699,11 @@ public class BoosterSetTest extends BaseTestCase {
 		Rocket rocket = createTestRocket();
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		BoosterSet boosterA = createBooster();
+		ParallelStage boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
 		boosterA.setAxialOffset(Position.BOTTOM, 0.0);
-		BoosterSet boosterB = createBooster();
+		ParallelStage boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		boosterB.setAxialOffset(Position.BOTTOM, 0);
@@ -691,7 +737,7 @@ public class BoosterSetTest extends BaseTestCase {
 		actualStageCount = rocket.getDefaultConfiguration().getStageCount();
 		assertEquals(" Stage tracking error:  removed booster A, but configuration not updated: " + treedump, expectedStageCount, actualStageCount);
 		
-		BoosterSet boosterC = createBooster();
+		ParallelStage boosterC = createBooster();
 		boosterC.setName("Booster C Stage");
 		core.addChild(boosterC);
 		boosterC.setAxialOffset(Position.BOTTOM, 0);
