@@ -63,7 +63,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		if (BoosterSet.class.isAssignableFrom(type)) {
+		if (ParallelStage.class.isAssignableFrom(type)) {
 			return true;
 		} else if (PodSet.class.isAssignableFrom(type)) {
 			return true;

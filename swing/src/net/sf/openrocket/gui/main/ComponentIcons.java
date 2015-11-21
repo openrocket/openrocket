@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -86,7 +86,7 @@ public class ComponentIcons {
 		load("stage", trans.get("ComponentIcons.Stage"),
 				AxialStage.class);
 		load("boosters", trans.get("ComponentIcons.Boosters"),
-				BoosterSet.class);
+				ParallelStage.class);
 		load("pods", trans.get("ComponentIcons.Pods"),
 				PodSet.class);
 		// // Mass components

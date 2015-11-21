@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -28,7 +28,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 				list.add("</stage>");
 			}
 		} else {
-			if (c instanceof BoosterSet) {
+			if (c instanceof ParallelStage) {
 				list.add("<boosterset>");
 				instance.addParams(c, list);
 				list.add("</boosterset>");

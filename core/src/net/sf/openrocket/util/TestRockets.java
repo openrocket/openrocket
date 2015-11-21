@@ -21,7 +21,7 @@ import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
@@ -829,7 +829,7 @@ public class TestRockets {
 		
 		// ====== Booster Stage Set ======
 		// ====== ====== ====== ======
-		BoosterSet boosterStage = new BoosterSet();
+		ParallelStage boosterStage = new ParallelStage();
 		boosterStage.setName("Booster Stage");
 		coreStage.addChild( boosterStage);
 		boosterStage.setRelativePositionMethod(Position.BOTTOM);

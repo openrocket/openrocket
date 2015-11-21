@@ -13,7 +13,7 @@ import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Instanceable;
@@ -345,7 +345,7 @@ public class MassCalculator implements Monitorable {
 		MassData childrenData = MassData.ZERO_DATA;
 		// Combine data for subcomponents
 		for (RocketComponent child : component.getChildren()) {
-			if( child instanceof BoosterSet ){
+			if( child instanceof ParallelStage ){
 				// this stage will be tallied separately... skip.
 				continue;
 			}
@@ -401,7 +401,7 @@ public class MassCalculator implements Monitorable {
 
 		// move to parent's reference point
 		resultantData = resultantData.move( component.getOffset() );
-		if( component instanceof BoosterSet ){
+		if( component instanceof ParallelStage ){
 			// hacky correction for the fact Booster Stages aren't direct subchildren to the rocket
 			resultantData = resultantData.move( component.getParent().getOffset() );
 		}

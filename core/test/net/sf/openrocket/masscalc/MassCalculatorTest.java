@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.InnerTube;
@@ -119,7 +119,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// ====== Booster Set Stage ====== 
 		// ====== ====== ======
-		BoosterSet boosters = (BoosterSet) rkt.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(1);
 		{
 			expMass = 0.01530561538;
 			cc= boosters.getChild(0);
@@ -232,7 +232,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// ====== Booster Set Stage ====== 
 		// ====== ====== ======
-		BoosterSet boosters = (BoosterSet) rkt.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(1);
 		{
 			cc= boosters.getChild(0);
 			expInertia = 5.20107e-6;
@@ -264,7 +264,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
 		rocket.getDefaultConfiguration().setAllStages(false);
@@ -293,7 +293,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		rocket.getDefaultConfiguration().setAllStages(false);
 		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
@@ -339,7 +339,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 		FlightConfiguration defaultConfig = rocket.getDefaultConfiguration();
 		
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
 		rocket.getDefaultConfiguration().setAllStages(false);
@@ -365,7 +365,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration defaultConfig = rocket.getDefaultConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
 		rocket.getDefaultConfiguration().setAllStages(false);
@@ -393,7 +393,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration config = rocket.getDefaultConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		config.setAllStages(false);
 		config.setOnlyStage( boostNum);
@@ -444,7 +444,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration config = rocket.getDefaultConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		BoosterSet boosters = (BoosterSet) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		config.setAllStages(false);
 		config.setOnlyStage( boostNum);

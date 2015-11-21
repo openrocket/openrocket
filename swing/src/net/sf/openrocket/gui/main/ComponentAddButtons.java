@@ -34,7 +34,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -167,7 +167,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		//// Component Assembly Components:
 		ComponentButton[] buttonsToAdd = { 
 				new ComponentButton(AxialStage.class, trans.get("RocketActions.NewStageAct.Newstage")),
-				new ComponentButton(BoosterSet.class, trans.get("compaddbuttons.newBooster.lbl")),
+				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.newBooster.lbl")),
 				new ComponentButton(PodSet.class, trans.get("compaddbuttons.newPods.lbl"))};
 		addButtonGroup(row, buttonsToAdd);
 		
