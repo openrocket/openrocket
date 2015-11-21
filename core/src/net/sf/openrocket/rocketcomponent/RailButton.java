@@ -7,75 +7,143 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 /** 
- * WARNING!  This class is stubbed out, partially implemented, but DEFINITELY not ready for use.
+ * WARNING:  This class is only partially implemented.  Recomend a bit of testing before you attach it to the GUI.
  * @author widget (Daniel Williams)
  *
  */
-public abstract class RailButton extends ExternalComponent implements LineInstanceable {
+public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private double radius;
-	private double thickness;
+	// NOTE: Rail Button ARE NOT STANDARD -- They vary by manufacturer, and model.
+	// These presets have appropriate dimensions for each rail size, given the Rail Buttons contribute so little to flying properties. 
+	public static final RailButton ROUND_1010 = make1010Button();
+	public static final RailButton ROUND_1515 = make1515Button();
+	
+	/*
+	 * Rail Button Dimensions (side view)
+	 * 
+	 * 
+	 *    <= outer dia  =>
+	 *                                   v
+	 *  ^     [[[[[[]]]]]]              lipThickness
+	 * height   >||||||<=  inner dia     ^
+	 *  v        ||||||       v
+	 *        [[[[[[]]]]]]   standoff 
+	 *     ================   ^
+	 *          (body)
+	 *   
+	 */
+	protected double outerDiameter;
+	protected double height;
+	protected double innerDiameter;
+	protected double thickness;
+	
+	// Standoff is defined as the distance from the body surface to this components reference point
+	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
+ 	protected double standoff;
+	
+	protected final static double MINIMUM_STANDOFF= 0.001;
+	
 	
 	private double radialDirection = 0;
-	
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
-	/* These are calculated when the component is first attached to any Rocket */
-	private double shiftY, shiftZ;
-	
-	
-
-	public RailButton() {
-		super(Position.MIDDLE);
-		radius = 0.01 / 2;
-		thickness = 0.001;
-		length = 0.03;
+	public RailButton( final double id, final double od, final double ht ) {
+		this( od, id, ht, ht/4, ht/4);
 	}
 	
-//	@Override
-//	public double getOuterRadius() {
-//		return radius;
-//	}
-//	
-//	@Override
-//	public void setOuterRadius(double radius) {
-//		if (MathUtil.equals(this.radius, radius))
+	public RailButton( final double od, final double id, final double h, final double _thickness, final double _standoff ) {
+		super(Position.MIDDLE);
+		this.innerDiameter = id;
+		this.outerDiameter = od;
+		this.height = h-_standoff;
+		this.thickness = _thickness;
+		this.setStandoff( _standoff);
+		this.instanceSeparation = od*2;
+	}
+	
+	private static final RailButton make1010Button(){
+		final double id = 0.008; // guess
+		final double od = 0.0097;
+		final double ht = 0.0097;
+		final double thickness = 0.002; // guess
+		final double standoff = 0.002; // guess
+		RailButton rb1010 = new RailButton( od, id, ht, thickness, standoff);
+		rb1010.setMassOverridden(true);
+		rb1010.setOverrideMass(0.0019);
+		
+		return rb1010;
+	}
+	
+	private static final RailButton make1515Button(){
+		final double id = 0.012; // guess
+		final double od = 0.016;
+		final double ht = 0.0173;
+		final double thickness = 0.0032; // guess
+		final double standoff = 0.0032;  // guess
+		RailButton rb1010 = new RailButton( od, id, ht, thickness, standoff);
+		rb1010.setMassOverridden(true);
+		rb1010.setOverrideMass(0.0077);
+		
+		return rb1010;
+	}
+	
+	public double getStandoff(){
+		return this.standoff;
+	}
+
+	public double getOuterRadius() {
+		return this.outerDiameter;
+	}
+	
+	public double getInnerDiameter() {
+		return this.innerDiameter;
+	}
+	
+	public double getTotalHeight() {
+		return this.height+this.standoff;
+	}
+	
+	public double getThickness() {
+		return this.thickness;
+	}
+	
+	public void setStandoff( final double newStandoff){
+		this.standoff = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
+	}
+
+	public void setInnerDiameter( final double newID ){
+		this.innerDiameter = newID;
+	}
+
+
+	public void setOuterDiameter( final double newOD ){
+		this.outerDiameter = newOD;
+	}
+
+	
+	public void setTotalHeight( final double newHeight ) {
+		this.height = newHeight-this.standoff;
+	}
+	
+	public void setThickness( final double newThickness ) {
+		this.thickness = newThickness;
+	}
+	
+//	public void setThickness(double thickness) {
+//		if (MathUtil.equals(this.thickness, thickness))
 //			return;
-//		this.radius = radius;
-//		this.thickness = Math.min(this.thickness, this.radius);
+//		this.thickness = MathUtil.clamp(thickness, 0, radius);
 //		clearPreset();
 //		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 //	}
-	
-//	@Override
-//	public double getInnerRadius() {
-//		return radius - thickness;
-//	}
-//	
-//	@Override
-//	public void setInnerRadius(double innerRadius) {
-//		setOuterRadius(innerRadius + thickness);
-//	}
-//	
-//	@Override
-//	public double getThickness() {
-//		return thickness;
-//	}
-	
-	public void setThickness(double thickness) {
-		if (MathUtil.equals(this.thickness, thickness))
-			return;
-		this.thickness = MathUtil.clamp(thickness, 0, radius);
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
 	
 	
 	public double getRadialDirection() {
@@ -91,33 +159,18 @@ public abstract class RailButton extends ExternalComponent implements LineInstan
 	}
 	
 	
-	
-	public void setLength(double length) {
-		if (MathUtil.equals(this.length, length))
-			return;
-		this.length = length;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
-	@Override
-	public boolean isAfter() {
-		return false;
-	}
-	
-	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
-	@Override
-	public void setPositionValue(double value) {
-		super.setPositionValue(value);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
+//	
+//	@Override
+//	public void setPositionValue(double value) {
+//		super.setPositionValue(value);
+//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+//	}
 
 	@Override
 	public Coordinate[] getInstanceOffsets(){
@@ -131,22 +184,22 @@ public abstract class RailButton extends ExternalComponent implements LineInstan
 		return toReturn;
 	}
 	
-	@Override
-	protected void loadFromPreset(ComponentPreset preset) {
-		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
-			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
-			this.radius = outerDiameter / 2.0;
-			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
-				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
-				this.thickness = (outerDiameter - innerDiameter) / 2.0;
-			}
-		}
-		
-		super.loadFromPreset(preset);
-		
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
+//	@Override
+//	protected void loadFromPreset(ComponentPreset preset) {
+//		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+//			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+//			this.radius = outerDiameter / 2.0;
+//			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+//				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+//				this.thickness = (outerDiameter - innerDiameter) / 2.0;
+//			}
+//		}
+//		
+//		super.loadFromPreset(preset);
+//		
+//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+//	}
+//	
 	
 	@Override
 	public Type getPresetType() {
@@ -170,55 +223,99 @@ public abstract class RailButton extends ExternalComponent implements LineInstan
 	public void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
 		
-		/*
-		 * shiftY and shiftZ must be computed here since calculating them
-		 * in shiftCoordinates() would cause an infinite loop due to .toRelative
-		 */
-		RocketComponent body;
-		double parentRadius;
-		
-		for (body = this.getParent(); body != null; body = body.getParent()) {
-			if (body instanceof SymmetricComponent)
-				break;
-		}
-		
-		if (body == null) {
-			parentRadius = 0;
-		} else {
-			SymmetricComponent s = (SymmetricComponent) body;
-			double x1, x2;
-			x1 = this.toRelative(Coordinate.NUL, body)[0].x;
-			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].x;
-			x1 = MathUtil.clamp(x1, 0, body.getLength());
-			x2 = MathUtil.clamp(x2, 0, body.getLength());
-			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
-		}
-		
-		shiftY = Math.cos(radialDirection) * (parentRadius + radius);
-		shiftZ = Math.sin(radialDirection) * (parentRadius + radius);
-		
+//		/*
+//		 * shiftY and shiftZ must be computed here since calculating them
+//		 * in shiftCoordinates() would cause an infinite loop due to .toRelative
+//		 */
+//		RocketComponent body;
+//		double parentRadius;
+//		
+//		for (body = this.getParent(); body != null; body = body.getParent()) {
+//			if (body instanceof SymmetricComponent)
+//				break;
+//		}
+//		
+//		if (body == null) {
+//			parentRadius = 0;
+//		} else {
+//			SymmetricComponent s = (SymmetricComponent) body;
+//			double x1, x2;
+//			x1 = this.toRelative(Coordinate.NUL, body)[0].x;
+//			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].x;
+//			x1 = MathUtil.clamp(x1, 0, body.getLength());
+//			x2 = MathUtil.clamp(x2, 0, body.getLength());
+//			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
+//		}
+//		
+//		shiftY = Math.cos(radialDirection) * (parentRadius + radius);
+//		shiftZ = Math.sin(radialDirection) * (parentRadius + radius);
+//		
 		//		System.out.println("Computed shift: y="+shiftY+" z="+shiftZ);
 	}
 	
 	
-	
-	
 	@Override
 	public double getComponentVolume() {
-		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness));
+		final double volOuter = Math.PI*Math.pow( outerDiameter/2, 2)*thickness;
+		final double volInner = Math.PI*Math.pow( innerDiameter/2, 2)*(height - thickness - standoff);
+		final double volStandoff = Math.PI*Math.pow( outerDiameter/2, 2)*standoff;
+		return (volOuter+
+				volInner+
+				volStandoff);
+	}
+
+
+	
+	@Override
+	public double getInstanceSeparation(){
+		return this.instanceSeparation;
 	}
 	
 	@Override
+	public void setInstanceSeparation(final double _separation){
+		this.instanceSeparation = _separation;
+	}
+	
+	@Override
+	public void setInstanceCount( final int newCount ){
+		if( 0 < newCount ){
+			this.instanceCount = newCount;
+		}
+	}
+	
+	@Override
+	public int getInstanceCount(){
+		return this.instanceCount;
+	}
+
+	@Override
+	public String getPatternName(){
+		return (this.getInstanceCount() + "-Line");
+	}
+
+	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
-		addBound(set, 0, radius);
-		addBound(set, length, radius);
 		return set;
 	}
 	
 	@Override
 	public Coordinate getComponentCG() {
-		return new Coordinate(length / 2, 0, 0, getComponentMass());
+		// Math.PI and density are assumed constant through calcualtion, and thus may be factored out. 
+		final double volumeInner = Math.pow( innerDiameter/2, 2)*(height - thickness - standoff);
+		final double volumeOuter = Math.pow( outerDiameter/2, 2)*thickness;
+		final double volumeStandoff = Math.pow( outerDiameter/2, 2)*standoff;
+		final double totalVolume = volumeInner + volumeOuter + volumeStandoff;
+		final double heightCM = (volumeInner*( this.height - this.thickness/2) + volumeOuter*( this.height-this.thickness)/2 - volumeStandoff*(this.standoff/2))/totalVolume;
+
+		if( heightCM > this.height ){
+			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
+		}
+		
+		final double CMy = Math.cos(this.radialDirection)*heightCM;
+		final double CMz = Math.sin(this.radialDirection)*heightCM;
+		
+		return new Coordinate( 0, CMy, CMz, getComponentMass());
 	}
 	
 	@Override
@@ -252,33 +349,4 @@ public abstract class RailButton extends ExternalComponent implements LineInstan
 		return false;
 	}
 	
-
-	
-	@Override
-	public double getInstanceSeparation(){
-		return this.instanceSeparation;
-	}
-	
-	@Override
-	public void setInstanceSeparation(final double _separation){
-		this.instanceSeparation = _separation;
-	}
-	
-	@Override
-	public void setInstanceCount( final int newCount ){
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
-		}
-	}
-	
-	@Override
-	public int getInstanceCount(){
-		return this.instanceCount;
-	}
-
-	@Override
-	public String getPatternName(){
-		return (this.getInstanceCount() + "-Line");
-	}
-
 }
