@@ -1,11 +1,18 @@
 package net.sf.openrocket.aerodynamics;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.plugin.PluginModule;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.InnerTube;
@@ -14,13 +21,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
 
 public class BarrowmanCalculatorTest {
 	protected final double EPSILON = MathUtil.EPSILON;
@@ -84,6 +84,26 @@ public class BarrowmanCalculatorTest {
 		Coordinate expCP = new Coordinate(expCPx, 0,0,0);
 		assertEquals(" Estes Alpha III CP is incorrect:", expCP, calcCP);
 		fail("Not yet implemented");
+	}
+	
+	
+	@Test
+	public void testCPDoubleStrapOn() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getDefaultConfiguration();
+		BarrowmanCalculator calc = new BarrowmanCalculator();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+		
+		calc.debug = true;
+		// calculated from OpenRocket 15.03
+		double expCPx = 0.225; // cm
+		Coordinate calcCP = calc.getCP(config, conditions, warnings);
+		
+		fail("NYI");
+		assertEquals(" Falcon Heavy CP x value is incorrect:", expCPx, calcCP.x, EPSILON);
+		Coordinate expCP = new Coordinate(expCPx, 0,0,0);
+		assertEquals(" Falcon Heavy CP is incorrect:", expCP, calcCP);
 	}
 	
 	@Test

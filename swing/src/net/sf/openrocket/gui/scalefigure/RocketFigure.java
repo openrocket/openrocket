@@ -421,8 +421,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	// facade for the recursive function below
 	private void getShapes(ArrayList<RocketComponentShape> allShapes, FlightConfiguration configuration){
 		for( AxialStage stage : configuration.getActiveStages()){
-			int stageNumber = stage.getStageNumber();
 			// for debug...
+			//int stageNumber = stage.getStageNumber();
 			//String activeString = ( configuration.isStageActive(stageNumber) ? "active" : "inactive");
 			
 			getShapeTree( allShapes, stage, Coordinate.ZERO);

@@ -114,6 +114,10 @@ public abstract class ComponentAssembly extends RocketComponent {
 		return false;
 	}
 
+	@Override
+	public boolean isAxisymmetric(){
+		return !(2 == this.getInstanceCount());
+	}
 	
 	@Override
 	public void setAxialOffset(final double _pos) {

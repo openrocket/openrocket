@@ -279,6 +279,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return (Position.AFTER == this.relativePosition);
 	}
 
+	public boolean isAxisymmetric(){
+		return true;
+	}
 	
 	/**
 	 * Shift the coordinates in the array corresponding to radial movement.  A component

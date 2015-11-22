@@ -10,10 +10,11 @@ import java.util.Map;
 
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -38,7 +39,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
 	
-	
+	public boolean debug = false;
 	
 	public BarrowmanCalculator() {
 		
@@ -183,32 +184,51 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (!component.isAerodynamic())
 				continue;
 			
-			// Check for discontinuities
-			if (component instanceof SymmetricComponent) {
-				SymmetricComponent sym = (SymmetricComponent) component;
-				// TODO:LOW: Ignores other cluster components (not clusterable)
-				double x = component.toAbsolute(Coordinate.NUL)[0].x;
-				
-				// Check for lengthwise discontinuity
-				if (x > componentX + 0.0001) {
-					if (!MathUtil.equals(radius, 0)) {
-						warnings.add(Warning.DISCONTINUITY);
-						radius = 0;
-					}
-				}
-				componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
-				
-				// Check for radius discontinuity
-				if (!MathUtil.equals(sym.getForeRadius(), radius)) {
-					warnings.add(Warning.DISCONTINUITY);
-					// TODO: MEDIUM: Apply correction to values to cp and to map
-				}
-				radius = sym.getAftRadius();
-			}
+			// TODO: refactor this code block to a separate method, where it will operate on each stage separately.
+			//
+			// Developer's Note:
+			// !! this code assumes all SymmetricComponents are along the centerline
+			//    With the implementation of ParallelStages and Pods, this is no longer true. -Daniel Williams
+			//
+//			// Check for discontinuities
+//			if (component instanceof SymmetricComponent) {
+//				SymmetricComponent sym = (SymmetricComponent) component;
+//				// TODO:LOW: Ignores other cluster components (not clusterable)
+//				double x = component.toAbsolute(Coordinate.NUL)[0].x;
+//				
+//				// Check for lengthwise discontinuity
+//				if (x > componentX + 0.0001) {
+//					if (!MathUtil.equals(radius, 0)) {
+//						warnings.add(Warning.DISCONTINUITY);
+//						radius = 0;
+//					}
+//				}
+//				componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
+//				
+//				// Check for radius discontinuity
+//				if (!MathUtil.equals(sym.getForeRadius(), radius)) {
+//					warnings.add(Warning.DISCONTINUITY);
+//					// TODO: MEDIUM: Apply correction to values to cp and to map
+//				}
+//				radius = sym.getAftRadius();
+//			}
 			
 			// Call calculation method
 			forces.zero();
 			calcMap.get(component).calculateNonaxialForces(conditions, forces, warnings);
+			
+			// to account for non axi-symmetric rockets such as  
+			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
+				RingInstanceable ring = (RingInstanceable)component;
+				forces.setAxisymmetric(false);
+				total.setAxisymmetric(false);
+				
+				// TODO : Implement Best-Case, Worst-Case Cp calculations.... here
+				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
+				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
+				
+				
+			}
 			
 			int instanceCount = component.getLocations().length;
 			Coordinate x_cp_comp = forces.getCP();
@@ -721,6 +741,5 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		// Only cached data is stored, return constant mod ID
 		return 0;
 	}
-	
 	
 }
