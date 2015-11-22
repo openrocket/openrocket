@@ -19,14 +19,15 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -227,8 +228,9 @@ public class OpenRocketSaver extends RocketSaver {
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 * 
 		 * File version 1.8 is required for:
-		 *  - external or parallel booster stages
+		 *  - external/parallel booster stages
 		 *  - external pods
+		 *  - Rail Buttons
 		 * 
 		 * File version 1.7 is required for:
 		 *  - simulation extensions
@@ -259,7 +261,7 @@ public class OpenRocketSaver extends RocketSaver {
 		/////////////////
 		// Search the rocket for any Boosters or Pods (version 1.8)
 		for (RocketComponent c : document.getRocket()) {
-			if ((c instanceof ParallelStage) || (c instanceof PodSet)) {
+			if ((c instanceof ParallelStage) || (c instanceof PodSet) || (c instanceof RailButton)) {
 				return FILE_VERSION_DIVISOR + 8;
 			}
 		}

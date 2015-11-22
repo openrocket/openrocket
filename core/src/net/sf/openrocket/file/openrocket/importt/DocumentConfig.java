@@ -75,6 +75,7 @@ class DocumentConfig {
 			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("tubefinset", TubeFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("launchlug", LaunchLug.class.getConstructor(new Class<?>[0]));
+			constructors.put("railbutton", RailButton.class.getConstructor(new Class<?>[0]));
 			
 			// Internal components
 			constructors.put("engineblock", EngineBlock.class.getConstructor(new Class<?>[0]));
@@ -177,6 +178,17 @@ class DocumentConfig {
 		setters.put("LaunchLug:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
 
+		// RailButton
+		setters.put("RailButton:instancecount", new IntSetter(
+				Reflection.findMethod(LaunchLug.class, "setInstanceCount",int.class)));
+		setters.put("RailButton:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
+		setters.put("RailButton:height",  new DoubleSetter(
+				Reflection.findMethod( LaunchLug.class, "setTotalHeight", double.class)));
+		setters.put("RailButton:outerdiameter",  new DoubleSetter(
+				Reflection.findMethod( LaunchLug.class, "setOuterDiameter", double.class)));
+
+			
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
 				Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),

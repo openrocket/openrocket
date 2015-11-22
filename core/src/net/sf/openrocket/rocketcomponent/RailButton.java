@@ -28,7 +28,6 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	/*
 	 * Rail Button Dimensions (side view)
 	 * 
-	 * 
 	 *    <= outer dia  =>
 	 *                                   v
 	 *  ^     [[[[[[]]]]]]              lipThickness
@@ -50,23 +49,34 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	protected final static double MINIMUM_STANDOFF= 0.001;
 	
-	
 	private double radialDirection = 0;
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
-	public RailButton( final double id, final double od, final double ht ) {
-		this( od, id, ht, ht/4, ht/4);
+	public RailButton(){
+		super(Position.MIDDLE);
+		this.outerDiameter = 0;
+		this.height = 0;		
+		this.innerDiameter = 0;
+		this.thickness = 0;
+		this.setStandoff( 0);
+		this.setInstanceSeparation( 1.0);
+	}
+	
+	public RailButton( final double od, final double ht ) {
+		this();
+		this.setOuterDiameter( od);
+		this.setTotalHeight( ht);
 	}
 	
 	public RailButton( final double od, final double id, final double h, final double _thickness, final double _standoff ) {
 		super(Position.MIDDLE);
-		this.innerDiameter = id;
 		this.outerDiameter = od;
-		this.height = h-_standoff;
+		this.height = h-_standoff;		
+		this.innerDiameter = id;
 		this.thickness = _thickness;
 		this.setStandoff( _standoff);
-		this.instanceSeparation = od*2;
+		this.setInstanceSeparation( od*2);
 	}
 	
 	private static final RailButton make1010Button(){
@@ -79,6 +89,8 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		rb1010.setMassOverridden(true);
 		rb1010.setOverrideMass(0.0019);
 		
+		rb1010.setInstanceCount(1);
+		rb1010.setInstanceSeparation( od*6 );
 		return rb1010;
 	}
 	
@@ -121,20 +133,37 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 
 	public void setInnerDiameter( final double newID ){
 		this.innerDiameter = newID;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 
 	public void setOuterDiameter( final double newOD ){
 		this.outerDiameter = newOD;
+		if( 0 == this.innerDiameter){
+			this.innerDiameter = this.outerDiameter*0.8;
+		}
+		if( 0 == this.instanceSeparation ){
+			this.instanceSeparation = newOD*8;
+		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
-	
 	public void setTotalHeight( final double newHeight ) {
-		this.height = newHeight-this.standoff;
+		if( 0 == this.thickness){
+			this.thickness = newHeight*0.25;
+		}
+		if( 0 == this.standoff){
+			this.height = newHeight*0.75;
+			this.offset = newHeight*0.25;
+		}else{
+			this.height = newHeight-this.standoff;
+		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	public void setThickness( final double newThickness ) {
 		this.thickness = newThickness;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 //	public void setThickness(double thickness) {

@@ -7,6 +7,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 public class ParallelStage extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
 	
@@ -209,7 +210,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setAngularOffset(final double angle_rad) {
 		mutex.verify();
-		this.angularPosition_rad = angle_rad;
+		this.angularPosition_rad = MathUtil.reduce180( angle_rad);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
