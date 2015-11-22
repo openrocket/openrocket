@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.main;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;

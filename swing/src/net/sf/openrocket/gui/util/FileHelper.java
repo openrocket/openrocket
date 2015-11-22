@@ -117,7 +117,9 @@ public final class FileHelper {
 	 * @return				the resulting file
 	 */
 	public static File forceExtension(File original, String extension) {
-
+		if ( original == null ) {
+			return null;
+		}
 		if (!original.getName().toLowerCase(Locale.ENGLISH).endsWith(extension.toLowerCase(Locale.ENGLISH))) {
 			log.debug("File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();

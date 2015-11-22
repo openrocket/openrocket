@@ -231,17 +231,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(rocksimWarningDialogBox,"spanx, wrap");
 		
-		//// Extension Format warning dialog
-		final JCheckBox extensionWarningDialoBox = new JCheckBox(trans.get("pref.dlg.lbl.FileExtensionWarning"));
-		extensionWarningDialoBox.setSelected(preferences.getShowFileExtensionWarning());
-		extensionWarningDialoBox.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setShowFileExtensionWarning(extensionWarningDialoBox.isSelected());
-			}
-		});
-		this.add(extensionWarningDialoBox,"spanx, wrap");
-		
+
 	}
 
 

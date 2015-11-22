@@ -62,7 +62,6 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
-	private static final String SHOW_FILE_EXTENSION_WARNING = "SHOW_FILE_EXTENSION_WARNING";
 	
 	//Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
@@ -170,14 +169,6 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
-	}
-	
-	public final boolean getShowFileExtensionWarning() {
-		return this.getBoolean(SHOW_FILE_EXTENSION_WARNING, true);
-	}
-	
-	public final void setShowFileExtensionWarning(boolean check) {
-		this.putBoolean(SHOW_FILE_EXTENSION_WARNING, check);
 	}
 	
 	public final double getDefaultMach() {
