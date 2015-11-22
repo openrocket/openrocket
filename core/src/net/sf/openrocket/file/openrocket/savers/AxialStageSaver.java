@@ -29,9 +29,9 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 			}
 		} else {
 			if (c instanceof ParallelStage) {
-				list.add("<boosterset>");
+				list.add("<parallelstage>");
 				instance.addParams(c, list);
-				list.add("</boosterset>");
+				list.add("</parallelstage>");
 			}
 		}
 		

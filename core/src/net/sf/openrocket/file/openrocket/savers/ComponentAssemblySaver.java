@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Instanceable;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -24,11 +24,12 @@ public class ComponentAssemblySaver extends RocketComponentSaver {
 				list.add("<podset>");
 				instance.addParams(c, list);
 				list.add("</podset>");
-			} else if (c instanceof ParallelStage) {
-				list.add("<boosterset>");
-				instance.addParams(c, list);
-				list.add("</boosterset>");
 			}
+//			else if (c instanceof ParallelStage) {
+//				list.add("<boosterset>");
+//				instance.addParams(c, list);
+//				list.add("</boosterset>");
+//			}
 		}
 		
 		return list;
@@ -51,16 +52,21 @@ public class ComponentAssemblySaver extends RocketComponentSaver {
 		final String radoffs_tag = "radialoffset";
 		final String startangle_tag = "angleoffset";
 		
-		
 		if ( currentStage instanceof Instanceable) {
 			int instanceCount = currentStage.getInstanceCount();
 			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
 			if( currentStage instanceof RingInstanceable ){
 				RingInstanceable ring = (RingInstanceable) currentStage;
-				double radialOffset = ring.getRadialOffset();
-				elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
+				if(( currentStage instanceof ParallelStage )&&( ((ParallelStage)currentStage).getAutoRadialOffset() )){
+					elementsToReturn.add("<" + radoffs_tag + ">auto</" + radoffs_tag + ">");
+				}else{
+					double radialOffset = ring.getRadialOffset();
+					elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
+				}
 				double angularOffset = ring.getAngularOffset();
 				elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
+				
+				
 			}
 		}
 		

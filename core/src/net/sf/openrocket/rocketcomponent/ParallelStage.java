@@ -17,7 +17,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 
 	protected double angularSeparation = Math.PI;
 	protected double angularPosition_rad = 0;
-	protected boolean autoRadialPosition = true;
+	protected boolean autoRadialPosition = false;
 	protected double radialPosition_m = 0;
 	
 	public ParallelStage() {

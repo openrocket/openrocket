@@ -9,7 +9,6 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -21,14 +20,15 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.RingComponent;
@@ -91,6 +91,7 @@ class DocumentConfig {
 			// Other
 			constructors.put("stage", AxialStage.class.getConstructor(new Class<?>[0]));
 			constructors.put("boosterset", ParallelStage.class.getConstructor(new Class<?>[0]));
+			constructors.put("parallelstage", ParallelStage.class.getConstructor(new Class<?>[0]));
 			constructors.put("podset", PodSet.class.getConstructor(new Class<?>[0]));
 			
 		} catch (NoSuchMethodException e) {
@@ -148,12 +149,14 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 
-		// BoosterSet
-		setters.put("BoosterSet:instancecount", new IntSetter(
+		// ParallelStage
+		setters.put("ParallelStage:instancecount", new IntSetter(
 				Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
-		setters.put("BoosterSet:radialoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class)));
-		setters.put("BoosterSet:angleoffset", new DoubleSetter(
+		setters.put("ParallelStage:radialoffset", new DoubleSetter(
+				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class),
+				"auto",
+				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
+		setters.put("ParallelStage:angleoffset", new DoubleSetter(
 				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class)));
 		
 		// SymmetricComponent
