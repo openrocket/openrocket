@@ -55,7 +55,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -683,10 +682,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Stop previous computation (if any)
 		stopBackgroundSimulation();
 
-		MotorInstanceConfiguration mic = new MotorInstanceConfiguration( curConfig);
-
 		// Check that configuration has motors
-		if (!mic.hasMotors()){
+		if (!curConfig.hasMotors()){
 			extraText.setFlightData(FlightData.NaN_DATA);
 			extraText.setCalculatingData(false);
 			return;

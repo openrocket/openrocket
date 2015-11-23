@@ -4,21 +4,22 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Assert;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-import org.junit.Assert;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * RocksimLoader Tester.
@@ -133,7 +134,7 @@ public class RocksimLoaderTest extends BaseTestCase {
 
         BodyTube bt = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt.getChild(6);
-        Assert.assertEquals(1.22d, ll.getRadialDirection(), 0.001);
+        Assert.assertEquals(1.22d, ll.getAngularOffset(), 0.001);
 
         Assert.assertEquals(2, stage3.getChildCount());
         Assert.assertEquals("Transition", stage3.getChild(0).getName());

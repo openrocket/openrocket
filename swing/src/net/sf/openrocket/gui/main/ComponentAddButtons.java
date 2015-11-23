@@ -25,6 +25,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -32,9 +35,9 @@ import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -45,12 +48,12 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Streamer;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
@@ -60,9 +63,6 @@ import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Reflection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A component that contains addition buttons to add different types of rocket components
@@ -134,9 +134,11 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
 				//// Freeform
 				new FinButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
+//				//// Rail Button // TODO: implement drawing graphics for the component
+//				new FinButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
 				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
-		row++;
+			row++;
 		
 		/////////////////////////////////////////////
 		

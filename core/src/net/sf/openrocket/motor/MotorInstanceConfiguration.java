@@ -3,10 +3,15 @@ package net.sf.openrocket.motor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
 
 /**
@@ -17,11 +22,11 @@ import net.sf.openrocket.util.Monitorable;
  */
 public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInstance>, Monitorable {
 	protected final HashMap<MotorInstanceId, MotorInstance> motors = new HashMap<MotorInstanceId, MotorInstance>();
-	
+	protected final FlightConfiguration config;
 	private int modID = 0;
 	
 	private MotorInstanceConfiguration() {
-		
+		this.config = null;
 	}
 	
 	/**
@@ -29,43 +34,11 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 *
 	 * @param configuration		the rocket configuration.
 	 */
-	public MotorInstanceConfiguration(FlightConfiguration configuration) {
-		// motors == this
+	public MotorInstanceConfiguration( final FlightConfiguration _configuration) {
+		this.config = _configuration;
 //		final FlightConfigurationID fcid = configuration.getFlightConfigurationID();
 		
-//		Iterator<RocketComponent> iterator = configuration.getRocket().iterator(false);
-//		while (iterator.hasNext()) {
-//			RocketComponent component = iterator.next();
-//			if (component instanceof MotorMount) {
-//				MotorMount mount = (MotorMount) component;
-//				
-//				// MotorInstance motorInst = mount.getMotorInstance(flightConfigId);
-//				// IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
-//				
-//				Iterator<MotorInstance> iter = mount.getMotorIterator();
-//					
-//				// because we've changed the meaning of getting motors from a motor mount, the meaning of this block will likewise change....
-//				// it's no longer a single-flightConfig slice across the rocket, but now a comprehensive list of ALL motors, across flightConfigs and mounts
-//				while (iter.hasNext()) {
-//					MotorInstance curMotorInstance = iter.next();
-//					
-////						Coordinate position = curMotorInstance.getCG();
-////						MotorId id = new MotorId(component.getID(), i + 1);
-////						MotorInstance inst = motor.getNewInstance();
-////						inst.setID(id);
-////						inst.setEjectionDelay(motorConfig.getEjectionDelay());
-////						inst.setMount(mount);
-////						inst.setIgnitionDelay(ignitionConfig.getIgnitionDelay());
-////						inst.setIgnitionEvent(ignitionConfig.getIgnitionEvent());
-////						inst.setPosition(position);
-//					
-//					MotorId curID = curMotorInstance.getID();
-//					motors.put(curID, curMotorInstance);
-//				}
-//				
-//			}
-//		}
-		
+		update();
 	}
 	
 	/**
@@ -118,7 +91,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	public Collection<MotorInstance> getAllMotors() {
 		return motors.values();
 	}
-	
+
 	public int getMotorCount() {
 		return motors.size();
 	}
@@ -177,5 +150,59 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 		return this.motors.values().iterator();
 	}
 	
+	public List<MotorInstance> getActiveMotors() {
+		List<MotorInstance> activeList = new ArrayList<MotorInstance>();
+		for( MotorInstance inst : this.motors.values() ){
+			if( inst.isActive() ){
+				activeList.add( inst );
+			}
+		}
+		
+		return activeList;
+	}
+	
+	public void populate( final MotorInstanceConfiguration source){
+		this.motors.putAll( source.motors );
+	}
+	
+	public void update() {
+		this.motors.clear();
+		
+		for ( RocketComponent comp : this.config.getActiveComponents() ){
+			if ( comp instanceof MotorMount ){ 
+				MotorMount mount = (MotorMount)comp;
+				MotorInstance inst = mount.getMotorInstance(this.config.getFlightConfigurationID());
+				
+				// this merely accounts for instancing of this component:
+				// int instancCount = comp.getInstanceCount();
+
+				// we account for instances this way because it counts *all* the instancing between here 
+				// and the rocket root.
+				Coordinate[] instanceLocations= comp.getLocations();
+				
+//					System.err.println(String.format(",,,,,,,,       : %s (%s)",  
+//		                       inst.getMotor().getDigest(), inst.getMotorID() ));
+				int instanceNumber = 0;
+				for (  Coordinate curMountLocation : instanceLocations ){
+						MotorInstance curInstance = inst.clone();
+						curInstance.setID( new MotorInstanceId( comp.getName(), instanceNumber+1) );
+						
+						// motor location w/in mount: parent.refpoint -> motor.refpoint 
+						Coordinate curMotorOffset = curInstance.getOffset();
+						curInstance.setPosition( curMountLocation.add(curMotorOffset) );
+						this.motors.put( curInstance.getMotorID(), curInstance);
+							
+						// vvvv DEVEL vvvv
+//								System.err.println(String.format(",,,,,,,,[ %2d]:  %s. (%s)",
+//										instanceNumber, curInstance.getMotor().getDigest(), curInstance));
+						// ^^^^ DEVEL ^^^^
+						instanceNumber ++;
+				}
+				 
+			}
+		}
+		//System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
+		//System.err.println(this.rocket.getConfigurationSet().toDebug());
+	}
 	
 }

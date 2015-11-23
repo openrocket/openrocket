@@ -72,20 +72,17 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
-	public double getRadialDirection() {
-		return radialDirection;
+	public double getAngularOffset() {
+		return this.radialDirection;
 	}
-	
-	public void setRadialDirection(double direction) {
-		direction = MathUtil.reduce180(direction);
-		if (MathUtil.equals(this.radialDirection, direction))
+
+	public void setAngularOffset(final double newAngle_rad){
+		double clamped_rad = MathUtil.clamp( newAngle_rad, -Math.PI, Math.PI);
+		if (MathUtil.equals(this.radialDirection, clamped_rad))
 			return;
-		this.radialDirection = direction;
+		this.radialDirection = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
 	
 	public void setLength(double length) {
 		if (MathUtil.equals(this.length, length))

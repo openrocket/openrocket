@@ -30,7 +30,6 @@ import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
@@ -193,9 +192,7 @@ public class DesignReport {
 		canvas.showText("" + rocket.getStageCount());
 		
 		
-		
-		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
-		if (mic.hasMotors()){
+		if ( configuration.hasMotors()){
 			if (configuration.getStageCount() > 1) {
 				canvas.newlineShowText(MASS_WITH_MOTORS);
 			} else {

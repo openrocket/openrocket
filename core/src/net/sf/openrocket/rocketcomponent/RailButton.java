@@ -30,18 +30,18 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	 * 
 	 *    <= outer dia  =>
 	 *                                   v
-	 *  ^     [[[[[[]]]]]]              lipThickness
-	 * height   >||||||<=  inner dia     ^
-	 *  v        ||||||       v
-	 *        [[[[[[]]]]]]   standoff 
+	 *   ^     [[[[[[]]]]]]              flangeHeight
+	 * total    >||||||<=  inner dia     ^
+	 * height    ||||||       v
+	 *   v     [[[[[[]]]]]]  standoff == baseHeight 
 	 *     ================   ^
 	 *          (body)
 	 *   
 	 */
-	protected double outerDiameter;
-	protected double height;
-	protected double innerDiameter;
-	protected double thickness;
+	protected double outerDiameter_m;
+	protected double height_m;
+	protected double innerDiameter_m;
+	protected double flangeHeight_m;
 	
 	// Standoff is defined as the distance from the body surface to this components reference point
 	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
@@ -49,16 +49,17 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	protected final static double MINIMUM_STANDOFF= 0.001;
 	
-	private double radialDirection = 0;
+	private double radialDistance_m=0;
+	private double angle_rad = 0;
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
 	public RailButton(){
 		super(Position.MIDDLE);
-		this.outerDiameter = 0;
-		this.height = 0;		
-		this.innerDiameter = 0;
-		this.thickness = 0;
+		this.outerDiameter_m = 0;
+		this.height_m = 0;		
+		this.innerDiameter_m = 0;
+		this.flangeHeight_m = 0;
 		this.setStandoff( 0);
 		this.setInstanceSeparation( 1.0);
 	}
@@ -71,10 +72,10 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	public RailButton( final double od, final double id, final double h, final double _thickness, final double _standoff ) {
 		super(Position.MIDDLE);
-		this.outerDiameter = od;
-		this.height = h-_standoff;		
-		this.innerDiameter = id;
-		this.thickness = _thickness;
+		this.outerDiameter_m = od;
+		this.height_m = h-_standoff;		
+		this.innerDiameter_m = id;
+		this.flangeHeight_m = _thickness;
 		this.setStandoff( _standoff);
 		this.setInstanceSeparation( od*2);
 	}
@@ -111,20 +112,28 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		return this.standoff;
 	}
 
-	public double getOuterRadius() {
-		return this.outerDiameter;
+	public double getOuterDiameter() {
+		return this.outerDiameter_m;
 	}
 	
 	public double getInnerDiameter() {
-		return this.innerDiameter;
+		return this.innerDiameter_m;
+	}
+	
+	public double getInnerHeight() {
+		return (this.height_m - this.flangeHeight_m);
 	}
 	
 	public double getTotalHeight() {
-		return this.height+this.standoff;
+		return this.height_m+this.standoff;
 	}
 	
-	public double getThickness() {
-		return this.thickness;
+	public double getFlangeHeight() {
+		return this.flangeHeight_m;
+	}
+	
+	public double getBaseHeight(){
+		return this.getStandoff();
 	}
 	
 	public void setStandoff( final double newStandoff){
@@ -132,15 +141,15 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 
 	public void setInnerDiameter( final double newID ){
-		this.innerDiameter = newID;
+		this.innerDiameter_m = newID;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 
 	public void setOuterDiameter( final double newOD ){
-		this.outerDiameter = newOD;
-		if( 0 == this.innerDiameter){
-			this.innerDiameter = this.outerDiameter*0.8;
+		this.outerDiameter_m = newOD;
+		if( 0 == this.innerDiameter_m){
+			this.innerDiameter_m = this.outerDiameter_m*0.8;
 		}
 		if( 0 == this.instanceSeparation ){
 			this.instanceSeparation = newOD*8;
@@ -149,41 +158,39 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 
 	public void setTotalHeight( final double newHeight ) {
-		if( 0 == this.thickness){
-			this.thickness = newHeight*0.25;
+		if( 0 == this.flangeHeight_m){
+			this.flangeHeight_m = newHeight*0.25;
 		}
 		if( 0 == this.standoff){
-			this.height = newHeight*0.75;
+			this.height_m = newHeight*0.75;
 			this.offset = newHeight*0.25;
 		}else{
-			this.height = newHeight-this.standoff;
+			this.height_m = newHeight-this.standoff;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	public void setThickness( final double newThickness ) {
-		this.thickness = newThickness;
+		this.flangeHeight_m = newThickness;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-//	public void setThickness(double thickness) {
-//		if (MathUtil.equals(this.thickness, thickness))
-//			return;
-//		this.thickness = MathUtil.clamp(thickness, 0, radius);
-//		clearPreset();
-//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-//	}
-	
-	
-	public double getRadialDirection() {
-		return radialDirection;
+	@Override
+	public boolean isAerodynamic(){
+		// TODO: implement aerodynamics
+		return false;
 	}
 	
-	public void setRadialDirection(double direction) {
-		direction = MathUtil.reduce180(direction);
-		if (MathUtil.equals(this.radialDirection, direction))
+	public double getAngularOffset(){
+		return angle_rad;
+	}
+	
+	public void setAngularOffset(final double angle_rad){
+		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
+		
+		if (MathUtil.equals(this.angle_rad, clamped_rad))
 			return;
-		this.radialDirection = direction;
+		this.angle_rad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -201,13 +208,17 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 //		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 //	}
 
+
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
-		toReturn[0] = Coordinate.ZERO;
 		
-		for ( int index=1 ; index < this.getInstanceCount(); index++){
-			toReturn[index] = new Coordinate(index*this.instanceSeparation,0,0,0);
+		final double xOffset = this.position.x;
+		final double yOffset = Math.cos(this.angle_rad) * ( this.radialDistance_m );
+		final double zOffset = Math.sin(this.angle_rad) * ( this.radialDistance_m );
+		
+		for ( int index=0; index < this.getInstanceCount(); index++){
+			toReturn[index] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;
@@ -252,42 +263,23 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	public void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
 		
-//		/*
-//		 * shiftY and shiftZ must be computed here since calculating them
-//		 * in shiftCoordinates() would cause an infinite loop due to .toRelative
-//		 */
-//		RocketComponent body;
-//		double parentRadius;
-//		
-//		for (body = this.getParent(); body != null; body = body.getParent()) {
-//			if (body instanceof SymmetricComponent)
-//				break;
-//		}
-//		
-//		if (body == null) {
-//			parentRadius = 0;
-//		} else {
-//			SymmetricComponent s = (SymmetricComponent) body;
-//			double x1, x2;
-//			x1 = this.toRelative(Coordinate.NUL, body)[0].x;
-//			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].x;
-//			x1 = MathUtil.clamp(x1, 0, body.getLength());
-//			x2 = MathUtil.clamp(x2, 0, body.getLength());
-//			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
-//		}
-//		
-//		shiftY = Math.cos(radialDirection) * (parentRadius + radius);
-//		shiftZ = Math.sin(radialDirection) * (parentRadius + radius);
-//		
-		//		System.out.println("Computed shift: y="+shiftY+" z="+shiftZ);
+		RocketComponent body;
+		double parentRadius=0;
+		
+		for (body = this.getParent(); body != null; body = body.getParent()) {
+			if (body instanceof BodyTube)
+				parentRadius = ((BodyTube) body).getOuterRadius();
+		}
+		
+		this.radialDistance_m = parentRadius;
 	}
 	
 	
 	@Override
 	public double getComponentVolume() {
-		final double volOuter = Math.PI*Math.pow( outerDiameter/2, 2)*thickness;
-		final double volInner = Math.PI*Math.pow( innerDiameter/2, 2)*(height - thickness - standoff);
-		final double volStandoff = Math.PI*Math.pow( outerDiameter/2, 2)*standoff;
+		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
+		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*(height_m - flangeHeight_m - standoff);
+		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)*standoff;
 		return (volOuter+
 				volInner+
 				volStandoff);
@@ -331,18 +323,18 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	@Override
 	public Coordinate getComponentCG() {
 		// Math.PI and density are assumed constant through calcualtion, and thus may be factored out. 
-		final double volumeInner = Math.pow( innerDiameter/2, 2)*(height - thickness - standoff);
-		final double volumeOuter = Math.pow( outerDiameter/2, 2)*thickness;
-		final double volumeStandoff = Math.pow( outerDiameter/2, 2)*standoff;
+		final double volumeInner = Math.pow( innerDiameter_m/2, 2)*(height_m - flangeHeight_m - standoff);
+		final double volumeOuter = Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
+		final double volumeStandoff = Math.pow( outerDiameter_m/2, 2)*standoff;
 		final double totalVolume = volumeInner + volumeOuter + volumeStandoff;
-		final double heightCM = (volumeInner*( this.height - this.thickness/2) + volumeOuter*( this.height-this.thickness)/2 - volumeStandoff*(this.standoff/2))/totalVolume;
+		final double heightCM = (volumeInner*( this.height_m - this.flangeHeight_m/2) + volumeOuter*( this.height_m-this.flangeHeight_m)/2 - volumeStandoff*(this.standoff/2))/totalVolume;
 
-		if( heightCM > this.height ){
+		if( heightCM > this.height_m ){
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 		
-		final double CMy = Math.cos(this.radialDirection)*heightCM;
-		final double CMz = Math.sin(this.radialDirection)*heightCM;
+		final double CMy = Math.cos(this.angle_rad)*heightCM;
+		final double CMz = Math.sin(this.angle_rad)*heightCM;
 		
 		return new Coordinate( 0, CMy, CMz, getComponentMass());
 	}

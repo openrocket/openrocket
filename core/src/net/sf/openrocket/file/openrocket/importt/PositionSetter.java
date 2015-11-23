@@ -4,11 +4,12 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
@@ -39,6 +40,9 @@ class PositionSetter implements Setter {
 			c.setAxialOffset(pos);
 		} else if (c instanceof LaunchLug) {
 			((LaunchLug) c).setRelativePosition(type);
+			c.setAxialOffset(pos);
+		} else if (c instanceof RailButton) {
+			((RailButton) c).setRelativePosition(type);
 			c.setAxialOffset(pos);
 		} else if (c instanceof InternalComponent) {
 			((InternalComponent) c).setRelativePosition(type);

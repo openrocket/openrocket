@@ -7,8 +7,8 @@ import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -29,7 +29,6 @@ public class SimulationStatus implements Monitorable {
 	
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
-	private MotorInstanceConfiguration motorConfiguration;
 	private FlightDataBranch flightData;
 	
 	private double time;
@@ -86,12 +85,10 @@ public class SimulationStatus implements Monitorable {
 	private int modIDadd = 0;
 	
 	public SimulationStatus(FlightConfiguration configuration,
-			MotorInstanceConfiguration motorConfiguration,
 			SimulationConditions simulationConditions) {
 		
 		this.simulationConditions = simulationConditions;
 		this.configuration = configuration;
-		this.motorConfiguration = motorConfiguration;
 		
 		this.time = 0;
 		this.previousTimeStep = this.simulationConditions.getTimeStep();
@@ -164,7 +161,6 @@ public class SimulationStatus implements Monitorable {
 	public SimulationStatus(SimulationStatus orig) {
 		this.simulationConditions = orig.simulationConditions.clone();
 		this.configuration = orig.configuration.clone();
-		this.motorConfiguration = orig.motorConfiguration.clone();
 		// FlightData is not cloned.
 		this.flightData = orig.flightData;
 		this.time = orig.time;
@@ -222,19 +218,9 @@ public class SimulationStatus implements Monitorable {
 		return configuration;
 	}
 	
-	
-	public void setMotorConfiguration(MotorInstanceConfiguration motorConfiguration) {
-		if (this.motorConfiguration != null)
-			this.modIDadd += this.motorConfiguration.getModID();
-		this.modID++;
-		this.motorConfiguration = motorConfiguration;
+	public FlightConfiguration getFlightConfiguration() {
+		return configuration;
 	}
-	
-	
-	public MotorInstanceConfiguration getMotorConfiguration() {
-		return motorConfiguration;
-	}
-	
 	
 	public void setFlightData(FlightDataBranch flightData) {
 		if (this.flightData != null)
@@ -248,6 +234,9 @@ public class SimulationStatus implements Monitorable {
 		return flightData;
 	}
 	
+	public MotorInstance getMotor( final MotorInstanceId motorId ){
+		return this.getFlightConfiguration().getMotor(motorId);
+	}
 	
 	public double getPreviousTimeStep() {
 		return previousTimeStep;
@@ -489,7 +478,7 @@ public class SimulationStatus implements Monitorable {
 	@Override
 	public int getModID() {
 		return (modID + modIDadd + simulationConditions.getModID() + configuration.getModID() +
-				motorConfiguration.getModID() + flightData.getModID() + deployedRecoveryDevices.getModID() +
+				flightData.getModID() + deployedRecoveryDevices.getModID() +
 				eventQueue.getModID() + warnings.getModID());
 	}
 	

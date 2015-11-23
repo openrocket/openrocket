@@ -157,8 +157,11 @@ class DocumentConfig {
 				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class),
 				"auto",
 				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
+		// file in degrees, internal in radians
 		setters.put("ParallelStage:angleoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class)));
+				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class), Math.PI / 180.0));
+		setters.put("ParallelStage:angularoffset", new DoubleSetter(
+				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class), Math.PI / 180.0));
 		
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
@@ -166,28 +169,31 @@ class DocumentConfig {
 				"filled",
 				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class)));
 		
-		// LaunchButton
-		setters.put("LaunchButton:instancecount", new IntSetter(
-				Reflection.findMethod(RailButton.class, "setInstanceCount",int.class)));
-		setters.put("LaunchButton:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
-
 		// LaunchLug
 		setters.put("LaunchLug:instancecount", new IntSetter(
-				Reflection.findMethod(LaunchLug.class, "setInstanceCount",int.class)));
+				Reflection.findMethod( LaunchLug.class, "setInstanceCount",int.class)));
 		setters.put("LaunchLug:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
+		setters.put("LaunchLug:radialdirection",  new DoubleSetter(
+				Reflection.findMethod( LaunchLug.class, "setAngularOffset", double.class), Math.PI / 180.0));
+		setters.put("LaunchLug:radius", new DoubleSetter(
+				Reflection.findMethod(LaunchLug.class, "setOuterRadius", double.class)));
+		setters.put("LaunchLug:length", new DoubleSetter(
+				Reflection.findMethod(LaunchLug.class, "setLength", double.class)));
+		setters.put("LaunchLug:thickness", new DoubleSetter(
+				Reflection.findMethod(LaunchLug.class, "setThickness", double.class)));
 
 		// RailButton
 		setters.put("RailButton:instancecount", new IntSetter(
-				Reflection.findMethod(LaunchLug.class, "setInstanceCount",int.class)));
+				Reflection.findMethod( RailButton.class, "setInstanceCount",int.class)));
 		setters.put("RailButton:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
+				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
+		setters.put("RailButton:angularoffset",  new DoubleSetter(
+				Reflection.findMethod( RailButton.class, "setAngularOffset", double.class), Math.PI / 180.0));
 		setters.put("RailButton:height",  new DoubleSetter(
-				Reflection.findMethod( LaunchLug.class, "setTotalHeight", double.class)));
+				Reflection.findMethod( RailButton.class, "setTotalHeight", double.class)));
 		setters.put("RailButton:outerdiameter",  new DoubleSetter(
-				Reflection.findMethod( LaunchLug.class, "setOuterDiameter", double.class)));
-
+				Reflection.findMethod( RailButton.class, "setOuterDiameter", double.class)));
 			
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
@@ -285,17 +291,6 @@ class DocumentConfig {
 				Reflection.findMethod(TubeFinSet.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(TubeFinSet.class, "setOuterRadiusAutomatic", boolean.class)));
-		
-		// LaunchLug
-		setters.put("LaunchLug:radius", new DoubleSetter(
-				Reflection.findMethod(LaunchLug.class, "setOuterRadius", double.class)));
-		setters.put("LaunchLug:length", new DoubleSetter(
-				Reflection.findMethod(LaunchLug.class, "setLength", double.class)));
-		setters.put("LaunchLug:thickness", new DoubleSetter(
-				Reflection.findMethod(LaunchLug.class, "setThickness", double.class)));
-		setters.put("LaunchLug:radialdirection", new DoubleSetter(
-				Reflection.findMethod(LaunchLug.class, "setRadialDirection", double.class),
-				Math.PI / 180.0));
 		
 		// InternalComponent - nothing
 		
@@ -433,7 +428,7 @@ class DocumentConfig {
 		setters.put("PodSet:radialoffset", new DoubleSetter(
 				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class)));
 		setters.put("PodSet:angleoffset", new DoubleSetter(
-				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class)));
+				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class),Math.PI / 180.0));
 				
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
@@ -453,7 +448,7 @@ class DocumentConfig {
 		setters.put("Rocket:revision", new StringSetter(
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 		
-		// Stage
+		// Axial Stage
 		setters.put("AxialStage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
@@ -461,22 +456,7 @@ class DocumentConfig {
 		setters.put("AxialStage:separationdelay", new DoubleSetter(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
-		
-		// to place...
-		
-
-
-		/*
-		 * The keys are of the form Class:param, where Class is the class name and param
-		 * the element name.  Setters are searched for in descending class order.
-		 * A setter of null means setting the parameter is not allowed.
-		 */
-		
-//		setters.put("ComponentAssembly:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
-//		setters.put("ComponentAssembly:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
-//		setters.put("ComponentAssembly:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
-		
-		
+	
 		
 	}
 	

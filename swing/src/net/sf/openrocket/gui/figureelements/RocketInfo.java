@@ -13,7 +13,6 @@ import java.awt.geom.Rectangle2D;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
@@ -154,8 +153,7 @@ public class RocketInfo implements FigureElement {
 				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(diameter));
 		
 		String massText;
-		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
-		if (mic.hasMotors())
+		if (configuration.hasMotors())
 			//// Mass with motors 
 			massText = trans.get("RocketInfo.massText1") +" ";
 		else

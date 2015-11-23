@@ -25,18 +25,10 @@ public class RailButtonSaver extends ExternalComponentSaver {
 		super.addParams(c, elements);
 		RailButton rb = (RailButton) c;
 
-		addElement( elements, "outerradius", rb.getOuterRadius());
-		addElement( elements, "height", rb.getTotalHeight());
-		addElement( elements, "radialDirection", rb.getRadialDirection()); 
+		emitDouble( elements, "outerdiameter", rb.getOuterDiameter());
+		emitDouble( elements, "height", rb.getTotalHeight());
+		emitDouble( elements, "angularoffset", rb.getAngularOffset()*180.0/Math.PI);
 	}
-
-    protected static void addElement( final List<String> elements, final String enclosingTag, final double value){
-    	addElement( elements, enclosingTag, Double.toString( value ));
-    }
-
-    protected static void addElement( final List<String> elements, final String enclosingTag, final String value){
-    	elements.add("<"+enclosingTag+">" + value + "</"+enclosingTag+">");
-    }
 
 	
 }

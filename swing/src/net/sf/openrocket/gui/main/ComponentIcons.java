@@ -12,7 +12,6 @@ import javax.swing.ImageIcon;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -24,7 +23,9 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassComponent.MassComponentType;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -61,6 +62,8 @@ public class ComponentIcons {
 		load("tubefin", trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
 		//// Launch lug
 		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
+		//// Rail Button
+		load("railbutton", trans.get("ComponentIcons.RailButton"), RailButton.class);
 		//// Inner tube
 		load("innertube", trans.get("ComponentIcons.Innertube"), InnerTube.class);
 		//// Tube coupler

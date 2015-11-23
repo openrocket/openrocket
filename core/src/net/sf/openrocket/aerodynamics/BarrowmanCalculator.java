@@ -184,6 +184,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (!component.isAerodynamic())
 				continue;
 			
+			
 			// TODO: refactor this code block to a separate method, where it will operate on each stage separately.
 			//
 			// Developer's Note:
@@ -215,7 +216,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			// Call calculation method
 			forces.zero();
-			calcMap.get(component).calculateNonaxialForces(conditions, forces, warnings);
+			RocketComponentCalc calcObj = calcMap.get(component);
+			// vvvv DEBUG vvvv
+			if (null == calcObj ){
+				throw new NullPointerException(" Component does not have a calcMap!! : "+component.getName() +"=="+component.getID()+"  |calcMap|="+calcMap.size());
+			}
+			// ^^^^ DEBUG ^^^^
+			calcObj.calculateNonaxialForces(conditions, forces, warnings);
 			
 			// to account for non axi-symmetric rockets such as  
 			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
@@ -226,7 +233,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				// TODO : Implement Best-Case, Worst-Case Cp calculations.... here
 				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
 				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
-				
 				
 			}
 			
@@ -712,6 +718,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	protected void voidAerodynamicCache() {
 		super.voidAerodynamicCache();
 		
+//		System.err.println("> Voiding Calc Map.");
+		
 		calcMap = null;
 		cacheDiameter = -1;
 		cacheLength = -1;
@@ -721,6 +729,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private void buildCalcMap(FlightConfiguration configuration) {
 		Iterator<RocketComponent> iterator;
 		
+		//System.err.println("> Building Calc Map.");
 		calcMap = new HashMap<RocketComponent, RocketComponentCalc>();
 		
 		iterator = configuration.getRocket().iterator();
@@ -729,9 +738,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			if (!c.isAerodynamic())
 				continue;
+			RocketComponentCalc calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, c, BARROWMAN_SUFFIX, c);
+			//String isNull = (null==calcObj?"null":"valid");
+			//System.err.println("    >> At component: "+c.getName() +"=="+c.getID()+". CalcObj is "+isNull);
 			
-			calcMap.put(c, (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE,
-					c, BARROWMAN_SUFFIX, c));
+			calcMap.put(c, calcObj ); 
 		}
 	}
 	

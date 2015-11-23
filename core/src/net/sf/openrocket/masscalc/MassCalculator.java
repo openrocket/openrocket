@@ -1,22 +1,17 @@
 package net.sf.openrocket.masscalc;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Instanceable;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;

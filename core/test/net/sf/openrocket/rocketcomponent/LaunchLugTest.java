@@ -1,14 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import org.junit.Test;
+
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Test;
 
 public class LaunchLugTest extends BaseTestCase {
 	protected final double EPSILON = MathUtil.EPSILON;
@@ -42,8 +41,8 @@ public class LaunchLugTest extends BaseTestCase {
 		
 		BodyTube body= (BodyTube)rocket.getChild(0).getChild(1);
 		LaunchLug lug = (LaunchLug)rocket.getChild(0).getChild(1).getChild(1);
-		double startAngle = Math.PI/2;
-		lug.setRadialDirection( startAngle );
+		double startAngle = 90;
+		lug.setAngularOffset( startAngle );
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
 		System.err.println("..created lug: at : " + lug.getInstanceOffsets()[0]); 

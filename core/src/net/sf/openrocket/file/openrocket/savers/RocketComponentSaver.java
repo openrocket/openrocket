@@ -17,8 +17,12 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.Instanceable;
+import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -77,6 +81,26 @@ public class RocketComponentSaver {
 			if (style != null) {
 				// Type names currently equivalent to the enum names except for case.
 				elements.add("<linestyle>" + style.name().toLowerCase(Locale.ENGLISH) + "</linestyle>");
+			}
+		}
+		
+		if ( c instanceof Instanceable) {
+			int instanceCount = c.getInstanceCount();
+			if( 1 < instanceCount ){
+				emitDouble( elements, "instancecount", c.getInstanceCount() );
+				if( c instanceof LineInstanceable ){
+						LineInstanceable line = (LineInstanceable)c;
+						emitDouble( elements, "lineseparation", line.getInstanceSeparation());
+				}
+				if( c instanceof RingInstanceable){
+					RingInstanceable ring = (RingInstanceable)c;
+					if(( c instanceof ParallelStage )&&( ((ParallelStage)c).getAutoRadialOffset() )){
+						emitString(elements, "radialoffset", "auto");
+					}else{
+						emitDouble( elements, "radialoffset", ring.getRadialOffset() );
+					}
+					emitDouble( elements, "angularoffset", ring.getAngularOffset()*180.0/Math.PI);
+				}
 			}
 		}
 		
@@ -217,5 +241,15 @@ public class RocketComponentSaver {
 		}
 		
 	}
+	
+    protected static void emitDouble( final List<String> elements, final String enclosingTag, final double value){
+    	emitString( elements, enclosingTag, Double.toString( value ));
+    }
+
+    protected static void emitString( final List<String> elements, final String enclosingTag, final String value){
+    	elements.add("<"+enclosingTag+">" + value + "</"+enclosingTag+">");
+    }
+
+
 	
 }
