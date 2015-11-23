@@ -50,6 +50,7 @@ import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
@@ -134,8 +135,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
 				//// Freeform
 				new FinButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
-//				//// Rail Button // TODO: implement drawing graphics for the component
-//				new FinButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
+				//// Rail Button // TODO: implement drawing graphics for the component
+				new FinButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
 				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 			row++;

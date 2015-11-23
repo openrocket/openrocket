@@ -57,7 +57,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
 		}
 		{ //// Height
-			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Height")));
+			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.TotalHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "TotalHeight", UnitGroup.UNITS_LENGTH, 0);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));

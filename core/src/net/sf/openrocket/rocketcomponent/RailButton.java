@@ -28,24 +28,22 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	/*
 	 * Rail Button Dimensions (side view)
 	 * 
-	 *    <= outer dia  =>
-	 *                                   v
+	 *        > outer dia  <
+	 *        |            |              v
 	 *   ^     [[[[[[]]]]]]              flangeHeight
-	 * total    >||||||<=  inner dia     ^
-	 * height    ||||||       v
-	 *   v     [[[[[[]]]]]]  standoff == baseHeight 
-	 *     ================   ^
+	 * total     >||||||<=  inner dia     ^
+	 * height     ||||||            v
+	 *   v     [[[[[[]]]]]]        standoff == baseHeight 
+	 *      ==================      ^
 	 *          (body)
 	 *   
 	 */
+	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
 	protected double outerDiameter_m;
-	protected double height_m;
+	protected double totalHeight_m;
 	protected double innerDiameter_m;
 	protected double flangeHeight_m;
-	
-	// Standoff is defined as the distance from the body surface to this components reference point
-	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
- 	protected double standoff;
+ 	protected double standoff_m;
 	
 	protected final static double MINIMUM_STANDOFF= 0.001;
 	
@@ -57,10 +55,10 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	public RailButton(){
 		super(Position.MIDDLE);
 		this.outerDiameter_m = 0;
-		this.height_m = 0;		
+		this.totalHeight_m = 0;		
 		this.innerDiameter_m = 0;
-		this.flangeHeight_m = 0;
-		this.setStandoff( 0);
+		this.flangeHeight_m = 0.002;
+		this.setStandoff( 0.002);
 		this.setInstanceSeparation( 1.0);
 	}
 	
@@ -70,10 +68,10 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		this.setTotalHeight( ht);
 	}
 	
-	public RailButton( final double od, final double id, final double h, final double _thickness, final double _standoff ) {
+	public RailButton( final double od, final double id, final double ht, final double _thickness, final double _standoff ) {
 		super(Position.MIDDLE);
 		this.outerDiameter_m = od;
-		this.height_m = h-_standoff;		
+		this.totalHeight_m = ht;
 		this.innerDiameter_m = id;
 		this.flangeHeight_m = _thickness;
 		this.setStandoff( _standoff);
@@ -109,9 +107,13 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 	
 	public double getStandoff(){
-		return this.standoff;
+		return this.standoff_m;
 	}
 
+	public double getBaseHeight(){
+		return this.getStandoff();
+	}
+	
 	public double getOuterDiameter() {
 		return this.outerDiameter_m;
 	}
@@ -121,23 +123,20 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 	
 	public double getInnerHeight() {
-		return (this.height_m - this.flangeHeight_m);
+		return (this.totalHeight_m - this.flangeHeight_m - this.standoff_m);
 	}
 	
 	public double getTotalHeight() {
-		return this.height_m+this.standoff;
+		return this.totalHeight_m;
 	}
 	
 	public double getFlangeHeight() {
 		return this.flangeHeight_m;
 	}
 	
-	public double getBaseHeight(){
-		return this.getStandoff();
-	}
 	
 	public void setStandoff( final double newStandoff){
-		this.standoff = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
+		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
 	}
 
 	public void setInnerDiameter( final double newID ){
@@ -148,25 +147,21 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 
 	public void setOuterDiameter( final double newOD ){
 		this.outerDiameter_m = newOD;
-		if( 0 == this.innerDiameter_m){
-			this.innerDiameter_m = this.outerDiameter_m*0.8;
-		}
-		if( 0 == this.instanceSeparation ){
-			this.instanceSeparation = newOD*8;
-		}
+		
+		// devel
+		this.innerDiameter_m = newOD*0.8;
+		this.setInstanceSeparation( newOD*6);
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public void setTotalHeight( final double newHeight ) {
-		if( 0 == this.flangeHeight_m){
-			this.flangeHeight_m = newHeight*0.25;
-		}
-		if( 0 == this.standoff){
-			this.height_m = newHeight*0.75;
-			this.offset = newHeight*0.25;
-		}else{
-			this.height_m = newHeight-this.standoff;
-		}
+		this.totalHeight_m = newHeight;
+		
+		// devel
+		this.flangeHeight_m = newHeight*0.25;
+		this.setStandoff( newHeight*0.25);
+		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -201,7 +196,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-//	
+	
 //	@Override
 //	public void setPositionValue(double value) {
 //		super.setPositionValue(value);
@@ -224,40 +219,10 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		return toReturn;
 	}
 	
-//	@Override
-//	protected void loadFromPreset(ComponentPreset preset) {
-//		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
-//			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
-//			this.radius = outerDiameter / 2.0;
-//			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
-//				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
-//				this.thickness = (outerDiameter - innerDiameter) / 2.0;
-//			}
-//		}
-//		
-//		super.loadFromPreset(preset);
-//		
-//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-//	}
-//	
-	
 	@Override
 	public Type getPresetType() {
 		return ComponentPreset.Type.LAUNCH_LUG;
 	}
-	
-	
-//	@Override
-//	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
-//		array = super.shiftCoordinates(array);
-//		
-//		for (int i = 0; i < array.length; i++) {
-//			array[i] = array[i].add(0, shiftY, shiftZ);
-//		}
-//		
-//		return array;
-//	}
-	
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -278,14 +243,12 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	@Override
 	public double getComponentVolume() {
 		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
-		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*(height_m - flangeHeight_m - standoff);
-		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)*standoff;
+		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
+		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)*standoff_m;
 		return (volOuter+
 				volInner+
 				volStandoff);
 	}
-
-
 	
 	@Override
 	public double getInstanceSeparation(){
@@ -322,14 +285,14 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	@Override
 	public Coordinate getComponentCG() {
-		// Math.PI and density are assumed constant through calcualtion, and thus may be factored out. 
-		final double volumeInner = Math.pow( innerDiameter_m/2, 2)*(height_m - flangeHeight_m - standoff);
-		final double volumeOuter = Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
-		final double volumeStandoff = Math.pow( outerDiameter_m/2, 2)*standoff;
-		final double totalVolume = volumeInner + volumeOuter + volumeStandoff;
-		final double heightCM = (volumeInner*( this.height_m - this.flangeHeight_m/2) + volumeOuter*( this.height_m-this.flangeHeight_m)/2 - volumeStandoff*(this.standoff/2))/totalVolume;
+		// Math.PI and density are assumed constant through calculation, and thus may be factored out. 
+		final double volumeFlange = Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
+		final double volumeInner = Math.pow( innerDiameter_m/2, 2)*(getInnerHeight());
+		final double volumeStandoff = Math.pow( outerDiameter_m/2, 2)*this.standoff_m;
+		final double totalVolume = volumeFlange + volumeInner + volumeStandoff;
+		final double heightCM = (volumeFlange*( this.totalHeight_m-getFlangeHeight()/2) + volumeInner*( this.standoff_m + this.getInnerHeight()/2) + volumeStandoff*(this.standoff_m/2))/totalVolume;
 
-		if( heightCM > this.height_m ){
+		if( heightCM > this.totalHeight_m ){
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 		
@@ -341,8 +304,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	@Override
 	public String getComponentName() {
-		// Launch Button
-		return trans.get("LaunchButton.LaunchButton");
+		return trans.get("RailButton.RailButton");
 	}
 	
 	@Override
