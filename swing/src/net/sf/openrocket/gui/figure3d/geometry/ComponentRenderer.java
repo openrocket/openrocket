@@ -13,6 +13,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -92,6 +93,8 @@ public class ComponentRenderer {
 				renderTube(gl, (BodyTube) c, which);
 			} else if (c instanceof LaunchLug) {
 				renderLug(gl, (LaunchLug) c, which);
+			} else if ( c instanceof RailButton ){
+				renderRailButton(gl, (RailButton) c, which);
 			} else if (c instanceof RingComponent) {
 				if (which == Surface.OUTSIDE)
 					renderRing(gl, (RingComponent) c);
@@ -268,7 +271,38 @@ public class ComponentRenderer {
 	private void renderLug(GL2 gl, LaunchLug t, Surface which) {
 		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
+	
+	private void renderRailButton(GL2 gl, RailButton r, Surface which) {
+		if ( which == Surface.OUTSIDE ){
+			//renderOther(gl, r);
+			final double or = r.getOuterDiameter() / 2.0;
+			final double ir = r.getInnerDiameter() / 2.0;
+			gl.glRotated(90, -1, 0, 0);
+			
+			//Inner Diameter
+			glu.gluCylinder(q, ir, ir, r.getTotalHeight(), LOD, 1);
+			
+			//Bottom Disc
+			glu.gluCylinder(q, or, or, r.getFlangeHeight(), LOD, 1);
+			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
+			glu.gluDisk(q, 0, or, LOD, 2);
+			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
+			gl.glTranslated(0,0,r.getFlangeHeight());
+			glu.gluDisk(q, 0, or, LOD, 2);
+			
+			
+			//Upper Disc
+			gl.glTranslated(0,0,r.getTotalHeight() - r.getFlangeHeight() * 2.0);
+			glu.gluCylinder(q, or, or, r.getFlangeHeight(), LOD, 1);
+			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
+			glu.gluDisk(q, 0, or, LOD, 2);
+			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
+			gl.glTranslated(0,0,r.getFlangeHeight());
+			glu.gluDisk(q, 0, or, LOD, 2);
 
+		}
+	}
+	
 	private void renderTubeFins(GL2 gl, TubeFinSet fs, Surface which) {
 		gl.glPushMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
