@@ -258,6 +258,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		this.instanceSeparation = _separation;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
@@ -265,6 +266,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		if( 0 < newCount ){
 			this.instanceCount = newCount;
 		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override

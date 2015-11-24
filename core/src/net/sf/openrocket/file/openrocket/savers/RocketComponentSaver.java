@@ -87,10 +87,10 @@ public class RocketComponentSaver {
 		if ( c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
 			if( 1 < instanceCount ){
-				emitDouble( elements, "instancecount", c.getInstanceCount() );
+				emitString( elements, "instancecount", Integer.toString( c.getInstanceCount()) );
 				if( c instanceof LineInstanceable ){
 						LineInstanceable line = (LineInstanceable)c;
-						emitDouble( elements, "lineseparation", line.getInstanceSeparation());
+						emitDouble( elements, "linseparation", line.getInstanceSeparation());
 				}
 				if( c instanceof RingInstanceable){
 					RingInstanceable ring = (RingInstanceable)c;

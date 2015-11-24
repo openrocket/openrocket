@@ -44,7 +44,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 	}
 	
 	private JPanel buttonTab( final RailButton rbc ){
-		JPanel panel = new JPanel( new MigLayout("fill"));
+		JPanel panel = new JPanel( new MigLayout());
 		
 			
 		{ //// Outer Diameter
@@ -54,7 +54,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			ODSpinner.setEditor(new SpinnerEditor(ODSpinner));
 			panel.add(ODSpinner, "growx");
 			panel.add(new UnitSelector(ODModel), "growx");
-			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
 		}
 		{ //// Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.TotalHeight")));
@@ -63,17 +63,17 @@ public class RailButtonConfig extends RocketComponentConfig {
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
 		}
 
-		{ //// RadialPos:
+		{ //// Angular Position:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));
 			DoubleModel angleModel = new DoubleModel(component, "AngularOffset", UnitGroup.UNITS_ANGLE, -180, +180);
 			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
-			angleSpinner .setEditor(new SpinnerEditor(angleSpinner));
+			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 			panel.add(angleSpinner, "growx");
 			panel.add(new UnitSelector( angleModel), "growx");
-			panel.add(new BasicSlider( angleModel.getSliderModel(-180, 180)), "w 100lp, wrap rel");
+			panel.add(new BasicSlider( angleModel.getSliderModel(-180, 180)), "w 100lp, wrap");
 		}
 		
 		{ //// Position relative to:
@@ -87,7 +87,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 									RocketComponent.Position.BOTTOM,
 									RocketComponent.Position.ABSOLUTE
 							}));
-			panel.add( relToCombo, "spanx, growx, wrap");
+			panel.add( relToCombo, "growx, wrap rel");
 		}
 			
 		{ //// plus
@@ -103,7 +103,12 @@ public class RailButtonConfig extends RocketComponentConfig {
 		}
 		
 		//// Material
-		panel.add(materialPanel( Material.Type.BULK), "span, wrap");
+		panel.add( instanceablePanel(rbc), "cell 4 0, spany 3, wrap para");
+		
+		
+		//// Material
+		panel.add(materialPanel(Material.Type.BULK),"cell 4 2, spany 2, gapleft paragraph, aligny 0%, growy");
+				// ... spany");
 		
 		return panel;
 	}

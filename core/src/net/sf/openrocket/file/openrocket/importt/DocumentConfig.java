@@ -186,7 +186,7 @@ class DocumentConfig {
 		// RailButton
 		setters.put("RailButton:instancecount", new IntSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceCount",int.class)));
-		setters.put("RailButton:instanceseparation",  new DoubleSetter(
+		setters.put("RailButton:linseparation",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
 		setters.put("RailButton:angularoffset",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setAngularOffset", double.class), Math.PI / 180.0));
