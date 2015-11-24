@@ -281,7 +281,16 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
+		final double r = outerDiameter_m / 2.0;
 		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		set.add(new Coordinate(r, totalHeight_m, r));
+		set.add(new Coordinate(r, totalHeight_m, -r));
+		set.add(new Coordinate(r, 0, r));
+		set.add(new Coordinate(r, 0, -r));
+		set.add(new Coordinate(-r, 0, r));
+		set.add(new Coordinate(-r, 0, -r));
+		set.add(new Coordinate(-r, totalHeight_m, r));
+		set.add(new Coordinate(-r, totalHeight_m, -r));
 		return set;
 	}
 	
