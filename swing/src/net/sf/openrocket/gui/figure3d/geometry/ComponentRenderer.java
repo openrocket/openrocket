@@ -7,6 +7,9 @@ import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -20,9 +23,6 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
@@ -277,17 +277,17 @@ public class ComponentRenderer {
 			//renderOther(gl, r);
 			final double or = r.getOuterDiameter() / 2.0;
 			final double ir = r.getInnerDiameter() / 2.0;
-			gl.glRotated(90, -1, 0, 0);
+			gl.glRotated(r.getAngularOffset()*180/Math.PI -90 , 1, 0, 0);
 			
 			//Inner Diameter
 			glu.gluCylinder(q, ir, ir, r.getTotalHeight(), LOD, 1);
 			
 			//Bottom Disc
-			glu.gluCylinder(q, or, or, r.getFlangeHeight(), LOD, 1);
+			glu.gluCylinder(q, or, or, r.getBaseHeight(), LOD, 1);
 			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 			glu.gluDisk(q, 0, or, LOD, 2);
 			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
-			gl.glTranslated(0,0,r.getFlangeHeight());
+			gl.glTranslated(0,0,r.getBaseHeight());
 			glu.gluDisk(q, 0, or, LOD, 2);
 			
 			
