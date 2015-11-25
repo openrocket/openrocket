@@ -522,7 +522,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	@Override
 	protected void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
-		if (!e.isOtherChange()) {
+		if( e.isAerodynamicChange() || e.isMassChange()){
 			wetArea = -1;
 			planArea = -1;
 			planCenter = -1;
