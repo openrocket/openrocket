@@ -12,6 +12,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -64,7 +65,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		// System.err.println("closing MotorMount element: "+ element);
 		
 		if (element.equals("motor")) {
-			// yes, this is confirmed to be the FLIGHT config id, instead of the motor inastance id.
+			// yes, this is confirmed to be the FLIGHT config id, instead of the motor instance id.
 			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
@@ -72,34 +73,15 @@ class MotorMountHandler extends AbstractElementHandler {
 			}
 			
 			Motor motor = motorHandler.getMotor(warnings);
+			
 			MotorInstance motorInstance = motor.getNewInstance();
+			RocketComponent rc = (RocketComponent)mount;
+			motorInstance.setID( new MotorInstanceId(rc.getID(), 1));
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
 			mount.setMotorInstance(fcid, motorInstance);
-			
+
 			Rocket rkt = ((RocketComponent)mount).getRocket();
 			rkt.createFlightConfiguration(fcid);
-			
-//			// vvvvvvv DEBUG vvvvvvv
-//			if( mount instanceof BodyTube ){
-//				System.err.println("  processing <"+element+"> element with mount: "+((RocketComponent)mount).getName()+" with content: "+content);
-//				MotorInstance justSet = mount.getMotorInstance(fcid);
-//				String shortKey = fcid.key.substring(0,8);
-//				String motorKey = justSet.getMotorID().toString().substring(0,8);
-//				String contains;
-//				if( justSet.isEmpty()){
-//					contains = "empty";
-//				}else{
-//					contains = justSet.getMotor().getDesignation();
-//				}
-//				System.err.println("        set( key:"+ shortKey + " to Motor: "+motorKey+ " containing: "+contains);
-//				
-//				// exhaustive part... 
-//				
-//				((BodyTube)mount).printMotorDebug( fcid );
-//				
-//				rkt.getConfigurationSet().printDebug();
-//			}
-//			// ^^^^^^^ DEBUG ^^^^^^^^
 			
 			return;
 		}

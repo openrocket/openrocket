@@ -1042,10 +1042,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				this.position = Coordinate.ZERO;
 				return;
 			}
-			// debug vv
-			else if( this instanceof RingComponent ){
-				log.error("Attempting to set offset of a parent-less class :"+this.getName());
-			}
 			
 			this.offset = newOffset;
 			// best-effort approximation.  this should be corrected later on in the initialization process.

@@ -34,7 +34,12 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
 	/** Immutable configuration with no motor and zero delay. */
-	public static final MotorInstance EMPTY_INSTANCE = new MotorInstance();
+	public static final MotorInstance EMPTY_INSTANCE = new MotorInstance(){
+		@Override 
+		public boolean equals( Object other ){
+			return (this==other);
+		}
+	};
 	
 	protected MotorInstance() {
 		this.id = MotorInstanceId.EMPTY_ID;
