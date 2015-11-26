@@ -68,12 +68,12 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		this.setTotalHeight( ht);
 	}
 	
-	public RailButton( final double od, final double id, final double ht, final double _thickness, final double _standoff ) {
+	public RailButton( final double od, final double id, final double ht, final double flangeThickness, final double _standoff ) {
 		super(Position.MIDDLE);
 		this.outerDiameter_m = od;
 		this.totalHeight_m = ht;
 		this.innerDiameter_m = id;
-		this.flangeHeight_m = _thickness;
+		this.flangeHeight_m = flangeThickness;
 		this.setStandoff( _standoff);
 		this.setInstanceSeparation( od*2);
 	}
@@ -186,14 +186,14 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		if (MathUtil.equals(this.angle_rad, clamped_rad))
 			return;
 		this.angle_rad = clamped_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	
@@ -221,7 +221,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	@Override
 	public Type getPresetType() {
-		return ComponentPreset.Type.LAUNCH_LUG;
+		return ComponentPreset.Type.RAIL_BUTTON;
 	}
 	
 	@Override
@@ -258,7 +258,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		this.instanceSeparation = _separation;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override

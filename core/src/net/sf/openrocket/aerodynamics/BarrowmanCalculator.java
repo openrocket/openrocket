@@ -718,8 +718,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	protected void voidAerodynamicCache() {
 		super.voidAerodynamicCache();
 		
-//		System.err.println("> Voiding Calc Map.");
-		
 		calcMap = null;
 		cacheDiameter = -1;
 		cacheLength = -1;

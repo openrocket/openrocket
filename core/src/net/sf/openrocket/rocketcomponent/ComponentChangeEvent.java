@@ -24,7 +24,7 @@ public class ComponentChangeEvent extends EventObject {
 			this.value = _val;
 		}
 		
-		public boolean has( final int testValue ){
+		public boolean matches( final int testValue ){
 			return (0 != (this.value & testValue ));
 		}
 		
@@ -37,7 +37,8 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change that affects the aerodynamic properties of the rocket */
 	public static final int AERODYNAMIC_CHANGE = TYPE.AERODYNAMIC.value;
 	/** A change that affects the mass and aerodynamic properties of the rocket */
-	public static final int BOTH_CHANGE = TYPE.AERO_MASS.value; // Mass & Aerodynamic
+	public static final int AEROMASS_CHANGE = TYPE.AERO_MASS.value; // Mass & Aerodynamic
+	public static final int BOTH_CHANGE = AEROMASS_CHANGE;  // syntactic sugar / backward compatibility
 	
 	/** A change that affects the rocket tree structure */
 	public static final int TREE_CHANGE = TYPE.TREE.value;
@@ -60,9 +61,6 @@ public class ComponentChangeEvent extends EventObject {
 	
 	public ComponentChangeEvent(RocketComponent component, final int type) {
 		super(component);
-		if (0 > type ) {
-			throw new IllegalArgumentException("bad event type provided");
-		}
 		this.type = type;
 	}
 	
@@ -85,37 +83,37 @@ public class ComponentChangeEvent extends EventObject {
 	}
 	
 	public boolean isAerodynamicChange() {
-		return TYPE.AERODYNAMIC.has( this.type);
+		return TYPE.AERODYNAMIC.matches( this.type);
 	}
 	
 
 	public boolean isEventChange() {
-		return TYPE.EVENT.has( this.type);
+		return TYPE.EVENT.matches( this.type);
 	}
 	
 	public boolean isFunctionalChange() {
-		return ! (TYPE.NON_FUNCTIONAL.has( this.type));
+		return ! (TYPE.NON_FUNCTIONAL.matches( this.type));
 	}
 	
 	public boolean isMassChange() {
-		return TYPE.MASS.has(this.type);
+		return TYPE.MASS.matches(this.type);
 	}
 
 	public boolean isTextureChange() {
-		return TYPE.TEXTURE.has(this.type);
+		return TYPE.TEXTURE.matches(this.type);
 	}
 	
 	public boolean isTreeChange() {
-		return TYPE.TREE.has(this.type);
+		return TYPE.TREE.matches(this.type);
 	}
 	
 	public boolean isUndoChange() {
-		return TYPE.UNDO.has(this.type);
+		return TYPE.UNDO.matches(this.type);
 	}
 	
 	
 	public boolean isMotorChange() {
-		return TYPE.MASS.has(this.type);
+		return TYPE.MASS.matches(this.type);
 	}
 	
 	public int getType() {
