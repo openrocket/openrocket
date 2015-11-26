@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
@@ -238,30 +239,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 //	@Override
-//	public Coordinate[] getLocations(){
-//		if (null == this.parent) {
-//			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-//		}
-//		
-//		final Coordinate center = parentInstances[0].add( this.position);
-//		Coordinate[] instanceLocations = this.getInstanceOffsets();
-//		Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
-//		for( int i = 0; i < toReturn.length; i++){
-//			toReturn[i] = center.add( instanceLocations[i]); 
-//		}
-//		
-//		return toReturn;
-//		
-//		Coordinate[] parentInstances = this.parent.getLocations();
-//		for( int i=0; i< parentInstances.length; i++){
-//			parentInstances[i] = parentInstances[i].add( this.position );
-//		}
-//		Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
-//		
-//		return toReturn;
-//	}
-	
-//	@Override
 //	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 //		array = super.shiftCoordinates(array);
 //		
@@ -298,8 +275,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
-		if( null == newMotorInstance){
-				throw new NullPointerException(" null passed as MotorInstance to add to MotorSet ... bug ");
+		if((null == newMotorInstance)||(newMotorInstance.equals( MotorInstance.EMPTY_INSTANCE ))){
+			this.motors.set( fcid, null);
 		}else{
 			if( null == newMotorInstance.getMount()){
 				newMotorInstance.setMount(this);

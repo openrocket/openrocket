@@ -236,9 +236,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
         
-        		
-        MotorInstance curInstance = MotorInstance.EMPTY_INSTANCE;
-		curMount.setMotorInstance( fcid, curInstance);
+        curMount.setMotorInstance( fcid, null);
 		
 		fireTableDataChanged();
 	}

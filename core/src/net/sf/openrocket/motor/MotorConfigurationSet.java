@@ -1,6 +1,9 @@
-package net.sf.openrocket.rocketcomponent;
+package net.sf.openrocket.motor;
 
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 /**
  * FlightConfigurationSet for motors.

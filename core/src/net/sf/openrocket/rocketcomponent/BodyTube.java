@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
@@ -373,8 +374,8 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
-		if( null == newMotorInstance){
-			throw new NullPointerException(" null passed as MotorInstance to add to MotorSet ... bug ");
+		if((null == newMotorInstance)||(newMotorInstance.equals( MotorInstance.EMPTY_INSTANCE ))){
+			this.motors.set( fcid, null);
 		}else{
 			if( null == newMotorInstance.getMount()){
 				newMotorInstance.setMount(this);
