@@ -382,10 +382,10 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 			}else if( !this.equals( newMotorInstance.getMount())){
 				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
 			}
+			this.motors.set(fcid,newMotorInstance);
 		}		
 
 		this.isActingMount=true;
-		this.motors.set(fcid,newMotorInstance);
 	}
 	
 	

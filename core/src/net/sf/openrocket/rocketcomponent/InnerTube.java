@@ -275,7 +275,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
-		if((null == newMotorInstance)||(newMotorInstance.equals( MotorInstance.EMPTY_INSTANCE ))){
+		if((null == newMotorInstance)||(newMotorInstance== MotorInstance.EMPTY_INSTANCE )){
 			this.motors.set( fcid, null);
 		}else{
 			if( null == newMotorInstance.getMount()){
@@ -283,10 +283,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 			}else if( !this.equals( newMotorInstance.getMount())){
 				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
 			}
+			this.motors.set(fcid, newMotorInstance);
 		}
 		
 		this.isActingMount = true;
-		this.motors.set(fcid,newMotorInstance);
 	}
 	
 	@Override

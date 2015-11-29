@@ -54,12 +54,15 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -110,9 +113,6 @@ import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.utils.ComponentPresetEditor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BasicFrame extends JFrame implements PropertyChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
@@ -755,6 +755,7 @@ public class BasicFrame extends JFrame implements PropertyChangeListener {
 		//// Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
 		item.setIcon(Icons.HELP_DEBUG_LOG);
+		menu.setMnemonic(KeyEvent.VK_D);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
