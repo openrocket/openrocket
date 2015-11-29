@@ -753,9 +753,9 @@ public class BasicFrame extends JFrame implements PropertyChangeListener {
 		menu.add(item);
 		
 		//// Debug log
-		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
-		item.setIcon(Icons.HELP_DEBUG_LOG);
-		menu.setMnemonic(KeyEvent.VK_D);
+		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
+		item.setIcon(Icons.HELP_DEBUG_LOG); 
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_KEY));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
