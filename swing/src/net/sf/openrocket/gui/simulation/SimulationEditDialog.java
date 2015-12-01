@@ -25,14 +25,13 @@ import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 
 
 public class SimulationEditDialog extends JDialog {
-	
+	private static final long serialVersionUID = -4468157685542912715L;
 	private final Window parentWindow;
 	private final Simulation[] simulation;
 	private final OpenRocketDocument document;
@@ -152,14 +151,14 @@ public class SimulationEditDialog extends JDialog {
 			panel.add(label, "growx 0, gapright para");
 			
 			ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
-			JComboBox<?> combo = new JComboBox<FlightConfigurationID>(psm);
+			JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>(psm);
 			
 			//// Select the motor configuration to use.
 			combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
 			combo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
+					conditions.setFlightConfigurationId(configuration.getFlightConfigurationID());
 				}
 			});
 			panel.add(combo, "span");

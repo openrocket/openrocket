@@ -382,11 +382,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	@Override
 	public String toString() {
-		if( this.isNamed){
-			return configurationName + "["+fcid.toShortKey()+"]";
-		}else{
-			return this.getName();
-		}
+		return this.getName();
 	}
 
 	@Override

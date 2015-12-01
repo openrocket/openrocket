@@ -51,7 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private FlightConfigurationID configID = null; 
+	private FlightConfigurationID configId = null; 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -100,9 +100,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		return rocket;
 	}
 	
+	public FlightConfigurationID getFlightConfiguratioId() {
+		return getId();
+	}
 	
-	public FlightConfigurationID getConfigID() {
-		return this.configID;
+	public FlightConfigurationID getId() {
+		return this.configId;
 	}
 	
 	/**
@@ -111,18 +114,18 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * 
 	 * @param id	the configuration to set.
 	 */
-	public void setMotorConfigurationID(FlightConfigurationID fcid) {
+	public void setFlightConfigurationId(FlightConfigurationID fcid) {
 		if (! fcid.isValid() ){
 			return; // error
 		}else if (!rocket.containsFlightConfigurationID(fcid)){
 			return; 
 		}
 		
-		if( fcid.equals(this.configID)){
+		if( fcid.equals(this.configId)){
 			return;
 		}
 		
-		this.configID = fcid;
+		this.configId = fcid;
 		fireChangeEvent();
 	}
 	
@@ -433,18 +436,18 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public void copyFrom(SimulationOptions src) {
 		
 		if (this.rocket == src.rocket) {
-			this.configID = src.configID;
+			this.configId = src.configId;
 		} else {
 			
-			if (src.rocket.hasMotors(src.configID)) {
+			if (src.rocket.hasMotors(src.configId)) {
 				// First check for exact match:
-				if (this.rocket.containsFlightConfigurationID(src.configID)) {
-					this.configID = src.configID;
+				if (this.rocket.containsFlightConfigurationID(src.configId)) {
+					this.configId = src.configId;
 				} else {
 					// Try to find a closely matching motor ID
 					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
 					
-					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.configID);
+					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.configId);
 					FlightConfigurationID matchID = null;
 					
 					for (FlightConfigurationID fcid : this.rocket.getSortedConfigurationIDs()){
@@ -455,10 +458,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 						}
 					}
 					
-					this.configID = matchID;
+					this.configId = matchID;
 				}
 			} else {
-				this.configID = null;
+				this.configId = null;
 			}
 		}
 		
@@ -562,7 +565,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
 		return ((this.rocket == o.rocket) &&
-				Utils.equals(this.configID, o.configID) &&
+				Utils.equals(this.configId, o.configId) &&
 				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
@@ -584,9 +587,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public int hashCode() {
-		if (configID == null)
+		if (configId == null)
 			return rocket.hashCode();
-		return rocket.hashCode() + configID.hashCode();
+		return rocket.hashCode() + configId.hashCode();
 	}
 	
 	@Override
@@ -618,7 +621,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		SimulationConditions conditions = new SimulationConditions();
 		
 		conditions.setRocket((Rocket) getRocket().copy());
-		conditions.setFlightConfigurationID(this.getConfigID());
+		conditions.setFlightConfigurationID(this.getId());
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());

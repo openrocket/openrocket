@@ -114,7 +114,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
 		
-		options.setMotorConfigurationID(rocket.getDefaultConfiguration().getFlightConfigurationID());
+		options.setFlightConfigurationId(rocket.getDefaultConfiguration().getFlightConfigurationID());
 		options.addChangeListener(new ConditionListener());
 	}
 	
@@ -275,7 +275,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 		}
 		
-		FlightConfiguration config = rocket.getFlightConfiguration(options.getConfigID());
+		FlightConfiguration config = rocket.getFlightConfiguration(options.getId());
 		List<MotorInstance> motorList = config.getActiveMotors();
 		
 		//Make sure this simulation has motors.
@@ -332,7 +332,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			// Set simulated info after simulation, will not be set in case of exception
 			simulatedConditions = options.clone();
-			final FlightConfiguration configuration = new FlightConfiguration(options.getConfigID(), this.rocket);
+			final FlightConfiguration configuration = this.rocket.getFlightConfiguration( options.getId());
 			
 			simulatedConfigurationDescription = descriptor.format(configuration.getRocket(), configuration.getFlightConfigurationID());
 			simulatedRocketID = rocket.getFunctionalModID();

@@ -58,6 +58,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
 
 public class SimulationPanel extends JPanel {
+	private static final long serialVersionUID = 1390060162192576924L;
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -323,7 +324,7 @@ public class SimulationPanel extends JPanel {
 					}
 
 					@Override
-					public Comparator getComparator() {
+					public Comparator<String> getComparator() {
 						return new AlphanumComparator();
 					}
 				},
@@ -660,11 +661,8 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
-	private enum SimulationTableColumns {
-
-	}
-
 	private class JLabelRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 5487619660216145843L;
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
@@ -706,6 +704,9 @@ public class SimulationPanel extends JPanel {
 
 			tip = "<html><b>" + sim.getName() + "</b><br>";
 			switch (sim.getStatus()) {
+			case CANT_RUN:
+				tip += trans.get("simpanel.ttip.noData")+"<br>";
+				break;
 			case UPTODATE:
 				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
 				break;

@@ -51,9 +51,9 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		
 		if (element.equals("configid")) {
 			if (content.equals("")) {
-				conditions.setMotorConfigurationID(null);
+				conditions.setFlightConfigurationId(null);
 			} else {
-				conditions.setMotorConfigurationID(new FlightConfigurationID(content));
+				conditions.setFlightConfigurationId(new FlightConfigurationID(content));
 			}
 		} else if (element.equals("launchrodlength")) {
 			if (Double.isNaN(d)) {

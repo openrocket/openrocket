@@ -307,13 +307,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(label, "growx, right");
 		
 		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
-		JComboBox<FlightConfigurationID> flightConfigurationComboBox = new JComboBox<FlightConfigurationID>(psm);
-		add(flightConfigurationComboBox, "wrap");
+		JComboBox<FlightConfiguration> flightConfigurationComboBox = new JComboBox<FlightConfiguration>(psm);
+		add(flightConfigurationComboBox, "wrap, width 16%, wmin 100");
 		flightConfigurationComboBox.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				Object source = ae.getSource();
 				if( source instanceof JComboBox ){
+					@SuppressWarnings("unchecked")
 					JComboBox<FlightConfigurationID> box = (JComboBox<FlightConfigurationID>) source;
 					FlightConfiguration newConfig = (FlightConfiguration)box.getSelectedItem();
 					document.getRocket().getConfigurationSet().setDefault( newConfig);
@@ -695,7 +696,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			Rocket duplicate = (Rocket) document.getRocket().copy();
 			Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-			simulation.getOptions().setMotorConfigurationID(
+			simulation.getOptions().setFlightConfigurationId(
 					document.getDefaultConfiguration().getFlightConfigurationID());
 
 			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);

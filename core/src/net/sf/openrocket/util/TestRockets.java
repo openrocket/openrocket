@@ -14,7 +14,6 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.motor.ThrustCurveMotorInstance;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
@@ -1028,7 +1027,7 @@ public class TestRockets {
 		
 		// create simulation data
 		SimulationOptions options = new SimulationOptions(rocket);
-		options.setMotorConfigurationID(fcid);
+		options.setFlightConfigurationId(fcid);
 		Simulation simulation1 = new Simulation(rocket);
 		
 		rocketDoc.addSimulation(simulation1);

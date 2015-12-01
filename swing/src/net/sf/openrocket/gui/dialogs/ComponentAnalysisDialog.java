@@ -58,7 +58,6 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -179,7 +178,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		panel.add(label, "growx, right");
 		
 		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
-		JComboBox<FlightConfigurationID> combo = new JComboBox<FlightConfigurationID>(psm);
+		JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>(psm);
 		panel.add(combo, "wrap");
 		
 		
