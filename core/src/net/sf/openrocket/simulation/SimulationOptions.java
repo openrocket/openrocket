@@ -17,7 +17,6 @@ import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -53,7 +52,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private final Rocket rocket;
 	private FlightConfigurationID configID = null; 
-	private FlightConfiguration config = null;
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -137,7 +135,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
-		fireChangeEvent();
 	}
 	
 	

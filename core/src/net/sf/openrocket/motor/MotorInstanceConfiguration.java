@@ -8,6 +8,7 @@ import java.util.Set;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.ArrayList;
@@ -15,7 +16,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
 
 /**
- * A configuration of motor instances identified by a string id.  Each motor instance has
+ * A configuration of motor instances identified by a MotorInstanceId.  Each motor instance has
  * an individual position, ingition time etc.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -36,8 +37,6 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 */
 	public MotorInstanceConfiguration( final FlightConfiguration _configuration) {
 		this.config = _configuration;
-//		final FlightConfigurationID fcid = configuration.getFlightConfigurationID();
-		
 		update();
 	}
 	
@@ -78,7 +77,10 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
 	public void addMotor(MotorInstance motor) {
-		MotorInstanceId id = motor.getMotorID();
+		if( motor.isEmpty() ){
+			throw new IllegalArgumentException("MotorInstance is empty.");
+		}
+		MotorInstanceId id = motor.getID();
 		if (this.motors.containsKey(id)) {
 			throw new IllegalArgumentException("MotorInstanceConfiguration already " +
 					"contains a motor with id " + id);
@@ -139,7 +141,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	public MotorInstanceConfiguration clone() {
 		MotorInstanceConfiguration clone = new MotorInstanceConfiguration();
 		for (MotorInstance motor : this.motors.values()) {
-			clone.motors.put(motor.getMotorID(), motor.clone());
+			clone.motors.put(motor.getID(), motor.clone());
 		}
 		clone.modID = this.modID;
 		return clone;
@@ -168,16 +170,19 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 	public void update() {
 		this.motors.clear();
 		
+		FlightConfigurationID fcid = this.config.getFlightConfigurationID();
 		for ( RocketComponent comp : this.config.getActiveComponents() ){
 			if ( comp instanceof MotorMount ){ 
 				MotorMount mount = (MotorMount)comp;
-				MotorInstance inst = mount.getMotorInstance(this.config.getFlightConfigurationID());
+				MotorInstance inst = mount.getMotorInstance( fcid);
+				if( inst.isEmpty()){
+					continue;
+				}
 				
-				// this merely accounts for instancing of this component:
+				// this merely accounts for instancing of *this* component:
 				// int instancCount = comp.getInstanceCount();
 
-				// we account for instances this way because it counts *all* the instancing between here 
-				// and the rocket root.
+				// this includes *all* the instancing between here and the rocket root.
 				Coordinate[] instanceLocations= comp.getLocations();
 				
 //					System.err.println(String.format(",,,,,,,,       : %s (%s)",  
@@ -190,7 +195,7 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 						// motor location w/in mount: parent.refpoint -> motor.refpoint 
 						Coordinate curMotorOffset = curInstance.getOffset();
 						curInstance.setPosition( curMountLocation.add(curMotorOffset) );
-						this.motors.put( curInstance.getMotorID(), curInstance);
+						this.motors.put( curInstance.getID(), curInstance);
 							
 						// vvvv DEVEL vvvv
 //								System.err.println(String.format(",,,,,,,,[ %2d]:  %s. (%s)",
@@ -203,6 +208,34 @@ public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInst
 		}
 		//System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
 		//System.err.println(this.rocket.getConfigurationSet().toDebug());
+	}
+	
+
+	@Override
+	public String toString(){
+		StringBuilder buff = new StringBuilder("[");
+		boolean first = true;
+		for( MotorInstance motor : this.motors.values() ){
+			if( first ){
+				first = false;
+			}else{
+				buff.append(", ");
+			}
+			buff.append(motor.getMotor().getDesignation());
+		}
+		buff.append("]");
+		return buff.toString();
+	}
+	
+	public String toDebugString(){
+		StringBuilder buff = new StringBuilder();
+		for( MotorInstance motor : this.motors.values() ){
+			final String idString = motor.getID().toShortKey();
+			final String activeString = motor.isActive()? " on": "off";
+			final String nameString = motor.getMotor().getDesignation();
+			buff.append( String.format("    ..[%8s][%s] %10s", idString, activeString, nameString)); 
+		}
+		return buff.toString();
 	}
 	
 }

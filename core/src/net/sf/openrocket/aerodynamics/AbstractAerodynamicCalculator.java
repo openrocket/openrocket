@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -93,15 +94,9 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	protected final void checkCache(FlightConfiguration configuration) {
 		if (rocketAeroModID != configuration.getRocket().getAerodynamicModID() ||
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
-//			// vvvv DEVEL vvvv
-//			log.debug("Voiding the aerodynamic cache");
-//			System.err.println("  >> Voiding Aero Cache... because modIDs changed...");
-//			StackTraceElement[] els = Thread.currentThread().getStackTrace();
-//			final int depth=12;
-//			for(int i=1; i< depth; i++){
-//				System.err.println("    "+els[i]);
-//			}		
-//			// ^^^^ DEVEL ^^^^
+			// vvvv DEVEL vvvv
+			log.error("Voiding the aerodynamic cache because modIDs changed...", new BugException(" unsure why modID has changed..."));
+			// ^^^^ DEVEL ^^^^
 			
 			rocketAeroModID = configuration.getRocket().getAerodynamicModID();
 			rocketTreeModID = configuration.getRocket().getTreeModID();

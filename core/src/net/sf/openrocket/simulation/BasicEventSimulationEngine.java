@@ -198,7 +198,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Check for burnt out motors
 				for( MotorInstance motor : status.getConfiguration().getAllMotors()){
-					MotorInstanceId motorId = motor.getMotorID();
+					MotorInstanceId motorId = motor.getID();
 					if (!motor.isActive() && status.addBurntOutMotor(motorId)) {
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
 								(RocketComponent) motor.getMount(), motorId));
@@ -309,7 +309,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorInstance motor : status.getFlightConfiguration().getActiveMotors() ){
-				MotorInstanceId mid = motor.getMotorID();
+				MotorInstanceId mid = motor.getID();
 				IgnitionEvent ignitionEvent = motor.getIgnitionEvent();
 				MotorMount mount = motor.getMount();
 				RocketComponent component = (RocketComponent) mount;

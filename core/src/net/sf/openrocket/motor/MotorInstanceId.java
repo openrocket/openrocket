@@ -12,17 +12,12 @@ public final class MotorInstanceId {
 	private final String componentId;
 	private final int number;
 	
-	private final static String COMPONENT_ERROR_TEXT = "Error Motor Id";
-	private final static int ERROR_NUMBER = -1;
-	public final static MotorInstanceId ERROR_ID = new MotorInstanceId();
+	private final static String ERROR_COMPONENT_TEXT = "Error Motor Id";
+	private final static int ERROR_NUMBER = 1;
+	public final static MotorInstanceId ERROR_ID = new MotorInstanceId(ERROR_COMPONENT_TEXT, ERROR_NUMBER);
 	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Id";
 	private final static int EMPTY_NUMBER = 1;
 	public final static MotorInstanceId EMPTY_ID = new MotorInstanceId(EMPTY_COMPONENT_TEXT, EMPTY_NUMBER);
-	
-	public MotorInstanceId() {
-		this.componentId = COMPONENT_ERROR_TEXT;
-		this.number = ERROR_NUMBER;
-	}
 	
 	/**
 	 * Sole constructor.
@@ -71,6 +66,17 @@ public final class MotorInstanceId {
 	@Override
 	public int hashCode() {
 		return componentId.hashCode() + (number << 12);
+	}
+	
+	public String toShortKey(){
+		if( this == ERROR_ID){
+			return "ERROR_ID";
+		}else if( this == EMPTY_ID){
+			return "EMPTY_ID";
+		}else{
+			final String result = toString();
+			return result.substring(0, Math.min(8, result.length()));
+		}
 	}
 	
 	@Override

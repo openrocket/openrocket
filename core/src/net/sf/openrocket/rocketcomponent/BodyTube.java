@@ -6,8 +6,9 @@ import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.motor.MotorSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -31,7 +32,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	private double overhang = 0;
 	private boolean isActingMount = false;
 	
-	private MotorConfigurationSet motors;
+	private MotorSet motors;
 	
 	public BodyTube() {
 		this(8 * DEFAULT_RADIUS, DEFAULT_RADIUS);
@@ -43,7 +44,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		super();
 		this.outerRadius = Math.max(radius, 0);
 		this.length = Math.max(length, 0);
-		this.motors = new MotorConfigurationSet(this, MotorInstance.EMPTY_INSTANCE);
+		motors = new MotorSet(this);
 	}
 	
 	public BodyTube(double length, double radius, boolean filled) {
@@ -382,10 +383,14 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 			}else if( !this.equals( newMotorInstance.getMount())){
 				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
 			}
+			newMotorInstance.setID(new MotorInstanceId( this.getID(), 1));
 			this.motors.set(fcid,newMotorInstance);
 		}		
 
 		this.isActingMount=true;
+		
+		// this is done automatically in the motorSet
+		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
 	
@@ -463,7 +468,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	protected RocketComponent copyWithOriginalID() {
 		BodyTube copy = (BodyTube) super.copyWithOriginalID();
 		
-		copy.motors = new MotorConfigurationSet(motors, this, MotorConfigurationSet.DEFAULT_EVENT_TYPE);
+		copy.motors = new MotorSet( this.motors, copy );
 		return copy;
 	}
 }

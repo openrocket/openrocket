@@ -161,6 +161,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (stageNumber >= this.rocket.getStageCount()) {
 			return false;
 		}
+		// DEVEL
+		if( ! stages.containsKey(stageNumber)){
+			throw new IllegalArgumentException(" Configuration does not contain stage number: "+stageNumber);
+		}
+		
 		return stages.get(stageNumber).active;
 	}
 	
@@ -328,23 +333,21 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if( isNamed ){
 			return configurationName;
 		}else{
-			return fcid.getFullKey();
+			if( this.hasMotors()){
+				return fcid.toShortKey()+" - "+this.motors.toString();
+			}else{
+				return fcid.getFullKeyText();
+			}
 		}
 	}
 	
 	public String toShort() {
-		return this.fcid.getShortKey();
+		return this.fcid.toShortKey();
 	}
 	
 	// DEBUG / DEVEL
 	public String toDebug() {
-		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("["));
-		for (StageFlags flags : this.stages.values()) {
-			buf.append(String.format(" %d", (flags.active ? 1 : 0)));
-		}
-		buf.append("]\n");
-		return buf.toString();
+		return toMotorDetail();
 	}
 	
 	// DEBUG / DEVEL
@@ -353,26 +356,44 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		buf.append(String.format("\nDumping stage config: \n"));
 		for (StageFlags flags : this.stages.values()) {
 			AxialStage curStage = flags.stage;
-			buf.append(String.format("    [%d]: %24s: %b\n", curStage.getStageNumber(), curStage.getName(), flags.active));
+			buf.append(String.format("    [%2d]: %s: %24s\n", curStage.getStageNumber(), curStage.getName(), (flags.active?" on": "off")));
 		}
 		buf.append("\n\n");
 		return buf.toString();
 	}
 	
+	// DEBUG / DEVEL
+	public String toMotorDetail(){
+		StringBuilder buff = new StringBuilder();
+		buff.append(String.format("\nDumping %2d Motors for configuration %s: \n", this.motors.getMotorCount(), this.fcid.toShortKey()));
+		for( MotorInstance curMotor : this.getAllMotors()){
+			if( curMotor.isEmpty() ){
+				buff.append( String.format( "    ..[%8s] <empty> \n", curMotor.getID().toShortKey()));
+			}else{
+				buff.append( String.format( "    ..[%8s] (%s) %10s (in: %s)\n",
+										curMotor.getID().toShortKey(),
+										(curMotor.isActive()? " on": "off"),
+										curMotor.getMotor().getDesignation(),
+										((RocketComponent)curMotor.getMount()).toDebugName() ));
+			}
+		}
+		return buff.toString();
+	}
 
 	@Override
 	public String toString() {
 		if( this.isNamed){
-			return configurationName + "["+fcid.getShortKey()+"]";
+			return configurationName + "["+fcid.toShortKey()+"]";
 		}else{
-			return fcid.getFullKey();
+			return this.getName();
 		}
 	}
 
 	@Override
-	public void componentChanged(ComponentChangeEvent e) {
+	public void componentChanged(ComponentChangeEvent cce) {
 		// update according to incoming events 
 		updateStageMap();
+		this.motors.update();
 	}
 	
 	

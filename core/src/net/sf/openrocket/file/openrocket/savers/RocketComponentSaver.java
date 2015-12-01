@@ -15,13 +15,11 @@ import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
 import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -171,8 +169,10 @@ public class RocketComponentSaver {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
 		
+		Rocket rkt = ((RocketComponent) mount).getRocket();
 		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
-		ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
+		//ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
+		
 		List<String> elements = new ArrayList<String>();
 		
 		MotorInstance defaultInstance = mount.getDefaultMotorInstance();
@@ -186,8 +186,7 @@ public class RocketComponentSaver {
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for (FlightConfiguration curConfig : configs) {
-			FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+		for( FlightConfigurationID fcid : rkt.getSortedConfigurationIDs()){
 			
 			MotorInstance motorInstance = mount.getMotorInstance(fcid);
 			// Nothing is stored if no motor loaded

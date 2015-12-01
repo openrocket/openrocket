@@ -9,12 +9,11 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  * FlightConfigurationSet for motors.
  * This is used for motors, where the default value is always no motor.
  */
-public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
+public class MotorSet extends ParameterSet<MotorInstance> {
+	public static final int DEFAULT_MOTOR_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
 	
-	public static final int DEFAULT_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
-	
-	public MotorConfigurationSet(RocketComponent component, MotorInstance _value) {
-		super(component, DEFAULT_EVENT_TYPE, _value);
+	public MotorSet(RocketComponent component ) {
+		super(component, DEFAULT_MOTOR_EVENT_TYPE, MotorInstance.EMPTY_INSTANCE);
 	}
 	
 	/**
@@ -24,10 +23,9 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public MotorConfigurationSet(ParameterSet<MotorInstance> flightConfiguration, RocketComponent component, int eventType) {
-		super(flightConfiguration, component, eventType);
+	public MotorSet(ParameterSet<MotorInstance> flightConfiguration, RocketComponent component) {
+		super(flightConfiguration, component, DEFAULT_MOTOR_EVENT_TYPE);
 	}
-	
 	
 	@Override
 	public void setDefault( MotorInstance value) {
@@ -37,13 +35,13 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 	@Override
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.getName()+"' of type: "+this.component.getClass().getSimpleName()+" ======\n");
+		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.toDebugName()+" ======\n");
 		buffer.append("        >> motorSet ("+this.size()+ " motors)\n");
 		MotorInstance emptyInstance = this.getDefault();
 		buffer.append("              >> (["+emptyInstance.toString()+"]=  @ "+ emptyInstance.getIgnitionEvent().name +"  +"+emptyInstance.getIgnitionDelay()+"sec )\n");
 		
 		for( FlightConfigurationID loopFCID : this.map.keySet()){
-			String shortKey = loopFCID.getShortKey();
+			String shortKey = loopFCID.toShortKey();
 			
 			MotorInstance curInstance = this.map.get(loopFCID);
 			String designation;
@@ -62,23 +60,5 @@ public class MotorConfigurationSet extends ParameterSet<MotorInstance> {
 		return buffer.toString();
 	}
 
-	
-//	public void printDebug(FlightConfigurationID curFCID){
-//		if( this.map.containsKey(curFCID)){
-//			// no-op
-//		}else{
-//			String shortKey = curFCID.toShortKey();
-//			MotorInstance curInstance= this.get(curFCID);
-//			
-//			String designation;
-//			if( MotorInstance.EMPTY_INSTANCE == curInstance){
-//				designation = "EMPTY_INSTANCE";
-//			}else{
-//				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
-//			}
-//			System.err.println(" Queried FCID:");
-//			System.err.println("              >> ["+shortKey+"]= "+designation);
-//		}		
-//	}
 	
 }

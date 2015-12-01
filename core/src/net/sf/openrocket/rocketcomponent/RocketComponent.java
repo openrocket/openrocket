@@ -415,7 +415,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// Add copied children to the structure without firing events.
 			for (RocketComponent child : this.children) {
 				RocketComponent childCopy = child.copyWithOriginalID();
-				// Don't use add method since it fires events
+				// Don't use addChild(...) method since it fires events
 				clone.children.add(childCopy);
 				childCopy.parent = clone;
 			}
@@ -2109,6 +2109,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			throw new UnsupportedOperationException("remove() not supported by " +
 					"RocketComponent iterator");
 		}
+	}
+	
+	public String toDebugName(){
+		return this.getName()+"<"+this.getClass().getSimpleName()+">("+this.getID().substring(0,8)+")";
 	}
 	
 	// multi-line output

@@ -45,11 +45,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		return this.key.equals(otherFCID.key);
 	}
 	
-	public String getShortKey(){
+	public String toShortKey(){
 		return this.key.toString().substring(0,8);
 	}
 
-	public String getFullKey(){
+	public String getFullKeyText(){
 		return this.key.toString();
 	}
 	

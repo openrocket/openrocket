@@ -143,17 +143,12 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
     
 	@Override
 	public void set(FlightConfigurationID fcid, E nextValue) {
-		if (null == fcid) {
-			throw new NullPointerException("id is null");
-		}else if( !fcid.isValid()){
-			throw new IllegalStateException("  Attempt to reset the default value on with an invalid key: "+fcid.toString());
-		}
 		if ( nextValue == null) {
 			// null value means to delete this fcid
-			E previousValue = map.remove(fcid);
+			E previousValue = this.map.remove(fcid);
 			removeListener(previousValue);
 		}else{
-			E previousValue = map.put(fcid, nextValue);
+			E previousValue = this.map.put(fcid, nextValue);
 			removeListener(previousValue);
 			addListener(nextValue);
 		}
@@ -223,7 +218,7 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 			buf.append(String.format("              >> [%s]= %s\n", "*DEFAULT*", this.getDefault().toString() ));		
 		}else{
 			for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
-				String shortKey = loopFCID.getShortKey();
+				String shortKey = loopFCID.toShortKey();
 				
 				E inst = this.map.get(loopFCID);
 				if( this.isDefault(inst)){

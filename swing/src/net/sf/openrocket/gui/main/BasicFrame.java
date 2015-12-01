@@ -171,7 +171,6 @@ public class BasicFrame extends JFrame implements PropertyChangeListener {
 		
 		this.document = document;
 		this.rocket = document.getRocket();
-		this.rocket.getDefaultConfiguration().setAllStages();
 		
 		// Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();

@@ -27,7 +27,6 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfiguration
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.ThrustCurveMotorInstance;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -210,20 +209,22 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
 
-		Motor m = motorChooserDialog.getSelectedMotor();
+		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 
-		//System.err.println("Just selected motor: "+m+" for config: "+fcid);
-		if (m != null) {
+		// DEBUG
+		//System.err.println("Just selected motor for config: "+fcid.toShortKey());
+		if (mtr != null) {
 			// DEBUG
-			//System.err.println("     >> new motor: "+m.getDesignation()+" delay: "+d);
+			//System.err.println("     >> new motor: "+mtr.getDesignation()+" delay: "+d);
 			
-			ThrustCurveMotorInstance curInstance = (ThrustCurveMotorInstance) m.getNewInstance();
+			MotorInstance curInstance = mtr.getNewInstance();
+			//System.err.println("     >> new instance: "+curInstance.toString());
 			curInstance.setEjectionDelay(d);
 			curMount.setMotorInstance( fcid, curInstance);
 
 			// DEBUG
-			//System.err.println("        set?: "+curMount.getMotorInstance(fcid).getMotor().getDesignation());			
+			//System.err.println("        set?: "+curMount.getMotorInstance(fcid).toString());	
 		}
 
 		fireTableDataChanged();
@@ -304,7 +305,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			MotorMount mount = curMotorInstance.getMount();
 			Motor motor = curMotorInstance.getMotor();
 			if( null == mount){
-				throw new NullPointerException("Motor has a null mount... this should never happen: "+curMotorInstance.getMotorID());
+				throw new NullPointerException("Motor has a null mount... this should never happen: "+curMotorInstance.getID());
 			}
 
 			String str = motor.getDesignation(curMotorInstance.getEjectionDelay());

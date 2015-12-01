@@ -219,7 +219,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			RocketComponentCalc calcObj = calcMap.get(component);
 			// vvvv DEBUG vvvv
 			if (null == calcObj ){
-				throw new NullPointerException(" Component does not have a calcMap!! : "+component.getName() +"=="+component.getID()+"  |calcMap|="+calcMap.size());
+				throw new NullPointerException(" Missing mapping: |calcMap|="+calcMap.size()+" for:"+component.toDebugName());
 			}
 			// ^^^^ DEBUG ^^^^
 			calcObj.calculateNonaxialForces(conditions, forces, warnings);

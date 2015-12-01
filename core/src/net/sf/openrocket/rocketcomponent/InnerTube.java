@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.motor.MotorSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -34,7 +35,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	private double overhang = 0;
 	private boolean isActingMount;
-	private MotorConfigurationSet motors;
+	private MotorSet motors;
 	
 	/**
 	 * Main constructor.
@@ -45,7 +46,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 		
-		this.motors = new MotorConfigurationSet(this, MotorInstance.EMPTY_INSTANCE);
+		motors = new MotorSet(this);
 	}
 	
 	
@@ -124,9 +125,14 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	 * @param cluster  The cluster configuration.
 	 */
 	@Override
-	public void setClusterConfiguration(ClusterConfiguration cluster) {
-		this.cluster = cluster;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	public void setClusterConfiguration( final ClusterConfiguration cluster) {
+		if( cluster == this.cluster){
+			// no change
+			return;
+		}else{
+			this.cluster = cluster;
+			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		}
 	}
 	
 	/**
@@ -283,10 +289,14 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 			}else if( !this.equals( newMotorInstance.getMount())){
 				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
 			}
+			newMotorInstance.setID(new MotorInstanceId( this.getID(), 1));
 			this.motors.set(fcid, newMotorInstance);
 		}
-		
+
 		this.isActingMount = true;
+
+		// this is done automatically in the motorSet
+		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
 	@Override
@@ -305,7 +315,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
     	if (this.isActingMount == _active)
     		return;
     	this.isActingMount = _active;
-    	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
@@ -356,7 +365,15 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
-		copy.motors = new MotorConfigurationSet(motors, copy, ComponentChangeEvent.MOTOR_CHANGE);
+		if( copy == this ){
+			new IllegalArgumentException(" copyWithOriginalID should return a different instance! ");
+		}
+		if( copy.motors == this.motors ){
+			new IllegalArgumentException(" copyWithOriginalID should produce different motorSet instances! ");
+		}
+		
+		copy.motors = new MotorSet( this.motors, copy );
+		
 		return copy;
 	}
 	

@@ -30,11 +30,8 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		super(new MigLayout("gap 0!"));
 		this.configuration = configuration;
 		
-		JToggleButton button = new JToggleButton(new StageAction(0));
-		this.add(button);
-		buttons.add(button);
-		
 		updateButtons();
+		
 		configuration.addChangeListener(this);
 	}
 	

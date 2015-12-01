@@ -6,22 +6,22 @@ public class ComponentChangeEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	
 	public enum TYPE {
-		ERROR(0),
-		NON_FUNCTIONAL(1),
-		MASS(2),
-		AERODYNAMIC(4),
-		AERO_MASS ( AERODYNAMIC.value | MASS.value ), // 6
-		TREE( 8),
-		UNDO( 16),
-		MOTOR( 32),
-		EVENT( 64),
-		TEXTURE ( 128),
-		ALL(0xFFFFFFFF);
+		ERROR(-1, "Error"),
+		NON_FUNCTIONAL(1, "nonFunctional"),
+		MASS(2, "Mass"),
+		AERODYNAMIC(4, "Aerodynamic"),
+		TREE( 8, "TREE"),
+		UNDO( 16, "UNDO"),
+		MOTOR( 32, "Motor"),
+		EVENT( 64, "Event"),
+		TEXTURE ( 128, "Texture");
 		
 		protected int value;
+		protected String name;
 		
-		private TYPE( final int _val){
+		private TYPE( final int _val, final String _name){
 			this.value = _val;
+			this.name = _name;
 		}
 		
 		public boolean matches( final int testValue ){
@@ -37,8 +37,10 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change that affects the aerodynamic properties of the rocket */
 	public static final int AERODYNAMIC_CHANGE = TYPE.AERODYNAMIC.value;
 	/** A change that affects the mass and aerodynamic properties of the rocket */
-	public static final int AEROMASS_CHANGE = TYPE.AERO_MASS.value; // Mass & Aerodynamic
+	public static final int AEROMASS_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value );
 	public static final int BOTH_CHANGE = AEROMASS_CHANGE;  // syntactic sugar / backward compatibility
+	/** when a flight configuration fires an event, it is of this type */
+	public static final int CONFIG_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value | TYPE.TREE.value | TYPE.MOTOR.value | TYPE.EVENT.value);
 	
 	/** A change that affects the rocket tree structure */
 	public static final int TREE_CHANGE = TYPE.TREE.value;
@@ -51,11 +53,10 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change to the 3D texture assigned to a component*/
 	public static final int TEXTURE_CHANGE = TYPE.TEXTURE.value;
 	
-	// A bit-field that contains all possible change types. 
-	// Will output as -1. for an explanation, see "twos-complement" representation of signed integers
-	public static final int ALL_CHANGE = TYPE.ALL.value;
-	
-	
+	//// A bit-field that contains all possible change types. 
+	//// Will output as -1. for an explanation, see "twos-complement" representation of signed integers
+	//public static final int ALL_CHANGE =  0xFFFFFFFF;
+			
 	private final int type;
 	
 	
@@ -73,6 +74,15 @@ public class ComponentChangeEvent extends EventObject {
 		this.type = type.value;
 	}
 	
+
+	public static TYPE getTypeEnum( final int typeNumber ){
+		for( TYPE ccet : ComponentChangeEvent.TYPE.values() ){
+			if( ccet.value == typeNumber ){
+				return ccet;
+			}
+		}
+		throw new IllegalArgumentException(" type number "+typeNumber+" is not a valid Type enum...");
+	}
 	
 	/**
 	 * Return the source component of this event as specified in the constructor.
@@ -90,9 +100,13 @@ public class ComponentChangeEvent extends EventObject {
 	public boolean isEventChange() {
 		return TYPE.EVENT.matches( this.type);
 	}
-	
+
 	public boolean isFunctionalChange() {
-		return ! (TYPE.NON_FUNCTIONAL.matches( this.type));
+		return ! this.isNonFunctionalChange();
+	}
+	
+	public boolean isNonFunctionalChange() {
+		return (TYPE.NON_FUNCTIONAL.matches( this.type));
 	}
 	
 	public boolean isMassChange() {
@@ -113,7 +127,7 @@ public class ComponentChangeEvent extends EventObject {
 	
 	
 	public boolean isMotorChange() {
-		return TYPE.MASS.matches(this.type);
+		return TYPE.MOTOR.matches(this.type);
 	}
 	
 	public int getType() {
@@ -124,7 +138,7 @@ public class ComponentChangeEvent extends EventObject {
 	public String toString() {
 		String s = "";
 		
-		if (isFunctionalChange())
+		if (isNonFunctionalChange())
 			s += ",nonfunc";
 		if (isMassChange())
 			s += ",mass";

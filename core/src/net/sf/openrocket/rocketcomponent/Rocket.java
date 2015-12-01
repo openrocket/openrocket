@@ -56,6 +56,7 @@ public class Rocket extends RocketComponent {
 	private int treeModID;
 	private int functionalModID;
 	
+	private boolean eventsEnabled=false;
 	
 	private ReferenceType refType = ReferenceType.MAXIMUM; // Set in constructor
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
@@ -84,7 +85,7 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		
 		FlightConfiguration defaultConfiguration = new FlightConfiguration( null, this);
-		this.configSet = new FlightConfigurationSet(this, ComponentChangeEvent.ALL_CHANGE, defaultConfiguration);		
+		this.configSet = new FlightConfigurationSet(this, ComponentChangeEvent.CONFIG_CHANGE, defaultConfiguration);		
 	}
 	
 	public String getDesigner() {
@@ -282,7 +283,7 @@ public class Rocket extends RocketComponent {
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
 		copy.configSet = new FlightConfigurationSet(
-				this.configSet, copy, ComponentChangeEvent.ALL_CHANGE);
+				this.configSet, copy, ComponentChangeEvent.CONFIG_CHANGE);
 		copy.resetListeners();
 		
 		return copy;
@@ -319,8 +320,7 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.configSet = new FlightConfigurationSet(
-				r.configSet, this, ComponentChangeEvent.ALL_CHANGE);
+		this.configSet = new FlightConfigurationSet( r.configSet, this, ComponentChangeEvent.CONFIG_CHANGE);
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();
@@ -373,38 +373,54 @@ public class Rocket extends RocketComponent {
 	}
 	
 	@Override
-	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
+	protected void fireComponentChangeEvent(ComponentChangeEvent cce) {
+		if( ! this.eventsEnabled ){
+			return;
+		}
+		
 		mutex.lock("fireComponentChangeEvent");
 		try {
 			checkState();
 			
 			// Update modification ID's only for normal (not undo/redo) events
-			if (!e.isUndoChange()) {
+			if (!cce.isUndoChange()) {
 				modID = UniqueID.next();
-				if (e.isMassChange())
+				if (cce.isMassChange())
 					massModID = modID;
-				if (e.isAerodynamicChange())
+				if (cce.isAerodynamicChange())
 					aeroModID = modID;
-				if (e.isTreeChange())
+				if (cce.isTreeChange())
 					treeModID = modID;
-				if (e.getType() != ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
+				if (cce.isFunctionalChange())
 					functionalModID = modID;
 			}
 			
+			// Update modification ID's only for normal (not undo/redo) events
+			{ // vvvv DEVEL vvvv
+				String changeString; 
+				if (cce.isUndoChange()) {
+					changeString = "an 'undo' change from: "+cce.getSource().getName()+"  as:"+cce.toString();
+				}else{
+					changeString = "a normal change from: "+cce.getSource().getName()+"  as:"+cce.toString();
+				}
+				
+				log.error("Processing a rocket change: "+changeString, new IllegalArgumentException());
+			} // ^^^^ DEVEL ^^^^
+			
 			// Check whether frozen
 			if (freezeList != null) {
-				log.debug("Rocket is in frozen state, adding event " + e + " info freeze list");
-				freezeList.add(e);
+				log.debug("Rocket is in frozen state, adding event " + cce + " info freeze list");
+				freezeList.add(cce);
 				return;
 			}
 			
-			if( -1 == e.getType()){
+			if( -1 == cce.getType()){
 				log.debug(">>fireComponentChangeEvent()>> . . .");
 			}
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
-				iterator.next().componentChanged(e);
+				iterator.next().componentChanged(cce);
 			}
 			
 			// Notify all listeners
@@ -412,9 +428,9 @@ public class Rocket extends RocketComponent {
 			EventListener[] list = listenerList.toArray(new EventListener[0]);
 			for (EventListener l : list) {
 				if (l instanceof ComponentChangeListener) {
-					((ComponentChangeListener) l).componentChanged(e);
+					((ComponentChangeListener) l).componentChanged(cce);
 				} else if (l instanceof StateChangeListener) {
-					((StateChangeListener) l).stateChanged(e);
+					((StateChangeListener) l).stateChanged(cce);
 				}
 			}
 		} finally {
@@ -504,17 +520,14 @@ public class Rocket extends RocketComponent {
 	
 	public FlightConfiguration createFlightConfiguration( final FlightConfigurationID fcid) {
 		checkState();
-		FlightConfiguration nextConfig = null;
 		if( configSet.containsKey(fcid)){
-			nextConfig = this.configSet.get(fcid);
+			return this.configSet.get(fcid);
 		}else{
-			nextConfig = new FlightConfiguration(fcid, this);
+			FlightConfiguration nextConfig = new FlightConfiguration(fcid, this);
 			this.configSet.set(fcid, nextConfig);
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+			return nextConfig;
 		}
-
-		this.setFlightConfiguration( fcid, nextConfig );
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		return nextConfig;
 	}
 	
 	public int getConfigurationCount(){
@@ -688,6 +701,27 @@ public class Rocket extends RocketComponent {
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return (AxialStage.class.equals(type));
+	}
+
+	/** 
+	 * STUB.  would enable the monitoring, relay and production of events in this rocket instance.
+	 */
+	public void enableEvents() {
+		this.enableEvents(true);
+	}
+	
+	/** 
+	 * STUB.  would enable the monitoring, relay and production of events in this rocket instance.
+	 */
+	public void enableEvents( final boolean _enable ) {
+		if( this.eventsEnabled && _enable){
+			return;
+		}else if( _enable ){
+			this.eventsEnabled = true;
+			this.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
+		}else{
+			this.eventsEnabled = false;
+		}
 	}
 	
 }

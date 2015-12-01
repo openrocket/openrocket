@@ -277,11 +277,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		FlightConfiguration config = rocket.getFlightConfiguration(options.getConfigID());
 		List<MotorInstance> motorList = config.getActiveMotors();
-						
+		
 		//Make sure this simulation has motors.
 		if (0 == motorList.size()){
 			status = Status.CANT_RUN;
-			log.warn("    Unable to simulate: no motors loaded.");
 		}
 		
 		return status;

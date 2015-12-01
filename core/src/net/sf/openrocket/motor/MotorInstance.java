@@ -49,7 +49,7 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		modID++;
 	}
 	
-	public MotorInstanceId getMotorID() {
+	public MotorInstanceId getID() {
 		return this.id;
 	}
 	
