@@ -51,7 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private FlightConfigurationID configId = null; 
+	private FlightConfigurationID configId = FlightConfigurationID.ERROR_CONFIGURATION_FCID; 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -100,7 +100,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		return rocket;
 	}
 	
-	public FlightConfigurationID getFlightConfiguratioId() {
+	public FlightConfigurationID getFlightConfigurationId() {
 		return getId();
 	}
 	
@@ -109,16 +109,17 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	/**
-	 * Set the motor configuration ID.  This must be a valid motor configuration ID of
-	 * the rocket, otherwise the configuration is set to <code>null</code>.
+	 * Set the motor configuration ID.  If this id does not yet exist, it will be created.
 	 * 
 	 * @param id	the configuration to set.
 	 */
 	public void setFlightConfigurationId(FlightConfigurationID fcid) {
-		if (! fcid.isValid() ){
-			return; // error
+		if ( null == fcid ){
+			throw new NullPointerException("Attempted to set a null Config id in simulation options. Not allowed!");
+		}else if ( fcid.hasError() ){
+			throw new IllegalArgumentException("Attempted to set the configuration to an error id. Not Allowed!");
 		}else if (!rocket.containsFlightConfigurationID(fcid)){
-			return; 
+			rocket.createFlightConfiguration(fcid);
 		}
 		
 		if( fcid.equals(this.configId)){

@@ -252,6 +252,10 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public void addSimulation(Simulation simulation) {
 		simulations.add(simulation);
+		FlightConfigurationID simId = simulation.getId();
+		if( !rocket.containsFlightConfigurationID( simId )){
+			rocket.createFlightConfiguration(simId);
+		}
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	
@@ -628,12 +632,12 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 	}
 	
-	public String getSimulationDetail(){
+	public String toSimulationDetail(){
 		StringBuilder str = new StringBuilder();
 		str.append(">> Dumping simulation list:\n");
 		int simNum = 0; 
 		for( Simulation s : this.simulations ){
-			str.append(String.format("    [%d] %s \n", simNum, s.getName(), s.getOptions().getId().toShortKey() ));
+			str.append(String.format("    [%d] %s (%s) \n", simNum, s.getName(), s.getOptions().getId().toShortKey() ));
 			simNum++;
 		}
 		

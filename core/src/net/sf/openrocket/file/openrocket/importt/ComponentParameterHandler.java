@@ -61,6 +61,13 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new MotorConfigurationHandler((Rocket) component, context);
 		}
+		if (element.equals("flightconfiguration")) {
+			if (!(component instanceof Rocket)) {
+				warnings.add(Warning.fromString("Illegal component defined for flight configuration."));
+				return null;
+			}
+			return new MotorConfigurationHandler((Rocket) component, context);
+		}
 		if ( element.equals("deploymentconfiguration")) {
 			if ( !(component instanceof RecoveryDevice) ) {
 				warnings.add(Warning.fromString("Illegal component defined as recovery device."));

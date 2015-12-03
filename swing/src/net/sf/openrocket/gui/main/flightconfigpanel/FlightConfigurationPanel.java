@@ -124,7 +124,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	
 	private void addConfiguration() {
 		FlightConfigurationID newFCID = new FlightConfigurationID();
-		FlightConfiguration newConfig = new FlightConfiguration( newFCID, rocket );
+		FlightConfiguration newConfig = new FlightConfiguration( rocket, newFCID );
 		
 		rocket.setFlightConfiguration(newFCID, newConfig);
 		

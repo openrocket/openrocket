@@ -12,11 +12,10 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	private final static long DEFAULT_MOST_SIG_BITS = 0xF4F2F1F0;
 	private final static UUID ERROR_CONFIGURATION_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 2489);
-//	private final static String DEFAULT_CONFIGURATION_KEYTEXT = "default_configuration_6602";
+	private final static String ERROR_KEY_NAME = "<Error_Key>";
 	private final static UUID DEFAULT_VALUE_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 5676);
 	
 	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_UUID);
-//	public final static FlightConfigurationID DEFAULT_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_CONFIGURATION_KEYTEXT );
 	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_UUID ); 
 	
 	public FlightConfigurationID() {
@@ -24,7 +23,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public FlightConfigurationID(final String _str) {
-		this.key = UUID.fromString( _str);
+		if("".equals(_str)){
+			this.key = UUID.randomUUID();
+		}else{
+			this.key = UUID.fromString( _str);
+		}
 	}
 	
 	public FlightConfigurationID(final UUID _val) {
@@ -46,7 +49,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public String toShortKey(){
-		return this.key.toString().substring(0,8);
+		if( isValid()){
+			return this.key.toString().substring(0,8);
+		}else{
+			return ERROR_KEY_NAME;
+		}
 	}
 
 	public String getFullKeyText(){
@@ -62,8 +69,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		return this.key;
 	}
 	
+	public boolean hasError(){
+		return (ERROR_CONFIGURATION_UUID == this.key);
+	}
 	public boolean isValid() {
-		return (this.key != ERROR_CONFIGURATION_UUID);
+		return !hasError();
 	}
 	
 	@Override

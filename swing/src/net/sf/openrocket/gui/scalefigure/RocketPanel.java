@@ -309,6 +309,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
 		JComboBox<FlightConfiguration> flightConfigurationComboBox = new JComboBox<FlightConfiguration>(psm);
 		add(flightConfigurationComboBox, "wrap, width 16%, wmin 100");
+
 		flightConfigurationComboBox.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent ae) {
@@ -320,10 +321,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					document.getRocket().getConfigurationSet().setDefault( newConfig);
 					updateExtras();
 					updateFigures();
-					// fireChangeEvent();
-					
-					System.err.println("  processing actionevent for flight config combo box...    cmd: "+ae.getActionCommand());
-					System.err.println("    seld key: "+newConfig);
 				}
 			}
 		});

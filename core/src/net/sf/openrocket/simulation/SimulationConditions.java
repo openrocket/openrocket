@@ -114,8 +114,12 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		this.rocket = rocket;
 	}
 	
-	
+
 	public FlightConfigurationID getMotorConfigurationID() {
+		return configID;
+	}
+
+	public FlightConfigurationID getConfigurationID() {
 		return configID;
 	}
 	

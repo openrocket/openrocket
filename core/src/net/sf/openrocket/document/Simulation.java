@@ -14,6 +14,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
@@ -114,7 +115,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
 		
-		options.setFlightConfigurationId(rocket.getDefaultConfiguration().getFlightConfigurationID());
+		FlightConfigurationID fcid = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		options.setFlightConfigurationId(fcid);
 		options.addChangeListener(new ConditionListener());
 	}
 	
@@ -132,7 +134,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new IllegalArgumentException("options cannot be null");
 		
 		this.rocket = rocket;
-		
+
 		if (status == Status.UPTODATE) {
 			this.status = Status.LOADED;
 		} else if (data == null) {
@@ -170,8 +172,11 @@ public class Simulation implements ChangeSource, Cloneable {
 		mutex.verify();
 		return rocket;
 	}
-//
-//	
+
+	public FlightConfigurationID getId(){
+		return this.options.getFlightConfigurationId();
+	}
+	
 //	/**
 //	 * Return a newly created Configuration for this simulation.  The configuration
 //	 * has the motor ID set and all stages active.
@@ -515,4 +520,5 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 		}
 	}
+	
 }

@@ -65,8 +65,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		FlightData flightData = new FlightData();
 		
 		// Set up rocket configuration
-		FlightConfiguration configuration = setupConfiguration(simulationConditions);
-		this.fcid = configuration.getFlightConfigurationID();
+		this.fcid = simulationConditions.getConfigurationID();
+		FlightConfiguration configuration = simulationConditions.getRocket().getFlightConfiguration( this.fcid);
 		
 		List<MotorInstance> activeMotors = configuration.getActiveMotors();
 		if ( activeMotors.isEmpty() ) {
@@ -245,22 +245,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 		
 		return status.getFlightData();
-	}
-	
-	/**
-	 * Create a rocket configuration from the launch conditions.
-	 *
-	 * @param simulation	the launch conditions.
-	 * @return				a rocket configuration with all stages attached.
-	 */
-	private FlightConfiguration setupConfiguration(SimulationConditions simulation) {
-		FlightConfiguration configuration = new FlightConfiguration(simulation.getMotorConfigurationID(), simulation.getRocket());
-		configuration.setAllStages();
-		
-		return configuration;
-	}
-	
-	
+	}	
 	
 	/**
 	 * Handles events occurring during the flight from the event queue.

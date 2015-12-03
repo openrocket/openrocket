@@ -50,11 +50,9 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		
 		
 		if (element.equals("configid")) {
-			if (content.equals("")) {
-				conditions.setFlightConfigurationId(null);
-			} else {
-				conditions.setFlightConfigurationId(new FlightConfigurationID(content));
-			}
+			// the ID constructor is designed to always return a valid value 
+			FlightConfigurationID idToSet= new FlightConfigurationID(content);
+			conditions.setFlightConfigurationId(idToSet);
 		} else if (element.equals("launchrodlength")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod length defined, ignoring.");

@@ -84,7 +84,7 @@ public class Rocket extends RocketComponent {
 		treeModID = modID;
 		functionalModID = modID;
 		
-		FlightConfiguration defaultConfiguration = new FlightConfiguration( null, this);
+		FlightConfiguration defaultConfiguration = new FlightConfiguration( this, null);
 		this.configSet = new FlightConfigurationSet(this, ComponentChangeEvent.CONFIG_CHANGE, defaultConfiguration);		
 	}
 	
@@ -520,12 +520,15 @@ public class Rocket extends RocketComponent {
 	
 	public FlightConfiguration createFlightConfiguration( final FlightConfigurationID fcid) {
 		checkState();
-		if( configSet.containsKey(fcid)){
+		if( fcid.hasError() ){
+			throw new NullPointerException("Attempted to create a flightConfiguration from an error key!");
+		}else if( configSet.containsKey(fcid)){
 			return this.configSet.get(fcid);
 		}else{
-			FlightConfiguration nextConfig = new FlightConfiguration(fcid, this);
+			FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
 			this.configSet.set(fcid, nextConfig);
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+			this.configSet.setDefault( nextConfig);
+			fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
 			return nextConfig;
 		}
 	}
@@ -552,8 +555,9 @@ public class Rocket extends RocketComponent {
 	 */
 	public void removeFlightConfigurationID(FlightConfigurationID fcid) {
 		checkState();
-		if (fcid == null)
+		if( fcid.hasError() ){
 			return;
+		}
 		
 		// Get current configuration:
 		this.configSet.set(fcid, null);
@@ -569,8 +573,10 @@ public class Rocket extends RocketComponent {
 	 */
 	public boolean containsFlightConfigurationID(FlightConfigurationID id) {
 		checkState();
-		FlightConfiguration config = configSet.get( id);
-		return (null != config);
+		if( id.hasError() ){
+			return false;
+		}
+		return configSet.containsKey( id);
 	}
 	
 	
@@ -582,8 +588,9 @@ public class Rocket extends RocketComponent {
 	 */
 	public boolean hasMotors(FlightConfigurationID fcid) {
 		checkState();
-		if (fcid == null)
+		if( fcid.hasError() ){
 			return false;
+		}
 		
 		Iterator<RocketComponent> iterator = this.iterator();
 		while (iterator.hasNext()) {
@@ -608,23 +615,33 @@ public class Rocket extends RocketComponent {
 	 * @param id   the flight configuration id
 	 * @return	   a FlightConfiguration instance 
 	 */
-	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID id) {
+	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID fcid) {
 		checkState();
-		return this.configSet.get(id);
+		return this.createFlightConfiguration(fcid);
+	}
+
+	/**
+	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.  
+	 *
+	 * @param id   the flight configuration index number
+	 * @return	   a FlightConfiguration instance 
+	 */
+	public FlightConfiguration getFlightConfiguration(final int configIndex) {
+		checkState();
+		return this.configSet.get(configIndex);
 	}
 
 	
 	public void setDefaultConfiguration(final FlightConfigurationID fcid) {
 		checkState();
-		if ( null == fcid ){
-			// silently ignore
+		
+		if( fcid.hasError() ){
+			log.error("attempt to set a 'fcid = config' with a error fcid.  Ignored.", new IllegalArgumentException("error id:"+fcid));
 			return;
 		}else if( this.configSet.containsKey(fcid)){
 			configSet.setDefault( configSet.get(fcid));
-		}else{
-			return;
+			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}	
 	
 	/**
@@ -636,16 +653,17 @@ public class Rocket extends RocketComponent {
 	 */
 	public void setFlightConfiguration(final FlightConfigurationID fcid, FlightConfiguration newConfig) {
 		checkState();
-		if (( null == fcid ) || (null == newConfig)){
-			// silently ignore
+		if( fcid.hasError() ){
+			log.error("attempt to set a 'fcid = config' with a error fcid.  Ignored.", new IllegalArgumentException("error id:"+fcid));
 			return;
-		}else{
-			configSet.set(fcid, newConfig);
 		}
+
+		if (null == newConfig){
+			newConfig = createFlightConfiguration(fcid);
+		}
+		configSet.set(fcid, newConfig);
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
-	
 	
 	
 	////////  Obligatory component information

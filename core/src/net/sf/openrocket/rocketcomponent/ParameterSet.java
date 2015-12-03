@@ -94,7 +94,7 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	public int size() {
 		return map.size();
 	}
-	
+
 	@Override
 	public FlightConfigurationID get(E testValue) {
 		if( null == testValue ){
@@ -111,9 +111,26 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 		
 		return null;
 	}
+
+	public E get(final int index) {
+		if( 0 > index){
+			throw new ArrayIndexOutOfBoundsException("Attempt to retrieve a configurable parameter by an index less than zero: "+index);
+		}
+		if(( 0 > index) || ( this.map.size() <= index )){
+			throw new ArrayIndexOutOfBoundsException("Attempt to retrieve a configurable parameter with an index larger "
+													+" than the stored values: "+index+"/"+this.map.size());
+		}
+		
+		List<FlightConfigurationID> ids = this.getSortedConfigurationIDs();
+		FlightConfigurationID selectedId = ids.get(index);
+		return this.map.get(selectedId);
+	}
 	
 	@Override
 	public E get(FlightConfigurationID id) {
+		if( id.hasError() ){
+			throw new NullPointerException("Attempted to retrieve a parameter with an error key!");
+		}
 		E toReturn;
 		if (map.containsKey(id)) {
 			toReturn = map.get(id);
@@ -224,7 +241,7 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 				if( this.isDefault(inst)){
 					shortKey = "*"+shortKey+"*";
 				}
-				buf.append(String.format("              >> [%s]= %s\n", shortKey, inst.toString() ));
+				buf.append(String.format("              >> [%s]= %s\n", shortKey, inst ));
 			}
 		}
 		return buf.toString();

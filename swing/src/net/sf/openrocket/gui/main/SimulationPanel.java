@@ -48,6 +48,8 @@ import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -126,6 +128,7 @@ public class SimulationPanel extends JPanel {
 				if (selection.length == 0) {
 					return;
 				}
+				
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
@@ -333,10 +336,13 @@ public class SimulationPanel extends JPanel {
 				new Column(trans.get("simpanel.col.Configuration")) {
 					@Override
 					public Object getValueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
+						if (row < 0 || row >= document.getSimulationCount()){
 							return null;
-						FlightConfiguration c = new FlightConfiguration( null, document.getSimulation(row).getRocket());
-						return descriptor.format(c.getRocket(), c.getFlightConfigurationID());
+						}
+						
+						Rocket rkt = document.getRocket();
+						FlightConfigurationID fcid = document.getSimulation(row).getId();
+						return descriptor.format( rkt, fcid);
 					}
 
 					@Override

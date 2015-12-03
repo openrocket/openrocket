@@ -73,7 +73,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param _fcid  the ID this configuration should have.
 	 * @param rocket  the rocket
 	 */
-	public FlightConfiguration(final FlightConfigurationID _fcid, Rocket rocket ) {
+	public FlightConfiguration(final Rocket rocket, final FlightConfigurationID _fcid ) {
 		if( null == _fcid){
 			this.fcid = new FlightConfigurationID();
 		}else{
@@ -456,7 +456,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	@Override
 	public FlightConfiguration clone() {
-		FlightConfiguration config = new FlightConfiguration( this.fcid, this.getRocket() );
+		FlightConfiguration config = new FlightConfiguration( this.getRocket(), this.fcid );
 		config.listenerList = new ArrayList<EventListener>();
 		config.stages.putAll( (Map<Integer, StageFlags>) this.stages);
 		config.motors.populate( this.motors );
