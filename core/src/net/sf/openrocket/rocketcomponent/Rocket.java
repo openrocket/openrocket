@@ -189,6 +189,10 @@ public class Rocket extends RocketComponent {
 		return this.stageMap.values();
 	}
 	
+	public AxialStage getTopmostStage(){
+		return (AxialStage) getChild(0);
+	}
+	
 	private int getNewStageNumber() {
 		int guess = 0;
 		while (stageMap.containsKey(guess)) {

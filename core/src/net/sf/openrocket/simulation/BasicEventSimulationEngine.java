@@ -1,6 +1,8 @@
 package net.sf.openrocket.simulation;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.SimpleStack;
 
 
 public class BasicEventSimulationEngine implements SimulationEngine {
@@ -55,7 +56,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private FlightConfigurationID fcid;
 	
-	private SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
+	// was a stack, but parallel staging breaks that
+	protected Stack<SimulationStatus> stages = new Stack<SimulationStatus>();
+//	protected ArrayList<SimulationStatus> burningStages = new ArrayList<SimulationStatus>();
+//	protected ArrayList<SimulationStatus> carriedStages = new ArrayList<SimulationStatus>();
 	
 	
 	@Override

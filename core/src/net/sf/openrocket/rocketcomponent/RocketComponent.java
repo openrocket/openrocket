@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.SafetyMutex;
-import net.sf.openrocket.util.SimpleStack;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
@@ -2029,7 +2029,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private static class RocketComponentIterator implements Iterator<RocketComponent> {
 		// Stack holds iterators which still have some components left.
-		private final SimpleStack<Iterator<RocketComponent>> iteratorStack = new SimpleStack<Iterator<RocketComponent>>();
+		private final Stack<Iterator<RocketComponent>> iteratorStack = new Stack<Iterator<RocketComponent>>();
 		
 		private final Rocket root;
 		private final int treeModID;
