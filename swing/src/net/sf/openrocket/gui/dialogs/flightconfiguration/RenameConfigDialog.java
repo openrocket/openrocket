@@ -40,7 +40,7 @@ public class RenameConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				String newName = textbox.getText();
 				rocket.getFlightConfiguration(fcid).setName( newName);
-				System.err.println(rocket.getConfigurationSet().toDebug());
+				System.err.println(rocket.getConfigSet().toDebug());
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});

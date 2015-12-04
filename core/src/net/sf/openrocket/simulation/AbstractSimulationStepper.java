@@ -185,6 +185,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		configuration.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
 		
+		//??  needs to instance the motors...
 		List<MotorInstance> activeMotors = configuration.getActiveMotors();
 		for (MotorInstance currentMotorInstance : activeMotors) {
 			thrust += currentMotorInstance.getThrust();

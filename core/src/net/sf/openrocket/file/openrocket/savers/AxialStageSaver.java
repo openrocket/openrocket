@@ -51,10 +51,10 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 			// Note - getFlightConfigurationIDs returns at least one element.  The first element
 			// is null and means "default".
 			
-			int configCount = rocket.getConfigurationSet().size();
+			int configCount = rocket.getConfigSet().size();
 			if (1 < configCount ){
 				
-				for (FlightConfiguration curConfig : rocket.getConfigurationSet()){
+				for (FlightConfiguration curConfig : rocket.getConfigSet()){
 					FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
 					if (fcid == null) {
 						continue;

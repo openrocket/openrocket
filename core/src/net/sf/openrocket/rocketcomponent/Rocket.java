@@ -401,14 +401,14 @@ public class Rocket extends RocketComponent {
 			
 			// Update modification ID's only for normal (not undo/redo) events
 			{ // vvvv DEVEL vvvv
-				String changeString; 
-				if (cce.isUndoChange()) {
-					changeString = "an 'undo' change from: "+cce.getSource().getName()+"  as:"+cce.toString();
-				}else{
-					changeString = "a normal change from: "+cce.getSource().getName()+"  as:"+cce.toString();
-				}
-				
-				log.error("Processing a rocket change: "+changeString, new IllegalArgumentException());
+//				String changeString; 
+//				if (cce.isUndoChange()) {
+//					changeString = "an 'undo' change from: "+cce.getSource().getName()+"  as:"+cce.toString();
+//				}else{
+//					changeString = "a normal change from: "+cce.getSource().getName()+"  as:"+cce.toString();
+//				}
+//				
+//				log.error("Processing a rocket change: "+changeString, new IllegalArgumentException());
 			} // ^^^^ DEVEL ^^^^
 			
 			// Check whether frozen
@@ -541,7 +541,7 @@ public class Rocket extends RocketComponent {
 		return this.configSet.size();
 	}
 	
-	public ParameterSet<FlightConfiguration> getConfigurationSet(){
+	public ParameterSet<FlightConfiguration> getConfigSet(){
 		checkState();
 		return this.configSet;
 	}

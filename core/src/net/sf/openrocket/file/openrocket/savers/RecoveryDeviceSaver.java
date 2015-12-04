@@ -37,7 +37,7 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		//dev.getDeploymentConfigurations().printDebug();
 		// DEBUG 
 		
-		ParameterSet<FlightConfiguration> configList = rocket.getConfigurationSet(); 
+		ParameterSet<FlightConfiguration> configList = rocket.getConfigSet(); 
 		for (FlightConfigurationID fcid : configList.getSortedConfigurationIDs()) {
 			//System.err.println("checking FlightConfiguration:"+fcid.getShortKey()+ " save?");
 			

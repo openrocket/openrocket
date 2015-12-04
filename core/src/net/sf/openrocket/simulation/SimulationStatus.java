@@ -25,8 +25,9 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+
 public class SimulationStatus implements Monitorable {
-	
+
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
 	private FlightDataBranch flightData;
@@ -235,7 +236,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	public MotorInstance getMotor( final MotorInstanceId motorId ){
-		return this.getFlightConfiguration().getMotor(motorId);
+		return this.getFlightConfiguration().getMotorInstance(motorId);
 	}
 	
 	public double getPreviousTimeStep() {

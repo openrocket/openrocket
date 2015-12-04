@@ -354,7 +354,7 @@ public class OpenRocketSaver extends RocketSaver {
 				continue;
 			
 			MotorMount mount = (MotorMount) c;
-			for( FlightConfiguration config : document.getRocket().getConfigurationSet()) {
+			for( FlightConfiguration config : document.getRocket().getConfigSet()) {
 				FlightConfigurationID fcid = config.getFlightConfigurationID();
 				if (mount.getMotorInstance(fcid) != null) {
 					return FILE_VERSION_DIVISOR + 4;

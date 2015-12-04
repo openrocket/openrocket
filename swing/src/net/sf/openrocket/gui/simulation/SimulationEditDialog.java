@@ -149,7 +149,7 @@ public class SimulationEditDialog extends JDialog {
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 			panel.add(label, "growx 0, gapright para");
 			
-			ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( document.getRocket().getConfigurationSet());
+			ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( document.getRocket().getConfigSet());
 			final JComboBox<FlightConfiguration> configCombo = new JComboBox<FlightConfiguration>(psm);
 			FlightConfiguration config = document.getRocket().getFlightConfiguration(simulation[0].getId());
 			configCombo.setSelectedItem( config );

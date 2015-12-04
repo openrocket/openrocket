@@ -41,7 +41,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		}
 		
 		if (element.equals("ignitionconfiguration")) {
-			ignitionConfigHandler = new IgnitionConfigurationHandler(context);
+			ignitionConfigHandler = new IgnitionConfigurationHandler( context);
 			return ignitionConfigHandler;
 		}
 		
@@ -65,7 +65,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		// System.err.println("closing MotorMount element: "+ element);
 		
 		if (element.equals("motor")) {
-			// yes, this is confirmed to be the FLIGHT config id, instead of the motor instance id.
+			// yes, this is confirmed to be the FLIGHT config id == motor instance id.
 			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
@@ -93,11 +93,9 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			MotorInstance inst = mount.getDefaultMotorInstance();
-			// ignitionConfigHandler.getConfiguration(null); // all the parsing / loading into the confighandler should already be done...
+			MotorInstance inst = mount.getMotorInstance(fcid);
 			inst.setIgnitionDelay(ignitionConfigHandler.ignitionDelay);
 			inst.setIgnitionEvent(ignitionConfigHandler.ignitionEvent);
-			
 			return;
 		}
 		

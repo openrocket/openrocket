@@ -58,7 +58,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
             @XmlElementRef(name = RocksimCommonConstants.STREAMER, type = StreamerDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
-    List<BasePartDTO> attachedParts = new ArrayList();
+    List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
 
     /**
      * Constructor.

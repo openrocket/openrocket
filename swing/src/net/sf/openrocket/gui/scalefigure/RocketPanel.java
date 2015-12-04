@@ -306,7 +306,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
 		
-		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
+		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigSet());
 		JComboBox<FlightConfiguration> flightConfigurationComboBox = new JComboBox<FlightConfiguration>(psm);
 		add(flightConfigurationComboBox, "wrap, width 16%, wmin 100");
 
@@ -318,7 +318,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					@SuppressWarnings("unchecked")
 					JComboBox<FlightConfigurationID> box = (JComboBox<FlightConfigurationID>) source;
 					FlightConfiguration newConfig = (FlightConfiguration)box.getSelectedItem();
-					document.getRocket().getConfigurationSet().setDefault( newConfig);
+					document.getRocket().getConfigSet().setDefault( newConfig);
 					updateExtras();
 					updateFigures();
 				}

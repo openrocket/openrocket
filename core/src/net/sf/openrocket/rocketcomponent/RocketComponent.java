@@ -1,10 +1,11 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
@@ -1082,17 +1083,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		this.offset = newOffset;
 		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
-		
-//		if( this instanceof CenteringRing ){
-//			System.err.println("Moving "+this.getName()+"("+this.getID().substring(0, 8)+") to:"+newOffset+"  via:"+positionMethod.name());
-//			System.err.println("    new Position = "+this.position);
-//			if( positionMethod == Position.BOTTOM){
-//				StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-//				for( int i = 0; i < 12 ; i++){
-//					System.err.println( stack[i]);
-//				}
-//			}
-//		}
 	}
 	
 	protected void update() {
@@ -2029,7 +2019,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private static class RocketComponentIterator implements Iterator<RocketComponent> {
 		// Stack holds iterators which still have some components left.
-		private final Stack<Iterator<RocketComponent>> iteratorStack = new Stack<Iterator<RocketComponent>>();
+		private final Deque<Iterator<RocketComponent>> iteratorStack = new ArrayDeque<Iterator<RocketComponent>>();
 		
 		private final Rocket root;
 		private final int treeModID;

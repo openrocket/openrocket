@@ -43,7 +43,7 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		
 		// Motor configurations
-		ParameterSet<FlightConfiguration> allConfigs = rocket.getConfigurationSet();
+		ParameterSet<FlightConfiguration> allConfigs = rocket.getConfigSet();
 		for (FlightConfigurationID fcid : allConfigs.getSortedConfigurationIDs()) {
 			FlightConfiguration flightConfig = allConfigs.get(fcid); 
 			if (fcid == null)

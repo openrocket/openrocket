@@ -9,7 +9,12 @@ import java.util.EventObject;
 
 import org.junit.Test;
 
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
@@ -97,7 +102,6 @@ public class ConfigurationTest extends BaseTestCase {
 		// TODO rocket has no motors!  assertTrue(config.hasMotors());
 		
 		// rocket info tests
-		
 		double length = config.getLength();
 		double refLength = config.getReferenceLength();
 		double refArea = config.getReferenceArea();
@@ -191,16 +195,17 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		// test explicitly setting all stages up to second stage active
 		config.setOnlyStage(1);
+		assertThat(config.toStageListDetail() + "Setting single stage active: ", config.isStageActive(0), equalTo(false));
 		assertThat(config.toStageListDetail() + "Setting single stage active: ", config.isStageActive(1), equalTo(true));
 		
-		config.clearOnlyStage(0);
+		config.clearStage(0);
 		assertThat(" deactivate stage #0: ", config.isStageActive(0), equalTo(false));
-		assertThat(" deactive stage #0: ", config.isStageActive(1), equalTo(true));
+		assertThat("     active stage #1: ", config.isStageActive(1), equalTo(true));
 		
 		// test explicitly setting all two stages active
 		config.setAllStages();
-		assertThat(" activate all stages: check #0: ", config.isStageActive(0), equalTo(true));
-		assertThat(" activate all stages: check #1: ", config.isStageActive(1), equalTo(true));
+		assertThat(" activate all stages: check stage #0: ", config.isStageActive(0), equalTo(true));
+		assertThat(" activate all stages: check stage #1: ", config.isStageActive(1), equalTo(true));
 		
 		// test toggling single stage
 		config.setAllStages();
@@ -216,6 +221,48 @@ public class ConfigurationTest extends BaseTestCase {
 		// Cleanup
 		config.release();
 		
+	}
+	
+	/**
+	 * Multi stage rocket specific configuration tests
+	 */
+	@Test
+	public void testMotorClusters() {
+		
+		/* Setup */
+		Rocket rkt = makeTwoStageMotorRocket();
+		FlightConfiguration config = rkt.getDefaultConfiguration();
+		
+		
+		config.clearAllStages();
+		int expectedMotorCount = 0;
+		int actualMotorCount = config.getActiveMotors().size();
+		assertThat("motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		
+		config.setOnlyStage(0);
+		expectedMotorCount = 1;
+		actualMotorCount = config.getActiveMotors().size();
+		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+
+		config.setOnlyStage(1);
+		expectedMotorCount = 2;
+		actualMotorCount = config.getActiveMotors().size();
+		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+
+		config.setAllStages();
+		expectedMotorCount = 3;
+//		{
+//			System.err.println("Booster Stage only: config set detail: "+rkt.getConfigSet().toDebug());
+//			System.err.println("Booster Stage only: config stage detail: "+config.toStageListDetail());
+//			System.err.println("Booster Stage only: config motor detail: "+config.toMotorDetail());
+//			config.enableDebugging();
+//			config.updateMotors();
+//			config.getActiveMotors();
+//		}
+		actualMotorCount = config.getActiveMotors().size();
+		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+
+				
 	}
 	
 	///////////////////// Helper Methods ////////////////////////////
@@ -344,7 +391,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		// Motor mount
 		InnerTube inner = new InnerTube();
-		
+		inner.setName("Sustainer MMT");
 		inner.setPositionValue(0.5);
 		inner.setRelativePosition(Position.BOTTOM);
 		inner.setOuterRadius(1.9 / 2);
@@ -402,11 +449,20 @@ public class ConfigurationTest extends BaseTestCase {
 		// Stage construction
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
+		rocket.enableEvents();
 
 		final int expectedStageCount = 1;
-		FlightConfiguration config = rocket.getDefaultConfiguration();
-		assertThat(" configuration updates stage Count correctly: ", config.getActiveStageCount(), equalTo(expectedStageCount));
-		assertThat(" configuration list contains : ", rocket.getConfigurationSet().size(), equalTo(1));
+		assertThat(" rocket has incorrect stage count: ", rocket.getStageCount(), equalTo(expectedStageCount));
+		
+		int expectedConfigurationCount = 0;
+		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
+		
+		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
+		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
+		rocket.setDefaultConfiguration( newConfig.getId());
+		assertThat(" configuration updates stage Count correctly: ", newConfig.getActiveStageCount(), equalTo(expectedStageCount));
+		expectedConfigurationCount = 1;
+		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
 		
 		//FlightConfigurationID fcid = config.getFlightConfigurationID();
 //		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
@@ -465,10 +521,66 @@ public class ConfigurationTest extends BaseTestCase {
 		finset.setBaseRotation(Math.PI / 2);
 		boosterTube.addChild(finset);
 		
+		// Motor mount
+		InnerTube inner = new InnerTube();
+		inner.setName("Booster MMT");
+		inner.setPositionValue(0.5);
+		inner.setRelativePosition(Position.BOTTOM);
+		inner.setOuterRadius(1.9 / 2);
+		inner.setInnerRadius(1.8 / 2);
+		inner.setLength(7.5);
+		boosterTube.addChild(inner);
+		
 		rocket.addChild(stage);
 		
-		return rocket;
+		// already set in "makeSingleStageTestRocket()" above...
+//		rocket.enableEvents();
+//		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
+//		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
 		
+		return rocket;	
+	}
+	
+	public static Rocket makeTwoStageMotorRocket() {
+		Rocket rocket = makeTwoStageTestRocket();
+		FlightConfigurationID fcid = rocket.getDefaultConfiguration().getId();
+		
+		{
+			// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+			//			Motor.Type type, double[] delays, double diameter, double length,
+			//			double[] time, double[] thrust,
+			//          Coordinate[] cg, String digest);
+			ThrustCurveMotor sustainerMotor = new ThrustCurveMotor(
+					Manufacturer.getManufacturer("AeroTech"),"D10", "Desc", 
+					Motor.Type.SINGLE, new double[] {3,5,7},0.018, 0.07,
+					new double[] { 0, 1, 2 }, new double[] { 0, 25, 0 },
+					new Coordinate[] {
+						new Coordinate(.035, 0, 0, 0.026),new Coordinate(.035, 0, 0, .021),new Coordinate(.035, 0, 0, 0.016)}, 
+					"digest D10 test");
+						
+			InnerTube sustainerMount = (InnerTube) rocket.getChild(0).getChild(1).getChild(3);
+			sustainerMount.setMotorMount(true);
+			sustainerMount.setMotorInstance(fcid, sustainerMotor.getNewInstance());
+		}
+		
+		{
+			// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+			//			Motor.Type type, double[] delays, double diameter, double length,
+			//			double[] time, double[] thrust,
+			//          Coordinate[] cg, String digest);
+			ThrustCurveMotor boosterMotor = new ThrustCurveMotor(
+					Manufacturer.getManufacturer("AeroTech"),"D21", "Desc", 
+					Motor.Type.SINGLE, new double[] {}, 0.018, 0.07,
+					new double[] { 0, 1, 2 }, new double[] { 0, 32, 0 },
+					new Coordinate[] {
+						new Coordinate(.035, 0, 0, 0.025),new Coordinate(.035, 0, 0, .020),new Coordinate(.035, 0, 0, 0.0154)}, 
+					"digest D21 test");
+			InnerTube boosterMount = (InnerTube) rocket.getChild(1).getChild(0).getChild(2);
+			boosterMount.setMotorMount(true);
+			boosterMount.setMotorInstance(fcid, boosterMotor.getNewInstance());
+			boosterMount.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[1]); // double-mount
+		}
+		return rocket;
 	}
 	
 }

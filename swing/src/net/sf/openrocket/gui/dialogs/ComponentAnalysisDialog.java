@@ -177,7 +177,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
 		
-		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigurationSet());
+		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigSet());
 		JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>(psm);
 		panel.add(combo, "wrap");
 		

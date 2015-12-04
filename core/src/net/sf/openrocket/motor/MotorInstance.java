@@ -187,28 +187,13 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	
 	@Override 
 	public boolean equals( Object other ){
-		if( other == null )
+		if( null == other ){
 			return false;
-		if( other instanceof MotorInstance ){
+		}else if( other instanceof MotorInstance ){
 			MotorInstance omi = (MotorInstance)other;
 			if( this.id.equals( omi.id)){
 				return true;
 			}
-//			}else if( this.mount != omi.mount ){
-//				return false;
-//			}else if( this.ignitionEvent == omi.ignitionEvent ){
-//				return false;
-//			}else if( EPSILON < Math.abs(this.ignitionDelay - omi.ignitionDelay )){
-//				return false;
-//			}else if( EPSILON < Math.abs( this.ejectionDelay - omi.ejectionDelay )){
-//				return false;
-//			}else if( ! this.position.equals( omi.position )){
-//				return false;
-//			}else if( EPSILON < Math.abs( this.ignitionTime - omi.ignitionTime )){
-//				return false;
-//			}
-			
-			return true;	
 		}
 		return false;
 	}

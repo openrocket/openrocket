@@ -225,7 +225,7 @@ public class DesignReport {
 			List<Simulation> simulations = rocketDocument.getSimulations();
 			
 			int motorNumber = 0;
-			for( FlightConfiguration curConfig : rocket.getConfigurationSet()){
+			for( FlightConfiguration curConfig : rocket.getConfigSet()){
 				FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
 				
 				PdfPTable parent = new PdfPTable(2);

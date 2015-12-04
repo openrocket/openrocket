@@ -30,19 +30,6 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 		return PlainTextHandler.INSTANCE;
 	}
 	
-	
-//	public IgnitionConfiguration getConfiguration(IgnitionConfiguration def) {
-//		IgnitionConfiguration config = def.clone();
-//		if (ignitionEvent != null) {
-//			config.setIgnitionEvent(ignitionEvent);
-//		}
-//		if (ignitionDelay != null) {
-//			config.setIgnitionDelay(ignitionDelay);
-//		}
-//		return config;
-//	}
-//	
-	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {

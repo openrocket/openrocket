@@ -221,6 +221,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			MotorInstance curInstance = mtr.getNewInstance();
 			//System.err.println("     >> new instance: "+curInstance.toString());
 			curInstance.setEjectionDelay(d);
+			curInstance.setIgnitionEvent( IgnitionEvent.AUTOMATIC);
 			curMount.setMotorInstance( fcid, curInstance);
 
 			// DEBUG

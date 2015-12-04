@@ -64,7 +64,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		
 		if ("true".equals(attributes.remove("default"))) {
 			// associate this configuration with both this FCID and the default. 
-			ParameterSet<FlightConfiguration> fcs = rocket.getConfigurationSet();
+			ParameterSet<FlightConfiguration> fcs = rocket.getConfigSet();
 			FlightConfiguration fc = fcs.get(fcid);
 			fcs.setDefault(fc);
 		}
