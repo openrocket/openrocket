@@ -227,8 +227,14 @@ public class MassData {
 		return I_cm.zz;
 	}
 	
+	// this is a tacked-on hack.
+	double m_p = Double.NaN; 
+	public void setPropellantMass( final double _mp){
+		this.m_p = _mp;
+	}
+	
 	public double getPropellantMass(){
-		return Double.NaN;
+		return this.m_p;
 	}
 	
 	/**

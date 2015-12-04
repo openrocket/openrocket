@@ -66,6 +66,16 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	}
 	
 	@Override
+	public Coordinate getCM() {
+		return stepCG;
+	}
+	
+	@Override
+	public double getPropellantMass(){
+		return (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+	}
+	
+	@Override
 	public Coordinate getOffset( ){
 		if( null == mount ){
 			return Coordinate.NaN;

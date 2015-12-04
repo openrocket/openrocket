@@ -15,20 +15,19 @@ import net.sf.openrocket.util.StateChangeListener;
  * A single motor configuration.  This includes the selected motor
  * and the ejection charge delay.
  */
-public class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
+public abstract class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
 	
-	protected MotorInstanceId id = null;
 	// deferred to subclasses
 	//protected MotorMount mount = null;
 	//protected Motor motor = null;
+	
+	protected MotorInstanceId id = null;
 	protected double ejectionDelay = 0.0;
 	protected double ignitionDelay = 0.0;
 	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
 	protected Coordinate position = Coordinate.ZERO;
 	protected double ignitionTime = 0.0;
 	
-	// comparison threshold
-	//private static final double EPSILON = 0.01;
 	
 	protected int modID = 0;
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
@@ -38,6 +37,46 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		@Override 
 		public boolean equals( Object other ){
 			return (this==other);
+		}
+		
+		@Override
+		public Motor getMotor() {
+			throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
+		}
+		
+		@Override
+		public MotorMount getMount() {
+			throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
+		}
+		
+		@Override
+		public double getThrust() {
+			throw new UnsupportedOperationException("Trying to get thrust from an empty motor instance.");
+		}
+		
+		@Override
+		public Coordinate getCM() {
+			throw new UnsupportedOperationException("Trying to get Center-of-Mass from an empty motor instance.");
+		}
+		
+		@Override
+		public double getPropellantMass(){
+			throw new UnsupportedOperationException("Trying to get mass from an empty motor instance.");
+		}
+		
+		@Override
+		public double getLongitudinalInertia() {
+			throw new UnsupportedOperationException("Trying to get inertia from an empty motor instance.");
+		}
+		
+		@Override
+		public double getRotationalInertia() {
+			throw new UnsupportedOperationException("Trying to get inertia from an empty motor instance.");
+		}	        
+		
+		@Override
+		public void step(double time, double acceleration, AtmosphericConditions cond) {
+			throw new UnsupportedOperationException("Cannot step an abstract base class");
 		}
 	};
 	
@@ -61,25 +100,15 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 		return this.ejectionDelay;
 	}
 	
-	public void setMotor(Motor motor) {
-		throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
-	}
-
-	public Motor getMotor() {
-		throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
-	}
+	public void setMotor(Motor motor){}
+		
+	public abstract Motor getMotor();
 	
-	public void setEjectionDelay(double delay) {
-		throw new UnsupportedOperationException("Trying to modify immutable no-motors configuration");
-	};
+	public void setEjectionDelay(double delay) {}
 	
-	public MotorMount getMount() {
-		throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
-	}
+	public abstract MotorMount getMount();
 	
-	public void setMount(final MotorMount _mount) {
-		throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
-	}
+	public void setMount(final MotorMount _mount){}
 	
 	public Coordinate getOffset(){
 		return this.position;
@@ -126,9 +155,7 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	 * @param acceleration	the average acceleration during the step.
 	 * @param cond			the average atmospheric conditions during the step.
 	 */
-	public void step(double time, double acceleration, AtmosphericConditions cond) {
-		// no-op
-	}
+	public abstract void step(double time, double acceleration, AtmosphericConditions cond);
 	
 	
 	/**
@@ -142,32 +169,30 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	/**
 	 * Return the average thrust during the last step.
 	 */
-	public double getThrust() {
-		return Double.NaN;
-	}
+	public abstract double getThrust();
 	
 	/**
 	 * Return the average CG location during the last step.
 	 */
-	public Coordinate getCG() {
-		return Coordinate.NaN;
+	public Coordinate getCG() {	
+		return this.getCM(); 
 	}
+	
+	public abstract Coordinate getCM();
+	
+	public abstract double getPropellantMass();
 	
 	/**
 	 * Return the average longitudinal moment of inertia during the last step.
 	 * This is the actual inertia, not the unit inertia!
 	 */
-	public double getLongitudinalInertia() {
-		return Double.NaN;
-	}
+	public abstract double getLongitudinalInertia();
 	
 	/**
 	 * Return the average rotational moment of inertia during the last step.
 	 * This is the actual inertia, not the unit inertia!
 	 */
-	public double getRotationalInertia() {
-		return Double.NaN;
-	}
+	public abstract double getRotationalInertia();
 	
 	/**
 	 * Return whether this motor still produces thrust.  If this method returns false

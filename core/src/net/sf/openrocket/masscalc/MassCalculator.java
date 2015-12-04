@@ -251,12 +251,12 @@ public class MassCalculator implements Monitorable {
 	 */
 	public double getPropellantMass(FlightConfiguration configuration, MassCalcType calcType ){
 		double mass = 0;
-		
 		//throw new BugException("getPropellantMass is not yet implemented.... ");
 		// add up the masses of all motors in the rocket
 		if ( MassCalcType.NO_MOTORS != calcType ){
 			for (MotorInstance curInstance : configuration.getActiveMotors()) {
-				mass = mass + curInstance.getCG().weight - curInstance.getMotor().getEmptyCG().weight;
+				mass = mass + curInstance.getPropellantMass();
+				mass = curInstance.getMotor().getLaunchCG().weight - curInstance.getMotor().getEmptyCG().weight;
 			}
 		}
 		return mass;
