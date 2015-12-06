@@ -1,6 +1,6 @@
 package net.sf.openrocket.simulation;
 
-import java.util.List;
+import java.util.Collection;
 
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -170,22 +170,17 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			return thrust;
 		}
 		
-		FlightConfiguration configuration = status.getConfiguration();
-		
-		//MotorInstanceConfiguration mic = status.getMotorConfiguration();
-		// Iterate over the motors and calculate combined thrust
-		//if (!stepMotors) {
-		//	mic = mic.clone();
-		//}
-		//mic.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
-		
-		// now this is a valid reason for the MotorConfiguration :P
-		configuration.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
-		
-		//??  needs to instance the motors...
-		List<MotorInstance> activeMotors = configuration.getActiveMotors();
-		for (MotorInstance currentMotorInstance : activeMotors) {
+		final double currentTime = status.getSimulationTime() + timestep;
+		Collection<MotorInstance> activeMotorList = status.getConfiguration().getActiveMotors();
+		for (MotorInstance currentMotorInstance : activeMotorList ) {
+			// old: transplanted from MotorInstanceConfiguration
+			double instanceTime = currentTime - currentMotorInstance.getIgnitionTime();
+			if (instanceTime >= 0) {
+					currentMotorInstance.step(instanceTime, acceleration, atmosphericConditions);
+			}
+
+			// old: from here
 			thrust += currentMotorInstance.getThrust();
 		}
 		

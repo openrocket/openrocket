@@ -55,7 +55,7 @@ public enum IgnitionEvent {
 	
 	private static final Translator trans = Application.getTranslator();
 	public final String name;
-	private final String key;
+	private final String translationKey;
 	protected String description=null;
 
 	//public static final IgnitionEvent[] events = {AUTOMATIC, LAUNCH, EJECTION_CHARGE, BURNOUT, NEVER};
@@ -67,7 +67,7 @@ public enum IgnitionEvent {
 	
 	private IgnitionEvent(final String _name, final String _key) {
 		this.name = _name;
-		this.key = _key; 
+		this.translationKey = _key; 
 	}
 	
 	public boolean equals( final String content){
@@ -82,7 +82,7 @@ public enum IgnitionEvent {
 	@Override
 	public String toString() {
 		if( null == this.description ){
-			this.description = trans.get(this.key);
+			this.description = trans.get(this.translationKey);
 		}
 		return this.description;
 	}

@@ -41,17 +41,12 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	
 	public ThrustCurveMotorInstance(final ThrustCurveMotor source) {
 		//log.debug( Creating motor instance of " + ThrustCurveMotor.this);
-		timeIndex = 0;
-		prevTime = 0;
-		instThrust = 0;
-		stepThrust = 0;
-		instCG = source.getLaunchCG();
-		stepCG = source.getLaunchCG();
+		this.motor = source;
+		this.reset();
 		
 		unitRotationalInertia = Inertia.filledCylinderRotational(source.getDiameter() / 2);
 		unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(source.getDiameter() / 2, source.getLength());
 		
-		this.motor = source;
 		this.id = MotorInstanceId.ERROR_ID;
 	}
 	
@@ -153,12 +148,6 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	
 	@Override
 	public void step(double nextTime, double acceleration, AtmosphericConditions cond) {
-		
-		if (!(nextTime >= prevTime)) {
-			// Also catches NaN
-			throw new IllegalArgumentException("Stepping backwards in time, current=" +
-					prevTime + " new=" + nextTime);
-		}
 		if (MathUtil.equals(prevTime, nextTime)) {
 			return;
 		}
@@ -241,9 +230,35 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		clone.ignitionDelay = this.ignitionDelay;
 		clone.ejectionDelay = this.ejectionDelay;
 		clone.position = this.position;
-		this.ignitionTime = Double.POSITIVE_INFINITY;
+		clone.ignitionTime = Double.POSITIVE_INFINITY;
+		//clone.ignitionTime = this.ignitionTime;
 	
 		return clone;
+	}
+
+	@Override
+	public void reset(){
+		timeIndex = 0;
+		prevTime = 0;
+		instThrust = 0;
+		stepThrust = 0;
+		instCG = motor.getLaunchCG();
+		stepCG = instCG;
+	}
+	
+	@Override
+	public String toDebug(){
+		String prefix = "    ";
+		StringBuilder sb = new StringBuilder();
+		final RocketComponent mountComp = (RocketComponent)this.mount;
+		
+		sb.append(String.format("%sMotor= %s(%s)(in %s)\n", prefix, this.motor.getDesignation(), this.id.toShortKey(), mountComp.getName()));
+		sb.append(String.format("%s    Ignite: %s at %+f\n",prefix, this.ignitionEvent.name, this.ignitionDelay));
+		//sb.append(String.format("%s    Eject at: %+f\n",prefix, this.ejectionDelay));
+		sb.append(String.format("%s    L:%f W:%f @:%f mm\n",prefix, motor.getLength(), motor.getDiameter(), this.position.multiply(1000).x ));
+		sb.append(String.format("%s    currentTimem: %f\n", prefix, this.prevTime)); 
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	@Override

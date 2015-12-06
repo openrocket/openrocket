@@ -19,6 +19,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -35,9 +38,8 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
-
 	private static final long serialVersionUID = -5046535300435793744L;
-
+	
 	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
 
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
@@ -250,13 +252,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
         
+		// this call also performs the update changes
 		IgnitionSelectionDialog ignitionDialog = new IgnitionSelectionDialog(
 				SwingUtilities.getWindowAncestor(this.flightConfigurationPanel),
 				fcid,
 				curMount);
 		ignitionDialog.setVisible(true);
-	
-		// changes performed automatically within "new IgnitionSelectionDialog(...)"
 				
 		fireTableDataChanged();
 	}

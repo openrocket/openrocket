@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -14,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.util.ArrayList;
@@ -68,8 +66,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	private int modID = 0;
 	
-	private boolean debug = false;
-	
 	/**
 	 * Create a new configuration with the specified <code>Rocket</code>.
 	 * 
@@ -89,10 +85,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateStages();
 		updateMotors();
 		rocket.addComponentChangeListener(this);
-	}
-	
-	public void enableDebugging(){
-		this.debug=true;
 	}
 	
 	public Rocket getRocket() {
@@ -305,9 +297,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	private void updateStages() {
-		if( debug){
-			System.err.println("updating config stages");
-		}
 		if (this.rocket.getStageCount() == this.stages.size()) {
 			// no changes needed
 			return;
@@ -364,7 +353,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toMotorDetail(){
 		StringBuilder buff = new StringBuilder();
-		buff.append(String.format("\nDumping %2d Motors for configuration %s: \n", this.motors.size(), this.fcid.toShortKey()));
+		buff.append(String.format("\nDumping %2d Motors for configuration %s: \n", this.motors.size(), this));
 		for( MotorInstance curMotor : this.motors.values() ){
 			if( curMotor.isEmpty() ){
 				buff.append( String.format( "    ..[%8s] <empty> \n", curMotor.getID().toShortKey()));
@@ -490,21 +479,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return (0 < motors.size());
 	}
 	
-	/**
-	 * Step all of the motor instances to the specified time minus their ignition time.
-	 * @param time	the "global" time
-	 */
-	public void step(double time, double acceleration, AtmosphericConditions cond) {
-		for (MotorInstance inst : motors.values()) {
-			double t = time - inst.getIgnitionTime();
-			if (t >= 0) {
-				inst.step(t, acceleration, cond);
-			}
-		}
-		modID++;
-	}
-	
-	public List<MotorInstance> getActiveMotors() {
+	public Collection<MotorInstance> getActiveMotors() {
 		List<MotorInstance> activeList = new ArrayList<MotorInstance>();
 		for( MotorInstance inst : this.motors.values() ){
 			if( inst.isActive() ){
@@ -516,47 +491,35 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public void updateMotors() {
-		if( debug){
-			System.err.println("updating config motors");
-		}
 		this.motors.clear();
 		
-		for ( RocketComponent comp : getActiveComponents() ){
-			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){
-				MotorMount mount = (MotorMount)comp;
-				MotorInstance inst = mount.getMotorInstance( fcid);
-				if( inst.isEmpty()){
+		for ( RocketComponent compMount : getActiveComponents() ){
+			if (( compMount instanceof MotorMount )&&( ((MotorMount)compMount).isMotorMount())){
+				MotorMount mount = (MotorMount)compMount;
+				MotorInstance sourceInstance = mount.getMotorInstance( fcid);
+				if( sourceInstance.isEmpty()){
 					continue;
 				}
-					
+
 				// this merely accounts for instancing of *this* component:
 				// int instancCount = comp.getInstanceCount();
 
 				// this includes *all* the instancing between here and the rocket root.
-				Coordinate[] instanceLocations= comp.getLocations();
+				Coordinate[] instanceLocations= compMount.getLocations();
 				
-				if( debug){
-					System.err.println(String.format(",,,,,,,,    %s (%s)",  
-								inst.getMotor().getDigest(), inst.getID() ));
-				}
+				sourceInstance.reset();
 				int instanceNumber = 1;
-				final int instanceCount = instanceLocations.length;
+				//final int instanceCount = instanceLocations.length;
 				for (  Coordinate curMountLocation : instanceLocations ){
-						MotorInstance curInstance = inst.clone();
-						curInstance.setID( new MotorInstanceId( comp.getName(), instanceNumber) );
-						
-						// motor location w/in mount: parent.refpoint -> motor.refpoint 
-						Coordinate curMotorOffset = curInstance.getOffset();
-						curInstance.setPosition( curMountLocation.add(curMotorOffset) );
-						this.motors.put( curInstance.getID(), curInstance);
-							
-						// vvvv DEVEL vvvv
-						if(debug){
-							System.err.println(String.format(",,,,,,,,    [%2d/%2d]:  %s. (%s)",
-										instanceNumber, instanceCount, curInstance.getMotor().getDigest(), curInstance));
-						}
-						// ^^^^ DEVEL ^^^^
-						instanceNumber ++;
+					MotorInstance cloneInstance = sourceInstance.clone();
+					cloneInstance.setID( new MotorInstanceId( compMount.getName(), instanceNumber) );
+					
+					// motor location w/in mount: parent.refpoint -> motor.refpoint 
+					Coordinate curMotorOffset = cloneInstance.getOffset();
+					cloneInstance.setPosition( curMountLocation.add(curMotorOffset) );
+					this.motors.put( cloneInstance.getID(), cloneInstance);
+					
+					instanceNumber ++;
 				}
 				 
 			}
@@ -629,7 +592,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		clone.setName(this.fcid.toShortKey()+" - clone");
 		clone.listenerList = new ArrayList<EventListener>();
 		clone.stages.putAll( (Map<Integer, StageFlags>) this.stages);
-		clone.motors.putAll( (Map<MotorInstanceId, MotorInstance>) this.motors);
+		for( MotorInstance mi : this.motors.values()){
+			clone.motors.put( mi.getID(), mi.clone());
+        }
 		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
@@ -662,5 +627,5 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.isNamed = true;
 		this.configurationName = newName;
 	}
-	
+
 }

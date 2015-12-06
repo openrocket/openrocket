@@ -155,7 +155,7 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	 * @param acceleration	the average acceleration during the step.
 	 * @param cond			the average atmospheric conditions during the step.
 	 */
-	public abstract void step(double time, double acceleration, AtmosphericConditions cond);
+	public abstract void step(double newTime, double acceleration, AtmosphericConditions cond);
 	
 	
 	/**
@@ -254,6 +254,8 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 			((StateChangeListener) l).stateChanged(event);
 		}
 	}
+	
+	public String toDebug(){ return toString();}
 
 	@Override
 	public String toString(){
@@ -262,6 +264,10 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	
 	public int getModID() {
 		return modID;
+	}
+
+	
+	public void reset() {
 	}
 	
 }

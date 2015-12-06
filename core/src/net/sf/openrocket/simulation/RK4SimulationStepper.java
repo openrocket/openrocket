@@ -265,6 +265,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 		
+		if (!(0 <= store.timestep)) {
+			// Also catches NaN
+			throw new IllegalArgumentException("Stepping backwards in time, timestep=" +store.timestep);
+		}
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
 		
 		status.setPreviousTimeStep(store.timestep);

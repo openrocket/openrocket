@@ -1,5 +1,6 @@
 package net.sf.openrocket.document;
 
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
@@ -281,10 +282,9 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 		
 		FlightConfiguration config = rocket.getFlightConfiguration(options.getId());
-		List<MotorInstance> motorList = config.getActiveMotors();
-		
+				
 		//Make sure this simulation has motors.
-		if (0 == motorList.size()){
+		if ( ! config.hasMotors() ){
 			status = Status.CANT_RUN;
 		}
 		
@@ -337,14 +337,11 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			// Set simulated info after simulation, will not be set in case of exception
 			simulatedConditions = options.clone();
-			final FlightConfiguration configuration = this.rocket.getFlightConfiguration( options.getId());
-			
-			simulatedConfigurationDescription = descriptor.format(configuration.getRocket(), configuration.getFlightConfigurationID());
+			simulatedConfigurationDescription = descriptor.format( this.rocket, options.getId());
 			simulatedRocketID = rocket.getFunctionalModID();
 			
 			status = Status.UPTODATE;
 			fireChangeEvent();
-			configuration.release();
 		} finally {
 			mutex.unlock("simulate");
 		}
