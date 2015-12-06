@@ -14,6 +14,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Instanceable;
@@ -85,14 +86,17 @@ public class RocketComponentSaver {
 		if ( c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
 			if( 1 < instanceCount ){
-				emitString( elements, "instancecount", Integer.toString( c.getInstanceCount()) );
+				if( c instanceof Clusterable ){
+					; // no-op.  Instance counts are set via named cluster configurations
+				}
 				if( c instanceof LineInstanceable ){
-						LineInstanceable line = (LineInstanceable)c;
-						emitDouble( elements, "linseparation", line.getInstanceSeparation());
+					LineInstanceable line = (LineInstanceable)c;
+					emitString( elements, "instancecount", Integer.toString( c.getInstanceCount()) );
+					emitDouble( elements, "linseparation", line.getInstanceSeparation());
 				}
 				if( c instanceof RingInstanceable){
 					RingInstanceable ring = (RingInstanceable)c;
-					if(( c instanceof ParallelStage )&&( ((ParallelStage)c).getAutoRadialOffset() )){
+					if( ring.getAutoRadialOffset() ){
 						emitString(elements, "radialoffset", "auto");
 					}else{
 						emitDouble( elements, "radialoffset", ring.getRadialOffset() );

@@ -191,6 +191,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		return this.getAxialOffset();
 	}
 	
+	@Override
 	public boolean getAutoRadialOffset(){
 		return this.autoRadialPosition;
 	}

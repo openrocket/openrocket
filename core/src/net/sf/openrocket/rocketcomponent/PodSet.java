@@ -189,6 +189,10 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		return this.radialPosition_m;
 	}
 
+	@Override
+	public boolean getAutoRadialOffset(){
+		return false;
+	}
 
 	@Override
 	public int getInstanceCount() {

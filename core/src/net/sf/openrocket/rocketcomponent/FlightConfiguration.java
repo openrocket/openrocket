@@ -464,11 +464,19 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public int getMotorCount() {
+		return getAllMotorCount();
+	}
+	
+	public int getActiveMotorCount(){
+		return getActiveMotors().size();
+	}
+	
+	public int getAllMotorCount(){
 		return motors.size();
 	}
 	
 	public Set<MotorInstanceId> getMotorIDs() {
-		return this.motors.keySet();
+		return motors.keySet();
 	}
 	
 	public MotorInstance getMotorInstance(MotorInstanceId id) {

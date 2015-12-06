@@ -333,8 +333,6 @@ class DocumentConfig {
 		setters.put("InnerTube:clusterrotation", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterRotation", double.class),
 				Math.PI / 180.0));
-		setters.put("InnerTube:instancecount", new IntSetter(
-				Reflection.findMethod(InnerTube.class, "setInstanceCount",int.class)));
 		
 		// RadiusRingComponent
 		

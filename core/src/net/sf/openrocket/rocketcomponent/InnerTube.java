@@ -151,7 +151,9 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public void setInstanceCount( final int newCount ){
-		log.error("Programmer Error:  cannot set the instance count of an "+this.getClass().getSimpleName()+" directly.  Please set setClusterConfiguration(ClusterConfiguration) instead.");
+		log.error("Programmer Error:  cannot set the instance count of an InnerTube directly."+
+				"  Please set setClusterConfiguration(ClusterConfiguration) instead.",
+				new UnsupportedOperationException("InnerTube.setInstanceCount(..) on an"+this.getClass().getSimpleName()));
 	}
 	
 	/**
