@@ -2,13 +2,13 @@ package net.sf.openrocket.file.simplesax;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.util.SimpleStack;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.util.SimpleStack;
 
 /**
  * The actual SAX handler class.  Contains the necessary methods for parsing the SAX source.
@@ -38,7 +38,7 @@ class DelegatorHandler extends DefaultHandler {
 	@Override
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
-		
+			
 		// Check for ignore
 		if (ignore > 0) {
 			ignore++;
@@ -49,8 +49,6 @@ class DelegatorHandler extends DefaultHandler {
 		if (!uri.equals("")) {
 			warnings.add(Warning.fromString("Unknown namespace element '" + uri
 					+ "' encountered, ignoring."));
-			ignore++;
-			return;
 		}
 		
 		// Add layer to data stacks
@@ -77,7 +75,7 @@ class DelegatorHandler extends DefaultHandler {
 		// Check for ignore
 		if (ignore > 0)
 			return;
-		
+			
 		StringBuilder sb = elementData.peek();
 		sb.append(chars, start, length);
 	}

@@ -13,6 +13,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Provider;
+import com.google.inject.util.Modules;
+
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.ComponentPresetDatabase;
@@ -25,24 +36,12 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.TestRockets;
-
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provider;
-import com.google.inject.util.Modules;
 
 public class OpenRocketSaverTest {
 	
@@ -357,8 +356,8 @@ public class OpenRocketSaverTest {
 		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/net/sf/openrocket/Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
-			for (Motor m : loader.load(is, "Estes_A8.rse")) {
-				return (ThrustCurveMotor) m;
+			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {
+				return m.build();
 			}
 			is.close();
 		} catch (IOException e) {

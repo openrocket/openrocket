@@ -57,6 +57,8 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel launchMassLabel;
 	private final JLabel emptyMassLabel;
 	private final JLabel dataPointsLabel;
+	private final JLabel caseInfoLabel;
+	private final JLabel propInfoLabel;
 	private final JLabel digestLabel;
 
 	private final JTextArea comment;
@@ -106,11 +108,21 @@ class MotorInformationPanel extends JPanel {
 			emptyMassLabel = new JLabel();
 			this.add(emptyMassLabel, "wrap");
 
+			//// case info:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Caseinfo")));
+			caseInfoLabel = new JLabel();
+			this.add(caseInfoLabel, "wrap");
+			
+			//// prop info:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Propinfo")));
+			propInfoLabel = new JLabel();
+			this.add(propInfoLabel, "wrap");
+			
 			//// Data points:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Datapoints")));
 			dataPointsLabel = new JLabel();
 			this.add(dataPointsLabel, "wrap para");
-
+			
 			if (System.getProperty("openrocket.debug.motordigest") != null) {
 				//// Digest:
 				this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Digest")));
@@ -212,6 +224,8 @@ class MotorInformationPanel extends JPanel {
 		burnTimeLabel.setText("");
 		launchMassLabel.setText("");
 		emptyMassLabel.setText("");
+		caseInfoLabel.setText("");
+		propInfoLabel.setText("");
 		dataPointsLabel.setText("");
 		if (digestLabel != null) {
 			digestLabel.setText("");
@@ -248,6 +262,8 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getLaunchCG().weight));
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 				selectedMotor.getEmptyCG().weight));
+		caseInfoLabel.setText(selectedMotor.getCaseInfo());
+		propInfoLabel.setText(selectedMotor.getPropellantInfo());
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
 		if (digestLabel != null) {
 			digestLabel.setText(selectedMotor.getDigest());

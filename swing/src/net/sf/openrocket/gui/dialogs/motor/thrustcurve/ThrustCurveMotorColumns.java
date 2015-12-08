@@ -58,11 +58,10 @@ enum ThrustCurveMotorColumns {
 			};
 		}
 	},
-	//// Type
-	TYPE("TCurveMotorCol.TYPE") {
+	CASEINFO("TCurveMotorCol.CASEINFO") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
-			return m.getType().getName();
+			return m.getCaseInfo();
 		}
 		
 		@Override

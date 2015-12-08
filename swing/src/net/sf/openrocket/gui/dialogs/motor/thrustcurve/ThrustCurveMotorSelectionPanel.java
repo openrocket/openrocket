@@ -55,7 +55,6 @@ import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.utils.MotorCorrelation;
 
 import org.jfree.chart.ChartColor;
 import org.slf4j.Logger;
@@ -82,6 +81,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final MotorRowFilter rowFilter;
 
 	private final JCheckBox hideSimilarBox;
+	private final JCheckBox hideUnavailableBox;
 
 	private final JTextField searchField;
 
@@ -202,6 +202,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
+		}
+		
+		//// Hide unavailable motors
+		{
+			hideUnavailableBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUnavailable"));
+			GUIUtil.changeFontSize(hideUnavailableBox, -1);
+			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, true));
+			hideUnavailableBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
+					motorFilterPanel.setHideUnavailable(hideUnavailableBox.isSelected());
+				}
+			});
+			panel.add(hideUnavailableBox, "gapleft para, spanx, growx, wrap");
+			
 		}
 
 		//// Motor selection table
@@ -463,7 +479,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 			motors = filtered;
 		}
-
 		Collections.sort(motors, MOTOR_COMPARATOR);
 
 		return motors;

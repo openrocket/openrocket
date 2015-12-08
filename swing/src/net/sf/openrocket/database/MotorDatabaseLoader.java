@@ -82,7 +82,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		try {
 			log.debug("Reading motors from file " + f.getU());
 			ObjectInputStream ois = new ObjectInputStream(f.getV());
-			List<Motor> motors = (List<Motor>) ois.readObject();
+			List<ThrustCurveMotor> motors = (List<ThrustCurveMotor>) ois.readObject();
 			addMotors(motors);
 		} catch (Exception ex) {
 			throw new BugException(ex);
@@ -95,8 +95,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		try {
 			log.debug("Loading motors from file " + file);
 			bis = new BufferedInputStream(new FileInputStream(file));
-			List<Motor> motors = loader.load(bis, file.getName());
-			addMotors(motors);
+			List<ThrustCurveMotor.Builder> motors = loader.load(bis, file.getName());
+			addMotorsFromBuilders(motors);
 			bis.close();
 		} catch (IOException e) {
 			log.warn("IOException while reading " + file + ": " + e, e);
@@ -121,8 +121,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		while (iterator.hasNext()) {
 			Pair<String, InputStream> f = iterator.next();
 			try {
-				List<Motor> motors = loader.load(f.getV(), f.getU());
-				addMotors(motors);
+				List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU());
+				addMotorsFromBuilders(motors);
 				f.getV().close();
 			} catch (IOException e) {
 				log.warn("IOException while loading file " + f.getU() + ": " + e, e);
@@ -134,10 +134,17 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		}
 	}
 	
-	private synchronized void addMotors(List<Motor> motors) {
-		for (Motor m : motors) {
+	private synchronized void addMotors(List<ThrustCurveMotor> motors) {
+		for (ThrustCurveMotor m : motors) {
 			motorCount++;
-			database.addMotor((ThrustCurveMotor) m);
+			database.addMotor(m);
+		}
+	}
+	
+	private synchronized void addMotorsFromBuilders(List<ThrustCurveMotor.Builder> motors) {
+		for (ThrustCurveMotor.Builder m : motors) {
+			motorCount++;
+			database.addMotor(m.build());
 		}
 	}
 	

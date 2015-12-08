@@ -237,7 +237,7 @@ public class TestRockets {
 		Enum<T>[] values = c.getEnumConstants();
 		if (values.length == 0)
 			return null;
-		
+			
 		return values[rnd.nextInt(values.length)];
 	}
 	
@@ -1005,11 +1005,20 @@ public class TestRockets {
 	
 	
 	private static ThrustCurveMotor getTestMotor() {
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("A"))
+				.setDesignation("F12X")
+				.setDescription("Desc")
+				.setMotorType(Motor.Type.UNKNOWN)
+				.setTimePoints(new double[] {})
+				.setDiameter(0.024)
+				.setLength(0.07)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+				.setDigest("digestA")
+				.build();
+				
 	}
 	
 	
