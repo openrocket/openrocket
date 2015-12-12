@@ -6,13 +6,14 @@ package net.sf.openrocket.file.rocksim.importt;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.AbstractRocketLoader;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * This class is the main entry point for Rocksim design file imported to OpenRocket.  Currently only Rocksim v9
@@ -52,5 +53,6 @@ public class RocksimLoader extends AbstractRocketLoader {
 		
 		context.getOpenRocketDocument().setFile(null);
 		context.getOpenRocketDocument().clearUndo();
+		context.getOpenRocketDocument().getDefaultStorageOptions().setFileType(FileType.ROCKSIM);
 	}
 }

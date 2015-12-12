@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.AbstractRocketLoader;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
@@ -70,7 +71,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			List<Double> list = branch.get(FlightDataType.TYPE_TIME);
 			if (list == null)
 				continue;
-			
+				
 			double previousTime = Double.NaN;
 			for (double time : list) {
 				if (time - previousTime < timeSkip)
@@ -81,6 +82,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 		timeSkip = Math.rint(timeSkip * 100) / 100;
 		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
+		doc.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		
 		// Call simulation extensions
 		for (Simulation sim : doc.getSimulations()) {

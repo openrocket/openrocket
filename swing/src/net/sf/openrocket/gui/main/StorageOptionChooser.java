@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
