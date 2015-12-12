@@ -71,12 +71,11 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
-			
 			Motor motor = motorHandler.getMotor(warnings);
 			
 			MotorInstance motorInstance = motor.getNewInstance();
-			RocketComponent rc = (RocketComponent)mount;
-			motorInstance.setID( new MotorInstanceId(rc.getID(), 1));
+			RocketComponent mountComponent = (RocketComponent)mount;
+			motorInstance.setID( new MotorInstanceId(mountComponent.getID(), 1));
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
 			mount.setMotorInstance(fcid, motorInstance);
 

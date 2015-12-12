@@ -13,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.util.ArrayList;
@@ -39,9 +40,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	protected final Rocket rocket;
 	protected final FlightConfigurationID fcid;
+	
+	protected static int instanceCount=0;
+	public final int instanceNumber;
+	
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
-	protected class StageFlags {
+	protected class StageFlags implements Cloneable {
 		public boolean active = true;
 		public int prev = -1;
 		public AxialStage stage = null;
@@ -51,6 +56,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.prev = _prev;
 			this.active = _active;
 		}
+		
+		public int getKey(){
+			return this.stage.getStageNumber();
+		}
+		
+		@Override
+		public StageFlags clone(){
+			return new StageFlags( this.stage, this.prev, true);
+		}
+		
 	}
 	
 	/* Cached data */
@@ -81,6 +96,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.rocket = rocket;
 		this.isNamed = false;
 		this.configurationName = "<WARN: attempt to access unset configurationName. WARN!> ";
+		instanceNumber = FlightConfiguration.instanceCount;
+		++FlightConfiguration.instanceCount;
 		
 		updateStages();
 		updateMotors();
@@ -93,18 +110,24 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	
 	public void clearAllStages() {
-		this.setAllStages(false);
+		this.setAllStages(false, true);
 	}
 	
 	public void setAllStages() {
-		this.setAllStages(true);
+		this.setAllStages(true, true);
 	}
 	
-	public void setAllStages(final boolean _value) {
+	public void setAllStages(final boolean _active) {
+		this.setAllStages(_active, true);
+	}
+		
+	private void setAllStages(final boolean _active, final boolean fireEvent) {
 		for (StageFlags cur : stages.values()) {
-			cur.active = _value;
+			cur.active = _active;
 		}
-		fireChangeEvent();
+		if( fireEvent ){
+			fireChangeEvent();
+		}
 	}
 	
 	/** 
@@ -113,7 +136,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber  stage number to inactivate
 	 */
 	public void clearStage(final int stageNumber) {
-		setStageActive( stageNumber, false);
+		setStageActive( stageNumber, false, true);
 	}
 	
 	/** 
@@ -122,9 +145,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber  stage number to activate
 	 */
 	public void setOnlyStage(final int stageNumber) {
-		setAllStages(false);
-		setStageActive(stageNumber, true);
-		fireChangeEvent();
+		setAllStages(false, false);
+		setStageActive(stageNumber, true, true);
 	}
 	
 	/** 
@@ -133,10 +155,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
 	 */
-	public void setStageActive(final int stageNumber, final boolean _active) {
+	public void setStageActive(final int stageNumber, final boolean _active ) {
+		this.setStageActive(stageNumber, _active, true );
+	}
+	
+	private void setStageActive(final int stageNumber, final boolean _active, final boolean fireEvent) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
-			fireChangeEvent();
+			if( fireEvent ){
+				fireChangeEvent();
+			}
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
@@ -158,10 +186,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * Check whether the stage specified by the index is active.
 	 */
 	public boolean isStageActive(int stageNumber) {
-		if (stageNumber >= this.rocket.getStageCount()) {
-			return false;
-		}
-		
 		if( ! stages.containsKey(stageNumber)){
 			throw new IllegalArgumentException(" Configuration does not contain stage number: "+stageNumber);
 		}
@@ -200,7 +224,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return activeStages;
 	}
-	
+
 	public int getActiveStageCount() {
 		int activeCount = 0;
 		for (StageFlags cur : this.stages.values()) {
@@ -296,7 +320,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 	}
 	
-	private void updateStages() {
+	public void updateStages() {
 		if (this.rocket.getStageCount() == this.stages.size()) {
 			// no changes needed
 			return;
@@ -341,10 +365,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toStageListDetail() {
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("\nDumping stage config: \n"));
+		buf.append(String.format("\nDumping %d stages for config: %s: (#: %d)\n", this.stages.size(), this.getName(), this.instanceNumber));
 		for (StageFlags flags : this.stages.values()) {
 			AxialStage curStage = flags.stage;
-			buf.append(String.format("    [%2d]: %s: %24s\n", curStage.getStageNumber(), curStage.getName(), (flags.active?" on": "off")));
+			buf.append(String.format("    [%2d]: %-24s: %4s\n", curStage.getStageNumber(), curStage.getName(), (flags.active?" on": "off")));
 		}
 		buf.append("\n\n");
 		return buf.toString();
@@ -353,28 +377,28 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toMotorDetail(){
 		StringBuilder buff = new StringBuilder();
-		buff.append(String.format("\nDumping %2d Motors for configuration %s: \n", this.motors.size(), this));
+		buff.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", this.motors.size(), this, this.instanceNumber));
+		final int intanceCount = motors.size();
+		int motorInstanceNumber=0;
 		for( MotorInstance curMotor : this.motors.values() ){
 			if( curMotor.isEmpty() ){
-				buff.append( String.format( "    ..[%8s] <empty> \n", curMotor.getID().toShortKey()));
+				buff.append( String.format( "    ..[%2d/%2d][%8s] <empty> \n", motorInstanceNumber+1, intanceCount, curMotor.getID().toShortKey()));
 			}else{
-				buff.append( String.format( "    ..[%8s] (%s) %10s (in: %s)\n",
-										curMotor.getID().toShortKey(),
-										(curMotor.isActive()? " on": "off"),
-										curMotor.getMotor().getDesignation(),
-										((RocketComponent)curMotor.getMount()).toDebugName() ));
+				buff.append( String.format( "    ..[%2d/%2d](%6s) %-10s (in: %s)(id: %8s)\n", 
+										motorInstanceNumber+1, intanceCount,
+										(curMotor.isActive()? "active": "inactv"),curMotor.getMotor().getDesignation(),
+										((RocketComponent)curMotor.getMount()).getName(), curMotor.getID().toShortKey() ));
 			}
+			++motorInstanceNumber;
 		}
 		return buff.toString();
-		
 	}
-	
-	
 
 	
 	public String getMotorsOneline(){
 		StringBuilder buff = new StringBuilder("[");
 		boolean first = true;
+		int activeMotorCount = 0;
 		for ( RocketComponent comp : getActiveComponents() ){
 			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){ 
 				MotorMount mount = (MotorMount)comp;
@@ -388,14 +412,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				
 				if( ! inst.isEmpty()){
 					buff.append( inst.getMotor().getDesignation());
+					++activeMotorCount;
 				}
 			}
+		}
+		if( 0 == activeMotorCount ){
+			buff.append(" n/a ");
 		}
 		buff.append("]");
 		return buff.toString();
 	}
-
-	
 
 	@Override
 	public String toString() {
@@ -516,24 +542,22 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				Coordinate[] instanceLocations= compMount.getLocations();
 				
 				sourceInstance.reset();
-				int instanceNumber = 1;
+				int motorInstanceNumber = 1;
 				//final int instanceCount = instanceLocations.length;
 				for (  Coordinate curMountLocation : instanceLocations ){
 					MotorInstance cloneInstance = sourceInstance.clone();
-					cloneInstance.setID( new MotorInstanceId( compMount.getName(), instanceNumber) );
+					cloneInstance.setID( new MotorInstanceId( compMount.getName(), motorInstanceNumber) );
 					
 					// motor location w/in mount: parent.refpoint -> motor.refpoint 
 					Coordinate curMotorOffset = cloneInstance.getOffset();
 					cloneInstance.setPosition( curMountLocation.add(curMotorOffset) );
 					this.motors.put( cloneInstance.getID(), cloneInstance);
 					
-					instanceNumber ++;
+					motorInstanceNumber ++;
 				}
 				 
 			}
 		}
-		//System.err.println("returning "+toReturn.size()+" active motor instances for this configuration: "+this.fcid.getShortKey());
-		//System.err.println(this.rocket.getConfigurationSet().toDebug());
 	}
 
 	///////////////  Helper methods  ///////////////
@@ -597,9 +621,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	@Override
 	public FlightConfiguration clone() {
 		FlightConfiguration clone = new FlightConfiguration( this.getRocket(), this.fcid );
-		clone.setName(this.fcid.toShortKey()+" - clone");
+		clone.setName("clone - "+this.fcid.toShortKey());
 		clone.listenerList = new ArrayList<EventListener>();
-		clone.stages.putAll( (Map<Integer, StageFlags>) this.stages);
+		for( StageFlags flags : this.stages.values()){
+			clone.stages.put( flags.stage.getStageNumber(), flags.clone());
+        }
 		for( MotorInstance mi : this.motors.values()){
 			clone.motors.put( mi.getID(), mi.clone());
         }
@@ -607,7 +633,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
-		rocket.addComponentChangeListener(clone);
 		return clone;
 	}
 	
@@ -623,9 +648,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public void setName( final String newName) {
-		if( null == newName ){
-			this.isNamed = false;
-		}else if( "".equals(newName)){
+		if(( null == newName ) ||( "".equals(newName))){
+			this.isNamed= false;
 			return;
 		}else if( ! this.getFlightConfigurationID().isValid()){
 			return;
@@ -635,5 +659,4 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.isNamed = true;
 		this.configurationName = newName;
 	}
-
 }

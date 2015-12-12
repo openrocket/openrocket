@@ -54,13 +54,14 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public ParameterSet(ParameterSet<E> flightConfiguration, RocketComponent component, int eventType) {
+	public ParameterSet(ParameterSet<E> configSet, RocketComponent component, int eventType) {
 		this.component = component;
 		this.eventType = eventType;
 		
-		this.defaultValue= flightConfiguration.getDefault().clone();
-		for (FlightConfigurationID key : flightConfiguration.map.keySet()) {
-			this.map.put(key, flightConfiguration.map.get(key).clone());
+		this.defaultValue= configSet.getDefault().clone();
+		for (FlightConfigurationID key : configSet.map.keySet()) {
+			E cloneConfig = configSet.map.get(key).clone();
+			this.map.put(key, cloneConfig);
 		}
 	}
 	

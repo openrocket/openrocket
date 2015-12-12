@@ -256,14 +256,14 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		sb.append(String.format("%s    Ignite: %s at %+f\n",prefix, this.ignitionEvent.name, this.ignitionDelay));
 		//sb.append(String.format("%s    Eject at: %+f\n",prefix, this.ejectionDelay));
 		sb.append(String.format("%s    L:%f W:%f @:%f mm\n",prefix, motor.getLength(), motor.getDiameter(), this.position.multiply(1000).x ));
-		sb.append(String.format("%s    currentTimem: %f\n", prefix, this.prevTime)); 
+		sb.append(String.format("%s    currentTime: %f\n", prefix, this.prevTime)); 
 		sb.append("\n");
 		return sb.toString();
 	}
 
 	@Override
 	public String toString(){
-		return this.id.toString();
+		return this.motor.getDesignation() + this.id.toShortKey();
 	}
 	
 }

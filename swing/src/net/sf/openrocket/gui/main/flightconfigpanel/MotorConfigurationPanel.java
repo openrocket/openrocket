@@ -34,6 +34,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
@@ -169,7 +170,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				MotorConfigurationPanel.this.updateButtonState();
+				updateButtonState();
 				int selectedColumn = table.getSelectedColumn();
 				if (e.getClickCount() == 2) {
 					if (selectedColumn > 0) {
@@ -200,7 +201,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-
 	private void selectMotor() {
 		MotorMount curMount = getSelectedComponent();		
 		FlightConfigurationID fcid= getSelectedConfigurationId();
@@ -208,26 +208,21 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
         
+        //MotorInstance curInstance = curMount.getMotorInstance( fcid );
+        // curInstance may be empty here...
+        //String mountName = ((RocketComponent)curMount).getName();
+        //System.err.println("?? Selecting motor "+curInstance+" for mount: "+mountName+" for config: "+fcid.toShortKey());
+        
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
 
 		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
-
-		// DEBUG
-		//System.err.println("Just selected motor for config: "+fcid.toShortKey());
 		if (mtr != null) {
-			// DEBUG
-			//System.err.println("     >> new motor: "+mtr.getDesignation()+" delay: "+d);
-			
 			MotorInstance curInstance = mtr.getNewInstance();
-			//System.err.println("     >> new instance: "+curInstance.toString());
 			curInstance.setEjectionDelay(d);
 			curInstance.setIgnitionEvent( IgnitionEvent.AUTOMATIC);
 			curMount.setMotorInstance( fcid, curInstance);
-
-			// DEBUG
-			//System.err.println("        set?: "+curMount.getMotorInstance(fcid).toString());	
 		}
 
 		fireTableDataChanged();

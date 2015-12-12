@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
@@ -30,6 +33,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -46,7 +50,9 @@ import net.sf.openrocket.util.Transformation;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class RocketFigure extends AbstractScaleFigure {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 45884403769043138L;
+
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
@@ -228,7 +234,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		// Update figure shapes if necessary
 		if (figureShapes == null)
 			updateFigure();
-		
+
 
 		double tx, ty;
 		// Calculate translation for figure centering
@@ -277,10 +283,9 @@ public class RocketFigure extends AbstractScaleFigure {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-
+		int shapeCount = figureShapes.size();
 		// Draw all shapes
-		
-		for (int i = 0; i < figureShapes.size(); i++) {
+		for (int i = 0; i < shapeCount; i++) {
 			RocketComponentShape rcs = figureShapes.get(i);
 			RocketComponent c = rcs.getComponent(); 
 			boolean selected = false;
@@ -321,7 +326,6 @@ public class RocketFigure extends AbstractScaleFigure {
 						RenderingHints.VALUE_STROKE_NORMALIZE);
 			}
 			g2.draw(rcs.shape);
-			
 		}
 		
 		g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH * EXTRA_SCALE / scale),
@@ -332,9 +336,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		// Draw motors
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
-		
-		//MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
-		FlightConfiguration config = rocket.getDefaultConfiguration(); 
+
+		FlightConfiguration config = rocket.getDefaultConfiguration();
 		for( MotorInstance curInstance : config.getActiveMotors()){
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
@@ -371,7 +374,6 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 		}
 		
-
 
 		// Draw relative extras
 		for (FigureElement e : relativeExtra) {
@@ -421,17 +423,13 @@ public class RocketFigure extends AbstractScaleFigure {
 	// facade for the recursive function below
 	private void getShapes(ArrayList<RocketComponentShape> allShapes, FlightConfiguration configuration){
 		for( AxialStage stage : configuration.getActiveStages()){
-			// for debug...
-			//int stageNumber = stage.getStageNumber();
-			//String activeString = ( configuration.isStageActive(stageNumber) ? "active" : "inactive");
-			
 			getShapeTree( allShapes, stage, Coordinate.ZERO);
 		}
 	}
 	
     // NOTE:  Recursive function
     private void getShapeTree(
-    		ArrayList<RocketComponentShape> allShapes,  // this is the output parameter 
+    		ArrayList<RocketComponentShape> allShapes,  // output parameter 
     		final RocketComponent comp, 
     		final Coordinate parentLocation){
    

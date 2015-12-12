@@ -415,20 +415,15 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		FlightConfigurationID curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
 		final int intanceCount = this.getInstanceCount();
 		MotorInstance curInstance = this.motors.get(curId);
-		//if( curInstance.isEmpty() ){
-		{
+		if( curInstance.isEmpty() ){
 			// print just the tube locations
-			
+			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
 			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
 				Coordinate tubeRelativePosition = relCoords[instanceNumber];
 				Coordinate tubeAbsolutePosition = absCoords[instanceNumber];
 				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
 						tubeRelativePosition, tubeAbsolutePosition));
 			}
-		}
-		
-		if( curInstance.isEmpty() ){
-			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
 		}else{
 			// curInstance has a motor ... 
 			Motor curMotor = curInstance.getMotor();

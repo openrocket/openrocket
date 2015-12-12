@@ -107,7 +107,6 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	@Override
 	public void setPositionValue(double value) {
-		System.err.println(" positioning "+getName()+" to: "+value);
 		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}

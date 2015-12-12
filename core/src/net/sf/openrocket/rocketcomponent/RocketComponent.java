@@ -989,6 +989,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setAxialOffset' instead.
 	 * @param value		the position value of the component.
 	 */
+	@Deprecated
 	public void setPositionValue(double value) {
 		//		if (MathUtil.equals(this.position.x, value))
 		//			return;
@@ -1097,6 +1098,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @deprecated kept around as example code. instead use getLocations
 	 * @return
 	 */
+	@Deprecated
 	private Coordinate getAbsoluteVector() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 
@@ -2127,7 +2129,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%-42s;  %5.3f; %24s; %24s;\n", prefix+"    "+this.getName(), 
+		buffer.append(String.format("%-40s;  %5.3f; %24s; %24s;\n", prefix+"  "+this.getName(), 
 				this.getLength(), this.getOffset(), this.getLocations()[0]));
 	}
 	
@@ -2136,7 +2138,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		Iterator<RocketComponent> iterator = this.children.iterator();
 		while (iterator.hasNext()) {
-			iterator.next().dumpTreeHelper(buffer, prefix + "    ");
+			iterator.next().dumpTreeHelper(buffer, prefix + "....");
 		}
 	}
 }
