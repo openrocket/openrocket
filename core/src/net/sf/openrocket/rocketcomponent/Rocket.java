@@ -189,7 +189,21 @@ public class Rocket extends RocketComponent {
 		return this.stageMap.values();
 	}
 	
+	/*
+	 * Returns the stage at the top of the central stack
+	 * 
+	 * @Return a reference to the topmost stage
+	 */
 	public AxialStage getTopmostStage(){
+		return (AxialStage) getChild(0);
+	}
+	
+	/*
+	 * Returns the stage at the top of the central stack
+	 * 
+	 * @Return a reference to the topmost stage
+	 */
+	public AxialStage getBottomCoreStage(){
 		return (AxialStage) getChild(0);
 	}
 	

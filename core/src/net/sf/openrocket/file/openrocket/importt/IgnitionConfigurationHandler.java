@@ -37,7 +37,11 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 		content = content.trim();
 		
 		if (element.equals("ignitionevent")) {
-			
+			if ( content.equals( "automatic")){
+				content = "launch";
+				warnings.add( Warning.fromString("'automatic' separation is deprecated and has been converted to the 'launch' setting."));
+			}
+
 			for (IgnitionEvent ie : IgnitionEvent.values()) {
 				if (ie.equals(content)) {
 					ignitionEvent = ie;

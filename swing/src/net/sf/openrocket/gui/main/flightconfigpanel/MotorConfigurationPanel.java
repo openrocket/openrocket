@@ -19,9 +19,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -34,7 +31,6 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
@@ -221,7 +217,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if (mtr != null) {
 			MotorInstance curInstance = mtr.getNewInstance();
 			curInstance.setEjectionDelay(d);
-			curInstance.setIgnitionEvent( IgnitionEvent.AUTOMATIC);
+			curInstance.setIgnitionEvent( IgnitionEvent.NEVER);
 			curMount.setMotorInstance( fcid, curInstance);
 		}
 

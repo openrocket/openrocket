@@ -289,17 +289,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorInstance motor : currentStatus.getFlightConfiguration().getActiveMotors() ){
-				MotorInstanceId mid = motor.getID();
-				IgnitionEvent ignitionEvent = motor.getIgnitionEvent();
-				MotorMount mount = motor.getMount();
+			for (MotorInstance inst : currentStatus.getFlightConfiguration().getActiveMotors() ){
+				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
+				MotorMount mount = inst.getMount();
 				RocketComponent component = (RocketComponent) mount;
 				
 				if (ignitionEvent.isActivationEvent(event, component)) {
-					double ignitionDelay = motor.getIgnitionDelay();
+					double ignitionDelay = inst.getIgnitionDelay();
+					// TODO:  this event seems to get enque'd multiple times -- more than necessary...
+					//System.err.println("Queing ignition of mtr:"+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
 							currentStatus.getSimulationTime() + ignitionDelay,
-							component, mid));
+							component, inst.getID() ));
 				}
 			}
 			
@@ -343,6 +344,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
 				MotorInstance inst = currentStatus.getMotor( motorId);
 				inst.setIgnitionTime(event.getTime());
+				//System.err.println("Igniting motor: "+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
 				
 				currentStatus.setMotorIgnited(true);
 				currentStatus.getFlightData().addEvent(event);

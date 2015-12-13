@@ -158,8 +158,6 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
 		// file in degrees, internal in radians
-		setters.put("ParallelStage:angleoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class), Math.PI / 180.0));
 		setters.put("ParallelStage:angularoffset", new DoubleSetter(
 				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class), Math.PI / 180.0));
 		
@@ -425,9 +423,9 @@ class DocumentConfig {
 				Reflection.findMethod(PodSet.class, "setInstanceCount",int.class)));
 		setters.put("PodSet:radialoffset", new DoubleSetter(
 				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class)));
-		setters.put("PodSet:angleoffset", new DoubleSetter(
+		setters.put("PodSet:angularoffset", new DoubleSetter(
 				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class),Math.PI / 180.0));
-				
+
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
 				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));
