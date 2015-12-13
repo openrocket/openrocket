@@ -22,7 +22,7 @@ import net.sf.openrocket.util.Utils;
  */
 public class ParameterSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
 	
-	private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
+	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
 	protected final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
 	
 	protected E defaultValue;
@@ -185,12 +185,8 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	
 	@Override
 	public void reset( FlightConfigurationID fcid) {
-		// enforce at least one value in the set
-		if( 1 < this.map.size() ){
+		if( fcid.isValid() ){
 			set( fcid, null);
-		}else{
-			log.warn(" attempted to remove last element from the FlightConfigurationSet<"+this.getDefault().getClass().getSimpleName()+"> attached to: "+component.getName()+".  Ignoring. ");
-			return;
 		}
 	}
 	
@@ -230,22 +226,27 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	public String toDebug(){
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("====== Dumping ConfigurationSet for: '%s' of type: %s ======\n", this.component.getName(), this.component.getClass().getSimpleName() ));
-		buf.append(String.format("        >> FlightConfigurationSet (%d configurations)\n", this.size() ));
+		buf.append(String.format("    >> ParameterSet<%s> (%d configurations)\n", this.defaultValue.getClass().getSimpleName(), this.size() ));
 
-		if( 0 == this.map.size() ){
-			buf.append(String.format("              >> [%s]= %s\n", "*DEFAULT*", this.getDefault().toString() ));		
-		}else{
-			for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
-				String shortKey = loopFCID.toShortKey();
-				
-				E inst = this.map.get(loopFCID);
-				if( this.isDefault(inst)){
-					shortKey = "*"+shortKey+"*";
-				}
-				buf.append(String.format("              >> [%s]= %s\n", shortKey, inst ));
+		buf.append(String.format("        >> [%s]= %s\n", "DEFAULT", this.getDefault().toString() ));		
+		for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
+			String shortKey = loopFCID.toShortKey();
+			
+			E inst = this.map.get(loopFCID);
+			if( this.isDefault(inst)){
+				shortKey = "*"+shortKey+"*";
 			}
+			buf.append(String.format("              >> [%s]= %s\n", shortKey, inst ));
 		}
 		return buf.toString();
+	}
+
+	/* 
+	 * Clears all configuration-specific settings -- meaning querying the parameter for any configuration will return the default value.
+	 * 
+	 */
+	public void clear() {
+		this.map.clear();
 	}
 	
 }

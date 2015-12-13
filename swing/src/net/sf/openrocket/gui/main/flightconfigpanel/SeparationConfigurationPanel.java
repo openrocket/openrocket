@@ -24,7 +24,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialStage> {
-	
+	private static final long serialVersionUID = -1556652925279847316L;
 	static final Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
@@ -67,6 +67,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	protected JTable initializeTable() {
 		//// Separation selection 
 		separationTableModel = new FlightConfigurableTableModel<AxialStage>(AxialStage.class, rocket) {
+			private static final long serialVersionUID = 7979648984099308970L;
+
 			@Override
 			protected boolean includeComponent(AxialStage component) {
 				return component.getStageNumber() > 0;
@@ -121,7 +123,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	}
 	
 	private class SeparationTableCellRenderer extends FlightConfigurablePanel<AxialStage>.FlightConfigurableCellRenderer {
-		
+		private static final long serialVersionUID = -7066580803931938686L;
+
 		@Override
 		protected JLabel format(AxialStage stage, FlightConfigurationID configId, JLabel label) {
 			StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(configId);

@@ -16,27 +16,18 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ChangeSource;
 
-public class ParallelStageConfig extends RocketComponentConfig {
+public class ParallelStageConfig extends AxialStageConfig {
 	private static final long serialVersionUID = -944969957186522471L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public ParallelStageConfig(OpenRocketDocument document, RocketComponent component) {
 		super(document, component);
 	
-		// For DEBUG purposes
-		if( component instanceof AxialStage ){
-			System.err.println(" Dumping AxialStage tree info for devel / debugging.");
-			System.err.println(component.toDebugTree());
-		}
-				
 	 	// only stages which are actually off-centerline will get the dialog here:
 		tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (ParallelStage)component ), trans.get("RocketCompCfg.tab.ParallelComment"), 1);
 	}
@@ -88,6 +79,7 @@ public class ParallelStageConfig extends RocketComponentConfig {
 		motherPanel.add( positionLabel);
 		
 		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
+		@SuppressWarnings("unchecked")
 		ComboBoxModel<RocketComponent.Position> relativePositionMethodModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
 				new RocketComponent.Position[] {
 						RocketComponent.Position.TOP,

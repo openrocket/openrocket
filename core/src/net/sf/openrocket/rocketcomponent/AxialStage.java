@@ -12,12 +12,12 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
-	protected ParameterSet<StageSeparationConfiguration> separationConfigurations;
+	protected ParameterSet<StageSeparationConfiguration> separations;
 	
 	protected int stageNumber;
 	
 	public AxialStage(){
-		this.separationConfigurations = new ParameterSet<StageSeparationConfiguration>(
+		this.separations = new ParameterSet<StageSeparationConfiguration>(
 				this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
 		this.stageNumber = 0;
@@ -35,7 +35,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	public ParameterSet<StageSeparationConfiguration> getSeparationConfigurations() {
-		return separationConfigurations;
+		return separations;
 	}
 	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
@@ -74,13 +74,13 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	
 	@Override
 	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
-		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+		separations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		AxialStage copy = (AxialStage) super.copyWithOriginalID();
-		copy.separationConfigurations = new ParameterSet<StageSeparationConfiguration>(separationConfigurations,
+		copy.separations = new ParameterSet<StageSeparationConfiguration>(separations,
 				copy, ComponentChangeEvent.EVENT_CHANGE);
 		return copy;
 	}
@@ -134,6 +134,12 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
 		//		}
 		return buf;
+	}
+
+	public String toDebugSeparation() {
+		StringBuilder buff = new StringBuilder();
+		buff.append( this.separations.toDebug() );
+		return buff.toString();
 	}
 	
 	

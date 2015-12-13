@@ -51,24 +51,20 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 			// Note - getFlightConfigurationIDs returns at least one element.  The first element
 			// is null and means "default".
 			
-			int configCount = rocket.getConfigSet().size();
-			if (1 < configCount ){
-				
-				for (FlightConfiguration curConfig : rocket.getConfigSet()){
-					FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
-					if (fcid == null) {
-						continue;
-					}
-					if (stage.getSeparationConfigurations().isDefault(fcid)) {
-						continue;
-					}
-					
-					StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
-					elements.add("<separationconfiguration configid=\"" + fcid.key + "\">");
-					elements.addAll(separationConfig(separationConfig, true));
-					elements.add("</separationconfiguration>");
-					
+			for (FlightConfiguration curConfig : rocket.getConfigSet()){
+				FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+				if (fcid == null) {
+					continue;
 				}
+				
+				StageSeparationConfiguration curSepCfg = stage.getSeparationConfigurations().get(fcid);
+				if( stage.getSeparationConfigurations().isDefault( curSepCfg )){
+					continue;
+				}
+						
+				elements.add("<separationconfiguration configid=\"" + fcid.key + "\">");
+				elements.addAll(separationConfig(curSepCfg, true));
+				elements.add("</separationconfiguration>");
 			}
 		}
 	}

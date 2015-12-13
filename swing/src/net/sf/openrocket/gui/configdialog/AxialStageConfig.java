@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
@@ -31,7 +32,6 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 			tabbedPane.insertTab(trans.get("StageConfig.tab.Separation"), null, tab,
 					trans.get("StageConfig.tab.Separation.ttip"), 2);
 		}
-	 	
 	}
 	
 	
@@ -41,14 +41,30 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		// Select separation event
 		panel.add(new StyledLabel(trans.get("StageConfig.separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
 		
-		StageSeparationConfiguration config = stage.getSeparationConfigurations().getDefault();
-		JComboBox<?> combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(config, "SeparationEvent"));
+		FlightConfiguration flConfig = stage.getRocket().getDefaultConfiguration();
+		StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(flConfig.getId());
+		// to ensure the configuration is distinct, and we're not modifying the default
+		if( sepConfig == stage.getSeparationConfigurations().getDefault() ){
+			sepConfig = new StageSeparationConfiguration();
+			stage.getSeparationConfigurations().set( flConfig.getId(), sepConfig );
+		}
+		@SuppressWarnings("unchecked")
+		JComboBox<?> combo = new JComboBox<StageSeparationConfiguration.SeparationEvent>(
+				new EnumModel<StageSeparationConfiguration.SeparationEvent>( sepConfig, "SeparationEvent", 
+					new StageSeparationConfiguration.SeparationEvent[] {
+						StageSeparationConfiguration.SeparationEvent.UPPER_IGNITION,
+						StageSeparationConfiguration.SeparationEvent.IGNITION,
+						StageSeparationConfiguration.SeparationEvent.BURNOUT,
+						StageSeparationConfiguration.SeparationEvent.EJECTION,
+						StageSeparationConfiguration.SeparationEvent.LAUNCH,
+						StageSeparationConfiguration.SeparationEvent.NEVER	}));
+		//combo.setSelectedItem(sepConfig);
 		panel.add(combo, "");
 		
 		// ... and delay
 		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.plus")), "");
 		
-		DoubleModel dm = new DoubleModel(config, "SeparationDelay", 0);
+		DoubleModel dm = new DoubleModel( sepConfig, "SeparationDelay", 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "width 45");

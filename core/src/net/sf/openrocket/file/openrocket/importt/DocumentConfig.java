@@ -150,7 +150,7 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 
-		// ParallelStage
+		// Parallel Stage
 		setters.put("ParallelStage:instancecount", new IntSetter(
 				Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
 		setters.put("ParallelStage:radialoffset", new DoubleSetter(

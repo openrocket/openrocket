@@ -21,6 +21,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -481,6 +482,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			}
 			
+		}
+		
+		if( 1200 < currentStatus.getSimulationTime() ){
+			ret = false;
+			log.error("Simulation hit max time (1200s): aborting.");
+			currentStatus.getFlightData().addEvent(new FlightEvent( FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 		}
 		
 		

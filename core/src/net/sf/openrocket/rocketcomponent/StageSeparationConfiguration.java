@@ -100,7 +100,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
+	private SeparationEvent separationEvent = SeparationEvent.NEVER;
 	private double separationDelay = 0;
 		
 	public SeparationEvent getSeparationEvent() {
