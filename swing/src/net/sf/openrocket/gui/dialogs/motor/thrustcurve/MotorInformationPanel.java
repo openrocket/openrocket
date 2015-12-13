@@ -16,14 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.UnitGroup;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,6 +25,15 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.utils.StringUtils;
 
 class MotorInformationPanel extends JPanel {
 	
@@ -56,9 +57,10 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel burnTimeLabel;
 	private final JLabel launchMassLabel;
 	private final JLabel emptyMassLabel;
-	private final JLabel dataPointsLabel;
 	private final JLabel caseInfoLabel;
 	private final JLabel propInfoLabel;
+	private final JLabel dataPointsLabel;
+	private final JLabel compatibleCasesLabel;
 	private final JLabel digestLabel;
 
 	private final JTextArea comment;
@@ -117,6 +119,11 @@ class MotorInformationPanel extends JPanel {
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Propinfo")));
 			propInfoLabel = new JLabel();
 			this.add(propInfoLabel, "wrap");
+			
+			//// compatible cases:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.CompatibleCases")));
+			compatibleCasesLabel = new JLabel();
+			this.add(compatibleCasesLabel, "wrap");
 			
 			//// Data points:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Datapoints")));
@@ -226,6 +233,7 @@ class MotorInformationPanel extends JPanel {
 		emptyMassLabel.setText("");
 		caseInfoLabel.setText("");
 		propInfoLabel.setText("");
+		compatibleCasesLabel.setText("");
 		dataPointsLabel.setText("");
 		if (digestLabel != null) {
 			digestLabel.setText("");
@@ -264,6 +272,7 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getEmptyCG().weight));
 		caseInfoLabel.setText(selectedMotor.getCaseInfo());
 		propInfoLabel.setText(selectedMotor.getPropellantInfo());
+		compatibleCasesLabel.setText( StringUtils.join(",",selectedMotor.getCompatibleCases()));
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
 		if (digestLabel != null) {
 			digestLabel.setText(selectedMotor.getDigest());

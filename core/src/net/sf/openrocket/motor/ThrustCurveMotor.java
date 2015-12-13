@@ -248,6 +248,17 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return caseInfo;
 	}
 	
+	public CaseInfo getCaseInfoEnum() {
+		return CaseInfo.parse(caseInfo);
+	}
+	
+	public CaseInfo[] getCompatibleCases() {
+		CaseInfo myCase = getCaseInfoEnum();
+		if (myCase == null) {
+			return new CaseInfo[] {};
+		}
+		return myCase.getCompatibleCases();
+	}
 	
 	public String getPropellantInfo() {
 		return propellantInfo;
