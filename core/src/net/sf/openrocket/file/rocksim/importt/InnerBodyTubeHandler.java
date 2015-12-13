@@ -69,9 +69,7 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
 				bodyTube.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RocksimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
-				// silently ignore.  This information is redundant now.
-				// TODO: remove entirely
-				//bodyTube.setMotorMount("1".equals(content));
+				bodyTube.setMotorMount("1".equals(content));
 			}
 			if (RocksimCommonConstants.ENGINE_OVERHANG.equals(element)) {
 				bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
