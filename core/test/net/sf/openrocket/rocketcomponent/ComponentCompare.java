@@ -22,9 +22,12 @@ public class ComponentCompare {
 			"getStageSeparationConfiguration",
 			"getMotorConfiguration",
 			"getIgnitionConfiguration",
+			"getMotorIterator",
+			"getConfigSet",
+			"getSeparationConfigurations",
 			// Rocket specific methods:
 			"getModID", "getMassModID", "getAerodynamicModID", "getTreeModID", "getFunctionalModID",
-			"getFlightConfigurationIDs", "getDefaultConfiguration", "getMotorMounts"
+			"getFlightConfigurationIDs", "getDefaultConfiguration", "getMotorMounts", "getStageList", "getTopmostStage", "getBottomCoreStage"
 	};
 	
 	
