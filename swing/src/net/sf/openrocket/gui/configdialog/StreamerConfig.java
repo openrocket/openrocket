@@ -4,7 +4,6 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -25,9 +24,9 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
-import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -196,7 +195,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
-		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfiguration().getDefault();
+		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfigurations().getDefault();
 		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
 		if( (component.getStageNumber() + 1 ) == d.getRocket().getStageCount() ){
 			//	This is the bottom stage.  restrict deployment options.

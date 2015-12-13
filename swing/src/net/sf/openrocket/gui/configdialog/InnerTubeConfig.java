@@ -348,8 +348,9 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 						document.addUndoPosition("Split cluster");
 
-						Coordinate[] coords = { Coordinate.NUL };
-						coords = component.shiftCoordinates(coords);
+						Coordinate[] coords = new Coordinate[]{Coordinate.ZERO };
+						// coords = component.shiftCoordinates( coords); // old version
+						coords = component.getLocations();
 						parent.removeChild(index);
 						for (int i = 0; i < coords.length; i++) {
 							InnerTube copy = InnerTube.makeIndividualClusterComponent(coords[i], component.getName() + " #" + (i + 1), component);

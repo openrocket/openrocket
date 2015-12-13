@@ -33,6 +33,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class ParachuteConfig extends RecoveryDeviceConfig {
+	
+	private static final long serialVersionUID = 6108892447949958115L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component) {
@@ -194,7 +196,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
-		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfiguration().getDefault();
+		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfigurations().getDefault();
 		// this issues a warning because EnumModel ipmlements ComboBoxModel without a parameter...
 		ComboBoxModel<DeploymentConfiguration.DeployEvent> deployOptionsModel = new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent");
 		combo = new JComboBox<DeploymentConfiguration.DeployEvent>( deployOptionsModel );

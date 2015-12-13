@@ -92,6 +92,7 @@ public class GeneralRocketLoader {
 	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
 		try {
 			loadStep1(source);
+			doc.getRocket().enableEvents();
 			return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream: " + e.getMessage(), e);

@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -113,7 +114,10 @@ import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.utils.ComponentPresetEditor;
 
+
 public class BasicFrame extends JFrame {
+	private static final long serialVersionUID = 948877655223365313L;
+
 	private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
@@ -776,8 +780,9 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		//// Debug log
-		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
-		item.setIcon(Icons.HELP_DEBUG_LOG);
+		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
+		item.setIcon(Icons.HELP_DEBUG_LOG); 
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_KEY));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override

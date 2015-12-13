@@ -251,7 +251,7 @@ public class FinSetTest extends BaseTestCase {
 		
 		// Create test rocket
 		Rocket rocket = new Rocket();
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		BodyTube body = new BodyTube();
 		
 		rocket.addChild(stage);

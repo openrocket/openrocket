@@ -2,12 +2,13 @@ package net.sf.openrocket.aerodynamics;
 
 import java.util.Map;
 
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Coordinate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Coordinate;
 
 
 /**
@@ -39,15 +40,15 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	////////////////  Aerodynamic calculators  ////////////////
 	
 	@Override
-	public abstract Coordinate getCP(Configuration configuration, FlightConditions conditions,
+	public abstract Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings);
 	
 	@Override
-	public abstract Map<RocketComponent, AerodynamicForces> getForceAnalysis(Configuration configuration, FlightConditions conditions,
+	public abstract Map<RocketComponent, AerodynamicForces> getForceAnalysis(FlightConfiguration configuration, FlightConditions conditions,
 				WarningSet warnings);
 	
 	@Override
-	public abstract AerodynamicForces getAerodynamicForces(Configuration configuration,
+	public abstract AerodynamicForces getAerodynamicForces(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings);
 	
 	
@@ -56,7 +57,7 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	 * The worst theta angle is stored in conditions.
 	 */
 	@Override
-	public Coordinate getWorstCP(Configuration configuration, FlightConditions conditions,
+	public Coordinate getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 		FlightConditions cond = conditions.clone();
 		Coordinate worst = new Coordinate(Double.MAX_VALUE);
@@ -90,12 +91,15 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	 * 
 	 * @param	configuration	the configuration of the current call
 	 */
-	protected final void checkCache(Configuration configuration) {
+	protected final void checkCache(FlightConfiguration configuration) {
 		if (rocketAeroModID != configuration.getRocket().getAerodynamicModID() ||
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
+			// // vvvv DEVEL vvvv
+			// log.error("Voiding the aerodynamic cache because modIDs changed...", new BugException(" unsure why modID has changed..."));
+			// // ^^^^ DEVEL ^^^^
+			
 			rocketAeroModID = configuration.getRocket().getAerodynamicModID();
 			rocketTreeModID = configuration.getRocket().getTreeModID();
-			log.debug("Voiding the aerodynamic cache");
 			voidAerodynamicCache();
 		}
 	}

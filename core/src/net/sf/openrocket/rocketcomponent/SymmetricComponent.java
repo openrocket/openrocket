@@ -116,6 +116,10 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		return filled;
 	}
 	
+	@Override
+	public boolean isAfter(){ 
+		return true;
+	}
 	
 	/**
 	 * Sets whether the component is set as filled.  If the component is filled, then
@@ -276,8 +280,6 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		return rotationalInertia;
 	}
 	
-	
-
 	/**
 	 * Performs integration over the length of the component and updates the cached variables.
 	 */
@@ -520,7 +522,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	@Override
 	protected void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
-		if (!e.isOtherChange()) {
+		if( e.isAerodynamicChange() || e.isMassChange()){
 			wetArea = -1;
 			planArea = -1;
 			planCenter = -1;
@@ -570,7 +572,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
-			if (!(c instanceof Stage) &&
+			if (!(c instanceof AxialStage) &&
 					(c.relativePosition == RocketComponent.Position.AFTER))
 				return null; // Bad component type as "parent"
 		}
@@ -590,7 +592,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
-			if (!(c instanceof Stage) &&
+			if (!(c instanceof AxialStage) &&
 					(c.relativePosition == RocketComponent.Position.AFTER))
 				return null; // Bad component type as "parent"
 		}

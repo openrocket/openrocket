@@ -400,7 +400,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			double y = i * dy;
 			
 			macLength += length * length;
-			logger.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
+			//logger.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
 			macSpan += y * length;
 			macLead += chordLead[i] * length;
 			area += length;
@@ -416,7 +416,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		
 		macLength *= dy;
-		logger.debug("macLength = {}", macLength);
+		//logger.debug("macLength = {}", macLength);
 		macSpan *= dy;
 		macLead *= dy;
 		area *= dy;

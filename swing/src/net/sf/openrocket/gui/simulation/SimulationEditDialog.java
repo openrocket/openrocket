@@ -21,22 +21,22 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
+import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 
 
 public class SimulationEditDialog extends JDialog {
-	
+	private static final long serialVersionUID = -4468157685542912715L;
 	private final Window parentWindow;
 	private final Simulation[] simulation;
 	private final OpenRocketDocument document;
 	private final SimulationOptions conditions;
-	private final Configuration configuration;
 	private static final Translator trans = Application.getTranslator();
 	
 	JPanel cards;
@@ -50,7 +50,6 @@ public class SimulationEditDialog extends JDialog {
 		this.parentWindow = parent;
 		this.simulation = sims;
 		this.conditions = simulation[0].getOptions();
-		configuration = simulation[0].getConfiguration();
 		
 		this.cards = new JPanel(new CardLayout());
 		this.add(cards);
@@ -150,16 +149,22 @@ public class SimulationEditDialog extends JDialog {
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 			panel.add(label, "growx 0, gapright para");
 			
-			JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
+			ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( document.getRocket().getConfigSet());
+			final JComboBox<FlightConfiguration> configCombo = new JComboBox<FlightConfiguration>(psm);
+			FlightConfiguration config = document.getRocket().getFlightConfiguration(simulation[0].getId());
+			configCombo.setSelectedItem( config );
+			
 			//// Select the motor configuration to use.
-			combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
-			combo.addActionListener(new ActionListener() {
+			configCombo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
+			configCombo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
+					FlightConfiguration config = (FlightConfiguration) configCombo.getSelectedItem();
+					FlightConfigurationID id = config.getFlightConfigurationID();
+					conditions.setFlightConfigurationId( id );
 				}
 			});
-			panel.add(combo, "span");
+			panel.add(configCombo, "span");
 			
 			panel.add(new JPanel(), "growx, wrap");
 			

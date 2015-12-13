@@ -7,20 +7,25 @@ package net.sf.openrocket.motor;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public final class MotorId {
-
+public final class MotorInstanceId {
+	
 	private final String componentId;
 	private final int number;
 	
+	private final static String ERROR_COMPONENT_TEXT = "Error Motor Id";
+	private final static int ERROR_NUMBER = 1;
+	public final static MotorInstanceId ERROR_ID = new MotorInstanceId(ERROR_COMPONENT_TEXT, ERROR_NUMBER);
+	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Id";
+	private final static int EMPTY_NUMBER = 1;
+	public final static MotorInstanceId EMPTY_ID = new MotorInstanceId(EMPTY_COMPONENT_TEXT, EMPTY_NUMBER);
 	
 	/**
 	 * Sole constructor.
 	 * 
 	 * @param componentId	the component ID, must not be null
-	 * @param number		a positive motor doun5 number
+	 * @param number		a positive motor number
 	 */
-	public MotorId(String componentId, int number) {
-		super();
+	public MotorInstanceId(String componentId, int number) {
 		
 		if (componentId == null) {
 			throw new IllegalArgumentException("Component ID was null");
@@ -39,7 +44,7 @@ public final class MotorId {
 		return componentId;
 	}
 	
-	public int getNumber() {
+	public int getInstanceNumber() {
 		return number;
 	}
 	
@@ -48,11 +53,11 @@ public final class MotorId {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		
-		if (!(o instanceof MotorId))
+			
+		if (!(o instanceof MotorInstanceId))
 			return false;
-		
-		MotorId other = (MotorId)o;
+			
+		MotorInstanceId other = (MotorInstanceId) o;
 		// Comparison with == ok since string is intern()'ed
 		return this.componentId == other.componentId && this.number == other.number;
 	}
@@ -63,5 +68,25 @@ public final class MotorId {
 		return componentId.hashCode() + (number << 12);
 	}
 	
-	// TODO: toString()
+	public String toShortKey(){
+		if( this == ERROR_ID){
+			return "ERROR_ID";
+		}else if( this == EMPTY_ID){
+			return "EMPTY_ID";
+		}else{
+			final String result = toString();
+			return result.substring(0, Math.min(8, result.length()));
+		}
+	}
+	
+	@Override
+	public String toString(){
+		if( this == ERROR_ID){
+			return "ERROR_ID";
+		}else if( this == EMPTY_ID){
+			return "EMPTY_ID";
+		}else{
+			return Integer.toString( this.hashCode());
+		}
+	}
 }

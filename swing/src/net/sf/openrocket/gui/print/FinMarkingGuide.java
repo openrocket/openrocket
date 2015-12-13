@@ -286,7 +286,7 @@ public class FinMarkingGuide extends JPanel {
 					}
 					else if (externalComponent instanceof LaunchLug) {
 						LaunchLug lug = (LaunchLug) externalComponent;
-						double angle = lug.getRadialDirection() - radialOrigin;
+						double angle = lug.getAngularOffset() - radialOrigin;
 						while (angle < 0) {
 							angle += TWO_PI;
 						}
@@ -330,7 +330,7 @@ public class FinMarkingGuide extends JPanel {
 		for (ExternalComponent component : components) {
 			
 			if (component instanceof LaunchLug) {
-				double componentPosition = ((LaunchLug) component).getRadialDirection();
+				double componentPosition = ((LaunchLug) component).getAngularOffset();
 				
 				positions.add(makeZeroTwoPi(componentPosition));
 			}

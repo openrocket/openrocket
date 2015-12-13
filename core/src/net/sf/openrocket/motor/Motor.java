@@ -10,11 +10,12 @@ public interface Motor {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public enum Type {
-		SINGLE("Single-use", "Single-use solid propellant motor"),
-		RELOAD("Reloadable", "Reloadable solid propellant motor"),
-		HYBRID("Hybrid", "Hybrid rocket motor engine"),
+		SINGLE("Single-use", "Single-use solid propellant motor"), 
+		RELOAD("Reloadable", "Reloadable solid propellant motor"), 
+		HYBRID("Hybrid", "Hybrid rocket motor engine"), 
 		UNKNOWN("Unknown", "Unknown motor type");
-		
+				
+				
 		private final String name;
 		private final String description;
 		
@@ -116,8 +117,7 @@ public interface Motor {
 	
 	public String getDigest();
 	
-	public MotorInstance getInstance();
-	
+	public MotorInstance getNewInstance();
 	
 	public Coordinate getLaunchCG();
 	

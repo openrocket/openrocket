@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -29,6 +31,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
+import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -42,6 +45,7 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -268,6 +272,27 @@ public class RocketComponentConfig extends JPanel {
 		return subPanel;
 	}
 	
+	protected JPanel instanceablePanel( Instanceable inst ){
+		JPanel panel = new JPanel( new MigLayout("fill"));
+		{ // Instance Count
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
+			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
+			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
+			countSpinner.setEditor(new SpinnerEditor(countSpinner));
+			panel.add(countSpinner, "w 100lp, wrap rel");
+		}
+		
+		{ // Instance separation
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceSeparation")));
+			DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
+			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
+			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
+			panel.add(separationSpinner, "growx");
+			panel.add(new UnitSelector(separationModel), "growx");
+			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+		}
+		return panel;
+	}
 	
 	private JPanel overrideTab() {
 		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
@@ -569,4 +594,12 @@ public class RocketComponentConfig extends JPanel {
 		
 	}
 	
+	protected static void setDeepEnabled(Component component, boolean enabled) {
+		component.setEnabled(enabled);
+		if (component instanceof Container) {
+			for (Component c : ((Container) component).getComponents()) {
+				setDeepEnabled(c, enabled);
+			}
+		}
+	}
 }

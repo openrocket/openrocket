@@ -61,8 +61,8 @@ public class MotorCorrelation {
 	 * @return			the scaled cross-correlation of the two thrust curves.
 	 */
 	public static double crossCorrelation(Motor motor1, Motor motor2) {
-		MotorInstance m1 = motor1.getInstance();
-		MotorInstance m2 = motor2.getInstance();
+		MotorInstance m1 = motor1.getNewInstance();
+		MotorInstance m2 = motor2.getNewInstance();
 		
 		AtmosphericConditions cond = new AtmosphericConditions();
 		

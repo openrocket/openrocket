@@ -9,10 +9,13 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 
-public class RingComponentShapes extends RocketComponentShapes {
+public class RingComponentShapes extends RocketComponentShape {
 
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation) {
+
 		net.sf.openrocket.rocketcomponent.RingComponent tube = (net.sf.openrocket.rocketcomponent.RingComponent)component;
 		Shape[] s;
 		
@@ -20,58 +23,70 @@ public class RingComponentShapes extends RocketComponentShapes {
 		double or = tube.getOuterRadius();
 		double ir = tube.getInnerRadius();
 		
+		// old version
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] instanceOffsets = transformation.transform( component.getLocations());
 
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
 
 		if ((or-ir >= 0.0012) && (ir > 0)) {
 			// Draw outer and inner
-			s = new Shape[start.length*2];
-			for (int i=0; i < start.length; i++) {
-				s[2*i] = new Rectangle2D.Double(start[i].x*S,(start[i].y-or)*S,
+			s = new Shape[instanceOffsets.length*2];
+			for (int i=0; i < instanceOffsets.length; i++) {
+				s[2*i] = new Rectangle2D.Double(instanceOffsets[i].x*S,(instanceOffsets[i].y-or)*S,
 						length*S,2*or*S);
-				s[2*i+1] = new Rectangle2D.Double(start[i].x*S,(start[i].y-ir)*S,
+				s[2*i+1] = new Rectangle2D.Double(instanceOffsets[i].x*S,(instanceOffsets[i].y-ir)*S,
 						length*S,2*ir*S);
 			}
 		} else {
 			// Draw only outer
-			s = new Shape[start.length];
-			for (int i=0; i < start.length; i++) {
-				s[i] = new Rectangle2D.Double(start[i].x*S,(start[i].y-or)*S,
+			s = new Shape[instanceOffsets.length];
+			for (int i=0; i < instanceOffsets.length; i++) {
+				s[i] = new Rectangle2D.Double(instanceOffsets[i].x*S,(instanceOffsets[i].y-or)*S,
 						length*S,2*or*S);
 			}
 		}
-		return s;
+		return RocketComponentShape.toArray( s, component);
 	}
 	
 
-	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesBack(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.RingComponent tube = (net.sf.openrocket.rocketcomponent.RingComponent)component;
 		Shape[] s;
 		
 		double or = tube.getOuterRadius();
 		double ir = tube.getInnerRadius();
-		
 
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
+		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		
+		// old version 
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		instanceOffsets = component.getLocations();
 
 		if ((ir < or) && (ir > 0)) {
 			// Draw inner and outer
-			s = new Shape[start.length*2];
-			for (int i=0; i < start.length; i++) {
-				s[2*i]   = new Ellipse2D.Double((start[i].z-or)*S, (start[i].y-or)*S,
+			s = new Shape[instanceOffsets.length*2];
+			for (int i=0; i < instanceOffsets.length; i++) {
+				s[2*i]   = new Ellipse2D.Double((instanceOffsets[i].z-or)*S, (instanceOffsets[i].y-or)*S,
 						2*or*S, 2*or*S);
-				s[2*i+1] = new Ellipse2D.Double((start[i].z-ir)*S, (start[i].y-ir)*S,
+				s[2*i+1] = new Ellipse2D.Double((instanceOffsets[i].z-ir)*S, (instanceOffsets[i].y-ir)*S,
 						2*ir*S, 2*ir*S);
 			}
 		} else {
 			// Draw only outer
-			s = new Shape[start.length];
-			for (int i=0; i < start.length; i++) {
-				s[i] = new Ellipse2D.Double((start[i].z-or)*S,(start[i].y-or)*S,2*or*S,2*or*S);
+			s = new Shape[instanceOffsets.length];
+			for (int i=0; i < instanceOffsets.length; i++) {
+				s[i] = new Ellipse2D.Double((instanceOffsets[i].z-or)*S,(instanceOffsets[i].y-or)*S,2*or*S,2*or*S);
 			}
 		}
-		return s;
+		return RocketComponentShape.toArray( s, component);
 	}
 	
 }

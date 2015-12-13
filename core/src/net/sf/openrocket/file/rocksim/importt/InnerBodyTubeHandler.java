@@ -5,6 +5,8 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -13,8 +15,6 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-
-import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim inside tubes.
@@ -69,7 +69,9 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
 				bodyTube.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RocksimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
-				bodyTube.setMotorMount("1".equals(content));
+				// silently ignore.  This information is redundant now.
+				// TODO: remove entirely
+				//bodyTube.setMotorMount("1".equals(content));
 			}
 			if (RocksimCommonConstants.ENGINE_OVERHANG.equals(element)) {
 				bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);

@@ -7,9 +7,9 @@ import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -25,11 +25,11 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+
 public class SimulationStatus implements Monitorable {
-	
+
 	private SimulationConditions simulationConditions;
-	private Configuration configuration;
-	private MotorInstanceConfiguration motorConfiguration;
+	private FlightConfiguration configuration;
 	private FlightDataBranch flightData;
 	
 	private double time;
@@ -46,7 +46,7 @@ public class SimulationStatus implements Monitorable {
 	private double effectiveLaunchRodLength;
 	
 	// Set of burnt out motors
-	Set<MotorId> motorBurntOut = new HashSet<MotorId>();
+	Set<MotorInstanceId> motorBurntOut = new HashSet<MotorInstanceId>();
 	
 	
 	/** Nanosecond time when the simulation was started. */
@@ -85,13 +85,11 @@ public class SimulationStatus implements Monitorable {
 	private int modID = 0;
 	private int modIDadd = 0;
 	
-	public SimulationStatus(Configuration configuration,
-			MotorInstanceConfiguration motorConfiguration,
+	public SimulationStatus(FlightConfiguration configuration,
 			SimulationConditions simulationConditions) {
 		
 		this.simulationConditions = simulationConditions;
 		this.configuration = configuration;
-		this.motorConfiguration = motorConfiguration;
 		
 		this.time = 0;
 		this.previousTimeStep = this.simulationConditions.getTimeStep();
@@ -119,7 +117,7 @@ public class SimulationStatus implements Monitorable {
 		 */
 		double length = this.simulationConditions.getLaunchRodLength();
 		double lugPosition = Double.NaN;
-		for (RocketComponent c : this.configuration) {
+		for (RocketComponent c : this.configuration.getActiveComponents()) {
 			if (c instanceof LaunchLug) {
 				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
 				if (Double.isNaN(lugPosition) || pos > lugPosition) {
@@ -164,7 +162,6 @@ public class SimulationStatus implements Monitorable {
 	public SimulationStatus(SimulationStatus orig) {
 		this.simulationConditions = orig.simulationConditions.clone();
 		this.configuration = orig.configuration.clone();
-		this.motorConfiguration = orig.motorConfiguration.clone();
 		// FlightData is not cloned.
 		this.flightData = orig.flightData;
 		this.time = orig.time;
@@ -210,7 +207,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public void setConfiguration(Configuration configuration) {
+	public void setConfiguration(FlightConfiguration configuration) {
 		if (this.configuration != null)
 			this.modIDadd += this.configuration.getModID();
 		this.modID++;
@@ -218,23 +215,13 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public Configuration getConfiguration() {
+	public FlightConfiguration getConfiguration() {
 		return configuration;
 	}
 	
-	
-	public void setMotorConfiguration(MotorInstanceConfiguration motorConfiguration) {
-		if (this.motorConfiguration != null)
-			this.modIDadd += this.motorConfiguration.getModID();
-		this.modID++;
-		this.motorConfiguration = motorConfiguration;
+	public FlightConfiguration getFlightConfiguration() {
+		return configuration;
 	}
-	
-	
-	public MotorInstanceConfiguration getMotorConfiguration() {
-		return motorConfiguration;
-	}
-	
 	
 	public void setFlightData(FlightDataBranch flightData) {
 		if (this.flightData != null)
@@ -248,6 +235,9 @@ public class SimulationStatus implements Monitorable {
 		return flightData;
 	}
 	
+	public MotorInstance getMotor( final MotorInstanceId motorId ){
+		return this.getFlightConfiguration().getMotorInstance(motorId);
+	}
 	
 	public double getPreviousTimeStep() {
 		return previousTimeStep;
@@ -290,7 +280,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public boolean addBurntOutMotor(MotorId motor) {
+	public boolean addBurntOutMotor(MotorInstanceId motor) {
 		return motorBurntOut.add(motor);
 	}
 	
@@ -489,7 +479,7 @@ public class SimulationStatus implements Monitorable {
 	@Override
 	public int getModID() {
 		return (modID + modIDadd + simulationConditions.getModID() + configuration.getModID() +
-				motorConfiguration.getModID() + flightData.getModID() + deployedRecoveryDevices.getModID() +
+				flightData.getModID() + deployedRecoveryDevices.getModID() +
 				eventQueue.getModID() + warnings.getModID());
 	}
 	

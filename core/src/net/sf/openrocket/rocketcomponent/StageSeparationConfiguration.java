@@ -16,7 +16,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Upper stage motor ignition
 		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
 					return false;
 				
@@ -28,7 +28,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage motor ignition
 		IGNITION(trans.get("Stage.SeparationEvent.IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
 					return false;
 				
@@ -40,7 +40,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage motor burnout
 		BURNOUT(trans.get("Stage.SeparationEvent.BURNOUT")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.BURNOUT)
 					return false;
 				
@@ -52,7 +52,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage ejection charge
 		EJECTION(trans.get("Stage.SeparationEvent.EJECTION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
 					return false;
 				
@@ -64,14 +64,14 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Launch
 		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
 		//// Never
 		NEVER(trans.get("Stage.SeparationEvent.NEVER")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				return false;
 			}
 		},
@@ -87,7 +87,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		/**
 		 * Test whether a specific event is a stage separation event.
 		 */
-		public abstract boolean isSeparationEvent(FlightEvent e, Stage stage);
+		public abstract boolean isSeparationEvent(FlightEvent e, AxialStage stage);
 		
 		@Override
 		public String toString() {
@@ -100,10 +100,9 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
+	private SeparationEvent separationEvent = SeparationEvent.NEVER;
 	private double separationDelay = 0;
-	
-	
+		
 	public SeparationEvent getSeparationEvent() {
 		return separationEvent;
 	}

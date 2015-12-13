@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.material.Material;
@@ -28,9 +31,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
@@ -429,9 +429,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		SimulationOptions cond = s.getOptions();
 		
 		cond.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP * 2);
-		cond.setWindSpeedAverage(1.0);
-		cond.setWindSpeedDeviation(0.1);
-		cond.setLaunchRodLength(5);
 		return s;
 	}
 	

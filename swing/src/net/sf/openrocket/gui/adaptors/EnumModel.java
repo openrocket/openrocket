@@ -7,8 +7,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.MutableComboBoxModel;
 
-import org.jfree.util.Log;
-
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
@@ -84,6 +82,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		return currentValue;
 	}
 
+	
 	@Override
 	public void setSelectedItem(Object item) {
 		if (item == null) {
@@ -103,6 +102,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		// Comparison with == ok, since both are enums
 		if (currentValue == item)
 			return;
+		// @SuppressWarnings("unchecked")
+		this.currentValue = (Enum<T>) item;
 		setMethod.invoke(source, item);
 	}
 
@@ -131,8 +132,6 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 			this.fireContentsChanged(this, 0, values.length);
 		}
 	}
-	
-	
 
 	@Override
 	public String toString() {

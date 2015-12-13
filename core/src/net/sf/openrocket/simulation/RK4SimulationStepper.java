@@ -10,6 +10,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.masscalc.MassData;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationCalculationException;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -264,6 +265,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 		
+		if (!(0 <= store.timestep)) {
+			// Also catches NaN
+			throw new IllegalArgumentException("Stepping backwards in time, timestep=" +store.timestep);
+		}
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
 		
 		status.setPreviousTimeStep(store.timestep);

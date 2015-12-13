@@ -74,7 +74,7 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 	
 	@Override
-	public MotorInstance getInstance() {
+	public MotorInstance getNewInstance() {
 		throw new BugException("Called getInstance on PlaceholderMotor");
 	}
 	

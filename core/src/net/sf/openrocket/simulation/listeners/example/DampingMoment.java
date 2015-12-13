@@ -6,8 +6,8 @@ import java.util.Map;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -20,7 +20,9 @@ import net.sf.openrocket.util.Coordinate;
 public class DampingMoment extends AbstractSimulationListener {
 	
 	private static final FlightDataType type = FlightDataType.getType("Damping moment coefficient", "Cdm", UnitGroup.UNITS_COEFFICIENT);
-	private static final FlightDataType[] typeList = { type };
+	
+	// unused
+	//private static final FlightDataType[] typeList = { type };
 	
 	@Override
 	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) throws SimulationException {
@@ -66,11 +68,11 @@ public class DampingMoment extends AbstractSimulationListener {
 		
 		// find the maximum distance from nose to nozzle. 
 		double nozzleDistance = 0;
-		for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
-			MotorInstanceConfiguration config = status.getMotorConfiguration();
-			Coordinate position = config.getMotorPosition(id);
+		FlightConfiguration config = status.getConfiguration();
+		for (MotorInstance inst : config.getActiveMotors()) {
+			Coordinate position = inst.getPosition();
 			
-			double x = position.x + config.getMotorInstance(id).getParentMotor().getLength();
+			double x = position.x + inst.getMotor().getLength();
 			if (x > nozzleDistance) {
 				nozzleDistance = x;
 			}

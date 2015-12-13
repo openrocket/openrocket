@@ -4,14 +4,16 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
-
-import org.xml.sax.SAXException;
 
 /**
  * The starting point of the handlers.  Accepts a single <openrocket> element and hands
@@ -20,6 +22,8 @@ import org.xml.sax.SAXException;
 class OpenRocketHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private OpenRocketContentHandler handler = null;
+	
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketHandler.class);
 	
 	public OpenRocketHandler(DocumentLoadingContext context) {
 		this.context = context;

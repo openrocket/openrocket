@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.masscalc.MassData;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.AccelerationData;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
@@ -167,7 +167,7 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return	<code>true</code> to handle the event normally, <code>false</code> to skip event.
 	 */
-	public static boolean fireMotorIgnition(SimulationStatus status, MotorId motorId, MotorMount mount,
+	public static boolean fireMotorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
 			MotorInstance instance) throws SimulationException {
 		boolean b;
 		int modID = status.getModID(); // Contains also motor instance

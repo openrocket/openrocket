@@ -6,14 +6,18 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.formatting.MotorDescriptionSubstitutor;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -25,9 +29,6 @@ import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.util.WorldCoordinate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A class holding simulation options in basic parameter form and which functions
  * as a ChangeSource.  A SimulationConditions instance is generated from this class
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
@@ -49,8 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private String motorID = null;
-	
+	private FlightConfigurationID configId = FlightConfigurationID.ERROR_CONFIGURATION_FCID; 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -99,25 +100,33 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		return rocket;
 	}
 	
+	public FlightConfigurationID getFlightConfigurationId() {
+		return getId();
+	}
 	
-	public String getMotorConfigurationID() {
-		return motorID;
+	public FlightConfigurationID getId() {
+		return this.configId;
 	}
 	
 	/**
-	 * Set the motor configuration ID.  This must be a valid motor configuration ID of
-	 * the rocket, otherwise the configuration is set to <code>null</code>.
+	 * Set the motor configuration ID.  If this id does not yet exist, it will be created.
 	 * 
 	 * @param id	the configuration to set.
 	 */
-	public void setMotorConfigurationID(String id) {
-		if (id != null)
-			id = id.intern();
-		if (!rocket.isFlightConfigurationID(id))
-			id = null;
-		if (id == motorID)
+	public void setFlightConfigurationId(FlightConfigurationID fcid) {
+		if ( null == fcid ){
+			throw new NullPointerException("Attempted to set a null Config id in simulation options. Not allowed!");
+		}else if ( fcid.hasError() ){
+			throw new IllegalArgumentException("Attempted to set the configuration to an error id. Not Allowed!");
+		}else if (!rocket.containsFlightConfigurationID(fcid)){
+			rocket.createFlightConfiguration(fcid);
+		}
+		
+		if( fcid.equals(this.configId)){
 			return;
-		motorID = id;
+		}
+		
+		this.configId = fcid;
 		fireChangeEvent();
 	}
 	
@@ -130,7 +139,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
-		fireChangeEvent();
 	}
 	
 	
@@ -429,34 +437,32 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public void copyFrom(SimulationOptions src) {
 		
 		if (this.rocket == src.rocket) {
-			
-			this.motorID = src.motorID;
-			
+			this.configId = src.configId;
 		} else {
 			
-			if (src.rocket.hasMotors(src.motorID)) {
+			if (src.rocket.hasMotors(src.configId)) {
 				// First check for exact match:
-				if (this.rocket.isFlightConfigurationID(src.motorID)) {
-					this.motorID = src.motorID;
+				if (this.rocket.containsFlightConfigurationID(src.configId)) {
+					this.configId = src.configId;
 				} else {
 					// Try to find a closely matching motor ID
 					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
 					
-					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
-					String matchID = null;
+					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.configId);
+					FlightConfigurationID matchID = null;
 					
-					for (String id : this.rocket.getFlightConfigurationIDs()) {
-						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
+					for (FlightConfigurationID fcid : this.rocket.getSortedConfigurationIDs()){
+						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, fcid);
 						if (motorDesc.equals(motorDesc2)) {
-							matchID = id;
+							matchID = fcid;
 							break;
 						}
 					}
 					
-					this.motorID = matchID;
+					this.configId = matchID;
 				}
 			} else {
-				this.motorID = null;
+				this.configId = null;
 			}
 		}
 		
@@ -560,7 +566,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
 		return ((this.rocket == o.rocket) &&
-				Utils.equals(this.motorID, o.motorID) &&
+				Utils.equals(this.configId, o.configId) &&
 				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
@@ -582,9 +588,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public int hashCode() {
-		if (motorID == null)
+		if (configId == null)
 			return rocket.hashCode();
-		return rocket.hashCode() + motorID.hashCode();
+		return rocket.hashCode() + configId.hashCode();
 	}
 	
 	@Override
@@ -616,7 +622,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		SimulationConditions conditions = new SimulationConditions();
 		
 		conditions.setRocket((Rocket) getRocket().copy());
-		conditions.setMotorConfigurationID(getMotorConfigurationID());
+		conditions.setFlightConfigurationID(this.getId());
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
@@ -638,7 +644,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setGravityModel(gravityModel);
 		
 		conditions.setAerodynamicCalculator(new BarrowmanCalculator());
-		conditions.setMassCalculator(new BasicMassCalculator());
+		conditions.setMassCalculator(new MassCalculator());
 		
 		conditions.setTimeStep(getTimeStep());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());

@@ -5,10 +5,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 /**
- * An inner component that consists of a hollow cylindrical component.  This can be
- * an inner tube, tube coupler, centering ring, bulkhead etc.
- *
- * The properties include the inner and outer radii, length and radial position.
+ * ???
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */

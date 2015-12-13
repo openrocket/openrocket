@@ -9,7 +9,7 @@ import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Transition;
 import org.junit.Assert;
 
@@ -36,7 +36,7 @@ public class TransitionHandlerTest extends RocksimTestBase {
             //success
         }
 
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         TransitionHandler handler = new TransitionHandler(null, stage, new WarningSet());
         Transition component = (Transition) getField(handler, "transition");
         assertContains(component, stage.getChildren());
@@ -49,7 +49,7 @@ public class TransitionHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new TransitionHandler(null, new Stage(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new TransitionHandler(null, new AxialStage(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -60,7 +60,7 @@ public class TransitionHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testCloseElement() throws Exception {
 
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
@@ -214,7 +214,7 @@ public class TransitionHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new TransitionHandler(null, new Stage(), new WarningSet()).getComponent() instanceof Transition);
+        Assert.assertTrue(new TransitionHandler(null, new AxialStage(), new WarningSet()).getComponent() instanceof Transition);
     }
 
     /**
@@ -224,7 +224,7 @@ public class TransitionHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new TransitionHandler(null, new Stage(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new TransitionHandler(null, new AxialStage(), new WarningSet()).getMaterialType());
     }
 
 
