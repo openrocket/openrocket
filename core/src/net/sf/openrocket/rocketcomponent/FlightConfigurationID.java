@@ -23,11 +23,17 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public FlightConfigurationID(final String _str) {
+		UUID candidate;
 		if("".equals(_str)){
-			this.key = UUID.randomUUID();
+			candidate = UUID.randomUUID();
 		}else{
-			this.key = UUID.fromString( _str);
+			try{
+				candidate = UUID.fromString( _str);
+			}catch( IllegalArgumentException iae ){
+				candidate = new UUID( 0, _str.hashCode() );
+			}
 		}
+		this.key = candidate;
 	}
 	
 	public FlightConfigurationID(final UUID _val) {

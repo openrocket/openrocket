@@ -77,6 +77,12 @@ class MotorMountHandler extends AbstractElementHandler {
 			RocketComponent mountComponent = (RocketComponent)mount;
 			motorInstance.setID( new MotorInstanceId(mountComponent.getID(), 1));
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
+			
+			// pull event data from defaults
+			MotorInstance defInstance = mount.getDefaultMotorInstance();
+			motorInstance.setIgnitionEvent( defInstance.getIgnitionEvent());
+			motorInstance.setIgnitionDelay( defInstance.getIgnitionDelay());
+			
 			mount.setMotorInstance(fcid, motorInstance);
 
 			Rocket rkt = ((RocketComponent)mount).getRocket();

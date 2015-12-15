@@ -8,24 +8,19 @@ import net.sf.openrocket.startup.Application;
 
 public enum IgnitionEvent {
 	
-//	//// Automatic (launch or ejection charge)
-//	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
-//		@Override
-//		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-//			int count = source.getRocket().getStageCount();
-//			AxialStage stage = (AxialStage)source;
-//
-//	        if ( stage instanceof ParallelStage ){
-//	        	return LAUNCH.isActivationEvent(e, source);
-//	        }else if (????){
-//              // no good option here.  The non-sequential nature of
-//				// parallel stages prevents us from using the simple test as previousyl
-//				return LAUNCH.isActivationEvent(e, source);
-//			} else {
-//				return EJECTION_CHARGE.isActivationEvent(e, source);
-//			}
-//		}
-//	},
+	//// Automatic (launch or ejection charge)
+	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
+		@Override
+		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
+			AxialStage stage = (AxialStage)source;
+
+	        if ( stage.isLaunchStage() ){
+				return LAUNCH.isActivationEvent(e, source);
+			} else {
+				return EJECTION_CHARGE.isActivationEvent(e, source);
+			}
+		}
+	},
 	LAUNCH ( "LAUNCH", "MotorMount.IgnitionEvent.LAUNCH"){
 		@Override
 		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
