@@ -25,12 +25,14 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TestRockets;
 
 import org.junit.After;
@@ -191,82 +193,6 @@ public class OpenRocketSaverTest {
 	
 	
 	////////////////////////////////
-	// Tests for File Version 1.0 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion100() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v100();
-		assertEquals(100, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
-	// Tests for File Version 1.1 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion101_withFinTabs() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v101_withFinTabs();
-		assertEquals(101, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion101_withTubeCouplerChild() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v101_withTubeCouplerChild();
-		assertEquals(101, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
-	// Tests for File Version 1.2 // 
-	////////////////////////////////
-	
-	// no version 1.2 file type exists
-	
-	////////////////////////////////
-	// Tests for File Version 1.3 // 
-	////////////////////////////////
-	
-	// no version 1.3 file type exists
-	
-	////////////////////////////////
-	// Tests for File Version 1.4 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion104_withSimulationData() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v104_withSimulationData();
-		assertEquals(104, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion104_withMotor() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v104_withMotor();
-		assertEquals(104, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
-	// Tests for File Version 1.5 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion105_withComponentPresets() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v105_withComponentPreset();
-		assertEquals(105, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion105_withCustomExpressions() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v105_withCustomExpression();
-		assertEquals(105, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion105_withLowerStageRecoveryDevice() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v105_withLowerStageRecoveryDevice();
-		assertEquals(105, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
 	// Tests for File Version 1.6 // 
 	////////////////////////////////
 	
@@ -384,8 +310,13 @@ public class OpenRocketSaverTest {
 		
 		public MotorDbProvider() {
 			db.addMotor(readMotor());
-			
-			assertEquals(1, db.getMotorSets().size());
+			db.addMotor( new ThrustCurveMotor(
+				Manufacturer.getManufacturer("A"),
+				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
+				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA"));
+
+			assertEquals(2, db.getMotorSets().size());
 		}
 		
 		@Override
