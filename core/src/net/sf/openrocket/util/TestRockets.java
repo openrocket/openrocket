@@ -1156,7 +1156,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v106_withMotorMountIgnitionConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withwithMotorMountIgnitionConfig");
-		FlightConfigurationID fcid = new FlightConfigurationID("2SecondDelay");
+		FlightConfigurationID fcid = new FlightConfigurationID();
 		
 		// make stage
 		AxialStage stage = new AxialStage();
