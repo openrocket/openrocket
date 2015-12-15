@@ -105,6 +105,11 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	public boolean isAfter(){ 
 		return false;
 	}
+	
+	@Override
+	public boolean isLaunchStage(){
+		return true;
+	}
 
 	@Override 
 	public void setInstanceCount( final int newCount ){

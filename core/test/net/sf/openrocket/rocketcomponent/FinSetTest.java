@@ -257,12 +257,13 @@ public class FinSetTest extends BaseTestCase {
 		rocket.addChild(stage);
 		stage.addChild(body);
 		body.addChild(fin);
+		rocket.enableEvents();
 		
 		Listener l1 = new Listener("l1");
 		rocket.addComponentChangeListener(l1);
 		
 		fin.setName("Custom name");
-		assertTrue(l1.changed);
+		assertEquals("FinSet listener has not been notified: ", l1.changed, true);
 		assertEquals(ComponentChangeEvent.NONFUNCTIONAL_CHANGE, l1.changetype);
 		
 		
@@ -275,7 +276,7 @@ public class FinSetTest extends BaseTestCase {
 		FinSet fincopy = (FinSet) rocketcopy.getChild(0).getChild(0).getChild(0);
 		FreeformFinSet.convertFinSet(fincopy);
 		
-		assertTrue(l2.changed);
+		assertTrue("FinSet listener is changed", l2.changed);
 		assertEquals(ComponentChangeEvent.TREE_CHANGE,
 				l2.changetype & ComponentChangeEvent.TREE_CHANGE);
 		

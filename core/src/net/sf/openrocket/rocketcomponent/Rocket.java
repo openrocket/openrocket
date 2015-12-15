@@ -204,7 +204,8 @@ public class Rocket extends RocketComponent {
 	 * @Return a reference to the topmost stage
 	 */
 	public AxialStage getBottomCoreStage(){
-		return (AxialStage) getChild(0);
+		// get last stage that's a direct child of the rocket.
+		return (AxialStage) children.get( children.size()-1 );
 	}
 	
 	private int getNewStageNumber() {
@@ -431,10 +432,7 @@ public class Rocket extends RocketComponent {
 				freezeList.add(cce);
 				return;
 			}
-			
-			if( -1 == cce.getType()){
-				log.debug(">>fireComponentChangeEvent()>> . . .");
-			}
+		
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {

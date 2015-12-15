@@ -282,127 +282,13 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 		}
 		
-		
 		/////////////////
 		// Version 1.6 // 
 		/////////////////
+
+		// OpenRocket only writes back to 1.6 now.
+		return FILE_VERSION_DIVISOR + 6;
 		
-		// Search the rocket for any Appearances or non-motor flight configurations (version 1.6)
-		for (RocketComponent c : document.getRocket()) {
-			if (c.getAppearance() != null) {
-				return FILE_VERSION_DIVISOR + 6;
-			}
-			if (c instanceof FlightConfigurableComponent) {
-				if (c instanceof MotorMount) {
-					MotorMount mmt = (MotorMount) c;
-					if (mmt.getMotorCount() > 0) {
-						return FILE_VERSION_DIVISOR + 6;
-					}
-				}
-				if (c instanceof RecoveryDevice) {
-					RecoveryDevice recovery = (RecoveryDevice) c;
-					if (recovery.getDeploymentConfigurations().size() > 0) {
-						return FILE_VERSION_DIVISOR + 6;
-					}
-				}
-				if (c instanceof AxialStage) {
-					AxialStage stage = (AxialStage) c;
-					if (stage.getSeparationConfigurations().size() > 0) {
-						return FILE_VERSION_DIVISOR + 6;
-					}
-				}
-			}
-		}
-		
-		/////////////////
-		// Version 1.5 // 
-		/////////////////
-		
-		// Search the rocket for any ComponentPresets (version 1.5)
-		for (RocketComponent c : document.getRocket()) {
-			if (c.getPresetComponent() != null) {
-				return FILE_VERSION_DIVISOR + 5;
-			}
-		}
-		
-		// Search for recovery device deployment type LOWER_STAGE_SEPARATION (version 1.5)
-		for (RocketComponent c : document.getRocket()) {
-			if (c instanceof RecoveryDevice) {
-				if (((RecoveryDevice) c).getDeploymentConfigurations().getDefault().getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
-					return FILE_VERSION_DIVISOR + 5;
-				}
-			}
-		}
-		
-		// Check for custom expressions (version 1.5)
-		if (!document.getCustomExpressions().isEmpty()) {
-			return FILE_VERSION_DIVISOR + 5;
-		}
-		
-		/////////////////
-		// Version 1.4 // 
-		/////////////////
-		
-		// Check if design has simulations defined (version 1.4)
-		if (document.getSimulationCount() > 0) {
-			return FILE_VERSION_DIVISOR + 4;
-		}
-		
-		// Check for motor definitions (version 1.4)
-		for (RocketComponent c : document.getRocket()) {
-			if (!(c instanceof MotorMount))
-				continue;
-			
-			MotorMount mount = (MotorMount) c;
-			for( FlightConfiguration config : document.getRocket().getConfigSet()) {
-				FlightConfigurationID fcid = config.getFlightConfigurationID();
-				if (mount.getMotorInstance(fcid) != null) {
-					return FILE_VERSION_DIVISOR + 4;
-				}
-			}
-		}
-		
-		/////////////////
-		// Version 1.3 // 
-		/////////////////
-		
-		// no version 1.3 file type exists
-		
-		/////////////////
-		// Version 1.2 // 
-		/////////////////
-		
-		// no version 1.2 file type exists
-		
-		/////////////////
-		// Version 1.1 // 
-		/////////////////
-		
-		// Check for fin tabs or tube coupler children (version 1.1)
-		for (RocketComponent c : document.getRocket()) {
-			// Check for fin tabs
-			if (c instanceof FinSet) {
-				FinSet fin = (FinSet) c;
-				if (!MathUtil.equals(fin.getTabHeight(), 0) &&
-						!MathUtil.equals(fin.getTabLength(), 0)) {
-					return FILE_VERSION_DIVISOR + 1;
-				}
-			}
-			
-			// Check for components attached to tube coupler
-			if (c instanceof TubeCoupler) {
-				if (c.getChildCount() > 0) {
-					return FILE_VERSION_DIVISOR + 1;
-				}
-			}
-		}
-		
-		/////////////////
-		// Version 1.0 // 
-		/////////////////
-		
-		// Default (version 1.0)
-		return FILE_VERSION_DIVISOR + 0;
 	}
 	
 	

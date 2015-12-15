@@ -8,7 +8,7 @@ import net.sf.openrocket.startup.Application;
 
 public enum IgnitionEvent {
 	
-//	//// Automatic (launch or ejection charge)
+	//// Automatic (launch or ejection charge)
 	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
 		@Override
 		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {

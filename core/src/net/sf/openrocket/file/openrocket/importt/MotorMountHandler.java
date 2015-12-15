@@ -79,6 +79,7 @@ class MotorMountHandler extends AbstractElementHandler {
 			motorInstance.setMount(mount);
 			motorInstance.setID( new MotorInstanceId(mountComponent.getID(), 1));
 			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
+			
 			mount.setMotorInstance(fcid, motorInstance);
 
 			Rocket rkt = ((RocketComponent)mount).getRocket();

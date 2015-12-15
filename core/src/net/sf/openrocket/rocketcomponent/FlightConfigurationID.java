@@ -23,11 +23,17 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public FlightConfigurationID(final String _str) {
+		UUID candidate;
 		if(_str == null || "".equals(_str)){
-			this.key = UUID.randomUUID();
+			candidate = UUID.randomUUID();
 		}else{
-			this.key = UUID.fromString( _str);
+			try{
+				candidate = UUID.fromString( _str);
+			}catch( IllegalArgumentException iae ){
+				candidate = new UUID( 0, _str.hashCode() );
+			}
 		}
+		this.key = candidate;
 	}
 	
 	public FlightConfigurationID(final UUID _val) {
@@ -55,7 +61,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 			return ERROR_KEY_NAME;
 		}
 	}
-
+	
 	public String getFullKeyText(){
 		return this.key.toString();
 	}
@@ -80,7 +86,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	public String toString() {
 		return this.key.toString();
 	}
-
+	
 	@Override
 	public int compareTo(FlightConfigurationID other) {
 		return (this.key.compareTo( other.key));
