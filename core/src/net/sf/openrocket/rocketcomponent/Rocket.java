@@ -204,7 +204,8 @@ public class Rocket extends RocketComponent {
 	 * @Return a reference to the topmost stage
 	 */
 	public AxialStage getBottomCoreStage(){
-		return (AxialStage) getChild(0);
+		// get last stage that's a direct child of the rocket.
+		return (AxialStage) children.get( children.size()-1 );
 	}
 	
 	private int getNewStageNumber() {
