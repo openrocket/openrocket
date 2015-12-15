@@ -12,9 +12,14 @@ public enum IgnitionEvent {
 	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
 		@Override
 		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-			AxialStage stage = (AxialStage)source;
+			int count = source.getRocket().getStageCount();
+			AxialStage stage = (AxialStage)source.getStage();
 
-	        if ( stage.isLaunchStage() ){
+	        if ( stage instanceof ParallelStage ){
+	        	return LAUNCH.isActivationEvent(e, source);
+	        }else if (stage.getStageNumber() == count -1){
+              // no good option here.  The non-sequential nature of
+				// parallel stages prevents us from using the simple test as previousyl
 				return LAUNCH.isActivationEvent(e, source);
 			} else {
 				return EJECTION_CHARGE.isActivationEvent(e, source);

@@ -250,7 +250,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	
 	@Override
-	public MotorInstance getNewInstance() {
+	public ThrustCurveMotorInstance getNewInstance() {
 		return new ThrustCurveMotorInstance(this);
 	}
 	

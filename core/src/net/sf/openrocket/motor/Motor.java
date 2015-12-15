@@ -1,5 +1,6 @@
 package net.sf.openrocket.motor;
 
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 
 public interface Motor {
@@ -117,7 +118,7 @@ public interface Motor {
 	
 	public String getDigest();
 	
-	public MotorInstance getNewInstance();
+	public MotorState getNewInstance();
 	
 	public Coordinate getLaunchCG();
 	
