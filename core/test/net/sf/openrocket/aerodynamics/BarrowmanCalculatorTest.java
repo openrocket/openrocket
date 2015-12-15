@@ -11,7 +11,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 import net.sf.openrocket.ServicesForTesting;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
@@ -69,7 +69,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		
-		MotorInstance inst = TestRockets.getTestD12Motor();
+		MotorConfiguration inst = TestRockets.getTestD12Motor();
 		InnerTube motorTube = (InnerTube)rkt.getChild(0).getChild(1).getChild(1);
 		motorTube.setMotorInstance(fcid, inst);
 		motorTube.setMotorMount(true);

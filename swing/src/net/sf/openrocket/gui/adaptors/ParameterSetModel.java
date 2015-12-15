@@ -13,7 +13,7 @@ import javax.swing.event.ListDataListener;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.util.StateChangeListener;
 
 /**
@@ -28,10 +28,10 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 	private EventListenerList listenerList = new EventListenerList();
 	
 	private Object selected;
-	private final ParameterSet<T> sourceSet;
+	private final FlightConfigurableParameterSet<T> sourceSet;
 	List<FlightConfigurationID> idList= new Vector<FlightConfigurationID>();
 	
-	public ParameterSetModel(ParameterSet<T> set ) {
+	public ParameterSetModel(FlightConfigurableParameterSet<T> set ) {
 		this.sourceSet = set;
 		this.selected = this.sourceSet.getDefault();
 	}	

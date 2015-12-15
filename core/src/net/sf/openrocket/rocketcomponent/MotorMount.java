@@ -2,7 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.Iterator;
 
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 
@@ -38,14 +38,14 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * 
 	 * @return an iterator to all motors configured for this component
 	 */
-	public Iterator<MotorInstance> getMotorIterator();
+	public Iterator<MotorConfiguration> getMotorIterator();
 
 	/**
 	 *   Returns the Default Motor Instance for this mount.
 	 *   
 	 *    @return The default MotorInstance
 	 */
-	public MotorInstance getDefaultMotorInstance();
+	public MotorConfiguration getDefaultMotorInstance();
 	
 	/** 
 	 * Default implementatino supplied by RocketComponent (returns 1);
@@ -59,14 +59,14 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @param fcid  id for which to return the motor (null retrieves the default)
 	 * @return  requested motorInstance (which may also be the default motor instance)
 	 */
-	public MotorInstance getMotorInstance( final FlightConfigurationID fcid);
+	public MotorConfiguration getMotorInstance( final FlightConfigurationID fcid);
 
 	/**
 	 * 
 	 * @param fcid index the supplied motor against this flight configuration 
 	 * @param newMotorInstance  motor instance to store
 	 */
-	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance);
+	public void setMotorInstance(final FlightConfigurationID fcid, final MotorConfiguration newMotorInstance);
 	
 	/**
 	 * Get the number of motors available for all flight configurations

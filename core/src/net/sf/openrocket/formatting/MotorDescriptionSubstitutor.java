@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
@@ -69,7 +69,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			} else if (c instanceof MotorMount) {
 				
 				MotorMount mount = (MotorMount) c;
-				MotorInstance inst = mount.getMotorInstance(fcid);
+				MotorConfiguration inst = mount.getMotorInstance(fcid);
 				Motor motor = inst.getMotor();
 				
 				if (mount.isMotorMount() && motor != null) {

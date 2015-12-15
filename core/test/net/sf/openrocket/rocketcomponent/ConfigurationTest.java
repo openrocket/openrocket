@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
@@ -560,7 +560,7 @@ public class ConfigurationTest extends BaseTestCase {
 						
 			InnerTube sustainerMount = (InnerTube) rocket.getChild(0).getChild(1).getChild(3);
 			sustainerMount.setMotorMount(true);
-			sustainerMount.setMotorInstance(fcid, new MotorInstance(sustainerMotor));
+			sustainerMount.setMotorInstance(fcid, new MotorConfiguration(sustainerMotor));
 		}
 		
 		{
@@ -577,7 +577,7 @@ public class ConfigurationTest extends BaseTestCase {
 					"digest D21 test");
 			InnerTube boosterMount = (InnerTube) rocket.getChild(1).getChild(0).getChild(2);
 			boosterMount.setMotorMount(true);
-			boosterMount.setMotorInstance(fcid, new MotorInstance(boosterMotor));
+			boosterMount.setMotorInstance(fcid, new MotorConfiguration(boosterMotor));
 			boosterMount.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[1]); // double-mount
 		}
 		return rocket;

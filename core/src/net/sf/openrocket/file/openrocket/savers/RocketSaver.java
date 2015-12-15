@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -43,7 +43,7 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		
 		// Motor configurations
-		ParameterSet<FlightConfiguration> allConfigs = rocket.getConfigSet();
+		FlightConfigurableParameterSet<FlightConfiguration> allConfigs = rocket.getConfigSet();
 		for (FlightConfigurationID fcid : allConfigs.getSortedConfigurationIDs()) {
 			FlightConfiguration flightConfig = allConfigs.get(fcid); 
 			if (fcid == null)

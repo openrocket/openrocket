@@ -18,7 +18,7 @@ import net.sf.openrocket.gui.figure3d.geometry.ComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.DisplayListComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -188,7 +188,7 @@ public abstract class RocketRenderer {
 //			}
 //		}
 		
-		for( MotorInstance curMotor : configuration.getActiveMotors()){
+		for( MotorConfiguration curMotor : configuration.getActiveMotors()){
 			MotorMount mount = curMotor.getMount();
 			Motor motor = curMotor.getMotor();
 			

@@ -6,9 +6,9 @@ import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.motor.MotorSet;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -32,7 +32,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	private double overhang = 0;
 	private boolean isActingMount = false;
 	
-	private MotorSet motors;
+	private MotorConfigurationSet motors;
 	
 	public BodyTube() {
 		this(8 * DEFAULT_RADIUS, DEFAULT_RADIUS);
@@ -44,7 +44,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		super();
 		this.outerRadius = Math.max(radius, 0);
 		this.length = Math.max(length, 0);
-		motors = new MotorSet(this);
+		motors = new MotorConfigurationSet(this);
 	}
 	
 	public BodyTube(double length, double radius, boolean filled) {
@@ -364,17 +364,17 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	////////////////  Motor mount  /////////////////
 	
 	@Override
-	public MotorInstance getDefaultMotorInstance(){
+	public MotorConfiguration getDefaultMotorInstance(){
 		return this.motors.getDefault();
 	}
 	
 	@Override
-	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
+	public MotorConfiguration getMotorInstance( final FlightConfigurationID fcid){
 		return this.motors.get(fcid);
 	}
 
 	@Override 
-	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
+	public void setMotorInstance(final FlightConfigurationID fcid, final MotorConfiguration newMotorInstance){
 		if((null == newMotorInstance)){
 			this.motors.set( fcid, null);
 		}else{
@@ -395,7 +395,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	
 	@Override
-	public Iterator<MotorInstance> getMotorIterator(){
+	public Iterator<MotorConfiguration> getMotorIterator(){
 		return this.motors.iterator();
 	}
 
@@ -468,7 +468,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	protected RocketComponent copyWithOriginalID() {
 		BodyTube copy = (BodyTube) super.copyWithOriginalID();
 		
-		copy.motors = new MotorSet( this.motors, copy );
+		copy.motors = new MotorConfigurationSet( this.motors, copy );
 		return copy;
 	}
 }

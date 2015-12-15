@@ -12,7 +12,7 @@ import javax.swing.table.TableModel;
 
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.util.AbstractChangeSource;
@@ -64,9 +64,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 
 	public void setMotorMount( MotorMount mount ) {
 		if (mount != null) {
-			Iterator<MotorInstance> iter = mount.getMotorIterator();
+			Iterator<MotorConfiguration> iter = mount.getMotorIterator();
 			while( iter.hasNext()){
-				MotorInstance mi = iter.next();
+				MotorConfiguration mi = iter.next();
 				if( !mi.isEmpty()){
 					this.usedMotors.add((ThrustCurveMotor) mi.getMotor());
 				}

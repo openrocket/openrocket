@@ -10,7 +10,7 @@ import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -148,7 +148,7 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = false;
 		this.apogeeReached = false;
 		
-		for( MotorInstance motorInstance : this.configuration.getActiveMotors() ) {
+		for( MotorConfiguration motorInstance : this.configuration.getActiveMotors() ) {
 			this.motorState.add( motorInstance.getSimulationState() );
 		}
 		this.warnings = new WarningSet();

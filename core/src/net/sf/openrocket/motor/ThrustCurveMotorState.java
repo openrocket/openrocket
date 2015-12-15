@@ -3,13 +3,12 @@ package net.sf.openrocket.motor;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
 
-public class ThrustCurveMotorInstance implements MotorState {
+public class ThrustCurveMotorState implements MotorState {
 	//	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorInstance.class);
 	
 	private int timeIndex = -1;
@@ -47,7 +46,7 @@ public class ThrustCurveMotorInstance implements MotorState {
 	//		unitLongitudinalInertia = Double.NaN;
 	//	}
 	
-	public ThrustCurveMotorInstance(final ThrustCurveMotor source) {
+	public ThrustCurveMotorState(final ThrustCurveMotor source) {
 		//log.debug( Creating motor instance of " + ThrustCurveMotor.this);
 		this.motor = source;
 		this.reset();

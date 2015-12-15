@@ -553,7 +553,7 @@ public class Rocket extends RocketComponent {
 		return this.configSet.size();
 	}
 	
-	public ParameterSet<FlightConfiguration> getConfigSet(){
+	public FlightConfigurableParameterSet<FlightConfiguration> getConfigSet(){
 		checkState();
 		return this.configSet;
 	}

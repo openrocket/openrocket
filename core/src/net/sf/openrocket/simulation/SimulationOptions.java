@@ -51,7 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private FlightConfigurationID configId = FlightConfigurationID.ERROR_CONFIGURATION_FCID; 
+	private FlightConfigurationID configId = new FlightConfigurationID(); 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the

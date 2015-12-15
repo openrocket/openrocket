@@ -11,7 +11,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -89,7 +89,7 @@ public class TestRockets {
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	private static MotorInstance generateMotorInstance_M1350_75mm(){
+	private static MotorConfiguration generateMotorInstance_M1350_75mm(){
 		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
@@ -101,11 +101,11 @@ public class TestRockets {
 				new Coordinate[] {
 					new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)}, 
 				"digest M1350 test");
-		return new MotorInstance(mtr);
+		return new MotorConfiguration(mtr);
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	private static MotorInstance generateMotorInstance_G77_29mm(){
+	private static MotorConfiguration generateMotorInstance_G77_29mm(){
 		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
@@ -117,7 +117,7 @@ public class TestRockets {
 				new Coordinate[] {
 					new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)}, 
 				"digest G77 test");
-		return new MotorInstance(mtr);
+		return new MotorConfiguration(mtr);
 	}
 	
 	// 
@@ -409,7 +409,7 @@ public class TestRockets {
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	public static final MotorInstance getTestD12Motor() {
+	public static final MotorConfiguration getTestD12Motor() {
 		// Estes D12:
 		// http://nar.org/SandT/pdf/Estes/D12.pdf
 		ThrustCurveMotor motor = new ThrustCurveMotor(
@@ -420,7 +420,7 @@ public class TestRockets {
 									new Coordinate(0.0035,0,0,30.0),
 									new Coordinate(0.0035,0,0,21.0)},
 				"digest_D12");
-		MotorInstance inst = new MotorInstance(motor);
+		MotorConfiguration inst = new MotorConfiguration(motor);
 		inst.setEjectionDelay(5);
 		return inst;
 	}
@@ -466,7 +466,7 @@ public class TestRockets {
 		FlightConfigurationID fcid = config.getFlightConfigurationID();
 		
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance instance = new MotorInstance(motor);
+		MotorConfiguration instance = new MotorConfiguration(motor);
 		instance.setEjectionDelay(5);
 		
 		bodytube.setMotorInstance(fcid, instance);
@@ -805,7 +805,7 @@ public class TestRockets {
 			coreBody.setMotorMount(true);
 			coreStage.addChild( coreBody);
 			{
-				MotorInstance motorInstance = TestRockets.generateMotorInstance_M1350_75mm();
+				MotorConfiguration motorInstance = TestRockets.generateMotorInstance_M1350_75mm();
 				motorInstance.setID( new MotorInstanceId( coreBody.getName(), 1) );
 				coreBody.setMotorMount( true);
 				FlightConfigurationID motorConfigId = config.getFlightConfigurationID();
@@ -867,7 +867,7 @@ public class TestRockets {
 				boosterBody.addChild( boosterMotorTubes);
 				
 				FlightConfigurationID motorConfigId = config.getFlightConfigurationID();
-				MotorInstance motorInstance = TestRockets.generateMotorInstance_G77_29mm();
+				MotorConfiguration motorInstance = TestRockets.generateMotorInstance_G77_29mm();
 				motorInstance.setID( new MotorInstanceId( boosterMotorTubes.getName(), 1) );
 				boosterMotorTubes.setMotorInstance( motorConfigId, motorInstance);
 				boosterMotorTubes.setMotorOverhang(0.01234);
@@ -980,7 +980,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance motorInst = new MotorInstance(motor);
+		MotorConfiguration motorInst = new MotorConfiguration(motor);
 		motorInst.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
@@ -1015,7 +1015,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance motorConfig = new MotorInstance(motor);
+		MotorConfiguration motorConfig = new MotorConfiguration(motor);
 		motorConfig.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
@@ -1156,7 +1156,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v106_withMotorMountIgnitionConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withwithMotorMountIgnitionConfig");
-		FlightConfigurationID fcid = new FlightConfigurationID("2SecondDelay");
+		FlightConfigurationID fcid = new FlightConfigurationID();
 		
 		// make stage
 		AxialStage stage = new AxialStage();
@@ -1172,7 +1172,7 @@ public class TestRockets {
 		bodyTube.addChild(innerTube);
 		
 		// make inner tube with motor mount flag set
-		MotorInstance inst = new MotorInstance(getTestMotor());
+		MotorConfiguration inst = new MotorConfiguration(getTestMotor());
 		innerTube.setMotorInstance(fcid, inst);
 		
 		// set ignition parameters for motor mount

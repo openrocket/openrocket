@@ -24,7 +24,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	public FlightConfigurationID(final String _str) {
 		UUID candidate;
-		if("".equals(_str)){
+		if(_str == null || "".equals(_str)){
 			candidate = UUID.randomUUID();
 		}else{
 			try{
@@ -61,7 +61,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 			return ERROR_KEY_NAME;
 		}
 	}
-
+	
 	public String getFullKeyText(){
 		return this.key.toString();
 	}
@@ -86,7 +86,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	public String toString() {
 		return this.key.toString();
 	}
-
+	
 	@Override
 	public int compareTo(FlightConfigurationID other) {
 		return (this.key.compareTo( other.key));

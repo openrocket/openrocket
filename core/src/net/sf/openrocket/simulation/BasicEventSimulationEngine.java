@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -427,8 +427,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// TODO: HIGH: Check stage activeness for other events as well?
 					
 					// Check whether any motor in the active stages is active anymore
-					Collection<MotorInstance> activeMotors = currentStatus.getConfiguration().getActiveMotors();
-					for (MotorInstance curMotor : activeMotors) {
+					Collection<MotorConfiguration> activeMotors = currentStatus.getConfiguration().getActiveMotors();
+					for (MotorConfiguration curMotor : activeMotors) {
 						RocketComponent comp = ((RocketComponent) curMotor.getMount());
 						int stageNumber = comp.getStageNumber();
 						if (!currentStatus.getConfiguration().isStageActive(stageNumber))

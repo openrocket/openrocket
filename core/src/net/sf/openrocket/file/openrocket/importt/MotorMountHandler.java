@@ -11,7 +11,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
@@ -73,7 +73,7 @@ class MotorMountHandler extends AbstractElementHandler {
 			}
 			Motor motor = motorHandler.getMotor(warnings);
 			
-			MotorInstance motorInstance = new MotorInstance();
+			MotorConfiguration motorInstance = new MotorConfiguration();
 			motorInstance.setMotor(motor);
 			RocketComponent mountComponent = (RocketComponent)mount;
 			motorInstance.setMount(mount);
@@ -95,7 +95,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			MotorInstance inst = mount.getMotorInstance(fcid);
+			MotorConfiguration inst = mount.getMotorInstance(fcid);
 			inst.setIgnitionDelay(ignitionConfigHandler.ignitionDelay);
 			inst.setIgnitionEvent(ignitionConfigHandler.ignitionEvent);
 			return;
