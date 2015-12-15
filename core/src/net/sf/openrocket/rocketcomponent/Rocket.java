@@ -432,10 +432,7 @@ public class Rocket extends RocketComponent {
 				freezeList.add(cce);
 				return;
 			}
-			
-			if( -1 == cce.getType()){
-				log.debug(">>fireComponentChangeEvent()>> . . .");
-			}
+		
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
