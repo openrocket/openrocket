@@ -195,8 +195,8 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		// test explicitly setting all stages up to second stage active
 		config.setOnlyStage(1);
-		assertThat(config.toStageListDetail() + "Setting single stage active: ", config.isStageActive(0), equalTo(false));
-		assertThat(config.toStageListDetail() + "Setting single stage active: ", config.isStageActive(1), equalTo(true));
+		assertThat("Setting single stage active: ", config.isStageActive(0), equalTo(false));
+		assertThat("Setting single stage active: ", config.isStageActive(1), equalTo(true));
 		
 		config.clearStage(0);
 		assertThat(" deactivate stage #0: ", config.isStageActive(0), equalTo(false));
@@ -560,7 +560,7 @@ public class ConfigurationTest extends BaseTestCase {
 						
 			InnerTube sustainerMount = (InnerTube) rocket.getChild(0).getChild(1).getChild(3);
 			sustainerMount.setMotorMount(true);
-			sustainerMount.setMotorInstance(fcid, sustainerMotor.getNewInstance());
+			sustainerMount.setMotorInstance(fcid, new MotorInstance(sustainerMotor));
 		}
 		
 		{
@@ -577,7 +577,7 @@ public class ConfigurationTest extends BaseTestCase {
 					"digest D21 test");
 			InnerTube boosterMount = (InnerTube) rocket.getChild(1).getChild(0).getChild(2);
 			boosterMount.setMotorMount(true);
-			boosterMount.setMotorInstance(fcid, boosterMotor.getNewInstance());
+			boosterMount.setMotorInstance(fcid, new MotorInstance(boosterMotor));
 			boosterMount.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[1]); // double-mount
 		}
 		return rocket;

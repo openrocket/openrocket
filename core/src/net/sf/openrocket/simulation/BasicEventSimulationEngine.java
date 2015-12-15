@@ -195,7 +195,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for burnt out motors
-				for( MotorInstance motor : currentStatus.getConfiguration().getAllMotors()){
+				for( MotorState motor : currentStatus.getAllMotors()){
 					MotorInstanceId motorId = motor.getID();
 					if (!motor.isActive() && currentStatus.addBurntOutMotor(motorId)) {
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
@@ -276,7 +276,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (event.getType() == FlightEvent.Type.IGNITION) {
 				MotorMount mount = (MotorMount) event.getSource();
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorInstance instance = currentStatus.getMotor(motorId);
+				MotorState instance = currentStatus.getMotor(motorId);
 				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, instance)) {
 					continue;
 				}
@@ -289,7 +289,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorInstance inst : currentStatus.getFlightConfiguration().getActiveMotors() ){
+			for (MotorState inst : currentStatus.getActiveMotors() ){
 				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
 				MotorMount mount = inst.getMount();
 				RocketComponent component = (RocketComponent) mount;
@@ -342,7 +342,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case IGNITION: {
 				// Ignite the motor
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorInstance inst = currentStatus.getMotor( motorId);
+				MotorState inst = currentStatus.getMotor( motorId);
 				inst.setIgnitionTime(event.getTime());
 				//System.err.println("Igniting motor: "+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
 				
@@ -373,7 +373,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				// Add ejection charge event
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorInstance motor = currentStatus.getMotor( motorId);
+				MotorState motor = currentStatus.getMotor( motorId);
 				double delay = motor.getEjectionDelay();
 				if (delay != Motor.PLUGGED) {
 					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,

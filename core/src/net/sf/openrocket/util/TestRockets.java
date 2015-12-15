@@ -101,7 +101,7 @@ public class TestRockets {
 				new Coordinate[] {
 					new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)}, 
 				"digest M1350 test");
-		return mtr.getNewInstance();
+		return new MotorInstance(mtr);
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -117,7 +117,7 @@ public class TestRockets {
 				new Coordinate[] {
 					new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)}, 
 				"digest G77 test");
-		return  mtr.getNewInstance(); 
+		return new MotorInstance(mtr);
 	}
 	
 	// 
@@ -420,10 +420,11 @@ public class TestRockets {
 									new Coordinate(0.0035,0,0,30.0),
 									new Coordinate(0.0035,0,0,21.0)},
 				"digest_D12");
-		MotorInstance inst = motor.getNewInstance(); 
+		MotorInstance inst = new MotorInstance(motor);
 		inst.setEjectionDelay(5);
 		return inst;
 	}
+	
 	public static Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
@@ -465,7 +466,7 @@ public class TestRockets {
 		FlightConfigurationID fcid = config.getFlightConfigurationID();
 		
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance instance = motor.getNewInstance();
+		MotorInstance instance = new MotorInstance(motor);
 		instance.setEjectionDelay(5);
 		
 		bodytube.setMotorInstance(fcid, instance);
@@ -979,7 +980,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance motorInst = motor.getNewInstance();
+		MotorInstance motorInst = new MotorInstance(motor);
 		motorInst.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
@@ -1014,7 +1015,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		ThrustCurveMotor motor = getTestMotor();
-		MotorInstance motorConfig = motor.getNewInstance();
+		MotorInstance motorConfig = new MotorInstance(motor);
 		motorConfig.setEjectionDelay(5);
 		
 		// add motor config to inner tube (motor mount)
@@ -1171,7 +1172,7 @@ public class TestRockets {
 		bodyTube.addChild(innerTube);
 		
 		// make inner tube with motor mount flag set
-		MotorInstance inst = getTestMotor().getNewInstance();
+		MotorInstance inst = new MotorInstance(getTestMotor());
 		innerTube.setMotorInstance(fcid, inst);
 		
 		// set ignition parameters for motor mount

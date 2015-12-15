@@ -1,5 +1,6 @@
 package net.sf.openrocket.motor;
 
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -74,7 +75,7 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 	
 	@Override
-	public MotorInstance getNewInstance() {
+	public MotorState getNewInstance() {
 		throw new BugException("Called getInstance on PlaceholderMotor");
 	}
 	

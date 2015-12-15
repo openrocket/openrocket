@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 
@@ -41,7 +42,7 @@ public class ThrustCurveMotorTest {
 	
 	@Test
 	public void testInstance() {
-		MotorInstance instance = motor.getNewInstance();
+		ThrustCurveMotorInstance instance = motor.getNewInstance();
 		
 		verify(instance, 0, 0.05, 0.02);
 		instance.step(0.0, 0, null);
@@ -63,7 +64,7 @@ public class ThrustCurveMotorTest {
 		verify(instance, 0, 0.03, 0.03);
 	}
 	
-	private void verify(MotorInstance instance, double thrust, double mass, double cgx) {
+	private void verify(ThrustCurveMotorInstance instance, double thrust, double mass, double cgx) {
 		assertEquals("Testing thrust", thrust, instance.getThrust(), EPS);
 		assertEquals("Testing mass", mass, instance.getCG().weight, EPS);
 		assertEquals("Testing cg x", cgx, instance.getCG().x, EPS);

@@ -1,19 +1,27 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Utils;
 
-public class ThrustCurveMotorInstance extends MotorInstance {
+public class ThrustCurveMotorInstance implements MotorState {
 	//	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorInstance.class);
 	
 	private int timeIndex = -1;
 	
 	protected MotorMount mount = null;
+	protected MotorInstanceId id = null;
+	private double ignitionTime;
+	private double ignitionDelay;
+	private IgnitionEvent ignitionEvent;
+	private double ejectionDelay;
+	
+	
 	protected ThrustCurveMotor motor = null;
 	
 	// Previous time step value
@@ -47,46 +55,88 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		unitRotationalInertia = Inertia.filledCylinderRotational(source.getDiameter() / 2);
 		unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(source.getDiameter() / 2, source.getLength());
 		
-		this.id = MotorInstanceId.ERROR_ID;
 	}
 	
 	@Override
+	public double getIgnitionTime() {
+		return ignitionTime;
+	}
+
+	@Override
+	public void setIgnitionTime(double ignitionTime) {
+		this.ignitionTime = ignitionTime;
+	}
+
+	@Override
+	public MotorMount getMount() {
+		return mount;
+	}
+
+	@Override
+	public void setMount(MotorMount mount) {
+		this.mount = mount;
+	}
+
+	@Override
+	public IgnitionEvent getIgnitionEvent() {
+		return ignitionEvent;
+	}
+
+	@Override
+	public void setIgnitionEvent(IgnitionEvent event) {
+		this.ignitionEvent = event;
+	}
+
+	@Override
+	public double getIgnitionDelay() {
+		return ignitionDelay;
+	}
+
+	@Override
+	public void setIgnitionDelay(double delay) {
+		this.ignitionDelay = delay;
+	}
+
+	@Override
+	public double getEjectionDelay() {
+		return ejectionDelay;
+	}
+
+	@Override
+	public void setEjectionDelay(double delay) {
+		this.ejectionDelay = delay;
+	}
+
+	@Override
+	public void setId(MotorInstanceId id) {
+		this.id = id;
+	}
+
+	@Override
+	public MotorInstanceId getID() {
+		return id;
+	}
+
 	public double getTime() {
 		return prevTime;
 	}
 	
-	@Override
 	public Coordinate getCG() {
 		return stepCG;
 	}
 	
-	@Override
 	public Coordinate getCM() {
 		return stepCG;
 	}
 	
-	@Override
 	public double getPropellantMass(){
 		return (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
 	}
 	
-	@Override
-	public Coordinate getOffset( ){
-		if( null == mount ){
-			return Coordinate.NaN;
-		}else{
-			RocketComponent comp = (RocketComponent) mount;
-			double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
-			return new Coordinate(delta_x, 0, 0);
-		}
-	}
-	
-	@Override
 	public double getLongitudinalInertia() {
 		return unitLongitudinalInertia * stepCG.weight;
 	}
 	
-	@Override
 	public double getRotationalInertia() {
 		return unitRotationalInertia * stepCG.weight;
 	}
@@ -100,59 +150,20 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	public boolean isActive() {
 		return prevTime < motor.getCutOffTime();
 	}
-
-	@Override
-	public void setMotor(Motor motor) {
-		if( !( motor instanceof ThrustCurveMotor )){
-			return;
-		}
-		if (Utils.equals(this.motor, motor)) {
-			return;
-		}
-		
-		this.motor = (ThrustCurveMotor)motor;
-		
-		fireChangeEvent();
-	}
 	
-	@Override
 	public Motor getMotor(){
 		return this.motor;
 	}
-
-	@Override
+	
 	public boolean isEmpty(){
 		return false;
 	}
-	
-	@Override
-	public MotorMount getMount() {
-		return this.mount;
-	}
-	
-	@Override
-	public void setMount(final MotorMount _mount) {
-		this.mount = _mount;
-		
-	}
-	
-	@Override
-	public void setEjectionDelay(double delay) {
-		if (MathUtil.equals(ejectionDelay, delay)) {
-			return;
-		}
-		this.ejectionDelay = delay;
-		fireChangeEvent();
-	}
-	
 	
 	@Override
 	public void step(double nextTime, double acceleration, AtmosphericConditions cond) {
 		if (MathUtil.equals(prevTime, nextTime)) {
 			return;
 		}
-		
-		modID++;
 		
 		double[] time = motor.getTimePoints();
 		double[] thrust = motor.getThrustPoints();
@@ -220,23 +231,6 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 		prevTime = nextTime;
 	}
 	
-	@Override
-	public MotorInstance clone() {
-		ThrustCurveMotorInstance clone = new ThrustCurveMotorInstance( this.motor);
-		
-		clone.id = this.id;
-		clone.mount = this.mount;
-		clone.ignitionEvent = this.ignitionEvent;
-		clone.ignitionDelay = this.ignitionDelay;
-		clone.ejectionDelay = this.ejectionDelay;
-		clone.position = this.position;
-		clone.ignitionTime = Double.POSITIVE_INFINITY;
-		//clone.ignitionTime = this.ignitionTime;
-	
-		return clone;
-	}
-
-	@Override
 	public void reset(){
 		timeIndex = 0;
 		prevTime = 0;
@@ -247,24 +241,8 @@ public class ThrustCurveMotorInstance extends MotorInstance {
 	}
 	
 	@Override
-	public String toDebug(){
-		String prefix = "    ";
-		StringBuilder sb = new StringBuilder();
-		final RocketComponent mountComp = (RocketComponent)this.mount;
-		
-		sb.append(String.format("%sMotor= %s(%s)(in %s)\n", prefix, this.motor.getDesignation(), this.id.toShortKey(), mountComp.getName()));
-		sb.append(String.format("%s    Ignite: %s at %+f\n",prefix, this.ignitionEvent.name, this.ignitionDelay));
-		//sb.append(String.format("%s    Eject at: %+f\n",prefix, this.ejectionDelay));
-		sb.append(String.format("%s    L:%f W:%f @:%f mm\n",prefix, motor.getLength(), motor.getDiameter(), this.position.multiply(1000).x ));
-		sb.append(String.format("%s    currentTime: %f\n", prefix, this.prevTime)); 
-		sb.append("\n");
-		return sb.toString();
-	}
-
-	@Override
 	public String toString(){
-		return this.motor.getDesignation() + this.id.toShortKey();
+		return this.motor.getDesignation();
 	}
 	
 }
-	
