@@ -375,7 +375,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 
 	@Override 
 	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
-		if((null == newMotorInstance)||(newMotorInstance.equals( MotorInstance.EMPTY_INSTANCE ))){
+		if((null == newMotorInstance)){
 			this.motors.set( fcid, null);
 		}else{
 			if( null == newMotorInstance.getMount()){

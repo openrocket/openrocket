@@ -10,8 +10,8 @@ import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 
@@ -61,8 +61,8 @@ public class MotorCorrelation {
 	 * @return			the scaled cross-correlation of the two thrust curves.
 	 */
 	public static double crossCorrelation(Motor motor1, Motor motor2) {
-		MotorInstance m1 = motor1.getNewInstance();
-		MotorInstance m2 = motor2.getNewInstance();
+		MotorState m1 = motor1.getNewInstance();
+		MotorState m2 = motor2.getNewInstance();
 		
 		AtmosphericConditions cond = new AtmosphericConditions();
 		

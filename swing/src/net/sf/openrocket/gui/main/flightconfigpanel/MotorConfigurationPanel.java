@@ -215,7 +215,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
-			MotorInstance curInstance = mtr.getNewInstance();
+			MotorInstance curInstance = new MotorInstance(mtr);
 			curInstance.setEjectionDelay(d);
 			curInstance.setIgnitionEvent( IgnitionEvent.NEVER);
 			curMount.setMotorInstance( fcid, curInstance);
@@ -262,9 +262,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         }
         MotorInstance curInstance = curMount.getMotorInstance(fcid);
 		
-        MotorInstance defInstance = curInstance.getMount().getDefaultMotorInstance();
-		curInstance.setIgnitionDelay( defInstance.getIgnitionDelay());
-		curInstance.setIgnitionEvent( defInstance.getIgnitionEvent());
+        curInstance.useDefaultIgnition();
 
 		fireTableDataChanged();
 	}
@@ -315,14 +313,19 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			
 			IgnitionEvent ignitionEvent = curInstance.getIgnitionEvent();
 			Double ignitionDelay = curInstance.getIgnitionDelay();
-			boolean isDefault = (defInstance.getIgnitionEvent() == curInstance.getIgnitionEvent());				
-				
+			boolean useDefault = !curInstance.hasIgnitionOverride();
+			
+			if ( useDefault ) {
+				ignitionEvent = defInstance.getIgnitionEvent();
+				ignitionDelay = defInstance.getIgnitionDelay();
+			}
+			
 			JLabel label = new JLabel();
 			String str = trans.get("MotorMount.IgnitionEvent.short." + ignitionEvent.name());
 			if (ignitionEvent != IgnitionEvent.NEVER && ignitionDelay > 0.001) {
 				str = str + " + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(ignitionDelay);
 			}
-			if (isDefault) {
+			if (useDefault) {
 				shaded(label);
 				String def = trans.get("MotorConfigurationTableModel.table.ignition.default");
 				str = def.replace("{0}", str);

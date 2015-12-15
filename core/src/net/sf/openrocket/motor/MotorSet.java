@@ -13,7 +13,7 @@ public class MotorSet extends ParameterSet<MotorInstance> {
 	public static final int DEFAULT_MOTOR_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
 	
 	public MotorSet(RocketComponent component ) {
-		super(component, DEFAULT_MOTOR_EVENT_TYPE, MotorInstance.EMPTY_INSTANCE);
+		super(component, DEFAULT_MOTOR_EVENT_TYPE, new MotorInstance());
 	}
 	
 	/**
@@ -45,7 +45,7 @@ public class MotorSet extends ParameterSet<MotorInstance> {
 			
 			MotorInstance curInstance = this.map.get(loopFCID);
 			String designation;
-			if( MotorInstance.EMPTY_INSTANCE == curInstance){
+			if( null == curInstance.getMotor() ){
 				designation = "EMPTY_INSTANCE";
 			}else{
 				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());

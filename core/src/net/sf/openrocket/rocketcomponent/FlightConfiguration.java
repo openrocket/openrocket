@@ -357,44 +357,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return this.fcid.toShortKey();
 	}
 	
-	// DEBUG / DEVEL
-	public String toDebug() {
-		return toMotorDetail();
-	}
-	
-	// DEBUG / DEVEL
-	public String toStageListDetail() {
-		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("\nDumping %d stages for config: %s: (#: %d)\n", this.stages.size(), this.getName(), this.instanceNumber));
-		for (StageFlags flags : this.stages.values()) {
-			AxialStage curStage = flags.stage;
-			buf.append(String.format("    [%2d]: %-24s: %4s\n", curStage.getStageNumber(), curStage.getName(), (flags.active?" on": "off")));
-		}
-		buf.append("\n\n");
-		return buf.toString();
-	}
-	
-	// DEBUG / DEVEL
-	public String toMotorDetail(){
-		StringBuilder buff = new StringBuilder();
-		buff.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", this.motors.size(), this, this.instanceNumber));
-		final int intanceCount = motors.size();
-		int motorInstanceNumber=0;
-		for( MotorInstance curMotor : this.motors.values() ){
-			if( curMotor.isEmpty() ){
-				buff.append( String.format( "    ..[%2d/%2d][%8s] <empty> \n", motorInstanceNumber+1, intanceCount, curMotor.getID().toShortKey()));
-			}else{
-				buff.append( String.format( "    ..[%2d/%2d](%6s) %-10s (in: %s)(id: %8s)\n", 
-										motorInstanceNumber+1, intanceCount,
-										(curMotor.isActive()? "active": "inactv"),curMotor.getMotor().getDesignation(),
-										((RocketComponent)curMotor.getMount()).getName(), curMotor.getID().toShortKey() ));
-			}
-			++motorInstanceNumber;
-		}
-		return buff.toString();
-	}
-
-	
 	public String getMotorsOneline(){
 		StringBuilder buff = new StringBuilder("[");
 		boolean first = true;
@@ -493,10 +455,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return getAllMotorCount();
 	}
 	
-	public int getActiveMotorCount(){
-		return getActiveMotors().size();
-	}
-	
 	public int getAllMotorCount(){
 		return motors.size();
 	}
@@ -523,7 +481,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return activeList;
 	}
-	
+
 	public void updateMotors() {
 		this.motors.clear();
 		
@@ -535,27 +493,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					continue;
 				}
 
-				// this merely accounts for instancing of *this* component:
-				// int instancCount = comp.getInstanceCount();
+				this.motors.put( sourceInstance.getID(), sourceInstance);
 
-				// this includes *all* the instancing between here and the rocket root.
-				Coordinate[] instanceLocations= compMount.getLocations();
-				
-				sourceInstance.reset();
-				int motorInstanceNumber = 1;
-				//final int instanceCount = instanceLocations.length;
-				for (  Coordinate curMountLocation : instanceLocations ){
-					MotorInstance cloneInstance = sourceInstance.clone();
-					cloneInstance.setID( new MotorInstanceId( compMount.getName(), motorInstanceNumber) );
-					
-					// motor location w/in mount: parent.refpoint -> motor.refpoint 
-					Coordinate curMotorOffset = cloneInstance.getOffset();
-					cloneInstance.setPosition( curMountLocation.add(curMotorOffset) );
-					this.motors.put( cloneInstance.getID(), cloneInstance);
-					
-					motorInstanceNumber ++;
-				}
-				 
 			}
 		}
 	}

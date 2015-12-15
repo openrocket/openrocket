@@ -172,8 +172,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		thrust = 0;
 		final double currentTime = status.getSimulationTime() + timestep;
-		Collection<MotorInstance> activeMotorList = status.getConfiguration().getActiveMotors();
-		for (MotorInstance currentMotorInstance : activeMotorList ) {
+		Collection<MotorState> activeMotorList = status.getActiveMotors();
+		for (MotorState currentMotorInstance : activeMotorList ) {
 			// old: transplanted from MotorInstanceConfiguration
 			double instanceTime = currentTime - currentMotorInstance.getIgnitionTime();
 			if (instanceTime >= 0) {

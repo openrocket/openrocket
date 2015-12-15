@@ -3,89 +3,75 @@ package net.sf.openrocket.motor;
 import java.util.EventObject;
 import java.util.List;
 
-import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A single motor configuration.  This includes the selected motor
  * and the ejection charge delay.
  */
-public abstract class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
+public class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
 	
-	// deferred to subclasses
-	//protected MotorMount mount = null;
-	//protected Motor motor = null;
-	
-	protected MotorInstanceId id = null;
+	protected MotorMount mount = null;
+	protected Motor motor = null;
+	protected Coordinate position = Coordinate.ZERO;
 	protected double ejectionDelay = 0.0;
+
+	protected MotorInstanceId id = null;
+
+	protected boolean ignitionOveride = false;
 	protected double ignitionDelay = 0.0;
 	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
-	protected Coordinate position = Coordinate.ZERO;
 	protected double ignitionTime = 0.0;
-	
 	
 	protected int modID = 0;
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	/** Immutable configuration with no motor and zero delay. */
-	public static final MotorInstance EMPTY_INSTANCE = new MotorInstance(){
-		@Override 
-		public boolean equals( Object other ){
-			return (this==other);
-		}
-		
-		@Override
-		public Motor getMotor() {
-			throw new UnsupportedOperationException("Retrieve a motor from an immutable no-motors instance");
-		}
-		
-		@Override
-		public MotorMount getMount() {
-			throw new UnsupportedOperationException("Retrieve a mount from an immutable no-motors instance");
-		}
-		
-		@Override
-		public double getThrust() {
-			throw new UnsupportedOperationException("Trying to get thrust from an empty motor instance.");
-		}
-		
-		@Override
-		public Coordinate getCM() {
-			throw new UnsupportedOperationException("Trying to get Center-of-Mass from an empty motor instance.");
-		}
-		
-		@Override
-		public double getPropellantMass(){
-			throw new UnsupportedOperationException("Trying to get mass from an empty motor instance.");
-		}
-		
-		@Override
-		public double getLongitudinalInertia() {
-			throw new UnsupportedOperationException("Trying to get inertia from an empty motor instance.");
-		}
-		
-		@Override
-		public double getRotationalInertia() {
-			throw new UnsupportedOperationException("Trying to get inertia from an empty motor instance.");
-		}	        
-		
-		@Override
-		public void step(double time, double acceleration, AtmosphericConditions cond) {
-			throw new UnsupportedOperationException("Cannot step an abstract base class");
-		}
-	};
+	public MotorInstance( Motor motor ) {
+		this();
+		this.motor = motor;
+	}
 	
-	protected MotorInstance() {
+	public MotorInstance() {
 		this.id = MotorInstanceId.EMPTY_ID;
 		ejectionDelay = 0.0;
-		ignitionEvent = IgnitionEvent.NEVER;
+		ignitionEvent = IgnitionEvent.LAUNCH;
 		ignitionDelay = 0.0;
 		modID++;
+	}
+	
+	public MotorState getSimulationState() {
+		MotorState state = motor.getNewInstance();
+		if( ignitionOveride ) {
+			state.setIgnitionTime( this.ignitionTime );
+			state.setIgnitionEvent( this.ignitionEvent );
+			state.setIgnitionDelay( this.ignitionDelay );
+			state.setEjectionDelay( this.ejectionDelay );
+		} else {
+			MotorInstance defInstance = mount.getDefaultMotorInstance();
+			state.setIgnitionTime( defInstance.ignitionTime );
+			state.setIgnitionEvent( defInstance.ignitionEvent );
+			state.setIgnitionDelay( defInstance.ignitionDelay );
+			state.setEjectionDelay( defInstance.ejectionDelay );
+		}
+		state.setMount( mount );
+		state.setId( id );
+		return state;
+	}
+	
+	public boolean hasIgnitionOverride() {
+		return ignitionOveride;
+	}
+	
+	public boolean isActive() {
+		return motor != null;
 	}
 	
 	public MotorInstanceId getID() {
@@ -96,22 +82,30 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 		this.id = _id;
 	}
 	
+	public void setMotor(Motor motor){
+		this.motor = motor;
+		fireChangeEvent();
+	}
+	
+	public Motor getMotor() {
+		return motor;
+	}
+	
+	public MotorMount getMount() {
+		return mount;
+	}
+	
+	public void setMount(MotorMount mount) {
+		this.mount = mount;
+	}
+	
 	public double getEjectionDelay() {
 		return this.ejectionDelay;
 	}
 	
-	public void setMotor(Motor motor){}
-		
-	public abstract Motor getMotor();
-	
-	public void setEjectionDelay(double delay) {}
-	
-	public abstract MotorMount getMount();
-	
-	public void setMount(final MotorMount _mount){}
-	
-	public Coordinate getOffset(){
-		return this.position;
+	public void setEjectionDelay(double delay) {
+		this.ejectionDelay = delay;
+		fireChangeEvent();
 	}
 	
 	public Coordinate getPosition() {
@@ -121,15 +115,22 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	public void setPosition(Coordinate _position) {
 		this.position = _position;
 		modID++;
+		fireChangeEvent();
 	}
-		
+	
 	public double getIgnitionTime() {
 		return this.ignitionTime;
+	}
+
+	public void useDefaultIgnition() {
+		this.ignitionOveride = false;
 	}
 	
 	public void setIgnitionTime(double _time) {
 		this.ignitionTime = _time;
+		this.ignitionOveride = true;
 		modID++;
+		fireChangeEvent();
 	}
 	
 	public double getIgnitionDelay() {
@@ -138,6 +139,8 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	
 	public void setIgnitionDelay(final double _delay) {
 		this.ignitionDelay = _delay;
+		this.ignitionOveride = true;
+		fireChangeEvent();
 	}
 	
 	public IgnitionEvent getIgnitionEvent() {
@@ -146,66 +149,47 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	
 	public void setIgnitionEvent(final IgnitionEvent _event) {
 		this.ignitionEvent = _event;
+		this.ignitionOveride = true;
+		fireChangeEvent();
 	}
 	
-	/**
-	 * Step the motor instance forward in time.
-	 * 
-	 * @param time			the time to step to, from motor ignition.
-	 * @param acceleration	the average acceleration during the step.
-	 * @param cond			the average atmospheric conditions during the step.
-	 */
-	public abstract void step(double newTime, double acceleration, AtmosphericConditions cond);
-	
-	
-	/**
-	 * Return the time to which this motor has been stepped.
-	 * @return	the current step time.
-	 */
-	public double getTime() {
-		return 0;
+	public Coordinate getOffset( ){
+		if( null == mount ){
+			return Coordinate.NaN;
+		}else{
+			RocketComponent comp = (RocketComponent) mount;
+			double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
+			return new Coordinate(delta_x, 0, 0);
+		}
 	}
 	
-	/**
-	 * Return the average thrust during the last step.
-	 */
-	public abstract double getThrust();
-	
-	/**
-	 * Return the average CG location during the last step.
-	 */
-	public Coordinate getCG() {	
-		return this.getCM(); 
+	public double getLongitudinalInertia() {
+		if ( motor != null ) {
+			double unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(motor.getDiameter() / 2, motor.getLength());
+			return unitLongitudinalInertia * Coordinate.ZERO.weight;
+		}
+		return 0.0;
 	}
 	
-	public abstract Coordinate getCM();
-	
-	public abstract double getPropellantMass();
-	
-	/**
-	 * Return the average longitudinal moment of inertia during the last step.
-	 * This is the actual inertia, not the unit inertia!
-	 */
-	public abstract double getLongitudinalInertia();
-	
-	/**
-	 * Return the average rotational moment of inertia during the last step.
-	 * This is the actual inertia, not the unit inertia!
-	 */
-	public abstract double getRotationalInertia();
-	
-	/**
-	 * Return whether this motor still produces thrust.  If this method returns false
-	 * the motor has burnt out, and will not produce any significant thrust anymore.
-	 */
-	public boolean isActive() {
-		return false;
-	}
-	
-	public boolean isEmpty(){
-		return true;
+	public double getRotationalInertia() {
+		if ( motor != null ) {
+			double unitRotationalInertia = Inertia.filledCylinderRotational(motor.getDiameter() / 2);
+			return unitRotationalInertia * Coordinate.ZERO.weight;
+		}
+		return 0.0;
 	}
 
+	public double getPropellantMass(){
+		if ( motor != null ) {
+			return (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+		}
+		return 0.0;
+	}
+
+	public boolean isEmpty(){
+		return motor == null;
+	}
+	
 	public boolean hasMotor(){
 		return ! this.isEmpty();
 	}
@@ -222,7 +206,7 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 		}
 		return false;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return this.id.hashCode();
@@ -233,8 +217,16 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 	 * identical to this instance and can be used independently from this one.
 	 */
 	@Override
-	public MotorInstance clone( ){
-		return EMPTY_INSTANCE;
+	public MotorInstance clone( ) {
+		MotorInstance clone = new MotorInstance();
+		clone.motor = this.motor;
+		clone.mount = this.mount;
+		clone.ejectionDelay = this.ejectionDelay;
+		clone.ignitionOveride = this.ignitionOveride;
+		clone.ignitionDelay = this.ignitionDelay;
+		clone.ignitionEvent = this.ignitionEvent;
+		clone.ignitionTime = this.ignitionTime;
+		return clone;
 	}
 	
 	@Override
@@ -255,19 +247,8 @@ public abstract class MotorInstance implements FlightConfigurableParameter<Motor
 		}
 	}
 	
-	public String toDebug(){ return toString();}
-
-	@Override
-	public String toString(){
-		return MotorInstanceId.EMPTY_ID.getComponentId();
-	}
-	
 	public int getModID() {
 		return modID;
-	}
-
-	
-	public void reset() {
 	}
 	
 }
