@@ -72,9 +72,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 				bodyTube.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
 			}
 			if (RocksimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
-				// silently ignore.  This information is redundant now.
-				// TODO: remove entirely
-				//bodyTube.setMotorMount("1".equals(content));
+				bodyTube.setMotorMount("1".equals(content));
 			}
 			if (RocksimCommonConstants.ENGINE_OVERHANG.equals(element)) {
 				bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -102,6 +100,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 	 *
 	 * @return BULK
 	 */
+	@Override
 	public Material.Type getMaterialType() {
 		return Material.Type.BULK;
 	}
