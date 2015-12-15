@@ -7,9 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
@@ -20,7 +17,7 @@ import net.sf.openrocket.util.Utils;
  *
  * @param <E>	the parameter type
  */
-public class ParameterSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
+public class FlightConfigurableParameterSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
 	
 	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
 	protected final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
@@ -38,7 +35,7 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public ParameterSet(RocketComponent component, int eventType, E _defaultValue) {
+	public FlightConfigurableParameterSet(RocketComponent component, int eventType, E _defaultValue) {
 		this.component = component;
 		this.eventType = eventType;
 		
@@ -54,7 +51,7 @@ public class ParameterSet<E extends FlightConfigurableParameter<E>> implements F
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public ParameterSet(ParameterSet<E> configSet, RocketComponent component, int eventType) {
+	public FlightConfigurableParameterSet(FlightConfigurableParameterSet<E> configSet, RocketComponent component, int eventType) {
 		this.component = component;
 		this.eventType = eventType;
 		

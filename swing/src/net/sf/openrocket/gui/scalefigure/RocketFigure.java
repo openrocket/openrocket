@@ -26,7 +26,7 @@ import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -338,7 +338,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 
 		FlightConfiguration config = rocket.getDefaultConfiguration();
-		for( MotorInstance curInstance : config.getActiveMotors()){
+		for( MotorConfiguration curInstance : config.getActiveMotors()){
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();

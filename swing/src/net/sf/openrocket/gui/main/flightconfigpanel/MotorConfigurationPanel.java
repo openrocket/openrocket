@@ -26,7 +26,7 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -215,7 +215,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
-			MotorInstance curInstance = new MotorInstance(mtr);
+			MotorConfiguration curInstance = new MotorConfiguration(mtr);
 			curInstance.setEjectionDelay(d);
 			curInstance.setIgnitionEvent( IgnitionEvent.NEVER);
 			curMount.setMotorInstance( fcid, curInstance);
@@ -260,7 +260,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         if ( (null == fcid )||( null == curMount )){
             return;
         }
-        MotorInstance curInstance = curMount.getMotorInstance(fcid);
+        MotorConfiguration curInstance = curMount.getMotorInstance(fcid);
 		
         curInstance.useDefaultIgnition();
 
@@ -276,7 +276,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
 			
-			MotorInstance curMotor = mount.getMotorInstance( configId);
+			MotorConfiguration curMotor = mount.getMotorInstance( configId);
 			String motorString = getMotorSpecification( curMotor );
 			
 			JLabel motorDescriptionLabel = new JLabel(motorString);
@@ -288,7 +288,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return label;
 		}
 
-		private String getMotorSpecification(MotorInstance curMotorInstance ) {
+		private String getMotorSpecification(MotorConfiguration curMotorInstance ) {
 			if( curMotorInstance.isEmpty()){
 				return NONE;
 			}
@@ -308,8 +308,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		private JLabel getIgnitionEventString(FlightConfigurationID id, MotorMount mount) {
-			MotorInstance defInstance = mount.getDefaultMotorInstance();
-			MotorInstance curInstance = mount.getMotorInstance(id);
+			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
+			MotorConfiguration curInstance = mount.getMotorInstance(id);
 			
 			IgnitionEvent ignitionEvent = curInstance.getIgnitionEvent();
 			Double ignitionDelay = curInstance.getIgnitionDelay();

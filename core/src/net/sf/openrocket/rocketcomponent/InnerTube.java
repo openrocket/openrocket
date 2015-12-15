@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.motor.MotorSet;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -35,7 +35,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	private double overhang = 0;
 	private boolean isActingMount;
-	private MotorSet motors;
+	private MotorConfigurationSet motors;
 	
 	/**
 	 * Main constructor.
@@ -46,7 +46,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 		
-		motors = new MotorSet(this);
+		motors = new MotorConfigurationSet(this);
 	}
 	
 	
@@ -272,17 +272,17 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	////////////////  Motor mount  /////////////////
 
 	@Override
-	public MotorInstance getDefaultMotorInstance(){
+	public MotorConfiguration getDefaultMotorInstance(){
 		return this.motors.getDefault();
 	}
 		
 	@Override
-	public MotorInstance getMotorInstance( final FlightConfigurationID fcid){
+	public MotorConfiguration getMotorInstance( final FlightConfigurationID fcid){
 		return this.motors.get(fcid);
 	}
 
 	@Override 
-	public void setMotorInstance(final FlightConfigurationID fcid, final MotorInstance newMotorInstance){
+	public void setMotorInstance(final FlightConfigurationID fcid, final MotorConfiguration newMotorInstance){
 		if((null == newMotorInstance)){
 			this.motors.set( fcid, null);
 		}else{
@@ -302,7 +302,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
-	public Iterator<MotorInstance> getMotorIterator(){
+	public Iterator<MotorConfiguration> getMotorIterator(){
 		return this.motors.iterator();
 	}
 	
@@ -374,7 +374,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 			new IllegalArgumentException(" copyWithOriginalID should produce different motorSet instances! ");
 		}
 		
-		copy.motors = new MotorSet( this.motors, copy );
+		copy.motors = new MotorConfigurationSet( this.motors, copy );
 		
 		return copy;
 	}
@@ -414,7 +414,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		Coordinate[] absCoords = this.getLocations();
 		FlightConfigurationID curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
 		final int intanceCount = this.getInstanceCount();
-		MotorInstance curInstance = this.motors.get(curId);
+		MotorConfiguration curInstance = this.motors.get(curId);
 		if( curInstance.isEmpty() ){
 			// print just the tube locations
 			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");

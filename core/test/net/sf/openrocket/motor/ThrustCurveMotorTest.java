@@ -42,7 +42,7 @@ public class ThrustCurveMotorTest {
 	
 	@Test
 	public void testInstance() {
-		ThrustCurveMotorInstance instance = motor.getNewInstance();
+		ThrustCurveMotorState instance = motor.getNewInstance();
 		
 		verify(instance, 0, 0.05, 0.02);
 		instance.step(0.0, 0, null);
@@ -64,7 +64,7 @@ public class ThrustCurveMotorTest {
 		verify(instance, 0, 0.03, 0.03);
 	}
 	
-	private void verify(ThrustCurveMotorInstance instance, double thrust, double mass, double cgx) {
+	private void verify(ThrustCurveMotorState instance, double thrust, double mass, double cgx) {
 		assertEquals("Testing thrust", thrust, instance.getThrust(), EPS);
 		assertEquals("Testing mass", mass, instance.getCG().weight, EPS);
 		assertEquals("Testing cg x", cgx, instance.getCG().x, EPS);

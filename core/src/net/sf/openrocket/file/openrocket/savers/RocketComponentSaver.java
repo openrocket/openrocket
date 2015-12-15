@@ -11,7 +11,7 @@ import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.Clusterable;
@@ -179,7 +179,7 @@ public class RocketComponentSaver {
 		
 		List<String> elements = new ArrayList<String>();
 		
-		MotorInstance defaultInstance = mount.getDefaultMotorInstance();
+		MotorConfiguration defaultInstance = mount.getDefaultMotorInstance();
 		
 		elements.add("<motormount>");
 		
@@ -192,7 +192,7 @@ public class RocketComponentSaver {
 		
 		for( FlightConfigurationID fcid : rkt.getSortedConfigurationIDs()){
 			
-			MotorInstance motorInstance = mount.getMotorInstance(fcid);
+			MotorConfiguration motorInstance = mount.getMotorInstance(fcid);
 			// Nothing is stored if no motor loaded
 			if( motorInstance.isEmpty()){
 				continue;

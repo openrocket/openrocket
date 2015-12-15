@@ -6,15 +6,13 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.ChangeSource;
@@ -70,7 +68,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	/* Cached data */
 	final protected HashMap<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
-	protected final HashMap<MotorInstanceId, MotorInstance> motors = new HashMap<MotorInstanceId, MotorInstance>();
+	protected final HashMap<MotorInstanceId, MotorConfiguration> motors = new HashMap<MotorInstanceId, MotorConfiguration>();
 	
 	private int boundsModID = -1;
 	private ArrayList<Coordinate> cachedBounds = new ArrayList<Coordinate>();
@@ -364,7 +362,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for ( RocketComponent comp : getActiveComponents() ){
 			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){ 
 				MotorMount mount = (MotorMount)comp;
-				MotorInstance inst = mount.getMotorInstance( fcid);
+				MotorConfiguration inst = mount.getMotorInstance( fcid);
 				
 				if( first ){
 					first = false;
@@ -433,7 +431,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param motor			the motor instance.
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
-	public void addMotor(MotorInstance motor) {
+	public void addMotor(MotorConfiguration motor) {
 		if( motor.isEmpty() ){
 			throw new IllegalArgumentException("MotorInstance is empty.");
 		}
@@ -447,7 +445,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		modID++;
 	}
 	
-	public Collection<MotorInstance> getAllMotors() {
+	public Collection<MotorConfiguration> getAllMotors() {
 		return motors.values();
 	}
 
@@ -463,7 +461,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return motors.keySet();
 	}
 	
-	public MotorInstance getMotorInstance(MotorInstanceId id) {
+	public MotorConfiguration getMotorInstance(MotorInstanceId id) {
 		return motors.get(id);
 	}
 	
@@ -471,9 +469,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return (0 < motors.size());
 	}
 	
-	public Collection<MotorInstance> getActiveMotors() {
-		List<MotorInstance> activeList = new ArrayList<MotorInstance>();
-		for( MotorInstance inst : this.motors.values() ){
+	public Collection<MotorConfiguration> getActiveMotors() {
+		List<MotorConfiguration> activeList = new ArrayList<MotorConfiguration>();
+		for( MotorConfiguration inst : this.motors.values() ){
 			if( inst.isActive() ){
 				activeList.add( inst );
 			}
@@ -488,7 +486,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for ( RocketComponent compMount : getActiveComponents() ){
 			if (( compMount instanceof MotorMount )&&( ((MotorMount)compMount).isMotorMount())){
 				MotorMount mount = (MotorMount)compMount;
-				MotorInstance sourceInstance = mount.getMotorInstance( fcid);
+				MotorConfiguration sourceInstance = mount.getMotorInstance( fcid);
 				if( sourceInstance.isEmpty()){
 					continue;
 				}
@@ -565,7 +563,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for( StageFlags flags : this.stages.values()){
 			clone.stages.put( flags.stage.getStageNumber(), flags.clone());
         }
-		for( MotorInstance mi : this.motors.values()){
+		for( MotorConfiguration mi : this.motors.values()){
 			clone.motors.put( mi.getID(), mi.clone());
         }
 		clone.cachedBounds = this.cachedBounds.clone();

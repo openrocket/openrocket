@@ -6,7 +6,7 @@ package net.sf.openrocket.rocketcomponent;
  *
  * @param <E>	the parameter type
  */
-public class FlightConfigurationSet extends ParameterSet<FlightConfiguration> {
+public class FlightConfigurationSet extends FlightConfigurableParameterSet<FlightConfiguration> {
 	
 	/**
 	 * Construct a FlightConfiguration that has no overrides.

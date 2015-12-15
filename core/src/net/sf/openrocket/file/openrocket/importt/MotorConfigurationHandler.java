@@ -12,7 +12,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
 class MotorConfigurationHandler extends AbstractElementHandler {
@@ -64,7 +64,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		
 		if ("true".equals(attributes.remove("default"))) {
 			// associate this configuration with both this FCID and the default. 
-			ParameterSet<FlightConfiguration> fcs = rocket.getConfigSet();
+			FlightConfigurableParameterSet<FlightConfiguration> fcs = rocket.getConfigSet();
 			FlightConfiguration fc = fcs.get(fcid);
 			fcs.setDefault(fc);
 		}

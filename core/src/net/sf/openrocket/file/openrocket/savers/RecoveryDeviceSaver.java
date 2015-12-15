@@ -7,7 +7,7 @@ import java.util.Locale;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.ParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -37,7 +37,7 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		//dev.getDeploymentConfigurations().printDebug();
 		// DEBUG 
 		
-		ParameterSet<FlightConfiguration> configList = rocket.getConfigSet(); 
+		FlightConfigurableParameterSet<FlightConfiguration> configList = rocket.getConfigSet(); 
 		for (FlightConfigurationID fcid : configList.getSortedConfigurationIDs()) {
 			//System.err.println("checking FlightConfiguration:"+fcid.getShortKey()+ " save?");
 			

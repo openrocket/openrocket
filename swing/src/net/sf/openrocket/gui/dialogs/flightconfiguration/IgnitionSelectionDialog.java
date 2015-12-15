@@ -22,7 +22,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -39,7 +39,7 @@ public class IgnitionSelectionDialog extends JDialog {
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private MotorMount curMount;
-	private MotorInstance curMotorInstance;
+	private MotorConfiguration curMotorInstance;
 	
 	private IgnitionEvent startIgnitionEvent;
 	private double startIgnitionDelay;
@@ -106,15 +106,15 @@ public class IgnitionSelectionDialog extends JDialog {
 					IgnitionEvent cie = curMotorInstance.getIgnitionEvent();
 					
 					// update the default instance
-					final MotorInstance defaultMotorInstance = curMount.getDefaultMotorInstance();
+					final MotorConfiguration defaultMotorInstance = curMount.getDefaultMotorInstance();
 					defaultMotorInstance.setIgnitionDelay( cid);
 					defaultMotorInstance.setIgnitionEvent( cie);
 					
 					// and change all remaining configs
 					// this seems like odd behavior to me, but it matches the text on the UI dialog popup. -teyrana (equipoise@gmail.com) 
-					Iterator<MotorInstance> iter = curMount.getMotorIterator();
+					Iterator<MotorConfiguration> iter = curMount.getMotorIterator();
 					while( iter.hasNext() ){
-						MotorInstance next = iter.next();
+						MotorConfiguration next = iter.next();
 						next.setIgnitionDelay( cid);
 						next.setIgnitionEvent( cie);
 					}

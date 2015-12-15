@@ -33,7 +33,7 @@ import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -293,9 +293,9 @@ public class SimulationRunDialog extends JDialog {
 			
 			
 			FlightConfiguration config = simulation.getRocket().getDefaultConfiguration();
-			Collection<MotorInstance> activeMotors = config.getActiveMotors();
+			Collection<MotorConfiguration> activeMotors = config.getActiveMotors();
 			
-			for (MotorInstance curInstance : activeMotors) {
+			for (MotorConfiguration curInstance : activeMotors) {
 				if (curInstance.getIgnitionEvent() == IgnitionEvent.LAUNCH)
 					launchBurn = MathUtil.max(launchBurn, curInstance.getMotor().getBurnTimeEstimate());
 				else

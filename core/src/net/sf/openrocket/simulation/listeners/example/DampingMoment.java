@@ -6,7 +6,7 @@ import java.util.Map;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -69,7 +69,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		// find the maximum distance from nose to nozzle. 
 		double nozzleDistance = 0;
 		FlightConfiguration config = status.getConfiguration();
-		for (MotorInstance inst : config.getActiveMotors()) {
+		for (MotorConfiguration inst : config.getActiveMotors()) {
 			Coordinate position = inst.getPosition();
 			
 			double x = position.x + inst.getMotor().getLength();

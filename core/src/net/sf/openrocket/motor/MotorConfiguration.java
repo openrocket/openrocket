@@ -17,7 +17,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * A single motor configuration.  This includes the selected motor
  * and the ejection charge delay.
  */
-public class MotorInstance implements FlightConfigurableParameter<MotorInstance> {
+public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
 	protected MotorMount mount = null;
 	protected Motor motor = null;
@@ -34,12 +34,12 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	protected int modID = 0;
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	public MotorInstance( Motor motor ) {
+	public MotorConfiguration( Motor motor ) {
 		this();
 		this.motor = motor;
 	}
 	
-	public MotorInstance() {
+	public MotorConfiguration() {
 		this.id = MotorInstanceId.EMPTY_ID;
 		ejectionDelay = 0.0;
 		ignitionEvent = IgnitionEvent.LAUNCH;
@@ -55,7 +55,7 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 			state.setIgnitionDelay( this.ignitionDelay );
 			state.setEjectionDelay( this.ejectionDelay );
 		} else {
-			MotorInstance defInstance = mount.getDefaultMotorInstance();
+			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
 			state.setIgnitionTime( defInstance.ignitionTime );
 			state.setIgnitionEvent( defInstance.ignitionEvent );
 			state.setIgnitionDelay( defInstance.ignitionDelay );
@@ -198,8 +198,8 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	public boolean equals( Object other ){
 		if( null == other ){
 			return false;
-		}else if( other instanceof MotorInstance ){
-			MotorInstance omi = (MotorInstance)other;
+		}else if( other instanceof MotorConfiguration ){
+			MotorConfiguration omi = (MotorConfiguration)other;
 			if( this.id.equals( omi.id)){
 				return true;
 			}
@@ -217,8 +217,8 @@ public class MotorInstance implements FlightConfigurableParameter<MotorInstance>
 	 * identical to this instance and can be used independently from this one.
 	 */
 	@Override
-	public MotorInstance clone( ) {
-		MotorInstance clone = new MotorInstance();
+	public MotorConfiguration clone( ) {
+		MotorConfiguration clone = new MotorConfiguration();
 		clone.motor = this.motor;
 		clone.mount = this.mount;
 		clone.ejectionDelay = this.ejectionDelay;

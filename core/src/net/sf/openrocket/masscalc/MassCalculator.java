@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Instanceable;
@@ -143,7 +143,7 @@ public class MassCalculator implements Monitorable {
 		// ^^^^ DEVEL ^^^^
 
 //		int motorCount = 0;
-		for (MotorInstance inst : config.getActiveMotors() ) {
+		for (MotorConfiguration inst : config.getActiveMotors() ) {
 			//ThrustCurveMotor motor = (ThrustCurveMotor) inst.getMotor();
 			
 			Coordinate position = inst.getPosition();
@@ -254,7 +254,7 @@ public class MassCalculator implements Monitorable {
 		//throw new BugException("getPropellantMass is not yet implemented.... ");
 		// add up the masses of all motors in the rocket
 		if ( MassCalcType.NO_MOTORS != calcType ){
-			for (MotorInstance curInstance : configuration.getActiveMotors()) {
+			for (MotorConfiguration curInstance : configuration.getActiveMotors()) {
 				mass = mass + curInstance.getPropellantMass();
 				mass = curInstance.getMotor().getLaunchCG().weight - curInstance.getMotor().getEmptyCG().weight;
 			}

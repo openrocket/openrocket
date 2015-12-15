@@ -54,7 +54,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -319,7 +319,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		motorFilterPanel.setMotorMount(mountToEdit);
 		
-		MotorInstance curMotorInstance = mountToEdit.getMotorInstance(_fcid);
+		MotorConfiguration curMotorInstance = mountToEdit.getMotorInstance(_fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;

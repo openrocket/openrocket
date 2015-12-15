@@ -12,12 +12,12 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
-	protected ParameterSet<StageSeparationConfiguration> separations;
+	protected FlightConfigurableParameterSet<StageSeparationConfiguration> separations;
 	
 	protected int stageNumber;
 	
 	public AxialStage(){
-		this.separations = new ParameterSet<StageSeparationConfiguration>(
+		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(
 				this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
 		this.stageNumber = 0;
@@ -34,7 +34,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return trans.get("Stage.Stage");
 	}
 	
-	public ParameterSet<StageSeparationConfiguration> getSeparationConfigurations() {
+	public FlightConfigurableParameterSet<StageSeparationConfiguration> getSeparationConfigurations() {
 		return separations;
 	}
 	
@@ -80,7 +80,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		AxialStage copy = (AxialStage) super.copyWithOriginalID();
-		copy.separations = new ParameterSet<StageSeparationConfiguration>(separations,
+		copy.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(separations,
 				copy, ComponentChangeEvent.EVENT_CHANGE);
 		return copy;
 	}
