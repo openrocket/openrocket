@@ -41,13 +41,11 @@ public class LaunchLugTest extends BaseTestCase {
 		
 		BodyTube body= (BodyTube)rocket.getChild(0).getChild(1);
 		LaunchLug lug = (LaunchLug)rocket.getChild(0).getChild(1).getChild(1);
-		double startAngle = 90;
+		double startAngle = Math.PI/2;
 		lug.setAngularOffset( startAngle );
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
-		System.err.println("..created lug: at : " + lug.getInstanceOffsets()[0]); 
-		System.err.println("               angle: "+startAngle/Math.PI*180+" deg "); 
-		
+
 		//String treeDump = rocket.toDebugTree();
 		//System.err.println(treeDump);
 		
