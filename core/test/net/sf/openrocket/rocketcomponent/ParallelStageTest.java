@@ -11,7 +11,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-public class BoosterSetTest extends BaseTestCase {
+public class ParallelStageTest extends BaseTestCase {
 	
 	// tolerance for compared double test results
 	protected final double EPSILON = 0.00001;
@@ -50,6 +50,8 @@ public class BoosterSetTest extends BaseTestCase {
 		FinSet coreFins = new TrapezoidFinSet(4, 4, 2, 2, 4);
 		coreFins.setName("Core Fins");
 		coreLowerBody.addChild(coreFins);
+		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
