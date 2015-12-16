@@ -67,7 +67,7 @@ public class Rocket extends RocketComponent {
 	
 	
 	// Flight configuration list
-	private FlightConfigurationSet configSet;
+	private FlightConfigurableParameterSet<FlightConfiguration> configSet;
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -85,7 +85,7 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		
 		FlightConfiguration defaultConfiguration = new FlightConfiguration( this, null);
-		this.configSet = new FlightConfigurationSet(this, ComponentChangeEvent.CONFIG_CHANGE, defaultConfiguration);		
+		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>(this, ComponentChangeEvent.CONFIG_CHANGE, defaultConfiguration);		
 	}
 	
 	public String getDesigner() {
@@ -301,7 +301,7 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.configSet = new FlightConfigurationSet(
+		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>(
 				this.configSet, copy, ComponentChangeEvent.CONFIG_CHANGE);
 		copy.resetListeners();
 		
@@ -339,7 +339,7 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.configSet = new FlightConfigurationSet( r.configSet, this, ComponentChangeEvent.CONFIG_CHANGE);
+		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet, this, ComponentChangeEvent.CONFIG_CHANGE);
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();
