@@ -58,7 +58,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -141,7 +141,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	// The functional ID of the rocket that was simulated
 	private int flightDataFunctionalID = -1;
-		private FlightConfigurationID flightDataMotorID = null;
+		private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
@@ -316,7 +316,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				Object source = ae.getSource();
 				if( source instanceof JComboBox ){
 					@SuppressWarnings("unchecked")
-					JComboBox<FlightConfigurationID> box = (JComboBox<FlightConfigurationID>) source;
+					JComboBox<FlightConfigurationId> box = (JComboBox<FlightConfigurationId>) source;
 					FlightConfiguration newConfig = (FlightConfiguration)box.getSelectedItem();
 					document.getRocket().getConfigSet().setDefault( newConfig);
 					updateExtras();

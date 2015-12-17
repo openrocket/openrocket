@@ -10,7 +10,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;

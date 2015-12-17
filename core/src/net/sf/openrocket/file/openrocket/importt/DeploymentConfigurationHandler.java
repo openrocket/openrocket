@@ -12,7 +12,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 
 class DeploymentConfigurationHandler extends AbstractElementHandler {
@@ -73,7 +73,7 @@ class DeploymentConfigurationHandler extends AbstractElementHandler {
 	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
-		FlightConfigurationID configId = new FlightConfigurationID(attributes.get("configid"));
+		FlightConfigurationId configId = new FlightConfigurationId(attributes.get("configid"));
 		DeploymentConfiguration def = recoveryDevice.getDeploymentConfigurations().getDefault();
 		recoveryDevice.getDeploymentConfigurations().set(configId, getConfiguration(def));
 	}

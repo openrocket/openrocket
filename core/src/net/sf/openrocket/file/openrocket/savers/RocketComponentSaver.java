@@ -16,7 +16,7 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -190,7 +190,7 @@ public class RocketComponentSaver {
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for( FlightConfigurationID fcid : rkt.getSortedConfigurationIDs()){
+		for( FlightConfigurationId fcid : rkt.getSortedConfigurationIDs()){
 			
 			MotorConfiguration motorInstance = mount.getMotorInstance(fcid);
 			// Nothing is stored if no motor loaded

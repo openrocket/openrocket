@@ -22,7 +22,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
@@ -64,8 +64,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected abstract void updateButtonState();
 
 	protected final void synchronizeConfigurationSelection() {
-		FlightConfigurationID defaultFCID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		FlightConfigurationID selectedFCID = getSelectedConfigurationId();
+		FlightConfigurationId defaultFCID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
 		if ( selectedFCID == null ) {
 			// need to unselect
@@ -78,9 +78,9 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				col = (table.getColumnCount() > 1) ? 1 : 0;
 			}
 			
-			java.util.List<FlightConfigurationID> ids = rocket.getSortedConfigurationIDs();
+			java.util.List<FlightConfigurationId> ids = rocket.getSortedConfigurationIDs();
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
-				FlightConfigurationID rowFCID = ids.get(rowNum );
+				FlightConfigurationId rowFCID = ids.get(rowNum );
 				if ( rowFCID.equals(selectedFCID) ) {
 					table.changeSelection(rowNum, col, true, false);
 					break;
@@ -146,7 +146,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return null;
 	}
 
-	protected FlightConfigurationID  getSelectedConfigurationId() {
+	protected FlightConfigurationId  getSelectedConfigurationId() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
 		if ( row < 0 || col < 0 || row >= table.getRowCount() || col >= table.getColumnCount() ) {
@@ -154,13 +154,13 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
-			Pair<FlightConfigurationID,T> selectedComponent = (Pair<FlightConfigurationID,T>) tableValue;
-			FlightConfigurationID fcid = selectedComponent.getU();
+			Pair<FlightConfigurationId,T> selectedComponent = (Pair<FlightConfigurationId,T>) tableValue;
+			FlightConfigurationId fcid = selectedComponent.getU();
 			return fcid;
-		} else if ( tableValue instanceof FlightConfigurationID ){
-			return (FlightConfigurationID) tableValue;
+		} else if ( tableValue instanceof FlightConfigurationId ){
+			return (FlightConfigurationId) tableValue;
 		}
-		return FlightConfigurationID.ERROR_CONFIGURATION_FCID;
+		return FlightConfigurationId.ERROR_CONFIGURATION_FCID;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
@@ -174,17 +174,17 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
-				label.setText(descriptor.format(rocket, (FlightConfigurationID) value));
+				label.setText(descriptor.format(rocket, (FlightConfigurationId) value));
 				regular(label);
 				setSelected(label, table, isSelected, hasFocus);
 				return label;
 			}
 			default: {
 				@SuppressWarnings("unchecked")
-				Pair<FlightConfigurationID, T> v = (Pair<FlightConfigurationID, T>) value;
+				Pair<FlightConfigurationId, T> v = (Pair<FlightConfigurationId, T>) value;
 				
 				if(v!=null){
-					FlightConfigurationID fcid = v.getU();
+					FlightConfigurationId fcid = v.getU();
 					T component = v.getV();
 					label = format(component, fcid, label );
 				}
@@ -224,7 +224,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			label.setForeground(Color.BLACK);
 		}
 
-		protected abstract JLabel format( T component, FlightConfigurationID configId, JLabel label );
+		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );
 
 	}
 

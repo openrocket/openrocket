@@ -534,7 +534,7 @@ public class Rocket extends RocketComponent {
 		return this.configSet.getDefault();
 	}
 	
-	public FlightConfiguration createFlightConfiguration( final FlightConfigurationID fcid) {
+	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
 		if( fcid.hasError() ){
 			throw new NullPointerException("Attempted to create a flightConfiguration from an error key!");
@@ -558,7 +558,7 @@ public class Rocket extends RocketComponent {
 		return this.configSet;
 	}
 	
-	public List<FlightConfigurationID> getSortedConfigurationIDs(){
+	public List<FlightConfigurationId> getSortedConfigurationIDs(){
 		return configSet.getSortedConfigurationIDs();
 	}
 
@@ -569,7 +569,7 @@ public class Rocket extends RocketComponent {
 	 *
 	 * @param id   the flight configuration ID to remove
 	 */
-	public void removeFlightConfigurationID(FlightConfigurationID fcid) {
+	public void removeFlightConfigurationID(FlightConfigurationId fcid) {
 		checkState();
 		if( fcid.hasError() ){
 			return;
@@ -587,7 +587,7 @@ public class Rocket extends RocketComponent {
 	 * @param id	the configuration ID.
 	 * @return		whether a motor configuration with that ID exists.
 	 */
-	public boolean containsFlightConfigurationID(FlightConfigurationID id) {
+	public boolean containsFlightConfigurationID(FlightConfigurationId id) {
 		checkState();
 		if( id.hasError() ){
 			return false;
@@ -602,7 +602,7 @@ public class Rocket extends RocketComponent {
 	 * @param id	the FlightConfigurationID containing the motor (may be invalid).
 	 * @return		whether any motors are defined for it.
 	 */
-	public boolean hasMotors(FlightConfigurationID fcid) {
+	public boolean hasMotors(FlightConfigurationId fcid) {
 		checkState();
 		if( fcid.hasError() ){
 			return false;
@@ -631,7 +631,7 @@ public class Rocket extends RocketComponent {
 	 * @param id   the flight configuration id
 	 * @return	   a FlightConfiguration instance 
 	 */
-	public FlightConfiguration getFlightConfiguration(final FlightConfigurationID fcid) {
+	public FlightConfiguration getFlightConfiguration(final FlightConfigurationId fcid) {
 		checkState();
 		return this.createFlightConfiguration(fcid);
 	}
@@ -648,7 +648,7 @@ public class Rocket extends RocketComponent {
 	}
 
 	
-	public void setDefaultConfiguration(final FlightConfigurationID fcid) {
+	public void setDefaultConfiguration(final FlightConfigurationId fcid) {
 		checkState();
 		
 		if( fcid.hasError() ){
@@ -667,7 +667,7 @@ public class Rocket extends RocketComponent {
 	 * @param id	the flight configuration id
 	 * @param name	the name for the flight configuration
 	 */
-	public void setFlightConfiguration(final FlightConfigurationID fcid, FlightConfiguration newConfig) {
+	public void setFlightConfiguration(final FlightConfigurationId fcid, FlightConfiguration newConfig) {
 		checkState();
 		if( fcid.hasError() ){
 			log.error("attempt to set a 'fcid = config' with a error fcid.  Ignored.", new IllegalArgumentException("error id:"+fcid));

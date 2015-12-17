@@ -17,7 +17,7 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -123,7 +123,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void addConfiguration() {
-		FlightConfigurationID newFCID = new FlightConfigurationID();
+		FlightConfigurationId newFCID = new FlightConfigurationId();
 		FlightConfiguration newConfig = new FlightConfiguration( rocket, newFCID );
 		
 		rocket.setFlightConfiguration(newFCID, newConfig);
@@ -137,8 +137,8 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private void copyConfiguration() {
 		FlightConfiguration oldConfig = rocket.getDefaultConfiguration();
 		FlightConfiguration newConfig = oldConfig.clone();
-		FlightConfigurationID oldId = oldConfig.getFlightConfigurationID();
-		FlightConfigurationID newId = newConfig.getFlightConfigurationID();
+		FlightConfigurationId oldId = oldConfig.getFlightConfigurationID();
+		FlightConfigurationId newId = newConfig.getFlightConfigurationID();
 		
 		for (RocketComponent c : rocket) {
 			if (c instanceof FlightConfigurableComponent) {
@@ -155,12 +155,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void renameConfiguration() {
-		FlightConfigurationID currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
+		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, currentId).setVisible(true);
 	}
 	
 	private void removeConfiguration() {
-		FlightConfigurationID currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
+		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		if (currentId == null)
 			return;
 		document.removeFlightConfigurationAndSimulations(currentId);
@@ -185,7 +185,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void updateButtonState() {
-		FlightConfigurationID currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		// Enable the remove/rename/copy buttons only when a configuration is selected.
 		removeConfButton.setEnabled(currentId.isValid());
 		renameConfButton.setEnabled(currentId.isValid());

@@ -7,7 +7,7 @@ import java.util.UUID;
  * It is intended to provide better visibility and traceability by more specific type safety -- this class replaces a 
  * straight-up <code>String</code> Key in previous implementations. 
  */
-public final class FlightConfigurationID implements Comparable<FlightConfigurationID> {
+public final class FlightConfigurationId implements Comparable<FlightConfigurationId> {
 	final public UUID key;
 	
 	private final static long DEFAULT_MOST_SIG_BITS = 0xF4F2F1F0;
@@ -15,14 +15,14 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	private final static String ERROR_KEY_NAME = "<Error_Key>";
 	private final static UUID DEFAULT_VALUE_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 5676);
 	
-	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_UUID);
-	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_UUID ); 
+	public final static FlightConfigurationId ERROR_CONFIGURATION_FCID = new FlightConfigurationId( FlightConfigurationId.ERROR_CONFIGURATION_UUID);
+	public final static FlightConfigurationId DEFAULT_VALUE_FCID = new FlightConfigurationId( FlightConfigurationId.DEFAULT_VALUE_UUID ); 
 	
-	public FlightConfigurationID() {
+	public FlightConfigurationId() {
 		this(UUID.randomUUID());
 	}
 	
-	public FlightConfigurationID(final String _str) {
+	public FlightConfigurationId(final String _str) {
 		UUID candidate;
 		if(_str == null || "".equals(_str)){
 			candidate = UUID.randomUUID();
@@ -36,9 +36,9 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		this.key = candidate;
 	}
 	
-	public FlightConfigurationID(final UUID _val) {
+	public FlightConfigurationId(final UUID _val) {
 		if (null == _val){
-			this.key = FlightConfigurationID.ERROR_CONFIGURATION_UUID;
+			this.key = FlightConfigurationId.ERROR_CONFIGURATION_UUID;
 		} else {
 			this.key = _val;
 		}
@@ -46,11 +46,11 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	@Override
 	public boolean equals(Object anObject) {
-		if (!(anObject instanceof FlightConfigurationID)) {
+		if (!(anObject instanceof FlightConfigurationId)) {
 			return false;
 		}
 		
-		FlightConfigurationID otherFCID = (FlightConfigurationID) anObject;
+		FlightConfigurationId otherFCID = (FlightConfigurationId) anObject;
 		return this.key.equals(otherFCID.key);
 	}
 	
@@ -88,7 +88,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	@Override
-	public int compareTo(FlightConfigurationID other) {
+	public int compareTo(FlightConfigurationId other) {
 		return (this.key.compareTo( other.key));
 	}
 	

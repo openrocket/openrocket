@@ -543,7 +543,7 @@ public class ConfigurationTest extends BaseTestCase {
 	
 	public static Rocket makeTwoStageMotorRocket() {
 		Rocket rocket = makeTwoStageTestRocket();
-		FlightConfigurationID fcid = rocket.getDefaultConfiguration().getId();
+		FlightConfigurationId fcid = rocket.getDefaultConfiguration().getId();
 		
 		{
 			// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,

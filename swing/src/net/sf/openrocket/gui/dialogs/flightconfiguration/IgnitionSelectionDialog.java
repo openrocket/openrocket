@@ -23,7 +23,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -44,7 +44,7 @@ public class IgnitionSelectionDialog extends JDialog {
 	private IgnitionEvent startIgnitionEvent;
 	private double startIgnitionDelay;
 	
-	public IgnitionSelectionDialog(Window parent, final FlightConfigurationID curFCID, MotorMount _mount) {
+	public IgnitionSelectionDialog(Window parent, final FlightConfigurationId curFCID, MotorMount _mount) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		curMount = _mount;
 		curMotorInstance = curMount.getMotorInstance(curFCID);

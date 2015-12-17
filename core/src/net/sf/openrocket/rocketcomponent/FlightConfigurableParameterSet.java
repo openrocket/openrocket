@@ -20,7 +20,7 @@ import net.sf.openrocket.util.Utils;
 public class FlightConfigurableParameterSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
 	
 	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
-	protected final HashMap<FlightConfigurationID, E> map = new HashMap<FlightConfigurationID, E>();
+	protected final HashMap<FlightConfigurationId, E> map = new HashMap<FlightConfigurationId, E>();
 	
 	protected E defaultValue;
 	protected final RocketComponent component;
@@ -56,13 +56,13 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		this.eventType = eventType;
 		
 		this.defaultValue= configSet.getDefault().clone();
-		for (FlightConfigurationID key : configSet.map.keySet()) {
+		for (FlightConfigurationId key : configSet.map.keySet()) {
 			E cloneConfig = configSet.map.get(key).clone();
 			this.map.put(key, cloneConfig);
 		}
 	}
 	
-	public boolean containsKey( final FlightConfigurationID fcid ){
+	public boolean containsKey( final FlightConfigurationId fcid ){
 		return this.map.containsKey(fcid);
 	}
 	
@@ -94,12 +94,12 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	}
 
 	@Override
-	public FlightConfigurationID get(E testValue) {
+	public FlightConfigurationId get(E testValue) {
 		if( null == testValue ){
 			return null;
 		}
-		for( Entry<FlightConfigurationID, E> curEntry : this.map.entrySet()){
-			FlightConfigurationID curKey = curEntry.getKey();
+		for( Entry<FlightConfigurationId, E> curEntry : this.map.entrySet()){
+			FlightConfigurationId curKey = curEntry.getKey();
 			E curValue = curEntry.getValue();
 			
 			if( testValue.equals(curValue)){
@@ -119,13 +119,13 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 													+" than the stored values: "+index+"/"+this.map.size());
 		}
 		
-		List<FlightConfigurationID> ids = this.getSortedConfigurationIDs();
-		FlightConfigurationID selectedId = ids.get(index);
+		List<FlightConfigurationId> ids = this.getSortedConfigurationIDs();
+		FlightConfigurationId selectedId = ids.get(index);
 		return this.map.get(selectedId);
 	}
 	
 	@Override
-	public E get(FlightConfigurationID id) {
+	public E get(FlightConfigurationId id) {
 		if( id.hasError() ){
 			throw new NullPointerException("Attempted to retrieve a parameter with an error key!");
 		}
@@ -139,8 +139,8 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	}
 
 	@Override
-	public List<FlightConfigurationID> getSortedConfigurationIDs(){
-		ArrayList<FlightConfigurationID> toReturn = new ArrayList<FlightConfigurationID>(); 
+	public List<FlightConfigurationId> getSortedConfigurationIDs(){
+		ArrayList<FlightConfigurationId> toReturn = new ArrayList<FlightConfigurationId>(); 
 		
 		toReturn.addAll( this.map.keySet() );
 		// Java 1.8:
@@ -152,12 +152,12 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return toReturn;
 	}
 	
-	public List<FlightConfigurationID> getIDs(){
+	public List<FlightConfigurationId> getIDs(){
 		return this.getSortedConfigurationIDs();
 	}
     
 	@Override
-	public void set(FlightConfigurationID fcid, E nextValue) {
+	public void set(FlightConfigurationId fcid, E nextValue) {
 		if ( nextValue == null) {
 			// null value means to delete this fcid
 			E previousValue = this.map.remove(fcid);
@@ -176,12 +176,12 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	}
 	
 	@Override
-	public boolean isDefault( FlightConfigurationID fcid) {
+	public boolean isDefault( FlightConfigurationId fcid) {
 		return ( this.getDefault() == this.map.get(fcid));
 	}
 	
 	@Override
-	public void reset( FlightConfigurationID fcid) {
+	public void reset( FlightConfigurationId fcid) {
 		if( fcid.isValid() ){
 			set( fcid, null);
 		}
@@ -193,7 +193,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	
  
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		// clones the ENTRIES for the given fcid's.		
 		E oldValue = this.get(oldConfigId);
 		this.set(newConfigId, oldValue.clone());
@@ -226,7 +226,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		buf.append(String.format("    >> ParameterSet<%s> (%d configurations)\n", this.defaultValue.getClass().getSimpleName(), this.size() ));
 
 		buf.append(String.format("        >> [%s]= %s\n", "DEFAULT", this.getDefault().toString() ));		
-		for( FlightConfigurationID loopFCID : this.getSortedConfigurationIDs()){
+		for( FlightConfigurationId loopFCID : this.getSortedConfigurationIDs()){
 			String shortKey = loopFCID.toShortKey();
 			
 			E inst = this.map.get(loopFCID);

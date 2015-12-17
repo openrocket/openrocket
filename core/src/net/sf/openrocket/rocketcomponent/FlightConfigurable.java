@@ -41,7 +41,7 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 * @param id	the flight configuration ID
 	 * @return		the parameter to use (never null)
 	 */
-	public E get(FlightConfigurationID id);
+	public E get(FlightConfigurationId id);
 	
 	/**
 	 * Return the parameter value for the provided flight configuration ID.
@@ -51,7 +51,7 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 * @param    value the parameter to find
 	 * @return   the flight configuration ID
 	 */
-	public FlightConfigurationID get(E value);
+	public FlightConfigurationId get(E value);
 	
 	/**
 	 * Set the parameter value for the provided flight configuration ID.
@@ -60,13 +60,13 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 * @param id		the flight configuration ID
 	 * @param value		the parameter value (null not allowed)
 	 */
-	public void set(FlightConfigurationID id, E value);
+	public void set(FlightConfigurationId id, E value);
 	
 	/**
 	 * 
 	 * @return a sorted list of all the contained FlightConfigurationIDs
 	 */
-	public List<FlightConfigurationID> getSortedConfigurationIDs();
+	public List<FlightConfigurationId> getSortedConfigurationIDs();
 	
 	/**
 	 * Return whether a specific flight configuration ID is using the
@@ -75,14 +75,14 @@ public interface FlightConfigurable<E extends ChangeSource> extends FlightConfig
 	 * @param id	the flight configuration ID
 	 * @return		whether the default is being used
 	 */
-	public boolean isDefault(FlightConfigurationID id);
+	public boolean isDefault(FlightConfigurationId id);
 	
 	/**
 	 * Reset a specific flight configuration ID to use the default parameter value.
 	 * 
 	 * @param id	the flight configuration ID
 	 */
-	public void reset(FlightConfigurationID id);
+	public void reset(FlightConfigurationId id);
 	
 	/**
 	 * Return the number of specific flight configurations other than the default.

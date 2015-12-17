@@ -369,12 +369,12 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	@Override
-	public MotorConfiguration getMotorInstance( final FlightConfigurationID fcid){
+	public MotorConfiguration getMotorInstance( final FlightConfigurationId fcid){
 		return this.motors.get(fcid);
 	}
 
 	@Override 
-	public void setMotorInstance(final FlightConfigurationID fcid, final MotorConfiguration newMotorInstance){
+	public void setMotorInstance(final FlightConfigurationId fcid, final MotorConfiguration newMotorInstance){
 		if((null == newMotorInstance)){
 			this.motors.set( fcid, null);
 		}else{
@@ -400,7 +400,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
@@ -450,7 +450,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	
 	@Override
-	public Coordinate getMotorPosition(FlightConfigurationID id) {
+	public Coordinate getMotorPosition(FlightConfigurationId id) {
 		Motor motor = this.motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");

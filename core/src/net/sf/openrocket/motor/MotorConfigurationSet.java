@@ -1,7 +1,7 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -40,7 +40,7 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 		MotorConfiguration emptyInstance = this.getDefault();
 		buffer.append("              >> (["+emptyInstance.toString()+"]=  @ "+ emptyInstance.getIgnitionEvent().name +"  +"+emptyInstance.getIgnitionDelay()+"sec )\n");
 		
-		for( FlightConfigurationID loopFCID : this.map.keySet()){
+		for( FlightConfigurationId loopFCID : this.map.keySet()){
 			String shortKey = loopFCID.toShortKey();
 			
 			MotorConfiguration curInstance = this.map.get(loopFCID);

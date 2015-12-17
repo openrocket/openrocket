@@ -37,7 +37,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	protected String configurationName;
 	
 	protected final Rocket rocket;
-	protected final FlightConfigurationID fcid;
+	protected final FlightConfigurationId fcid;
 	
 	protected static int instanceCount=0;
 	public final int instanceNumber;
@@ -85,9 +85,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param _fcid  the ID this configuration should have.
 	 * @param rocket  the rocket
 	 */
-	public FlightConfiguration(final Rocket rocket, final FlightConfigurationID _fcid ) {
+	public FlightConfiguration(final Rocket rocket, final FlightConfigurationId _fcid ) {
 		if( null == _fcid){
-			this.fcid = new FlightConfigurationID();
+			this.fcid = new FlightConfigurationId();
 		}else{
 			this.fcid = _fcid;
 		}
@@ -269,11 +269,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return Math.PI * MathUtil.pow2(getReferenceLength() / 2);
 	}
 	
-	public FlightConfigurationID getFlightConfigurationID() {
+	public FlightConfigurationId getFlightConfigurationID() {
 		return fcid;
 	}
 	
-	public FlightConfigurationID getId() {
+	public FlightConfigurationId getId() {
 		return getFlightConfigurationID();
 	}
 	

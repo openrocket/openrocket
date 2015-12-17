@@ -11,7 +11,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -50,7 +50,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		
-		FlightConfigurationID fcid = new FlightConfigurationID(attributes.remove("configid"));
+		FlightConfigurationId fcid = new FlightConfigurationId(attributes.remove("configid"));
 		if (!fcid.isValid()) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return;

@@ -15,7 +15,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
@@ -116,7 +116,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
 		
-		FlightConfigurationID fcid = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId fcid = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		options.setFlightConfigurationId(fcid);
 		options.addChangeListener(new ConditionListener());
 	}
@@ -174,7 +174,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		return rocket;
 	}
 
-	public FlightConfigurationID getId(){
+	public FlightConfigurationId getId(){
 		return this.options.getFlightConfigurationId();
 	}
 	

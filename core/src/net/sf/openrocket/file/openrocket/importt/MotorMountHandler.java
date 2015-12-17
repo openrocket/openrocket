@@ -13,7 +13,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -66,7 +66,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		
 		if (element.equals("motor")) {
 			// yes, this is confirmed to be the FLIGHT config id == motor instance id.
-			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
+			FlightConfigurationId fcid = new FlightConfigurationId(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
@@ -89,7 +89,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		}
 		
 		if (element.equals("ignitionconfiguration")) {
-			FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
+			FlightConfigurationId fcid = new FlightConfigurationId(attributes.get("configid"));
 			if ( ! fcid.isValid()){
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;

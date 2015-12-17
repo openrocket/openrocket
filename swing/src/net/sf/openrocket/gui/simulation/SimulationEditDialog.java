@@ -25,7 +25,7 @@ import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
@@ -160,7 +160,7 @@ public class SimulationEditDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					FlightConfiguration config = (FlightConfiguration) configCombo.getSelectedItem();
-					FlightConfigurationID id = config.getFlightConfigurationID();
+					FlightConfigurationId id = config.getFlightConfigurationID();
 					conditions.setFlightConfigurationId( id );
 				}
 			});

@@ -7,7 +7,7 @@ import java.util.Locale;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
@@ -52,7 +52,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 			// is null and means "default".
 			
 			for (FlightConfiguration curConfig : rocket.getConfigSet()){
-				FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+				FlightConfigurationId fcid = curConfig.getFlightConfigurationID();
 				if (fcid == null) {
 					continue;
 				}

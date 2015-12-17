@@ -56,7 +56,7 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -98,7 +98,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 
-	public ThrustCurveMotorSelectionPanel( final FlightConfigurationID fcid, MotorMount mount ) {
+	public ThrustCurveMotorSelectionPanel( final FlightConfigurationId fcid, MotorMount mount ) {
 		this();
 		setMotorMountAndConfig( fcid, mount );
 
@@ -311,7 +311,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	}
 
-	public void setMotorMountAndConfig( final FlightConfigurationID _fcid,  MotorMount mountToEdit ) {
+	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {
 		if ( null == _fcid ){
 			throw new NullPointerException(" attempted to set mount with a null FCID. bug.  ");
 		}else if ( null == mountToEdit ){

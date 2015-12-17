@@ -73,7 +73,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		separations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	

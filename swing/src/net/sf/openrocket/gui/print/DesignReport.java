@@ -32,7 +32,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -226,7 +226,7 @@ public class DesignReport {
 			
 			int motorNumber = 0;
 			for( FlightConfiguration curConfig : rocket.getConfigSet()){
-				FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+				FlightConfigurationId fcid = curConfig.getFlightConfigurationID();
 				
 				PdfPTable parent = new PdfPTable(2);
 				parent.setWidthPercentage(100);
@@ -308,7 +308,7 @@ public class DesignReport {
 	 * @param motorId	the motor ID to output
 	 * @param parent	the parent to which the motor data will be added
 	 */
-	private void addMotorData(Rocket rocket, FlightConfigurationID motorId, final PdfPTable parent) {
+	private void addMotorData(Rocket rocket, FlightConfigurationId motorId, final PdfPTable parent) {
 		
 		PdfPTable motorTable = new PdfPTable(8);
 		motorTable.setWidthPercentage(68);
@@ -443,7 +443,7 @@ public class DesignReport {
 	 * @param parent    the parent to which the simulation flight data will be added
 	 * @param leading   the number of points for the leading
 	 */
-	private void addFlightData(final FlightData flight, final Rocket theRocket, final FlightConfigurationID motorId, final PdfPTable parent, int leading) {
+	private void addFlightData(final FlightData flight, final Rocket theRocket, final FlightConfigurationId motorId, final PdfPTable parent, int leading) {
 		
 		// Output the flight data
 		if (flight != null) {
@@ -509,7 +509,7 @@ public class DesignReport {
 	 *
 	 * @return the flight data from the simulation for the specified motor id, or null if not found
 	 */
-	private FlightData findSimulation(final FlightConfigurationID motorId, List<Simulation> simulations) {
+	private FlightData findSimulation(final FlightConfigurationId motorId, List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
 		try {
