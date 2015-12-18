@@ -20,7 +20,6 @@ import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
@@ -40,12 +39,13 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
@@ -147,7 +147,7 @@ public class TestRockets {
 		stage.addChild(nosecone);
 		stage.addChild(bodytube);
 		
-		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -259,6 +259,7 @@ public class TestRockets {
 		mass.setRadius(rnd(0.05));
 		nose.addChild(mass);
 		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -406,7 +407,6 @@ public class TestRockets {
 		finset.setMaterial(material);
 		
 		rocket.enableEvents();
-		
 		return rocket;
 	}
 	
@@ -475,7 +475,7 @@ public class TestRockets {
 		bodytube.setMotorOverhang(0.005);
 		
 		config.setAllStages();
-		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -543,6 +543,7 @@ public class TestRockets {
 		//		bodytube.setMotor(id, m);
 		//		bodytube.setMotorOverhang(0.005);
 		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -724,7 +725,7 @@ public class TestRockets {
 		//		tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);
 		
 		config.setAllStages();
-		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -876,6 +877,7 @@ public class TestRockets {
 			}
 		}
 		
+		rocket.enableEvents();
 		config.setAllStages(true);
 		
 		return rocket;
@@ -897,7 +899,7 @@ public class TestRockets {
 		stage.addChild(bodyTube);
 		
 		rocket.addChild(stage);
-		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -926,8 +928,8 @@ public class TestRockets {
 		fins.setTabLength(0.25);
 		bodyTube.addChild(fins);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
-		
 	}
 	
 	/*
@@ -953,6 +955,7 @@ public class TestRockets {
 		tubeCoupler.addChild(centeringRing);
 		bodyTube.addChild(tubeCoupler);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -988,6 +991,7 @@ public class TestRockets {
 		// add motor config to inner tube (motor mount)
 		innerTube.setMotorInstance(fcid, motorInst);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1022,10 +1026,7 @@ public class TestRockets {
 		
 		// add motor config to inner tube (motor mount)
 		innerTube.setMotorInstance(fcid, motorConfig);
-		
-		// add motor config to rocket's flight config
-		assert( rocket.containsFlightConfigurationID( fcid) );
-		
+				
 		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		
 		// create simulation data
@@ -1037,6 +1038,7 @@ public class TestRockets {
 		Simulation simulation2 = new Simulation(rocket);
 		rocketDoc.addSimulation(simulation2);
 		
+		rocket.enableEvents();
 		return rocketDoc;
 	}
 	
@@ -1061,6 +1063,7 @@ public class TestRockets {
 		CustomExpression expression = new CustomExpression(rocketDoc, "name", "symbol", "unit", "expression");
 		rocketDoc.addCustomExpression(expression);
 		
+		rocket.enableEvents();
 		return rocketDoc;
 	}
 	
@@ -1097,6 +1100,7 @@ public class TestRockets {
 			e.printStackTrace();
 		}
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1128,6 +1132,7 @@ public class TestRockets {
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1149,6 +1154,7 @@ public class TestRockets {
 		bodyTube.setAppearance(appearance);
 		stage.addChild(bodyTube);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1181,6 +1187,7 @@ public class TestRockets {
 		// inst.setIgnitionEvent( IgnitionEvent.AUTOMATIC);
 		inst.setIgnitionDelay(2);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1208,6 +1215,7 @@ public class TestRockets {
 		parachute.getDeploymentConfigurations().set(testFCID, deploymentConfig);
 		bodyTube.addChild(parachute);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1245,6 +1253,7 @@ public class TestRockets {
 		BodyTube bodyTube2 = new BodyTube(12, 1, 0.05);
 		stage2.addChild(bodyTube2);
 		
+		rocket.enableEvents();
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
@@ -1259,6 +1268,8 @@ public class TestRockets {
 		ext.setScript(script);
 		sim.getSimulationExtensions().add(ext);
 		document.addSimulation(sim);
+		
+		rocket.enableEvents();
 		return document;
 	}
 	
@@ -1337,6 +1348,7 @@ public class TestRockets {
 			// do nothing, we don't care
 		}
 		
+		rocket.enableEvents();
 		return rocketDoc;
 	}
 	
