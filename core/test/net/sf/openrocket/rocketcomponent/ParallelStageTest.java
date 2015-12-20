@@ -60,7 +60,6 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		ParallelStage strapon = new ParallelStage();
 		strapon.setName("Booster Stage");
-		strapon.setAutoRadialOffset(true);
 		RocketComponent boosterNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
 		boosterNose.setName("Booster Nosecone");
 		strapon.addChild(boosterNose);
@@ -76,6 +75,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		strapon.setInstanceCount(3);
 		strapon.setRadialOffset(1.8);
+		strapon.setAutoRadialOffset(false);
 		
 		return strapon;
 	}
@@ -232,7 +232,7 @@ public class ParallelStageTest extends BaseTestCase {
 	}
 	
 	@Test
-	public void testBoosterInitialization() {
+	public void testBoosterInitializationSimple() {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
@@ -241,12 +241,11 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		double targetOffset = 0;
 		set0.setAxialOffset(Position.BOTTOM, targetOffset);
-		// vv function under test
-		set0.setAutoRadialOffset(true);
-		set0.setInstanceCount(2);
-		set0.setRadialOffset(4.0);
-		set0.setAngularOffset(Math.PI / 2);
 		
+		// vvvv function under test
+		set0.setInstanceCount(2);
+		set0.setRadialOffset(4.0); 
+		set0.setAngularOffset(Math.PI / 2);
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
@@ -267,6 +266,28 @@ public class ParallelStageTest extends BaseTestCase {
 		assertEquals(" 'setAngularOffset(double)' failed:\n" + treeDump + "  angular offset: ", expectedAngularOffset, angularOffset, EPSILON);
 	}
 	
+	@Test
+	public void testBoosterInitializationAutoRadius() {
+		// setup
+		RocketComponent rocket = createTestRocket();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		ParallelStage set0 = createBooster();
+		core.addChild(set0);
+		
+		double targetOffset = 0;
+		set0.setAxialOffset(Position.BOTTOM, targetOffset);
+		// vvvv function under test
+		set0.setAutoRadialOffset(true);
+		set0.setRadialOffset(4.0);  // this called will be overriden by the AutoRadialOffset above
+		// ^^^^ function under test
+		String treeDump = rocket.toDebugTree();
+		
+		double expectedRadialOffset = 2.2;
+		double radialOffset = set0.getRadialOffset();
+		assertEquals(" 'setRadialOffset(double)' failed: \n" + treeDump + "  radial offset: ", expectedRadialOffset, radialOffset, EPSILON);
+	}
+	
+
 
 	@Test
 	public void testAddStraponAuto() {
