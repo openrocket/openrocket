@@ -21,8 +21,8 @@ import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
- * A class defining a rocket configuration, including which stages are active.
- * 
+ * A class defining a rocket configuration.
+ *     Describes active stages, and active motors.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  * @author Daniel Williams <equipoise@gmail.com>
@@ -268,13 +268,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return getFlightConfigurationID();
 	}
 	
-	/**
-	 * Removes the listener connection to the rocket and listeners of this object.
-	 * This configuration may not be used after a call to this method!
-	 */
-	public void release() {
-	}
-	
 	////////////////  Listeners  ////////////////
 	
 	@Override
@@ -295,7 +288,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 	}
 	
-	public void updateStages() {
+	protected void updateStages() {
 		if (this.rocket.getStageCount() == this.stages.size()) {
 			// no changes needed
 			return;
@@ -418,18 +411,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		modID++;
 	}
 	
-	public Collection<MotorConfiguration> getAllMotors() {
-		return motors.values();
-	}
-
-	public int getMotorCount() {
-		return getAllMotorCount();
-	}
-	
-	public int getAllMotorCount(){
-		return motors.size();
-	}
-	
 	public Set<MotorInstanceId> getMotorIDs() {
 		return motors.keySet();
 	}
@@ -443,29 +424,21 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public Collection<MotorConfiguration> getActiveMotors() {
-		List<MotorConfiguration> activeList = new ArrayList<MotorConfiguration>();
-		for( MotorConfiguration inst : this.motors.values() ){
-			if( inst.isActive() ){
-				activeList.add( inst );
-			}
-		}
-		
-		return activeList;
+		return motors.values();
 	}
 
-	public void updateMotors() {
+	protected void updateMotors() {
 		this.motors.clear();
 		
 		for ( RocketComponent compMount : getActiveComponents() ){
 			if (( compMount instanceof MotorMount )&&( ((MotorMount)compMount).isMotorMount())){
 				MotorMount mount = (MotorMount)compMount;
-				MotorConfiguration sourceInstance = mount.getMotorInstance( fcid);
-				if( sourceInstance.isEmpty()){
+				MotorConfiguration sourceConfig = mount.getMotorInstance( fcid);
+				if( sourceConfig.isEmpty()){
 					continue;
 				}
-
-				this.motors.put( sourceInstance.getID(), sourceInstance);
-
+				
+				this.motors.put( sourceConfig.getID(), sourceConfig);
 			}
 		}
 	}

@@ -457,6 +457,11 @@ public class Rocket extends RocketComponent {
 		}
 	}
 	
+	@Override
+	public void update(){
+		this.configSet.update();
+	}
+	
 	/**
 	 * Freezes the rocket structure from firing any events.  This may be performed to
 	 * combine several actions on the structure into a single large action.

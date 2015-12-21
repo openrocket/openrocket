@@ -105,7 +105,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (!flightData.getWarningSet().isEmpty()) {
 			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 		}
-		simulationConfig.release();
+
 		return flightData;
 	}
 	

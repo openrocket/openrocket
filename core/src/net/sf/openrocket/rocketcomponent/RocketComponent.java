@@ -2102,7 +2102,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 					"RocketComponent iterator");
 		}
 	}
-	
+
 	public String toDebugName(){
 		return this.getName()+"<"+this.getClass().getSimpleName()+">("+this.getID().substring(0,8)+")";
 	}

@@ -430,7 +430,6 @@ public class DesignReport {
 		c.setBorder(PdfPCell.LEFT);
 		c.setBorderWidthTop(0f);
 		parent.addCell(c);
-		config.release();
 	}
 	
 	
