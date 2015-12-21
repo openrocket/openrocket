@@ -86,8 +86,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
-	
 	private DeployEvent deployEvent = DeployEvent.EJECTION;
 	private double deployAltitude = 200;
 	private double deployDelay = 0;
@@ -152,22 +150,18 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(listener);
+
 	}
 	
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
-		listeners.remove(listener);
+
 	}
 	
 	
 	
 	private void fireChangeEvent() {
-		EventObject event = new EventObject(this);
-		Object[] list = listeners.toArray();
-		for (Object l : list) {
-			((StateChangeListener) l).stateChanged(event);
-		}
+	
 	}
 	
 	
