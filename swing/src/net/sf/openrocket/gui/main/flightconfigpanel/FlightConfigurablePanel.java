@@ -160,7 +160,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		} else if ( tableValue instanceof FlightConfigurationId ){
 			return (FlightConfigurationId) tableValue;
 		}
-		return FlightConfigurationId.ERROR_CONFIGURATION_FCID;
+		return FlightConfigurationId.ERROR_FCID;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {

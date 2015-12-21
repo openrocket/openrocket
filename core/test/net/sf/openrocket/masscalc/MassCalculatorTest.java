@@ -267,7 +267,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
-		rocket.getDefaultConfiguration().setAllStages(false);
+		rocket.getDefaultConfiguration().clearAllStages();
 		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
 //		String treeDump = rocket.toDebugTree();
 //		System.err.println( treeDump);
@@ -295,7 +295,7 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
-		rocket.getDefaultConfiguration().setAllStages(false);
+		//rocket.getDefaultConfiguration().setAllStages(false);
 		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
 		
 		//String treeDump = rocket.toDebugTree();
@@ -342,7 +342,6 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
-		rocket.getDefaultConfiguration().setAllStages(false);
 		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
 //		String treeDump = rocket.toDebugTree();
 //		System.err.println( treeDump);
@@ -368,7 +367,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
-		rocket.getDefaultConfiguration().setAllStages(false);
+		//rocket.getDefaultConfiguration().setAllStages(false);
 		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
 		//String treeDump = rocket.toDebugTree();
 		//System.err.println( treeDump);
@@ -395,7 +394,6 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
-		config.setAllStages(false);
 		config.setOnlyStage( boostNum);
 		
 //		String treeDump = rocket.toDebugTree();
@@ -446,7 +444,6 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
-		config.setAllStages(false);
 		config.setOnlyStage( boostNum);
 		
 		//String treeDump = rocket.toDebugTree();

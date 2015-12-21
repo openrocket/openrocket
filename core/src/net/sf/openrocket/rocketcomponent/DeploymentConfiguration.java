@@ -180,5 +180,8 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 		return that;
 	}
 
+	@Override
+	public void update(){
+	}
 	
 }

@@ -67,6 +67,11 @@ public class IgnitionConfiguration implements FlightConfigurableParameter<Igniti
 			((StateChangeListener) l).stateChanged(event);
 		}
 	}
+	
+
+	@Override
+	public void update(){
+	}
 
 	
 }

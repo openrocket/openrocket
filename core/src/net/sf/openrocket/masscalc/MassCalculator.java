@@ -298,7 +298,7 @@ public class MassCalculator implements Monitorable {
 	private void calculateStageCache(FlightConfiguration config) {
 		int stageCount = config.getActiveStageCount();
 		if(debug){
-			System.err.println(">> Calculating massData cache for config: "+config.toShort()+"  with "+stageCount+" stages");
+			System.err.println(">> Calculating massData cache for config: "+config.toDebug()+"  with "+stageCount+" stages");
 		}
 		if( 0 < stageCount ){ 
 			for( AxialStage curStage : config.getActiveStages()){

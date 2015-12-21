@@ -16,4 +16,6 @@ public interface FlightConfigurableParameter<E> extends ChangeSource {
 	 */
 	public E clone();
 	
+	public void update();
+	
 }

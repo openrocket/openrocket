@@ -12,12 +12,15 @@ import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 
 /**
- * An implementation of FlightConfiguration that fires off events
- * to the rocket components when the parameter value is changed.
+ * Represents a value or parameter that can vary based on the
+ * flight configuration ID.
+ * <p>
+ * The parameter value is always defined, and null is not a valid
+ * parameter value.
  *
  * @param <E>	the parameter type
  */
-public class FlightConfigurableParameterSet<E extends FlightConfigurableParameter<E>> implements FlightConfigurable<E> {
+public class FlightConfigurableParameterSet<E extends FlightConfigurableParameter<E>> implements Iterable<E> {
 	
 	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
 	protected final HashMap<FlightConfigurationId, E> map = new HashMap<FlightConfigurationId, E>();
@@ -66,12 +69,24 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return this.map.containsKey(fcid);
 	}
 	
-	@Override
+	/**
+	 * Return the default parameter value for this FlightConfiguration.
+	 * This is used in case a per-flight configuration override
+	 * has not been defined.
+	 * 
+	 * @return the default parameter value (never null)
+	 */
 	public E getDefault(){
 		return this.defaultValue;
 	}
 	
-	@Override
+	/**
+	 * Set the default parameter value for this FlightConfiguration.
+	 *This is used in case a per-flight configuration override
+	 * has not been defined.
+	 *  
+	 * @param value		the parameter value (null not allowed)
+	 */
 	public void setDefault(E nextDefaultValue) {
 		if (nextDefaultValue == null) {
 			throw new NullPointerException("new Default Value is null");
@@ -88,12 +103,22 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	}
 	
 	
-	@Override
+	/**
+	 * Return the number of specific flight configurations other than the default.
+	 * @return
+	 */
 	public int size() {
 		return map.size();
 	}
 
-	@Override
+	/**
+	 * Return the parameter value for the provided flight configuration ID.
+	 * This returns either the value specified for this flight config ID,
+	 * or the default value.
+	 * 
+	 * @param    value the parameter to find
+	 * @return   the flight configuration ID
+	 */
 	public FlightConfigurationId get(E testValue) {
 		if( null == testValue ){
 			return null;
@@ -124,7 +149,14 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return this.map.get(selectedId);
 	}
 	
-	@Override
+	/**
+	 * Return the parameter value for the provided flight configuration ID.
+	 * This returns either the value specified for this flight config ID,
+	 * or the default value.
+	 * 
+	 * @param id	the flight configuration ID
+	 * @return		the parameter to use (never null)
+	 */
 	public E get(FlightConfigurationId id) {
 		if( id.hasError() ){
 			throw new NullPointerException("Attempted to retrieve a parameter with an error key!");
@@ -138,7 +170,10 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return toReturn;
 	}
 
-	@Override
+	/**
+	 * 
+	 * @return a sorted list of all the contained FlightConfigurationIDs
+	 */
 	public List<FlightConfigurationId> getSortedConfigurationIDs(){
 		ArrayList<FlightConfigurationId> toReturn = new ArrayList<FlightConfigurationId>(); 
 		
@@ -156,7 +191,13 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return this.getSortedConfigurationIDs();
 	}
     
-	@Override
+	/**
+	 * Set the parameter value for the provided flight configuration ID.
+	 * This sets the override for this flight configuration ID.
+	 * 
+	 * @param id		the flight configuration ID
+	 * @param value		the parameter value (null not allowed)
+	 */
 	public void set(FlightConfigurationId fcid, E nextValue) {
 		if ( nextValue == null) {
 			// null value means to delete this fcid
@@ -171,33 +212,54 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		fireEvent();
 	}
 	
+	
 	public boolean isDefault(E testVal) {
 		 return (Utils.equals( this.getDefault(), testVal));
 	}
 	
-	@Override
+	/**
+	 * Return whether a specific flight configuration ID is using the
+	 * default value.
+	 * 
+	 * @param id	the flight configuration ID
+	 * @return		whether the default is being used
+	 */
 	public boolean isDefault( FlightConfigurationId fcid) {
 		return ( this.getDefault() == this.map.get(fcid));
 	}
 	
-	@Override
+	/**
+	 * Reset a specific flight configuration ID to use the default parameter value.
+	 * 
+	 * @param id	the flight configuration ID
+	 */
 	public void reset( FlightConfigurationId fcid) {
 		if( fcid.isValid() ){
 			set( fcid, null);
 		}
 	}
+
+	/* 
+	 * Clears all configuration-specific settings -- meaning querying the parameter for any configuration will return the default value.
+	 * 
+	 */
+	public void reset() {
+		E tempValue = this.getDefault();
+		this.map.clear();
+		setDefault(tempValue);
+	}
+	
 	
 	private void fireEvent() {
 		component.fireComponentChangeEvent(eventType);
 	}
 	
- 
-	@Override
-	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+	public FlightConfigurationId cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		// clones the ENTRIES for the given fcid's.		
 		E oldValue = this.get(oldConfigId);
 		this.set(newConfigId, oldValue.clone());
 		fireEvent();
+		return newConfigId;
 	}
 	
 	private void addListener(E value) {
@@ -238,12 +300,13 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return buf.toString();
 	}
 
-	/* 
-	 * Clears all configuration-specific settings -- meaning querying the parameter for any configuration will return the default value.
-	 * 
-	 */
-	public void clear() {
-		this.map.clear();
+
+	public void update(){
+		this.defaultValue.update();
+		for( E curValue: this.map.values() ){
+			curValue.update();
+		}
 	}
+			
 	
 }

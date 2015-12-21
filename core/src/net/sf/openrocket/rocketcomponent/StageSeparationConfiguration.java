@@ -165,4 +165,9 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		}
 	}
 	
+
+	@Override
+	public void update(){
+	}
+	
 }

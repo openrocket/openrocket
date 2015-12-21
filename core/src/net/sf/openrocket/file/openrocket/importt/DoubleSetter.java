@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.rocketcomponent.FlightConfigurable;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.Reflection.Method;
@@ -94,7 +94,7 @@ class DoubleSetter implements Setter {
 			if (configGetter == null) {
 				setMethod.invoke(c, d * multiplier);
 			} else {
-				FlightConfigurable<?> config = (FlightConfigurable<?>) configGetter.invoke(c);
+				FlightConfigurableParameterSet<?> config = (FlightConfigurableParameterSet<?>) configGetter.invoke(c);
 				Object obj = config.getDefault();
 				setMethod.invoke(obj, d * multiplier);
 			}

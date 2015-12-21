@@ -748,8 +748,7 @@ public class ParallelStageTest extends BaseTestCase {
 		actualStageNumber = boosterB.getStageNumber();
 		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
 		
-		//rocket.getDefaultConfiguration().dumpConfig();
-		
+		// remove Booster A 
 		core.removeChild(2);
 		
 		String treedump = rocket.toDebugTree();

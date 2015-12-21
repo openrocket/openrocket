@@ -878,7 +878,7 @@ public class TestRockets {
 		}
 		
 		rocket.enableEvents();
-		config.setAllStages(true);
+		config.setAllStages();
 		
 		return rocket;
 	}

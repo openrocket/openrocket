@@ -28,5 +28,7 @@ public class FlightConfigurationSet extends FlightConfigurableParameterSet<Fligh
 	public FlightConfigurationSet(FlightConfigurationSet configSet, RocketComponent component, int eventType) {
 		super( configSet, component, eventType );
 	}
-			
+	
+	
+
 }

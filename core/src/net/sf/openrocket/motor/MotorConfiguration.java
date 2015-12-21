@@ -32,7 +32,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	protected double ignitionTime = 0.0;
 	
 	protected int modID = 0;
-	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
 	public MotorConfiguration( Motor motor ) {
 		this();
@@ -231,24 +230,20 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(listener);
 	}
 	
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
-		listeners.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
-		EventObject event = new EventObject(this);
-		Object[] list = listeners.toArray();
-		for (Object l : list) {
-			((StateChangeListener) l).stateChanged(event);
-		}
 	}
 	
 	public int getModID() {
 		return modID;
 	}
 	
+	@Override
+	public void update(){
+	}
 }

@@ -101,7 +101,7 @@ public class SeparationSelectionDialog extends JDialog {
 					newConfiguration.setSeparationDelay(0);
 				}
 				if (defaultButton.isSelected()) {
-					stage.getSeparationConfigurations().clear();
+					stage.getSeparationConfigurations().reset();
 					stage.getSeparationConfigurations().setDefault( newConfiguration);
 				} else {
 					stage.getSeparationConfigurations().set(id, newConfiguration);

@@ -2,8 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.EventListener;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
@@ -27,6 +25,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Daniel Williams <equipoise@gmail.com>
  */
 public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, ChangeSource, ComponentChangeListener, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
@@ -41,8 +40,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	protected static int instanceCount=0;
 	public final int instanceNumber;
-	
-	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
 	protected class StageFlags implements Cloneable {
 		public boolean active = true;
@@ -99,7 +96,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		updateStages();
 		updateMotors();
-		rocket.addComponentChangeListener(this);
 	}
 	
 	public Rocket getRocket() {
@@ -114,17 +110,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void setAllStages() {
 		this.setAllStages(true, true);
 	}
-	
-	public void setAllStages(final boolean _active) {
-		this.setAllStages(_active, true);
-	}
 		
-	private void setAllStages(final boolean _active, final boolean fireEvent) {
+	private void setAllStages(final boolean _active, final boolean updateRequired ) {
 		for (StageFlags cur : stages.values()) {
 			cur.active = _active;
 		}
-		if( fireEvent ){
-			fireChangeEvent();
+		if( updateRequired ){
+			update();
 		}
 	}
 	
@@ -157,11 +149,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.setStageActive(stageNumber, _active, true );
 	}
 	
-	private void setStageActive(final int stageNumber, final boolean _active, final boolean fireEvent) {
+	private void setStageActive(final int stageNumber, final boolean _active, final boolean updateRequired ) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
-			if( fireEvent ){
-				fireChangeEvent();
+			if( updateRequired  ){
+				update();
 			}
 			return;
 		}
@@ -173,7 +165,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			StageFlags flags = stages.get(stageNumber);
 			flags.active = !flags.active;
-			fireChangeEvent();
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
@@ -282,37 +273,23 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * This configuration may not be used after a call to this method!
 	 */
 	public void release() {
-		rocket.removeComponentChangeListener(this);
-		listenerList = new ArrayList<EventListener>();
 	}
 	
 	////////////////  Listeners  ////////////////
 	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
-		listenerList.add(listener);
 	}
 	
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
-		listenerList.remove(listener);
 	}
 	
 	// for outgoing events only
 	protected void fireChangeEvent() {
-		EventObject e = new EventObject(this);
-		
 		this.modID++;
 		boundsModID = -1;
 		refLengthModID = -1;
-		
-		// Copy the list before iterating to prevent concurrent modification exceptions.
-		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
-		for (EventListener l : listeners) {
-			if (l instanceof StateChangeListener) {
-				((StateChangeListener) l).stateChanged(e);
-			}
-		}
 		
 		updateStages();
 		updateMotors();
@@ -344,18 +321,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return configurationName;
 		}else{
 			if( this.hasMotors()){
-				return fcid.toShortKey()+" - "+this.getMotorsOneline();
+				return fcid.toDebug()+" - "+this.getOnelineMotorDescription();
 			}else{
 				return fcid.getFullKeyText();
 			}
 		}
 	}
 	
-	public String toShort() {
-		return this.fcid.toShortKey();
-	}
-	
-	public String getMotorsOneline(){
+	public String getOnelineMotorDescription(){
 		StringBuilder buff = new StringBuilder("[");
 		boolean first = true;
 		int activeMotorCount = 0;
@@ -497,6 +470,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 	}
 
+	@Override
+	public void update(){
+		updateStages();
+		updateMotors();
+	}
 	///////////////  Helper methods  ///////////////
 	
 	/**
@@ -559,7 +537,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public FlightConfiguration clone() {
 		FlightConfiguration clone = new FlightConfiguration( this.getRocket(), this.fcid );
 		clone.setName("clone - "+this.fcid.toShortKey());
-		clone.listenerList = new ArrayList<EventListener>();
 		for( StageFlags flags : this.stages.values()){
 			clone.stages.put( flags.stage.getStageNumber(), flags.clone());
         }
@@ -596,4 +573,63 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.isNamed = true;
 		this.configurationName = newName;
 	}
+	
+	@Override
+	public boolean equals(Object other){
+		if( other instanceof FlightConfiguration ){
+			return this.fcid.equals( ((FlightConfiguration)other).fcid);
+		}
+		return false;	
+	}
+	
+	@Override
+	public int hashCode(){
+		return this.fcid.hashCode();
+	}
+	
+	
+	public String toDebug() {
+		return this.fcid.toDebug()+" #"+instanceNumber;
+	}
+	
+	// DEBUG / DEVEL
+	public String toStageListDetail() {
+		StringBuilder buf = new StringBuilder();
+		buf.append(String.format("\nDumping %d stages for config: %s: (#: %d)\n", this.stages.size(), this.getName(), this.instanceNumber));
+		final String fmt = "    [%-2s][%4s]: %6s \n";
+		buf.append(String.format(fmt, "#", "?actv", "Name"));
+		for (StageFlags flags : this.stages.values()) {
+			AxialStage curStage = flags.stage;
+			buf.append(String.format(fmt, curStage.getStageNumber(), (flags.active?" on": "off"), curStage.getName()));
+		}
+		buf.append("\n");
+		return buf.toString();
+	}
+	
+	// DEBUG / DEVEL
+	public String toMotorDetail(){
+		StringBuilder buf = new StringBuilder();
+		buf.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", this.motors.size(), this, this.instanceNumber));
+		final String fmt = "    ..[%-8s] <%6s>    %-12s %-20s\n";
+		buf.append(String.format(fmt, "Motor Id", "?active", "Mtr Desig","Mount"));
+		for( MotorConfiguration curConfig : this.motors.values() ){
+			MotorMount mount = curConfig.getMount();
+			
+			String motorId = curConfig.getID().toShortKey();
+			String activeDescr = (curConfig.isActive()? "active": "inactv");
+			String motorDesig;
+			if( curConfig.isEmpty() ){
+				motorDesig = "(empty)";
+			}else{
+				motorDesig = curConfig.getMotor().getDesignation();
+			}
+			String mountName = ((RocketComponent)mount).getName();
+			
+			buf.append(String.format( fmt, motorId, activeDescr, motorDesig, mountName));
+		}
+		buf.append("\n");
+		return buf.toString();
+	}
+	
+ 
 }

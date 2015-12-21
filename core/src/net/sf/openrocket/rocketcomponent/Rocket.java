@@ -439,6 +439,9 @@ public class Rocket extends RocketComponent {
 				iterator.next().componentChanged(cce);
 			}
 			
+			// notify all configurations
+			this.configSet.update();
+			
 			// Notify all listeners
 			// Copy the list before iterating to prevent concurrent modification exceptions.
 			EventListener[] list = listenerList.toArray(new EventListener[0]);
@@ -453,7 +456,6 @@ public class Rocket extends RocketComponent {
 			mutex.unlock("fireComponentChangeEvent");
 		}
 	}
-	
 	
 	/**
 	 * Freezes the rocket structure from firing any events.  This may be performed to
