@@ -1,14 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collections;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 
 /**
@@ -24,13 +22,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	
 	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
 	protected final HashMap<FlightConfigurationId, E> map = new HashMap<FlightConfigurationId, E>();
-	
-	protected E defaultValue;
-	protected final RocketComponent component;
-	protected final int eventType;
-	
-	private final Listener listener = new Listener();
-	
+	protected static final FlightConfigurationId defaultValueId = FlightConfigurationId.DEFAULT_VALUE_FCID;
 	
 	/**
 	 * Construct a FlightConfiguration that has no overrides.
@@ -38,15 +30,9 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public FlightConfigurableParameterSet(RocketComponent component, int eventType, E _defaultValue) {
-		this.component = component;
-		this.eventType = eventType;
-		
-		this.defaultValue= _defaultValue;
-		
-		addListener(_defaultValue);
+	public FlightConfigurableParameterSet(E _defaultValue) {
+		this.map.put( defaultValueId, _defaultValue);
 	}
-	
 	
 	/**
 	 * Construct a copy of an existing FlightConfigurationImpl.
@@ -54,17 +40,15 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public FlightConfigurableParameterSet(FlightConfigurableParameterSet<E> configSet, RocketComponent component, int eventType) {
-		this.component = component;
-		this.eventType = eventType;
-		
-		this.defaultValue= configSet.getDefault().clone();
+	public FlightConfigurableParameterSet(FlightConfigurableParameterSet<E> configSet ){
 		for (FlightConfigurationId key : configSet.map.keySet()) {
 			E cloneConfig = configSet.map.get(key).clone();
 			this.map.put(key, cloneConfig);
 		}
 	}
 	
+	@Deprecated
+	// do we want to keep this? it shouldn't actually be called...
 	public boolean containsKey( final FlightConfigurationId fcid ){
 		return this.map.containsKey(fcid);
 	}
@@ -77,7 +61,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @return the default parameter value (never null)
 	 */
 	public E getDefault(){
-		return this.defaultValue;
+		return this.map.get( defaultValueId);
 	}
 	
 	/**
@@ -94,7 +78,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		if( this.isDefault(nextDefaultValue)){
 			return;
 		}
-		this.defaultValue = nextDefaultValue;
+		this.map.put( defaultValueId, nextDefaultValue);
 	}
 	
 	@Override
@@ -102,13 +86,12 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return map.values().iterator();
 	}
 	
-	
 	/**
 	 * Return the number of specific flight configurations other than the default.
 	 * @return
 	 */
 	public int size() {
-		return map.size();
+		return (map.size()-1);
 	}
 
 	/**
@@ -119,7 +102,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @param    value the parameter to find
 	 * @return   the flight configuration ID
 	 */
-	public FlightConfigurationId get(E testValue) {
+	public FlightConfigurationId getId(E testValue) {
 		if( null == testValue ){
 			return null;
 		}
@@ -171,13 +154,13 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	}
 
 	/**
-	 * 
 	 * @return a sorted list of all the contained FlightConfigurationIDs
 	 */
 	public List<FlightConfigurationId> getSortedConfigurationIDs(){
 		ArrayList<FlightConfigurationId> toReturn = new ArrayList<FlightConfigurationId>(); 
 		
 		toReturn.addAll( this.map.keySet() );
+		toReturn.remove( defaultValueId );
 		// Java 1.8:
 		//toReturn.sort( null );
 		
@@ -187,7 +170,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return toReturn;
 	}
 	
-	public List<FlightConfigurationId> getIDs(){
+	public List<FlightConfigurationId> getIds(){
 		return this.getSortedConfigurationIDs();
 	}
     
@@ -201,15 +184,12 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	public void set(FlightConfigurationId fcid, E nextValue) {
 		if ( nextValue == null) {
 			// null value means to delete this fcid
-			E previousValue = this.map.remove(fcid);
-			removeListener(previousValue);
+			this.map.remove(fcid);
 		}else{
-			E previousValue = this.map.put(fcid, nextValue);
-			removeListener(previousValue);
-			addListener(nextValue);
+			this.map.put(fcid, nextValue);
 		}
 
-		fireEvent();
+		update();
 	}
 	
 	
@@ -241,7 +221,6 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 
 	/* 
 	 * Clears all configuration-specific settings -- meaning querying the parameter for any configuration will return the default value.
-	 * 
 	 */
 	public void reset() {
 		E tempValue = this.getDefault();
@@ -249,60 +228,32 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		setDefault(tempValue);
 	}
 	
-	
-	private void fireEvent() {
-		component.fireComponentChangeEvent(eventType);
-	}
-	
 	public FlightConfigurationId cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
-		// clones the ENTRIES for the given fcid's.		
+		// clones the ENTRIES for the given fcid's.
 		E oldValue = this.get(oldConfigId);
 		this.set(newConfigId, oldValue.clone());
-		fireEvent();
+		update();
 		return newConfigId;
 	}
-	
-	private void addListener(E value) {
-		if (value != null) {
-			value.addChangeListener(listener);
-		}
-	}
-	
-	private void removeListener(E value) {
-		if (value != null) {
-			value.removeChangeListener(listener);
-		}
-	}
-	
-	
-	private class Listener implements StateChangeListener {
-		@Override
-		public void stateChanged(EventObject e) {
-			fireEvent();
-		}
-	}
+
 	
 	public String toDebug(){
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("====== Dumping ConfigurationSet for: '%s' of type: %s ======\n", this.component.getName(), this.component.getClass().getSimpleName() ));
-		buf.append(String.format("    >> ParameterSet<%s> (%d configurations)\n", this.defaultValue.getClass().getSimpleName(), this.size() ));
-
-		buf.append(String.format("        >> [%s]= %s\n", "DEFAULT", this.getDefault().toString() ));		
+		buf.append(String.format("====== Dumping ConfigurationSet<%s> (%d configurations)\n", this.getDefault().getClass().getSimpleName(), this.size() ));
+		final String fmt = "    [%-12s]: %s\n";
 		for( FlightConfigurationId loopFCID : this.getSortedConfigurationIDs()){
 			String shortKey = loopFCID.toShortKey();
-			
 			E inst = this.map.get(loopFCID);
 			if( this.isDefault(inst)){
 				shortKey = "*"+shortKey+"*";
 			}
-			buf.append(String.format("              >> [%s]= %s\n", shortKey, inst ));
+			buf.append(String.format(fmt, shortKey, inst ));
 		}
 		return buf.toString();
 	}
 
 
 	public void update(){
-		this.defaultValue.update();
 		for( E curValue: this.map.values() ){
 			curValue.update();
 		}

@@ -13,18 +13,18 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	public static final int DEFAULT_MOTOR_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
 	
 	public MotorConfigurationSet(RocketComponent component ) {
-		super(component, DEFAULT_MOTOR_EVENT_TYPE, new MotorConfiguration());
+		super( new MotorConfiguration());
 	}
 	
 	/**
 	 * Construct a copy of an existing FlightConfigurationSet.
 	 * 
-	 * @param flightConfiguration another flightConfiguration to copy data from.
+	 * @param configSet another flightConfiguration to copy data from.
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public MotorConfigurationSet(FlightConfigurableParameterSet<MotorConfiguration> flightConfiguration, RocketComponent component) {
-		super(flightConfiguration, component, DEFAULT_MOTOR_EVENT_TYPE);
+	public MotorConfigurationSet(FlightConfigurableParameterSet<MotorConfiguration> configSet, RocketComponent component) {
+		super(configSet);
 	}
 	
 	@Override
@@ -35,8 +35,7 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	@Override
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("====== Dumping MotorConfigurationSet for mount '"+this.component.toDebugName()+" ======\n");
-		buffer.append("        >> motorSet ("+this.size()+ " motors)\n");
+		buffer.append("====== Dumping MotorConfigurationSet for mount ("+this.size()+ " motors)\n");
 		MotorConfiguration emptyInstance = this.getDefault();
 		buffer.append("              >> (["+emptyInstance.toString()+"]=  @ "+ emptyInstance.getIgnitionEvent().name +"  +"+emptyInstance.getIgnitionDelay()+"sec )\n");
 		

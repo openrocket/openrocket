@@ -85,7 +85,7 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		
 		FlightConfiguration defaultConfiguration = new FlightConfiguration( this, null);
-		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>(this, ComponentChangeEvent.CONFIG_CHANGE, defaultConfiguration);		
+		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( defaultConfiguration);		
 	}
 	
 	public String getDesigner() {
@@ -301,8 +301,7 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>(
-				this.configSet, copy, ComponentChangeEvent.CONFIG_CHANGE);
+		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet);
 		copy.resetListeners();
 		
 		return copy;
@@ -339,7 +338,7 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet, this, ComponentChangeEvent.CONFIG_CHANGE);
+		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet );
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();
@@ -440,7 +439,7 @@ public class Rocket extends RocketComponent {
 			}
 			
 			// notify all configurations
-			this.configSet.update();
+			this.update();
 			
 			// Notify all listeners
 			// Copy the list before iterating to prevent concurrent modification exceptions.
@@ -650,10 +649,14 @@ public class Rocket extends RocketComponent {
 	 * @return	   a FlightConfiguration instance 
 	 */
 	public FlightConfiguration getFlightConfiguration(final int configIndex) {
-		checkState();
 		return this.configSet.get(configIndex);
 	}
 
+	public void setDefaultConfiguration(final FlightConfiguration config) {
+		checkState();
+		configSet.setDefault( config);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}	
 	
 	public void setDefaultConfiguration(final FlightConfigurationId fcid) {
 		checkState();

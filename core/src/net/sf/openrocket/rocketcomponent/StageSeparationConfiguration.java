@@ -146,14 +146,6 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		return clone;
 	}
 	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-
-	}
 	
 	private void fireChangeEvent() {
 

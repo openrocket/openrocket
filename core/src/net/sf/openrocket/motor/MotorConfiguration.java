@@ -1,17 +1,12 @@
 package net.sf.openrocket.motor;
 
-import java.util.EventObject;
-import java.util.List;
-
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.MotorState;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
-import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A single motor configuration.  This includes the selected motor
@@ -83,7 +78,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public void setMotor(Motor motor){
 		this.motor = motor;
-		fireChangeEvent();
 	}
 	
 	public Motor getMotor() {
@@ -104,7 +98,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public void setEjectionDelay(double delay) {
 		this.ejectionDelay = delay;
-		fireChangeEvent();
 	}
 	
 	public Coordinate getPosition() {
@@ -114,7 +107,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public void setPosition(Coordinate _position) {
 		this.position = _position;
 		modID++;
-		fireChangeEvent();
 	}
 	
 	public double getIgnitionTime() {
@@ -129,7 +121,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.ignitionTime = _time;
 		this.ignitionOveride = true;
 		modID++;
-		fireChangeEvent();
 	}
 	
 	public double getIgnitionDelay() {
@@ -139,7 +130,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public void setIgnitionDelay(final double _delay) {
 		this.ignitionDelay = _delay;
 		this.ignitionOveride = true;
-		fireChangeEvent();
 	}
 	
 	public IgnitionEvent getIgnitionEvent() {
@@ -149,7 +139,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public void setIgnitionEvent(final IgnitionEvent _event) {
 		this.ignitionEvent = _event;
 		this.ignitionOveride = true;
-		fireChangeEvent();
 	}
 	
 	public Coordinate getOffset( ){
@@ -226,17 +215,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		clone.ignitionEvent = this.ignitionEvent;
 		clone.ignitionTime = this.ignitionTime;
 		return clone;
-	}
-	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-	}
-	
-	protected void fireChangeEvent() {
 	}
 	
 	public int getModID() {

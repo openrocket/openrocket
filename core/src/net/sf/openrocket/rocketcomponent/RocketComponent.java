@@ -313,7 +313,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected void componentChanged(ComponentChangeEvent e) {
 		// No-op
 		checkState();
-		this.update();
+		update();
 	}
 	
 	
@@ -1088,6 +1088,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	protected void update() {
 		this.setAxialOffset(this.relativePosition, this.offset);
+	}
+
+	public final void updateChildren(){
+		this.update();
+		for( RocketComponent rc : children ){
+			rc.updateChildren();
+		}
 	}
 	
 	public Coordinate getOffset() {

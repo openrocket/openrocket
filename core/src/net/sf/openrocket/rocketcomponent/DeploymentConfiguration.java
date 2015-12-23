@@ -1,16 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.EventObject;
-import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.StateChangeListener;
 
 public class DeploymentConfiguration implements FlightConfigurableParameter<DeploymentConfiguration> {
 	
@@ -106,7 +102,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			throw new NullPointerException("deployEvent is null");
 		}
 		this.deployEvent = deployEvent;
-		fireChangeEvent();
 	}
 	
 	public double getDeployAltitude() {
@@ -118,7 +113,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			return;
 		}
 		this.deployAltitude = deployAltitude;
-		fireChangeEvent();
 	}
 	
 	public double getDeployDelay() {
@@ -130,7 +124,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			return;
 		}
 		this.deployDelay = deployDelay;
-		fireChangeEvent();
 	}
 	
 	@Override
@@ -143,25 +136,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			description += " " + UnitGroup.UNITS_DISTANCE.toString(deployAltitude);
 		}
 		return description;
-	}
-	
-	
-	
-	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-
-	}
-	
-	
-	
-	private void fireChangeEvent() {
-	
 	}
 	
 	

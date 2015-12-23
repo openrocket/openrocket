@@ -138,7 +138,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Posrelativeto")));
 		
-		combo = new JComboBox(
+		combo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
