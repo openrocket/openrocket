@@ -40,7 +40,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	protected static int instanceCount=0;
 	public final int instanceNumber;
-	
+
 	protected class StageFlags implements Cloneable {
 		public boolean active = true;
 		public int prev = -1;
@@ -91,8 +91,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this.rocket = rocket;
 		this.isNamed = false;
 		this.configurationName = "<WARN: attempt to access unset configurationName. WARN!> ";
-		instanceNumber = FlightConfiguration.instanceCount;
-		++FlightConfiguration.instanceCount;
+		this.instanceNumber = instanceCount++;
 		
 		updateStages();
 		updateMotors();
@@ -362,36 +361,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/**
-	 * Add a motor instance to this configuration.  The motor is placed at
-	 * the specified position and with an infinite ignition time (never ignited).
-	 * 
-	 * @param id			the ID of this motor instance.
-	 * @param motor			the motor instance.
-	 * @param mount			the motor mount containing this motor
-	 * @param ignitionEvent	the ignition event for the motor
-	 * @param ignitionDelay	the ignition delay for the motor
-	 * @param position		the position of the motor in absolute coordinates.
-	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
-	 */
-	//	public void addMotor(MotorId _id, Motor _motor, double _ejectionDelay, MotorMount _mount,
-	//			IgnitionEvent _ignitionEvent, double _ignitionDelay, Coordinate _position) {
-	//		
-	//		MotorInstance instanceToAdd = new MotorInstance(_id, _motor, _mount, _ejectionDelay,
-	//				_ignitionEvent, _ignitionDelay, _position);
-	//		
-	//		
-	//		//		this.ids.add(id);
-	//		//		this.motors.add(motor);
-	//		//		this.ejectionDelays.add(ejectionDelay);
-	//		//		this.mounts.add(mount);
-	//		//		this.ignitionEvents.add(ignitionEvent);
-	//		//		this.ignitionDelays.add(ignitionDelay);
-	//		//		this.positions.add(position);
-	//		//		this.ignitionTimes.add(Double.POSITIVE_INFINITY);
-	//	}
-	
-	
-	/**
 	 * Add a motor instance to this configuration.  
 	 * 
 	 * @param motor			the motor instance.
@@ -508,14 +477,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	@Override
 	public FlightConfiguration clone() {
+		// Note the motors and stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.getRocket(), this.fcid );
 		clone.setName("clone - "+this.fcid.toShortKey());
-		for( StageFlags flags : this.stages.values()){
-			clone.stages.put( flags.stage.getStageNumber(), flags.clone());
-        }
-		for( MotorConfiguration mi : this.motors.values()){
-			clone.motors.put( mi.getID(), mi.clone());
-        }
+
+		// DO NOT UPDATE: 
+		// this.stages and this.motors are updated correctly on their own.
+
 		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;

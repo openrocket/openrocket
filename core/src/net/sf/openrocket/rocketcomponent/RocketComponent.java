@@ -1247,21 +1247,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return  Sum of the lengths.
 	 */
-	private final double getTotalLength() {
-		checkState();
-		this.checkComponentStructure();
-		mutex.lock("getTotalLength");
-		try {
-			double l = 0;
-			if (relativePosition == Position.AFTER)
-				l = length;
-			for (int i = 0; i < children.size(); i++)
-				l += children.get(i).getTotalLength();
-			return l;
-		} finally {
-			mutex.unlock("getTotalLength");
-		}
-	}
+//	private final double getTotalLength() {
+//		checkState();
+//		this.checkComponentStructure();
+//		mutex.lock("getTotalLength");
+//		try {
+//			double l = 0;
+//			if (relativePosition == Position.AFTER)
+//				l = length;
+//			for (int i = 0; i < children.size(); i++)
+//				l += children.get(i).getTotalLength();
+//			return l;
+//		} finally {
+//			mutex.unlock("getTotalLength");
+//		}
+//	}
 	
 	
 	/////////// Total mass and CG calculation ////////////
