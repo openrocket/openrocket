@@ -1,9 +1,11 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
 
 import org.junit.Test;
 
@@ -26,7 +28,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 	@Test
 	public void testEmptyRocket() {
 		Rocket r1 = makeEmptyRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		FlightConfiguration configClone = config.clone();
 		
@@ -39,7 +41,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 	@Test
 	public void testCloneBasic() {
 		Rocket rkt1 = makeTwoStageMotorRocket();
-		FlightConfiguration config1 = rkt1.getDefaultConfiguration();
+		FlightConfiguration config1 = rkt1.getSelectedConfiguration();
 		
 		// preconditions
 		config1.setAllStages();
@@ -85,7 +87,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 	@Test
 	public void testCloneIndependence() {
 		Rocket rkt1 = makeTwoStageMotorRocket();
-		FlightConfiguration config1 = rkt1.getDefaultConfiguration();
+		FlightConfiguration config1 = rkt1.getSelectedConfiguration();
 		int expectedStageCount;
 		int actualStageCount;
 		int expectedMotorCount;
@@ -98,8 +100,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		FlightConfiguration config2 = config1.clone();
 		// ^^^^ test target ^^^^
 		config1.clearAllStages();
-		
-		
+
 		// postcondition: config #1
 		expectedStageCount = 0;
 		actualStageCount = config1.getActiveStageCount();
@@ -125,7 +126,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeSingleStageTestRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		// test explicitly setting only first stage active
 		config.clearAllStages();
@@ -159,7 +160,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeTwoStageTestRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		int expectedStageCount;
 		int stageCount;
@@ -216,7 +217,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket rkt = makeTwoStageMotorRocket();
-		FlightConfiguration config = rkt.getDefaultConfiguration();
+		FlightConfiguration config = rkt.getSelectedConfiguration();
 		
 		
 		config.clearAllStages();
@@ -376,15 +377,16 @@ public class FlightConfigurationTest extends BaseTestCase {
 		assertThat(" rocket has incorrect stage count: ", rocket.getStageCount(), equalTo(expectedStageCount));
 		
 		int expectedConfigurationCount = 0;
-		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
+		assertThat(" configuration list contains : ", rocket.getFlightConfigurationCount(), equalTo(expectedConfigurationCount));
 		
 		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
 		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
 		rocket.setDefaultConfiguration( newConfig.getId());
 		assertThat(" configuration updates stage Count correctly: ", newConfig.getActiveStageCount(), equalTo(expectedStageCount));
 		expectedConfigurationCount = 1;
-		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
+		assertThat(" configuration list contains : ", rocket.getFlightConfigurationCount(), equalTo(expectedConfigurationCount));
 		
+		rocket.update();
 		rocket.enableEvents();
 		return rocket;
 	}
@@ -442,13 +444,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 //		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
 //		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
 		
+		rocket.update();
 		rocket.enableEvents();
 		return rocket;	
 	}
 
 	public static Rocket makeTwoStageMotorRocket() {
 		Rocket rocket = makeTwoStageTestRocket();
-		FlightConfigurationId fcid = rocket.getDefaultConfiguration().getId();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getId();
 		
 		{
 			// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
@@ -485,7 +488,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 			boosterMount.setMotorInstance(fcid, new MotorConfiguration(boosterMotor));
 			boosterMount.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[1]); // double-mount
 		}
-		rocket.getConfigSet().update();
+		rocket.update();
 		rocket.enableEvents();
 		return rocket;
 	}

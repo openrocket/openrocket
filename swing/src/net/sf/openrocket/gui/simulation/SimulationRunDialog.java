@@ -292,7 +292,7 @@ public class SimulationRunDialog extends JDialog {
 			double otherBurn = 0;
 			
 			
-			FlightConfiguration config = simulation.getRocket().getDefaultConfiguration();
+			FlightConfiguration config = simulation.getRocket().getSelectedConfiguration();
 			Collection<MotorConfiguration> activeMotors = config.getActiveMotors();
 			
 			for (MotorConfiguration curInstance : activeMotors) {

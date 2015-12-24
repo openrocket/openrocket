@@ -41,7 +41,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		// Select separation event
 		panel.add(new StyledLabel(trans.get("StageConfig.separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
 		
-		FlightConfiguration flConfig = stage.getRocket().getDefaultConfiguration();
+		FlightConfiguration flConfig = stage.getRocket().getSelectedConfiguration();
 		StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(flConfig.getId());
 		// to ensure the configuration is distinct, and we're not modifying the default
 		if( sepConfig == stage.getSeparationConfigurations().getDefault() ){

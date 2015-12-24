@@ -10,7 +10,7 @@ public abstract class RocketUtils {
 	
 	public static double getLength(Rocket rocket) {
 		double length = 0;
-		Collection<Coordinate> bounds = rocket.getDefaultConfiguration().getBounds();
+		Collection<Coordinate> bounds = rocket.getSelectedConfiguration().getBounds();
 		if (!bounds.isEmpty()) {
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
 			for (Coordinate c : bounds) {
@@ -27,7 +27,7 @@ public abstract class RocketUtils {
 	// get rid of this method.... we can sure come up with a better way to do this....
 	public static Coordinate getCG(Rocket rocket, MassCalcType calcType) {
 		MassCalculator massCalculator = new MassCalculator();
-		Coordinate cg = massCalculator.getCG(rocket.getDefaultConfiguration(), calcType);
+		Coordinate cg = massCalculator.getCG(rocket.getSelectedConfiguration(), calcType);
 		return cg;
 	}
 	

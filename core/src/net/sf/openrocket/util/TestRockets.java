@@ -464,7 +464,7 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConfigurationId fcid = config.getFlightConfigurationID();
 		
 		ThrustCurveMotor motor = getTestMotor();
@@ -715,7 +715,7 @@ public class TestRockets {
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
 		
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 //		FlightConfigurationID fcid = config.getFlightConfigurationID();
 
 		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
@@ -733,7 +733,7 @@ public class TestRockets {
 	public static Rocket makeFalcon9Heavy() {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		
 		// ====== Payload Stage ======
 		// ====== ====== ====== ======
@@ -966,7 +966,7 @@ public class TestRockets {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v104_withMotorConfig");
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConfigurationId fcid = config.getFlightConfigurationID();
 		config.setName("F12X");
 		
@@ -1002,7 +1002,7 @@ public class TestRockets {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v104_withSimulationData");
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConfigurationId fcid = config.getFlightConfigurationID();
 		config.setName("F12X");
 		

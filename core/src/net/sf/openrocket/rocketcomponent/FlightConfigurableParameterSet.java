@@ -47,12 +47,6 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		}
 	}
 	
-	@Deprecated
-	// do we want to keep this? it shouldn't actually be called...
-	public boolean containsKey( final FlightConfigurationId fcid ){
-		return this.map.containsKey(fcid);
-	}
-	
 	/**
 	 * Return the default parameter value for this FlightConfiguration.
 	 * This is used in case a per-flight configuration override

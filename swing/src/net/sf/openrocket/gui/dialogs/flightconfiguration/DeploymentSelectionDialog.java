@@ -48,7 +48,7 @@ public class DeploymentSelectionDialog extends JDialog {
 	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		
-		final FlightConfigurationId id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = component.getDeploymentConfigurations().get(id).clone();
 		

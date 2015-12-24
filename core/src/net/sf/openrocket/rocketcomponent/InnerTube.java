@@ -412,7 +412,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		
 		Coordinate[] relCoords = this.getInstanceOffsets();
 		Coordinate[] absCoords = this.getLocations();
-		FlightConfigurationId curId = this.getRocket().getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId curId = this.getRocket().getSelectedConfiguration().getFlightConfigurationID();
 		final int intanceCount = this.getInstanceCount();
 		MotorConfiguration curInstance = this.motors.get(curId);
 		if( curInstance.isEmpty() ){

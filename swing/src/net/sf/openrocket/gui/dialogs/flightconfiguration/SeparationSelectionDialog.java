@@ -42,7 +42,7 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage stage) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectseparationconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		final FlightConfigurationId id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = stage.getSeparationConfigurations().get(id);
 		if( stage.getSeparationConfigurations().isDefault( newConfiguration )){

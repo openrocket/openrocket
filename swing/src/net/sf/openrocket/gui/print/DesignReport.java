@@ -163,7 +163,7 @@ public class DesignReport {
 		PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
 		
 		Rocket rocket = rocketDocument.getRocket();
-		final FlightConfiguration configuration = rocket.getDefaultConfiguration();//.clone();
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();//.clone();
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
 		
@@ -225,8 +225,7 @@ public class DesignReport {
 			List<Simulation> simulations = rocketDocument.getSimulations();
 			
 			int motorNumber = 0;
-			for( FlightConfiguration curConfig : rocket.getConfigSet()){
-				FlightConfigurationId fcid = curConfig.getFlightConfigurationID();
+			for( FlightConfigurationId fcid : rocket.getIds()){
 				
 				PdfPTable parent = new PdfPTable(2);
 				parent.setWidthPercentage(100);

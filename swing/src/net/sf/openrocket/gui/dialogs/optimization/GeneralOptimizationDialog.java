@@ -960,14 +960,14 @@ public class GeneralOptimizationDialog extends JDialog {
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
-		for (FlightConfiguration config : rocket.getConfigSet()) {
-			FlightConfigurationId fcid = config.getFlightConfigurationID();
-			if ( fcid == null) {
+		for (FlightConfigurationId curId: rocket.getIds() ){
+			if ( curId== null) {
+				// this is now *extremely* unlikely
 				throw new NullPointerException(" flightconfiguration has a null id... bug.");
 			}
 			
 			Simulation sim = new Simulation(rocket);
-			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, fcid));
+			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, curId));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		

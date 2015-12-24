@@ -116,7 +116,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
 		
-		FlightConfigurationId fcid = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		options.setFlightConfigurationId(fcid);
 		options.addChangeListener(new ConditionListener());
 	}

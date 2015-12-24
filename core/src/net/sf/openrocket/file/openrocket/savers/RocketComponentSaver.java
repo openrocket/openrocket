@@ -190,7 +190,7 @@ public class RocketComponentSaver {
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for( FlightConfigurationId fcid : rkt.getSortedConfigurationIDs()){
+		for( FlightConfigurationId fcid : rkt.getIds()){
 			
 			MotorConfiguration motorInstance = mount.getMotorInstance(fcid);
 			// Nothing is stored if no motor loaded

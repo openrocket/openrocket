@@ -75,7 +75,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		FlightConfigurationId fcid = getConfigurationID(row);
+		FlightConfigurationId fcid = rocket.getId( row);
 		
 		switch (column) {
 		case 0: {
@@ -102,14 +102,6 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	
 		}
 		}
-	}
-
-	private FlightConfigurationId getConfigurationID(int rowNum) {
-		if( rocket.getConfigurationCount() != (ids.size() ) ){
-			this.ids = rocket.getSortedConfigurationIDs();
-		}
-		
-		return this.ids.get(rowNum);
 	}
 
 }

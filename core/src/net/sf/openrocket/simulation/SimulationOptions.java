@@ -451,7 +451,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.configId);
 					FlightConfigurationId matchID = null;
 					
-					for (FlightConfigurationId fcid : this.rocket.getSortedConfigurationIDs()){
+					for (FlightConfigurationId fcid : rocket.getIds()){
 						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, fcid);
 						if (motorDesc.equals(motorDesc2)) {
 							matchID = fcid;

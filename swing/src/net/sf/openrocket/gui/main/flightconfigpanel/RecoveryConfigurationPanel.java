@@ -102,7 +102,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		if (c == null) {
 			return;
 		}
-		FlightConfigurationId id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		c.getDeploymentConfigurations().reset(id);
 		fireTableDataChanged();
 	}

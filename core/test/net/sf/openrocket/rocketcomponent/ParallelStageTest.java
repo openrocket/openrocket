@@ -756,7 +756,7 @@ public class ParallelStageTest extends BaseTestCase {
 		int actualStageCount = rocket.getStageCount();
 		
 		assertEquals(" Stage tracking error:  removed booster A, but count not updated: " + treedump, expectedStageCount, actualStageCount);
-		actualStageCount = rocket.getDefaultConfiguration().getStageCount();
+		actualStageCount = rocket.getSelectedConfiguration().getStageCount();
 		assertEquals(" Stage tracking error:  removed booster A, but configuration not updated: " + treedump, expectedStageCount, actualStageCount);
 		
 		ParallelStage boosterC = createBooster();

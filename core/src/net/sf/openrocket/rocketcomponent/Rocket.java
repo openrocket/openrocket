@@ -67,12 +67,13 @@ public class Rocket extends RocketComponent {
 	
 	
 	// Flight configuration list
-	private FlightConfigurableParameterSet<FlightConfiguration> configSet;
+	private FlightConfiguration selectedConfiguration;
+	private HashMap<FlightConfigurationId, FlightConfiguration> configSet = new HashMap<FlightConfigurationId, FlightConfiguration>(); 
+	private HashMap<Integer, AxialStage> stageMap = new HashMap<Integer, AxialStage>();
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
 	
-	private final HashMap<Integer, AxialStage> stageMap = new HashMap<Integer, AxialStage>();
 	
 	/////////////  Constructor  /////////////
 	
@@ -84,8 +85,10 @@ public class Rocket extends RocketComponent {
 		treeModID = modID;
 		functionalModID = modID;
 		
-		FlightConfiguration defaultConfiguration = new FlightConfiguration( this, null);
-		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( defaultConfiguration);		
+
+		
+		// must be after the hashmaps :P 
+		this.selectedConfiguration = new FlightConfiguration( this, null);
 	}
 	
 	public String getDesigner() {
@@ -301,10 +304,30 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet);
-		copy.resetListeners();
+		
+		// Rocket copy is cloned, so non-trivial members must be cloned as well:
+		copy.stageMap = new HashMap<Integer, AxialStage>();
+		copy.configSet = new HashMap<FlightConfigurationId, FlightConfiguration>();
+		if( 0 < this.configSet.size() ){
+			Rocket.cloneConfigs( this, copy);
+		}
+		copy.listenerList = new ArrayList<EventListener>();
 		
 		return copy;
+	}
+	
+	private static void cloneConfigs( final Rocket source, Rocket dest ){
+		source.checkState();
+		dest.checkState();
+		dest.selectedConfiguration = source.selectedConfiguration.clone();
+		for( final FlightConfiguration config : source.configSet.values() ){
+			dest.configSet.put( config.getId(), config.clone() );
+		}
+	}
+	
+	public int getFlightConfigurationCount() {
+		checkState();
+		return this.configSet.size();
 	}
 	
 	/**
@@ -337,8 +360,8 @@ public class Rocket extends RocketComponent {
 		this.functionalModID = r.functionalModID;
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
+		Rocket.cloneConfigs( r, this);
 		
-		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet );
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();
@@ -458,7 +481,9 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	public void update(){
-		this.configSet.update();
+		for( FlightConfiguration config : configSet.values() ){
+			config.update();
+		}
 	}
 	
 	/**
@@ -529,15 +554,15 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return the default configuration.  This should be used in the user interface
+	 * Return the currently selected configuration.  This should be used in the user interface
 	 * to ensure a consistent rocket configuration between dialogs.  It should NOT
 	 * be used in simulations not relating to the UI.
 	 *
-	 * @return   the default {@link FlightConfiguration}.
+	 * @return   the current {@link FlightConfiguration}.
 	 */
-	public FlightConfiguration getDefaultConfiguration() {
+	public FlightConfiguration getSelectedConfiguration() {
 		checkState();
-		return this.configSet.getDefault();
+		return this.selectedConfiguration;
 	}
 	
 	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
@@ -548,8 +573,8 @@ public class Rocket extends RocketComponent {
 			return this.configSet.get(fcid);
 		}else{
 			FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
-			this.configSet.set(fcid, nextConfig);
-			this.configSet.setDefault( nextConfig);
+			this.configSet.put(fcid, nextConfig);
+			this.selectedConfiguration = nextConfig;
 			fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
 			return nextConfig;
 		}
@@ -559,15 +584,27 @@ public class Rocket extends RocketComponent {
 		return this.configSet.size();
 	}
 	
-	public FlightConfigurableParameterSet<FlightConfiguration> getConfigSet(){
-		checkState();
-		return this.configSet;
-	}
-	
-	public List<FlightConfigurationId> getSortedConfigurationIDs(){
-		return configSet.getSortedConfigurationIDs();
+	public List<FlightConfigurationId> getIds(){
+		ArrayList<FlightConfigurationId> toReturn = new ArrayList<FlightConfigurationId>(this.configSet.keySet()); 
+		
+		// Java 1.8:
+		//toReturn.sort( null );
+			
+		// Java 1.7: 
+		Collections.sort(toReturn);
+				
+		return toReturn;
 	}
 
+	
+	/**
+	 * Primarily for use with UI elements 
+	 * 
+	 * @return list of attached flight configurations (unordered)
+	 */
+	public FlightConfiguration[] toConfigArray(){
+		return this.configSet.values().toArray( new FlightConfiguration[0]);
+	}
 	
 	/**
 	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
@@ -582,7 +619,7 @@ public class Rocket extends RocketComponent {
 		}
 		
 		// Get current configuration:
-		this.configSet.set(fcid, null);
+		this.configSet.remove( fcid);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -649,12 +686,17 @@ public class Rocket extends RocketComponent {
 	 * @return	   a FlightConfiguration instance 
 	 */
 	public FlightConfiguration getFlightConfiguration(final int configIndex) {
-		return this.configSet.get(configIndex);
+		return this.configSet.get( this.getId(configIndex));
 	}
 
-	public void setDefaultConfiguration(final FlightConfiguration config) {
+	public FlightConfigurationId getId( final int configIndex) {
+		List<FlightConfigurationId> idList = this.getIds();
+		return idList.get(configIndex);
+	}
+
+	public void setSelectedConfiguration(final FlightConfiguration config) {
 		checkState();
-		configSet.setDefault( config);
+		this.selectedConfiguration = config;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}	
 	
@@ -665,7 +707,7 @@ public class Rocket extends RocketComponent {
 			log.error("attempt to set a 'fcid = config' with a error fcid.  Ignored.", new IllegalArgumentException("error id:"+fcid));
 			return;
 		}else if( this.configSet.containsKey(fcid)){
-			configSet.setDefault( configSet.get(fcid));
+			this.selectedConfiguration = configSet.get(fcid);
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
 	}	
@@ -687,7 +729,7 @@ public class Rocket extends RocketComponent {
 		if (null == newConfig){
 			newConfig = createFlightConfiguration(fcid);
 		}
-		configSet.set(fcid, newConfig);
+		configSet.put(fcid, newConfig);
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
@@ -766,6 +808,20 @@ public class Rocket extends RocketComponent {
 		}else{
 			this.eventsEnabled = false;
 		}
+	}
+	
+	public String toDebugConfigs(){
+		StringBuilder buf = new StringBuilder();
+		buf.append(String.format("====== Dumping %d Configurations from rocket: \n", this.getConfigurationCount(), this.getName()));
+		final String fmt = "    [%-12s]: %s\n";
+		for( FlightConfiguration config : this.configSet.values() ){
+			String shortKey = config.getId().toShortKey();
+			if( this.selectedConfiguration.equals( config)){
+				shortKey = "*"+shortKey+"*";
+			}
+			buf.append(String.format(fmt, shortKey, config.getName() ));
+		}
+		return buf.toString();
 	}
 	
 }

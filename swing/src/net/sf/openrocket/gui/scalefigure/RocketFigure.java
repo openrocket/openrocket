@@ -109,7 +109,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	public FlightConfiguration getConfiguration() {
-		return this.rocket.getDefaultConfiguration();
+		return this.rocket.getSelectedConfiguration();
 	}
 	
 	
@@ -183,7 +183,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		figureShapes.clear();
 		
 		calculateSize();
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		getShapes( figureShapes, config);
 		
 		repaint();
@@ -337,7 +337,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		for( MotorConfiguration curInstance : config.getActiveMotors()){
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
@@ -514,7 +514,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * The bounds are stored in the variables minX, maxX and maxR.
 	 */
 	private void calculateFigureBounds() {
-		Collection<Coordinate> bounds = rocket.getDefaultConfiguration().getBounds();
+		Collection<Coordinate> bounds = rocket.getSelectedConfiguration().getBounds();
 		
 		if (bounds.isEmpty()) {
 			minX = 0;

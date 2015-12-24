@@ -119,7 +119,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.add(tabs, "spanx, grow, wrap rel");
 
 		
-		this.rocket.getDefaultConfiguration().addChangeListener(this);
+		this.rocket.getSelectedConfiguration().addChangeListener(this);
 	}
 	
 	private void addConfiguration() {
@@ -135,7 +135,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void copyConfiguration() {
-		FlightConfiguration oldConfig = rocket.getDefaultConfiguration();
+		FlightConfiguration oldConfig = rocket.getSelectedConfiguration();
 		FlightConfiguration newConfig = oldConfig.clone();
 		FlightConfigurationId oldId = oldConfig.getFlightConfigurationID();
 		FlightConfigurationId newId = newConfig.getFlightConfigurationID();
@@ -185,7 +185,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 	
 	private void updateButtonState() {
-		FlightConfigurationId currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		// Enable the remove/rename/copy buttons only when a configuration is selected.
 		removeConfButton.setEnabled(currentId.isValid());
 		renameConfButton.setEnabled(currentId.isValid());

@@ -35,7 +35,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		// Validate Boosters
 		MassCalculator mc = new MassCalculator();
 		//mc.debug = true;
-		Coordinate rocketCM = mc.getCM( rkt.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+		Coordinate rocketCM = mc.getCM( rkt.getSelectedConfiguration(), MassCalcType.NO_MOTORS);
 		
 		double expMass = 0.668984592;
 		double expCMx = 0.558422219894;
@@ -47,9 +47,9 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Delta Heavy Booster CM.z is incorrect: ", expCM.z, rocketCM.z, EPSILON);
 		assertEquals(" Delta Heavy Booster CM is incorrect: ", expCM, rocketCM);
 		
-		rocketCM = mc.getCM( rkt.getDefaultConfiguration(), MassCalcType.LAUNCH_MASS);
+		rocketCM = mc.getCM( rkt.getSelectedConfiguration(), MassCalcType.LAUNCH_MASS);
 		assertEquals(" Delta Heavy Booster CM is incorrect: ", expCM, rocketCM);
-		rocketCM = mc.getCM( rkt.getDefaultConfiguration(), MassCalcType.BURNOUT_MASS);
+		rocketCM = mc.getCM( rkt.getSelectedConfiguration(), MassCalcType.BURNOUT_MASS);
 		assertEquals(" Delta Heavy Booster CM is incorrect: ", expCM, rocketCM);
 	}
 	
@@ -267,14 +267,14 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
-		rocket.getDefaultConfiguration().clearAllStages();
-		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
+		rocket.getSelectedConfiguration().clearAllStages();
+		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
 //		String treeDump = rocket.toDebugTree();
 //		System.err.println( treeDump);
 		
 		// Validate Boosters
 		MassCalculator mc = new MassCalculator();
-		Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+		Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.NO_MOTORS);
 				
 		double expMass = 0.23590802751203407;
 		double expCMx = 0.9615865040919498;
@@ -296,14 +296,14 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		//rocket.getDefaultConfiguration().setAllStages(false);
-		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
+		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
 		
 		//String treeDump = rocket.toDebugTree();
 		//System.err.println( treeDump);
 		{
 			// Validate Booster Launch Mass
 			MassCalculator mc = new MassCalculator();
-			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.LAUNCH_MASS);
+			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.LAUNCH_MASS);
 			double calcTotalMass = boosterSetCM.weight;
 			
 			double expTotalMass = 1.219908027512034;
@@ -318,7 +318,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		{
 			// Validate Booster Burnout Mass
 			MassCalculator mc = new MassCalculator();
-			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.BURNOUT_MASS);
+			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.BURNOUT_MASS);
 			double calcTotalMass = boosterSetCM.weight;
 			
 			double expTotalMass = 0.7479080275020341;
@@ -337,12 +337,12 @@ public class MassCalculatorTest extends BaseTestCase {
 	public void testTestBoosterStructureMOI() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
-		FlightConfiguration defaultConfig = rocket.getDefaultConfiguration();
+		FlightConfiguration defaultConfig = rocket.getSelectedConfiguration();
 		
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
-		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
+		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
 //		String treeDump = rocket.toDebugTree();
 //		System.err.println( treeDump);
 		
@@ -361,14 +361,14 @@ public class MassCalculatorTest extends BaseTestCase {
 	@Test
 	public void testBoosterTotalMOI() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		FlightConfiguration defaultConfig = rocket.getDefaultConfiguration();
+		FlightConfiguration defaultConfig = rocket.getSelectedConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		
 		//rocket.getDefaultConfiguration().setAllStages(false);
-		rocket.getDefaultConfiguration().setOnlyStage( boostNum);
+		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
 		//String treeDump = rocket.toDebugTree();
 		//System.err.println( treeDump);
 		
@@ -389,7 +389,7 @@ public class MassCalculatorTest extends BaseTestCase {
 	@Test
 	public void testMassOverride() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
@@ -407,7 +407,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			// Validate Mass
 			MassCalculator mc = new MassCalculator();
 			//mc.debug = true;
-			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.NO_MOTORS);
 			double calcTotalMass = boosterSetCM.weight;
 			
 			double expTotalMass = overrideMass;
@@ -439,7 +439,7 @@ public class MassCalculatorTest extends BaseTestCase {
 	@Test
 	public void testCMOverride() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		FlightConfiguration config = rocket.getDefaultConfiguration();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
@@ -456,7 +456,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			// Validate Mass
 			MassCalculator mc = new MassCalculator();
 			//mc.debug = true;
-			Coordinate boosterSetCM = mc.getCM( rocket.getDefaultConfiguration(), MassCalcType.NO_MOTORS);
+			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.NO_MOTORS);
 			
 			double expMass = 0.23590802751203407;
 			double calcTotalMass = boosterSetCM.weight;

@@ -111,7 +111,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		}
 		
 		// why? 
-		FlightConfigurationId id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		stage.getSeparationConfigurations().reset(id);
 		
 		fireTableDataChanged();

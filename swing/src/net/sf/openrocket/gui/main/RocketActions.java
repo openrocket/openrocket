@@ -624,7 +624,7 @@ public class RocketActions {
 			//// Add stage
 			document.addUndoPosition("Add stage");
 			rocket.addChild(stage);
-			rocket.getDefaultConfiguration().setAllStages();
+			rocket.getSelectedConfiguration().setAllStages();
 			selectionModel.setSelectedComponent(stage);
 			ComponentConfigDialog.showDialog(parentFrame, document, stage);
 			

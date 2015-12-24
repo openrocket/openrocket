@@ -164,7 +164,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	
 	public FlightConfiguration getDefaultConfiguration() {
-		return rocket.getDefaultConfiguration();
+		return rocket.getSelectedConfiguration();
 	}
 	
 	public File getFile() {

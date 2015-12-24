@@ -479,11 +479,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public FlightConfiguration clone() {
 		// Note the motors and stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.getRocket(), this.fcid );
-		clone.setName("clone - "+this.fcid.toShortKey());
-
+		clone.setName("clone[#"+clone.instanceNumber+"]"+clone.fcid.toShortKey());
+		log.error(">> Why am I being cloned!?", new IllegalStateException(this.toDebug()+" >to> "+clone.toDebug()));
+		
 		// DO NOT UPDATE: 
 		// this.stages and this.motors are updated correctly on their own.
-
 		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;

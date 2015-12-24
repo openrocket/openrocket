@@ -43,7 +43,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
 		table = initializeTable();
-		rocket.getDefaultConfiguration().addChangeListener( new StateChangeListener() {
+		rocket.getSelectedConfiguration().addChangeListener( new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				FlightConfigurablePanel.this.synchronizeConfigurationSelection();
@@ -64,7 +64,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected abstract void updateButtonState();
 
 	protected final void synchronizeConfigurationSelection() {
-		FlightConfigurationId defaultFCID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId defaultFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
 		if ( selectedFCID == null ) {
@@ -78,9 +78,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				col = (table.getColumnCount() > 1) ? 1 : 0;
 			}
 			
-			java.util.List<FlightConfigurationId> ids = rocket.getSortedConfigurationIDs();
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
-				FlightConfigurationId rowFCID = ids.get(rowNum );
+				FlightConfigurationId rowFCID = rocket.getId(rowNum );
 				if ( rowFCID.equals(selectedFCID) ) {
 					table.changeSelection(rowNum, col, true, false);
 					break;

@@ -66,7 +66,7 @@ public class StabilityDomain implements SimulationDomain {
 		MassCalculator massCalculator = new MassCalculator();
 		
 	
-		FlightConfiguration configuration = simulation.getRocket().getDefaultConfiguration();
+		FlightConfiguration configuration = simulation.getRocket().getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);
