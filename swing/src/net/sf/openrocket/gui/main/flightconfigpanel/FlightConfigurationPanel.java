@@ -118,8 +118,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 		this.add(tabs, "spanx, grow, wrap rel");
 
-		
-		this.rocket.getSelectedConfiguration().addChangeListener(this);
 	}
 	
 	private void addConfiguration() {
@@ -146,7 +144,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			}
 		}
 		rocket.setFlightConfiguration(newId, newConfig);
-		rocket.addComponentChangeListener( newConfig);
 		
 		// Create a new simulation for this configuration.
 		createSimulationForNewConfiguration();

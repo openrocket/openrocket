@@ -27,7 +27,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  * @author Daniel Williams <equipoise@gmail.com>
  */
-public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, ChangeSource, ComponentChangeListener, Monitorable {
+public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
 	
 	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
@@ -269,14 +269,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	////////////////  Listeners  ////////////////
 	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-	}
-	
 	// for outgoing events only
 	protected void fireChangeEvent() {
 		this.modID++;
@@ -353,13 +345,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return this.getName();
 	}
 
-	@Override
-	public void componentChanged(ComponentChangeEvent cce) {
-		// update according to incoming events 
-		updateStages();
-		updateMotors();
-	}
-	
+
 	/**
 	 * Add a motor instance to this configuration.  
 	 * 

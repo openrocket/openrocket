@@ -43,12 +43,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
 		table = initializeTable();
-		rocket.getSelectedConfiguration().addChangeListener( new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				FlightConfigurablePanel.this.synchronizeConfigurationSelection();
-			}
-		});
+
 		installTableListener();
 		synchronizeConfigurationSelection();
 	}
