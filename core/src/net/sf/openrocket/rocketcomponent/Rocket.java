@@ -481,6 +481,7 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	public void update(){
+		this.selectedConfiguration.update();
 		for( FlightConfiguration config : configSet.values() ){
 			config.update();
 		}
