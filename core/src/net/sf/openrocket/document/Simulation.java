@@ -1,6 +1,5 @@
 package net.sf.openrocket.document;
 
-import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
@@ -13,7 +12,6 @@ import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -147,6 +145,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.name = name;
 		
 		this.options = options;
+
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		options.setFlightConfigurationId(fcid);
+		
 		options.addChangeListener(new ConditionListener());
 		
 		if (extensions != null) {
@@ -279,6 +281,13 @@ public class Simulation implements ChangeSource, Cloneable {
 			if (rocket.getFunctionalModID() != simulatedRocketID || !options.equals(simulatedConditions)) {
 				status = Status.OUTDATED;
 			}
+		}
+
+		// if the id hasn't been set yet, skip.
+		if ( options.getId().hasError() ){
+			log.warn(" simulationOptions lacks a valid id. Skipping.");
+			status = Status.CANT_RUN;
+			return status;
 		}
 		
 		FlightConfiguration config = rocket.getFlightConfiguration(options.getId());

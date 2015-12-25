@@ -51,7 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private FlightConfigurationId configId = new FlightConfigurationId(); 
+	private FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID; 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -439,7 +439,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (this.rocket == src.rocket) {
 			this.configId = src.configId;
 		} else {
-			
 			if (src.rocket.hasMotors(src.configId)) {
 				// First check for exact match:
 				if (this.rocket.containsFlightConfigurationID(src.configId)) {
@@ -462,7 +461,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 					this.configId = matchID;
 				}
 			} else {
-				this.configId = null;
+				this.configId = FlightConfigurationId.ERROR_FCID;
 			}
 		}
 		
@@ -588,7 +587,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public int hashCode() {
-		if (configId == null)
+		if (configId.hasError())
 			return rocket.hashCode();
 		return rocket.hashCode() + configId.hashCode();
 	}

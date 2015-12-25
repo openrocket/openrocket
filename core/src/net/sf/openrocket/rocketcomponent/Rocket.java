@@ -568,7 +568,9 @@ public class Rocket extends RocketComponent {
 	
 	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
-		if( fcid.hasError() ){
+		if( null == fcid ){
+			throw new NullPointerException("Attempted to create a flightConfiguration from a null key!");
+		}else if( fcid.hasError() ){
 			throw new NullPointerException("Attempted to create a flightConfiguration from an error key!");
 		}else if( configSet.containsKey(fcid)){
 			return this.configSet.get(fcid);
@@ -815,6 +817,7 @@ public class Rocket extends RocketComponent {
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("====== Dumping %d Configurations from rocket: \n", this.getConfigurationCount(), this.getName()));
 		final String fmt = "    [%-12s]: %s\n";
+		buf.append(String.format(fmt, "  *SELECTED* ", selectedConfiguration.getName() ));
 		for( FlightConfiguration config : this.configSet.values() ){
 			String shortKey = config.getId().toShortKey();
 			if( this.selectedConfiguration.equals( config)){
