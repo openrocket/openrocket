@@ -16,7 +16,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	protected MotorMount mount = null;
 	protected Motor motor = null;
-	protected Coordinate position = Coordinate.ZERO;
 	protected double ejectionDelay = 0.0;
 
 	protected MotorInstanceId id = null;
@@ -100,13 +99,15 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.ejectionDelay = delay;
 	}
 	
-	public Coordinate getPosition() {
-		return this.position;
+	public Coordinate getPosition(){
+		return new Coordinate( getX(), 0, 0);
 	}
 	
-	public void setPosition(Coordinate _position) {
-		this.position = _position;
-		modID++;
+	public double getX(){
+		if( isEmpty()){
+			return 0.0;
+		}
+		return mount.getLength() - motor.getLength() + mount.getMotorOverhang();
 	}
 	
 	public double getIgnitionTime() {
@@ -151,18 +152,16 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		}
 	}
 	
-	public double getLongitudinalInertia() {
+	public double getUnitLongitudinalInertia() {
 		if ( motor != null ) {
-			double unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(motor.getDiameter() / 2, motor.getLength());
-			return unitLongitudinalInertia * Coordinate.ZERO.weight;
+			return Inertia.filledCylinderLongitudinal(motor.getDiameter() / 2, motor.getLength());
 		}
 		return 0.0;
 	}
 	
-	public double getRotationalInertia() {
+	public double getUnitRotationalInertia() {
 		if ( motor != null ) {
-			double unitRotationalInertia = Inertia.filledCylinderRotational(motor.getDiameter() / 2);
-			return unitRotationalInertia * Coordinate.ZERO.weight;
+			return Inertia.filledCylinderRotational(motor.getDiameter() / 2);
 		}
 		return 0.0;
 	}

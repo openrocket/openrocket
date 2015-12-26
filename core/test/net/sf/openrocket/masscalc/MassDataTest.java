@@ -2,10 +2,8 @@ package net.sf.openrocket.masscalc;
 
 //import junit.framework.TestCase;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -86,7 +84,7 @@ public class MassDataTest extends BaseTestCase {
 //		System.err.println("     @(1):     "+ body1.toDebug());
 //		System.err.println("     @(2):     "+ body2.toDebug());
 //		System.err.println("     @(3):     "+ asbly3.toDebug());
-		System.err.println(" Center of Mass: (3) expected:  "+ cm3_expected);
+//		System.err.println(" Center of Mass: (3) expected:  "+ cm3_expected);
 		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
 		
 		

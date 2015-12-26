@@ -87,6 +87,22 @@ public class TestRockets {
 		this.rnd = new Random(key.hashCode());
 		
 	}
+
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	private static MotorConfiguration generateMotorInstance_C6_18mm(){
+		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+		//			Motor.Type type, double[] delays, double diameter, double length,
+		//			double[] time, double[] thrust,
+		//          Coordinate[] cg, String digest);
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("Estes"),"C6", " SU Black Powder", 
+				Motor.Type.SINGLE, new double[] {0,3,5,7}, 0.018, 0.070,
+				new double[] { 0, 1, 2 }, new double[] { 0, 6, 0 },
+				new Coordinate[] {
+					new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.0102)}, 
+				"digest C6 test");
+		return new MotorConfiguration(mtr);
+	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static MotorConfiguration generateMotorInstance_M1350_75mm(){
@@ -315,7 +331,6 @@ public class TestRockets {
 	// It is picked as a standard, simple, validation rocket. 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static final Rocket makeEstesAlphaIII(){
-		
 		Rocket rocket = new Rocket();
 		rocket.setName("Estes Alpha III / Code Verification Rocket");
 		AxialStage stage = new AxialStage();
@@ -379,6 +394,12 @@ public class TestRockets {
 				thrustBlock.setThickness(0.00075);
 				thrustBlock.setName("Engine Block");
 				inner.addChild(thrustBlock);
+				
+				MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+				motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+				inner.setMotorMount( true);
+				FlightConfigurationId motorConfigId = rocket.getSelectedConfiguration().getFlightConfigurationID();
+				inner.setMotorInstance( motorConfigId, motorConfig);	 
 			}
 		
 			// parachute
@@ -406,6 +427,7 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
+		rocket.getSelectedConfiguration().setAllStages();
 		rocket.enableEvents();
 		return rocket;
 	}

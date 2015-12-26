@@ -2,16 +2,14 @@ package net.sf.openrocket.masscalc;
 
 //import junit.framework.TestCase;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
-import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -288,21 +286,88 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Delta Heavy Booster CM is incorrect: ", expCM, boosterSetCM);  
 	}
 	
+
+	@Test
+	public void testSingleMotorMass() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		
+		InnerTube mmt = (InnerTube) rocket.getChild(0).getChild(1).getChild(2);
+		Motor activeMotor = mmt.getMotorInstance( rocket.getSelectedConfiguration().getId()).getMotor();
+		String desig = activeMotor.getDesignation();
+		
+		double expLaunchMass = 0.0227; // kg
+		double expSpentMass = 0.0102; // kg
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expLaunchMass, activeMotor.getLaunchCG().weight, EPSILON);
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expSpentMass, activeMotor.getEmptyCG().weight, EPSILON);
+		
+		// Validate Booster Launch Mass
+		MassCalculator mc = new MassCalculator();
+		double actPropMass = mc.getPropellantMass( rocket.getSelectedConfiguration(), MassCalcType.LAUNCH_MASS);
+					
+		double expPropMass = expLaunchMass - expSpentMass;
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expPropMass, actPropMass, EPSILON);			
+	}
+	
+	
+	@Test
+	public void testBoosterMotorMass() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		int boostNum = boosters.getStageNumber();
+		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
+		
+//		String treeDump = rocket.toDebugTree();
+//		System.err.println( treeDump);
+		
+		{
+			InnerTube mmt = (InnerTube) boosters.getChild(1).getChild(0);
+			double expX = (.564 + 0.8 - 0.150 );
+			double actX = mmt.getLocations()[0].x; 
+			assertEquals(" Booster motor mount tubes located incorrectly: ", expX, actX, EPSILON);
+		}
+		{
+			// Validate Booster Launch Mass
+			MassCalculator mc = new MassCalculator();
+			MassData launchMotorData = mc.getMotorMassData( rocket.getSelectedConfiguration(), MassCalcType.LAUNCH_MASS);
+			Coordinate launchCM = launchMotorData.getCM();
+			// 1.214 = beginning of engine mmt
+			// 1.364-.062 = middle of engine: 1.302
+			Coordinate expLaunchCM = new Coordinate(1.31434, 0, 0, 0.123*2*4);
+			assertEquals(" Booster Launch Mass is incorrect: ", expLaunchCM.weight, launchCM.weight, EPSILON);
+			assertEquals(" Booster Launch CM.x is incorrect: ", expLaunchCM.x, launchCM.x, EPSILON);
+			assertEquals(" Booster Launch CM.y is incorrect: ", expLaunchCM.y, launchCM.y, EPSILON);
+			assertEquals(" Booster Launch CM.z is incorrect: ", expLaunchCM.z, launchCM.z, EPSILON);
+			assertEquals(" Booster Launch CM is incorrect: ", expLaunchCM, launchCM);
+			
+			
+			MassData spentMotorData = mc.getMotorMassData( rocket.getSelectedConfiguration(), MassCalcType.BURNOUT_MASS);
+			Coordinate spentCM = spentMotorData.getCM();
+			Coordinate expSpentCM = new Coordinate(1.31434, 0, 0, 0.064*2*4);
+			assertEquals(" Booster Spent Mass is incorrect: ", expSpentCM.weight, spentCM.weight, EPSILON);
+			assertEquals(" Booster Launch CM.x is incorrect: ", expSpentCM.x, spentCM.x, EPSILON);
+			assertEquals(" Booster Launch CM.y is incorrect: ", expSpentCM.y, spentCM.y, EPSILON);
+			assertEquals(" Booster Launch CM.z is incorrect: ", expSpentCM.z, spentCM.z, EPSILON);
+			assertEquals(" Booster Launch CM is incorrect: ", expSpentCM, spentCM);
+		}
+
+	}
+	
+	
 	@Test
 	public void testBoosterTotalCM() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 
 		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 		int boostNum = boosters.getStageNumber();
 		//rocket.getDefaultConfiguration().setAllStages(false);
 		rocket.getSelectedConfiguration().setOnlyStage( boostNum);
 		
-		//String treeDump = rocket.toDebugTree();
-		//System.err.println( treeDump);
+//		String treeDump = rocket.toDebugTree();
+//		System.err.println( treeDump);
 		{
 			// Validate Booster Launch Mass
 			MassCalculator mc = new MassCalculator();
+			//mc.debug = true;
 			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.LAUNCH_MASS);
 			double calcTotalMass = boosterSetCM.weight;
 			
@@ -318,6 +383,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		{
 			// Validate Booster Burnout Mass
 			MassCalculator mc = new MassCalculator();
+			//mc.debug = true;
 			Coordinate boosterSetCM = mc.getCM( rocket.getSelectedConfiguration(), MassCalcType.BURNOUT_MASS);
 			double calcTotalMass = boosterSetCM.weight;
 			
@@ -374,12 +440,11 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// Validate Boosters
 		MassCalculator mc = new MassCalculator();
-		//mc.debug = true;
-		double expMOI_axial = 0.00752743;
-		double boosterMOI_xx= mc.getRotationalInertia( defaultConfig, MassCalcType.LAUNCH_MASS);
+		final double expMOI_axial = 0.05009613217;//0.00752743;
+		final double boosterMOI_xx= mc.getRotationalInertia( defaultConfig, MassCalcType.LAUNCH_MASS);
 		
-		double expMOI_tr = 0.0436639379937;
-		double boosterMOI_tr= mc.getLongitudinalInertia( defaultConfig, MassCalcType.LAUNCH_MASS);
+		final double expMOI_tr = 0.05263041249; // 0.0436639379937;
+		final double boosterMOI_tr= mc.getLongitudinalInertia( defaultConfig, MassCalcType.LAUNCH_MASS);
 				
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);

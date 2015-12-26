@@ -53,6 +53,14 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @return number of times this component is instanced
 	 */
 	public int getInstanceCount();
+
+	/** 
+	 * Get the length of this motor mount.  Synonymous with the RocketComponent method. 
+	 * 
+	 * @return
+	 */
+	public double getLength();
+		
 		
 	/**
 	 * 

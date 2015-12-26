@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.motor.MotorConfigurationSet;
+import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -146,7 +146,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public int getInstanceCount() {
-		return cluster.getClusterCount();
+		return this.getLocations().length;
 	}
 	
 	@Override
@@ -282,17 +282,17 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 
 	@Override 
-	public void setMotorInstance(final FlightConfigurationId fcid, final MotorConfiguration newMotorInstance){
-		if((null == newMotorInstance)){
+	public void setMotorInstance(final FlightConfigurationId fcid, final MotorConfiguration newMotorConfig){
+		if((null == newMotorConfig)){
 			this.motors.set( fcid, null);
 		}else{
-			if( null == newMotorInstance.getMount()){
-				newMotorInstance.setMount(this);
-			}else if( !this.equals( newMotorInstance.getMount())){
+			if( null == newMotorConfig.getMount()){
+				newMotorConfig.setMount(this);
+			}else if( !this.equals( newMotorConfig.getMount())){
 				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
 			}
-			newMotorInstance.setID(new MotorInstanceId( this.getID(), 1));
-			this.motors.set(fcid, newMotorInstance);
+			newMotorConfig.setID(new MotorInstanceId( this.getID(), 1));
+			this.motors.set(fcid, newMotorConfig);
 		}
 
 		this.isActingMount = true;
@@ -378,6 +378,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		
 		return copy;
 	}
+
 	
 	/**
 	 * For a given coordinate that represents one tube in a cluster, create an instance of that tube.  Must be called

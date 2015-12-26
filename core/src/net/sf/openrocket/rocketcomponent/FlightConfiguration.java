@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
-import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
@@ -466,10 +464,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		// Note the motors and stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.getRocket(), this.fcid );
 		clone.setName("clone[#"+clone.instanceNumber+"]"+clone.fcid.toShortKey());
-		log.error(">> Why am I being cloned!?", new IllegalStateException(this.toDebug()+" >to> "+clone.toDebug()));
+		//	log.error(">> Why am I being cloned!?", new IllegalStateException(this.toDebug()+" >to> "+clone.toDebug()));
 		
-		// DO NOT UPDATE: 
-		// this.stages and this.motors are updated correctly on their own.
+		
+		// DO NOT UPDATE this.stages or this.motors;
+		// these are are updated correctly on their own.
+		
 		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
@@ -516,7 +516,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	
 	public String toDebug() {
-		return this.fcid.toDebug()+" #"+instanceNumber;
+		return this.fcid.toDebug()+" (#"+instanceNumber+")";
 	}
 	
 	// DEBUG / DEVEL
