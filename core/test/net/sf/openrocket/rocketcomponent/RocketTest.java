@@ -13,15 +13,6 @@ import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class RocketTest extends BaseTestCase {
-	
-	@Test
-	public void testCopyRocket() {
-		Rocket r1 = net.sf.openrocket.util.TestRockets.makeBigBlue();
-		
-		Rocket copy = (Rocket) r1.copy();
-		
-		//ComponentCompare.assertDeepEquality(r1, copy);
-	}
 
 	@Test
 	public void testCopyIndependence() {

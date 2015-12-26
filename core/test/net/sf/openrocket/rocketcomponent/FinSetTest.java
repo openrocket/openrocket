@@ -245,7 +245,9 @@ public class FinSetTest extends BaseTestCase {
 		
 		converted = FreeformFinSet.convertFinSet((FinSet) fin.copy());
 		
-		ComponentCompare.assertSimilarity(fin, converted, true);
+		/// what do we want to ACTUALLY compare?
+		//  ComponentCompare.assertSimilarity(fin, converted, true);  // deprecated; removed
+        
 		
 		assertEquals(converted.getComponentName(), converted.getName());
 		

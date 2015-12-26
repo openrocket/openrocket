@@ -8,15 +8,10 @@ package net.sf.openrocket.rocketcomponent;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.sf.openrocket.util.ArrayList;

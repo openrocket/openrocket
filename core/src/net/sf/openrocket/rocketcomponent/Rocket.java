@@ -797,6 +797,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public void enableEvents() {
 		this.enableEvents(true);
+		this.update();
 	}
 	
 	/** 
