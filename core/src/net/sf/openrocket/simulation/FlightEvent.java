@@ -164,6 +164,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	
 	@Override
 	public String toString() {
-		return "FlightEvent[type=" + type.name() + ",time=" + time + ",source=" + source + "]";
+		return "FlightEvent[type=" + type.name() + ",time=" + time + ",source=" + source + ",data=" + String.valueOf(data) + "]";
+		
 	}
 }

@@ -70,7 +70,7 @@ public class BarrowmanCalculatorTest {
 		WarningSet warnings = new WarningSet();
 		
 		MotorConfiguration inst = TestRockets.getTestD12Motor();
-		InnerTube motorTube = (InnerTube)rkt.getChild(0).getChild(1).getChild(1);
+		InnerTube motorTube = (InnerTube)rkt.getChild(0).getChild(1).getChild(2);
 		motorTube.setMotorInstance(fcid, inst);
 		motorTube.setMotorMount(true);
 		motorTube.setMotorOverhang(0.005);

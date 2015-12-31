@@ -29,7 +29,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	protected boolean ignitionOveride = false;
 	protected double ignitionDelay = 0.0;
 	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
-	protected double ignitionTime = 0.0;
 	
 	protected int modID = 0;
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
@@ -50,13 +49,11 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public MotorState getSimulationState() {
 		MotorState state = motor.getNewInstance();
 		if( ignitionOveride ) {
-			state.setIgnitionTime( this.ignitionTime );
 			state.setIgnitionEvent( this.ignitionEvent );
 			state.setIgnitionDelay( this.ignitionDelay );
 			state.setEjectionDelay( this.ejectionDelay );
 		} else {
 			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
-			state.setIgnitionTime( defInstance.ignitionTime );
 			state.setIgnitionEvent( defInstance.ignitionEvent );
 			state.setIgnitionDelay( defInstance.ignitionDelay );
 			state.setEjectionDelay( defInstance.ejectionDelay );
@@ -118,19 +115,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		fireChangeEvent();
 	}
 	
-	public double getIgnitionTime() {
-		return this.ignitionTime;
-	}
-
 	public void useDefaultIgnition() {
 		this.ignitionOveride = false;
-	}
-	
-	public void setIgnitionTime(double _time) {
-		this.ignitionTime = _time;
-		this.ignitionOveride = true;
-		modID++;
-		fireChangeEvent();
 	}
 	
 	public double getIgnitionDelay() {
@@ -225,7 +211,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		clone.ignitionOveride = this.ignitionOveride;
 		clone.ignitionDelay = this.ignitionDelay;
 		clone.ignitionEvent = this.ignitionEvent;
-		clone.ignitionTime = this.ignitionTime;
 		return clone;
 	}
 	

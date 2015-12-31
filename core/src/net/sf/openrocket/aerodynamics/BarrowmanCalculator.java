@@ -192,27 +192,27 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			//    With the implementation of ParallelStages and Pods, this is no longer true. -Daniel Williams
 			//
 //			// Check for discontinuities
-//			if (component instanceof SymmetricComponent) {
-//				SymmetricComponent sym = (SymmetricComponent) component;
-//				// TODO:LOW: Ignores other cluster components (not clusterable)
-//				double x = component.toAbsolute(Coordinate.NUL)[0].x;
-//				
-//				// Check for lengthwise discontinuity
-//				if (x > componentX + 0.0001) {
-//					if (!MathUtil.equals(radius, 0)) {
-//						warnings.add(Warning.DISCONTINUITY);
-//						radius = 0;
-//					}
-//				}
-//				componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
-//				
-//				// Check for radius discontinuity
-//				if (!MathUtil.equals(sym.getForeRadius(), radius)) {
-//					warnings.add(Warning.DISCONTINUITY);
-//					// TODO: MEDIUM: Apply correction to values to cp and to map
-//				}
-//				radius = sym.getAftRadius();
-//			}
+			if (component instanceof SymmetricComponent) {
+				SymmetricComponent sym = (SymmetricComponent) component;
+				// TODO:LOW: Ignores other cluster components (not clusterable)
+				double x = component.toAbsolute(Coordinate.NUL)[0].x;
+				
+				// Check for lengthwise discontinuity
+				if (x > componentX + 0.0001) {
+					if (!MathUtil.equals(radius, 0)) {
+						warnings.add(Warning.DISCONTINUITY);
+						radius = 0;
+					}
+				}
+				componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
+				
+				// Check for radius discontinuity
+				if (!MathUtil.equals(sym.getForeRadius(), radius)) {
+					warnings.add(Warning.DISCONTINUITY);
+					// TODO: MEDIUM: Apply correction to values to cp and to map
+				}
+				radius = sym.getAftRadius();
+			}
 			
 			// Call calculation method
 			forces.zero();

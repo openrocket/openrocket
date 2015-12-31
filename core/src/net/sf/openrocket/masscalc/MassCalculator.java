@@ -26,6 +26,7 @@ public class MassCalculator implements Monitorable {
 			public Coordinate getCG(Motor motor) {
 				return Coordinate.NUL;
 			}
+			
 		},
 		LAUNCH_MASS {
 			@Override
@@ -41,6 +42,25 @@ public class MassCalculator implements Monitorable {
 		};
 		
 		public abstract Coordinate getCG(Motor motor);
+		
+		/**
+		 * Compute the cg contribution of the motor relative to the rocket's coordinates
+		 * 
+		 * @param motorConfig
+		 * @return
+		 */
+		public Coordinate getCG(MotorConfiguration motorConfig) {
+			Coordinate cg = getCG(motorConfig.getMotor());
+			cg = cg.add(motorConfig.getPosition());
+			
+			RocketComponent motorMount = (RocketComponent) motorConfig.getMount();
+			Coordinate totalCG = new Coordinate();
+			for (Coordinate cord : motorMount.toAbsolute(cg) ) {
+				totalCG = totalCG.average(cord);
+			}
+
+			return totalCG;
+		}
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
@@ -146,10 +166,10 @@ public class MassCalculator implements Monitorable {
 		for (MotorConfiguration inst : config.getActiveMotors() ) {
 			//ThrustCurveMotor motor = (ThrustCurveMotor) inst.getMotor();
 			
-			Coordinate position = inst.getPosition();
-			Coordinate curMotorCM = type.getCG(inst.getMotor()).add(position);
 			double Ir = inst.getRotationalInertia();
 			double It = inst.getLongitudinalInertia();
+
+			Coordinate curMotorCM = type.getCG(inst);
 			
 			MassData instData = new MassData( curMotorCM, Ir, It);
 			motorData = motorData.add( instData );

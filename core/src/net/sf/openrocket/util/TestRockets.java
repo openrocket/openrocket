@@ -405,6 +405,7 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
+		rocket.enableEvents();
 		return rocket;
 	}
 	
