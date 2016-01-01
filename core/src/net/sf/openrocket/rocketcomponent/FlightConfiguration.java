@@ -29,6 +29,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
 	
 	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
+	public final static String NO_MOTORS_TEXT = "(No Motors Defined)";
 	
 	protected boolean isNamed = false;
 	protected String configurationName;
@@ -303,14 +304,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return configurationName;
 		}else{
 			if( this.hasMotors()){
-				return fcid.toDebug()+" - "+this.getOnelineMotorDescription();
+				return this.getOneLineMotorDescription();
 			}else{
-				return fcid.getFullKeyText();
+				return NO_MOTORS_TEXT ;
 			}
 		}
 	}
 	
-	public String getOnelineMotorDescription(){
+	private String getOneLineMotorDescription(){
 		StringBuilder buff = new StringBuilder("[");
 		boolean first = true;
 		int activeMotorCount = 0;
@@ -516,7 +517,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	
 	public String toDebug() {
-		return this.fcid.toDebug()+" (#"+instanceNumber+")";
+		return this.fcid.toDebug()+" (#"+instanceNumber+") "+ getOneLineMotorDescription();
 	}
 	
 	// DEBUG / DEVEL
