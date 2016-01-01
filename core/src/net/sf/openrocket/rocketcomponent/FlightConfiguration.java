@@ -29,10 +29,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
 	
 	public final static String DEFAULT_CONFIGURATION_NAME = "Default Configuration";
-	public final static String NO_MOTORS_TEXT = "(No Motors Defined)";
+	public final static String NO_MOTORS_TEXT = "[No Motors Defined]";
 	
-	protected boolean isNamed = false;
-	protected String configurationName;
+	protected String configurationName=null;
 	
 	protected final Rocket rocket;
 	protected final FlightConfigurationId fcid;
@@ -88,8 +87,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
-		this.isNamed = false;
-		this.configurationName = "<WARN: attempt to access unset configurationName. WARN!> ";
+		this.configurationName = null;
 		this.instanceNumber = instanceCount++;
 		
 		updateStages();
@@ -296,18 +294,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public boolean isNameOverridden(){
-		return isNamed;
+		return (null != this.configurationName );
 	}
 	
 	public String getName() {
-		if( isNamed ){
-			return configurationName;
+		if( null == configurationName){
+			return this.getOneLineMotorDescription();
 		}else{
-			if( this.hasMotors()){
-				return this.getOneLineMotorDescription();
-			}else{
-				return NO_MOTORS_TEXT ;
-			}
+			return configurationName;
 		}
 	}
 	
@@ -333,7 +327,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 		}
 		if( 0 == activeMotorCount ){
-			buff.append(" n/a ");
+			return NO_MOTORS_TEXT;
 		}
 		buff.append("]");
 		return buff.toString();
@@ -491,14 +485,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public void setName( final String newName) {
 		if(( null == newName ) ||( "".equals(newName))){
-			this.isNamed= false;
+			this.configurationName = null;
 			return;
 		}else if( ! this.getFlightConfigurationID().isValid()){
 			return;
 		}else if( newName.equals(this.configurationName)){
 			return;
 		}
-		this.isNamed = true;
 		this.configurationName = newName;
 	}
 	
