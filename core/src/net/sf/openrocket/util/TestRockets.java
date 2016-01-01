@@ -432,23 +432,6 @@ public class TestRockets {
 		return rocket;
 	}
 	
-	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	public static final MotorConfiguration getTestD12Motor() {
-		// Estes D12:
-		// http://nar.org/SandT/pdf/Estes/D12.pdf
-		ThrustCurveMotor motor = new ThrustCurveMotor(
-				Manufacturer.getManufacturer("Estes"),
-				"D12-X", "Test Motor", Motor.Type.SINGLE, new double[] {0,3,5,7},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 10.2, 0 },
-				new Coordinate[] { 	new Coordinate(0.0035,0,0,44.0), 
-									new Coordinate(0.0035,0,0,30.0),
-									new Coordinate(0.0035,0,0,21.0)},
-				"digest_D12");
-		MotorConfiguration inst = new MotorConfiguration(motor);
-		inst.setEjectionDelay(5);
-		return inst;
-	}
-	
 	public static Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;

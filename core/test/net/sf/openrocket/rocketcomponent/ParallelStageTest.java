@@ -50,7 +50,7 @@ public class ParallelStageTest extends BaseTestCase {
 		FinSet coreFins = new TrapezoidFinSet(4, 4, 2, 2, 4);
 		coreFins.setName("Core Fins");
 		coreLowerBody.addChild(coreFins);
-		
+
 		rocket.enableEvents();
 		return rocket;
 	}

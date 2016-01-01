@@ -11,11 +11,8 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 import net.sf.openrocket.ServicesForTesting;
-import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
@@ -64,16 +61,10 @@ public class BarrowmanCalculatorTest {
 	public void testCPSimpleWithMotor() {
 		Rocket rkt = TestRockets.makeEstesAlphaIII();
 		FlightConfiguration config = rkt.getSelectedConfiguration();
-		FlightConfigurationId fcid = config.getFlightConfigurationID();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		
-		MotorConfiguration inst = TestRockets.getTestD12Motor();
-		InnerTube motorTube = (InnerTube)rkt.getChild(0).getChild(1).getChild(1);
-		motorTube.setMotorInstance(fcid, inst);
-		motorTube.setMotorMount(true);
-		motorTube.setMotorOverhang(0.005);
 		
 		// calculated from OpenRocket 15.03
 		double expCPx = 0.225; // cm
