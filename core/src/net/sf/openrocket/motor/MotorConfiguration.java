@@ -14,6 +14,8 @@ import net.sf.openrocket.util.Inertia;
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
+	public static final String EMPTY_DESCRIPTION = "Empty Configuration";
+	
 	protected MotorMount mount = null;
 	protected Motor motor = null;
 	protected double ejectionDelay = 0.0;
@@ -62,6 +64,14 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public boolean isActive() {
 		return motor != null;
+	}
+	
+	public String getDescription(){
+		if( motor == null ){
+			return EMPTY_DESCRIPTION;
+		}else{
+			return this.motor.getDesignation() + " - " + this.getEjectionDelay();
+		}
 	}
 	
 	public MotorInstanceId getID() {

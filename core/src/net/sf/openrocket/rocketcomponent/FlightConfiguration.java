@@ -312,7 +312,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for ( RocketComponent comp : getActiveComponents() ){
 			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){ 
 				MotorMount mount = (MotorMount)comp;
-				MotorConfiguration inst = mount.getMotorInstance( fcid);
+				MotorConfiguration motorConfig = mount.getMotorInstance( fcid);
 				
 				if( first ){
 					first = false;
@@ -320,8 +320,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					buff.append(";");
 				}
 				
-				if( ! inst.isEmpty()){
-					buff.append( inst.getMotor().getDesignation());
+				if( ! motorConfig.isEmpty()){
+					buff.append( motorConfig.getDescription());
 					++activeMotorCount;
 				}
 			}
