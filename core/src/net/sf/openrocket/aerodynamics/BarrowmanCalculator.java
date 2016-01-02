@@ -6,15 +6,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RingInstanceable;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -151,11 +155,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
-	
-	
-	/*
-	 * Perform the actual CP calculation.
-	 */
+
 	private AerodynamicForces calculateNonAxialForces(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
@@ -164,8 +164,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		AerodynamicForces total = new AerodynamicForces();
 		total.zero();
 		
-		double radius = 0; // aft radius of previous component
-		double componentX = 0; // aft coordinate of previous component
 		AerodynamicForces forces = new AerodynamicForces();
 		
 		if (warnings == null)
@@ -178,41 +176,17 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 		
+		
+		if( ! isContinuous(  configuration.getRocket() ) ){
+			warnings.add( Warning.DIAMETER_DISCONTINUITY);
+		}
+		
 		for (RocketComponent component : configuration.getActiveComponents()) {
 			
 			// Skip non-aerodynamic components
 			if (!component.isAerodynamic())
 				continue;
 			
-			
-			// TODO: refactor this code block to a separate method, where it will operate on each stage separately.
-			//
-			// Developer's Note:
-			// !! this code assumes all SymmetricComponents are along the centerline
-			//    With the implementation of ParallelStages and Pods, this is no longer true. -Daniel Williams
-			//
-//			// Check for discontinuities
-			if (component instanceof SymmetricComponent) {
-				SymmetricComponent sym = (SymmetricComponent) component;
-				// TODO:LOW: Ignores other cluster components (not clusterable)
-				double x = component.toAbsolute(Coordinate.NUL)[0].x;
-				
-				// Check for lengthwise discontinuity
-				if (x > componentX + 0.0001) {
-					if (!MathUtil.equals(radius, 0)) {
-						warnings.add(Warning.DISCONTINUITY);
-						radius = 0;
-					}
-				}
-				componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
-				
-				// Check for radius discontinuity
-				if (!MathUtil.equals(sym.getForeRadius(), radius)) {
-					warnings.add(Warning.DISCONTINUITY);
-					// TODO: MEDIUM: Apply correction to values to cp and to map
-				}
-				radius = sym.getAftRadius();
-			}
 			
 			// Call calculation method
 			forces.zero();
@@ -273,6 +247,51 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
+	@Override
+	public boolean isContinuous( final Rocket rkt){
+		return testIsContinuous( rkt);
+	}
+	
+	private boolean testIsContinuous( final RocketComponent treeRoot ){
+		Queue<RocketComponent> queue = new LinkedList<RocketComponent>();
+		queue.addAll(treeRoot.getChildren());
+		
+		boolean isContinuous = true;
+		SymmetricComponent prevComp = null; 
+		while((isContinuous)&&( null != queue.peek())){
+			RocketComponent comp = queue.poll();
+			if( comp instanceof SymmetricComponent ){
+				queue.addAll( comp.getChildren());
+				
+				SymmetricComponent sym = (SymmetricComponent) comp;
+				if( null == prevComp){
+					prevComp = sym;
+					continue;
+				}
+				
+				// Check for radius discontinuity
+				if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
+					isContinuous = false;
+				}
+				
+				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
+				// // Check for lengthwise discontinuity
+				// if (x > componentX + 0.0001) {
+				//	if (!MathUtil.equals(radius, 0)) {
+				//		warnings.add(Warning.DISCONTINUITY);
+				//		radius = 0;
+                //}
+				//componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
+						
+				prevComp = sym;
+			}else if( comp instanceof ComponentAssembly ){
+				isContinuous &= testIsContinuous( comp );
+			}
+			
+		}
+		return isContinuous;
+	}
+		
 	
 	
 	////////////////  DRAG CALCULATIONS  ////////////////

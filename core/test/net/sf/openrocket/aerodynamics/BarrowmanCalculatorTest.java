@@ -1,6 +1,8 @@
 package net.sf.openrocket.aerodynamics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.BeforeClass;
@@ -12,7 +14,10 @@ import com.google.inject.Module;
 
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.plugin.PluginModule;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
@@ -102,4 +107,51 @@ public class BarrowmanCalculatorTest {
 		fail("Not yet implemented");
 	}
 	
+	@Test
+	public void testContinuousRocket() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		AerodynamicCalculator calc = new BarrowmanCalculator();
+		
+		assertTrue("Estes Alpha III should be continous: ", calc.isContinuous( rocket));
+	}
+	
+
+	@Test
+	public void testContinuousRocketWithStrapOns() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		AerodynamicCalculator calc = new BarrowmanCalculator();
+		
+		assertTrue("F9H should be continuous: ", calc.isContinuous( rocket));
+	}
+	
+	@Test
+	public void testRadialDiscontinuousRocket() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		AerodynamicCalculator calc = new BarrowmanCalculator();
+		
+		NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
+		BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
+		
+		nose.setAftRadius(0.015);
+		body.setOuterRadius( 0.012 );
+		body.setName( body.getName()+"  << discontinuous");
+		
+		assertFalse(" Estes Alpha III has an undetected discontinuity:", calc.isContinuous( rocket));
+	}
+	
+	@Test
+	public void testRadialDiscontinuityWithStrapOns() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		AerodynamicCalculator calc = new BarrowmanCalculator();
+		
+		ParallelStage booster = (ParallelStage)rocket.getChild(1).getChild(1); 
+		NoseCone nose = (NoseCone)booster.getChild(0);
+		BodyTube body = (BodyTube)booster.getChild(1);
+		
+		nose.setAftRadius(0.015);
+		body.setOuterRadius( 0.012 );
+		body.setName( body.getName()+"  << discontinuous");
+		
+		assertFalse(" Missed discontinuity in Falcon 9 Heavy:", calc.isContinuous( rocket));
+	}
 }

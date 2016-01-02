@@ -1938,8 +1938,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) / 2;
 	}
 	
-	
-	
 	////////////  OTHER
 	
 	

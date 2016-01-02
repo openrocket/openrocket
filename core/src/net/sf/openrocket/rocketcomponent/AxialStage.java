@@ -115,7 +115,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public boolean isAfter(){ 
 		return true;
 	}
-	
+
 	public boolean isLaunchStage(){
 		return ( getRocket().getBottomCoreStage().equals(this));
 	}
