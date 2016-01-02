@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.util.EventObject;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,6 +16,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -26,12 +28,12 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.StateChangeListener;
 
 public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel {
 
 	private static final long serialVersionUID = 3359871704879603700L;
 	protected static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(FlightConfigurablePanel.class);
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	protected final FlightConfigurationPanel flightConfigurationPanel;
@@ -161,21 +163,29 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		private static final long serialVersionUID = 2026945220957913776L;
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			JLabel label = (JLabel) c;
-
-			column = table.convertColumnIndexToModel(column);
+		public Component getTableCellRendererComponent(JTable table, Object newValue, boolean isSelected, boolean hasFocus, int row, int column) {
+			JLabel label = (JLabel) super.getTableCellRendererComponent(table, newValue, isSelected, hasFocus, row, column);
+			Object oldValue = table.getModel().getValueAt(row, column);
+			
+			// this block is more for the benefit of the reader than the computer -- 
+			// this assignment is technically redundant, but useful to point out that the new value here is often null, 
+			// while the old value seems to always be valid.
+			if( null == newValue ){
+				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
+				newValue = oldValue;
+			}
+			
+		    column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
-				label.setText(descriptor.format(rocket, (FlightConfigurationId) value));
+				label.setText(descriptor.format(rocket, (FlightConfigurationId) oldValue));
 				regular(label);
 				setSelected(label, table, isSelected, hasFocus);
 				return label;
 			}
 			default: {
 				@SuppressWarnings("unchecked")
-				Pair<FlightConfigurationId, T> v = (Pair<FlightConfigurationId, T>) value;
+				Pair<FlightConfigurationId, T> v = (Pair<FlightConfigurationId, T>) oldValue;
 				
 				if(v!=null){
 					FlightConfigurationId fcid = v.getU();
