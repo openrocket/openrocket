@@ -85,28 +85,28 @@ public class RocketTest extends BaseTestCase {
 			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
 			cc = body;
-			expLoc = new Coordinate(0.06985,0,0);
+			expLoc = new Coordinate(0.07,0,0);
 			actLoc = cc.getLocations()[0];
 			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
 			{	
 				cc = fins;
-				expLoc = new Coordinate(0.20955,0,0);
+				expLoc = new Coordinate(0.22,0,0);
 				actLoc = cc.getLocations()[0];
 				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				
 				cc = lug;
-				expLoc = new Coordinate(0.180975, 0.015376, 0);
+				expLoc = new Coordinate(0.181, 0.015, 0);
 				actLoc = cc.getLocations()[0];
 				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				
 				cc = mmt;
-				expLoc = new Coordinate(0.2032,0,0);
+				expLoc = new Coordinate(0.203,0,0);
 				actLoc = cc.getLocations()[0];
 				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				{
 					cc = block;
-					expLoc = new Coordinate(0.2032,0,0);
+					expLoc = new Coordinate(0.203,0,0);
 					actLoc = cc.getLocations()[0];
 					assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				}
@@ -114,7 +114,7 @@ public class RocketTest extends BaseTestCase {
 			}
 			
 			cc = chute;
-			expLoc = new Coordinate(0.098425,0,0);
+			expLoc = new Coordinate(0.098,0,0);
 			actLoc = cc.getLocations()[0];
 			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
@@ -122,7 +122,7 @@ public class RocketTest extends BaseTestCase {
 			assertThat(cc.getName()+" not instanced correctly: ", cc.getInstanceCount(), equalTo(2));
 			// singleton instances follow different code paths
 			center.setInstanceCount(1);
-			expLoc = new Coordinate(0.20955,0,0);
+			expLoc = new Coordinate(0.21,0,0);
 			actLoc = cc.getLocations()[0];
 			assertEquals(" position x fail: ", expLoc.x, actLoc.x, EPSILON);
 			assertEquals(" position y fail: ", expLoc.y, actLoc.y, EPSILON);
@@ -132,20 +132,17 @@ public class RocketTest extends BaseTestCase {
 			cc = center;
 			center.setInstanceCount(2);
 			Coordinate actLocs[] = cc.getLocations();
-			expLoc = new Coordinate(0.20955,0,0); 
-			actLoc = actLocs[0];
-//			assertEquals(" position x fail: ", expLoc.x, actLoc.x, EPSILON);
-//			assertEquals(" position y fail: ", expLoc.y, actLoc.y, EPSILON);
-//			assertEquals(" position z fail: ", expLoc.z, actLoc.z, EPSILON);
-			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
-			{ // second instance
-				expLoc = new Coordinate(0.24455, 0, 0);
-				actLoc = actLocs[1];
+			{ // first instance
+//				assertEquals(" position x fail: ", expLoc.x, actLoc.x, EPSILON);
+//				assertEquals(" position y fail: ", expLoc.y, actLoc.y, EPSILON);
+//				assertEquals(" position z fail: ", expLoc.z, actLoc.z, EPSILON);
+				expLoc = new Coordinate(0.21, 0, 0);
+				actLoc = actLocs[0];
 				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}
 			{ // second instance
 				assertThat(cc.getName()+" not instanced correctly: ", cc.getInstanceCount(), equalTo(2));
-				expLoc = new Coordinate(0.24455, 0, 0);
+				expLoc = new Coordinate(0.245, 0, 0);
 				actLoc = actLocs[1];
 				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}

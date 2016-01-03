@@ -42,8 +42,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
-	
-	public boolean debug = false;
+
 	
 	public BarrowmanCalculator() {
 		
@@ -187,28 +186,29 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (!component.isAerodynamic())
 				continue;
 			
-			
 			// Call calculation method
 			forces.zero();
 			RocketComponentCalc calcObj = calcMap.get(component);
-			// vvvv DEBUG vvvv
-			if (null == calcObj ){
-				throw new NullPointerException(" Missing mapping: |calcMap|="+calcMap.size()+" for:"+component.toDebugName());
-			}
-			// ^^^^ DEBUG ^^^^
 			calcObj.calculateNonaxialForces(conditions, forces, warnings);
 			
-			// to account for non axi-symmetric rockets such as  
-			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
-				RingInstanceable ring = (RingInstanceable)component;
-				forces.setAxisymmetric(false);
-				total.setAxisymmetric(false);
-				
-				// TODO : Implement Best-Case, Worst-Case Cp calculations.... here
-				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
-				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
-				
-			}
+
+//			// to account for non axi-symmetric rockets such as a Delta-IV heavy, or a Falcon-9 Heavy
+//			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
+//				RingInstanceable ring = (RingInstanceable)component;
+//				forces.setAxisymmetric(false);
+//				total.setAxisymmetric(false);
+//				
+//				// TODO : Implement Best-Case, Worst-Case Cp calculations
+//				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
+//				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
+//				
+//				// worst case: ignore the CP contribution from *twin* externals
+//				// NYI
+//				
+//				// best case: the twins contribute their full CP broadside
+//				// NYI
+//				
+//			}
 			
 			int instanceCount = component.getLocations().length;
 			Coordinate x_cp_comp = forces.getCP();

@@ -113,7 +113,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				final double A1 = Math.PI * pow2(r1);
 				
 				cnaCache = 2 * (A1 - A0);
-				//				System.out.println("cnaCache = " + cnaCache);
+				//System.out.println("cnaCache = " + cnaCache);
 				cpCache = (length * A1 - fullVolume) / (A1 - A0);
 			}
 		}
