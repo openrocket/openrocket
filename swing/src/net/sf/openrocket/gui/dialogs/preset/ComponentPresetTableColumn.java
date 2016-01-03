@@ -12,6 +12,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 
+@SuppressWarnings("serial")
 public abstract class ComponentPresetTableColumn extends TableColumn {
 
 	private static final Translator trans = Application.getTranslator();

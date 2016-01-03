@@ -34,6 +34,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+@SuppressWarnings("serial")
 class MotorInformationPanel extends JPanel {
 	
 	private static final int ZOOM_ICON_POSITION_NEGATIVE_X = 50;

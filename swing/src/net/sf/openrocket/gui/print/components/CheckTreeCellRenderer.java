@@ -18,6 +18,7 @@ import java.awt.Component;
  * <p/>
  * Based in part on a blog by Santhosh Kumar.  http://www.jroller.com/santhosh/date/20050610
  */
+@SuppressWarnings("serial")
 public class CheckTreeCellRenderer extends JPanel implements TreeCellRenderer {
 
     /**

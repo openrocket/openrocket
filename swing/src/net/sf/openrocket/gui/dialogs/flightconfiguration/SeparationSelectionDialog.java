@@ -23,16 +23,14 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class SeparationSelectionDialog extends JDialog {
-	
-	private static final long serialVersionUID = 5121844286782432500L;
 
 	private static final Translator trans = Application.getTranslator();
 	
@@ -74,8 +72,7 @@ public class SeparationSelectionDialog extends JDialog {
 			overrideButton.setSelected(true);
 		}
 		
-		@SuppressWarnings("unchecked")
-		final JComboBox<?> event = new JComboBox<SeparationEvent>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
+		final JComboBox<SeparationEvent> event = new JComboBox<SeparationEvent>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
 		event.setSelectedItem(newConfiguration.getSeparationEvent());
 		panel.add(event, "wrap rel");
 		

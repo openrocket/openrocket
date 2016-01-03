@@ -23,6 +23,7 @@ import java.util.Vector;
 /**
  * A specialized JTree for displaying various rocket items that can be printed.
  */
+@SuppressWarnings("serial")
 public class RocketPrintTree extends JTree {
 	
 	/**

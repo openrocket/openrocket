@@ -64,6 +64,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * This is still the design, but now extends AbstractSpinnerModel to allow other characters
 	 * to be entered so that fractional units and expressions can be used.
 	 */
+	@SuppressWarnings("serial")
 	public class ValueSpinnerModel extends AbstractSpinnerModel implements Invalidatable {
 		
 		private ExpressionParser parser = new ExpressionParser();
@@ -443,6 +444,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	
 	////////////  Action model  ////////////
 	
+	@SuppressWarnings("serial")
 	private class AutomaticActionModel extends AbstractAction implements StateChangeListener, Invalidatable {
 		private boolean oldValue = false;
 		

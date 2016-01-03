@@ -25,11 +25,7 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DecalRegistry {
-	private static Logger log = LoggerFactory.getLogger(DecalRegistry.class);
 	
 	DecalRegistry() {
 	}
@@ -116,6 +112,7 @@ public class DecalRegistry {
 			this.delegate = delegate;
 		}
 		
+		@Override
 		public String getName() {
 			return name != null ? name : delegate.getName();
 		}
@@ -133,6 +130,7 @@ public class DecalRegistry {
 		* @throws FileNotFoundException
 		* @throws IOException
 		 */
+		@Override
 		public InputStream getBytes() throws FileNotFoundException, IOException {
 			// First check if the decal is located on the file system
 			File exportedFile = getFileSystemLocation();

@@ -59,6 +59,7 @@ import net.sf.openrocket.logging.StackTraceWriter;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.NumericComparator;
 
+@SuppressWarnings("serial")
 public class DebugLogDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(DebugLogDialog.class);
 	
@@ -107,6 +108,7 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
 	
+	@SuppressWarnings("serial")
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));

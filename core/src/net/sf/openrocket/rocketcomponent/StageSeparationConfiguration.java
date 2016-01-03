@@ -1,14 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.EventObject;
-import java.util.List;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StateChangeListener;
 
 public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
 	

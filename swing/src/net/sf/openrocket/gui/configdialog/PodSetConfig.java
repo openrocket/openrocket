@@ -14,14 +14,14 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class PodSetConfig extends RocketComponentConfig {
-	private static final long serialVersionUID = -944969957186522471L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	public PodSetConfig(OpenRocketDocument document, RocketComponent component) {

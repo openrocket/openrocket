@@ -66,7 +66,7 @@ import net.sf.openrocket.util.Reflection.Method;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ScaleDialog extends JDialog {
-	
+	private static final long serialVersionUID = -8558418577377862794L;
 	private static final Logger log = LoggerFactory.getLogger(ScaleDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -204,7 +204,7 @@ public class ScaleDialog extends JDialog {
 	private final RocketComponent selection;
 	private final boolean onlySelection;
 	
-	private JComboBox selectionOption;
+	private JComboBox<String> selectionOption;
 	private JCheckBox scaleMassValues;
 	
 	private boolean changing = false;
@@ -330,7 +330,7 @@ public class ScaleDialog extends JDialog {
 		label.setToolTipText(tip);
 		panel.add(label, "span, split, gapright unrel");
 		
-		selectionOption = new JComboBox(options.toArray());
+		selectionOption = new JComboBox<String>(options.toArray(new String[0]));
 		selectionOption.setEditable(false);
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");

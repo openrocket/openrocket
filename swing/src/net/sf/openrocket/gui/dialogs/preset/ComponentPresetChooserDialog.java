@@ -37,6 +37,7 @@ import net.sf.openrocket.util.Chars;
 /**
  * Dialog shown for selecting a preset component.
  */
+@SuppressWarnings("serial")
 public class ComponentPresetChooserDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();

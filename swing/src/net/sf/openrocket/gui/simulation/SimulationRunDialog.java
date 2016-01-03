@@ -453,6 +453,9 @@ public class SimulationRunDialog extends JDialog {
 					log.debug("END, setting progress");
 					setSimulationProgress(1.0);
 					break;
+					
+				default:
+					break;
 				}
 				return true;
 			}

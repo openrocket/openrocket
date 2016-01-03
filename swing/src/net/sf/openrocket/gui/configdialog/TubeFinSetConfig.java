@@ -22,8 +22,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class TubeFinSetConfig extends RocketComponentConfig {
-	
-	private MotorConfig motorConfigPane = null;
+	private static final long serialVersionUID = 508482875624928676L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public TubeFinSetConfig(OpenRocketDocument d, RocketComponent c) {
@@ -125,7 +124,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));
 		
-		JComboBox combo = new JComboBox(
+		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
@@ -133,7 +132,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
 						}));
-		panel.add(combo, "spanx, growx, wrap");
+		panel.add(positionCombo, "spanx, growx, wrap");
 		
 		//// plus
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.plus")), "right");

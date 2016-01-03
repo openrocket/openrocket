@@ -6,6 +6,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.startup.Application;
 
 import javax.swing.DefaultComboBoxModel;
@@ -15,9 +16,10 @@ import java.awt.Component;
 /**
  * A material model specifically for presets.
  */
-public class MaterialModel extends DefaultComboBoxModel implements DatabaseListener<Material> {
+public class MaterialModel extends DefaultComboBoxModel<Material> implements DatabaseListener<Material> {
+	private static final long serialVersionUID = -8850670173491660708L;
 
-    private static final String CUSTOM = "Custom";
+	private static final Material CUSTOM_MATERIAL = Material.newMaterial(Type.CUSTOM, "Custom", 1.0, true);
 
     private final Database<Material> database;
 
@@ -65,7 +67,7 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
             return;
         }
 
-        if (item == CUSTOM) {
+        if (item == CUSTOM_MATERIAL) {
 
             // Open custom material dialog in the future, after combo box has closed
             SwingUtilities.invokeLater(new Runnable() {
@@ -100,9 +102,9 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
     }
 
     @Override
-    public Object getElementAt(int index) {
+    public Material getElementAt(int index) {
         if (index == database.size()) {
-            return CUSTOM;
+            return CUSTOM_MATERIAL;
         }
         else if (index >= database.size() + 1) {
             return null;

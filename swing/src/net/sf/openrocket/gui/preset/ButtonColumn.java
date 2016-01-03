@@ -32,6 +32,7 @@ import java.awt.event.MouseListener;
  *
  * Credits: A post by Rob Camick   http://tips4java.wordpress.com/2009/07/12/table-button-column/
  */
+@SuppressWarnings("serial")
 public class ButtonColumn extends AbstractCellEditor
 	implements TableCellRenderer, TableCellEditor, ActionListener, MouseListener
 {

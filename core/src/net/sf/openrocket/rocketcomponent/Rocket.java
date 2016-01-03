@@ -29,7 +29,7 @@ import net.sf.openrocket.util.UniqueID;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-
+@SuppressWarnings("serial")
 public class Rocket extends RocketComponent {
 	private static final Logger log = LoggerFactory.getLogger(Rocket.class);
 	private static final Translator trans = Application.getTranslator();
