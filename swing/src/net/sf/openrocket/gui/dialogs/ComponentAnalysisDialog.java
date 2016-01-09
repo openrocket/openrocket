@@ -178,6 +178,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		panel.add(label, "growx, right");
 
 		JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>( configuration.getRocket().toConfigArray());
+
 		panel.add(combo, "wrap");
 
 

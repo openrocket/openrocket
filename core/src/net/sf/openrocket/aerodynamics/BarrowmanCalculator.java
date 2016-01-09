@@ -17,7 +17,6 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -186,6 +185,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (!component.isAerodynamic())
 				continue;
 			
+
 			// Call calculation method
 			forces.zero();
 			RocketComponentCalc calcObj = calcMap.get(component);

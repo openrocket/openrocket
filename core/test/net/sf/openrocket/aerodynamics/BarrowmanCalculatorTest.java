@@ -3,7 +3,6 @@ package net.sf.openrocket.aerodynamics;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -96,7 +95,7 @@ public class BarrowmanCalculatorTest {
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
-		
+
 		
 		// calculated from OpenRocket 15.03:
 		//double expCPx = 0.225;
@@ -129,12 +128,13 @@ public class BarrowmanCalculatorTest {
 	
 	@Test
 	public void testGetWorstCP() {
-		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		BarrowmanCalculator calc = new BarrowmanCalculator();
-		FlightConditions conditions = new FlightConditions(config);
-		WarningSet warnings = new WarningSet();
+//		Rocket rocket = TestRockets.makeFalcon9Heavy();
+//		FlightConfiguration config = rocket.getSelectedConfiguration();
+//		BarrowmanCalculator calc = new BarrowmanCalculator();
+//		FlightConditions conditions = new FlightConditions(config);
+//		WarningSet warnings = new WarningSet();
 		
+		// NYI
 //		Coordinate calcBestCP = calc.getCP(config, conditions, warnings);
 //		Coordinate calcWorstCP = calc.getWorstCP(config, conditions, warnings);
 		

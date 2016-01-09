@@ -166,6 +166,7 @@ public class MassCalculator implements Monitorable {
 			Coordinate[] locations = mountComp.getLocations(); // location of mount, w/in entire rocket
 			int instanceCount = locations.length; 
 			double motorXPosition = mtrConfig.getX();  // location of motor from mount
+
 			
 			Coordinate localCM = type.getCG( mtr );  // CoM from beginning of motor
 			localCM = localCM.setWeight( localCM.weight * instanceCount);
