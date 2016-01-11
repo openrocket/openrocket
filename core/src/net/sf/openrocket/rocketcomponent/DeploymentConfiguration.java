@@ -1,16 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.EventObject;
-import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.StateChangeListener;
 
 public class DeploymentConfiguration implements FlightConfigurableParameter<DeploymentConfiguration> {
 	
@@ -86,8 +82,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
-	
 	private DeployEvent deployEvent = DeployEvent.EJECTION;
 	private double deployAltitude = 200;
 	private double deployDelay = 0;
@@ -108,7 +102,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			throw new NullPointerException("deployEvent is null");
 		}
 		this.deployEvent = deployEvent;
-		fireChangeEvent();
 	}
 	
 	public double getDeployAltitude() {
@@ -120,7 +113,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			return;
 		}
 		this.deployAltitude = deployAltitude;
-		fireChangeEvent();
 	}
 	
 	public double getDeployDelay() {
@@ -132,7 +124,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			return;
 		}
 		this.deployDelay = deployDelay;
-		fireChangeEvent();
 	}
 	
 	@Override
@@ -148,29 +139,6 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	}
 	
 	
-	
-	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(listener);
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-		listeners.remove(listener);
-	}
-	
-	
-	
-	private void fireChangeEvent() {
-		EventObject event = new EventObject(this);
-		Object[] list = listeners.toArray();
-		for (Object l : list) {
-			((StateChangeListener) l).stateChanged(event);
-		}
-	}
-	
-	
 	@Override
 	public DeploymentConfiguration clone() {
 		DeploymentConfiguration that = new DeploymentConfiguration();
@@ -180,5 +148,8 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 		return that;
 	}
 
+	@Override
+	public void update(){
+	}
 	
 }

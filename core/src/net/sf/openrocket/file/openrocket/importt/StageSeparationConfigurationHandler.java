@@ -11,7 +11,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 
@@ -67,7 +67,7 @@ class StageSeparationConfigurationHandler extends AbstractElementHandler {
 	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
-		FlightConfigurationID fcid = new FlightConfigurationID(attributes.get("configid"));
+		FlightConfigurationId fcid = new FlightConfigurationId(attributes.get("configid"));
 		StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(fcid);
 		
 		// copy and update to the file-read values

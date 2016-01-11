@@ -15,7 +15,7 @@ import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -55,7 +55,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private SimulationStatus currentStatus;
 	
-	private FlightConfigurationID fcid;
+	private FlightConfigurationId fcid;
 	
 	// this is just a list of simulation branches to 
 	Deque<SimulationStatus> toSimulate = new ArrayDeque<SimulationStatus>();
@@ -105,7 +105,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (!flightData.getWarningSet().isEmpty()) {
 			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 		}
-		simulationConfig.release();
+
 		return flightData;
 	}
 	

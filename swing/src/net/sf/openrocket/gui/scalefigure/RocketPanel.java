@@ -39,7 +39,6 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -58,7 +57,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -141,7 +140,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	// The functional ID of the rocket that was simulated
 	private int flightDataFunctionalID = -1;
-		private FlightConfigurationID flightDataMotorID = null;
+		private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
@@ -306,22 +305,17 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
 		
-		ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( configuration.getRocket().getConfigSet());
-		JComboBox<FlightConfiguration> flightConfigurationComboBox = new JComboBox<FlightConfiguration>(psm);
-		add(flightConfigurationComboBox, "wrap, width 16%, wmin 100");
+		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<FlightConfiguration>( document.getRocket().toConfigArray());
+		
+		add(configComboBox, "wrap, width 16%, wmin 100");
 
-		flightConfigurationComboBox.addActionListener(new ActionListener(){
+		configComboBox.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				Object source = ae.getSource();
-				if( source instanceof JComboBox ){
-					@SuppressWarnings("unchecked")
-					JComboBox<FlightConfigurationID> box = (JComboBox<FlightConfigurationID>) source;
-					FlightConfiguration newConfig = (FlightConfiguration)box.getSelectedItem();
-					document.getRocket().getConfigSet().setDefault( newConfig);
-					updateExtras();
-					updateFigures();
-				}
+				FlightConfiguration newConfig = (FlightConfiguration)configComboBox.getSelectedItem();
+				document.getRocket().setSelectedConfiguration( newConfig);
+				updateExtras();
+				updateFigures();
 			}
 		});
 		

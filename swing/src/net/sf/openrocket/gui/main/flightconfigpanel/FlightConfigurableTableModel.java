@@ -11,7 +11,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -25,7 +25,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	protected final Rocket rocket;
 	protected final Class<T> clazz;
 	private final List<T> components = new ArrayList<T>();
-	private List<FlightConfigurationID> ids = new Vector<FlightConfigurationID>();
+	private List<FlightConfigurationId> ids = new Vector<FlightConfigurationId>();
 	
 	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
 		super();
@@ -75,7 +75,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		FlightConfigurationID fcid = getConfigurationID(row);
+		FlightConfigurationId fcid = rocket.getId( row);
 		
 		switch (column) {
 		case 0: {
@@ -84,7 +84,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		default: {
 			int index = column - 1;
 			T d = components.get(index);
-			return new Pair<FlightConfigurationID, T>(fcid, d);
+			return new Pair<FlightConfigurationId, T>(fcid, d);
 		}
 		}
 	}
@@ -102,14 +102,6 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	
 		}
 		}
-	}
-
-	private FlightConfigurationID getConfigurationID(int rowNum) {
-		if( rocket.getConfigurationCount() != (ids.size() ) ){
-			this.ids = rocket.getSortedConfigurationIDs();
-		}
-		
-		return this.ids.get(rowNum);
 	}
 
 }

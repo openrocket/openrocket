@@ -3,6 +3,7 @@ package net.sf.openrocket.aerodynamics;
 import java.util.Map;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
@@ -66,5 +67,6 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @return	a new, independent instance of this aerodynamic calculator type
 	 */
 	public AerodynamicCalculator newInstance();
-	
+		
+	public boolean isContinuous( final Rocket rkt);
 }

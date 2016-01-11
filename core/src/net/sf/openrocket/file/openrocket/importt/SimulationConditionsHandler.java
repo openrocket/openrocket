@@ -7,7 +7,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -51,7 +51,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		
 		if (element.equals("configid")) {
 			// the ID constructor is designed to always return a valid value 
-			FlightConfigurationID idToSet= new FlightConfigurationID(content);
+			FlightConfigurationId idToSet= new FlightConfigurationId(content);
 			conditions.setFlightConfigurationId(idToSet);
 		} else if (element.equals("launchrodlength")) {
 			if (Double.isNaN(d)) {

@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -43,15 +42,15 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		
 		// Motor configurations
-		FlightConfigurableParameterSet<FlightConfiguration> allConfigs = rocket.getConfigSet();
-		for (FlightConfigurationID fcid : allConfigs.getSortedConfigurationIDs()) {
-			FlightConfiguration flightConfig = allConfigs.get(fcid); 
+		for (FlightConfigurationId fcid : rocket.getIds()) {
+			FlightConfiguration flightConfig = rocket.getFlightConfiguration(fcid); 
 			if (fcid == null)
 				continue;
 			
+			// these are actually FlightConfigurationIds, buuuuuuuuuut backwards-compatible tags.
 			String str = "<motorconfiguration configid=\"" + fcid.key + "\"";
 			// if the configuration is the default, add the tag
-			if ( allConfigs.isDefault( flightConfig )){
+			if ( rocket.getSelectedConfiguration().equals( flightConfig )){
 				str += " default=\"true\"";
 			}
 			

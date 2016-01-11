@@ -293,7 +293,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		setupView(gl, glu);
 		
-		final FlightConfiguration configuration = rkt.getDefaultConfiguration();
+		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 		if (pickPoint != null) {
 			gl.glDisable(GLLightingFunc.GL_LIGHTING);
 			
@@ -488,7 +488,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			return cachedBounds;
 		} else {
 			final Bounds b = new Bounds();
-			final FlightConfiguration configuration = rkt.getDefaultConfiguration();
+			final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 			final Collection<Coordinate> bounds = configuration.getBounds();
 			for (Coordinate c : bounds) {
 				b.xMax = Math.max(b.xMax, c.x);

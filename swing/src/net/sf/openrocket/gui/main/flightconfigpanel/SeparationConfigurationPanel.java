@@ -17,7 +17,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
@@ -111,7 +111,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		}
 		
 		// why? 
-		FlightConfigurationID id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		stage.getSeparationConfigurations().reset(id);
 		
 		fireTableDataChanged();
@@ -126,7 +126,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		private static final long serialVersionUID = -7066580803931938686L;
 
 		@Override
-		protected JLabel format(AxialStage stage, FlightConfigurationID configId, JLabel label) {
+		protected JLabel format(AxialStage stage, FlightConfigurationId configId, JLabel label) {
 			StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(configId);
 			String spec = getSeparationSpecification(sepConfig);
 			label.setText(spec);

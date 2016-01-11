@@ -17,8 +17,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	protected int stageNumber;
 	
 	public AxialStage(){
-		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(
-				this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
+		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>( new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
 		this.stageNumber = 0;
 	}
@@ -73,15 +72,14 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		separations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		AxialStage copy = (AxialStage) super.copyWithOriginalID();
-		copy.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(separations,
-				copy, ComponentChangeEvent.EVENT_CHANGE);
+		copy.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(separations);
 		return copy;
 	}
 	
@@ -117,7 +115,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public boolean isAfter(){ 
 		return true;
 	}
-	
+
 	public boolean isLaunchStage(){
 		return ( getRocket().getBottomCoreStage().equals(this));
 	}

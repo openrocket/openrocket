@@ -13,7 +13,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -33,7 +33,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	}
 	
 	@Override
-	public String substitute(String str, Rocket rocket, FlightConfigurationID configId) {
+	public String substitute(String str, Rocket rocket, FlightConfigurationId configId) {
 		String description = getMotorConfigurationDescription(rocket, configId);
 		return str.replace(SUBSTITUTION, description);
 	}
@@ -47,7 +47,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	
 	
 	
-	public String getMotorConfigurationDescription(Rocket rocket, FlightConfigurationID fcid) {
+	public String getMotorConfigurationDescription(Rocket rocket, FlightConfigurationId fcid) {
 		String name;
 		int motorCount = 0;
 		

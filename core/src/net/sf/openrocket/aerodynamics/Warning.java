@@ -321,7 +321,7 @@ public abstract class Warning {
 	
 	/** A <code>Warning</code> that the body diameter is discontinuous. */
 	////Discontinuity in rocket body diameter.
-	public static final Warning DISCONTINUITY =
+	public static final Warning DIAMETER_DISCONTINUITY =
 			new Other(trans.get("Warning.DISCONTINUITY"));
 	
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */

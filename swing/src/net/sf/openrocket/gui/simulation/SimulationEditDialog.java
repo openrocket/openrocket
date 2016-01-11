@@ -25,7 +25,7 @@ import net.sf.openrocket.gui.adaptors.ParameterSetModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
@@ -149,22 +149,20 @@ public class SimulationEditDialog extends JDialog {
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 			panel.add(label, "growx 0, gapright para");
 			
-			ParameterSetModel<FlightConfiguration> psm = new ParameterSetModel<FlightConfiguration>( document.getRocket().getConfigSet());
-			final JComboBox<FlightConfiguration> configCombo = new JComboBox<FlightConfiguration>(psm);
-			FlightConfiguration config = document.getRocket().getFlightConfiguration(simulation[0].getId());
-			configCombo.setSelectedItem( config );
+			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<FlightConfiguration>( document.getRocket().toConfigArray());
+			configComboBox.setSelectedItem( document.getRocket().getSelectedConfiguration().getId() );
 			
 			//// Select the motor configuration to use.
-			configCombo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
-			configCombo.addActionListener(new ActionListener() {
+			configComboBox.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
+			configComboBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					FlightConfiguration config = (FlightConfiguration) configCombo.getSelectedItem();
-					FlightConfigurationID id = config.getFlightConfigurationID();
+					FlightConfiguration config = (FlightConfiguration)configComboBox.getSelectedItem();
+					FlightConfigurationId id = config.getId();
 					conditions.setFlightConfigurationId( id );
 				}
 			});
-			panel.add(configCombo, "span");
+			panel.add(configComboBox, "span");
 			
 			panel.add(new JPanel(), "growx, wrap");
 			

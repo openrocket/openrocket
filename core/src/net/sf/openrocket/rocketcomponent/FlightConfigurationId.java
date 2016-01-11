@@ -7,22 +7,23 @@ import java.util.UUID;
  * It is intended to provide better visibility and traceability by more specific type safety -- this class replaces a 
  * straight-up <code>String</code> Key in previous implementations. 
  */
-public final class FlightConfigurationID implements Comparable<FlightConfigurationID> {
+public final class FlightConfigurationId implements Comparable<FlightConfigurationId> {
 	final public UUID key;
 	
 	private final static long DEFAULT_MOST_SIG_BITS = 0xF4F2F1F0;
-	private final static UUID ERROR_CONFIGURATION_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 2489);
-	private final static String ERROR_KEY_NAME = "<Error_Key>";
+	private final static UUID ERROR_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 2489);
+	private final static String ERROR_KEY_NAME = "ErrorKey";
 	private final static UUID DEFAULT_VALUE_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 5676);
+	private final static String DEFAULT_VALUE_NAME = "DefaultKey";
 	
-	public final static FlightConfigurationID ERROR_CONFIGURATION_FCID = new FlightConfigurationID( FlightConfigurationID.ERROR_CONFIGURATION_UUID);
-	public final static FlightConfigurationID DEFAULT_VALUE_FCID = new FlightConfigurationID( FlightConfigurationID.DEFAULT_VALUE_UUID ); 
+	public final static FlightConfigurationId ERROR_FCID = new FlightConfigurationId( FlightConfigurationId.ERROR_UUID);
+	public final static FlightConfigurationId DEFAULT_VALUE_FCID = new FlightConfigurationId( FlightConfigurationId.DEFAULT_VALUE_UUID ); 
 	
-	public FlightConfigurationID() {
+	public FlightConfigurationId() {
 		this(UUID.randomUUID());
 	}
 	
-	public FlightConfigurationID(final String _str) {
+	public FlightConfigurationId(final String _str) {
 		UUID candidate;
 		if(_str == null || "".equals(_str)){
 			candidate = UUID.randomUUID();
@@ -36,9 +37,9 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 		this.key = candidate;
 	}
 	
-	public FlightConfigurationID(final UUID _val) {
+	public FlightConfigurationId(final UUID _val) {
 		if (null == _val){
-			this.key = FlightConfigurationID.ERROR_CONFIGURATION_UUID;
+			this.key = FlightConfigurationId.ERROR_UUID;
 		} else {
 			this.key = _val;
 		}
@@ -46,19 +47,21 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	
 	@Override
 	public boolean equals(Object anObject) {
-		if (!(anObject instanceof FlightConfigurationID)) {
+		if (!(anObject instanceof FlightConfigurationId)) {
 			return false;
 		}
 		
-		FlightConfigurationID otherFCID = (FlightConfigurationID) anObject;
+		FlightConfigurationId otherFCID = (FlightConfigurationId) anObject;
 		return this.key.equals(otherFCID.key);
 	}
 	
 	public String toShortKey(){
-		if( isValid()){
-			return this.key.toString().substring(0,8);
+		if( hasError() ){
+			return FlightConfigurationId.ERROR_KEY_NAME;
+		}else if( this.key == FlightConfigurationId.DEFAULT_VALUE_UUID){
+			return FlightConfigurationId.DEFAULT_VALUE_NAME;
 		}else{
-			return ERROR_KEY_NAME;
+			return this.key.toString().substring(0,8);
 		}
 	}
 	
@@ -76,7 +79,7 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	public boolean hasError(){
-		return (ERROR_CONFIGURATION_UUID == this.key);
+		return (ERROR_UUID == this.key);
 	}
 	public boolean isValid() {
 		return !hasError();
@@ -88,8 +91,13 @@ public final class FlightConfigurationID implements Comparable<FlightConfigurati
 	}
 	
 	@Override
-	public int compareTo(FlightConfigurationID other) {
-		return (this.key.compareTo( other.key));
+	public int compareTo(FlightConfigurationId other) {
+		return this.key.compareTo( other.key);
 	}
+	
+	public String toDebug(){
+		return this.toShortKey();
+	}
+	
 	
 }

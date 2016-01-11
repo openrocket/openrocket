@@ -15,7 +15,6 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Coordinate;
 
 public class DampingMoment extends AbstractSimulationListener {
 	
@@ -70,9 +69,8 @@ public class DampingMoment extends AbstractSimulationListener {
 		double nozzleDistance = 0;
 		FlightConfiguration config = status.getConfiguration();
 		for (MotorConfiguration inst : config.getActiveMotors()) {
-			Coordinate position = inst.getPosition();
-			
-			double x = position.x + inst.getMotor().getLength();
+			double x_position= inst.getX();
+			double x = x_position + inst.getMotor().getLaunchCG().x;
 			if (x > nozzleDistance) {
 				nozzleDistance = x;
 			}

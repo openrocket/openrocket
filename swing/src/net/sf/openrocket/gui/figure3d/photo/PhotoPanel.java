@@ -45,8 +45,9 @@ import net.sf.openrocket.gui.figure3d.TextureCache;
 import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -94,16 +95,6 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				cachedBounds = null;
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);
-
-				doc.getDefaultConfiguration().addChangeListener(
-						new StateChangeListener() {
-							@Override
-							public void stateChanged(EventObject e) {
-								log.debug("Repainting on config state change");
-								needUpdate = true;
-								PhotoPanel.this.repaint();
-							}
-						});
 
 				doc.addDocumentChangeListener(new DocumentChangeListener() {
 					@Override
@@ -419,36 +410,34 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
 		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
 		
-		final FlightConfigurationID motorID = configuration.getFlightConfigurationID();
+		final FlightConfigurationId motorID = configuration.getFlightConfigurationID();
 		
 		
-		final Iterator<RocketComponent> iter = configuration.getActiveComponents().iterator();
+		
+		final Iterator<MotorConfiguration> iter = configuration.getActiveMotors().iterator();
 		while( iter.hasNext()){
-			RocketComponent comp = iter.next();
-			if( comp instanceof MotorMount){
-				
-				final MotorMount mount = (MotorMount) comp;
-				int curStageNumber = comp.getStageNumber();
+			MotorConfiguration curConfig = iter.next();
+			final MotorMount mount = curConfig.getMount();
+			int curStageNumber = ((RocketComponent)mount).getStageNumber();
 			
-				//If this mount is not in currentStage continue on to the next one.
-				if( curStageNumber != bottomStageNumber ){
-					continue;
-				}
-				
-				final Motor motor = mount.getMotorInstance(motorID).getMotor();
-				final double length = motor.getLength();
+			//If this mount is not in currentStage continue on to the next one.
+			if( curStageNumber != bottomStageNumber ){
+				continue;
+			}
+			
+			final Motor motor = mount.getMotorInstance(motorID).getMotor();
+			final double length = motor.getLength();
 	
-				Coordinate[] position = ((RocketComponent) mount)
-						.toAbsolute(new Coordinate(((RocketComponent) mount)
-								.getLength() + mount.getMotorOverhang() - length));
-	
-				for (int i = 0; i < position.length; i++) {
-					gl.glPushMatrix();
-					gl.glTranslated(position[i].x + motor.getLength(),
-							position[i].y, position[i].z);
-					FlameRenderer.drawExhaust(gl, p, motor);
-					gl.glPopMatrix();
-				}
+			Coordinate[] position = ((RocketComponent) mount)
+					.toAbsolute(new Coordinate(((RocketComponent) mount)
+							.getLength() + mount.getMotorOverhang() - length));
+
+			for (int i = 0; i < position.length; i++) {
+				gl.glPushMatrix();
+				gl.glTranslated(position[i].x + motor.getLength(),
+						position[i].y, position[i].z);
+				FlameRenderer.drawExhaust(gl, p, motor);
+				gl.glPopMatrix();
 			}
 		}
 
