@@ -4,6 +4,7 @@ import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.simulation.MotorState;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
@@ -15,7 +16,7 @@ public class ThrustCurveMotorState implements MotorState {
 	
 	protected MotorMount mount = null;
 	protected MotorInstanceId id = null;
-	private double ignitionTime;
+	private double ignitionTime = -1;
 	private double ignitionDelay;
 	private IgnitionEvent ignitionEvent;
 	private double ejectionDelay;
@@ -56,6 +57,15 @@ public class ThrustCurveMotorState implements MotorState {
 		
 	}
 	
+	@Override
+	public ThrustCurveMotorState clone() {
+		try {
+			return (ThrustCurveMotorState) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("CloneNotSupportedException", e);
+		}
+	}
+
 	@Override
 	public double getIgnitionTime() {
 		return ignitionTime;

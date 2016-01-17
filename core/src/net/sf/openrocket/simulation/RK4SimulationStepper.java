@@ -182,6 +182,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double thrustEstimate = store.thrustForce;
 		store.thrustForce = calculateThrust(status, store.timestep, store.longitudinalAcceleration,
 				store.atmosphericConditions, true);
+		log.trace("Thrust at time " + store.timestep + " thrustForce = " + store.thrustForce);
 		double thrustDiff = Math.abs(store.thrustForce - thrustEstimate);
 		// Log if difference over 1%, recompute if over 10%
 		if (thrustDiff > 0.01 * thrustEstimate) {

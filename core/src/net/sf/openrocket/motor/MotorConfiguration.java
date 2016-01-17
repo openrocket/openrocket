@@ -43,15 +43,14 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public MotorState getSimulationState() {
 		MotorState state = motor.getNewInstance();
+		state.setEjectionDelay( this.ejectionDelay );
 		if( ignitionOveride ) {
 			state.setIgnitionEvent( this.ignitionEvent );
 			state.setIgnitionDelay( this.ignitionDelay );
-			state.setEjectionDelay( this.ejectionDelay );
 		} else {
 			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
 			state.setIgnitionEvent( defInstance.ignitionEvent );
 			state.setIgnitionDelay( defInstance.ignitionDelay );
-			state.setEjectionDelay( defInstance.ejectionDelay );
 		}
 		state.setMount( mount );
 		state.setId( id );
@@ -70,7 +69,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		if( motor == null ){
 			return EMPTY_DESCRIPTION;
 		}else{
-			return this.motor.getDesignation() + " - " + this.getEjectionDelay();
+			return this.motor.getDesignation() + "-" + (int)this.getEjectionDelay();
 		}
 	}
 	
