@@ -281,7 +281,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		for (Simulation s : getSimulations()) {
 			// Assumes modifiable collection - which it is
-			if (configId.equals(s.getOptions().getId())) {
+			if (configId.equals(s.getId())) {
 				removeSimulation(s);
 			}
 		}
@@ -637,7 +637,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		str.append(">> Dumping simulation list:\n");
 		int simNum = 0; 
 		for( Simulation s : this.simulations ){
-			str.append(String.format("    [%d] %s (%s) \n", simNum, s.getName(), s.getOptions().getId().toShortKey() ));
+			str.append(String.format("    [%d] %s (%s) \n", simNum, s.getName(), s.getId().toShortKey() ));
 			simNum++;
 		}
 		

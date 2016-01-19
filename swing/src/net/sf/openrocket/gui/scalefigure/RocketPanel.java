@@ -687,8 +687,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			Rocket duplicate = (Rocket) document.getRocket().copy();
 			Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-			simulation.getOptions().setFlightConfigurationId(
-					document.getDefaultConfiguration().getFlightConfigurationID());
+			simulation.setFlightConfigurationId( document.getDefaultConfiguration().getFlightConfigurationID());
 
 			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
 			backgroundSimulationExecutor.execute(backgroundSimulationWorker);

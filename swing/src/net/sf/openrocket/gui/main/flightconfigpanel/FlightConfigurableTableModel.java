@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -25,7 +24,6 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	protected final Rocket rocket;
 	protected final Class<T> clazz;
 	private final List<T> components = new ArrayList<T>();
-	private List<FlightConfigurationId> ids = new Vector<FlightConfigurationId>();
 	
 	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
 		super();
@@ -52,6 +50,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		return true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected void initialize() {
 		components.clear();
 		Iterator<RocketComponent> it = rocket.iterator();

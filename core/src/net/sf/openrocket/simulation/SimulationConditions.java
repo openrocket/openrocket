@@ -27,9 +27,6 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 public class SimulationConditions implements Monitorable, Cloneable {
 	
-	private Rocket rocket;
-	private FlightConfigurationId configId= null;
-	
 	private Simulation simulation; // The parent simulation 
 	
 	private double launchRodLength = 1;
@@ -103,29 +100,16 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	
 	public Rocket getRocket() {
-		return rocket;
+		return simulation.getRocket();
 	}
-	
-	
-	public void setRocket(Rocket rocket) {
-		if (this.rocket != null)
-			this.modIDadd += this.rocket.getModID();
-		this.modID++;
-		this.rocket = rocket;
-	}
-	
+
 
 	public FlightConfigurationId getMotorConfigurationID() {
-		return configId;
+		return simulation.getId();
 	}
 
 	public FlightConfigurationId getFlightConfigurationID() {
-		return configId;
-	}
-	
-	public void setFlightConfigurationID(FlightConfigurationId _fcid) {
-		this.configId = _fcid;
-		this.modID++;
+		return simulation.getId();
 	}
 	
 	
@@ -313,7 +297,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	public int getModID() {
 		//return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
 		//		gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
-		return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
+		return (modID + modIDadd + simulation.getRocket().getModID() + windModel.getModID() + atmosphericModel.getModID() +
 				aerodynamicCalculator.getModID() + massCalculator.getModID());
 	}
 	
@@ -327,8 +311,6 @@ public class SimulationConditions implements Monitorable, Cloneable {
 			for (SimulationListener listener : this.simulationListeners) {
 				clone.simulationListeners.add(listener.clone());
 			}
-			clone.rocket = this.rocket;  // the rocket should be read-only from this point
-			clone.configId = this.configId; // configIds are read-only
 			
 			return clone;
 		} catch (CloneNotSupportedException e) {

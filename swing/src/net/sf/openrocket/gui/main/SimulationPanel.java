@@ -612,7 +612,7 @@ public class SimulationPanel extends JPanel {
 				if((s==Simulation.Status.NOT_SIMULATED) ||
 						(s==Simulation.Status.OUTDATED)){
 					outdated++;
-				}	
+				}
 			}
 			if(outdated>0){
 				Simulation[] sims = new Simulation[outdated];
@@ -668,7 +668,6 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private class JLabelRenderer extends DefaultTableCellRenderer {
-		private static final long serialVersionUID = 5487619660216145843L;
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,

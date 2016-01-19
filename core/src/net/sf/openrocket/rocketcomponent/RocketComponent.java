@@ -2114,7 +2114,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public String toDebugTree() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
-		buffer.append("     [Name]                     [Length]            [Rel Pos]                [Abs Pos]  \n");
+		buffer.append("     [Name]                         [Length]          [Rel Pos]                [Abs Pos]  \n");
 		this.dumpTreeHelper(buffer, "");
 		return buffer.toString();
 	}

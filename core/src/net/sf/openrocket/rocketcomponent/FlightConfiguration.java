@@ -420,10 +420,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			for (RocketComponent component : this.getActiveComponents()) {
 				for (Coordinate coord : component.getComponentBounds()) {
 					cachedBounds.add(coord);
-					if (coord.x < minX)
+					if (coord.x < minX){
 						minX = coord.x;
-					if (coord.x > maxX)
+					}else if (coord.x > maxX){
 						maxX = coord.x;
+					}
 				}
 			}
 			

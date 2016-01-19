@@ -13,6 +13,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
@@ -115,12 +116,14 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			status = Simulation.Status.OUTDATED;
 		}
 		
-		SimulationOptions conditions;
+		SimulationOptions options;
+		FlightConfigurationId idToSet= FlightConfigurationId.ERROR_FCID;
 		if (conditionHandler != null) {
-			conditions = conditionHandler.getConditions();
+			options = conditionHandler.getConditions();
+			idToSet = conditionHandler.idToSet;
 		} else {
 			warnings.add("Simulation conditions not defined, using defaults.");
-			conditions = new SimulationOptions(doc.getRocket());
+			options = new SimulationOptions();
 		}
 		
 		if (name == null)
@@ -133,7 +136,8 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			data = dataHandler.getFlightData();
 		
 		Simulation simulation = new Simulation(doc.getRocket(), status, name,
-				conditions, extensions, data);
+				options, extensions, data);
+		simulation.setFlightConfigurationId( idToSet );
 		
 		doc.addSimulation(simulation);
 	}

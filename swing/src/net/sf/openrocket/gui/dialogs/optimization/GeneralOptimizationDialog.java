@@ -1167,7 +1167,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update the active configuration
-		FlightConfigurationId fcid = getSelectedSimulation().getOptions().getId();
+		FlightConfigurationId fcid = getSelectedSimulation().getId();
 		getSelectedSimulation().getRocket().setDefaultConfiguration(fcid);
 		
 		updating = false;

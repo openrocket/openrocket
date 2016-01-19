@@ -513,7 +513,7 @@ public class DesignReport {
 		try {
 			for (int i = 0; i < simulations.size(); i++) {
 				Simulation simulation = simulations.get(i);
-				if (Utils.equals(simulation.getOptions().getId(), motorId)) {
+				if (Utils.equals(simulation.getId(), motorId)) {
 					simulation = simulation.copy();
 					simulation.simulate();
 					flight = simulation.getSimulatedData();

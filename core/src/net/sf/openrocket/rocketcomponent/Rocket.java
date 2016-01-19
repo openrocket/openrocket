@@ -818,11 +818,10 @@ public class Rocket extends RocketComponent {
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("====== Dumping %d Configurations from rocket: \n", this.getConfigurationCount(), this.getName()));
 		final String fmt = "    [%-12s]: %s\n";
-		buf.append(String.format(fmt, "  *SELECTED* ", selectedConfiguration.getName() ));
 		for( FlightConfiguration config : this.configSet.values() ){
 			String shortKey = config.getId().toShortKey();
 			if( this.selectedConfiguration.equals( config)){
-				shortKey = "*"+shortKey+"*";
+				shortKey = shortKey+"<=";
 			}
 			buf.append(String.format(fmt, shortKey, config.getName() ));
 		}
