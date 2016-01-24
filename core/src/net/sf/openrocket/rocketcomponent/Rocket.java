@@ -423,6 +423,10 @@ public class Rocket extends RocketComponent {
 		try {
 			checkState();
 			
+			{ // vvvv DEVEL vvvv
+				System.err.println("fireEvent@rocket.");
+			} // ^^^^ DEVEL ^^^^
+			
 			// Update modification ID's only for normal (not undo/redo) events
 			if (!cce.isUndoChange()) {
 				modID = UniqueID.next();
@@ -435,18 +439,6 @@ public class Rocket extends RocketComponent {
 				if (cce.isFunctionalChange())
 					functionalModID = modID;
 			}
-			
-			// Update modification ID's only for normal (not undo/redo) events
-			{ // vvvv DEVEL vvvv
-//				String changeString; 
-//				if (cce.isUndoChange()) {
-//					changeString = "an 'undo' change from: "+cce.getSource().getName()+"  as:"+cce.toString();
-//				}else{
-//					changeString = "a normal change from: "+cce.getSource().getName()+"  as:"+cce.toString();
-//				}
-//				
-//				log.error("Processing a rocket change: "+changeString, new IllegalArgumentException());
-			} // ^^^^ DEVEL ^^^^
 			
 			// Check whether frozen
 			if (freezeList != null) {
@@ -461,19 +453,10 @@ public class Rocket extends RocketComponent {
 				iterator.next().componentChanged(cce);
 			}
 			
-			// notify all configurations
-			this.update();
+			updateConfigurations();
+
+			notifyAllListeners(cce);
 			
-			// Notify all listeners
-			// Copy the list before iterating to prevent concurrent modification exceptions.
-			EventListener[] list = listenerList.toArray(new EventListener[0]);
-			for (EventListener l : list) {
-				if (l instanceof ComponentChangeListener) {
-					((ComponentChangeListener) l).componentChanged(cce);
-				} else if (l instanceof StateChangeListener) {
-					((StateChangeListener) l).stateChanged(cce);
-				}
-			}
 		} finally {
 			mutex.unlock("fireComponentChangeEvent");
 		}
@@ -481,9 +464,26 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	public void update(){
+		updateConfigurations();
+	}
+	
+	private void updateConfigurations(){
 		this.selectedConfiguration.update();
 		for( FlightConfiguration config : configSet.values() ){
 			config.update();
+		}
+	}
+	
+	
+	private void notifyAllListeners(final ComponentChangeEvent cce){
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listenerList.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof ComponentChangeListener) {
+				((ComponentChangeListener) l).componentChanged(cce);
+			} else if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(cce);
+			}
 		}
 	}
 	

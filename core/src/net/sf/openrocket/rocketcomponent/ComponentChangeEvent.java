@@ -14,7 +14,9 @@ public class ComponentChangeEvent extends EventObject {
 		UNDO( 16, "UNDO"),
 		MOTOR( 32, "Motor"),
 		EVENT( 64, "Event"),
-		TEXTURE ( 128, "Texture");
+		TEXTURE ( 128, "Texture")
+		, GRAPHIC( 256, "Configuration")
+		;
 		
 		protected int value;
 		protected String name;
@@ -39,8 +41,7 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change that affects the mass and aerodynamic properties of the rocket */
 	public static final int AEROMASS_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value );
 	public static final int BOTH_CHANGE = AEROMASS_CHANGE;  // syntactic sugar / backward compatibility
-	/** when a flight configuration fires an event, it is of this type */
-	public static final int CONFIG_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value | TYPE.TREE.value | TYPE.MOTOR.value | TYPE.EVENT.value);
+
 	
 	/** A change that affects the rocket tree structure */
 	public static final int TREE_CHANGE = TYPE.TREE.value;
@@ -52,6 +53,9 @@ public class ComponentChangeEvent extends EventObject {
 	public static final int EVENT_CHANGE = TYPE.EVENT.value;
 	/** A change to the 3D texture assigned to a component*/
 	public static final int TEXTURE_CHANGE = TYPE.TEXTURE.value;
+	// when a flight configuration fires an event, it is of this type
+	// UI-only change, but does not effect the true
+	public static final int GRAPHIC_CHANGE = TYPE.GRAPHIC.value;
 	
 	//// A bit-field that contains all possible change types. 
 	//// Will output as -1. for an explanation, see "twos-complement" representation of signed integers

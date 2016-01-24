@@ -1747,7 +1747,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param type  Type of event
 	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
 	 */
-	protected void fireComponentChangeEvent(int type) {
+	public void fireComponentChangeEvent(int type) {
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 	

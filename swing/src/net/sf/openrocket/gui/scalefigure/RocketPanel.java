@@ -146,6 +146,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 
+
 	/**
 	 * The executor service used for running the background simulations.
 	 * This uses a fixed-sized thread pool for all background simulations
@@ -167,6 +168,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 								});
 	}
 
+	
+	public OpenRocketDocument getDocument(){
+		return this.document;
+	}
+	
 	public RocketPanel(OpenRocketDocument document) {
 		this.document = document;
 		Rocket rkt = document.getRocket();
@@ -295,8 +301,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(scaleSelector);
 
 		// Stage selector
-		final FlightConfiguration configuration = document.getDefaultConfiguration();
-		StageSelector stageSelector = new StageSelector(configuration);
+		final Rocket rkt = document.getRocket(); 
+		StageSelector stageSelector = new StageSelector( rkt );
+		rkt.addChangeListener(stageSelector);
 		add(stageSelector);
 
 		// Flight configuration selector
@@ -847,4 +854,5 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
 		// }
 		// }
+	
 }
