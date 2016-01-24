@@ -32,7 +32,6 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		
 		updateButtons();
 		
-		configuration.addChangeListener(this);
 	}
 	
 	private void updateButtons() {
@@ -65,7 +64,6 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		
 		public StageAction(final int stage) {
 			this.stageNumber = stage;
-			configuration.addChangeListener(this);
 			stateChanged(null);
 		}
 		

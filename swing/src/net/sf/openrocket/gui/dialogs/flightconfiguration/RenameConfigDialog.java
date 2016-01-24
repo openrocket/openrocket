@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 
@@ -22,7 +22,7 @@ public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public RenameConfigDialog(final Window parent, final Rocket rocket, final FlightConfigurationID fcid) {
+	public RenameConfigDialog(final Window parent, final Rocket rocket, final FlightConfigurationId fcid) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -40,7 +40,6 @@ public class RenameConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				String newName = textbox.getText();
 				rocket.getFlightConfiguration(fcid).setName( newName);
-				System.err.println(rocket.getConfigSet().toDebug());
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});

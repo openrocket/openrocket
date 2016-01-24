@@ -11,7 +11,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-public class BoosterSetTest extends BaseTestCase {
+public class ParallelStageTest extends BaseTestCase {
 	
 	// tolerance for compared double test results
 	protected final double EPSILON = 0.00001;
@@ -50,6 +50,8 @@ public class BoosterSetTest extends BaseTestCase {
 		FinSet coreFins = new TrapezoidFinSet(4, 4, 2, 2, 4);
 		coreFins.setName("Core Fins");
 		coreLowerBody.addChild(coreFins);
+
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -58,7 +60,6 @@ public class BoosterSetTest extends BaseTestCase {
 		
 		ParallelStage strapon = new ParallelStage();
 		strapon.setName("Booster Stage");
-		strapon.setAutoRadialOffset(true);
 		RocketComponent boosterNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
 		boosterNose.setName("Booster Nosecone");
 		strapon.addChild(boosterNose);
@@ -74,6 +75,7 @@ public class BoosterSetTest extends BaseTestCase {
 		
 		strapon.setInstanceCount(3);
 		strapon.setRadialOffset(1.8);
+		strapon.setAutoRadialOffset(false);
 		
 		return strapon;
 	}
@@ -230,7 +232,7 @@ public class BoosterSetTest extends BaseTestCase {
 	}
 	
 	@Test
-	public void testBoosterInitialization() {
+	public void testBoosterInitializationSimple() {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
@@ -239,12 +241,11 @@ public class BoosterSetTest extends BaseTestCase {
 		
 		double targetOffset = 0;
 		set0.setAxialOffset(Position.BOTTOM, targetOffset);
-		// vv function under test
-		set0.setAutoRadialOffset(true);
-		set0.setInstanceCount(2);
-		set0.setRadialOffset(4.0);
-		set0.setAngularOffset(Math.PI / 2);
 		
+		// vvvv function under test
+		set0.setInstanceCount(2);
+		set0.setRadialOffset(4.0); 
+		set0.setAngularOffset(Math.PI / 2);
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
@@ -265,6 +266,28 @@ public class BoosterSetTest extends BaseTestCase {
 		assertEquals(" 'setAngularOffset(double)' failed:\n" + treeDump + "  angular offset: ", expectedAngularOffset, angularOffset, EPSILON);
 	}
 	
+	@Test
+	public void testBoosterInitializationAutoRadius() {
+		// setup
+		RocketComponent rocket = createTestRocket();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		ParallelStage set0 = createBooster();
+		core.addChild(set0);
+		
+		double targetOffset = 0;
+		set0.setAxialOffset(Position.BOTTOM, targetOffset);
+		// vvvv function under test
+		set0.setAutoRadialOffset(true);
+		set0.setRadialOffset(4.0);  // this called will be overriden by the AutoRadialOffset above
+		// ^^^^ function under test
+		String treeDump = rocket.toDebugTree();
+		
+		double expectedRadialOffset = 2.2;
+		double radialOffset = set0.getRadialOffset();
+		assertEquals(" 'setRadialOffset(double)' failed: \n" + treeDump + "  radial offset: ", expectedRadialOffset, radialOffset, EPSILON);
+	}
+	
+
 
 	@Test
 	public void testAddStraponAuto() {
@@ -725,8 +748,7 @@ public class BoosterSetTest extends BaseTestCase {
 		actualStageNumber = boosterB.getStageNumber();
 		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
 		
-		//rocket.getDefaultConfiguration().dumpConfig();
-		
+		// remove Booster A 
 		core.removeChild(2);
 		
 		String treedump = rocket.toDebugTree();
@@ -734,7 +756,7 @@ public class BoosterSetTest extends BaseTestCase {
 		int actualStageCount = rocket.getStageCount();
 		
 		assertEquals(" Stage tracking error:  removed booster A, but count not updated: " + treedump, expectedStageCount, actualStageCount);
-		actualStageCount = rocket.getDefaultConfiguration().getStageCount();
+		actualStageCount = rocket.getSelectedConfiguration().getStageCount();
 		assertEquals(" Stage tracking error:  removed booster A, but configuration not updated: " + treedump, expectedStageCount, actualStageCount);
 		
 		ParallelStage boosterC = createBooster();

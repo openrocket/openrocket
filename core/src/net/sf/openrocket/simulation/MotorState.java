@@ -5,7 +5,7 @@ import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 
-public interface MotorState {
+public interface MotorState extends Cloneable {
 
 	public void step(double nextTime, double acceleration, AtmosphericConditions cond);
 	public double getThrust();
@@ -28,4 +28,7 @@ public interface MotorState {
 
 	public double getEjectionDelay();
 	public void setEjectionDelay( double delay);
+	
+	public MotorState clone();
+
 }

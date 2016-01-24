@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.Rocket;
 
 
 public class RecoveryDeviceSaver extends MassObjectSaver {
@@ -27,35 +25,24 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		elements.add(materialParam(dev.getMaterial()));
 		
 		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
-		DeploymentConfiguration defaultConfig = dev.getDeploymentConfigurations().getDefault();
-		elements.addAll(deploymentConfiguration(defaultConfig, false));
+		FlightConfigurableParameterSet<DeploymentConfiguration> configSet = dev.getDeploymentConfigurations();
+		DeploymentConfiguration defaultConfig = configSet.getDefault();
+		elements.addAll(addDeploymentConfigurationParams(defaultConfig, false));
 		
-		Rocket rocket = c.getRocket();
-		
-		// DEBUG
-		//System.err.println("printing deployment info for: "+dev.getName());
-		//dev.getDeploymentConfigurations().printDebug();
-		// DEBUG 
-		
-		FlightConfigurableParameterSet<FlightConfiguration> configList = rocket.getConfigSet(); 
-		for (FlightConfigurationID fcid : configList.getSortedConfigurationIDs()) {
-			//System.err.println("checking FlightConfiguration:"+fcid.getShortKey()+ " save?");
-			
+		for (FlightConfigurationId fcid : configSet.getIds()) {
 			if (dev.getDeploymentConfigurations().isDefault(fcid)) {
-				//System.err.println("    >> skipping: fcid="+fcid.getShortKey());
 				continue;
-			}else if( dev.getDeploymentConfigurations().containsKey(fcid)){
+			}else{
 				// only print configurations which override the default.
-				//System.err.println("    >> printing data.");
 				DeploymentConfiguration deployConfig = dev.getDeploymentConfigurations().get(fcid);
 				elements.add("<deploymentconfiguration configid=\"" + fcid.key + "\">");
-				elements.addAll(deploymentConfiguration(deployConfig, true));
+				elements.addAll(addDeploymentConfigurationParams(deployConfig, true));
 				elements.add("</deploymentconfiguration>");
 			}
 		}
 	}
 	
-	private List<String> deploymentConfiguration(DeploymentConfiguration config, boolean indent) {
+	private List<String> addDeploymentConfigurationParams(DeploymentConfiguration config, boolean indent) {
 		List<String> elements = new ArrayList<String>(3);
 		elements.add((indent ? "  " : "") + "<deployevent>" + config.getDeployEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</deployevent>");
 		elements.add((indent ? "  " : "") + "<deployaltitude>" + config.getDeployAltitude() + "</deployaltitude>");

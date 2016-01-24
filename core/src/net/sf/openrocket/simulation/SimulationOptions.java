@@ -17,7 +17,7 @@ import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -51,7 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
-	private FlightConfigurationID configId = new FlightConfigurationID(); 
+	private FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID; 
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -100,11 +100,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		return rocket;
 	}
 	
-	public FlightConfigurationID getFlightConfigurationId() {
+	public FlightConfigurationId getFlightConfigurationId() {
 		return getId();
 	}
 	
-	public FlightConfigurationID getId() {
+	public FlightConfigurationId getId() {
 		return this.configId;
 	}
 	
@@ -113,7 +113,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * 
 	 * @param id	the configuration to set.
 	 */
-	public void setFlightConfigurationId(FlightConfigurationID fcid) {
+	public void setFlightConfigurationId(FlightConfigurationId fcid) {
 		if ( null == fcid ){
 			throw new NullPointerException("Attempted to set a null Config id in simulation options. Not allowed!");
 		}else if ( fcid.hasError() ){
@@ -439,7 +439,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (this.rocket == src.rocket) {
 			this.configId = src.configId;
 		} else {
-			
 			if (src.rocket.hasMotors(src.configId)) {
 				// First check for exact match:
 				if (this.rocket.containsFlightConfigurationID(src.configId)) {
@@ -449,9 +448,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
 					
 					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.configId);
-					FlightConfigurationID matchID = null;
+					FlightConfigurationId matchID = null;
 					
-					for (FlightConfigurationID fcid : this.rocket.getSortedConfigurationIDs()){
+					for (FlightConfigurationId fcid : rocket.getIds()){
 						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, fcid);
 						if (motorDesc.equals(motorDesc2)) {
 							matchID = fcid;
@@ -462,7 +461,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 					this.configId = matchID;
 				}
 			} else {
-				this.configId = null;
+				this.configId = FlightConfigurationId.ERROR_FCID;
 			}
 		}
 		
@@ -588,7 +587,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public int hashCode() {
-		if (configId == null)
+		if (configId.hasError())
 			return rocket.hashCode();
 		return rocket.hashCode() + configId.hashCode();
 	}

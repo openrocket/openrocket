@@ -22,7 +22,7 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -164,7 +164,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	
 	public FlightConfiguration getDefaultConfiguration() {
-		return rocket.getDefaultConfiguration();
+		return rocket.getSelectedConfiguration();
 	}
 	
 	public File getFile() {
@@ -252,7 +252,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public void addSimulation(Simulation simulation) {
 		simulations.add(simulation);
-		FlightConfigurationID simId = simulation.getId();
+		FlightConfigurationId simId = simulation.getId();
 		if( !rocket.containsFlightConfigurationID( simId )){
 			rocket.createFlightConfiguration(simId);
 		}
@@ -275,7 +275,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return simulation;
 	}
 	
-	public void removeFlightConfigurationAndSimulations(FlightConfigurationID configId) {
+	public void removeFlightConfigurationAndSimulations(FlightConfigurationId configId) {
 		if (configId == null) {
 			return;
 		}

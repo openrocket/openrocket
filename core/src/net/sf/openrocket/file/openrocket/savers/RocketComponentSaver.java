@@ -16,11 +16,10 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -91,11 +90,12 @@ public class RocketComponentSaver {
 				}
 				if( c instanceof LineInstanceable ){
 					LineInstanceable line = (LineInstanceable)c;
-					emitString( elements, "instancecount", Integer.toString( c.getInstanceCount()) );
+					emitString( elements, "instancecount", Integer.toString( instanceCount ) );
 					emitDouble( elements, "linseparation", line.getInstanceSeparation());
 				}
 				if( c instanceof RingInstanceable){
 					RingInstanceable ring = (RingInstanceable)c;
+					emitString( elements, "instancecount", Integer.toString( instanceCount ));
 					if( ring.getAutoRadialOffset() ){
 						emitString(elements, "radialoffset", "auto");
 					}else{
@@ -190,7 +190,7 @@ public class RocketComponentSaver {
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for( FlightConfigurationID fcid : rkt.getSortedConfigurationIDs()){
+		for( FlightConfigurationId fcid : rkt.getIds()){
 			
 			MotorConfiguration motorInstance = mount.getMotorInstance(fcid);
 			// Nothing is stored if no motor loaded

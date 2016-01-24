@@ -7,38 +7,37 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.MutableComboBoxModel;
 
-import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
 
 
-public class EnumModel<T extends Enum<T>> extends AbstractListModel 
-		implements ComboBoxModel, MutableComboBoxModel, StateChangeListener {
-
-	private final ChangeSource source;
+public class EnumModel<T extends Enum<T>> extends AbstractListModel<T> 
+		implements ComboBoxModel<T>, MutableComboBoxModel<T>, StateChangeListener {
+	private static final long serialVersionUID = 7766446027840316797L;
+	private final Object source;
 	private final String valueName;
 	private final String nullText;
 	
-	private final Enum<T>[] values;
-	private Enum<T> currentValue = null;
+	private final T[] values;
+	private T currentValue = null;
 	
-	ArrayList<Enum<T>> displayedValues = new ArrayList<Enum<T>>();
+	ArrayList<T> displayedValues = new ArrayList<T>();
 	
 	private final Reflection.Method getMethod;
 	private final Reflection.Method setMethod;
 	
 	
 	
-	public EnumModel(ChangeSource source, String valueName) {
+	public EnumModel(Object source, String valueName) {
 		this(source,valueName,null,null);
 	}
 	
-	public EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
+	public EnumModel(Object source, String valueName, T[] values) {
 		this(source, valueName, values, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public EnumModel(ChangeSource source, String valueName, Enum<T>[] values, String nullText) {
+	public EnumModel(Object source, String valueName, T[] values, String nullText) {
 		Class<? extends Enum<T>> enumClass;
 		this.source = source;
 		this.valueName = valueName;
@@ -62,15 +61,14 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		if (values != null)
 			this.values = values;
 		else 
-			this.values = enumClass.getEnumConstants();
+			this.values = (T[]) enumClass.getEnumConstants();
 		
-		for (Enum<T> e : this.values){
+		for (T e : this.values){
 			this.displayedValues.add( e );
 		}
 		this.nullText = nullText;
 		
 		stateChanged(null);  // Update current value
-		source.addChangeListener(this);
 	}
 
 	
@@ -82,7 +80,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		return currentValue;
 	}
 
-	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setSelectedItem(Object item) {
 		if (item == null) {
@@ -102,19 +100,19 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		// Comparison with == ok, since both are enums
 		if (currentValue == item)
 			return;
-		// @SuppressWarnings("unchecked")
-		this.currentValue = (Enum<T>) item;
+		
+		this.currentValue = (T) item;
 		setMethod.invoke(source, item);
 	}
 
 	@Override
-	public Object getElementAt(int index) {
+	public T getElementAt(int index) {
 		if( ( index < 0 ) || ( index >= this.displayedValues.size())){
-			return nullText; // bad parameter
+			return null; // bad parameter
 		}
 
 		if (values[index] == null)
-			return nullText;
+			return null;
 		return displayedValues.get( index);
 	}
 
@@ -126,7 +124,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 	@SuppressWarnings("unchecked")
 	@Override
 	public void stateChanged(EventObject e) {
-		Enum<T> value = (Enum<T>) getMethod.invoke(source);
+		T value = (T) getMethod.invoke(source);
 		if (value != currentValue) {
 			currentValue = value;
 			this.fireContentsChanged(this, 0, values.length);
@@ -139,7 +137,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 	}
 
 	@Override
-	public void addElement(Object item) {
+	public void addElement(T item) {
 		// Not actually allowed.  The model starts out with all the enums, and only allows hiding some.
 	}
 
@@ -152,7 +150,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 	}
 
 	@Override
-	public void insertElementAt(Object item, int index) {
+	public void insertElementAt(T item, int index) {
 		// Not actually allowed.  The model starts out with all the enums, and only allows hiding some.
 	}
 

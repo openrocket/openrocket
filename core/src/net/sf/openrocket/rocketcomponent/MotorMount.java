@@ -53,20 +53,28 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @return number of times this component is instanced
 	 */
 	public int getInstanceCount();
+
+	/** 
+	 * Get the length of this motor mount.  Synonymous with the RocketComponent method. 
+	 * 
+	 * @return
+	 */
+	public double getLength();
+		
 		
 	/**
 	 * 
 	 * @param fcid  id for which to return the motor (null retrieves the default)
 	 * @return  requested motorInstance (which may also be the default motor instance)
 	 */
-	public MotorConfiguration getMotorInstance( final FlightConfigurationID fcid);
+	public MotorConfiguration getMotorInstance( final FlightConfigurationId fcid);
 
 	/**
 	 * 
 	 * @param fcid index the supplied motor against this flight configuration 
 	 * @param newMotorInstance  motor instance to store
 	 */
-	public void setMotorInstance(final FlightConfigurationID fcid, final MotorConfiguration newMotorInstance);
+	public void setMotorInstance(final FlightConfigurationId fcid, final MotorConfiguration newMotorInstance);
 	
 	/**
 	 * Get the number of motors available for all flight configurations
@@ -106,7 +114,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @return	the position of the motor relative to this component.
 	 * @throws  IllegalArgumentException if a motor with the specified ID does not exist.
 	 */
-	public Coordinate getMotorPosition(FlightConfigurationID id);
+	public Coordinate getMotorPosition(FlightConfigurationId id);
 	
 	/**
 	 * Development / Debug method.

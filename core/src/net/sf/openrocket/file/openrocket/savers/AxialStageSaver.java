@@ -6,9 +6,7 @@ import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
-import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 
@@ -45,31 +43,27 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 		
 		if (stage.getStageNumber() > 0) {
 			// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
-			elements.addAll(separationConfig(stage.getSeparationConfigurations().getDefault(), false));
+			elements.addAll(addSeparationConfigParams(stage.getSeparationConfigurations().getDefault(), false));
 			
-			Rocket rocket = stage.getRocket();
 			// Note - getFlightConfigurationIDs returns at least one element.  The first element
-			// is null and means "default".
-			
-			for (FlightConfiguration curConfig : rocket.getConfigSet()){
-				FlightConfigurationID fcid = curConfig.getFlightConfigurationID();
+			for (FlightConfigurationId fcid: stage.getSeparationConfigurations().getIds() ){
 				if (fcid == null) {
 					continue;
 				}
-				
 				StageSeparationConfiguration curSepCfg = stage.getSeparationConfigurations().get(fcid);
-				if( stage.getSeparationConfigurations().isDefault( curSepCfg )){
-					continue;
-				}
+				
+//				if( stage.getSeparationConfigurations().isDefault( curSepCfg )){
+//					continue;
+//				}
 						
 				elements.add("<separationconfiguration configid=\"" + fcid.key + "\">");
-				elements.addAll(separationConfig(curSepCfg, true));
+				elements.addAll(addSeparationConfigParams(curSepCfg, true));
 				elements.add("</separationconfiguration>");
 			}
 		}
 	}
 	
-	private List<String> separationConfig(StageSeparationConfiguration config, boolean indent) {
+	private List<String> addSeparationConfigParams(StageSeparationConfiguration config, boolean indent) {
 		List<String> elements = new ArrayList<String>(2);
 		elements.add((indent ? "    " : "") + "<separationevent>"
 				+ config.getSeparationEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")

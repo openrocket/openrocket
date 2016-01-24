@@ -89,7 +89,7 @@ import net.sf.openrocket.optimization.rocketoptimization.goals.MinimizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.ValueSeekGoal;
 import net.sf.openrocket.optimization.services.OptimizationServiceHelper;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -954,20 +954,20 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		for (Simulation s : documentCopy.getSimulations()) {
 			//FlightConfigurationID id = s.getConfiguration().getFlightConfigurationID();
-			FlightConfigurationID id = new FlightConfigurationID( "stub id value - General Optimizer");
+			FlightConfigurationId id = new FlightConfigurationId( "stub id value - General Optimizer");
 			
 			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
-		for (FlightConfiguration config : rocket.getConfigSet()) {
-			FlightConfigurationID fcid = config.getFlightConfigurationID();
-			if ( fcid == null) {
+		for (FlightConfigurationId curId: rocket.getIds() ){
+			if ( curId== null) {
+				// this is now *extremely* unlikely
 				throw new NullPointerException(" flightconfiguration has a null id... bug.");
 			}
 			
 			Simulation sim = new Simulation(rocket);
-			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, fcid));
+			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, curId));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
@@ -1164,7 +1164,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update the active configuration
-		FlightConfigurationID fcid = getSelectedSimulation().getOptions().getId();
+		FlightConfigurationId fcid = getSelectedSimulation().getOptions().getId();
 		getSelectedSimulation().getRocket().setDefaultConfiguration(fcid);
 		
 		updating = false;

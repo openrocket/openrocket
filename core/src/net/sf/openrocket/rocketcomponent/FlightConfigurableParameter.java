@@ -8,12 +8,14 @@ import net.sf.openrocket.util.ChangeSource;
  *
  * @param <E>	the parameter type
  */
-public interface FlightConfigurableParameter<E> extends ChangeSource {
+public interface FlightConfigurableParameter<E> {
 	
 	/**
 	 * Return a copy of this object.  The listeners must not be copied
 	 * to the new object.
 	 */
 	public E clone();
+	
+	public void update();
 	
 }

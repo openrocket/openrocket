@@ -20,7 +20,7 @@ import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -166,7 +166,7 @@ public abstract class RocketRenderer {
 	}
 	
 	private void renderMotors(GL2 gl, FlightConfiguration configuration) {
-		FlightConfigurationID motorID = configuration.getFlightConfigurationID();
+		FlightConfigurationId motorID = configuration.getFlightConfigurationID();
 		
 //		for( RocketComponent comp : configuration.getActiveComponents()){
 //			if( comp instanceof MotorMount){

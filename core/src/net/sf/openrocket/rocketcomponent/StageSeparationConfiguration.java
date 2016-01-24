@@ -98,7 +98,6 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
 	private SeparationEvent separationEvent = SeparationEvent.NEVER;
 	private double separationDelay = 0;
@@ -147,22 +146,14 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		return clone;
 	}
 	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(listener);
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-		listeners.remove(listener);
-	}
 	
 	private void fireChangeEvent() {
-		EventObject event = new EventObject(this);
-		Object[] list = listeners.toArray();
-		for (Object l : list) {
-			((StateChangeListener) l).stateChanged(event);
-		}
+
+	}
+	
+
+	@Override
+	public void update(){
 	}
 	
 }

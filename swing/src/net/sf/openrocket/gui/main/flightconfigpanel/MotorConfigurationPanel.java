@@ -27,7 +27,7 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfiguration
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -199,7 +199,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private void selectMotor() {
 		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationID fcid= getSelectedConfigurationId();
+		FlightConfigurationId fcid= getSelectedConfigurationId();
         if ( (null == fcid )||( null == curMount )){
             return;
         }
@@ -226,7 +226,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private void removeMotor() {
 		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationID fcid= getSelectedConfigurationId();
+		FlightConfigurationId fcid= getSelectedConfigurationId();
         if ( (null == fcid )||( null == curMount )){
             return;
         }
@@ -238,7 +238,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private void selectIgnition() {
 		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationID fcid= getSelectedConfigurationId();
+		FlightConfigurationId fcid= getSelectedConfigurationId();
         if ( (null == fcid )||( null == curMount )){
             return;
         }
@@ -256,7 +256,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private void resetIgnition() {
 		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationID fcid= getSelectedConfigurationId();
+		FlightConfigurationId fcid= getSelectedConfigurationId();
         if ( (null == fcid )||( null == curMount )){
             return;
         }
@@ -272,7 +272,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		private static final long serialVersionUID = -7462331042920067984L;
 
 		@Override
-		protected JLabel format( MotorMount mount, FlightConfigurationID configId, JLabel l ) {
+		protected JLabel format( MotorMount mount, FlightConfigurationId configId, JLabel l ) {
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
 			
@@ -307,7 +307,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return str;
 		}
 
-		private JLabel getIgnitionEventString(FlightConfigurationID id, MotorMount mount) {
+		private JLabel getIgnitionEventString(FlightConfigurationId id, MotorMount mount) {
 			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
 			MotorConfiguration curInstance = mount.getMotorInstance(id);
 			

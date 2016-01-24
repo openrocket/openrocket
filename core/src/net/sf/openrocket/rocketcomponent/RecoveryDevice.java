@@ -28,7 +28,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	private FlightConfigurableParameterSet<DeploymentConfiguration> deploymentConfigurations;
 	
 	public RecoveryDevice() {
-		this.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new DeploymentConfiguration());
+		this.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>( new DeploymentConfiguration());
 		setMaterial(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
 	
@@ -90,7 +90,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationID oldConfigId, FlightConfigurationID newConfigId) {
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		deploymentConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
@@ -113,8 +113,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
-		copy.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(deploymentConfigurations,
-				copy, ComponentChangeEvent.EVENT_CHANGE);
+		copy.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(deploymentConfigurations);
 		return copy;
 	}
 }

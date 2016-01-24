@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Instanceable;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
@@ -26,6 +28,7 @@ public class MassCalculator implements Monitorable {
 			public Coordinate getCG(Motor motor) {
 				return Coordinate.NUL;
 			}
+			
 		},
 		LAUNCH_MASS {
 			@Override
@@ -41,6 +44,25 @@ public class MassCalculator implements Monitorable {
 		};
 		
 		public abstract Coordinate getCG(Motor motor);
+		
+		/**
+		 * Compute the cg contribution of the motor relative to the rocket's coordinates
+		 * 
+		 * @param motorConfig
+		 * @return
+		 */
+		public Coordinate getCG(MotorConfiguration motorConfig) {
+			Coordinate cg = getCG(motorConfig.getMotor());
+			cg = cg.add(motorConfig.getPosition());
+			
+			RocketComponent motorMount = (RocketComponent) motorConfig.getMount();
+			Coordinate totalCG = new Coordinate();
+			for (Coordinate cord : motorMount.toAbsolute(cg) ) {
+				totalCG = totalCG.average(cord);
+			}
+
+			return totalCG;
+		}
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
@@ -61,7 +83,7 @@ public class MassCalculator implements Monitorable {
 //	private Vector< MassData> motorData =  new Vector<MassData>(); 
 	
 	// this turns on copious amounts of debug.  Recommend leaving this false 
-	// until reaching code that causes interesting conditions.
+	// until reaching code that causes troublesome conditions.
 	public boolean debug = false; 
 	
 	//////////////////  Constructors ///////////////////
@@ -96,10 +118,9 @@ public class MassCalculator implements Monitorable {
 				throw new BugException("method: calculateStageCache(...) is faulty-- returned null data for an active stage: "+stage.getName()+"("+stage.getStageNumber()+")");
 			}
 			dryCM = stageData.cm.average(dryCM);
-//			if( debug){
-//				System.err.println("    stageData <<@"+stageNumber+"mass: "+dryCM.weight+" @"+dryCM.toString());
-//			}
+			
 		}
+
 		
 		Coordinate totalCM=null;
 		if( MassCalcType.NO_MOTORS == type ){
@@ -110,62 +131,90 @@ public class MassCalculator implements Monitorable {
 			totalCM = dryCM.average(motorCM);
 		}
 		
-//		if(debug){
-//			Coordinate cm = totalCM;
-//			System.err.println(String.format("==>> Combined Mass: %5.3gg @( %g, %g, %g)",
-//					cm.weight, cm.x, cm.y, cm.z ));
-//		}	
-
 		return totalCM;
 	}
 	
 	/**
-	 * Compute the CG of the rocket with the provided motor configuration.
+	 * Compute the CM of all motors, given a configuration and type
 	 * 
 	 * @param configuration		the rocket configuration
 	 * @param motors			the motor configuration
 	 * @return					the CG of the configuration
 	 */
-	private MassData getMotorMassData(FlightConfiguration config, MassCalcType type) {
+	public MassData getMotorMassData(FlightConfiguration config, MassCalcType type) {
 		if( MassCalcType.NO_MOTORS == type ){
 			return MassData.ZERO_DATA;
 		}
 		
-		// Add motor CGs
-		
-		MassData motorData = MassData.ZERO_DATA;
-		
-		// vvvv DEVEL vvvv
+//		// vvvv DEVEL vvvv
+//		//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
+//		String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
 //		if( debug){
-//			System.err.println("====== ====== getMotorCM: (type: "+type.name()+") ====== ====== ====== ====== ====== ======");
-//			System.err.println("    [Number]     [Name]           [mass]");  
+//			System.err.println("====== ====== getMotorMassData( config:"+config.toDebug()+", type: "+type.name()+") ====== ====== ====== ====== ====== ======");
+//			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
+//			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
 //		}
-		// ^^^^ DEVEL ^^^^
+//		// ^^^^ DEVEL ^^^^
 
-//		int motorCount = 0;
-		for (MotorConfiguration inst : config.getActiveMotors() ) {
-			//ThrustCurveMotor motor = (ThrustCurveMotor) inst.getMotor();
+		MassData allMotorData = MassData.ZERO_DATA;
+		//int motorIndex = 0;
+		for (MotorConfiguration mtrConfig : config.getActiveMotors() ) {
+			ThrustCurveMotor mtr = (ThrustCurveMotor) mtrConfig.getMotor();
 			
-			Coordinate position = inst.getPosition();
-			Coordinate curMotorCM = type.getCG(inst.getMotor()).add(position);
-			double Ir = inst.getRotationalInertia();
-			double It = inst.getLongitudinalInertia();
+			MotorMount mount = mtrConfig.getMount();
+			RocketComponent mountComp = (RocketComponent)mount;
+			Coordinate[] locations = mountComp.getLocations(); // location of mount, w/in entire rocket
+			int instanceCount = locations.length; 
+			double motorXPosition = mtrConfig.getX();  // location of motor from mount
+
 			
-			MassData instData = new MassData( curMotorCM, Ir, It);
-			motorData = motorData.add( instData );
+			Coordinate localCM = type.getCG( mtr );  // CoM from beginning of motor
+			localCM = localCM.setWeight( localCM.weight * instanceCount);
+			// a *bit* hacky :P
+			Coordinate curMotorCM = localCM.setX( localCM.x + locations[0].x + motorXPosition );
+
+			// alternate version: 
+//			  			double Ir = inst.getRotationalInertia();
+//			  			double It = inst.getLongitudinalInertia();
+//			 +
+//			 +			Coordinate curMotorCM = type.getCG(inst);
+			 
+			double motorMass = curMotorCM.weight;
+			double Ir_single = mtrConfig.getUnitRotationalInertia()*motorMass;
+			double It_single = mtrConfig.getUnitLongitudinalInertia()*motorMass;
+			double Ir=0;
+			double It=0;
+			if( 1 == instanceCount ){
+				Ir=Ir_single;
+				It=It_single;	
+			}else{
+				It = It_single * instanceCount;
+			
+				Ir = Ir_single*instanceCount;
+				// these need more complex instancing code...
+				for( Coordinate coord : locations ){
+					double distance = Math.hypot( coord.y, coord.z);
+					Ir += motorMass*Math.pow( distance, 2);
+				}
+			}
+			
+			MassData configData = new MassData( curMotorCM, Ir, It);
+			allMotorData = allMotorData.add( configData );
 			
 			// BEGIN DEVEL
-//			if( debug){
-//				System.err.println(String.format("    motor %2d: %s                %s", //%5.3gg @( %g, %g, %g)",
-//						motorCount, inst.getMotor().getDesignation(), instData.toDebug()));
-//				System.err.println(String.format("            >> %s",
-//						motorData.toDebug()));
-//			}
-//			motorCount++;
+			//if( debug){
+				// // Inertia
+				// System.err.println(String.format( inertiaFormat, motorIndex, instanceCount, mtr.getDesignation(), Ir, It));
+				// // mass only
+				//double singleMass = type.getCG( mtr ).weight;
+				//System.err.println(String.format( massFormat, motorIndex, mtr.getDesignation(), 
+				//		singleMass, instanceCount, curMotorCM.weight, allMotorData.getMass(),curMotorCM.x, curMotorCM.y, curMotorCM.z ));
+			//}
+			//motorIndex++;
 			// END DEVEL	
 		}
 	
-		return motorData;
+		return allMotorData;
 	}
 	
 	/**
@@ -197,10 +246,11 @@ public class MassCalculator implements Monitorable {
 		
 
 		MassData totalData = structureData.add( motorData);
-//		if(debug){
-//			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
-//			
-//		}
+		if(debug){
+			System.err.println(String.format("  >> Structural MassData: %s", structureData.toDebug()));	
+			System.err.println(String.format("  >> Motor MassData:      %s", motorData.toDebug()));	
+			System.err.println(String.format("==>> Combined MassData:   %s", totalData.toDebug()));	
+		}
 		
 		return totalData.getLongitudinalInertia();
 	}
@@ -233,10 +283,11 @@ public class MassCalculator implements Monitorable {
 		}
 		
 		MassData totalData = structureData.add( motorData);
-//		if(debug){
-//			System.err.println(String.format("==>> Combined MassData: %s", totalData.toDebug()));
-//			
-//		}
+		if(debug){
+			System.err.println(String.format("  >> Structural MassData: %s", structureData.toDebug()));	
+			System.err.println(String.format("  >> Motor MassData:      %s", motorData.toDebug()));	
+			System.err.println(String.format("==>> Combined MassData:   %s", totalData.toDebug()));	
+		}
 		
 		return totalData.getRotationalInertia();
 	}
@@ -254,9 +305,9 @@ public class MassCalculator implements Monitorable {
 		//throw new BugException("getPropellantMass is not yet implemented.... ");
 		// add up the masses of all motors in the rocket
 		if ( MassCalcType.NO_MOTORS != calcType ){
-			for (MotorConfiguration curInstance : configuration.getActiveMotors()) {
-				mass = mass + curInstance.getPropellantMass();
-				mass = curInstance.getMotor().getLaunchCG().weight - curInstance.getMotor().getEmptyCG().weight;
+			for (MotorConfiguration curConfig : configuration.getActiveMotors()) {
+				int instanceCount = curConfig.getMount().getInstanceCount();
+				mass = mass + curConfig.getPropellantMass()*instanceCount;
 			}
 		}
 		return mass;
@@ -298,7 +349,7 @@ public class MassCalculator implements Monitorable {
 	private void calculateStageCache(FlightConfiguration config) {
 		int stageCount = config.getActiveStageCount();
 		if(debug){
-			System.err.println(">> Calculating massData cache for config: "+config.toShort()+"  with "+stageCount+" stages");
+			System.err.println(">> Calculating massData cache for config: "+config.toDebug()+"  with "+stageCount+" stages");
 		}
 		if( 0 < stageCount ){ 
 			for( AxialStage curStage : config.getActiveStages()){

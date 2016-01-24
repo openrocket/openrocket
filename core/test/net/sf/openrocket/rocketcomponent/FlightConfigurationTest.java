@@ -1,11 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import java.util.EventObject;
 
 import org.junit.Test;
 
@@ -15,56 +13,12 @@ import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-public class ConfigurationTest extends BaseTestCase {
+public class FlightConfigurationTest extends BaseTestCase {
 	
-	/**
-	 * Test change events and modIDs
-	 */
-	@Test
-	public void testChangeEvent() {
-		
-		/* Setup */
-		Rocket r1 = makeEmptyRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
-		
-		StateChangeListener listener1 = new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-			}
-		};
-		
-		StateChangeListener listener2 = new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-			}
-		};
-		
-		config.addChangeListener(listener1);
-		config.addChangeListener(listener2);
-		
-		/* Test */
-		
-		// ModID should not change if nothing changed
-		int origModID = config.getModID();
-		int noChangeModID = config.getModID();
-		assertTrue(origModID == noChangeModID);
-		
-		
-		// After a change event, modID should change
-		config.fireChangeEvent();
-		int changeModID = config.getModID();
-		assertTrue(origModID < changeModID);
-		
-		/* Cleanup */
-		config.removeChangeListener(listener1);
-		config.removeChangeListener(listener2);
-		config.release();
-		
-	}
-	
+	private final static double EPSILON = MathUtil.EPSILON*1E3; 
 	
 	/**
 	 * Empty rocket (no components) specific configuration tests
@@ -72,47 +26,94 @@ public class ConfigurationTest extends BaseTestCase {
 	@Test
 	public void testEmptyRocket() {
 		Rocket r1 = makeEmptyRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		FlightConfiguration configClone = config.clone();
 		
 		assertTrue(config.getRocket() == configClone.getRocket());
-		
-		config.release();
 	}
-	
 	
 	/**
 	 * Test flight configuration ID methods
 	 */
 	@Test
-	public void testGeneralMethods() {
+	public void testCloneBasic() {
+		Rocket rkt1 = makeTwoStageMotorRocket();
+		FlightConfiguration config1 = rkt1.getSelectedConfiguration();
 		
-		/* Setup */
-		Rocket r1 = makeSingleStageTestRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
+		// preconditions
+		config1.setAllStages();
+		int expectedStageCount = 2;
+		int actualStageCount = config1.getActiveStageCount();
+		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		int expectedMotorCount = 2;
+		int actualMotorCount = config1.getActiveMotors().size();
+		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		double expectedLength = 176.8698848;
+		double actualLength = config1.getLength();
+		assertEquals("source config length doesn't match: ", expectedLength, actualLength, EPSILON);
+		double expectedReferenceLength = 2.5;
+		double actualReferenceLength = config1.getReferenceLength();
+		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, actualReferenceLength, EPSILON);
+		double expectedReferenceArea = 4.9087385212;
+		double actualReferenceArea = config1.getReferenceArea();
+		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea, EPSILON);
+
+		// vvvv test target vvvv 
+		FlightConfiguration config2= config1.clone();
+		// ^^^^ test target ^^^^
 		
-		/* Test */
+		// postconditions
+		expectedStageCount = 2;
+		actualStageCount = config2.getActiveStageCount();
+		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		expectedMotorCount = 2;
+		actualMotorCount = config2.getActiveMotors().size();
+		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		actualLength = config2.getLength();
+		assertEquals("source config length doesn't match: ", expectedLength, actualLength, EPSILON);
+		actualReferenceLength = config2.getReferenceLength();
+		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, actualReferenceLength, EPSILON);
+		actualReferenceArea = config2.getReferenceArea();
+		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea, EPSILON);
+
+	}
+	
+	/**
+	 * Test flight configuration ID methods
+	 */
+	@Test
+	public void testCloneIndependence() {
+		Rocket rkt1 = makeTwoStageMotorRocket();
+		FlightConfiguration config1 = rkt1.getSelectedConfiguration();
+		int expectedStageCount;
+		int actualStageCount;
+		int expectedMotorCount;
+		int actualMotorCount;
 		
-		// general method tests
-		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
+		// test that cloned configurations operate independently:
+		// change #1, test clone #2 -- verify that cloned configurations change independent.
+		config1.setAllStages();
+		// vvvv test target vvvv 
+		FlightConfiguration config2 = config1.clone();
+		// ^^^^ test target ^^^^
+		config1.clearAllStages();
+
+		// postcondition: config #1
+		expectedStageCount = 0;
+		actualStageCount = config1.getActiveStageCount();
+		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		expectedMotorCount = 0;
+		actualMotorCount = config1.getActiveMotors().size();
+		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
 		
-		assertFalse(config.getRocket() == null);
-		
-		// TODO rocket has no motors!  assertTrue(config.hasMotors());
-		
-		// rocket info tests
-		double length = config.getLength();
-		double refLength = config.getReferenceLength();
-		double refArea = config.getReferenceArea();
-		
-		// TODO validate that the values are correct
-		//log.debug("ConfigurationTest, length: " + String.valueOf(length));
-		//log.debug("ConfigurationTest, refLength: " + String.valueOf(refLength));
-		//log.debug("ConfigurationTest, refArea: " + String.valueOf(refArea));
-		
-		/* Cleanup */
-		config.release();
+		// postcondition: config #2
+		expectedStageCount = 2;
+		actualStageCount = config2.getActiveStageCount();
+		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		expectedMotorCount = 2;
+		actualMotorCount = config2.getActiveMotors().size();
+		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
 	}
 	
 	/**
@@ -123,18 +124,11 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeSingleStageTestRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
-		
-		/* Test */
-		
-		// test cloning of single stage rocket
-		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
-		configClone.release();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		// test explicitly setting only first stage active
 		config.clearAllStages();
 		config.setOnlyStage(0);
-		
 		
 		//config.dumpConfig();
 		//System.err.println("treedump: \n" + treedump);
@@ -154,9 +148,6 @@ public class ConfigurationTest extends BaseTestCase {
 		// test explicitly setting all stages active
 		config.setAllStages();
 		
-		// Cleanup
-		config.release();
-		
 	}
 	
 	/**
@@ -167,11 +158,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket r1 = makeTwoStageTestRocket();
-		FlightConfiguration config = r1.getDefaultConfiguration();
-		
-		// test cloning of two stage rocket
-		FlightConfiguration configClone = config.clone(); // TODO validate clone worked
-		configClone.release();
+		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		int expectedStageCount;
 		int stageCount;
@@ -218,9 +205,6 @@ public class ConfigurationTest extends BaseTestCase {
 		config.toggleStage(0);
 		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
 		
-		// Cleanup
-		config.release();
-		
 	}
 	
 	/**
@@ -231,99 +215,35 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		/* Setup */
 		Rocket rkt = makeTwoStageMotorRocket();
-		FlightConfiguration config = rkt.getDefaultConfiguration();
+		FlightConfiguration config = rkt.getSelectedConfiguration();
 		
 		
 		config.clearAllStages();
 		int expectedMotorCount = 0;
 		int actualMotorCount = config.getActiveMotors().size();
-		assertThat("motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
 		
 		config.setOnlyStage(0);
 		expectedMotorCount = 1;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
 
 		config.setOnlyStage(1);
-		expectedMotorCount = 2;
+		expectedMotorCount = 1;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
 
 		config.setAllStages();
-		expectedMotorCount = 3;
-//		{
-//			System.err.println("Booster Stage only: config set detail: "+rkt.getConfigSet().toDebug());
-//			System.err.println("Booster Stage only: config stage detail: "+config.toStageListDetail());
-//			System.err.println("Booster Stage only: config motor detail: "+config.toMotorDetail());
-//			config.enableDebugging();
-//			config.updateMotors();
-//			config.getActiveMotors();
-//		}
+		expectedMotorCount = 2;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
-
-				
+		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
 	}
-	
-	///////////////////// Helper Methods ////////////////////////////
-//	
-//	public void validateStages(Configuration config, int expectedStageCount, BitSet activeStageFlags) {
-//		
-//		// test that getStageCount() returns correct value
-//		int stageCount = config.getStageCount();
-//		assertTrue(stageCount == expectedStageCount);
-//		
-//		// test that getActiveStageCount() and getActiveStages() returns correct values
-//		int expectedActiveStageCount = 0;
-//		for (int i = 0; i < expectedStageCount; i++) {
-//			if (activeStageFlags.get(i)) {
-//				expectedActiveStageCount++;
-//			}
-//		}
-//		assertTrue(config.getActiveStageCount() == expectedActiveStageCount);
-//		
-//		assertTrue("this test is not yet written.", false);
-//		//		int[] stages = config.getActiveStages();
-//		//		
-//		//		assertTrue(stages.length == expectedActiveStageCount);
-//		//		
-//		//		// test if isHead() detects first stage being active or inactive
-//		//		if (activeStageFlags.get(0)) {
-//		//			assertTrue(config.isHead());
-//		//		} else {
-//		//			assertFalse(config.isHead());
-//		//		}
-//		//		
-//		//		// test if isStageActive() detects stage x being active or inactive
-//		//		for (int i = 0; i < expectedStageCount; i++) {
-//		//			if (activeStageFlags.get(i)) {
-//		//				assertTrue(config.isStageActive(i));
-//		//			} else {
-//		//				assertFalse(config.isStageActive(i));
-//		//			}
-//		//		}
-//		//		
-//		//		// test boundary conditions 
-//		//		
-//		//		// stage -1 should not exist, and isStageActive() should throw exception
-//		//		boolean IndexOutOfBoundsExceptionFlag = false;
-//		//		try {
-//		//			assertFalse(config.isStageActive(-1));
-//		//		} catch (IndexOutOfBoundsException e) {
-//		//			IndexOutOfBoundsExceptionFlag = true;
-//		//		}
-//		//		assertTrue(IndexOutOfBoundsExceptionFlag);
-//		//		
-//		//		// n+1 stage should not exist, isStageActive() should return false
-//		//		// TODO: isStageActive(stageCount + 1) really should throw IndexOutOfBoundsException
-//		//		assertFalse(config.isStageActive(stageCount + 1));
-//		
-//	}
 	
 	//////////////////// Test Rocket Creation Methods /////////////////////////
 	
 	public static Rocket makeEmptyRocket() {
 		Rocket rocket = new Rocket();
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -455,33 +375,17 @@ public class ConfigurationTest extends BaseTestCase {
 		assertThat(" rocket has incorrect stage count: ", rocket.getStageCount(), equalTo(expectedStageCount));
 		
 		int expectedConfigurationCount = 0;
-		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
+		assertThat(" configuration list contains : ", rocket.getFlightConfigurationCount(), equalTo(expectedConfigurationCount));
 		
 		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
 		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
 		rocket.setDefaultConfiguration( newConfig.getId());
 		assertThat(" configuration updates stage Count correctly: ", newConfig.getActiveStageCount(), equalTo(expectedStageCount));
 		expectedConfigurationCount = 1;
-		assertThat(" configuration list contains : ", rocket.getConfigSet().size(), equalTo(expectedConfigurationCount));
+		assertThat(" configuration list contains : ", rocket.getFlightConfigurationCount(), equalTo(expectedConfigurationCount));
 		
-		//FlightConfigurationID fcid = config.getFlightConfigurationID();
-//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
-//		MotorInstance inst = m.getNewInstance();
-//		inner.setMotorInstance( fcid, inst);
-//		inner.setMotorOverhang(0.02);
-//		
-//		//inner.setMotorMount(true);
-//		assertThat(" configuration updates stage Count correctly: ", inner.hasMotor(), equalTo(true));
-//		
-//		final int expectedMotorCount = 1;
-//		assertThat(" configuration updates correctly: ", inner.getMotorCount(), equalTo(expectedMotorCount));
-//		
-//		// Flight configuration
-//		//FlightConfigurationID id = rocket.newFlightConfigurationID();
-//		
-//		
-//		//	tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);
-		
+		rocket.update();
+		rocket.enableEvents();
 		return rocket;
 	}
 	
@@ -538,12 +442,14 @@ public class ConfigurationTest extends BaseTestCase {
 //		FlightConfiguration newConfig = new FlightConfiguration(rocket,null);
 //		rocket.setFlightConfiguration( newConfig.getId(), newConfig);
 		
+		rocket.update();
+		rocket.enableEvents();
 		return rocket;	
 	}
-	
+
 	public static Rocket makeTwoStageMotorRocket() {
 		Rocket rocket = makeTwoStageTestRocket();
-		FlightConfigurationID fcid = rocket.getDefaultConfiguration().getId();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getId();
 		
 		{
 			// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
@@ -580,7 +486,9 @@ public class ConfigurationTest extends BaseTestCase {
 			boosterMount.setMotorInstance(fcid, new MotorConfiguration(boosterMotor));
 			boosterMount.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[1]); // double-mount
 		}
+		rocket.update();
+		rocket.enableEvents();
 		return rocket;
 	}
-	
+
 }

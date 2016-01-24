@@ -22,7 +22,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
@@ -42,7 +42,7 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage stage) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectseparationconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		final FlightConfigurationID id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = stage.getSeparationConfigurations().get(id);
 		if( stage.getSeparationConfigurations().isDefault( newConfiguration )){
@@ -101,7 +101,7 @@ public class SeparationSelectionDialog extends JDialog {
 					newConfiguration.setSeparationDelay(0);
 				}
 				if (defaultButton.isSelected()) {
-					stage.getSeparationConfigurations().clear();
+					stage.getSeparationConfigurations().reset();
 					stage.getSeparationConfigurations().setDefault( newConfiguration);
 				} else {
 					stage.getSeparationConfigurations().set(id, newConfiguration);

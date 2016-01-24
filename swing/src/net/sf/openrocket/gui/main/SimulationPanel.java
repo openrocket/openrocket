@@ -49,7 +49,7 @@ import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationID;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -341,7 +341,7 @@ public class SimulationPanel extends JPanel {
 						}
 						
 						Rocket rkt = document.getRocket();
-						FlightConfigurationID fcid = document.getSimulation(row).getId();
+						FlightConfigurationId fcid = document.getSimulation(row).getId();
 						return descriptor.format( rkt, fcid);
 					}
 
