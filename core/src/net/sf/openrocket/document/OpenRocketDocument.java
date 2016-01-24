@@ -104,6 +104,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		rocket.enableEvents();
 		init();
 	}
 	
