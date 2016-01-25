@@ -404,8 +404,8 @@ public class TestRockets {
 		double noseconeLength = 0.07;
 		double noseconeRadius = 0.012;
 		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, noseconeLength, noseconeRadius);
-		nosecone.setAftShoulderLength(0.025);
-		nosecone.setAftShoulderRadius(0.012);
+		nosecone.setAftShoulderLength(0.02);
+		nosecone.setAftShoulderRadius(0.011);
 		nosecone.setName("Nose Cone");
 		stage.addChild(nosecone);
 		

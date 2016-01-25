@@ -424,7 +424,7 @@ public class Rocket extends RocketComponent {
 			checkState();
 			
 			{ // vvvv DEVEL vvvv
-				System.err.println("fireEvent@rocket.");
+				//System.err.println("fireEvent@rocket.");
 			} // ^^^^ DEVEL ^^^^
 			
 			// Update modification ID's only for normal (not undo/redo) events
