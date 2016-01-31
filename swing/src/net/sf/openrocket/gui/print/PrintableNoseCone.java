@@ -9,8 +9,8 @@ import net.sf.openrocket.util.Transformation;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 
+@SuppressWarnings("serial")
 public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
 
     /**

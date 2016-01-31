@@ -127,8 +127,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 		
 		if (noseCone.isFilled()) {
 			noseCone.setAftShoulderThickness(noseCone.getAftShoulderRadius());
-		}
-		else {
+		} else {
 			noseCone.setThickness(thickness);
 			noseCone.setAftShoulderThickness(thickness);
 		}
@@ -149,6 +148,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 	 *
 	 * @return BULK
 	 */
+	@Override
 	public Material.Type getMaterialType() {
 		return Material.Type.BULK;
 	}

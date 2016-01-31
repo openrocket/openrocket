@@ -664,6 +664,7 @@ public class RocketActions {
 			RocketComponent parent = selected.getParent();
 			document.addUndoPosition("Move "+selected.getComponentName());
 			parent.moveChild(selected, parent.getChildPosition(selected)-1);
+			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
 			selectionModel.setSelectedComponent(selected);
 		}
 
@@ -709,6 +710,7 @@ public class RocketActions {
 			RocketComponent parent = selected.getParent();
 			document.addUndoPosition("Move "+selected.getComponentName());
 			parent.moveChild(selected, parent.getChildPosition(selected)+1);
+			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
 			selectionModel.setSelectedComponent(selected);
 		}
 

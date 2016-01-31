@@ -36,8 +36,8 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("====== Dumping MotorConfigurationSet for mount ("+this.size()+ " motors)\n");
-		MotorConfiguration emptyInstance = this.getDefault();
-		buffer.append("              >> (["+emptyInstance.toString()+"]=  @ "+ emptyInstance.getIgnitionEvent().name +"  +"+emptyInstance.getIgnitionDelay()+"sec )\n");
+		MotorConfiguration defaultConfig = this.getDefault();
+		buffer.append("          (Ignition@ "+ defaultConfig.getIgnitionEvent().name +"  +"+defaultConfig.getIgnitionDelay()+"sec )\n");
 		
 		for( FlightConfigurationId loopFCID : this.map.keySet()){
 			String shortKey = loopFCID.toShortKey();
@@ -45,7 +45,7 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 			MotorConfiguration curInstance = this.map.get(loopFCID);
 			String designation;
 			if( null == curInstance.getMotor() ){
-				designation = "EMPTY_INSTANCE";
+				designation = "<EMPTY>";
 			}else{
 				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
 			}
@@ -54,7 +54,8 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 			if( 0 != delay ){
 				ignition += " +"+delay;
 			}
-			buffer.append("              >> ["+shortKey+"]= "+designation+"  @ "+ignition+"\n");
+			buffer.append(String.format("              >> [%10s]= %6s  @ %4s\n",
+					shortKey, designation, ignition  ));
 		}
 		return buffer.toString();
 	}

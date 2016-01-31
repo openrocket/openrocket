@@ -61,6 +61,7 @@ import org.jfree.ui.TextAnchor;
  * both datasets and the legend.  But for now, the renderers are queried for the line color information
  * and this is held in the Legend.
  */
+@SuppressWarnings("serial")
 public class SimulationPlot {
 	
 	private static final float PLOT_STROKE_WIDTH = 1.5f;

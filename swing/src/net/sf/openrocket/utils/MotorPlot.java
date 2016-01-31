@@ -34,6 +34,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+@SuppressWarnings("serial")
 public class MotorPlot extends JDialog {
 	
 	private int selected = -1;

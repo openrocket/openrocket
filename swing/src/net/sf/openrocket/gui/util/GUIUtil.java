@@ -166,6 +166,11 @@ public class GUIUtil {
 	 */
 	public static void installEscapeCloseOperation(final JDialog dialog) {
 		Action dispatchClosing = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 9196153713666242274L;
+
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				log.info(Markers.USER_MARKER, "Closing dialog " + dialog);
@@ -477,13 +482,13 @@ public class GUIUtil {
 			}
 			
 		} else if (c instanceof JComboBox) {
-			
-			JComboBox combo = (JComboBox) c;
+			@SuppressWarnings("unchecked")
+			JComboBox<Object> combo = (JComboBox<Object>) c;
 			for (ActionListener l : combo.getActionListeners()) {
 				combo.removeActionListener(l);
 			}
-			ComboBoxModel model = combo.getModel();
-			combo.setModel(new DefaultComboBoxModel());
+			ComboBoxModel<?> model = combo.getModel();
+			combo.setModel(new DefaultComboBoxModel<Object>());
 			if (model instanceof Invalidatable) {
 				((Invalidatable) model).invalidate();
 			}
@@ -496,6 +501,8 @@ public class GUIUtil {
 			}
 			Action model = button.getAction();
 			button.setAction(new AbstractAction() {
+				private static final long serialVersionUID = 3499667830135101535L;
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 				}

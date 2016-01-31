@@ -12,29 +12,30 @@ import javax.swing.JToggleButton;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
 
+@SuppressWarnings("serial")
 public class StageSelector extends JPanel implements StateChangeListener {
-	private static final long serialVersionUID = -2898763402479628711L;
 
 	private static final Translator trans = Application.getTranslator();
 	
-	private final FlightConfiguration configuration;
+	private final Rocket rocket;
 	
 	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
 	
-	public StageSelector(FlightConfiguration configuration) {
+	public StageSelector(Rocket _rkt) {
 		super(new MigLayout("gap 0!"));
-		this.configuration = configuration;
+		this.rocket = _rkt;
 		
-		updateButtons();
-		
+		updateButtons( this.rocket.getSelectedConfiguration() );
 	}
 	
-	private void updateButtons() {
+	private void updateButtons( final FlightConfiguration configuration ) {
 		int stages = configuration.getStageCount();
 		if (buttons.size() == stages)
 			return;
@@ -44,6 +45,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		for(AxialStage stage : configuration.getRocket().getStageList()){
 			int stageNum = stage.getStageNumber(); 
 			JToggleButton button = new JToggleButton(new StageAction(stageNum));
+			button.setSelected(true);
 			this.add(button);
 			buttons.add(button);
 		}
@@ -51,20 +53,20 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		this.revalidate();
 	}
 	
-	
 	@Override
-	public void stateChanged(EventObject e) {
-		updateButtons();
+	public void stateChanged(EventObject eo) {
+		Object source = eo.getSource();
+		if( source instanceof Rocket ){
+			Rocket rkt = (Rocket) eo.getSource();
+			updateButtons( rkt.getSelectedConfiguration() );
+		}
 	}
 	
-	
-	private class StageAction extends AbstractAction implements StateChangeListener {
-		private static final long serialVersionUID = 7433006728984943763L;
+	private class StageAction extends AbstractAction {
 		private final int stageNumber;
 		
 		public StageAction(final int stage) {
 			this.stageNumber = stage;
-			stateChanged(null);
 		}
 		
 		@Override
@@ -78,12 +80,9 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			configuration.toggleStage(stageNumber);
+			rocket.getSelectedConfiguration().toggleStage(stageNumber);
+			rocket.fireComponentChangeEvent(ComponentChangeEvent.GRAPHIC_CHANGE);
 		}
 		
-		@Override
-		public void stateChanged(EventObject e) {
-			this.putValue(SELECTED_KEY, configuration.isStageActive(stageNumber));
-		}
 	}
 }

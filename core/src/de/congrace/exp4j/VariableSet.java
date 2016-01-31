@@ -4,11 +4,7 @@ import java.util.HashSet;
 
 public class VariableSet extends HashSet<Variable> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4212803364398351279L;
-
+	@Override
 	public boolean add(Variable v){
 		Variable previous = getVariableNamed(v.getName());
 		if ( previous != null ){

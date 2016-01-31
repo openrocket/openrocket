@@ -7,7 +7,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Coordinate;
 
 /**
  * Class of components with well-defined physical appearance and which have an effect on

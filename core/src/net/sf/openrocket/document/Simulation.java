@@ -70,6 +70,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SafetyMutex mutex = SafetyMutex.newInstance();
 	
 	private final Rocket rocket;
+	FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID;
 	
 	private String name = "";
 	
@@ -77,7 +78,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	/** The conditions to use */
 	// TODO: HIGH: Change to use actual conditions class??
-	private SimulationOptions options;
+	private SimulationOptions options = new SimulationOptions();
 	
 	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<SimulationExtension>();
 	
@@ -109,13 +110,12 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.rocket = rocket;
 		this.status = Status.NOT_SIMULATED;
 		
-		options = new SimulationOptions(rocket);
-		
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
 		
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		options.setFlightConfigurationId(fcid);
+		setFlightConfigurationId(fcid);
+		
 		options.addChangeListener(new ConditionListener());
 	}
 	
@@ -146,9 +146,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		this.options = options;
 
-		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		options.setFlightConfigurationId(fcid);
-		
+		this.setFlightConfigurationId( rocket.getSelectedConfiguration().getFlightConfigurationID());
+				
 		options.addChangeListener(new ConditionListener());
 		
 		if (extensions != null) {
@@ -176,9 +175,35 @@ public class Simulation implements ChangeSource, Cloneable {
 		return rocket;
 	}
 
-	public FlightConfigurationId getId(){
-		return this.options.getFlightConfigurationId();
+	public FlightConfigurationId getFlightConfigurationId(){
+		return this.configId;
 	}
+	public FlightConfigurationId getId(){
+		return this.getFlightConfigurationId();
+	}
+	
+	/**
+	 * Set the motor configuration ID.  If this id does not yet exist, it will be created.
+	 * 
+	 * @param id	the configuration to set.
+	 */
+	public void setFlightConfigurationId(FlightConfigurationId fcid) {
+		if ( null == fcid ){
+			throw new NullPointerException("Attempted to set a null Config id in simulation options. Not allowed!");
+		}else if ( fcid.hasError() ){
+			throw new IllegalArgumentException("Attempted to set the configuration to an error id. Not Allowed!");
+		}else if (!rocket.containsFlightConfigurationID(fcid)){
+			rocket.createFlightConfiguration(fcid);
+		}
+		
+		if( fcid.equals(this.configId)){
+			return;
+		}
+		
+		this.configId = fcid;
+		fireChangeEvent();
+	}
+	
 	
 //	/**
 //	 * Return a newly created Configuration for this simulation.  The configuration
@@ -284,13 +309,13 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 
 		// if the id hasn't been set yet, skip.
-		if ( options.getId().hasError() ){
+		if ( getId().hasError() ){
 			log.warn(" simulationOptions lacks a valid id. Skipping.");
 			status = Status.CANT_RUN;
 			return status;
 		}
 		
-		FlightConfiguration config = rocket.getFlightConfiguration(options.getId());
+		FlightConfiguration config = rocket.getFlightConfiguration( this.getId()).clone();
 				
 		//Make sure this simulation has motors.
 		if ( ! config.hasMotors() ){
@@ -346,7 +371,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			// Set simulated info after simulation, will not be set in case of exception
 			simulatedConditions = options.clone();
-			simulatedConfigurationDescription = descriptor.format( this.rocket, options.getId());
+			simulatedConfigurationDescription = descriptor.format( this.rocket, getId());
 			simulatedRocketID = rocket.getFunctionalModID();
 			
 			status = Status.UPTODATE;

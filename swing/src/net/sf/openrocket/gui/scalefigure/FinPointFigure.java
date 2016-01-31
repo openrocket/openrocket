@@ -24,6 +24,7 @@ import net.sf.openrocket.util.MathUtil;
 
 // TODO: MEDIUM:  the figure jumps and bugs when using automatic fitting
 
+@SuppressWarnings("serial")
 public class FinPointFigure extends AbstractScaleFigure {
 	
 	private static final int BOX_SIZE = 4;

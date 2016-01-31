@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 /*
  * TODO: LOW:  This is currently unused.
  */
+@SuppressWarnings("serial")
 public abstract class CollectionTable<T> extends JTable {
 
 	private final String[] columnNames;

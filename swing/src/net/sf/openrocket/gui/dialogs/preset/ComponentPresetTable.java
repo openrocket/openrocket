@@ -33,6 +33,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.AlphanumComparator;
 
+@SuppressWarnings("serial")
 public class ComponentPresetTable extends JTable {
 
 	private static final Translator trans = Application.getTranslator();

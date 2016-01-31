@@ -18,20 +18,11 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RailButton;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -43,7 +34,6 @@ import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Config;
-import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
 
@@ -390,7 +380,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<conditions>");
 		indent++;
 		
-		writeElement("configid", cond.getId().key);
+		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));

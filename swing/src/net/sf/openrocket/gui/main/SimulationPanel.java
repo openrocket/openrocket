@@ -52,15 +52,15 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
 
+@SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
-	private static final long serialVersionUID = 1390060162192576924L;
+
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -612,7 +612,7 @@ public class SimulationPanel extends JPanel {
 				if((s==Simulation.Status.NOT_SIMULATED) ||
 						(s==Simulation.Status.OUTDATED)){
 					outdated++;
-				}	
+				}
 			}
 			if(outdated>0){
 				Simulation[] sims = new Simulation[outdated];
@@ -668,7 +668,6 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private class JLabelRenderer extends DefaultTableCellRenderer {
-		private static final long serialVersionUID = 5487619660216145843L;
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,

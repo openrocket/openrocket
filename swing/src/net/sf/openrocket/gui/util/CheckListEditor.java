@@ -34,7 +34,6 @@ package net.sf.openrocket.gui.util;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 
 import javax.swing.JList;
 import javax.swing.SwingUtilities;

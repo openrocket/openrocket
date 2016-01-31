@@ -16,13 +16,15 @@ import net.sf.openrocket.file.FileSystemAttachmentFactory;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.appearance.defaults.ResourceDecalImage;
 
-public class DecalModel extends AbstractListModel implements ComboBoxModel {
-	
+public class DecalModel extends AbstractListModel<DecalImage> implements ComboBoxModel<DecalImage> {
+	private static final long serialVersionUID = -3922419344990421156L;
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String NONE_SELECTED = trans.get("lbl.select");
-	private static final String SELECT_FILE = trans.get("lbl.choose");
+	private static final ResourceDecalImage NONE_SELECTED = new ResourceDecalImage(trans.get("lbl.select"));
+	
+	private static final ResourceDecalImage SELECT_FILE = new ResourceDecalImage(trans.get("lbl.choose"));
 	
 	private final OpenRocketDocument document;
 	private final Component parent;
@@ -45,7 +47,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 	}
 	
 	@Override
-	public Object getElementAt(int index) {
+	public DecalImage getElementAt(int index) {
 		if (index <= 0) {
 			return NONE_SELECTED;
 		}

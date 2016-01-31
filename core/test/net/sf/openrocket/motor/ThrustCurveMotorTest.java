@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 

@@ -32,6 +32,7 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class CustomExpressionPanel extends JPanel {
 	
 	private static final Logger log = LoggerFactory.getLogger(CustomExpressionPanel.class);

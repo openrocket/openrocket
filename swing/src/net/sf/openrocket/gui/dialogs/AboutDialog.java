@@ -21,6 +21,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Chars;
 
+@SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
 	
 	public static final String OPENROCKET_URL = "http://openrocket.sourceforge.net/";

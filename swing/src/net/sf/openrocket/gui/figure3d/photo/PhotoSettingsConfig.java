@@ -200,14 +200,15 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
 
-				add(new JComboBox(new DefaultComboBoxModel(new Object[] { null, Mountains.instance, Meadow.instance,
+				add(new JComboBox<Sky>(new DefaultComboBoxModel<Sky>(new Sky[] { null, Mountains.instance, Meadow.instance,
 						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance }) {
 				}) {
 					{
 						addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent e) {
-								Object s = ((JComboBox) e.getSource()).getSelectedItem();
+								@SuppressWarnings("unchecked")
+								Object s = ((JComboBox<Sky>) e.getSource()).getSelectedItem();
 								if (s instanceof Sky) {
 									p.setSky((Sky) s);
 									skyColorButton.setEnabled(false);

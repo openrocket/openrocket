@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public class DescriptionArea extends JScrollPane {
 	
 	private final JEditorPane editorPane;

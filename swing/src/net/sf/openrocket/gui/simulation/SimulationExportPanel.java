@@ -42,6 +42,7 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public class SimulationExportPanel extends JPanel {
 	
+	private static final long serialVersionUID = 3423905472892675964L;
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
 	private static final Translator trans = Application.getTranslator();
@@ -109,6 +110,8 @@ public class SimulationExportPanel extends JPanel {
 		table.setColumnSelectionAllowed(false);
 		
 		table.setDefaultEditor(Unit.class, new UnitCellEditor() {
+			private static final long serialVersionUID = 1088570433902420935L;
+
 			@Override
 			protected UnitGroup getUnitGroup(Unit value, int row, int column) {
 				return types[row].getUnitGroup();
@@ -179,7 +182,7 @@ public class SimulationExportPanel extends JPanel {
 		ArrayList<String> stages = new ArrayList<String>();
 		stages.addAll(Util.generateSeriesLabels(simulation));
 		
-		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
+		final JComboBox<String> stageSelection = new JComboBox<String>(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {
 			
 			@Override
@@ -337,6 +340,7 @@ public class SimulationExportPanel extends JPanel {
 	 * The table model for the variable selection.
 	 */
 	private class SelectionTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 493067422917621072L;
 		private static final int SELECTED = 0;
 		private static final int NAME = 1;
 		private static final int UNIT = 2;

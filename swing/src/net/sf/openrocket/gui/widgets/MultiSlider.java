@@ -47,12 +47,8 @@ import javax.swing.plaf.SliderUI;
  * @see JSlider
  */
 
+@SuppressWarnings("serial")
 public class MultiSlider extends JSlider {
-	/***
-	 * @see #getUIClassID
-	 * @see #readObject
-	 */
-	private static final String uiClassID = "MultiSliderUI";
 
 	/***
 	 * An array of data models that handle the numeric maximum values,
@@ -212,28 +208,6 @@ public class MultiSlider extends JSlider {
 		updateUI();
 	}
 
-	/***
-	 * Sets the number of thumbs.
-	 */
-	private void setNumberOfThumbs(int num) {
-		setNumberOfThumbs(num, false);
-	}
-
-	/***
-	 * Sets the number of thumbs.
-	 */
-	private void setNumberOfThumbs(int num, boolean useEndPoints) {
-		if (getNumberOfThumbs() != num) {
-			setNumberOfThumbs(getMinimum(), getMaximum(), num, useEndPoints);
-		}
-	}
-
-	/***
-	 * Sets the number of thumbs by specifying the initial values.
-	 */
-	private void setNumberOfThumbs(int[] values) {
-		setNumberOfThumbs(getMinimum(), getMaximum(), values);
-	}
 
 	/***
 	 * creates evenly spaced values for thumbs.

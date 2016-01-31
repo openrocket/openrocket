@@ -26,6 +26,7 @@ import net.sf.openrocket.unit.UnitGroup;
 
 
 public class TrapezoidFinSetConfig extends FinSetConfig {
+	private static final long serialVersionUID = -4870745241749769842L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public TrapezoidFinSetConfig(OpenRocketDocument d, final RocketComponent component) {
@@ -33,7 +34,6 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		
 		DoubleModel m;
 		JSpinner spin;
-		JComboBox combo;
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
 		
@@ -167,7 +167,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
 		
-		combo = new JComboBox(
+		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
@@ -175,7 +175,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
 						}));
-		panel.add(combo, "spanx, growx, wrap");
+		panel.add(positionCombo, "spanx, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
 		
@@ -206,9 +206,9 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		
 		////  Fin cross section:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.FincrossSection")));
-		combo = new JComboBox(
+		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
 				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add(combo, "span, growx, wrap");
+		panel.add( sectionCombo, "span, growx, wrap");
 		
 		
 		////  Thickness:

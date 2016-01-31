@@ -20,6 +20,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class BodyTubeConfig extends RocketComponentConfig {
 
 	private DoubleModel maxLength;

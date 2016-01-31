@@ -53,7 +53,8 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 
 public class RocketComponentConfig extends JPanel {
-	
+	private static final long serialVersionUID = -2925484062132243982L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	protected final OpenRocketDocument document;
@@ -62,7 +63,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
 	
-	private JComboBox presetComboBox;
+	private JComboBox<?> presetComboBox;
 	private PresetModel presetModel;
 	
 	protected final JTextField componentNameField;
@@ -224,10 +225,10 @@ public class RocketComponentConfig extends JPanel {
 		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
 		subPanel.add(label, "spanx 4, wrap rel");
 		
-		JComboBox combo = new JComboBox(new MaterialModel(subPanel, component, type, partName));
+		JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(subPanel, component, type, partName));
 		//// The component material affects the weight of the component.
-		combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-		subPanel.add(combo, "spanx 4, growx, wrap paragraph");
+		materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
+		subPanel.add(materialCombo, "spanx 4, growx, wrap paragraph");
 		
 		
 		if (component instanceof ExternalComponent) {
@@ -239,9 +240,10 @@ public class RocketComponentConfig extends JPanel {
 			label.setToolTipText(tip);
 			subPanel.add(label, "spanx 4, wmin 220lp, wrap rel");
 			
-			combo = new JComboBox(new EnumModel<ExternalComponent.Finish>(component, "Finish"));
-			combo.setToolTipText(tip);
-			subPanel.add(combo, "spanx 4, growx, split");
+			JComboBox<ExternalComponent.Finish> finishCombo = new JComboBox<ExternalComponent.Finish>(
+					new EnumModel<ExternalComponent.Finish>(component, "Finish"));
+			finishCombo.setToolTipText(tip);
+			subPanel.add( finishCombo, "spanx 4, growx, split");
 			
 			//// Set for all
 			JButton button = new JButton(trans.get("RocketCompCfg.but.Setforall"));

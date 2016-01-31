@@ -9,11 +9,11 @@ import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.util.StateChangeListener;
 
 
-class ResourceDecalImage implements DecalImage {
+public class ResourceDecalImage implements DecalImage {
 	
 	final String resource;
 	
-	ResourceDecalImage(final String resource) {
+	public ResourceDecalImage(final String resource) {
 		this.resource = resource;
 	}
 	

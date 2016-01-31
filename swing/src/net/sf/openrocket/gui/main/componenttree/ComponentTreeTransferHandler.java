@@ -29,6 +29,7 @@ import net.sf.openrocket.util.BugException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class ComponentTreeTransferHandler extends TransferHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(ComponentTreeTransferHandler.class);

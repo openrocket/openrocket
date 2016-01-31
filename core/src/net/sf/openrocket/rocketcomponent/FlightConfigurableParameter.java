@@ -1,6 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.util.ChangeSource;
 
 /**
  * Interface for a parameter object that can be configured per 

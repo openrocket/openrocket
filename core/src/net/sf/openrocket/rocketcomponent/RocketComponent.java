@@ -1102,20 +1102,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}	
 	
 	/**
-	 * @deprecated kept around as example code. instead use getLocations
-	 * @return
-	 */
-	@Deprecated
-	private Coordinate getAbsoluteVector() {
-		if (null == this.parent) {
-			// == improperly initialized components OR the root Rocket instance 
-			return Coordinate.ZERO;
-		} else {
-			return this.getAbsoluteVector().add(this.getOffset());
-		}
-	}
-	
-	/**
 	 * Returns coordinates of this component's instances in relation to this.parent.
 	 * <p>
 	 * For example, the absolute position of any given instance is the parent's position 
@@ -1761,7 +1747,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param type  Type of event
 	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
 	 */
-	protected void fireComponentChangeEvent(int type) {
+	public void fireComponentChangeEvent(int type) {
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 	
@@ -2128,7 +2114,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public String toDebugTree() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
-		buffer.append("     [Name]                     [Length]            [Rel Pos]                [Abs Pos]  \n");
+		buffer.append("     [Name]                         [Length]          [Rel Pos]                [Abs Pos]  \n");
 		this.dumpTreeHelper(buffer, "");
 		return buffer.toString();
 	}

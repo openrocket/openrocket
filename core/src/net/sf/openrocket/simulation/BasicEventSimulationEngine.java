@@ -21,7 +21,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
-import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;

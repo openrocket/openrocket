@@ -51,7 +51,6 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
@@ -87,7 +86,48 @@ public class TestRockets {
 		this.rnd = new Random(key.hashCode());
 		
 	}
-
+	
+	// Minimal motor without any useful numbers data
+	private static ThrustCurveMotor getTestMotor() {
+		return new ThrustCurveMotor(
+				Manufacturer.getManufacturer("A"),
+				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
+				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+	} 
+	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	private static MotorConfiguration generateMotorInstance_A8_18mm(){
+		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+		//			Motor.Type type, double[] delays, double diameter, double length,
+		//			double[] time, double[] thrust,
+		//          Coordinate[] cg, String digest);
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("Estes"),"A8", " SU Black Powder", 
+				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
+				new double[] { 0, 1, 2 }, new double[] { 0, 9, 0 },
+				new Coordinate[] {
+					new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)}, 
+				"digest A8 test");
+		return new MotorConfiguration(mtr);
+	}
+	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	private static MotorConfiguration generateMotorInstance_B4_18mm(){
+		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
+		//			Motor.Type type, double[] delays, double diameter, double length,
+		//			double[] time, double[] thrust,
+		//          Coordinate[] cg, String digest);
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("Estes"),"B4", " SU Black Powder", 
+				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
+				new double[] { 0, 1, 2 }, new double[] { 0, 11.4, 0 },
+				new Coordinate[] {
+					new Coordinate(0.035, 0, 0, 0.0195),new Coordinate(.035, 0, 0, 0.0155),new Coordinate(.035, 0, 0, 0.013)}, 
+				"digest B4 test");
+		return new MotorConfiguration(mtr);
+	}
+	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static MotorConfiguration generateMotorInstance_C6_18mm(){
 		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
@@ -99,9 +139,21 @@ public class TestRockets {
 				Motor.Type.SINGLE, new double[] {0,3,5,7}, 0.018, 0.070,
 				new double[] { 0, 1, 2 }, new double[] { 0, 6, 0 },
 				new Coordinate[] {
-					new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.0102)}, 
+					new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.012)}, 
 				"digest C6 test");
 		return new MotorConfiguration(mtr);
+	}
+	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	private static MotorConfiguration generateMotorInstance_D21_18mm(){
+		ThrustCurveMotor mtr = new ThrustCurveMotor(
+			Manufacturer.getManufacturer("AeroTech"),"D21", "Desc", 
+			Motor.Type.SINGLE, new double[] {}, 0.018, 0.07,
+			new double[] { 0, 1, 2 }, new double[] { 0, 32, 0 },
+			new Coordinate[] {
+				new Coordinate(.035, 0, 0, 0.025),new Coordinate(.035, 0, 0, .020),new Coordinate(.035, 0, 0, 0.0154)}, 
+			"digest D21 test");
+	    return new MotorConfiguration(mtr);
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -332,6 +384,18 @@ public class TestRockets {
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static final Rocket makeEstesAlphaIII(){
 		Rocket rocket = new Rocket();
+		FlightConfigurationId fcid[] = new FlightConfigurationId[5]; 
+		fcid[0] = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		rocket.createFlightConfiguration(fcid[0]);
+		fcid[1] = new FlightConfigurationId();
+		rocket.createFlightConfiguration(fcid[1]);
+		fcid[2] = new FlightConfigurationId();
+		rocket.createFlightConfiguration(fcid[2]);
+		fcid[3] = new FlightConfigurationId();
+		rocket.createFlightConfiguration(fcid[3]);
+		fcid[4] = new FlightConfigurationId();
+		rocket.createFlightConfiguration(fcid[4]);
+		
 		rocket.setName("Estes Alpha III / Code Verification Rocket");
 		AxialStage stage = new AxialStage();
 		stage.setName("Stage");
@@ -340,8 +404,8 @@ public class TestRockets {
 		double noseconeLength = 0.07;
 		double noseconeRadius = 0.012;
 		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, noseconeLength, noseconeRadius);
-		nosecone.setAftShoulderLength(0.025);
-		nosecone.setAftShoulderRadius(0.012);
+		nosecone.setAftShoulderLength(0.02);
+		nosecone.setAftShoulderRadius(0.011);
 		nosecone.setName("Nose Cone");
 		stage.addChild(nosecone);
 		
@@ -394,12 +458,38 @@ public class TestRockets {
 				thrustBlock.setThickness(0.0008);
 				thrustBlock.setName("Engine Block");
 				inner.addChild(thrustBlock);
-				
-				MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
-				motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
 				inner.setMotorMount( true);
-				FlightConfigurationId motorConfigId = rocket.getSelectedConfiguration().getFlightConfigurationID();
-				inner.setMotorInstance( motorConfigId, motorConfig);	 
+				
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_A8_18mm();
+					motorConfig.setEjectionDelay(0.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					inner.setMotorInstance( fcid[0], motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_B4_18mm();
+					motorConfig.setEjectionDelay(3.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					inner.setMotorInstance( fcid[1], motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(3.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					inner.setMotorInstance( fcid[2], motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(5.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					inner.setMotorInstance( fcid[3], motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(7.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					inner.setMotorInstance( fcid[4], motorConfig);
+				}
 			}
 		
 			// parachute
@@ -431,6 +521,192 @@ public class TestRockets {
 		rocket.enableEvents();
 		return rocket;
 	}
+	
+	// This is an extra stage tacked onto the end of an Estes Alpha III 
+	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	public static final Rocket makeBeta(){
+		Rocket rocket = new Rocket();
+		rocket.setName("Kit-bash Beta");
+		AxialStage sustainerStage = new AxialStage();
+		sustainerStage.setName("Sustainer Stage");
+		rocket.addChild(sustainerStage);
+				
+		double noseconeLength = 0.07;
+		double noseconeRadius = 0.012;
+		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, noseconeLength, noseconeRadius);
+		nosecone.setAftShoulderLength(0.025);
+		nosecone.setAftShoulderRadius(0.012);
+		nosecone.setName("Nose Cone");
+		sustainerStage.addChild(nosecone);
+		
+		double bodytubeLength = 0.20;
+		double bodytubeRadius = 0.012;
+		double bodyTubeThickness = 0.0003;
+		BodyTube bodytube = new BodyTube(bodytubeLength, bodytubeRadius, bodyTubeThickness);
+		bodytube.setName("Body Tube");
+		sustainerStage.addChild(bodytube);
+		
+		TrapezoidFinSet finset;
+		{
+			int finCount = 3;
+			double finRootChord = .05;
+			double finTipChord = .03;
+			double finSweep = 0.02;
+			double finHeight = 0.05;
+			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
+			finset.setThickness( 0.0032);
+			finset.setRelativePosition(Position.BOTTOM);
+			finset.setName("3 Fin Set");
+			bodytube.addChild(finset);
+			
+			LaunchLug lug = new LaunchLug();
+			lug.setName("Launch Lugs");
+			lug.setRelativePosition(Position.TOP);
+			lug.setAxialOffset(0.111);
+			lug.setLength(0.050);
+			lug.setOuterRadius(0.0022);
+			lug.setInnerRadius(0.0020);
+			bodytube.addChild(lug);
+			
+			InnerTube inner = new InnerTube();
+			inner.setRelativePosition(Position.TOP);
+			inner.setAxialOffset(0.133);
+			inner.setLength(0.07);
+			inner.setOuterRadius(0.009);
+			inner.setThickness(0.0003);
+			inner.setMotorMount(true);
+			inner.setName("Motor Mount Tube");
+			bodytube.addChild(inner);
+			
+			{
+				// MotorBlock 
+				EngineBlock thrustBlock= new EngineBlock();
+				thrustBlock.setRelativePosition(Position.TOP);
+				thrustBlock.setAxialOffset(0.0);
+				thrustBlock.setLength(0.005);
+				thrustBlock.setOuterRadius(0.009);
+				thrustBlock.setThickness(0.0008);
+				thrustBlock.setName("Engine Block");
+				inner.addChild(thrustBlock);
+				inner.setMotorMount( true);
+				
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_A8_18mm();
+					motorConfig.setEjectionDelay(0.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					FlightConfigurationId motorConfigId = rocket.getSelectedConfiguration().getFlightConfigurationID();
+					inner.setMotorInstance( motorConfigId, motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_B4_18mm();
+					motorConfig.setEjectionDelay(3.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					FlightConfigurationId motorConfigId = new FlightConfigurationId();
+					inner.setMotorInstance( motorConfigId, motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(3.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					FlightConfigurationId motorConfigId = new FlightConfigurationId();
+					inner.setMotorInstance( motorConfigId, motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(5.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					FlightConfigurationId motorConfigId = new FlightConfigurationId();
+					inner.setMotorInstance( motorConfigId, motorConfig);
+				}
+				{
+					MotorConfiguration motorConfig = TestRockets.generateMotorInstance_C6_18mm();
+					motorConfig.setEjectionDelay(7.0);
+					motorConfig.setID( new MotorInstanceId( inner.getName(), 1) );
+					FlightConfigurationId motorConfigId = new FlightConfigurationId();
+					inner.setMotorInstance( motorConfigId, motorConfig);
+				}
+			}
+		
+			// parachute
+			Parachute chute = new Parachute();
+			chute.setRelativePosition(Position.TOP);
+			chute.setName("Parachute");
+			chute.setAxialOffset(0.028);
+			chute.setOverrideMass(0.002);
+			chute.setMassOverridden(true);
+			bodytube.addChild(chute);
+			
+			// bulkhead x2
+			CenteringRing centerings = new CenteringRing();
+			centerings.setName("Centering Rings");
+			centerings.setRelativePosition(Position.TOP);
+			centerings.setAxialOffset(0.14);
+			centerings.setLength(0.006);
+			centerings.setInstanceCount(2);
+			centerings.setInstanceSeparation(0.035);
+			bodytube.addChild(centerings);
+		}
+		
+		Material material = Application.getPreferences().getDefaultComponentMaterial(null, Material.Type.BULK);
+		nosecone.setMaterial(material);
+		bodytube.setMaterial(material);
+		finset.setMaterial(material);
+		
+		{
+			AxialStage boosterStage = new AxialStage();
+			boosterStage.setName("Booster");
+			
+			BodyTube boosterTube = new BodyTube(0.06, bodytubeRadius, bodyTubeThickness);
+			boosterStage.addChild(boosterTube);
+			
+			TubeCoupler coupler = new TubeCoupler();
+			coupler.setName("Interstage");
+			coupler.setOuterRadiusAutomatic(true);
+			coupler.setThickness( bodyTubeThickness);
+			coupler.setLength(0.03);
+			coupler.setRelativePosition(Position.TOP);
+			coupler.setPositionValue(-1.5);
+			boosterTube.addChild(coupler);
+			
+			int finCount = 3;
+			double finRootChord = .05;
+			double finTipChord = .03;
+			double finSweep = 0.02;
+			double finHeight = 0.05;
+			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
+			finset.setThickness( 0.0032);
+			finset.setRelativePosition(Position.BOTTOM);
+			finset.setPositionValue(1);
+			finset.setName("Booster Fins");
+			boosterTube.addChild(finset);
+			
+			// Motor mount
+			InnerTube boosterMMT = new InnerTube();
+			boosterMMT.setName("Booster MMT");
+			boosterMMT.setPositionValue(0.005);
+			boosterMMT.setRelativePosition(Position.BOTTOM);
+			boosterMMT.setOuterRadius(0.019 / 2);
+			boosterMMT.setInnerRadius(0.018 / 2);
+			boosterMMT.setLength(0.075);
+			boosterTube.addChild(boosterMMT);
+			
+			rocket.addChild(boosterStage);
+
+			boosterMMT.setMotorMount(true);
+			{
+				FlightConfigurationId mcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
+				MotorConfiguration motorConfig= generateMotorInstance_D21_18mm();
+				motorConfig.setID( new MotorInstanceId( boosterMMT.getName(), 1) );
+				boosterMMT.setMotorInstance( mcid, motorConfig);
+			}
+
+		}
+		rocket.getSelectedConfiguration().setAllStages();
+		rocket.enableEvents();
+		return rocket;
+	}
+	
 	
 	public static Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
@@ -551,6 +827,8 @@ public class TestRockets {
 		rocket.enableEvents();
 		return rocket;
 	}
+	
+	
 	
 	
 	public static Rocket makeIsoHaisu() {
@@ -1036,9 +1314,8 @@ public class TestRockets {
 		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		
 		// create simulation data
-		SimulationOptions options = new SimulationOptions(rocket);
-		options.setFlightConfigurationId(fcid);
 		Simulation simulation1 = new Simulation(rocket);
+		simulation1.setFlightConfigurationId(fcid);
 		
 		rocketDoc.addSimulation(simulation1);
 		Simulation simulation2 = new Simulation(rocket);
@@ -1358,16 +1635,6 @@ public class TestRockets {
 		return rocketDoc;
 	}
 	
-	
-	
-	
-	private static ThrustCurveMotor getTestMotor() {
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
-	}
-	
+
 	
 }

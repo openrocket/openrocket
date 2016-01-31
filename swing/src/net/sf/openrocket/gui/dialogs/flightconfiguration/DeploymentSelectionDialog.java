@@ -32,6 +32,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class DeploymentSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();

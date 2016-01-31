@@ -31,6 +31,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class CompassSelectionButton extends FlatButton implements Resettable {
 	
 	private static final Translator trans = Application.getTranslator();

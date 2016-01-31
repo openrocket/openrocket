@@ -122,7 +122,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber  stage number to inactivate
 	 */
 	public void clearStage(final int stageNumber) {
-		setStageActive( stageNumber, false, true);
+		setStageActive( stageNumber, false );
 	}
 	
 	/** 
@@ -132,7 +132,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void setOnlyStage(final int stageNumber) {
 		setAllStages(false, false);
-		setStageActive(stageNumber, true, true);
+		setStageActive(stageNumber, true);
 	}
 	
 	/** 
@@ -141,16 +141,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
 	 */
-	public void setStageActive(final int stageNumber, final boolean _active ) {
-		this.setStageActive(stageNumber, _active, true );
-	}
-	
-	private void setStageActive(final int stageNumber, final boolean _active, final boolean updateRequired ) {
+	private void setStageActive(final int stageNumber, final boolean _active ) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
-			if( updateRequired  ){
-				update();
-			}
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
@@ -396,6 +389,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateStages();
 		updateMotors();
 	}
+	
 	///////////////  Helper methods  ///////////////
 	
 	/**
@@ -420,10 +414,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			for (RocketComponent component : this.getActiveComponents()) {
 				for (Coordinate coord : component.getComponentBounds()) {
 					cachedBounds.add(coord);
-					if (coord.x < minX)
+					if (coord.x < minX){
 						minX = coord.x;
-					if (coord.x > maxX)
+					}else if (coord.x > maxX){
 						maxX = coord.x;
+					}
 				}
 			}
 			

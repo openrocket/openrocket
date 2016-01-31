@@ -35,6 +35,7 @@ import net.sf.openrocket.startup.Application;
  * give orientation.
  * <p/>
  */
+@SuppressWarnings("serial")
 public class FinMarkingGuide extends JPanel {
 	
 	/**
