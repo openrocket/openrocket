@@ -194,11 +194,19 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for burnt out motors
-				for( MotorState motor : currentStatus.getAllMotors()){
-					MotorInstanceId motorId = motor.getID();
-					if (!motor.isActive() && currentStatus.addBurntOutMotor(motorId)) {
+				for( MotorSimulation state : currentStatus.getAllMotors()){
+					
+					state.isFinishedThrusting( );
+							
+					MotorInstanceId motorId = state.getID();
+					
+					if ( state.isFinishedThrusting()){
+						// TODO : implement me! 
+						//currentStatus.moveBurntOutMotor( motorId);
+						currentStatus.addBurntOutMotor(motorId);
+					
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
-								(RocketComponent) motor.getMount(), motorId));
+								(RocketComponent) state.getMount(), motorId));
 					}
 				}
 				
@@ -275,7 +283,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (event.getType() == FlightEvent.Type.IGNITION) {
 				MotorMount mount = (MotorMount) event.getSource();
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState instance = currentStatus.getMotor(motorId);
+				MotorSimulation instance = currentStatus.getMotor(motorId);
 				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, instance)) {
 					continue;
 				}
@@ -288,7 +296,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorState inst : currentStatus.getActiveMotors() ){
+			for (MotorSimulation inst : currentStatus.getAllMotors() ){
 				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
 				MotorMount mount = inst.getMount();
 				RocketComponent component = (RocketComponent) mount;
@@ -296,7 +304,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (ignitionEvent.isActivationEvent(event, component)) {
 					double ignitionDelay = inst.getIgnitionDelay();
 					// TODO:  this event seems to get enque'd multiple times -- more than necessary...
-					//System.err.println("Queing ignition of mtr:"+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
+					//System.err.println("Queueing ignition of mtr:"+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
 							currentStatus.getSimulationTime() + ignitionDelay,
 							component, inst.getID() ));
@@ -341,8 +349,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case IGNITION: {
 				// Ignite the motor
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState inst = currentStatus.getMotor( motorId);
-				inst.setIgnitionTime(event.getTime());
+				MotorSimulation inst = currentStatus.getMotor( motorId);
+				inst.ignite( event.getTime());
 				//System.err.println("Igniting motor: "+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
 				
 				currentStatus.setMotorIgnited(true);
@@ -370,10 +378,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isLiftoff()) {
 					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
 				}
+				
 				// Add ejection charge event
 				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState motor = currentStatus.getMotor( motorId);
-				double delay = motor.getEjectionDelay();
+				MotorSimulation state = currentStatus.getMotor( motorId);
+				double delay = state.getEjectionDelay();
 				if (delay != Motor.PLUGGED) {
 					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
 							event.getSource(), event.getData()));

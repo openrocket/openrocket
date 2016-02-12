@@ -388,7 +388,7 @@ public class DesignReport {
 					motorTable.addCell(ITextHelper.createCell(
 							ttwFormat.format(ttw) + ":1", border));
 					
-					double propMass = (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+					double propMass = (motor.getLaunchMass() - motor.getBurnoutMass());
 					motorTable.addCell(ITextHelper.createCell(
 							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
 					

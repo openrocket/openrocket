@@ -70,7 +70,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		FlightConfiguration config = status.getConfiguration();
 		for (MotorConfiguration inst : config.getActiveMotors()) {
 			double x_position= inst.getX();
-			double x = x_position + inst.getMotor().getLaunchCG().x;
+			double x = x_position + inst.getMotor().getLaunchCGx();
 			if (x > nozzleDistance) {
 				nozzleDistance = x;
 			}

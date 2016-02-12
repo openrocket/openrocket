@@ -49,9 +49,9 @@ public class SimulationStatus implements Monitorable {
 	private double effectiveLaunchRodLength;
 	
 	// Set of burnt out motors
-	Set<MotorInstanceId> motorBurntOut = new HashSet<MotorInstanceId>();
+	Set<MotorInstanceId> spentMotors = new HashSet<MotorInstanceId>();
 	
-	List<MotorState> motorState = new ArrayList<MotorState>();
+	List<MotorSimulation> motorStateList = new ArrayList<MotorSimulation>();
 	
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -148,11 +148,10 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = false;
 		this.apogeeReached = false;
 		
-		for( MotorConfiguration motorInstance : this.configuration.getActiveMotors() ) {
-			this.motorState.add( motorInstance.getSimulationState() );
+		for( MotorConfiguration motorConfig : this.configuration.getActiveMotors() ) {
+			this.motorStateList.add( new MotorSimulation( motorConfig) );
 		}
 		this.warnings = new WarningSet();
-		
 	}
 	
 	/**
@@ -185,14 +184,14 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
 		this.tumbling = orig.tumbling;
-		this.motorBurntOut = orig.motorBurntOut;
+		this.spentMotors = orig.spentMotors;
 		
 		this.deployedRecoveryDevices.clear();
 		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
 		
 		// FIXME - is this right?
-		this.motorState.clear();
-		this.motorState.addAll(orig.motorState);
+		this.motorStateList.clear();
+		this.motorStateList.addAll(orig.motorStateList);
 		
 		this.eventQueue.clear();
 		this.eventQueue.addAll(orig.eventQueue);
@@ -225,20 +224,24 @@ public class SimulationStatus implements Monitorable {
 		this.configuration = configuration;
 	}
 	
-	public Collection<MotorState> getAllMotors() {
-		return motorState;
+	public Collection<MotorSimulation> getMotors() {
+		return motorStateList;
 	}
 	
-	public Collection<MotorState> getActiveMotors() {
-		List<MotorState> activeList = new ArrayList<MotorState>();
-		for( MotorState inst : this.motorState ){
-			if( inst.isActive() ){
-				activeList.add( inst );
-			}
-		}
-		
-		return activeList;
+	public Collection<MotorSimulation> getAllMotors() {
+		return motorStateList;
 	}
+	
+//	public Collection<MotorInstance> getActiveMotors() {
+//		List<MotorInstance> activeList = new ArrayList<MotorInstance>();
+//		for( MotorInstance inst : this.motorStateList ){
+//			if( inst.isActive() ){
+//				activeList.add( inst );
+//			}
+//		}
+//		
+//		return activeList;
+//	}
 	
 	public FlightConfiguration getConfiguration() {
 		return configuration;
@@ -260,8 +263,8 @@ public class SimulationStatus implements Monitorable {
 		return flightData;
 	}
 	
-	public MotorState getMotor( final MotorInstanceId motorId ){
-		for( MotorState state : motorState ) {
+	public MotorSimulation getMotor( final MotorInstanceId motorId ){
+		for( MotorSimulation state : motorStateList ) {
 			if ( motorId.equals(state.getID() )) {
 				return state;
 			}
@@ -310,8 +313,15 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
+	public boolean moveBurntOutMotor( final MotorInstanceId motor) {
+		// get motor from normal list
+		// remove motor from 'normal' list
+		// add to spent list
+		return false;
+	}
+	
 	public boolean addBurntOutMotor(MotorInstanceId motor) {
-		return motorBurntOut.add(motor);
+		return spentMotors.add(motor);
 	}
 	
 	

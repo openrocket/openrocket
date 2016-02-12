@@ -14,7 +14,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.AccelerationData;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.MotorState;
+import net.sf.openrocket.simulation.MotorSimulation;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
@@ -168,7 +168,7 @@ public class SimulationListenerHelper {
 	 * @return	<code>true</code> to handle the event normally, <code>false</code> to skip event.
 	 */
 	public static boolean fireMotorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
-			MotorState instance) throws SimulationException {
+			MotorSimulation instance) throws SimulationException {
 		boolean b;
 		int modID = status.getModID(); // Contains also motor instance
 		

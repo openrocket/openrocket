@@ -211,7 +211,7 @@ public class MotorCompare {
 		min = Double.MAX_VALUE;
 		System.out.printf("Init mass  :");
 		for (Motor m : motors) {
-			double f = m.getLaunchCG().weight;
+			double f = m.getLaunchMass();
 			System.out.printf("\t%.2f", f * 1000);
 			max = Math.max(max, f);
 			min = Math.min(min, f);
@@ -229,7 +229,7 @@ public class MotorCompare {
 		min = Double.MAX_VALUE;
 		System.out.printf("Empty mass :");
 		for (Motor m : motors) {
-			double f = m.getEmptyCG().weight;
+			double f = m.getBurnoutMass();
 			System.out.printf("\t%.2f", f * 1000);
 			max = Math.max(max, f);
 			min = Math.min(min, f);

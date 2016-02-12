@@ -528,12 +528,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", this.motors.size(), this, this.instanceNumber));
 		final String fmt = "    ..[%-8s] <%6s>    %-12s %-20s\n";
-		buf.append(String.format(fmt, "Motor Id", "?active", "Mtr Desig","Mount"));
+		buf.append(String.format(fmt, "Motor Id", "Mtr Desig","Mount"));
 		for( MotorConfiguration curConfig : this.motors.values() ){
 			MotorMount mount = curConfig.getMount();
 			
 			String motorId = curConfig.getID().toShortKey();
-			String activeDescr = (curConfig.isActive()? "active": "inactv");
 			String motorDesig;
 			if( curConfig.isEmpty() ){
 				motorDesig = "(empty)";
@@ -542,7 +541,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 			String mountName = ((RocketComponent)mount).getName();
 			
-			buf.append(String.format( fmt, motorId, activeDescr, motorDesig, mountName));
+			buf.append(String.format( fmt, motorId, motorDesig, mountName));
 		}
 		buf.append("\n");
 		return buf.toString();

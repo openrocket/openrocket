@@ -1,9 +1,6 @@
 package net.sf.openrocket.motor;
 
-import net.sf.openrocket.simulation.MotorState;
-import net.sf.openrocket.util.Coordinate;
-
-public interface Motor {
+public interface Motor extends Cloneable {
 	
 	/**
 	 * Enum of rocket motor types.
@@ -118,12 +115,19 @@ public interface Motor {
 	
 	public String getDigest();
 	
-	public MotorState getNewInstance();
+	public Motor clone();
 	
-	public Coordinate getLaunchCG();
+	// this is probably a badly-designed way to expose the thrust, but it's not worth worrying about until 
+	// there's a second (non-trivial) type of motor to support...
+	public double getThrustAtMotorTime( final double motorTimeDelta );
+		
+	public double getLaunchCGx();
 	
-	public Coordinate getEmptyCG();
+	public double getBurnoutCGx();
 	
+	public double getLaunchMass();
+	
+	public double getBurnoutMass();
 	
 	/**
 	 * Return an estimate of the burn time of this motor, or NaN if an estimate is unavailable.

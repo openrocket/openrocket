@@ -4,7 +4,6 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 
@@ -15,7 +14,8 @@ import net.sf.openrocket.util.Inertia;
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
 	public static final String EMPTY_DESCRIPTION = "Empty Configuration";
-	
+
+	// set at config time
 	protected MotorMount mount = null;
 	protected Motor motor = null;
 	protected double ejectionDelay = 0.0;
@@ -41,28 +41,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		modID++;
 	}
 	
-	public MotorState getSimulationState() {
-		MotorState state = motor.getNewInstance();
-		state.setEjectionDelay( this.ejectionDelay );
-		if( ignitionOveride ) {
-			state.setIgnitionEvent( this.ignitionEvent );
-			state.setIgnitionDelay( this.ignitionDelay );
-		} else {
-			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
-			state.setIgnitionEvent( defInstance.ignitionEvent );
-			state.setIgnitionDelay( defInstance.ignitionDelay );
-		}
-		state.setMount( mount );
-		state.setId( id );
-		return state;
-	}
-	
 	public boolean hasIgnitionOverride() {
 		return ignitionOveride;
-	}
-	
-	public boolean isActive() {
-		return motor != null;
 	}
 	
 	public String getDescription(){
@@ -164,7 +144,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	public double getPropellantMass(){
 		if ( motor != null ) {
-			return (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+			return (motor.getLaunchMass() - motor.getBurnoutMass());
 		}
 		return 0.0;
 	}

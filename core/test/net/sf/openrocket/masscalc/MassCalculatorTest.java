@@ -304,8 +304,8 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		double expLaunchMass = 0.0164; // kg
 		double expSpentMass = 0.0131; // kg
-		assertEquals(" Motor Mass "+desig+" is incorrect: ", expLaunchMass, activeMotor.getLaunchCG().weight, EPSILON);
-		assertEquals(" Motor Mass "+desig+" is incorrect: ", expSpentMass, activeMotor.getEmptyCG().weight, EPSILON);
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expLaunchMass, activeMotor.getLaunchMass(), EPSILON);
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expSpentMass, activeMotor.getBurnoutMass(), EPSILON);
 		
 		// Validate Booster Launch Mass
 		MassCalculator mc = new MassCalculator();

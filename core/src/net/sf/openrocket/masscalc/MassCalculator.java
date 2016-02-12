@@ -25,25 +25,37 @@ public class MassCalculator implements Monitorable {
 	public static enum MassCalcType {
 		NO_MOTORS {
 			@Override
-			public Coordinate getCG(Motor motor) {
-				return Coordinate.NUL;
+			public double getCGx(Motor motor) {
+				return 0;
 			}
-			
+			@Override
+			public double getMass(Motor motor) {
+				return 0;
+			}
 		},
 		LAUNCH_MASS {
 			@Override
-			public Coordinate getCG(Motor motor) {
-				return motor.getLaunchCG();
+			public double getCGx(Motor motor) {
+				return motor.getLaunchCGx();
+			}
+			@Override
+			public double getMass(Motor motor) {
+				return motor.getLaunchMass();
 			}
 		},
 		BURNOUT_MASS {
 			@Override
-			public Coordinate getCG(Motor motor) {
-				return motor.getEmptyCG();
+			public double getCGx(Motor motor) {
+				return motor.getBurnoutCGx();
+			}
+			@Override
+			public double getMass(Motor motor) {
+				return motor.getBurnoutMass();
 			}
 		};
 		
-		public abstract Coordinate getCG(Motor motor);
+		public abstract double getMass(Motor motor);
+		public abstract double getCGx(Motor motor);
 		
 		/**
 		 * Compute the cg contribution of the motor relative to the rocket's coordinates
@@ -52,16 +64,21 @@ public class MassCalculator implements Monitorable {
 		 * @return
 		 */
 		public Coordinate getCG(MotorConfiguration motorConfig) {
-			Coordinate cg = getCG(motorConfig.getMotor());
-			cg = cg.add(motorConfig.getPosition());
+			Motor mtr = motorConfig.getMotor();
+			double mass = getMass(mtr);
+			Coordinate cg = motorConfig.getPosition().add( getCGx(mtr), 0, 0, mass);
 			
 			RocketComponent motorMount = (RocketComponent) motorConfig.getMount();
-			Coordinate totalCG = new Coordinate();
+			Coordinate totalCM = new Coordinate();
 			for (Coordinate cord : motorMount.toAbsolute(cg) ) {
-				totalCG = totalCG.average(cord);
+				totalCM = totalCM.average(cord);
 			}
 
-			return totalCG;
+			return totalCM;
+		}
+		
+		public Coordinate getCM( Motor motor ){
+			return new Coordinate( getCGx(motor), 0, 0, getMass(motor));
 		}
 	}
 	
@@ -168,7 +185,7 @@ public class MassCalculator implements Monitorable {
 			double motorXPosition = mtrConfig.getX();  // location of motor from mount
 
 			
-			Coordinate localCM = type.getCG( mtr );  // CoM from beginning of motor
+			Coordinate localCM = type.getCM( mtr );  // CoM from beginning of motor
 			localCM = localCM.setWeight( localCM.weight * instanceCount);
 			// a *bit* hacky :P
 			Coordinate curMotorCM = localCM.setX( localCM.x + locations[0].x + motorXPosition );
