@@ -16,7 +16,7 @@ public class ThrustCurveMotorTest {
 	private final ThrustCurveMotor motor = 
 		new ThrustCurveMotor(Manufacturer.getManufacturer("foo"),
 				"X6", "Description of X6", Motor.Type.RELOAD, 
-				new double[] {0, 2, Motor.PLUGGED}, radius*2, length,
+				new double[] {0, 2, Motor.PLUGGED_DELAY}, radius*2, length,
 				new double[] {0, 1, 3, 4},  // time
 				new double[] {0, 2, 3, 0},  // thrust
 				new Coordinate[] {

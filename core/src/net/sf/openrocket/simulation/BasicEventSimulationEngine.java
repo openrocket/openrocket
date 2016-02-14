@@ -9,14 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -194,17 +192,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for burnt out motors
-				for( MotorSimulation state : currentStatus.getAllMotors()){
-					
-					state.isFinishedThrusting( );
-							
-					MotorInstanceId motorId = state.getID();
-					
+				for( MotorClusterState state : currentStatus.getMotors()){					
+					//state.update( currentStatus.getSimulationTime() );
 					if ( state.isFinishedThrusting()){
-						// TODO : implement me! 
-						//currentStatus.moveBurntOutMotor( motorId);
-						currentStatus.addBurntOutMotor(motorId);
-					
+						MotorInstanceId motorId = state.getID();
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
 								(RocketComponent) state.getMount(), motorId));
 					}
@@ -276,18 +267,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				continue;
 			}
 			
-			if (event.getType() != FlightEvent.Type.ALTITUDE) {
-				log.trace("BasicEventSimulationEngine:  Handling event " + event);
-			}
-			
-			if (event.getType() == FlightEvent.Type.IGNITION) {
-				MotorMount mount = (MotorMount) event.getSource();
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorSimulation instance = currentStatus.getMotor(motorId);
-				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, instance)) {
-					continue;
-				}
-			}
 			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				RecoveryDevice device = (RecoveryDevice) event.getSource();
 				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
@@ -295,19 +274,33 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
+//			// DEBUG:
+//			if(( event.getType() == FlightEvent.Type.BURNOUT)|| ( event.getType() == FlightEvent.Type.EJECTION_CHARGE)){
+//				System.err.println("@simulationTime: "+currentStatus.getSimulationTime());
+//				System.err.println("     Processing "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+//				MotorClusterState eventState = (MotorClusterState) event.getData();
+//				System.err.println("       and motor: "+eventState.getMotor().getDesignation()+"   in:"+eventState.getMount().getName()
+//						+" @: "+eventState.getEjectionDelay());
+//			}
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorSimulation inst : currentStatus.getAllMotors() ){
-				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
-				MotorMount mount = inst.getMount();
-				RocketComponent component = (RocketComponent) mount;
-				
-				if (ignitionEvent.isActivationEvent(event, component)) {
-					double ignitionDelay = inst.getIgnitionDelay();
-					// TODO:  this event seems to get enque'd multiple times -- more than necessary...
-					//System.err.println("Queueing ignition of mtr:"+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
-					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
-							currentStatus.getSimulationTime() + ignitionDelay,
-							component, inst.getID() ));
+			for (MotorClusterState state : currentStatus.getAllMotors() ){
+				if( state.testForIgnition(event )){
+					final double simulationTime = currentStatus.getSimulationTime() ;
+					MotorClusterState sourceState = (MotorClusterState) event.getData();
+					double ignitionDelay = 0;
+					if(( event.getType() == FlightEvent.Type.BURNOUT)|| ( event.getType() == FlightEvent.Type.EJECTION_CHARGE)){
+						ignitionDelay = sourceState.getEjectionDelay();
+					}
+					final double ignitionTime = currentStatus.getSimulationTime() + ignitionDelay; 
+					final RocketComponent mount = (RocketComponent)state.getMount();
+					
+					// TODO:  this event seems to get enqueue'd multiple times ... 
+					System.err.println("@simulationTime: "+simulationTime);
+					System.err.println("Queueing motorIgnitionEvent: "+state.getMotor().getDesignation()+"   in:"+state.getMount().getName()
+										+" @: "+ignitionTime);
+					System.err.println("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					
+					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, mount, state ));
 				}
 			}
 			
@@ -347,14 +340,31 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			case IGNITION: {
-				// Ignite the motor
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorSimulation inst = currentStatus.getMotor( motorId);
-				inst.ignite( event.getTime());
-				//System.err.println("Igniting motor: "+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
+				MotorClusterState motorState = (MotorClusterState) event.getData();
 				
+				System.err.println("  >> Igniting motor: "+motorState.getMotor().getDesignation()
+						+" @"+currentStatus.getSimulationTime()
+						+" ("+motorState.getMount().getName());
+				motorState.ignite( event.getTime());
+
+				// Ignite the motor
 				currentStatus.setMotorIgnited(true);
 				currentStatus.getFlightData().addEvent(event);
+				
+				// ... ignite ...uhh, again? 
+				// TBH, I'm not sure what this call is for. It seems to be mostly a bunch of event distribution.
+				MotorInstanceId motorId = motorState.getID(); 
+				MotorMount mount = (MotorMount) event.getSource();
+				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, motorState)) {
+					continue;
+				}
+				
+				
+				// and queue up the burnout for this motor, as well. 
+				double duration = motorState.getMotor().getBurnTimeEstimate();
+				double burnout = currentStatus.getSimulationTime() + duration;
+				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
+							event.getSource(), motorState ));
 				
 				break;
 			}
@@ -380,12 +390,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				
 				// Add ejection charge event
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorSimulation state = currentStatus.getMotor( motorId);
+				MotorClusterState state = (MotorClusterState) event.getData();
+				AxialStage stage = state.getMount().getStage();
+				log.debug( " adding EJECTION_CHARGE event for stage "+stage.getStageNumber()+": "+stage.getName());
+				log.debug( "                         .... for motor "+state.getMotor().getDesignation());
+				
 				double delay = state.getEjectionDelay();
-				if (delay != Motor.PLUGGED) {
+				if ( state.hasEjectionCharge() ){
 					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
-							event.getSource(), event.getData()));
+							stage, event.getData()));
 				}
 				currentStatus.getFlightData().addEvent(event);
 				break;
@@ -483,6 +496,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case ALTITUDE:
+				log.trace("BasicEventSimulationEngine:  Handling event " + event);
 				break;
 			
 			case TUMBLE:

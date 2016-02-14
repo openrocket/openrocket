@@ -336,19 +336,19 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/**
 	 * Add a motor instance to this configuration.  
 	 * 
-	 * @param motor			the motor instance.
+	 * @param motorConfig			the motor instance.
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
-	public void addMotor(MotorConfiguration motor) {
-		if( motor.isEmpty() ){
+	public void addMotor(MotorConfiguration motorConfig) {
+		if( motorConfig.isEmpty() ){
 			throw new IllegalArgumentException("MotorInstance is empty.");
 		}
-		MotorInstanceId id = motor.getID();
+		MotorInstanceId id = motorConfig.getID();
 		if (this.motors.containsKey(id)) {
-			throw new IllegalArgumentException("MotorInstanceConfiguration already " +
+			throw new IllegalArgumentException("FlightConfiguration already " +
 					"contains a motor with id " + id);
 		}
-		this.motors.put(id, motor);
+		this.motors.put(id, motorConfig);
 		
 		modID++;
 	}
@@ -526,13 +526,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toMotorDetail(){
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", this.motors.size(), this, this.instanceNumber));
-		final String fmt = "    ..[%-8s] <%6s>    %-12s %-20s\n";
+		buf.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", 
+				this.motors.size(), this.getFlightConfigurationID().toFullKey(), this.instanceNumber));
+		final String fmt = "    ..[%-8s]    %-12s %-20s\n";
 		buf.append(String.format(fmt, "Motor Id", "Mtr Desig","Mount"));
 		for( MotorConfiguration curConfig : this.motors.values() ){
 			MotorMount mount = curConfig.getMount();
 			
-			String motorId = curConfig.getID().toShortKey();
+			String motorId = curConfig.getID().toString();
 			String motorDesig;
 			if( curConfig.isEmpty() ){
 				motorDesig = "(empty)";

@@ -14,7 +14,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.AccelerationData;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.MotorSimulation;
+import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
@@ -168,18 +168,18 @@ public class SimulationListenerHelper {
 	 * @return	<code>true</code> to handle the event normally, <code>false</code> to skip event.
 	 */
 	public static boolean fireMotorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
-			MotorSimulation instance) throws SimulationException {
-		boolean b;
+			MotorClusterState instance) throws SimulationException {
+		boolean result;
 		int modID = status.getModID(); // Contains also motor instance
 		
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
-				b = ((SimulationEventListener) l).motorIgnition(status, motorId, mount, instance);
+				result = ((SimulationEventListener) l).motorIgnition(status, motorId, mount, instance);
 				if (modID != status.getModID()) {
 					warn(status, l);
 					modID = status.getModID();
 				}
-				if (b == false) {
+				if ( false == result ) {
 					warn(status, l);
 					return false;
 				}
@@ -196,17 +196,17 @@ public class SimulationListenerHelper {
 	 */
 	public static boolean fireRecoveryDeviceDeployment(SimulationStatus status, RecoveryDevice device)
 			throws SimulationException {
-		boolean b;
+		boolean result;
 		int modID = status.getModID(); // Contains also motor instance
 		
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
-				b = ((SimulationEventListener) l).recoveryDeviceDeployment(status, device);
+				result = ((SimulationEventListener) l).recoveryDeviceDeployment(status, device);
 				if (modID != status.getModID()) {
 					warn(status, l);
 					modID = status.getModID();
 				}
-				if (b == false) {
+				if (false == result) {
 					warn(status, l);
 					return false;
 				}

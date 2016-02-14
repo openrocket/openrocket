@@ -10,7 +10,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
+import net.sf.openrocket.motor.IgnitionEvent;
 
 class IgnitionConfigurationHandler extends AbstractElementHandler {
 	

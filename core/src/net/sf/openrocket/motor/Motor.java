@@ -50,7 +50,7 @@ public interface Motor extends Cloneable {
 	 * Ejection charge delay value signifying a "plugged" motor with no ejection charge.
 	 * The value is that of <code>Double.POSITIVE_INFINITY</code>.
 	 */
-	public static final double PLUGGED = Double.POSITIVE_INFINITY;
+	public static final double PLUGGED_DELAY = Double.POSITIVE_INFINITY;
 	
 	
 	/**

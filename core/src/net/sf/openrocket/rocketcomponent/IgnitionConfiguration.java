@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.motor.IgnitionEvent;
+
 public class IgnitionConfiguration implements FlightConfigurableParameter<IgnitionConfiguration> {
 
 	protected double ignitionDelay = 0.0;

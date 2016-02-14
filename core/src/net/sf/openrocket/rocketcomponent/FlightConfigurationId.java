@@ -65,7 +65,7 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		}
 	}
 	
-	public String getFullKeyText(){
+	public String toFullKey(){
 		return this.key.toString();
 	}
 	

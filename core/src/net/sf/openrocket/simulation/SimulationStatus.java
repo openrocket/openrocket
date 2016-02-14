@@ -3,7 +3,6 @@ package net.sf.openrocket.simulation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,10 +47,8 @@ public class SimulationStatus implements Monitorable {
 	
 	private double effectiveLaunchRodLength;
 	
-	// Set of burnt out motors
-	Set<MotorInstanceId> spentMotors = new HashSet<MotorInstanceId>();
-	
-	List<MotorSimulation> motorStateList = new ArrayList<MotorSimulation>();
+	// Set of all motors	
+	List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
 	
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -108,6 +105,8 @@ public class SimulationStatus implements Monitorable {
 		double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 		
+		
+		
 		// Launch rod angle and direction
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
@@ -149,7 +148,9 @@ public class SimulationStatus implements Monitorable {
 		this.apogeeReached = false;
 		
 		for( MotorConfiguration motorConfig : this.configuration.getActiveMotors() ) {
-			this.motorStateList.add( new MotorSimulation( motorConfig) );
+			MotorClusterState simMotor  = new MotorClusterState( motorConfig);
+			simMotor.arm( this.time ); 
+			this.motorStateList.add( simMotor); 
 		}
 		this.warnings = new WarningSet();
 	}
@@ -184,7 +185,6 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
 		this.tumbling = orig.tumbling;
-		this.spentMotors = orig.spentMotors;
 		
 		this.deployedRecoveryDevices.clear();
 		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
@@ -216,6 +216,11 @@ public class SimulationStatus implements Monitorable {
 		return time;
 	}
 	
+	public void armAllMotors(){
+		for( MotorClusterState motor : this.motorStateList ){
+			motor.resetToPreflight();
+		}
+	}
 	
 	public void setConfiguration(FlightConfiguration configuration) {
 		if (this.configuration != null)
@@ -224,11 +229,11 @@ public class SimulationStatus implements Monitorable {
 		this.configuration = configuration;
 	}
 	
-	public Collection<MotorSimulation> getMotors() {
+	public Collection<MotorClusterState> getMotors() {
 		return motorStateList;
 	}
 	
-	public Collection<MotorSimulation> getAllMotors() {
+	public Collection<MotorClusterState> getAllMotors() {
 		return motorStateList;
 	}
 	
@@ -261,15 +266,6 @@ public class SimulationStatus implements Monitorable {
 	
 	public FlightDataBranch getFlightData() {
 		return flightData;
-	}
-	
-	public MotorSimulation getMotor( final MotorInstanceId motorId ){
-		for( MotorSimulation state : motorStateList ) {
-			if ( motorId.equals(state.getID() )) {
-				return state;
-			}
-		}
-		return null;
 	}
 	
 	public double getPreviousTimeStep() {
@@ -318,12 +314,7 @@ public class SimulationStatus implements Monitorable {
 		// remove motor from 'normal' list
 		// add to spent list
 		return false;
-	}
-	
-	public boolean addBurntOutMotor(MotorInstanceId motor) {
-		return spentMotors.add(motor);
-	}
-	
+	}	
 	
 	public Quaternion getRocketOrientationQuaternion() {
 		return orientation;

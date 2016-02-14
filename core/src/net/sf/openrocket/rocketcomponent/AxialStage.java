@@ -117,7 +117,8 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 
 	public boolean isLaunchStage(){
-		return ( getRocket().getBottomCoreStage().equals(this));
+		return ( this instanceof ParallelStage )
+				||( getRocket().getBottomCoreStage().equals(this));
 	}
 
 	public void setStageNumber(final int newStageNumber) {
@@ -142,6 +143,20 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		StringBuilder buff = new StringBuilder();
 		buff.append( this.separations.toDebug() );
 		return buff.toString();
+	}
+
+	public AxialStage getPreviousStage() {
+		if( this instanceof ParallelStage ){
+			return (AxialStage) this.parent;
+		}
+		AxialStage thisStage = this.getStage();  // necessary in case of pods or other assemblies
+		if( thisStage.parent instanceof Rocket ){
+			final int thisIndex = parent.getChildPosition( thisStage );
+			if( 0 < thisIndex ){
+				return (AxialStage)thisStage.parent.getChild(thisIndex-1);
+			}
+		}
+		return null; 
 	}
 	
 	

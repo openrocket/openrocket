@@ -11,7 +11,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationSet;
-import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -282,16 +281,14 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 
 	@Override 
-	public void setMotorInstance(final FlightConfigurationId fcid, final MotorConfiguration newMotorConfig){
+	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
 		if((null == newMotorConfig)){
 			this.motors.set( fcid, null);
 		}else{
-			if( null == newMotorConfig.getMount()){
-				newMotorConfig.setMount(this);
-			}else if( !this.equals( newMotorConfig.getMount())){
-				throw new BugException(" attempt to add a MotorInstance to a second mount, when it's already owned by another mount!");
+			if( this != newMotorConfig.getMount() ){
+				throw new BugException(" attempt to add a MotorConfig to a second mount!");
 			}
-			newMotorConfig.setID(new MotorInstanceId( this.getID(), 1));
+			
 			this.motors.set(fcid, newMotorConfig);
 		}
 

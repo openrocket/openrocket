@@ -1,9 +1,9 @@
 package net.sf.openrocket.simulation;
 
 
-public enum MotorState {
-	FINISHED("Finished with sequence.", "Finished Producing thrust.", null)
-	,DELAYING("Delaying", " After Burnout, but before ejection", FINISHED){
+public enum ThrustState {
+	SPENT("Finished with sequence.", "Finished Producing thrust.", null)
+	,DELAYING("Delaying", " After Burnout, but before ejection", SPENT){
 		@Override
 		public boolean needsSimulation(){ return true;}
 	}
@@ -13,8 +13,8 @@ public enum MotorState {
 		@Override
 		public boolean needsSimulation(){ return true;}
 	}
-	,ARMED("Armed", "Armed, but not yet lit.", FINISHED)
-	,PREFLIGHT("Pre-Launch", "Safed and inactive, prior to launch.", FINISHED)
+	,ARMED("Armed", "Armed, but not yet lit.", THRUSTING)
+	,PREFLIGHT("Pre-Launch", "Safed and inactive, prior to launch.", ARMED)
 	;
 	
 	private final static int SEQUENCE_NUMBER_END = 10; // arbitrary number
@@ -22,9 +22,9 @@ public enum MotorState {
 	private final String name;
 	private final String description;
 	private final int sequenceNumber; 
-	private final MotorState nextState;
+	private final ThrustState nextState;
 	
-	MotorState( final String name, final String description, final MotorState _nextState) {
+	ThrustState( final String name, final String description, final ThrustState _nextState) {
 		this.name = name;
 		this.description = description;
 		if( null == _nextState ){
@@ -43,13 +43,12 @@ public enum MotorState {
 	public String getName() {
 		return this.name;
 	}
-	
 
 	/* 
 	 * 
-	 * @Return a MotorState enum telling what state should follow this one.
+	 * @Return a MotorState which should follow this one
 	 */
-	public MotorState getNext( ){
+	public ThrustState getNext( ){
 		return this.nextState;
 	}
 	
@@ -72,14 +71,14 @@ public enum MotorState {
 		return this.sequenceNumber;
 	}
 
-	public boolean isAfter( final MotorState other ){
-		return this.getSequenceNumber() > other.getSequenceNumber();
-	}
-	public boolean isBefore( final MotorState other ){
-		return this.getSequenceNumber() < other.getSequenceNumber();
+	public boolean isAfter( final ThrustState other ){
+		return this.sequenceNumber > other.sequenceNumber;
 	}
 	
-
+	public boolean isBefore( final ThrustState other ){
+		return this.sequenceNumber < other.sequenceNumber;
+	}
+	
 	/* 
 	 * If this motor is in a state which produces thrust
 	 */

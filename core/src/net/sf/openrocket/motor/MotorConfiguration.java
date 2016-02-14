@@ -1,7 +1,7 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -15,12 +15,12 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public static final String EMPTY_DESCRIPTION = "Empty Configuration";
 
-	// set at config time
-	protected MotorMount mount = null;
+	protected final MotorMount mount;
+	protected final FlightConfigurationId fcid;
+	protected final MotorInstanceId id;
+	
 	protected Motor motor = null;
 	protected double ejectionDelay = 0.0;
-
-	protected MotorInstanceId id = null;
 
 	protected boolean ignitionOveride = false;
 	protected double ignitionDelay = 0.0;
@@ -28,13 +28,12 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	protected int modID = 0;
 	
-	public MotorConfiguration( Motor motor ) {
-		this();
-		this.motor = motor;
-	}
-	
-	public MotorConfiguration() {
-		this.id = MotorInstanceId.EMPTY_ID;
+	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid ) {
+		this.mount = _mount;
+		this.fcid = _fcid;
+		this.id = new MotorInstanceId( _mount, _fcid);
+		
+		this.motor = null;
 		ejectionDelay = 0.0;
 		ignitionEvent = IgnitionEvent.LAUNCH;
 		ignitionDelay = 0.0;
@@ -56,11 +55,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public MotorInstanceId getID() {
 		return this.id;
 	}
-	
-	public void setID(final MotorInstanceId _id) {
-		this.id = _id;
-	}
-	
+		
 	public void setMotor(Motor motor){
 		this.motor = motor;
 	}
@@ -71,10 +66,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public MotorMount getMount() {
 		return mount;
-	}
-	
-	public void setMount(MotorMount mount) {
-		this.mount = mount;
 	}
 	
 	public double getEjectionDelay() {
@@ -181,9 +172,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	 */
 	@Override
 	public MotorConfiguration clone( ) {
-		MotorConfiguration clone = new MotorConfiguration();
+		MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
 		clone.motor = this.motor;
-		clone.mount = this.mount;
 		clone.ejectionDelay = this.ejectionDelay;
 		clone.ignitionOveride = this.ignitionOveride;
 		clone.ignitionDelay = this.ignitionDelay;
@@ -198,4 +188,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	@Override
 	public void update(){
 	}
+	
+
 }

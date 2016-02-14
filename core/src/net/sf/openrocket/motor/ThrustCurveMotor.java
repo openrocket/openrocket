@@ -579,7 +579,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	//////////  Static methods
 	
 	/**
-	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED},
+	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED_DELAY},
 	 * returns "P".
 	 *  
 	 * @param delay		the delay time.
@@ -590,7 +590,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	/**
-	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED},
+	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED_DELAY},
 	 * <code>plugged</code> is returned.
 	 *   
 	 * @param delay  	the delay time.
@@ -598,7 +598,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * @return			the String representation.
 	 */
 	public static String getDelayString(double delay, String plugged) {
-		if (delay == PLUGGED)
+		if (delay == PLUGGED_DELAY)
 			return plugged;
 		delay = Math.rint(delay * 10) / 10;
 		if (MathUtil.equals(delay, Math.rint(delay)))

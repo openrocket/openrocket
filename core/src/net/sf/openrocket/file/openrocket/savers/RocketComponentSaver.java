@@ -214,7 +214,7 @@ public class RocketComponentSaver {
 			elements.add("    <length>" + motor.getLength() + "</length>");
 			
 			// Motor delay
-			if (motorInstance.getEjectionDelay() == Motor.PLUGGED) {
+			if (motorInstance.getEjectionDelay() == Motor.PLUGGED_DELAY) {
 				elements.add("    <delay>none</delay>");
 			} else {
 				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");

@@ -170,12 +170,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		thrust = 0;
 		final double currentTime = status.getSimulationTime() + timestep;
-		Collection<MotorSimulation> activeMotorList = status.getMotors();
-		for (MotorSimulation currentMotorState : activeMotorList ) {
-			if ( !stepMotors ) {
-				currentMotorState = currentMotorState.clone();
-			}
-			
+		Collection<MotorClusterState> activeMotorList = status.getMotors();
+		for (MotorClusterState currentMotorState : activeMotorList ) {
 			thrust += currentMotorState.getThrust( currentTime, atmosphericConditions );
 		}
 		

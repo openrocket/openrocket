@@ -1,5 +1,10 @@
 package net.sf.openrocket.motor;
 
+import java.util.UUID;
+
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.MotorMount;
+
 /**
  * An immutable identifier for a motor instance in a MotorInstanceConfiguration.
  * The motor is identified by the ID of its mounting component and a 
@@ -9,84 +14,63 @@ package net.sf.openrocket.motor;
  */
 public final class MotorInstanceId {
 	
-	private final String componentId;
-	private final int number;
+	private final String name ;
+	private final UUID key;
 	
-	private final static String ERROR_COMPONENT_TEXT = "Error Motor Id";
-	private final static int ERROR_NUMBER = 1;
-	public final static MotorInstanceId ERROR_ID = new MotorInstanceId(ERROR_COMPONENT_TEXT, ERROR_NUMBER);
-	private final static String EMPTY_COMPONENT_TEXT = "Empty Motor Id";
-	private final static int EMPTY_NUMBER = 1;
-	public final static MotorInstanceId EMPTY_ID = new MotorInstanceId(EMPTY_COMPONENT_TEXT, EMPTY_NUMBER);
+	private final static String ERROR_ID_TEXT = "MotorInstance Error Id";
+	private final static UUID ERROR_KEY = new UUID( 6227, 5676);
+	public final static MotorInstanceId ERROR_ID = new MotorInstanceId();
+
+	private MotorInstanceId( ) {
+		this.name = MotorInstanceId.ERROR_ID_TEXT;
+		this.key = MotorInstanceId.ERROR_KEY;	
+	}
 	
 	/**
 	 * Sole constructor.
 	 * 
-	 * @param componentId	the component ID, must not be null
+	 * @param componentName	the component ID, must not be null
 	 * @param number		a positive motor number
 	 */
-	public MotorInstanceId(String componentId, int number) {
-		
-		if (componentId == null) {
-			throw new IllegalArgumentException("Component ID was null");
+	public MotorInstanceId(final MotorMount _mount, final FlightConfigurationId _fcid ) {
+		if (null == _mount ) {
+			throw new IllegalArgumentException("Provided MotorConfiguration was null");
 		}
-		if (number <= 0) {
-			throw new IllegalArgumentException("Number must be positive, n=" + number);
+		if (null == _fcid ) {
+			throw new IllegalArgumentException("Provided MotorConfiguration was null");
 		}
 		
 		// Use intern so comparison can be done using == instead of equals()
-		this.componentId = componentId.intern();
-		this.number = number;
+		this.name = _mount.getID()+"-"+_fcid.toShortKey();
+		final long upper = _mount.getID().hashCode() << 32;
+		final long lower = _fcid.key.getMostSignificantBits();
+		this.key = new UUID( upper, lower);
 	}
-	
-	
-	public String getComponentId() {
-		return componentId;
-	}
-	
-	public int getInstanceNumber() {
-		return number;
-	}
-	
-	
+
+		
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object other) {
+		if (this == other)
 			return true;
 			
-		if (!(o instanceof MotorInstanceId))
+		if (!(other instanceof MotorInstanceId))
 			return false;
-			
-		MotorInstanceId other = (MotorInstanceId) o;
-		// Comparison with == ok since string is intern()'ed
-		return this.componentId == other.componentId && this.number == other.number;
+		
+		MotorInstanceId otherId = (MotorInstanceId) other;
+		return ( this.key.equals( otherId.key));
 	}
-	
 	
 	@Override
 	public int hashCode() {
-		return componentId.hashCode() + (number << 12);
-	}
-	
-	public String toShortKey(){
-		if( this == ERROR_ID){
-			return "ERROR_ID";
-		}else if( this == EMPTY_ID){
-			return "EMPTY_ID";
-		}else{
-			final String result = toString();
-			return result.substring(0, Math.min(8, result.length()));
-		}
+		return key.hashCode();
 	}
 	
 	@Override
 	public String toString(){
-		if( this == ERROR_ID){
-			return "ERROR_ID";
-		}else if( this == EMPTY_ID){
-			return "EMPTY_ID";
+		if( this.key == MotorInstanceId.ERROR_KEY){
+			return MotorInstanceId.ERROR_ID_TEXT;
 		}else{
-			return Integer.toString( this.hashCode());
+			return name;
 		}
 	}
 }

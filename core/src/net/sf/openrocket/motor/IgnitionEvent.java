@@ -1,8 +1,10 @@
-package net.sf.openrocket.rocketcomponent;
+package net.sf.openrocket.motor;
 
 import java.util.Locale;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 
@@ -11,18 +13,13 @@ public enum IgnitionEvent {
 	//// Automatic (launch or ejection charge)
 	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
 		@Override
-		public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-			int count = source.getRocket().getStageCount();
-			AxialStage stage = (AxialStage)source.getStage();
-
-	        if ( stage instanceof ParallelStage ){
-	        	return LAUNCH.isActivationEvent(e, source);
-	        }else if (stage.getStageNumber() == count -1){
-              // no good option here.  The non-sequential nature of
-				// parallel stages prevents us from using the simple test as previousyl
-				return LAUNCH.isActivationEvent(e, source);
-			} else {
-				return EJECTION_CHARGE.isActivationEvent(e, source);
+		public boolean isActivationEvent(FlightEvent testEvent, RocketComponent targetComponent) {
+			AxialStage targetStage = (AxialStage)targetComponent.getStage();
+			
+	        if ( targetStage.isLaunchStage() ){
+	        	return LAUNCH.isActivationEvent(testEvent, targetComponent);
+	        } else {
+				return EJECTION_CHARGE.isActivationEvent(testEvent, targetComponent);
 			}
 		}
 	},
@@ -34,24 +31,27 @@ public enum IgnitionEvent {
 	},
 	EJECTION_CHARGE ("EJECTION_CHARGE", "MotorMount.IgnitionEvent.EJECTION_CHARGE"){
 		@Override
-		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
-			if (fe.getType() != FlightEvent.Type.EJECTION_CHARGE){
+		public boolean isActivationEvent( FlightEvent testEvent, RocketComponent targetComponent){
+			if (testEvent.getType() != FlightEvent.Type.EJECTION_CHARGE){
 				return false;
 			}
-			int charge = fe.getSource().getStageNumber();
-			int mount = source.getStageNumber();
-			return (mount + 1 == charge);
+			    
+			AxialStage targetStage = (AxialStage)targetComponent.getStage();
+			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
+			AxialStage eventParentStage = eventStage.getPreviousStage();
+			return ( targetStage.equals(eventParentStage));
 		}
 	},
 	BURNOUT ("BURNOUT", "MotorMount.IgnitionEvent.BURNOUT"){
 		@Override
-		public boolean isActivationEvent( FlightEvent fe, RocketComponent source){
-			if (fe.getType() != FlightEvent.Type.BURNOUT)
+		public boolean isActivationEvent( FlightEvent testEvent, RocketComponent targetComponent){
+			if (testEvent.getType() != FlightEvent.Type.BURNOUT)
 				return false;
 			
-			int charge = fe.getSource().getStageNumber();
-			int mount = source.getStageNumber();
-			return (mount + 1 == charge);
+			AxialStage targetStage = (AxialStage)targetComponent.getStage();
+			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
+			AxialStage eventParentStage = eventStage.getPreviousStage();
+			return ( targetStage.equals(eventParentStage));
 		}
 	},
 	NEVER("NEVER", "MotorMount.IgnitionEvent.NEVER")
