@@ -64,14 +64,13 @@ class MotorMountHandler extends AbstractElementHandler {
 		// System.err.println("closing MotorMount element: "+ element);
 		
 		if (element.equals("motor")) {
-			// yes, this is confirmed to be the FLIGHT config id == motor instance id.
 			FlightConfigurationId fcid = new FlightConfigurationId(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
 			Motor motor = motorHandler.getMotor(warnings);
-			MotorConfiguration motorConfig = new MotorConfiguration( mount, fcid);
+			MotorConfiguration motorConfig = new MotorConfiguration( mount, fcid, mount.getDefaultMotorConfig());
 			motorConfig.setMotor(motor);
 			motorConfig.setEjectionDelay(motorHandler.getDelay(warnings));
 			

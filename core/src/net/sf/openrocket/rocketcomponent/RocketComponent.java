@@ -847,6 +847,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return id;
 	}
 	
+	public final String getDebugName() {
+		return (name + "/" + id.substring(0,8));
+	}
+	
 	/**
 	 * Generate a new ID for this component.
 	 */

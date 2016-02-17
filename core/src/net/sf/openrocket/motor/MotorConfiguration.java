@@ -14,7 +14,7 @@ import net.sf.openrocket.util.Inertia;
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
-	public static final String EMPTY_DESCRIPTION = "Empty Configuration".intern();
+	public static final String EMPTY_DESCRIPTION = "Empty Motor Configuration".intern();
 
 	protected final MotorMount mount;
 	protected final FlightConfigurationId fcid;
@@ -44,18 +44,30 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		
 		this.motor = null;
 		ejectionDelay = 0.0;
-		ignitionEvent = IgnitionEvent.LAUNCH;
+		ignitionEvent = IgnitionEvent.NEVER;
 		ignitionDelay = 0.0;
+		
+
 		modID++;
+	}
+	
+	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid, final MotorConfiguration _template ) {
+		this( _mount, _fcid);
+		
+		if( null != _template){
+			ejectionDelay = _template.getEjectionDelay();
+			ignitionEvent = _template.getIgnitionEvent();
+			ignitionDelay = _template.getIgnitionDelay();
+		}
 	}
 	
 	public boolean hasIgnitionOverride() {
 		return ignitionOveride;
 	}
-	
-	public String getDescription(){
+
+	public String toMotorDescription(){
 		if( motor == null ){
-			return EMPTY_DESCRIPTION;
+			return "<Empty>";
 		}else{
 			return this.motor.getDesignation() + "-" + (int)this.getEjectionDelay();
 		}
@@ -67,7 +79,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		
 	public void setMotor(Motor motor){
 		this.motor = motor;
-		updateName();
 	}
 	
 	public Motor getMotor() {
@@ -119,6 +130,16 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.ignitionOveride = true;
 	}
 	
+
+	public int getMotorCount() {
+		if( mount instanceof InnerTube ){
+			InnerTube inner = (InnerTube) mount;
+			return inner.getClusterConfiguration().getClusterCount();
+		}else{
+			 return 1;
+		}
+	}
+
 	public Coordinate getOffset( ){
 		RocketComponent comp = (RocketComponent) mount;
 		double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
@@ -195,19 +216,26 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public void update(){
 	}
 
-	private void updateName(){
-		if( null != motor ){
-			this.name = this.mount.getID() + "-"+ getDescription();
-		}
+	public String toDescription(){
+		return ( this.toMotorDescription()+
+				" in: "+mount.getDebugName()+
+				" ign@: "+this.toIgnitionDescription() );
 	}
 	
-	public int getMotorCount() {
-		if( mount instanceof InnerTube ){
-			InnerTube inner = (InnerTube) mount;
-			return inner.getClusterConfiguration().getClusterCount();
-		}else{
-			 return 1;
-		}
+	public String toIgnitionDescription(){
+		return this.ignitionEvent.getName()+" + "+this.ignitionDelay+"s ";
+	}
+	
+	public String toDebugDetail( ) {
+		StringBuilder buf = new StringBuilder();
+		
+		buf.append(String.format(">> in: %28s::%10s    %8s ign@: %12s ",
+				mount.getDebugName(),
+				fcid.toShortKey(),
+				toMotorDescription(),
+				toIgnitionDescription() ));
+		
+		return buf.toString();
 	}
 	
 

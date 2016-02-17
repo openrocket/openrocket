@@ -316,7 +316,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 				
 				if( ! motorConfig.isEmpty()){
-					buff.append( motorConfig.getDescription());
+					buff.append( motorConfig.toMotorDescription());
 					++activeMotorCount;
 				}
 			}
@@ -397,6 +397,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				this.motors.put( motorConfig.getID(), motorConfig);
 			}
 		}
+		
 	}
 
 	@Override
@@ -522,7 +523,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return this.fcid.hashCode();
 	}
 	
-	
 	public String toDebug() {
 		return this.fcid.toDebug()+" (#"+instanceNumber+") "+ getOneLineMotorDescription();
 	}
@@ -544,23 +544,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toMotorDetail(){
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("\nDumping %2d Motors for configuration %s: (#: %s)\n", 
-				this.motors.size(), this.getFlightConfigurationID().toFullKey(), this.instanceNumber));
-		final String fmt = "    ..[%-8s]    %-12s %-20s\n";
-		buf.append(String.format(fmt, "Motor Id", "Mtr Desig","Mount"));
+		buf.append(String.format("\nDumping %2d Motors for configuration %s (%s)(#: %s)\n", 
+				this.motors.size(), this.getName(), this.getFlightConfigurationID().toFullKey(), this.instanceNumber));
+		
 		for( MotorConfiguration curConfig : this.motors.values() ){
-			MotorMount mount = curConfig.getMount();
-			
-			String motorId = curConfig.getID().toString();
-			String motorDesig;
-			if( curConfig.isEmpty() ){
-				motorDesig = "(empty)";
-			}else{
-				motorDesig = curConfig.getMotor().getDesignation();
-			}
-			String mountName = ((RocketComponent)mount).getName();
-			
-			buf.append(String.format( fmt, motorId, motorDesig, mountName));
+			buf.append("    "+curConfig.toDebugDetail()+"\n");
 		}
 		buf.append("\n");
 		return buf.toString();

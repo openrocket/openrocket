@@ -63,7 +63,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 
 	// duplicate of RocketComponent
 	public String getID();
-	public String getName();
+	public String getDebugName();
 	
 	// duplicate of RocketComponent 
 	public AxialStage getStage();

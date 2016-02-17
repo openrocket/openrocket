@@ -145,7 +145,7 @@ public class MotorClusterState {
 	
 	public String toDescription(){
 		return String.format("%32s / %4s - %s",
-							getMount().getName(), this.motor.getDesignation(), this.currentState.getName());
+							getMount().getDebugName(), this.motor.getDesignation(), this.currentState.getName());
 	}
 
 		
