@@ -33,6 +33,7 @@ import com.jogamp.newt.event.InputEvent;
  * @author kruland
  *
  */
+@SuppressWarnings("serial")
 public class SimulationChart extends ChartPanel {
 	
 	private Point2D panLast;

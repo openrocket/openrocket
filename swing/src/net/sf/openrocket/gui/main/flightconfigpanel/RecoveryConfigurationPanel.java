@@ -24,9 +24,11 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class RecoveryConfigurationPanel extends FlightConfigurablePanel<RecoveryDevice> {
 
 	Translator trans = Application.getTranslator();
+	@SuppressWarnings("unused")
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	private FlightConfigurableTableModel<RecoveryDevice> recoveryTableModel;

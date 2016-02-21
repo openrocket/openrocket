@@ -5,16 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 
 public class ComponentPresetDatabase extends Database<ComponentPreset> implements ComponentPresetDao {
 
-	private static final Logger logger = LoggerFactory.getLogger(ComponentPresetDatabase.class);
-	
 	public ComponentPresetDatabase() {
 		super();
 	}

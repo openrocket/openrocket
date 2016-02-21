@@ -7,12 +7,8 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class CustomExpressionSimulationListener extends AbstractSimulationListener {
 	
-	private static final Logger log = LoggerFactory.getLogger(CustomExpressionSimulationListener.class);
 	private final List<CustomExpression> expressions;
 	
 	public CustomExpressionSimulationListener(List<CustomExpression> expressions) {

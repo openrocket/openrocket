@@ -51,25 +51,30 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
-		InputStream is;
-		
-		// Get the correct input stream
-		if (file != null) {
-			is = new FileInputStream(file);
-		} else {
-			is = jarURL.openStream();
-		}
-		
-		// Buffer stream unless already buffered
-		if (!(is instanceof BufferedInputStream)) {
-			is = new BufferedInputStream(is);
-		}
-		
-		// Encapsulate in a ProgressInputStream
-		is = new ProgressInputStream(is);
+		InputStream fis = null;
 		
 		try {
-			OpenRocketDocument document = loader.load(is);
+			// Get the correct input stream
+			if (file != null) {
+				fis = new FileInputStream(file);
+			} else {
+				fis= jarURL.openStream();
+			}
+			
+			// Buffer stream unless already buffered
+			BufferedInputStream buffered; 
+			if (fis instanceof BufferedInputStream){
+				buffered = (BufferedInputStream) fis;
+			}else{
+				buffered = new BufferedInputStream(fis);
+			}
+			
+			// Encapsulate in a ProgressInputStream
+			ProgressInputStream progStream = new ProgressInputStream( buffered);
+			
+			OpenRocketDocument document = loader.load(progStream);
+			
+			progStream.close();
 			
 			// Set document state
 			document.setFile(file);
@@ -78,7 +83,8 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			return document;
 		} finally {
 			try {
-				is.close();
+				
+				fis.close();
 			} catch (Exception e) {
 				Application.getExceptionHandler().handleErrorCondition("Error closing file", e);
 			}

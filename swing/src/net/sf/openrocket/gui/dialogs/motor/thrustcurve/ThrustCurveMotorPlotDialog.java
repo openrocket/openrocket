@@ -28,6 +28,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+@SuppressWarnings("serial")
 public class ThrustCurveMotorPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	

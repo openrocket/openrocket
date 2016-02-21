@@ -15,6 +15,7 @@ import java.awt.print.PrinterException;
  *
  * @author Jason Blood <dyster2000@gmail.com>
  */
+@SuppressWarnings("serial")
 public class PrintableComponent extends JPanel implements Printable, Comparable<PrintableComponent> {
 
     /**

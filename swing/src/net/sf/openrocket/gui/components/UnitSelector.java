@@ -36,6 +36,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
+@SuppressWarnings("serial")
 public class UnitSelector extends StyledLabel implements StateChangeListener, MouseListener,
 		ItemSelectable {
 

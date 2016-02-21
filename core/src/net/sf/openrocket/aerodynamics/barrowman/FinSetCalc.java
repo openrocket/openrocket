@@ -17,13 +17,8 @@ import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class FinSetCalc extends RocketComponentCalc {
-	
-	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	

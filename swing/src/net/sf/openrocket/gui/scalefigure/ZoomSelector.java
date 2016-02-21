@@ -46,7 +46,7 @@ public class ZoomSelector extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				double scale = scrollPane.getZoom();
-				scale = getPreviousScale(scale);
+				scale = getFartherZoom(scale);
 				scrollPane.setZoom(scale);
 			}
 		});
@@ -102,7 +102,7 @@ public class ZoomSelector extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				double scale = scrollPane.getZoom();
-				scale = getNextScale(scale);
+				scale = getCloserZoom(scale);
 				scrollPane.setZoom(scale);
 			}
 		});
@@ -121,7 +121,7 @@ public class ZoomSelector extends JPanel {
 			zoomSelector.setSelectedItem(text);
 	}
 
-	private double getPreviousScale(double scale) {
+	private static double getFartherZoom(double scale) {
 		int i;
 		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
 			if (scale > ZOOM_LEVELS[i] + 0.05 && scale < ZOOM_LEVELS[i + 1] + 0.05)
@@ -136,7 +136,7 @@ public class ZoomSelector extends JPanel {
 		return scale / 1.5;
 	}
 
-	private double getNextScale(double scale) {
+	private static double getCloserZoom(double scale) {
 		int i;
 		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
 			if (scale > ZOOM_LEVELS[i] - 0.05 && scale < ZOOM_LEVELS[i + 1] - 0.05)

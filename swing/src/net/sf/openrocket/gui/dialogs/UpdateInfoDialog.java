@@ -22,6 +22,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.ComparablePair;
 
+@SuppressWarnings("serial")
 public class UpdateInfoDialog extends JDialog {
 	
 	private final JCheckBox remind;

@@ -7,9 +7,8 @@ import javax.swing.JLabel;
 
 import net.sf.openrocket.gui.util.Icons;
 
+@SuppressWarnings("serial")
 public class StarCheckBox extends JCheckBox {
-	
-	
 	
 	@Override
 	public void paint(Graphics g) {

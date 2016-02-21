@@ -25,13 +25,14 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class CustomMaterialDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final Material originalMaterial;
 	
 	private boolean okClicked = false;
-	private JComboBox typeBox;
+	private JComboBox<Material.Type> typeBox;
 	private JTextField nameField;
 	private DoubleModel density;
 	private JSpinner densitySpinner;
@@ -76,7 +77,7 @@ public class CustomMaterialDialog extends JDialog {
 		// Material type (if not known)
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialtype")));
 		if (material == null) {
-			typeBox = new JComboBox(Material.Type.values());
+			typeBox = new JComboBox<Material.Type>(Material.Type.values());
 			typeBox.setSelectedItem(Material.Type.BULK);
 			typeBox.setEditable(false);
 			typeBox.addActionListener(new ActionListener() {

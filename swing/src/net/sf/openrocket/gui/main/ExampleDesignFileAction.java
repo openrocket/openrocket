@@ -56,7 +56,7 @@ public final class ExampleDesignFileAction extends JMenu {
     private Action createAction(final ExampleDesignFile example) {
         Action action = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                String command = e.getActionCommand();
+                //String command = e.getActionCommand();
                 BasicFrame.open(example.getURL(), parent);
             }
         };

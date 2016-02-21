@@ -8,6 +8,7 @@ import org.junit.Test;
 
 public class TestExpressions extends BaseTestCase {
 	
+	@SuppressWarnings("unused")
 	@Test
 	public void testExpressions() {
 		// TODO Auto-generated constructor stub

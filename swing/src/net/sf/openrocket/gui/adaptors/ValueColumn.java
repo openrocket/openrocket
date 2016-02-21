@@ -27,7 +27,7 @@ public abstract class ValueColumn extends Column {
 	}
 
 	@Override
-	public Comparator getComparator() {
+	public Comparator<Value> getComparator() {
 		return ValueComparator.INSTANCE;
 	}
 

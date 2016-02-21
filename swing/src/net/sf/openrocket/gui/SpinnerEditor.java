@@ -12,6 +12,7 @@ import javax.swing.text.DefaultFormatterFactory;
  */
 
 //public class SpinnerEditor extends JSpinner.NumberEditor {
+@SuppressWarnings("serial")
 public class SpinnerEditor extends JSpinner.DefaultEditor {
 
 	public SpinnerEditor(JSpinner spinner) {

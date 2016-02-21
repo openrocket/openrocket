@@ -108,7 +108,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Offset of the position of this component relative to the normal position given by
 	 * relativePosition.  By default zero, i.e. no position change.
 	 */
-	protected double offset = 0;
+	protected double x_offset = 0;
 	
 	/**
 	 * Position of this component relative to it's parent.  
@@ -1044,12 +1044,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (null == this.parent) {
 			// if this is the root of a hierarchy, constrain the position to zero.
 			if( this instanceof Rocket ){
-				this.offset =0;
+				this.x_offset =0;
 				this.position = Coordinate.ZERO;
 				return;
 			}
 			
-			this.offset = newOffset;
+			this.x_offset = newOffset;
 			// best-effort approximation.  this should be corrected later on in the initialization process.
 			this.position= new Coordinate( newOffset, 0, 0); 
 			return;
@@ -1086,12 +1086,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (Double.NaN == newAxialPosition) {
 			throw new BugException("setAxialOffset is broken -- attempted to update as NaN: " + this.toDebugDetail());
 		}
-		this.offset = newOffset;
+		this.x_offset = newOffset;
 		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
 	}
 	
 	protected void update() {
-		this.setAxialOffset(this.relativePosition, this.offset);
+		this.setAxialOffset(this.relativePosition, this.x_offset);
 	}
 
 	public final void updateChildren(){
@@ -2108,7 +2108,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		StackTraceElement[] stackTrace = (new Exception()).getStackTrace();
 		buf.append(" >> Dumping Detailed Information from: " + stackTrace[1].getMethodName() + "\n");
 		buf.append("      current Component: " + this.getName() + "  ofClass: " + this.getClass().getSimpleName() + "\n");
-		buf.append("      offset: " + this.offset + " via: " + this.relativePosition.name() + "  => " + this.getAxialOffset() + "\n");
+		buf.append("      offset: " + this.x_offset + " via: " + this.relativePosition.name() + "  => " + this.getAxialOffset() + "\n");
 		buf.append("      thisCenterX: " + this.position.x + "\n");
 		buf.append("      this length: " + this.length + "\n");
 		return buf;

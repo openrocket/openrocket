@@ -2,16 +2,12 @@ package net.sf.openrocket.gui.scalefigure;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
-
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.util.StateChangeListener;
 

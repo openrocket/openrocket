@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class UnitsPreferencesPanel extends PreferencesPanel {
 
 	public UnitsPreferencesPanel(JDialog parent) {

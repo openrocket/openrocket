@@ -188,9 +188,11 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	}
 	
 	public void setZoom(final double newScale) {
+		// if explicitly setting a zoom level, turn off fitting
 		if (fit) {
 			setFitting(false);
 		}
+		
 		if( newScale == figure.getZoom() ){
 			return;
 		}

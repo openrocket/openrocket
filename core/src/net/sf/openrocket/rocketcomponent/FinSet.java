@@ -419,17 +419,17 @@ public abstract class FinSet extends ExternalComponent {
 		double filletMass = getFilletMass();
 		double filletCenter = length / 2;
 		
-		double newCGx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
+		double newFinCMx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
 		
 		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
 		// is.  Finding the actual position is very involved and won't make a huge difference.
-		double newCGy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
+		double newFinCMy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
 		
 		if (fins == 1) {
 			return baseRotation.transform(
-					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
+					new Coordinate(newFinCMx, newFinCMy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
-			return new Coordinate(finCGx, 0, 0, (filletMass + mass));
+			return new Coordinate(newFinCMx, 0, 0, (filletMass + mass));
 		}
 	}
 	

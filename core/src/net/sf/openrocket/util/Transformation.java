@@ -256,5 +256,23 @@ public class Transformation implements java.io.Serializable {
 		}
 		return this.translate.equals(o.translate);
 	}
+
+	@Override
+	public int hashCode() {
+		int hash=0;
+		for (int i=0; i<3; i++) {
+			for (int j=0; j<3; j++) {
+				hash ^= (int)this.rotation[i][j];
+			}
+		}
+
+		hash ^= (int)this.translate.x;
+		hash ^= (int)this.translate.y;
+		hash ^= (int)this.translate.z;
+		
+		return hash; 
+	}
 	
 }
+	
+

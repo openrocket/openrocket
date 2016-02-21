@@ -202,7 +202,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		// Create the figure
 		figure = new FinPointFigure(finset);
-		ScaleScrollPane figurePane = new FinPointScrollPane();
+		ScaleScrollPane figurePane = new FinPointScrollPane( figure);
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
@@ -313,8 +313,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		private int dragIndex = -1;
 		
-		public FinPointScrollPane() {
-			super(figure, false); // Disallow fitting as it's buggy
+		public FinPointScrollPane( final FinPointFigure _figure) {
+			super( _figure, false); // Disallow fitting as it's buggy
 			
 			setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 			setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -479,10 +479,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 	
 	private class FinPointTableModel extends AbstractTableModel {
-		
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 4803736958177227852L;
 
 		@Override

@@ -164,7 +164,7 @@ public class RocketPrintTree extends JTree {
 	 *
 	 * @return a NamedVector suitable for adding to a JTree
 	 */
-	private static Vector createNamedVector(String name, CheckBoxNode[] nodes, int stage) {
+	private static NamedVector createNamedVector(String name, CheckBoxNode[] nodes, int stage) {
 		return new NamedVector(name, nodes, stage);
 	}
 	
@@ -231,6 +231,7 @@ public class RocketPrintTree extends JTree {
 /**
  * JTree's work off of Vector's (unfortunately).  This class is tailored for use with check boxes in the JTree.
  */
+@SuppressWarnings("serial")
 class NamedVector extends Vector<CheckBoxNode> {
 	String name;
 	

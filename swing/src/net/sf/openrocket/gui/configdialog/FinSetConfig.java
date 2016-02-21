@@ -507,10 +507,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 		
-	    JComboBox combo = new JComboBox(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
+	    JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
 	    //// The component material affects the weight of the component.
-	    combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-	    filletPanel.add(combo, "spanx 4, growx, wrap paragraph");
+	    materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
+	    filletPanel.add( materialCombo, "spanx 4, growx, wrap paragraph");
 	    filletPanel.setToolTipText(tip);
 	    return filletPanel;
 	}

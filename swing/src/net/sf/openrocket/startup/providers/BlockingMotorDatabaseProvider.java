@@ -97,6 +97,7 @@ public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorS
 	}
 	
 	
+	@SuppressWarnings("serial")
 	private class LoadingDialog extends JDialog {
 		private LoadingDialog() {
 			super(null, trans.get("MotorDbLoadDlg.title"), ModalityType.APPLICATION_MODAL);
