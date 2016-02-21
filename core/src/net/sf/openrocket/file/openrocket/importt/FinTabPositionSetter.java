@@ -22,23 +22,32 @@ class FinTabPositionSetter extends DoubleSetter {
 		}
 		
 		String relative = attributes.get("relativeto");
-		RocketComponent.Position position =
-				(RocketComponent.Position) DocumentConfig.findEnum(relative,
-						RocketComponent.Position.class);
 		
-		if (position != null) {
-			
-			((FinSet) c).setTabRelativePosition(position);
-			
+		if (relative == null) {
+			warnings.add("Required attribute 'relativeto' not found for fin tab position.");
 		} else {
-			if (relative == null) {
-				warnings.add("Required attribute 'relativeto' not found for fin tab position.");
-			} else {
-				warnings.add("Illegal attribute value '" + relative + "' encountered.");
+			// translate from old enum names to current enum names
+			if( relative.contains("front")){
+				relative = "top";
+			}else if( relative.contains("center")){
+				relative = "middle";
+			}else if( relative.contains("end")){
+				relative = "bottom";
 			}
+			
+			RocketComponent.Position position =
+					(RocketComponent.Position) DocumentConfig.findEnum(relative,
+							RocketComponent.Position.class);
+			
+			if( null == position ){
+				warnings.add("Illegal attribute value '" + relative + "' encountered.");
+			}else{
+				super.set(c, s, attributes, warnings);
+				((FinSet) c).setTabRelativePosition(position);
+			}
+		
 		}
 		
-		super.set(c, s, attributes, warnings);
 	}
 	
 	
