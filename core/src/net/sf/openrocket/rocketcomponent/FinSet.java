@@ -48,39 +48,6 @@ public abstract class FinSet extends ExternalComponent {
 			return name;
 		}
 	}
-//	
-//	public enum TabRelativePosition {
-//		//// Root chord leading edge
-//		FRONT(trans.get("FinSet.TabRelativePosition.FRONT")),
-//		//// Root chord midpoint
-//		CENTER(trans.get("FinSet.TabRelativePosition.CENTER")),
-//		//// Root chord trailing edge
-//		END(trans.get("FinSet.TabRelativePosition.END"));
-//		
-//		private final String name;
-//		
-//		TabRelativePosition(String name) {
-//			this.name = name;
-//		}
-//		
-//		@Override
-//		public String toString() {
-//			return name;
-//		}
-//	}
-	
-//	public static String getTabPositionName( Position pos ){
-//		switch( pos) { 
-//		case TOP:
-//			return trans.get("FinSet.TabRelativePosition.FRONT");
-//		case MIDDLE:
-//			return trans.get("FinSet.TabRelativePosition.CENTER");
-//		case BOTTOM:
-//			return trans.get("FinSet.TabRelativePosition.END");
-//		default:
-//			return "";
-//		}
-//	}
 	
 	/**
 	 * Number of fins.
@@ -657,35 +624,16 @@ public abstract class FinSet extends ExternalComponent {
 			}
 		}
 		
+		Coordinate location = this.getLocations()[0];
+		x_max += location.x;
+		
+		if( parent instanceof SymmetricComponent){
+			r_max += ((SymmetricComponent)parent).getRadius(0);
+		}
+		
 		addBoundingBox(bounds, x_min, x_max, r_max);
 		return bounds;
 	}
-	
-	/**
-	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
-	 * all fin rotations.
-	 */
-	private void addFinBound(Collection<Coordinate> set, double x, double y) {
-		Coordinate c;
-		int i;
-		
-		c = new Coordinate(x, y, thickness / 2);
-		c = baseRotation.transform(c);
-		set.add(c);
-		for (i = 1; i < fins; i++) {
-			c = finRotation.transform(c);
-			set.add(c);
-		}
-		
-		c = new Coordinate(x, y, -thickness / 2);
-		c = baseRotation.transform(c);
-		set.add(c);
-		for (i = 1; i < fins; i++) {
-			c = finRotation.transform(c);
-			set.add(c);
-		}
-	}
-	
 	
 	
 	@Override

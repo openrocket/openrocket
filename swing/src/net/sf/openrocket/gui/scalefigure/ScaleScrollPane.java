@@ -17,7 +17,6 @@ import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
@@ -44,8 +43,8 @@ import net.sf.openrocket.util.StateChangeListener;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class ScaleScrollPane extends JScrollPane
-		implements MouseListener, MouseMotionListener {
+@SuppressWarnings("serial")
+public class ScaleScrollPane extends JScrollPane implements MouseListener, MouseMotionListener {
 	
 	public static final int RULER_SIZE = 20;
 	public static final int MINOR_TICKS = 3;
@@ -106,9 +105,10 @@ public class ScaleScrollPane extends JScrollPane
 		UnitSelector selector = new UnitSelector(rulerUnit);
 		selector.setFont(new Font("SansSerif", Font.PLAIN, 8));
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, selector);
-		this.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
-		this.setCorner(JScrollPane.LOWER_LEFT_CORNER, new JPanel());
-		this.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
+		// default behavior is fine.
+//		this.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
+//		this.setCorner(JScrollPane.LOWER_LEFT_CORNER, new JPanel());
+//		this.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
@@ -179,23 +179,31 @@ public class ScaleScrollPane extends JScrollPane
 		}
 	}
 	
-	
-	
-	public double getScaling() {
-		return figure.getScaling();
+	public double getZoom() {
+		return figure.getZoom();
 	}
 	
 	public double getScale() {
 		return figure.getAbsoluteScale();
 	}
 	
-	public void setScaling(double scale) {
+	public void setZoom(final double newScale) {
 		if (fit) {
 			setFitting(false);
 		}
-		figure.setScaling(scale);
+		if( newScale == figure.getZoom() ){
+			return;
+		}
+
+		System.err.println("In: "+this.getClass().getSimpleName()+"... setScaling ... ");
+		System.err.println("  actual Size(px):"+this.getWidth()+", "+this.getHeight());
+		System.err.println("  pre-scale: "+figure.getZoom()+"    scaling: "+figure.getAbsoluteScale() );
+		
+		figure.setZoom(newScale);
 		horizontalRuler.repaint();
 		verticalRuler.repaint();
+
+		System.err.println("  post-scale: "+figure.getZoom()+"    scaling: "+figure.getAbsoluteScale() );
 	}
 	
 	
@@ -252,7 +260,6 @@ public class ScaleScrollPane extends JScrollPane
 	@Override
 	public void mouseMoved(MouseEvent e) {
 	}
-	
 	
 	
 	////////////////  The view port rulers  ////////////////

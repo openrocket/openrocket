@@ -37,7 +37,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.scalefigure.FinPointFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
-import net.sf.openrocket.gui.scalefigure.ScaleSelector;
+import net.sf.openrocket.gui.scalefigure.ZoomSelector;
 import net.sf.openrocket.gui.util.CustomFinImporter;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -153,10 +153,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
 		
-		
-		
-		
-		
+	
 		mainPanel.add(panel, "aligny 20%");
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, height 150lp");
 		
@@ -206,8 +203,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		// Create the figure
 		figure = new FinPointFigure(finset);
 		ScaleScrollPane figurePane = new FinPointScrollPane();
-		figurePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		figurePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
@@ -240,7 +235,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
 		
 		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
-		panel.add(new ScaleSelector(figurePane), "spany 2, aligny 50%");
+		panel.add(new ZoomSelector(figurePane), "spany 2, aligny 50%");
 		
 		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
 		importButton.addActionListener(new ActionListener() {
@@ -320,6 +315,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		public FinPointScrollPane() {
 			super(figure, false); // Disallow fitting as it's buggy
+			
+			setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		}
 		
 		@Override

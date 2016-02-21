@@ -42,6 +42,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
+@SuppressWarnings("serial")
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
@@ -217,7 +218,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		final EnumModel<RocketComponent.Position> em =
 				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
 		
-		panel.add(new JComboBox(em), "spanx 3, growx, wrap para");
+		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
 		
 
 		// Calculate fin tab height, length, and position

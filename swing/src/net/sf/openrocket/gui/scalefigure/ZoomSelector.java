@@ -16,7 +16,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.util.StateChangeListener;
 
-public class ScaleSelector extends JPanel {
+@SuppressWarnings("serial")
+public class ZoomSelector extends JPanel {
 
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
@@ -32,9 +33,9 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private final ScaleScrollPane scrollPane;
-	private JComboBox zoomSelector;
+	private JComboBox<String> zoomSelector;
 
-	public ScaleSelector(ScaleScrollPane scroll) {
+	public ZoomSelector(ScaleScrollPane scroll) {
 		super(new MigLayout());
 
 		this.scrollPane = scroll;
@@ -44,9 +45,9 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
+				double scale = scrollPane.getZoom();
 				scale = getPreviousScale(scale);
-				scrollPane.setScaling(scale);
+				scrollPane.setZoom(scale);
 			}
 		});
 		add(button, "gap");
@@ -57,7 +58,7 @@ public class ScaleSelector extends JPanel {
 			settings = Arrays.copyOf(settings, settings.length - 1);
 		}
 
-		zoomSelector = new JComboBox(settings);
+		zoomSelector = new JComboBox<String>(settings);
 		zoomSelector.setEditable(true);
 		setZoomText();
 		zoomSelector.addActionListener(new ActionListener() {
@@ -79,7 +80,7 @@ public class ScaleSelector extends JPanel {
 					if (n <= 0.005)
 						n = 0.005;
 
-					scrollPane.setScaling(n);
+					scrollPane.setZoom(n);
 					setZoomText();
 				} catch (NumberFormatException ignore) {
 				} finally {
@@ -100,9 +101,9 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
+				double scale = scrollPane.getZoom();
 				scale = getNextScale(scale);
-				scrollPane.setScaling(scale);
+				scrollPane.setZoom(scale);
 			}
 		});
 		add(button, "gapleft rel");
@@ -111,7 +112,7 @@ public class ScaleSelector extends JPanel {
 
 	private void setZoomText() {
 		String text;
-		double zoom = scrollPane.getScaling();
+		double zoom = scrollPane.getZoom();
 		text = PERCENT_FORMAT.format(zoom);
 		if (scrollPane.isFitting()) {
 			text = "Fit (" + text + ")";

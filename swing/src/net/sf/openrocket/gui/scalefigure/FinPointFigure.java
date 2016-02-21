@@ -14,6 +14,9 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
+
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
@@ -25,16 +28,34 @@ import net.sf.openrocket.util.MathUtil;
 // TODO: MEDIUM:  the figure jumps and bugs when using automatic fitting
 
 @SuppressWarnings("serial")
-public class FinPointFigure extends AbstractScaleFigure {
+public class FinPointFigure extends AbstractScaleFigure implements Scrollable {
+	/* eventually, refactor 'Scrollable to AbstractScaleFigure*/
+		
 	
-	private static final int BOX_SIZE = 4;
+	private static final int SQUARE_WIDTH = 4;  // pixels wide ? 
+	
+	private static final int UNIT_SCROLL_INCREMENT_DIVISOR= 10;
+	private static final int UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS = 1;
+	private static final int BLOCK_SCROLL_INCREMENT_DIVISOR = 100;
+	private static final int BLOCK_SCROLL_MINIMUM_INCREMENT_PIXELS = 10;
+	
 	
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	private double minX, maxX, maxY;
-	private double figureWidth = 0;
-	private double figureHeight = 0;
+	// new formulation
+	protected Point2D.Double max = new Point2D.Double( Double.NaN, Double.NaN);
+	protected Point2D.Double min = new Point2D.Double( Double.NaN, Double.NaN);
+	protected Point2D.Double rocketSize_m = new Point2D.Double( Double.NaN, Double.NaN);
+	
+	// actual size of panel in pixels; this panel may or may not be fully drawn
+	protected Dimension figureSize_px = new Dimension(100,100);
+	
+	// from 0,0 => draw rectangle from origin_px + drawn_px
+	protected Dimension originLocation_px = new Dimension(0,0);
+	protected Dimension drawnSize_px = figureSize_px;
+	
+	// old formulation
 	private double translateX = 0;
 	private double translateY = 0;
 	
@@ -58,17 +79,21 @@ public class FinPointFigure extends AbstractScaleFigure {
 		}
 		
 
+		// old formulation / translation
+		final double figureWidth = rocketSize_m.y;
+		final double figureHeight = rocketSize_m.x;
+
 		double tx, ty;
 		// Calculate translation for figure centering
 		if (figureWidth * scale + 2 * borderPixelsWidth < getWidth()) {
 			
 			// Figure fits in the viewport
-			tx = (getWidth() - figureWidth * scale) / 2 - minX * scale;
+			tx = (getWidth() - figureWidth * scale) / 2 - min.x * scale;
 			
 		} else {
 			
 			// Figure does not fit in viewport
-			tx = borderPixelsWidth - minX * scale;
+			tx = borderPixelsWidth - min.x * scale;
 			
 		}
 		
@@ -162,8 +187,6 @@ public class FinPointFigure extends AbstractScaleFigure {
 		
 
 
-
-
 		// Base rocket line
 		g2.setStroke(new BasicStroke((float) (3.0 * EXTRA_SCALE / scale),
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
@@ -188,7 +211,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		// Fin point boxes
 		g2.setColor(new Color(150, 0, 0));
-		double s = BOX_SIZE * EXTRA_SCALE / scale;
+		double s = SQUARE_WIDTH * EXTRA_SCALE / scale;
 		handles = new Rectangle2D.Double[points.length];
 		for (int i = 0; i < points.length; i++) {
 			Coordinate c = points[i];
@@ -234,7 +257,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		
 		double x0 = p.x / EXTRA_SCALE;
 		double y0 = p.y / EXTRA_SCALE;
-		double delta = BOX_SIZE / scale;
+		double delta = SQUARE_WIDTH / scale;
 		
 		//System.out.println("Point: " + x0 + "," + y0);
 		//System.out.println("delta: " + (BOX_SIZE / scale));
@@ -289,7 +312,8 @@ public class FinPointFigure extends AbstractScaleFigure {
 			modID = finset.getRocket().getAerodynamicModID();
 			calculateDimensions();
 		}
-		return figureWidth;
+		// TODO: this doesn't make sense, but preserves existing behavior
+		return rocketSize_m.x;
 	}
 	
 	@Override
@@ -298,46 +322,117 @@ public class FinPointFigure extends AbstractScaleFigure {
 			modID = finset.getRocket().getAerodynamicModID();
 			calculateDimensions();
 		}
-		return figureHeight;
+		// TODO: this doesn't make sense, but preserves existing behavior
+		return rocketSize_m.y;
 	}
 	
 	
 	private void calculateDimensions() {
-		minX = 0;
-		maxX = 0;
-		maxY = 0;
+		this.max = new Point2D.Double( Double.MIN_VALUE, Double.MIN_VALUE);
+		this.min = new Point2D.Double( Double.MAX_VALUE, Double.MAX_VALUE);
 		
 		for (Coordinate c : finset.getFinPoints()) {
-			if (c.x < minX)
-				minX = c.x;
-			if (c.x > maxX)
-				maxX = c.x;
-			if (c.y > maxY)
-				maxY = c.y;
+			if (c.x < min.x)
+				min.x = c.x;
+			if (c.x > max.x)
+				max.x = c.x;
+			if (c.y < min.y)
+				min.y = c.y;
+			if (c.y > max.y)
+				max.y = c.y;
 		}
 		
-		if (maxX < 0.01)
-			maxX = 0.01;
+		if (max.x < 0.01)
+			max.x = 0.01f;
 		
-		figureWidth = maxX - minX;
-		figureHeight = maxY;
+		this.rocketSize_m.x = max.x - min.x;
+		this.rocketSize_m.y = max.y - min.y;
 		
+		final double zoom = scale;
+		this.figureSize_px = new Dimension(
+				(int) (rocketSize_m.x* zoom + 2 * borderPixelsWidth),
+				(int) (rocketSize_m.x* zoom + 2 * borderPixelsHeight));
 
-		Dimension d = new Dimension((int) (figureWidth * scale + 2 * borderPixelsWidth),
-				(int) (figureHeight * scale + 2 * borderPixelsHeight));
-		
-		if (!d.equals(getPreferredSize()) || !d.equals(getMinimumSize())) {
-			setPreferredSize(d);
-			setMinimumSize(d);
+		if( !figureSize_px.equals( getPreferredSize()) ){
+			setPreferredSize( figureSize_px);
 			revalidate();
 		}
+		
+		System.err.println("In: "+this.getClass().getSimpleName());
+		System.err.println("  rocketSize(m):  x: "+rocketSize_m.x+"  y: "+rocketSize_m.y);
+		System.err.println("  figureSize(px):  w: "+figureSize_px.width+"  h: "+figureSize_px.height);
+		System.err.println("  actual Size(px):"+this.getWidth()+", "+this.getHeight());
+		final Dimension prefSize = this.getPreferredSize();
+		System.err.println("  actual pref. Size(px):"+prefSize.width+", "+prefSize.height);		
+		System.err.println("  ");
+		System.err.println("  scale:  "+rocketSize_m.x+"(m) * "+ this.getAbsoluteScale()+" = "+figureSize_px.width+"(px)");
+		System.err.println("    (zoom= "+this.getZoom()*100+"%)");
+		
 	}
 	
-	
-
 	@Override
 	public void updateFigure() {
 		repaint();
+	}
+
+	
+	
+	
+	// ======  ====== 'Scrollable' interface methods ====== ====== 
+
+	
+//	// this is anti-climactic.  is it useful? does it drive any behavior we couldn't get before? 
+//	@Override
+//	public Dimension getPreferredScrollableViewportSize() {
+//		return figureSize_px;
+//	}
+	
+	// this is anti-climactic.  is it useful? does it drive any behavior we couldn't get before? 
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return figureSize_px;
+	}
+
+
+
+	@Override
+	public boolean getScrollableTracksViewportHeight() {
+		return false;
+	}
+
+
+	@Override
+	public boolean getScrollableTracksViewportWidth() {
+		return false;
+	}
+
+
+
+	@Override
+	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+		int value=0;
+		if( orientation == SwingConstants.VERTICAL ){
+			value = this.drawnSize_px.width / FinPointFigure.BLOCK_SCROLL_INCREMENT_DIVISOR; 
+		}else if( orientation == SwingConstants.VERTICAL ){
+			value = this.drawnSize_px.width / FinPointFigure.BLOCK_SCROLL_INCREMENT_DIVISOR;
+		}
+		
+		value = Math.max( value, FinPointFigure.BLOCK_SCROLL_MINIMUM_INCREMENT_PIXELS);
+		return value;
+	}
+
+
+	@Override
+	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+		int value=0;
+		if( orientation == SwingConstants.VERTICAL ){
+			value = this.drawnSize_px.width / FinPointFigure.UNIT_SCROLL_INCREMENT_DIVISOR; 
+		}else if( orientation == SwingConstants.VERTICAL ){
+			value = this.drawnSize_px.width / FinPointFigure.UNIT_SCROLL_INCREMENT_DIVISOR;
+		}
+		
+		value = Math.max( value, FinPointFigure.UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS);
+		return value;
 	}
 	
 

@@ -29,7 +29,7 @@ public interface ScaleFigure extends ChangeSource {
 	 * 
 	 * @param scale   the scale level.
 	 */
-	public void setScaling(double scale);
+	public void setZoom(double scale);
 	
 	
 	/**
@@ -46,7 +46,7 @@ public interface ScaleFigure extends ChangeSource {
 	 * 
 	 * @return   the current scale level.
 	 */
-	public double getScaling();
+	public double getZoom();
 	
 	
 	/**
