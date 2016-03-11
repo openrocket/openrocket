@@ -28,6 +28,7 @@ import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Bounds;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -58,9 +59,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	protected Point2D.Double max = new Point2D.Double( Double.NaN, Double.NaN);
-	protected Point2D.Double min = new Point2D.Double( Double.NaN, Double.NaN);
-	
+	// real-space coordinates:  meters
+	protected Bounds rocketBounds_m = new Bounds(2);
 	protected Point2D.Double rocketSize_m = new Point2D.Double( Double.NaN, Double.NaN);
 	
 	// actual size of panel in pixels; this panel may or may not be fully drawn
@@ -79,7 +79,12 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	protected int borderThickness_pixels = DEFAULT_BORDER_PIXELS;
 	protected final double dpi;
 	protected final double base_scale;
+	
+	// actual number to multiply against rocket coordinates to display in UI 
 	protected double scale = 1.0;
+	
+	// zoom factor, in the traditional % zoom units
+	// 1.0 === 100% === no scaling.
 	protected double zoom = 1.0;
 	
 	protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
@@ -209,12 +214,12 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		if (figureWidth * scale + 2 * borderThickness_pixels < getWidth()) {
 			
 			// Figure fits in the viewport
-			tx = (getWidth() - figureWidth * scale) / 2 - min.x * scale;
+			tx = (getWidth() - figureWidth * scale) / 2 - rocketBounds_m.getMinX() * scale;
 			
 		} else {
 			
 			// Figure does not fit in viewport
-			tx = borderThickness_pixels - min.x * scale;
+			tx = borderThickness_pixels - rocketBounds_m.getMinX()* scale;
 			
 		}
 		
@@ -447,27 +452,20 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	
 	private void calculateDimensions() {
-		this.max = new Point2D.Double( Double.MIN_VALUE, Double.MIN_VALUE);
-		this.min = new Point2D.Double( Double.MAX_VALUE, Double.MAX_VALUE);
-		
+		rocketBounds_m.reset();
+
 		for (Coordinate c : finset.getFinPoints()) {
-			if (c.x < min.x)
-				min.x = c.x;
-			if (c.x > max.x)
-				max.x = c.x;
-			if (c.y < min.y)
-				min.y = c.y;
-			if (c.y > max.y)
-				max.y = c.y;
+			// ignore the z coordinate.
+			// it points into the figure, and provides no useful information.
+			rocketBounds_m.update(c.x,c.y);
 		}
 		
-		if (max.x < 0.01)
-			max.x = 0.01f;
+		final double EPSILON_X = 0.01f;
+		rocketBounds_m.getX().inflate(-EPSILON_X, EPSILON_X);
 		
-		this.rocketSize_m.x = max.x - min.x;
-		this.rocketSize_m.y = max.y - min.y;
+		rocketSize_m = rocketBounds_m.getSpan2D();
 		
-		final double zoom = scale;
+		final double zoom = scale; // alias
 		this.figureSize_px = new Dimension(
 				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels),
 				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels));
