@@ -373,18 +373,18 @@ public class MassCalculator implements Monitorable {
 	
 	private MassData calculateAssemblyMassData(RocketComponent component, String indent) {
 		
-		Coordinate parentCM = component.getComponentCG();
-		double parentIx = component.getRotationalUnitInertia() * parentCM.weight;
-		double parentIt = component.getLongitudinalUnitInertia() * parentCM.weight;
-		MassData parentData = new MassData( parentCM, parentIx, parentIt);
+		Coordinate compCM = component.getComponentCG();
+		double compIx = component.getRotationalUnitInertia() * compCM.weight;
+		double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+		MassData parentData = new MassData( compCM, compIx, compIt);
 		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
-				parentCM = parentCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
+				compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
 			if (component.isCGOverridden())
-				parentCM = parentCM.setXYZ(component.getOverrideCG());
+				compCM = compCM.setXYZ(component.getOverrideCG());
 		}
-		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < parentCM.weight)){
+		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < compCM.weight)){
 			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
 		}
 		
