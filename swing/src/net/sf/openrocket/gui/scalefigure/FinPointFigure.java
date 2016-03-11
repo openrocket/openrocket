@@ -15,11 +15,15 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.EventListener;
+import java.util.EventObject;
+import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
@@ -28,17 +32,22 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
-import java.util.EventObject;
-import java.util.LinkedList;
-import javax.swing.JPanel;
-import net.sf.openrocket.gui.util.GUIUtil;
-
 @SuppressWarnings("serial")
 public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	/* eventually, refactor 'Scrollable to AbstractScaleFigure*/
 
+	private static final double INCHES_PER_METER = 39.3701;
+	protected static final double METERS_PER_INCH = 0.0254;
 
-	private static final int SQUARE_WIDTH_PIXELS = 4;  // pixels wide ? 
+	// the size of the boxes around each fin point vertex
+	private static final int SQUARE_WIDTH_PIXELS = 4; 
+
+	// Number of pixels to leave at edges when fitting figure
+	protected static final int DEFAULT_BORDER_PIXELS = 20;	
+	
+	private static final float FIN_SEGMENT_LINE_WIDTH = 1;
+	private static final float BODY_LINE_WIDTH = 1;
+	private static final float GRID_LINE_WIDTH = 1;
 	
 	private static final int UNIT_SCROLL_INCREMENT_DIVISOR= 10;
 	private static final int UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS = 1;
@@ -49,9 +58,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	// new formulation
 	protected Point2D.Double max = new Point2D.Double( Double.NaN, Double.NaN);
 	protected Point2D.Double min = new Point2D.Double( Double.NaN, Double.NaN);
+	
 	protected Point2D.Double rocketSize_m = new Point2D.Double( Double.NaN, Double.NaN);
 	
 	// actual size of panel in pixels; this panel may or may not be fully drawn
@@ -64,41 +73,40 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	// old formulation
 	private double translateX = 0;
 	private double translateY = 0;
+ 	
+ 	
+	// ========= lower-abstraction level variables
+	protected int borderThickness_pixels = DEFAULT_BORDER_PIXELS;
+	protected final double dpi;
+	protected final double base_scale;
+	protected double scale = 1.0;
+	protected double zoom = 1.0;
 	
+	protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
 	
+	// combines the translation and scale in one place: 
+	// which frames does this transform between ?  
 	private AffineTransform transform;
-	// location of points?
-	private Rectangle2D.Double[] handles = null;
 	
+ 	// location of points?
+ 	private Rectangle2D.Double[] handles = null;
+ 	
 	
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
 		
 		this.dpi = GUIUtil.getDPI();
+		this.base_scale = dpi / METERS_PER_INCH;
 		this.zoom = 1.0;
-		this.scale = dpi / 0.0254 * zoom;
+		this.scale = base_scale * zoom;
 			
+		drawnSize_px = new Dimension( 0,0);
+
 		setBackground(Color.WHITE);
 		setOpaque(true);
 			
 	}
-	
 
-	// Number of pixels to leave at edges when fitting figure
-	private static final int DEFAULT_BORDER_PIXELS_WIDTH = 30;
-	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
-	
-	
-	protected final double dpi;
-	
-	protected double scale = 1.0;
-	protected double zoom = 1.0;
-	
-	protected int borderPixelsWidth = DEFAULT_BORDER_PIXELS_WIDTH;
-	protected int borderPixelsHeight = DEFAULT_BORDER_PIXELS_HEIGHT;
-	
-	protected final List<EventListener> listeners = new LinkedList<EventListener>();
-	
 	
 	@Override
 	public double getZoom() {
@@ -128,8 +136,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	@Override
 	public void setScaling(Dimension bounds) {
 		double zh = 1, zv = 1;
-		int w = bounds.width - 2 * borderPixelsWidth - 20;
-		int h = bounds.height - 2 * borderPixelsHeight - 20;
+		int w = bounds.width - 2 * borderThickness_pixels - 20;
+		int h = bounds.height - 2 * borderThickness_pixels - 20;
 		
 		if (w < 10)
 			w = 10;
@@ -152,19 +160,18 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	@Override
 	public Dimension getBorderPixels() {
-		return new Dimension(borderPixelsWidth, borderPixelsHeight);
+		return new Dimension(borderThickness_pixels, borderThickness_pixels);
 	}
 	
 	@Override
-	public void setBorderPixels(int width, int height) {
-		this.borderPixelsWidth = width;
-		this.borderPixelsHeight = height;
+	public void setBorderPixels( final int width, final int height) {
+		this.borderThickness_pixels = Math.max( width, height);
 	}
 	
 	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(0, listener);
+		listeners.add( listener);
 	}
 	
 	@Override
@@ -172,17 +179,11 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		listeners.remove(listener);
 	}
 	
-	private EventObject changeEvent = null;
-	
 	protected void fireChangeEvent() {
-		if (changeEvent == null)
-			changeEvent = new EventObject(this);
-		// Copy the list before iterating to prevent concurrent modification exceptions.
-		EventListener[] list = listeners.toArray(new EventListener[0]);
-		for (EventListener l : list) {
-			if (l instanceof StateChangeListener) {
-				((StateChangeListener) l).stateChanged(changeEvent);
-			}
+		EventObject changeEvent = new EventObject(this);
+		
+		for (EventListener l : listeners) {
+			((StateChangeListener) l).stateChanged(changeEvent);
 		}
 	}
 	
@@ -205,7 +206,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 
 		double tx, ty;
 		// Calculate translation for figure centering
-		if (figureWidth * scale + 2 * borderPixelsWidth < getWidth()) {
+		if (figureWidth * scale + 2 * borderThickness_pixels < getWidth()) {
 			
 			// Figure fits in the viewport
 			tx = (getWidth() - figureWidth * scale) / 2 - min.x * scale;
@@ -213,15 +214,15 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		} else {
 			
 			// Figure does not fit in viewport
-			tx = borderPixelsWidth - min.x * scale;
+			tx = borderThickness_pixels - min.x * scale;
 			
 		}
 		
 
-		if (figureHeight * scale + 2 * borderPixelsHeight < getHeight()) {
-			ty = getHeight() - borderPixelsHeight;
+		if (figureHeight * scale + 2 * borderThickness_pixels < getHeight()) {
+			ty = getHeight() - borderThickness_pixels;
 		} else {
-			ty = borderPixelsHeight + figureHeight * scale;
+			ty = borderThickness_pixels + figureHeight * scale;
 		}
 		
 		if (Math.abs(translateX - tx) > 1 || Math.abs(translateY - ty) > 1) {
@@ -468,8 +469,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		
 		final double zoom = scale;
 		this.figureSize_px = new Dimension(
-				(int) (rocketSize_m.x* zoom + 2 * borderPixelsWidth),
-				(int) (rocketSize_m.x* zoom + 2 * borderPixelsHeight));
+				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels),
+				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels));
 
 		if( !figureSize_px.equals( getPreferredSize()) ){
 			setPreferredSize( figureSize_px);
@@ -494,14 +495,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 
 	
 	// ======  ====== 'Scrollable' interface methods ====== ====== 
-
-	
-	// this is anti-climactic.  is it useful? does it drive any behavior we couldn't get before? 
-	@Override
-	public Dimension getPreferredScrollableViewportSize() {
-		return figureSize_px;
-	}
-
 
 
 	@Override
@@ -542,6 +535,11 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		
 		value = Math.max( value, FinPointFigure.UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS);
 		return value;
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return this.figureSize_px;
 	}
 	
 

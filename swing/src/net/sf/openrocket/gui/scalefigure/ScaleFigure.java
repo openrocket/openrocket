@@ -17,10 +17,6 @@ public interface ScaleFigure extends ChangeSource {
 	 */
 	public static final double EXTRA_SCALE = 1000;
 	
-	/**
-	 * Shorthand for {@link #EXTRA_SCALE}.
-	 */
-	public static final double S = EXTRA_SCALE;
 	
 	
 	/**
@@ -78,5 +74,5 @@ public interface ScaleFigure extends ChangeSource {
 	 * @param width		the amount of horizontal space left on both sides of the figure.
 	 * @param height	the amount of vertical space left on both sides of the figure.
 	 */
-	public void setBorderPixels(int width, int height);
+	public void setBorderPixels( final int width, final int height);
 }
