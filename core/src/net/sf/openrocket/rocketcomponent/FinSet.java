@@ -48,26 +48,39 @@ public abstract class FinSet extends ExternalComponent {
 			return name;
 		}
 	}
+//	
+//	public enum TabRelativePosition {
+//		//// Root chord leading edge
+//		FRONT(trans.get("FinSet.TabRelativePosition.FRONT")),
+//		//// Root chord midpoint
+//		CENTER(trans.get("FinSet.TabRelativePosition.CENTER")),
+//		//// Root chord trailing edge
+//		END(trans.get("FinSet.TabRelativePosition.END"));
+//		
+//		private final String name;
+//		
+//		TabRelativePosition(String name) {
+//			this.name = name;
+//		}
+//		
+//		@Override
+//		public String toString() {
+//			return name;
+//		}
+//	}
 	
-	public enum TabRelativePosition {
-		//// Root chord leading edge
-		FRONT(trans.get("FinSet.TabRelativePosition.FRONT")),
-		//// Root chord midpoint
-		CENTER(trans.get("FinSet.TabRelativePosition.CENTER")),
-		//// Root chord trailing edge
-		END(trans.get("FinSet.TabRelativePosition.END"));
-		
-		private final String name;
-		
-		TabRelativePosition(String name) {
-			this.name = name;
-		}
-		
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
+//	public static String getTabPositionName( Position pos ){
+//		switch( pos) { 
+//		case TOP:
+//			return trans.get("FinSet.TabRelativePosition.FRONT");
+//		case MIDDLE:
+//			return trans.get("FinSet.TabRelativePosition.CENTER");
+//		case BOTTOM:
+//			return trans.get("FinSet.TabRelativePosition.END");
+//		default:
+//			return "";
+//		}
+//	}
 	
 	/**
 	 * Number of fins.
@@ -117,7 +130,7 @@ public abstract class FinSet extends ExternalComponent {
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
 	private double tabShift = 0;
-	private TabRelativePosition tabRelativePosition = TabRelativePosition.CENTER;
+	private Position tabRelativePosition = Position.MIDDLE;
 	
 	/*
 	 * Fin fillet properties
@@ -257,9 +270,6 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-	
-	
-	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
@@ -272,8 +282,6 @@ public abstract class FinSet extends ExternalComponent {
 		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
 	
 	
 	public double getTabHeight() {
@@ -312,26 +320,26 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-	public TabRelativePosition getTabRelativePosition() {
+	public Position getTabRelativePosition() {
 		return tabRelativePosition;
 	}
 	
-	public void setTabRelativePosition(TabRelativePosition position) {
+	public void setTabRelativePosition( Position position) {
 		if (this.tabRelativePosition == position)
 			return;
 		
 		
 		double front = getTabFrontEdge();
 		switch (position) {
-		case FRONT:
+		case TOP:
 			this.tabShift = front;
 			break;
 		
-		case CENTER:
+		case MIDDLE:
 			this.tabShift = front + tabLength / 2 - getLength() / 2;
 			break;
 		
-		case END:
+		case BOTTOM:
 			this.tabShift = front + tabLength - getLength();
 			break;
 		
@@ -349,13 +357,13 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public double getTabFrontEdge() {
 		switch (this.tabRelativePosition) {
-		case FRONT:
+		case TOP:
 			return tabShift;
 			
-		case CENTER:
+		case MIDDLE:
 			return getLength() / 2 - tabLength / 2 + tabShift;
 			
-		case END:
+		case BOTTOM:
 			return getLength() - tabLength + tabShift;
 			
 		default:
@@ -368,20 +376,18 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public double getTabTrailingEdge() {
 		switch (this.tabRelativePosition) {
-		case FRONT:
+		case TOP:
 			return tabLength + tabShift;
-		case CENTER:
+		case MIDDLE:
 			return getLength() / 2 + tabLength / 2 + tabShift;
 			
-		case END:
+		case BOTTOM:
 			return getLength() + tabShift;
 			
 		default:
 			throw new IllegalStateException("tabRelativePosition=" + tabRelativePosition);
 		}
 	}
-	
-	
 	
 	
 	///////////  Calculation methods  ///////////
@@ -402,7 +408,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	/**
 	 * Return the unweighted CG of a single fin.  The X-coordinate is relative to
-	 * the root chord trailing edge and the Y-coordinate to the fin root chord.
+	 * the root chord leading edge and the Y-coordinate to the fin root chord.
 	 * 
 	 * @return  the unweighted CG coordinate of a single fin. 
 	 */
@@ -410,7 +416,7 @@ public abstract class FinSet extends ExternalComponent {
 		if (finArea < 0)
 			calculateAreaCG();
 		
-		return new Coordinate(finCGx, finCGy, 0);
+		return new Coordinate(finCGx, finCGy, 0 );
 	}
 	
 	
@@ -502,6 +508,8 @@ public abstract class FinSet extends ExternalComponent {
 			final double x1 = points[i + 1].x;
 			final double y0 = points[i].y;
 			final double y1 = points[i + 1].y;
+		
+			//System.err.println(String.format("    @ (%6g, %6g): A:%g    cgx:%g    cgy:%g", x0, y0, finArea, finCGx, finCGy));  
 			
 			double da = (y0 + y1) * (x1 - x0) / 2;
 			finArea += da;

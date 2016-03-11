@@ -1,17 +1,17 @@
 package net.sf.openrocket.rocketcomponent;
 
+import static java.lang.Math.sin;
+import static net.sf.openrocket.util.MathUtil.pow2;
+import static net.sf.openrocket.util.MathUtil.pow3;
+
+import java.util.Collection;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-
-import java.util.Collection;
-
-import static java.lang.Math.sin;
-import static net.sf.openrocket.util.MathUtil.pow2;
-import static net.sf.openrocket.util.MathUtil.pow3;
 
 
 public class Transition extends SymmetricComponent {
@@ -526,13 +526,15 @@ public class Transition extends SymmetricComponent {
 	 * Check whether the given type can be added to this component.  Transitions allow any
 	 * InternalComponents to be added.
 	 *
-	 * @param ctype  The RocketComponent class type to add.
+	 * @param comptype  The RocketComponent class type to add.
 	 * @return      Whether such a component can be added.
 	 */
 	@Override
-	public boolean isCompatible(Class<? extends RocketComponent> ctype) {
-		if (InternalComponent.class.isAssignableFrom(ctype))
+	public boolean isCompatible(Class<? extends RocketComponent> comptype) {
+		if (InternalComponent.class.isAssignableFrom(comptype)){
 			return true;
+		}else if ( FreeformFinSet.class.isAssignableFrom(comptype)){
+			return true;}
 		return false;
 	}
 

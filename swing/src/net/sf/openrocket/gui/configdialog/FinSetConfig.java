@@ -16,6 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -37,9 +40,6 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class FinSetConfig extends RocketComponentConfig {
@@ -214,8 +214,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
-		final EnumModel<FinSet.TabRelativePosition> em =
-				new EnumModel<FinSet.TabRelativePosition>(component, "TabRelativePosition");
+		final EnumModel<RocketComponent.Position> em =
+				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
 		
 		panel.add(new JComboBox(em), "spanx 3, growx, wrap para");
 		
@@ -254,8 +254,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						}
 						//Figure out position and length of the fin tab
 						if (!rings.isEmpty()) {
-							FinSet.TabRelativePosition temp = (FinSet.TabRelativePosition) em.getSelectedItem();
-							em.setSelectedItem(FinSet.TabRelativePosition.FRONT);
+							RocketComponent.Position temp = (RocketComponent.Position) em.getSelectedItem();
+							em.setSelectedItem(RocketComponent.Position.TOP);
 							double len = computeFinTabLength(rings, component.asPositionValue(RocketComponent.Position.TOP),
 										component.getLength(), mts, parent);
 							mtl.setValue(len);

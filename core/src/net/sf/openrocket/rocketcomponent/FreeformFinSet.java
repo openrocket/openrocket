@@ -47,7 +47,6 @@ public class FreeformFinSet extends FinSet {
 	}
 	*/
 	
-	
 	/**
 	 * Convert an existing fin set into a freeform fin set.  The specified
 	 * fin set is taken out of the rocket tree (if any) and the new component
@@ -340,5 +339,19 @@ public class FreeformFinSet extends FinSet {
 			}
 		}
 	}
+	
+	@Override
+	public StringBuilder toDebugDetail(){
+		StringBuilder buf = new StringBuilder( ">> ====== " + this.getComponentName() + " ======\n" );
+		
+		buf.append("    points:[\n");
+		for( Coordinate pi : this.points ){
+			buf.append(String.format("        (%8.4g, %8.4g),\n", pi.x, pi.y));
+		}
+		buf.append("    ]");
+		
+		return buf;
+	}
+	
 	
 }

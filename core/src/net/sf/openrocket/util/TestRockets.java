@@ -767,6 +767,7 @@ public class TestRockets {
 	}
 	
 	
+	
 	public static Rocket makeBigBlue() {
 		Rocket rocket;
 		AxialStage stage;
@@ -1179,7 +1180,6 @@ public class TestRockets {
 		return rocket;
 	}
 	
- 	
 	// This a scale V2 rocket 
 	// WARNING:  as of February 1, 2016, this is not yet a valid rocket.  
 	//           may require changes to the FreeformFinSet class
@@ -1273,7 +1273,6 @@ public class TestRockets {
 		rocket.getSelectedConfiguration().setAllStages();
 		return rocket;
 	}
-
 	
 	/*
 	 * Create a new file version 1.00 rocket

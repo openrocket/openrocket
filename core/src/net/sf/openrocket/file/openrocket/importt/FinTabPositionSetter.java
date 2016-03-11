@@ -5,7 +5,6 @@ import java.util.HashMap;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.util.Reflection;
 
 class FinTabPositionSetter extends DoubleSetter {
@@ -23,9 +22,9 @@ class FinTabPositionSetter extends DoubleSetter {
 		}
 		
 		String relative = attributes.get("relativeto");
-		FinSet.TabRelativePosition position =
-				(TabRelativePosition) DocumentConfig.findEnum(relative,
-						FinSet.TabRelativePosition.class);
+		RocketComponent.Position position =
+				(RocketComponent.Position) DocumentConfig.findEnum(relative,
+						RocketComponent.Position.class);
 		
 		if (position != null) {
 			
