@@ -1179,6 +1179,102 @@ public class TestRockets {
 		return rocket;
 	}
 	
+ 	
+	// This a scale V2 rocket 
+	// WARNING:  as of February 1, 2016, this is not yet a valid rocket.  
+	//           may require changes to the FreeformFinSet class
+	public static final Rocket makeV2(){
+		Rocket rocket = new Rocket();
+		rocket.setName("V-2 Scale Model ");
+		
+		// make stage
+		AxialStage stage = new AxialStage();
+		stage.setName("Stage 1");
+		rocket.addChild(stage);
+		
+		final double SKIN_THICKNESS = 0.001;
+		
+		// make nose cone 
+		NoseCone nose = new NoseCone();
+		nose.setName("nose");
+		nose.setMassOverridden(true);
+		nose.setOverrideMass( 0.038 ); 
+		nose.setLength(0.21);
+		nose.setThickness( SKIN_THICKNESS);
+		nose.setType(Shape.OGIVE);
+		nose.setShapeParameter(1.0);
+		nose.setAftRadius(0.033);
+		nose.setAftShoulderRadius(0.031);
+		nose.setAftShoulderLength( 0.04 );
+        nose.setAftShoulderThickness(0.001);
+        nose.setAftShoulderCapped(false);
+        stage.addChild(nose);
+        
+		// make body tube 
+		BodyTube body = new BodyTube( 0.2, 0.33, SKIN_THICKNESS);
+		body.setName("body");
+		body.setOuterRadiusAutomatic( true);
+		stage.addChild(body );
+		
+		{ // make boat tail 
+			Transition boattail = new Transition();
+			boattail.setName("Transition");
+			boattail.setMassOverridden( true);
+	        boattail.setOverrideMass( 0.036);
+	        boattail.setLength( 0.14 );
+	        boattail.setThickness( SKIN_THICKNESS);
+	        boattail.setType(Shape.OGIVE);
+			boattail.setShapeParameter(1.0);
+			boattail.setForeRadiusAutomatic(true);
+			boattail.setAftRadius( 0.02);
+			
+			boattail.setForeShoulderRadius(0.031);
+			boattail.setForeShoulderLength( 0.04 );
+			boattail.setForeShoulderThickness(0.001);
+			boattail.setForeShoulderCapped(false);
+        
+			boattail.setAftShoulderLength( 0.0 );
+			boattail.setAftShoulderCapped(false);
+  		    stage.addChild( boattail);
+  		    
+  		    { // freeform fins -- on boattail
+  				FreeformFinSet fins = new FreeformFinSet();
+  				fins.setName("fins");
+  				fins.setFinCount(4);
+  				Coordinate[] points = new Coordinate[] { 
+  					      new Coordinate( 0, 0)
+  						, new Coordinate( 0.09,   0.0587)
+  						, new Coordinate( 0.1666, 0.0590)
+  						, new Coordinate( 0.1668, 0.0294)
+  						, new Coordinate( 0.1568, 0.0257)
+  						, new Coordinate( 0.1565, 0.0082)
+  						, new Coordinate( 0.1388, 0.0)
+  				};
+  				try{ 
+  					fins.setPoints( points);
+  				}catch( IllegalFinPointException fpe ){
+  					System.err.println("Error building built-in rocket: V2 from TestRockets factory. Aborting and exiting.");
+  					System.exit(-1);
+  				}
+  				fins.setRelativePosition( Position.TOP );
+  				fins.setAxialOffset(0);
+  				fins.setThickness(0.0024);
+  				fins.setCrossSection( CrossSection.AIRFOIL );
+  	                
+  				fins.setTabHeight( 0.020);
+  	            fins.setTabLength( 0.12 );
+  	            fins.setTabRelativePosition( RocketComponent.Position.TOP );
+  	            fins.setTabShift( 0.02 );
+  	            boattail.addChild( fins);
+  		    }
+		}
+          
+		rocket.enableEvents();
+		rocket.getSelectedConfiguration().setAllStages();
+		return rocket;
+	}
+
+	
 	/*
 	 * Create a new file version 1.00 rocket
 	 */
