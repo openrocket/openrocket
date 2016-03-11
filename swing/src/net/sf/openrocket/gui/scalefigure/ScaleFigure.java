@@ -16,6 +16,12 @@ public interface ScaleFigure extends ChangeSource {
 	 * in the figures must be multiplied by this factor.
 	 */
 	public static final double EXTRA_SCALE = 1000;
+
+	public static final double INCHES_PER_METER = 39.3701;
+	public static final double METERS_PER_INCH = 0.0254;
+
+	public static final double MINIMUM_ZOOM=0.01; // == 1%
+	public static final double MAXIMUM_ZOOM=1000; // 100,000 %
 	
 	
 	
@@ -23,18 +29,22 @@ public interface ScaleFigure extends ChangeSource {
 	 * Set the scale level of the figure.  A scale value of 1.0 indicates an original
 	 * size when using the current DPI level.
 	 * 
-	 * @param scale   the scale level.
+	 * @param newZoom the zoom level.
 	 */
-	public void setZoom(double scale);
+	public void setZoom( final double newZoom );
 	
 	
 	/**
-	 * Set the scale level so that the figure fits into the given bounds.
+	 * Set the zoom level so that the figure fits into the given bounds.
 	 * 
-	 * @param bounds  the bounds of the figure.
+	 * @param bounds the dimension 
 	 */
-	public void setScaling(Dimension bounds);
+	@Deprecated
+	public void zoomToSize( final Dimension bounds );
 	
+	
+	// even better would be to re-zoom AND re-center.
+	public void zoomToBounds( final Dimension center, final Dimension bounds);
 	
 	/**
 	 * Return the scale level of the figure.  A scale value of 1.0 indicates an original
@@ -59,7 +69,6 @@ public interface ScaleFigure extends ChangeSource {
 	 * @return	the pixel coordinates of the figure origin.
 	 */
 	public Dimension getOrigin();
-	
 	
 	/**
 	 * Get the amount of blank space left around the figure.

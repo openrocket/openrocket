@@ -37,9 +37,6 @@ import net.sf.openrocket.util.StateChangeListener;
 public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	/* eventually, refactor 'Scrollable to AbstractScaleFigure*/
 
-	private static final double INCHES_PER_METER = 39.3701;
-	protected static final double METERS_PER_INCH = 0.0254;
-
 	// the size of the boxes around each fin point vertex
 	private static final int SQUARE_WIDTH_PIXELS = 4; 
 
@@ -55,7 +52,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	private static final int BLOCK_SCROLL_INCREMENT_DIVISOR = 100;
 	private static final int BLOCK_SCROLL_MINIMUM_INCREMENT_PIXELS = 10;
 	
-	
+
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
@@ -66,7 +63,13 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	// actual size of panel in pixels; this panel may or may not be fully drawn
 	protected Dimension figureSize_px = new Dimension(100,100);
 	
+	protected Dimension visible_px; 
+	
+	// desired size? actual size? 
+	protected Dimension canvasSize_px;
+	
 	// from 0,0 => draw rectangle from origin_px + drawn_px
+	protected Dimension rocketCenter_px ;
 	protected Dimension originLocation_px = new Dimension(0,0);
 	protected Dimension drawnSize_px = figureSize_px;
 	
@@ -77,7 +80,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
  	
 	// ========= lower-abstraction level variables
 	protected int borderThickness_pixels = DEFAULT_BORDER_PIXELS;
-	protected final double dpi;
 	protected final double base_scale;
 	
 	// actual number to multiply against rocket coordinates to display in UI 
@@ -100,8 +102,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
 		
-		this.dpi = GUIUtil.getDPI();
-		this.base_scale = dpi / METERS_PER_INCH;
+		// this result in a dots-per-meter scale factor 
+		this.base_scale = GUIUtil.getDPI()* INCHES_PER_METER;
 		this.zoom = 1.0;
 		this.scale = base_scale * zoom;
 			
@@ -109,7 +111,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 
 		setBackground(Color.WHITE);
 		setOpaque(true);
-			
 	}
 
 	
@@ -125,21 +126,21 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	@Override
 	public void setZoom(double zoom) {
-		if (Double.isInfinite(zoom) || Double.isNaN(zoom))
-			zoom = 1.0;
-		if (zoom < 0.001)
-			zoom = 0.001;
-		if (zoom > 1000)
-			zoom = 1000;
-		if (Math.abs(this.zoom - zoom) < 0.01)
-			return;
+		if (Double.isInfinite(zoom) || Double.isNaN(zoom)){
+			return;}
+		
+		zoom = MathUtil.clamp( zoom, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		
+		if (Math.abs(this.zoom - zoom) < 0.01){
+			return;}
+		
 		this.zoom = zoom;
-		this.scale = dpi / 0.0254 * zoom;
+		this.scale = base_scale * zoom;
 		updateFigure();
 	}
 	
-	@Override
-	public void setScaling(Dimension bounds) {
+	@Override 
+	public void zoomToSize( Dimension bounds ){
 		double zh = 1, zv = 1;
 		int w = bounds.width - 2 * borderThickness_pixels - 20;
 		int h = bounds.height - 2 * borderThickness_pixels - 20;
@@ -152,7 +153,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		zh = (w) / getFigureWidth();
 		zv = (h) / getFigureHeight();
 		
-		double s = Math.min(zh, zv) / dpi * 0.0254 - 0.001;
+		double s = Math.min(zh, zv) / base_scale - 0.001;
 		
 		// Restrict to 100%
 		if (s > 1.0) {
@@ -162,6 +163,10 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		setZoom(s);
 	}
 	
+	@Override
+	public void zoomToBounds( final Dimension center , final Dimension bounds ){
+		throw new IllegalStateException("This method is not yet implemented!");
+	}
 	
 	@Override
 	public Dimension getBorderPixels() {

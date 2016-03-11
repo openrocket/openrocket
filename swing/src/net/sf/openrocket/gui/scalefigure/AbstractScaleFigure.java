@@ -8,7 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
+
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
@@ -20,7 +22,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
 	
 	
-	protected final double dpi;
+	protected final double base_scale;
 	
 	protected double scale = 1.0;
 	protected double zoom = 1.0;
@@ -32,9 +34,10 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	
 	public AbstractScaleFigure() {
-		this.dpi = GUIUtil.getDPI();
+		// this result in a dots-per-meter scale factor 
+		this.base_scale = GUIUtil.getDPI() * INCHES_PER_METER;
 		this.zoom = 1.0;
-		this.scale = dpi / 0.0254 * zoom;
+		this.scale = base_scale * zoom;
 		
 		setBackground(Color.WHITE);
 		setOpaque(true);
@@ -60,21 +63,21 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	@Override
 	public void setZoom(double zoom) {
-		if (Double.isInfinite(zoom) || Double.isNaN(zoom))
-			zoom = 1.0;
-		if (zoom < 0.001)
-			zoom = 0.001;
-		if (zoom > 1000)
-			zoom = 1000;
-		if (Math.abs(this.zoom - zoom) < 0.01)
-			return;
+		if (Double.isInfinite(zoom) || Double.isNaN(zoom)){
+			return;}
+		
+		zoom = MathUtil.clamp( zoom, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		
+		if (Math.abs(this.zoom - zoom) < 0.01){
+			return;}
+		
 		this.zoom = zoom;
-		this.scale = dpi / 0.0254 * zoom;
+		this.scale = base_scale * zoom;
 		updateFigure();
 	}
 	
-	@Override
-	public void setScaling(Dimension bounds) {
+	@Override 
+	public void zoomToSize( Dimension bounds ){
 		double zh = 1, zv = 1;
 		int w = bounds.width - 2 * borderPixelsWidth - 20;
 		int h = bounds.height - 2 * borderPixelsHeight - 20;
@@ -87,7 +90,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		zh = (w) / getFigureWidth();
 		zv = (h) / getFigureHeight();
 		
-		double s = Math.min(zh, zv) / dpi * 0.0254 - 0.001;
+		double s = Math.min(zh, zv) / base_scale - 0.001;
 		
 		// Restrict to 100%
 		if (s > 1.0) {
@@ -97,7 +100,12 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		setZoom(s);
 	}
 	
+	@Override
+	public void zoomToBounds( final Dimension center , final Dimension bounds ){
+		throw new IllegalStateException("This method is not yet implemented!");
+	}
 	
+
 	@Override
 	public Dimension getBorderPixels() {
 		return new Dimension(borderPixelsWidth, borderPixelsHeight);

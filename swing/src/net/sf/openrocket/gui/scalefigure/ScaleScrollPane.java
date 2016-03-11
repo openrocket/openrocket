@@ -172,7 +172,8 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 			validate();
 			Dimension view = viewport.getExtentSize();
-			figure.setScaling(view);
+			figure.zoomToSize( view);
+			//figure.zoomToBounds( ?center, bounds );
 		} else {
 			setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -196,18 +197,11 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		if( newScale == figure.getZoom() ){
 			return;
 		}
-
-		System.err.println("In: "+this.getClass().getSimpleName()+"... setScaling ... ");
-		System.err.println("  actual Size(px):"+this.getWidth()+", "+this.getHeight());
-		System.err.println("  pre-scale: "+figure.getZoom()+"    scaling: "+figure.getAbsoluteScale() );
-		
+	
 		figure.setZoom(newScale);
 		horizontalRuler.repaint();
 		verticalRuler.repaint();
-
-		System.err.println("  post-scale: "+figure.getZoom()+"    scaling: "+figure.getAbsoluteScale() );
 	}
-	
 	
 	public Unit getCurrentUnit() {
 		return rulerUnit.getCurrentUnit();
