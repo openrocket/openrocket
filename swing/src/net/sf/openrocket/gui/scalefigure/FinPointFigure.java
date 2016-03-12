@@ -43,9 +43,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	// Number of pixels to leave at edges when fitting figure
 	protected static final int DEFAULT_BORDER_PIXELS = 20;	
 	
-	private static final float FIN_SEGMENT_LINE_WIDTH = 1;
-	private static final float BODY_LINE_WIDTH = 1;
-	private static final float GRID_LINE_WIDTH = 1;
+//	private static final float FIN_SEGMENT_LINE_WIDTH = 1;
+//	private static final float BODY_LINE_WIDTH = 1;
+//	private static final float GRID_LINE_WIDTH = 1;
 	
 	private static final int UNIT_SCROLL_INCREMENT_DIVISOR= 10;
 	private static final int UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS = 1;
@@ -57,19 +57,18 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	private int modID = -1;
 	
 	// real-space coordinates:  meters
-	protected Bounds rocketBounds_m = new Bounds(2);
-	protected Point2D.Double rocketSize_m = new Point2D.Double( Double.NaN, Double.NaN);
+	protected Bounds rocketBounds_m = new Bounds(2);	
 	
 	// actual size of panel in pixels; this panel may or may not be fully drawn
 	protected Dimension figureSize_px = new Dimension(100,100);
 	
-	protected Dimension visible_px; 
+	protected Dimension visible_px = new Dimension(0,0);
 	
 	// desired size? actual size? 
-	protected Dimension canvasSize_px;
+	protected Dimension canvasSize_px = new Dimension(0,0);
 	
 	// from 0,0 => draw rectangle from origin_px + drawn_px
-	protected Dimension rocketCenter_px ;
+	protected Dimension rocketCenter_px = new Dimension(0,0);
 	protected Dimension originLocation_px = new Dimension(0,0);
 	protected Dimension drawnSize_px = figureSize_px;
 	
@@ -113,6 +112,30 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		setOpaque(true);
 	}
 
+	private void dumpState( final String locationName ){
+		dumpState( locationName, null );
+	}
+
+	private void dumpState( final String locationName, final String description ){
+		boolean showDetail=false;
+		System.err.println("dumpState from: "+this.getClass().getSimpleName()+"."+locationName);
+		if( null != description){
+			System.err.println("    Note: "+description);}
+		if( showDetail ){
+			System.err.println("    rocketBounds (m) X:"+rocketBounds_m.getX().toDebug());
+			System.err.println("    rocketBounds (m) Y:"+rocketBounds_m.getY().toDebug());
+		}else{	
+			System.err.println("    rocketSize (m)   ("+rocketBounds_m.getX().span()+", "+rocketBounds_m.getY().span()+")");
+			System.err.println("    rocketCenter (m) ("+rocketBounds_m.getX().center()+", "+rocketBounds_m.getY().center()+")");
+		}
+		System.err.println("    figureSize (px):  w: "+figureSize_px.width+"  h: "+figureSize_px.height);
+		System.err.println("    canvasSize (px):  w: "+canvasSize_px.width+"  h: "+canvasSize_px.height);
+		System.err.println("    this.width/height (px):"+this.getWidth()+", "+this.getHeight());
+		final Dimension prefSize = this.getPreferredSize();
+		System.err.println("    actual pref. Size(px):"+prefSize.width+", "+prefSize.height);		
+		System.err.println("  ");
+		System.err.println("    current zoom= "+this.zoom*100+"%)");
+	}
 	
 	@Override
 	public double getZoom() {
@@ -125,18 +148,27 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	}
 	
 	@Override
-	public void setZoom(double zoom) {
-		if (Double.isInfinite(zoom) || Double.isNaN(zoom)){
+	public void setZoom( final double newZoomRequest) {
+		System.err.println("!? setZoom( "+newZoomRequest*100+"% );" ); // debug
+		Thread.dumpStack(); // debug 
+		
+		if (Double.isInfinite(newZoomRequest) || Double.isNaN(newZoomRequest)){
 			return;}
 		
-		zoom = MathUtil.clamp( zoom, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		final double newZoom = MathUtil.clamp( newZoomRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 		
-		if (Math.abs(this.zoom - zoom) < 0.01){
+		if (Math.abs(this.zoom - newZoom) < 0.01){
 			return;}
 		
-		this.zoom = zoom;
-		this.scale = base_scale * zoom;
-		updateFigure();
+		this.zoom = newZoom;
+		this.scale = base_scale * this.zoom;
+
+		// vv DEBUG vv 
+		dumpState(" setZoom( "+newZoomRequest*100+"% );");
+		
+		calculateDimensions();
+		calculateTransform();
+		repaint();
 	}
 	
 	@Override 
@@ -191,7 +223,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	protected void fireChangeEvent() {
 		EventObject changeEvent = new EventObject(this);
-		
 		for (EventListener l : listeners) {
 			((StateChangeListener) l).stateChanged(changeEvent);
 		}
@@ -207,12 +238,13 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
 			calculateDimensions();
+			calculateTransform();
 		}
 		
 
 		// old formulation / translation
-		final double figureWidth = rocketSize_m.y;
-		final double figureHeight = rocketSize_m.x;
+		final double figureWidth = rocketBounds_m.getX().span();
+		final double figureHeight = rocketBounds_m.getY().span();
 
 		double tx, ty;
 		// Calculate translation for figure centering
@@ -443,7 +475,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			calculateDimensions();
 		}
 		// TODO: this doesn't make sense, but preserves existing behavior
-		return rocketSize_m.x;
+		return rocketBounds_m.getX().span();
 	}
 	
 	public double getFigureHeight() {
@@ -452,7 +484,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			calculateDimensions();
 		}
 		// TODO: this doesn't make sense, but preserves existing behavior
-		return rocketSize_m.y;
+		return rocketBounds_m.getX().span();
 	}
 	
 	
@@ -468,35 +500,30 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		final double EPSILON_X = 0.01f;
 		rocketBounds_m.getX().inflate(-EPSILON_X, EPSILON_X);
 		
-		rocketSize_m = rocketBounds_m.getSpan2D();
+		final double rocketWidth_m = rocketBounds_m.getX().span();
+		final double rocketHeight_m = rocketBounds_m.getY().span();
 		
-		final double zoom = scale; // alias
 		this.figureSize_px = new Dimension(
-				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels),
-				(int) (rocketSize_m.x* zoom + 2 * borderThickness_pixels));
+				(int) (rocketWidth_m* scale + 2 * borderThickness_pixels),
+				(int) (rocketHeight_m* scale + 2 * borderThickness_pixels));
 
 		if( !figureSize_px.equals( getPreferredSize()) ){
 			setPreferredSize( figureSize_px);
 			revalidate();
 		}
 		
-		System.err.println("In: "+this.getClass().getSimpleName());
-		System.err.println("  rocketSize(m):  x: "+rocketSize_m.x+"  y: "+rocketSize_m.y);
-		System.err.println("  figureSize(px):  w: "+figureSize_px.width+"  h: "+figureSize_px.height);
-		System.err.println("  actual Size(px):"+this.getWidth()+", "+this.getHeight());
-		final Dimension prefSize = this.getPreferredSize();
-		System.err.println("  actual pref. Size(px):"+prefSize.width+", "+prefSize.height);		
-		System.err.println("  ");
-		System.err.println("  scale:  "+rocketSize_m.x+"(m) * "+ this.getAbsoluteScale()+" = "+figureSize_px.width+"(px)");
-		System.err.println("    (zoom= "+this.getZoom()*100+"%)");
+		// vv DEBUG vv
+		dumpState( "calculateDimensions() ");
+	}
+	
+	private void calculateTransform(){
 		
 	}
 	
-	public void updateFigure() {
-		repaint();
+	public void updateFigure(){
+		calculateDimensions();
+		calculateTransform();
 	}
-
-	
 	
 	// ======  ====== 'Scrollable' interface methods ====== ====== 
 
