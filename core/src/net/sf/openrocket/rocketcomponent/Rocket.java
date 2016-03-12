@@ -191,6 +191,10 @@ public class Rocket extends RocketComponent {
 	public Collection<AxialStage> getStageList() {
 		return this.stageMap.values();
 	}
+
+	public AxialStage getStage( final int stageNumber ) {
+		return this.stageMap.get( stageNumber);
+	}
 	
 	/*
 	 * Returns the stage at the top of the central stack
@@ -662,7 +666,7 @@ public class Rocket extends RocketComponent {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotorInstance(fcid).getMotor() != null) {
+				if (mount.getMotorConfig(fcid).getMotor() != null) {
 					return true;
 				}
 			}

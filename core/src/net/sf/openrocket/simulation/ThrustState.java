@@ -2,7 +2,7 @@ package net.sf.openrocket.simulation;
 
 
 public enum ThrustState {
-	SPENT("Finished with sequence.", "Finished Producing thrust.", null)
+	SPENT("Spent", "Finished Producing thrust.", null)
 	,DELAYING("Delaying", " After Burnout, but before ejection", SPENT){
 		@Override
 		public boolean needsSimulation(){ return true;}
@@ -14,7 +14,6 @@ public enum ThrustState {
 		public boolean needsSimulation(){ return true;}
 	}
 	,ARMED("Armed", "Armed, but not yet lit.", THRUSTING)
-	,PREFLIGHT("Pre-Launch", "Safed and inactive, prior to launch.", ARMED)
 	;
 	
 	private final static int SEQUENCE_NUMBER_END = 10; // arbitrary number

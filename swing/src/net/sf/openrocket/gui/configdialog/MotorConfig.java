@@ -69,7 +69,7 @@ public class MotorConfig extends JPanel {
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat") + " " + CommonStrings.dagger), "");
 		
-		MotorConfiguration motorInstance = mount.getDefaultMotorInstance();
+		MotorConfiguration motorInstance = mount.getDefaultMotorConfig();
 		
 		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
 		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);

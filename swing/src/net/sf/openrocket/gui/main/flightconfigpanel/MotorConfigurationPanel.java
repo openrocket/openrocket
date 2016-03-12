@@ -215,7 +215,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
-			MotorConfiguration curConfig = curMount.getMotorInstance(fcid);
+			MotorConfiguration curConfig = curMount.getMotorConfig(fcid);
 			curConfig.setMotor(mtr);
 			curConfig.setEjectionDelay(d);
 			curConfig.setIgnitionEvent( IgnitionEvent.NEVER);
@@ -261,7 +261,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         if ( (null == fcid )||( null == curMount )){
             return;
         }
-        MotorConfiguration curInstance = curMount.getMotorInstance(fcid);
+        MotorConfiguration curInstance = curMount.getMotorConfig(fcid);
 		
         curInstance.useDefaultIgnition();
 
@@ -277,7 +277,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
 			
-			MotorConfiguration curMotor = mount.getMotorInstance( configId);
+			MotorConfiguration curMotor = mount.getMotorConfig( configId);
 			String motorString = getMotorSpecification( curMotor );
 			
 			JLabel motorDescriptionLabel = new JLabel(motorString);
@@ -309,8 +309,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		private JLabel getIgnitionEventString(FlightConfigurationId id, MotorMount mount) {
-			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
-			MotorConfiguration curInstance = mount.getMotorInstance(id);
+			MotorConfiguration defInstance = mount.getDefaultMotorConfig();
+			MotorConfiguration curInstance = mount.getMotorConfig(id);
 			
 			IgnitionEvent ignitionEvent = curInstance.getIgnitionEvent();
 			Double ignitionDelay = curInstance.getIgnitionDelay();

@@ -1,20 +1,14 @@
 package net.sf.openrocket.simulation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
-import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class MotorClusterState {
-	
-	private static final Logger log = LoggerFactory.getLogger(MotorClusterState.class);
 	
 	// for reference: set at initialization ONLY.
 	final protected Motor motor;
@@ -26,35 +20,18 @@ public class MotorClusterState {
 	protected double ignitionTime = Double.NaN;
 	protected double cutoffTime = Double.NaN;
 	protected double ejectionTime = Double.NaN;
-	protected ThrustState currentState = ThrustState.PREFLIGHT;
+	protected ThrustState currentState = ThrustState.ARMED;
 		
 	public MotorClusterState(final MotorConfiguration _config) {
-		log.debug(" Creating motor instance of " + _config.getDescription());
 		this.config = _config;
-		this.motor = _config.getMotor();
-		MotorMount mount = this.config.getMount();
-		if( mount instanceof InnerTube ){
-			InnerTube inner = (InnerTube) mount;
-			this.motorCount = inner.getClusterConfiguration().getClusterCount();
-		}else{
-			this.motorCount =0;
-		}
 		
-		thrustDuration = this.motor.getBurnTimeEstimate();
+		this.motor = this.config.getMotor();
+		this.motorCount = this.config.getMotorCount();
+		this.thrustDuration = this.motor.getBurnTimeEstimate();
 		
-		this.resetToPreflight();
+		this.reset();
 	}
-	
-	public void arm( final double _armTime ){
-		if( ThrustState.PREFLIGHT == currentState ){
-			log.info( "igniting motor: "+this.toString()+" at t="+_armTime);
-			//this.ignitionTime = _ignitionTime;
-			this.currentState = this.currentState.getNext();
-		}else{
-			throw new IllegalStateException("Attempted to arm a motor with status="+this.currentState.getName());
-		}
-	}
-	
+
 	public double getIgnitionTime() {
 		return ignitionTime;
 	}
@@ -65,31 +42,31 @@ public class MotorClusterState {
 
 	public void ignite( final double _ignitionTime ){
 		if( ThrustState.ARMED == currentState ){
-			log.info( "igniting motor: "+this.toString()+" at t="+_ignitionTime);
 			this.ignitionTime = _ignitionTime;
 			this.currentState = this.currentState.getNext();
-		}else{
-			throw new IllegalStateException("Attempted to ignite a motor state with status="+this.currentState.getName());
+//		}else{
+//			System.err.println("!! Attempted to ignite motor "+toDescription()
+//								+" with current status="+this.currentState.getName()+" ... Ignoring.");
 		}
 	}
 
 	public void burnOut( final double _burnOutTime ){
 		if( ThrustState.THRUSTING == currentState ){
-			log.info( "igniting motor: "+this.toString()+" at t="+_burnOutTime);
 			this.ignitionTime = _burnOutTime;
 			this.currentState = this.currentState.getNext();
-		}else{
-			throw new IllegalStateException("Attempted to stop thrust (burn-out) a motor state with status="+this.currentState.getName());
+//		}else{
+//			System.err.println("!! Attempted to turn off motor state "+toDescription()+" with current status="
+//								+this.currentState.getName()+" ... Ignoring.");
 		}		
 	}
 	
-	public void fireEjectionCharge( final double _ejectionTime ){
+	public void expend( final double _ejectionTime ){
 		if( ThrustState.DELAYING == currentState ){
-			log.info( "igniting motor: "+this.toString()+" at t="+_ejectionTime);
 			this.ejectionTime = _ejectionTime;
 			this.currentState = this.currentState.getNext();
-		}else{
-			throw new IllegalStateException("Attempted to fire an ejection charge in motor state: "+this.currentState.getName());
+//		}else{
+//			System.err.println("!! Attempted to mark as spent motor state "+toDescription()+" with current status="
+//								+this.currentState.getName()+" ... Ignoring.");
 		}		
 	}
 
@@ -104,7 +81,7 @@ public class MotorClusterState {
 		return config.getEjectionDelay();
 	}
 	
-	public MotorInstanceId getID() {
+	public MotorConfigurationId getID() {
 		return config.getID();
 	}
 
@@ -145,24 +122,20 @@ public class MotorClusterState {
 		return ! isPlugged();
 	}
 
-	public boolean isFinishedThrusting(){
-		return currentState.isAfter( ThrustState.THRUSTING );
+	public boolean isSpent(){
+		return currentState == ThrustState.SPENT;
 	}
 	
 	/**
 	 * alias to 'resetToPreflight()'
 	 */
 	public void reset(){
-		resetToPreflight();
-	}
-	
-	public void resetToPreflight(){
 		// i.e. in the "future"
 		ignitionTime = Double.POSITIVE_INFINITY;
 		cutoffTime = Double.POSITIVE_INFINITY;
 		ejectionTime = Double.POSITIVE_INFINITY;
 		
-		currentState = ThrustState.PREFLIGHT;
+		currentState = ThrustState.ARMED;
 	}
 	
 	public boolean testForIgnition( final FlightEvent _event ){
@@ -170,25 +143,17 @@ public class MotorClusterState {
 		return getIgnitionEvent().isActivationEvent( _event, mount);
 	}
 	
+	public String toDescription(){
+		return String.format("%32s / %4s - %s",
+							getMount().getName(), this.motor.getDesignation(), this.currentState.getName());
+	}
+
+		
 	@Override
 	public String toString(){
 		return this.motor.getDesignation();
 	}
 	
-//	public void update( final double simulationTime ){
-//		final double motorTime = this.getMotorTime( simulationTime );
-//		log.debug("Attempt to update this motorClusterSimulation with: ");
-//		log.debug("    this.ignitionTime= "+this.ignitionTime);
-//		log.debug("  this.thrustDuration= "+this.thrustDuration);
-//		log.debug("  simTime = "+simulationTime);
-//		log.debug("  motorTime= "+motorTime );
-//			
-//		log.debug( " time array = "+((ThrustCurveMotor)this.getMotor()).getTimePoints() );
-//		
-//		switch( this.currentState ){
-//		
-//	}
-
-	
+		
 	
 }

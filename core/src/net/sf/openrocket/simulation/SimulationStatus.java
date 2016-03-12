@@ -10,7 +10,7 @@ import java.util.Set;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -48,7 +48,8 @@ public class SimulationStatus implements Monitorable {
 	private double effectiveLaunchRodLength;
 	
 	// Set of all motors	
-	List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
+	private List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
+	 
 	
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -147,11 +148,7 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = false;
 		this.apogeeReached = false;
 		
-		for( MotorConfiguration motorConfig : this.configuration.getActiveMotors() ) {
-			MotorClusterState simMotor  = new MotorClusterState( motorConfig);
-			simMotor.arm( this.time ); 
-			this.motorStateList.add( simMotor); 
-		}
+		this.populateMotors();
 		this.warnings = new WarningSet();
 	}
 	
@@ -189,7 +186,6 @@ public class SimulationStatus implements Monitorable {
 		this.deployedRecoveryDevices.clear();
 		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
 		
-		// FIXME - is this right?
 		this.motorStateList.clear();
 		this.motorStateList.addAll(orig.motorStateList);
 		
@@ -215,13 +211,7 @@ public class SimulationStatus implements Monitorable {
 	public double getSimulationTime() {
 		return time;
 	}
-	
-	public void armAllMotors(){
-		for( MotorClusterState motor : this.motorStateList ){
-			motor.resetToPreflight();
-		}
-	}
-	
+		
 	public void setConfiguration(FlightConfiguration configuration) {
 		if (this.configuration != null)
 			this.modIDadd += this.configuration.getModID();
@@ -233,20 +223,16 @@ public class SimulationStatus implements Monitorable {
 		return motorStateList;
 	}
 	
-	public Collection<MotorClusterState> getAllMotors() {
-		return motorStateList;
+	public Collection<MotorClusterState> getActiveMotors() {
+		List<MotorClusterState> activeList = new ArrayList<MotorClusterState>();
+		for( MotorClusterState state: this.motorStateList ){
+			if(( ! state.isSpent()) && (this.configuration.isComponentActive( state.getMount()))){
+				activeList.add( state );
+			}
+		}
+		
+		return activeList;
 	}
-	
-//	public Collection<MotorInstance> getActiveMotors() {
-//		List<MotorInstance> activeList = new ArrayList<MotorInstance>();
-//		for( MotorInstance inst : this.motorStateList ){
-//			if( inst.isActive() ){
-//				activeList.add( inst );
-//			}
-//		}
-//		
-//		return activeList;
-//	}
 	
 	public FlightConfiguration getConfiguration() {
 		return configuration;
@@ -309,7 +295,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public boolean moveBurntOutMotor( final MotorInstanceId motor) {
+	public boolean moveBurntOutMotor( final MotorConfigurationId motor) {
 		// get motor from normal list
 		// remove motor from 'normal' list
 		// add to spent list
@@ -460,11 +446,9 @@ public class SimulationStatus implements Monitorable {
 		this.simulationConditions = simulationConditions;
 	}
 	
-	
 	public SimulationConditions getSimulationConditions() {
 		return simulationConditions;
 	}
-	
 	
 	/**
 	 * Store extra data available for use by simulation listeners.  The data can be retrieved
@@ -506,7 +490,6 @@ public class SimulationStatus implements Monitorable {
 		}
 	}
 	
-	
 	@Override
 	public int getModID() {
 		return (modID + modIDadd + simulationConditions.getModID() + configuration.getModID() +
@@ -514,5 +497,35 @@ public class SimulationStatus implements Monitorable {
 				eventQueue.getModID() + warnings.getModID());
 	}
 	
+	public String toEventDebug(){
+		final StringBuilder buf = new StringBuilder("");
+		for ( FlightEvent event : this.eventQueue){
+			buf.append("      [t:"+event.getType()+" @"+ event.getTime());
+			if( null != event.getSource()){
+				buf.append("  src:"+event.getSource().getName());
+			}
+			if( null != event.getData()){
+				buf.append("  data:"+event.getData().getClass().getSimpleName());
+			}
+			buf.append("]\n");
+		}
+		return buf.toString();
+	}
 	
+	public String toMotorsDebug(){
+		final StringBuilder buf = new StringBuilder("MotorState list:\n");
+		for ( MotorClusterState state : this.motorStateList){
+			buf.append("          ["+state.toDescription()+"]\n");
+		}
+		return buf.toString();
+	}
+	
+	private void populateMotors(){
+		motorStateList.clear();
+		for( MotorConfiguration motorConfig : this.configuration.getAllMotors() ) {
+			MotorClusterState simMotor  = new MotorClusterState( motorConfig);
+			this.motorStateList.add( simMotor); 
+		}
+	}
+
 }

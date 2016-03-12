@@ -325,7 +325,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		motorFilterPanel.setMotorMount(mountToEdit);
 		
-		MotorConfiguration curMotorInstance = mountToEdit.getMotorInstance(_fcid);
+		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(_fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;

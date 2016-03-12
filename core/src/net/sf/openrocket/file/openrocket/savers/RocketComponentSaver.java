@@ -179,7 +179,7 @@ public class RocketComponentSaver {
 		
 		List<String> elements = new ArrayList<String>();
 		
-		MotorConfiguration defaultInstance = mount.getDefaultMotorInstance();
+		MotorConfiguration defaultInstance = mount.getDefaultMotorConfig();
 		
 		elements.add("<motormount>");
 		
@@ -192,7 +192,7 @@ public class RocketComponentSaver {
 		
 		for( FlightConfigurationId fcid : rkt.getIds()){
 			
-			MotorConfiguration motorInstance = mount.getMotorInstance(fcid);
+			MotorConfiguration motorInstance = mount.getMotorConfig(fcid);
 			// Nothing is stored if no motor loaded
 			if( motorInstance.isEmpty()){
 				continue;

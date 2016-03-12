@@ -12,18 +12,16 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public final class MotorInstanceId {
+public final class MotorConfigurationId {
 	
-	private final String name ;
 	private final UUID key;
 	
-	private final static String ERROR_ID_TEXT = "MotorInstance Error Id";
-	private final static UUID ERROR_KEY = new UUID( 6227, 5676);
-	public final static MotorInstanceId ERROR_ID = new MotorInstanceId();
+	private final static String ERROR_ID_TEXT = "MotorInstance Error Id".intern();
+	private final static UUID ERROR_KEY = new UUID( 62274413, 56768908);
+	public final static MotorConfigurationId ERROR_ID = new MotorConfigurationId();
 
-	private MotorInstanceId( ) {
-		this.name = MotorInstanceId.ERROR_ID_TEXT;
-		this.key = MotorInstanceId.ERROR_KEY;	
+	private MotorConfigurationId( ) {
+		this.key = MotorConfigurationId.ERROR_KEY;	
 	}
 	
 	/**
@@ -32,18 +30,17 @@ public final class MotorInstanceId {
 	 * @param componentName	the component ID, must not be null
 	 * @param number		a positive motor number
 	 */
-	public MotorInstanceId(final MotorMount _mount, final FlightConfigurationId _fcid ) {
+	public MotorConfigurationId(final MotorMount _mount, final FlightConfigurationId _fcid) {
 		if (null == _mount ) {
-			throw new IllegalArgumentException("Provided MotorConfiguration was null");
+			throw new NullPointerException("Provided MotorMount was null");
 		}
 		if (null == _fcid ) {
-			throw new IllegalArgumentException("Provided MotorConfiguration was null");
+			throw new NullPointerException("Provided FlightConfigurationId was null");
 		}
 		
 		// Use intern so comparison can be done using == instead of equals()
-		this.name = _mount.getID()+"-"+_fcid.toShortKey();
-		final long upper = _mount.getID().hashCode() << 32;
-		final long lower = _fcid.key.getMostSignificantBits();
+		final long upper = ((long)_mount.getID().hashCode()) << 32;
+		final long lower = _fcid.key.getLeastSignificantBits();
 		this.key = new UUID( upper, lower);
 	}
 
@@ -53,10 +50,10 @@ public final class MotorInstanceId {
 		if (this == other)
 			return true;
 			
-		if (!(other instanceof MotorInstanceId))
+		if (!(other instanceof MotorConfigurationId))
 			return false;
 		
-		MotorInstanceId otherId = (MotorInstanceId) other;
+		MotorConfigurationId otherId = (MotorConfigurationId) other;
 		return ( this.key.equals( otherId.key));
 	}
 	
@@ -67,10 +64,10 @@ public final class MotorInstanceId {
 	
 	@Override
 	public String toString(){
-		if( this.key == MotorInstanceId.ERROR_KEY){
-			return MotorInstanceId.ERROR_ID_TEXT;
+		if( this.key == MotorConfigurationId.ERROR_KEY){
+			return MotorConfigurationId.ERROR_ID_TEXT;
 		}else{
-			return name;
+			return key.toString();
 		}
 	}
 }

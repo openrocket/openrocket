@@ -90,7 +90,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			MotorConfiguration inst = mount.getMotorInstance(fcid);
+			MotorConfiguration inst = mount.getMotorConfig(fcid);
 			inst.setIgnitionDelay(ignitionConfigHandler.ignitionDelay);
 			inst.setIgnitionEvent(ignitionConfigHandler.ignitionEvent);
 			return;
@@ -109,7 +109,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			mount.getDefaultMotorInstance().setIgnitionEvent(event);
+			mount.getDefaultMotorConfig().setIgnitionEvent(event);
 			
 			return;
 		}
@@ -123,7 +123,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			mount.getDefaultMotorInstance().setIgnitionDelay(d);
+			mount.getDefaultMotorConfig().setIgnitionDelay(d);
 			return;
 		}
 		

@@ -9,6 +9,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -299,7 +300,8 @@ public class MassCalculatorTest extends BaseTestCase {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		
 		InnerTube mmt = (InnerTube) rocket.getChild(0).getChild(1).getChild(2);
-		Motor activeMotor = mmt.getMotorInstance( rocket.getSelectedConfiguration().getId()).getMotor();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getId();
+		Motor activeMotor = mmt.getMotorConfig( fcid ).getMotor();
 		String desig = activeMotor.getDesignation();
 		
 		double expLaunchMass = 0.0164; // kg

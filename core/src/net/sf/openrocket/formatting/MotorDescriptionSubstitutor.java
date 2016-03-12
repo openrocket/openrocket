@@ -69,7 +69,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			} else if (c instanceof MotorMount) {
 				
 				MotorMount mount = (MotorMount) c;
-				MotorConfiguration inst = mount.getMotorInstance(fcid);
+				MotorConfiguration inst = mount.getMotorConfig(fcid);
 				Motor motor = inst.getMotor();
 				
 				if (mount.isMotorMount() && motor != null) {

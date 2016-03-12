@@ -45,7 +45,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 *   
 	 *    @return The default MotorInstance
 	 */
-	public MotorConfiguration getDefaultMotorInstance();
+	public MotorConfiguration getDefaultMotorConfig();
 	
 	/** 
 	 * Default implementatino supplied by RocketComponent (returns 1);
@@ -73,7 +73,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @param fcid  id for which to return the motor (null retrieves the default)
 	 * @return  requested motorInstance (which may also be the default motor instance)
 	 */
-	public MotorConfiguration getMotorInstance( final FlightConfigurationId fcid);
+	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid);
 
 	/**
 	 * 

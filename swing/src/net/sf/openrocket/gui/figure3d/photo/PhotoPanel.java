@@ -425,7 +425,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				continue;
 			}
 			
-			final Motor motor = mount.getMotorInstance(motorID).getMotor();
+			final Motor motor = mount.getMotorConfig(motorID).getMotor();
 			final double length = motor.getLength();
 	
 			Coordinate[] position = ((RocketComponent) mount)
