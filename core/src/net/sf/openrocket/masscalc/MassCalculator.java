@@ -376,7 +376,6 @@ public class MassCalculator implements Monitorable {
 		Coordinate compCM = component.getComponentCG();
 		double compIx = component.getRotationalUnitInertia() * compCM.weight;
 		double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
-		MassData parentData = new MassData( compCM, compIx, compIt);
 		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
@@ -384,8 +383,17 @@ public class MassCalculator implements Monitorable {
 			if (component.isCGOverridden())
 				compCM = compCM.setXYZ(component.getOverrideCG());
 		}
-		if(( debug) &&( 0 < component.getChildCount()) && (MIN_MASS < compCM.weight)){
-			System.err.println(String.format("%-32s: %s ",indent+">>["+ component.getName()+"]", parentData.toDebug() ));
+
+		// default if not instanced (instance count == 1)
+		MassData resultantData = new MassData( compCM, compIx, compIt);
+
+		if( debug && (MIN_MASS < compCM.weight)){
+			System.err.println(String.format("%-32s: %s ",indent+"ea["+ component.getName()+"]", compCM ));
+			if( component.isMassOverridden() && component.isMassOverridden() && component.getOverrideSubcomponents()){
+				System.err.println(indent+"   ?["+ component.isMassOverridden()+"]["+ 
+						component.isMassOverridden()+"]["+
+						component.getOverrideSubcomponents()+"]");
+			}
 		}
 		
 		MassData childrenData = MassData.ZERO_DATA;
@@ -401,50 +409,40 @@ public class MassCalculator implements Monitorable {
 
 			childrenData  = childrenData.add( childData );
 		}
-
+		resultantData = resultantData.add( childrenData);
 		
-		MassData resultantData = parentData; // default if not instanced
-		// compensate for component-instancing propogating to children's data 
-		int instanceCount = component.getInstanceCount();
-		boolean hasChildren = ( 0 < component.getChildCount());
-		if (( 1 < instanceCount )&&( hasChildren )){
-//			if(( debug )){
-//				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
-//						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
-//			}
+		// if instanced, adjust children's data too. 
+		if ( 1 < component.getInstanceCount() ){
+			if( debug ){
+				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
+						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
+			}
 			
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
 			final double curIzz = childrenData.getIzz(); // MOI about z axis
 			
-			Coordinate eachCM = childrenData.cm;
+			Coordinate templateCM = resultantData.cm;
 			MassData instAccumData = new MassData();  // accumulator for instance MassData
 			Coordinate[] instanceLocations = ((Instanceable) component).getInstanceOffsets();
          	for( Coordinate curOffset : instanceLocations ){
-//         		if( debug){
-//         			//System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toCMDebug() ));
-//         			System.err.println(String.format("%-32s: %s", indent+"  inst Accum", instAccumData.toDebug() ));
-//				}
-         		
-				Coordinate instanceCM = curOffset.add(eachCM);
-				
+         		Coordinate instanceCM = curOffset.add(templateCM);
 				MassData instanceData = new MassData( instanceCM, curIxx, curIyy, curIzz);
 				
 				// 3) Project the template data to the new CM 
 				//    and add to the total
 				instAccumData = instAccumData.add( instanceData);
 			}
-			
-         	childrenData = instAccumData;
+
+         	resultantData = instAccumData;
+         	
+         	if( debug && (MIN_MASS < compCM.weight)){
+    			System.err.println(String.format("%-32s: %s ", indent+"x"+component.getInstanceCount()+"["+component.getName()+"][asbly]", resultantData.toDebug()));
+    		}
+    		
 		}
 
-		// combine the parent's and children's data
-		resultantData = parentData.add( childrenData);
 		
-		if( debug){
-			System.err.println(String.format("%-32s: %s ", indent+"<==>["+component.getName()+"][asbly]", resultantData.toDebug()));
-		}
-
 		// move to parent's reference point
 		resultantData = resultantData.move( component.getOffset() );
 		if( component instanceof ParallelStage ){
