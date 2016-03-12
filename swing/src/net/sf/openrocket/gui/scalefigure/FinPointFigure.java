@@ -219,12 +219,12 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		if (figureWidth * scale + 2 * borderThickness_pixels < getWidth()) {
 			
 			// Figure fits in the viewport
-			tx = (getWidth() - figureWidth * scale) / 2 - rocketBounds_m.getMinX() * scale;
+			tx = (getWidth() - figureWidth * scale) / 2 - rocketBounds_m.getX().min * scale;
 			
 		} else {
 			
 			// Figure does not fit in viewport
-			tx = borderThickness_pixels - rocketBounds_m.getMinX()* scale;
+			tx = borderThickness_pixels - rocketBounds_m.getX().min* scale;
 			
 		}
 		
@@ -496,6 +496,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		repaint();
 	}
 
+	
 	
 	// ======  ====== 'Scrollable' interface methods ====== ====== 
 

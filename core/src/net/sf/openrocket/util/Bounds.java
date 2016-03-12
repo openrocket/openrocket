@@ -19,6 +19,9 @@ public class Bounds {
 			max = Double.MIN_VALUE;
 			min = Double.MAX_VALUE; }
 		
+		public double center(){
+			return ((max-min)/2);
+		}
 		
 		/* 
 		 * Ensures that the bounds in this dimension cover NO MORE THAN these values
@@ -37,14 +40,6 @@ public class Bounds {
 		public boolean containsNAN(){
 			return ( Double.isNaN(max) & Double.isNaN(min));}
 		
-		public double getMin(){
-			return min;
-		}
-		
-		public double getMax(){
-			return max;
-		}
-		
 		/* 
 		 * Ensures the bounds in this dimension cover NO LESS THAN these values  
 		 * 
@@ -57,12 +52,19 @@ public class Bounds {
 		public double span(){
 			return (max-min);}
 	
-		public void updateBounds( final double _newValue){
+		public void update( final double _newValue){
 			if( min > _newValue ){
 				min = _newValue;
 			}else if( max < _newValue ){
 				max = _newValue;}}
 		
+		@Override
+		public String toString(){
+			return String.format("{ min: %6.4  max: %6.4}", min, max);}
+		
+		public String toDebug(){
+			return String.format("{ min: %6.4  max: %6.4  span: %6.4  ctr: %6.4g }", min, max, span(), center());}
+
 	}
 	
 	// ==== member variables
@@ -106,30 +108,6 @@ public class Bounds {
 		return boundList[Z];
 	}
 	
-	public double getMinX(){
-		return boundList[X].min;
-	}
-	
-	public double getMaxX(){
-		return boundList[X].max;
-	}
-	
-	public double getMinY(){
-		return boundList[Y].min;
-	}
-	
-	public double getMaxY(){
-		return boundList[Y].max;
-	}
-	
-	public double getMinZ(){
-		return boundList[Z].min;
-	}
-	
-	public double getMaxZ(){
-		return boundList[Z].max;
-	}
-	
 	public boolean contains( final Point2D.Double testPoint ){
 		return contains( testPoint.x, testPoint.y);
 	}
@@ -140,11 +118,7 @@ public class Bounds {
 		}
 		return false;
 	}
-	
-	public boolean contains( final Coordinate c ){
-		return contains( c.x, c.y, c.z);
-	}
-	
+
 	public boolean contains( final double _x, final double _y, final double _z ){
 		if( boundList[X].contains(_x) && boundList[Y].contains(_y) && boundList[Z].contains(_z)){
 			return true;
@@ -152,14 +126,17 @@ public class Bounds {
 		return false;
 	}
 	
+	public boolean contains( final Coordinate c ){
+		return contains( c.x, c.y, c.z);
+	}
 
 	public void inflate( final int dimensionIndex, final double newMinimum, final double newMaximum){
 		getDim( dimensionIndex ).inflate(newMinimum, newMaximum);
 	}
 	
 	public void update( final double _x, final double _y){
-		boundList[X].updateBounds(_x);
-		boundList[Y].updateBounds(_y);
+		boundList[X].update(_x);
+		boundList[Y].update(_y);
 	}
 	
 	public void update( final Coordinate c ){
@@ -167,12 +144,24 @@ public class Bounds {
 	}
 	
 	public void update( final double _x, final double _y, final double _z){
-		boundList[X].updateBounds(_x);
-		boundList[Y].updateBounds(_y);
-		boundList[Z].updateBounds(_z);
+		boundList[X].update(_x);
+		boundList[Y].update(_y);
+		boundList[Z].update(_z);
 	}
 	
-	public Point2D.Double getSpan2D(){
+	public Point2D.Double getCenterAsPoint2D(){
+		double center_x = 0; 
+		double center_y = 0;
+		if( 0 < boundList.length ){
+			 center_x= boundList[X].center();
+		}
+	    if( 1 < boundList.length ){
+			center_y = boundList[Y].center();
+		}
+		return new Point2D.Double( center_x, center_y); 
+	}
+	
+	public Point2D.Double getSpanAsPoint2D(){
 		double span_x = 0;
 		double span_y = 0;
 		if( 0 < boundList.length ){
@@ -184,31 +173,35 @@ public class Bounds {
 		return new Point2D.Double( span_x, span_y); 
 	}
 	
-	public double getSpanX(){
-		return getSpan(X);
-	}
-	
-	public double getSpanY(){
-		return getSpan(Y); 			
-	}
-	
-	public double getSpanZ(){
-		return getSpan(Z);
-	}
-	
-	public double getSpan(final int index){
+	public double span(final int index){
 		return boundList[index].span();
 	}
 	
-	public Coordinate getSpan(){
-		return getSpan3D();
+	public Coordinate span(){
+		return getSpanAsCoordinate();
 	}
 	
-	public int getDimension(){
+	public int getDimensionCount(){
 		return this.boundList.length;
 	}
 	
-	public Coordinate getSpan3D(){
+	public Coordinate getCenterAsCoordinate(){
+		double center_x = 0; 
+		double center_y = 0;
+		double center_z = 0;
+		if( 0 < boundList.length ){
+			 center_x= boundList[X].center();
+		}
+	    if( 1 < boundList.length ){
+			center_y = boundList[Y].center();
+		}
+	    if( 2 < boundList.length ){
+			center_z = boundList[Z].center();
+		}
+		return new Coordinate( center_x, center_y, center_z, 0.0); 
+	}
+	
+	public Coordinate getSpanAsCoordinate(){
 		double span_x = 0;
 		double span_y = 0;
 		double span_z = 0;
