@@ -56,8 +56,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	// real-space coordinates:  meters
-	protected Bounds rocketBounds_m = new Bounds(2);	
+	// whatever this figure is drawing, in real-space coordinates:  meters
+	protected Bounds finBounds_m = new Bounds(2);	
 	
 	// actual size of panel in pixels; this panel may or may not be fully drawn
 	protected Dimension figureSize_px = new Dimension(100,100);
@@ -122,11 +122,11 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		if( null != description){
 			System.err.println("    Note: "+description);}
 		if( showDetail ){
-			System.err.println("    rocketBounds (m) X:"+rocketBounds_m.getX().toDebug());
-			System.err.println("    rocketBounds (m) Y:"+rocketBounds_m.getY().toDebug());
+			System.err.println("    rocketBounds (m) X:"+finBounds_m.getX().toDebug());
+			System.err.println("    rocketBounds (m) Y:"+finBounds_m.getY().toDebug());
 		}else{	
-			System.err.println("    rocketSize (m)   ("+rocketBounds_m.getX().span()+", "+rocketBounds_m.getY().span()+")");
-			System.err.println("    rocketCenter (m) ("+rocketBounds_m.getX().center()+", "+rocketBounds_m.getY().center()+")");
+			System.err.println("    rocketSize (m)   ("+finBounds_m.getX().span()+", "+finBounds_m.getY().span()+")");
+			System.err.println("    rocketCenter (m) ("+finBounds_m.getX().center()+", "+finBounds_m.getY().center()+")");
 		}
 		System.err.println("    figureSize (px):  w: "+figureSize_px.width+"  h: "+figureSize_px.height);
 		System.err.println("    canvasSize (px):  w: "+canvasSize_px.width+"  h: "+canvasSize_px.height);
@@ -243,20 +243,20 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		
 
 		// old formulation / translation
-		final double figureWidth = rocketBounds_m.getX().span();
-		final double figureHeight = rocketBounds_m.getY().span();
+		final double figureWidth = finBounds_m.getX().span();
+		final double figureHeight = finBounds_m.getY().span();
 
 		double tx, ty;
 		// Calculate translation for figure centering
 		if (figureWidth * scale + 2 * borderThickness_pixels < getWidth()) {
 			
 			// Figure fits in the viewport
-			tx = (getWidth() - figureWidth * scale) / 2 - rocketBounds_m.getX().min * scale;
+			tx = (getWidth() - figureWidth * scale) / 2 - finBounds_m.getX().min * scale;
 			
 		} else {
 			
 			// Figure does not fit in viewport
-			tx = borderThickness_pixels - rocketBounds_m.getX().min* scale;
+			tx = borderThickness_pixels - finBounds_m.getX().min* scale;
 			
 		}
 		
@@ -475,7 +475,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			calculateDimensions();
 		}
 		// TODO: this doesn't make sense, but preserves existing behavior
-		return rocketBounds_m.getX().span();
+		return finBounds_m.getX().span();
 	}
 	
 	public double getFigureHeight() {
@@ -484,24 +484,24 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			calculateDimensions();
 		}
 		// TODO: this doesn't make sense, but preserves existing behavior
-		return rocketBounds_m.getX().span();
+		return finBounds_m.getX().span();
 	}
 	
 	
 	private void calculateDimensions() {
-		rocketBounds_m.reset();
+		finBounds_m.reset();
 
 		for (Coordinate c : finset.getFinPoints()) {
 			// ignore the z coordinate.
 			// it points into the figure, and provides no useful information.
-			rocketBounds_m.update(c.x,c.y);
+			finBounds_m.update(c.x,c.y);
 		}
 		
 		final double EPSILON_X = 0.01f;
-		rocketBounds_m.getX().inflate(-EPSILON_X, EPSILON_X);
+		finBounds_m.getX().inflate(-EPSILON_X, EPSILON_X);
 		
-		final double rocketWidth_m = rocketBounds_m.getX().span();
-		final double rocketHeight_m = rocketBounds_m.getY().span();
+		final double rocketWidth_m = finBounds_m.getX().span();
+		final double rocketHeight_m = finBounds_m.getY().span();
 		
 		this.figureSize_px = new Dimension(
 				(int) (rocketWidth_m* scale + 2 * borderThickness_pixels),
