@@ -20,11 +20,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
-
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -34,55 +34,39 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
-public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
-	/* eventually, refactor 'Scrollable to AbstractScaleFigure*/
-
-	// the size of the boxes around each fin point vertex
-	private static final int SQUARE_WIDTH_PIXELS = 4; 
+public class FinPointFigure extends JPanel implements ScaleFigure {
+	
 
 	// Number of pixels to leave at edges when fitting figure
 	protected static final int DEFAULT_BORDER_PIXELS = 20;	
 	
-//	private static final float FIN_SEGMENT_LINE_WIDTH = 1;
-//	private static final float BODY_LINE_WIDTH = 1;
-//	private static final float GRID_LINE_WIDTH = 1;
+	protected static final float MINIMUM_CANVAS_SIZE_METERS = 0.1f; // i.e. 1 cm
 	
-	private static final int UNIT_SCROLL_INCREMENT_DIVISOR= 10;
-	private static final int UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS = 1;
-	private static final int BLOCK_SCROLL_INCREMENT_DIVISOR = 100;
-	private static final int BLOCK_SCROLL_MINIMUM_INCREMENT_PIXELS = 10;
+	private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
+	private static final float GRID_LINE_BASE_WIDTH = 0.001f;
 	
-
+	// the size of the boxes around each fin point vertex
+	private static final int BOX_WIDTH_PIXELS = 8; 
+	private static final double MINOR_TICKS = 0.03;
+	private static final double MAJOR_TICKS = 0.1;
+	
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
 	// whatever this figure is drawing, in real-space coordinates:  meters
-	protected Bounds finBounds_m = new Bounds(2);	
+	protected Bounds subjectBounds_m = new Bounds(2);
 	
+	protected Dimension originLocation_px = new Dimension(0,0);
+
 	// actual size of panel in pixels; this panel may or may not be fully drawn
 	protected Dimension preferredFigureSize_px = new Dimension(100,100);
 	
-	protected Dimension visible_px = new Dimension(0,0);
-	
-	// desired size? actual size? 
-	protected Dimension canvasSize_px = new Dimension(0,0);
-	
-	// from 0,0 => draw rectangle from origin_px + drawn_px
-	protected Dimension rocketCenter_px = new Dimension(0,0);
-	protected Dimension originLocation_px = new Dimension(0,0);
-	protected Dimension drawnSize_px = preferredFigureSize_px;
-	
-	// old formulation
-	private double translateX = 0;
-	private double translateY = 0;
- 	
  	
 	// ========= lower-abstraction level variables
-	protected int borderThickness_pixels = DEFAULT_BORDER_PIXELS;
-	protected final double base_scale;
+	protected int borderThickness_px = DEFAULT_BORDER_PIXELS;
 	
 	// actual number to multiply against rocket coordinates to display in UI 
-	protected double scale = 1.0;
+	final protected double scale = 1000.0;
 	
 	// zoom factor, in the traditional % zoom units
 	// 1.0 === 100% === no scaling.
@@ -94,20 +78,16 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	// which frames does this transform between ?  
 	private AffineTransform transform;
 	
- 	// location of points?
- 	private Rectangle2D.Double[] handles = null;
+ 	private Rectangle2D.Double[] finPointHandles = null;
  	
 	
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
-		
-		// this result in a dots-per-meter scale factor 
-		this.base_scale = GUIUtil.getDPI()* INCHES_PER_METER;
-		this.zoom = 1.0;
-		this.scale = base_scale * zoom;
-			
-		drawnSize_px = new Dimension( 0,0);
 
+		this.zoom = 1.0;
+		// this.scale = scaleSubjectToCanvas_dpm * zoom;
+		
+		// useful for debugging -- shows a contrast against un-drawn space.
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		
@@ -115,28 +95,18 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	}
 
 	private void dumpState( final String locationName ){
-		dumpState( locationName, null );
-	}
-
-	private void dumpState( final String locationName, final String description ){
-		boolean showDetail=false;
 		System.err.println("dumpState from: "+this.getClass().getSimpleName()+"."+locationName);
-		if( null != description){
-			System.err.println("    Note: "+description);}
-		if( showDetail ){
-			System.err.println("    rocketBounds (m) X:"+finBounds_m.getX().toDebug());
-			System.err.println("    rocketBounds (m) Y:"+finBounds_m.getY().toDebug());
-		}else{	
-			System.err.println("    rocketSize (m)   ("+finBounds_m.getX().span()+", "+finBounds_m.getY().span()+")");
-			System.err.println("    rocketCenter (m) ("+finBounds_m.getX().center()+", "+finBounds_m.getY().center()+")");
+		{
+			System.err.println("    rocketBounds (m) X:"+subjectBounds_m.getX().toDebug());
+			System.err.println("    rocketBounds (m) Y:"+subjectBounds_m.getY().toDebug());
 		}
-		System.err.println("    figureSize (px):  w: "+preferredFigureSize_px.width+"  h: "+preferredFigureSize_px.height);
-		System.err.println("    canvasSize (px):  w: "+canvasSize_px.width+"  h: "+canvasSize_px.height);
-		System.err.println("    this.width/height (px):"+this.getWidth()+", "+this.getHeight());
-		final Dimension prefSize = this.getPreferredSize();
-		System.err.println("    actual pref. Size(px):"+prefSize.width+", "+prefSize.height);		
+		//System.err.println("    figureSize (px):  w: "+preferredFigureSize_px.width+"  h: "+preferredFigureSize_px.height);
+		System.err.println("    canvasSize (px):  w: "+this.getWidth()+"  h: "+this.getHeight());
+		System.err.println("    actualPreferredSize(px):"+preferredFigureSize_px.width+", "+preferredFigureSize_px.height);
+		System.err.println("    act. size (px):"+this.getWidth()+", "+this.getHeight());
 		System.err.println("  ");
 		System.err.println("    current zoom= "+this.zoom*100+"%)");
+		System.err.println("    current scale = "+this.scale+")");
 	}
 	
 	@Override
@@ -146,7 +116,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	@Override
 	public double getAbsoluteScale() {
-		return scale;
+		return scale*zoom;
 	}
 	
 	@Override
@@ -160,8 +130,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			return;}
 		
 		this.zoom = newZoom;
-		this.scale = base_scale * this.zoom;
-
+		
 		// vv DEBUG vv 
 		dumpState(" setZoom( "+newZoomRequest*100+"% );");
 		
@@ -172,25 +141,29 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	@Override 
 	public void zoomToSize( Dimension bounds ){
 		double zh = 1, zv = 1;
-		int w = bounds.width - 2 * borderThickness_pixels - 20;
-		int h = bounds.height - 2 * borderThickness_pixels - 20;
+		int w = bounds.width - 2 * borderThickness_px - 20;
+		int h = bounds.height - 2 * borderThickness_px - 20;
 		
 		if (w < 10)
 			w = 10;
 		if (h < 10)
 			h = 10;
 		
-		zh = (w) / getFigureWidth();
-		zv = (h) / getFigureHeight();
+		// not sure what to change these to...
+//		zh = (w) / getFigureWidth();
+//		zv = (h) / getFigureHeight();
 		
-		double s = Math.min(zh, zv) / base_scale - 0.001;
+		// // old
+		// double s = Math.min(zh, zv) / scaleSubjectToCanvas_dpm - 0.001;
+		// new 
+		double newZoom = Math.min(zh, zv)  - 0.001;
 		
 		// Restrict to 100%
-		if (s > 1.0) {
-			s = 1.0;
+		if (newZoom > 1.0) {
+			newZoom = 1.0;
 		}
 		
-		setZoom(s);
+		setZoom(newZoom);
 	}
 	
 	@Override
@@ -200,14 +173,13 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	@Override
 	public Dimension getBorderPixels() {
-		return new Dimension(borderThickness_pixels, borderThickness_pixels);
+		return new Dimension(borderThickness_px, borderThickness_px);
 	}
 	
 	@Override
 	public void setBorderPixels( final int width, final int height) {
-		this.borderThickness_pixels = Math.max( width, height);
+		this.borderThickness_px = Math.max( width, height);
 	}
-	
 	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
@@ -229,7 +201,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
+		Graphics2D g2 = (Graphics2D) g.create();
 		
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
@@ -245,20 +217,26 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 				RenderingHints.VALUE_RENDER_QUALITY);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		
 
+		paintBackgroundGrid( g2);
 		
+		paintRocketBody(g2);
+		
+		paintFinShape(g2);
+	}
+	
+	public void paintBackgroundGrid( Graphics2D g2){
 		Rectangle visible = g2.getClipBounds();
-		double x0 = ((double) visible.x - 3) / EXTRA_SCALE;
-		double x1 = ((double) visible.x + visible.width + 4) / EXTRA_SCALE;
-		double y0 = ((double) visible.y - 3) / EXTRA_SCALE;
-		double y1 = ((double) visible.y + visible.height + 4) / EXTRA_SCALE;
-
-		// paintBackgroundGrid( g2);
-		g2.setStroke(new BasicStroke((float) (1.0 * EXTRA_SCALE / scale),
+		int x0 = visible.x - 3;
+		int x1 = visible.x + visible.width + 4;
+		int y0 = visible.y - 3;
+		int y1 = visible.y + visible.height + 4;
+		
+		final float grid_line_width = (float)(FinPointFigure.GRID_LINE_BASE_WIDTH/zoom);
+		g2.setStroke(new BasicStroke( grid_line_width,
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(new Color(0, 0, 255, 30));
-
+		g2.setColor(FinPointFigure.GRID_LINE_COLOR);
+	
 		Unit unit;
 		if (this.getParent() != null &&
 				this.getParent().getParent() instanceof ScaleScrollPane) {
@@ -266,68 +244,86 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 		} else {
 			unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		}
-
+	
 		// vertical
-		Tick[] ticks = unit.getTicks(x0, x1,
-				ScaleScrollPane.MINOR_TICKS / scale,
-				ScaleScrollPane.MAJOR_TICKS / scale);
+		Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS, MAJOR_TICKS);
 		Line2D.Double line = new Line2D.Double();
-		for (Tick t : ticks) {
+		for (Tick t : verticalTicks) {
 			if (t.major) {
-				line.setLine(t.value * EXTRA_SCALE, y0 * EXTRA_SCALE,
-						t.value * EXTRA_SCALE, y1 * EXTRA_SCALE);
+				line.setLine( t.value, y0, t.value, y1);
 				g2.draw(line);
 			}
 		}
-
+		
 		// horizontal
-		ticks = unit.getTicks(y0, y1,
-				ScaleScrollPane.MINOR_TICKS / scale,
-				ScaleScrollPane.MAJOR_TICKS / scale);
-		for (Tick t : ticks) {
+		Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS, MAJOR_TICKS);
+		for (Tick t : horizontalTicks) {
 			if (t.major) {
-				line.setLine(x0 * EXTRA_SCALE, t.value * EXTRA_SCALE,
-						x1 * EXTRA_SCALE, t.value * EXTRA_SCALE);
+				line.setLine( x0, t.value, x1, t.value);
 				g2.draw(line);
 			}
 		}
+	}
 
-		// paintRocketBody(g2);
-		g2.setStroke(new BasicStroke((float) (3.0 * EXTRA_SCALE / scale),
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(Color.GRAY);
-
-		g2.drawLine((int) (x0 * EXTRA_SCALE), 0, (int) (x1 * EXTRA_SCALE), 0);
-
-		// paintFinShape(g2);
-		// Fin shape
-		Coordinate[] points = finset.getFinPoints();
+	private void paintFinShape(Graphics2D g2){
+		final Coordinate[] points = finset.getFinPoints();
+		
 		Path2D.Double shape = new Path2D.Double();
 		shape.moveTo(0, 0);
 		for (int i = 1; i < points.length; i++) {
-			shape.lineTo(points[i].x * EXTRA_SCALE, points[i].y * EXTRA_SCALE);
+			shape.lineTo(points[i].x, points[i].y);
 		}
 
-		g2.setStroke(new BasicStroke((float) (1.0 * EXTRA_SCALE / scale),
+		final float fin_edge_width = (float)finset.getThickness();  //FinPointFigure.FIN_EDGE_WIDTH;
+		g2.setStroke(new BasicStroke( fin_edge_width,
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(Color.BLACK);
+		g2.setColor(Color.BLUE);
 		g2.draw(shape);
-
 
 		// Fin point boxes
 		g2.setColor(new Color(150, 0, 0));
-		double s = SQUARE_WIDTH_PIXELS * EXTRA_SCALE / scale;
-		handles = new Rectangle2D.Double[points.length];
+		final double boxWidth = BOX_WIDTH_PIXELS;
+		final double boxHalfWidth = boxWidth/2;
+		finPointHandles = new Rectangle2D.Double[points.length];
 		for (int i = 0; i < points.length; i++) {
 			Coordinate c = points[i];
-			handles[i] = new Rectangle2D.Double(c.x * EXTRA_SCALE - s, c.y * EXTRA_SCALE - s, 2 * s, 2 * s);
-			g2.draw(handles[i]);
+			System.err.println("    [] drawing fin vertex at ("+c.toString());
+			finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
+			g2.draw(finPointHandles[i]);
 		}
-
+	}
+	
+	private void paintRocketBody( Graphics2D g2){
+		RocketComponent comp = finset.getParent();
+		if( comp instanceof Transition ){
+			paintBodyTransition(g2);
+		}else{
+			paintBodyTube(g2);			
+		}
+	}
+	
+	private void paintBodyTransition( Graphics2D g2){	
+		paintBodyTube(g2); // temporary
+		// TODO : implement me! 
+	}
+	
+	private void paintBodyTube( Graphics2D g2){
+		Rectangle visible = g2.getClipBounds();
+		int x0 = visible.x - 3;
+		int x1 = visible.x + visible.width + 4;
+		
+		SymmetricComponent symComp = (SymmetricComponent) finset.getParent();
+		final float BODY_LINE_WIDTH = (float)symComp.getThickness();
+		g2.setStroke(new BasicStroke( BODY_LINE_WIDTH,
+				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		g2.setColor(Color.BLACK);
+	
+		g2.drawLine((int) x0, 0, (int)x1, 0);
 	}
 
+	
 	public int getIndexByPoint(double x, double y) {
-		if (handles == null)
+		if (finPointHandles == null)
 			return -1;
 		
 		// Calculate point in shapes' coordinates
@@ -338,8 +334,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			return -1;
 		}
 		
-		for (int i = 0; i < handles.length; i++) {
-			if (handles[i].contains(p))
+		for (int i = 0; i < finPointHandles.length; i++) {
+			if (finPointHandles[i].contains(p))
 				return i;
 		}
 		return -1;
@@ -347,7 +343,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 	
 	
 	public int getSegmentByPoint(double x, double y) {
-		if (handles == null)
+		if (finPointHandles == null)
 			return -1;
 		
 		// Calculate point in shapes' coordinates
@@ -358,9 +354,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			return -1;
 		}
 		
-		double x0 = p.x / EXTRA_SCALE;
-		double y0 = p.y / EXTRA_SCALE;
-		double delta = SQUARE_WIDTH_PIXELS / scale;
+		double x0 = p.x;
+		double y0 = p.y;
+		double delta = BOX_WIDTH_PIXELS / scale;
 		
 		//System.out.println("Point: " + x0 + "," + y0);
 		//System.out.println("delta: " + (BOX_SIZE / scale));
@@ -394,160 +390,110 @@ public class FinPointFigure extends JPanel implements ScaleFigure, Scrollable {
 			return new Point2D.Double(0, 0);
 		}
 		
-		p.setLocation(p.x / EXTRA_SCALE, p.y / EXTRA_SCALE);
+		p.setLocation(p.x, p.y);
 		return p;
 	}
 	
-	
-
+	// N.B. this method tells the rulers where to drawn themselves
 	@Override
 	public Dimension getOrigin() {
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
 			calculateDimensions();
 		}
-		return new Dimension((int) translateX, (int) translateY);
+		
+		return new Dimension(originLocation_px.width, (int)originLocation_px.height);
 	}
 	
-	public double getFigureWidth() {
-		if (modID != finset.getRocket().getAerodynamicModID()) {
-			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
-		}
-		// TODO: this doesn't make sense, but preserves existing behavior
-		return finBounds_m.getX().span();
-	}
-	
-	public double getFigureHeight() {
-		if (modID != finset.getRocket().getAerodynamicModID()) {
-			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
-		}
-		// TODO: this doesn't make sense, but preserves existing behavior
-		return finBounds_m.getX().span();
-	}
+//	public double getFigureWidth() {
+//		if (modID != finset.getRocket().getAerodynamicModID()) {
+//			modID = finset.getRocket().getAerodynamicModID();
+//			calculateDimensions();
+//		}
+//		// TODO: this doesn't make sense, but preserves existing behavior
+//		return subjectBounds_m.getX().span();
+//	}
+//	
+//	public double getFigureHeight() {
+//		if (modID != finset.getRocket().getAerodynamicModID()) {
+//			modID = finset.getRocket().getAerodynamicModID();
+//			calculateDimensions();
+//		}
+//		// TODO: this doesn't make sense, but preserves existing behavior
+//		return subjectBounds_m.getX().span();
+//	}
 	
 	
 	private void calculateDimensions() {
-		finBounds_m.reset();
+		{ // update subject bounds
+			subjectBounds_m.reset();
+			for (Coordinate c : finset.getFinPoints()) {
+				// ignore the z coordinates; they point into the figure and provide no useful information.
+				subjectBounds_m.update(c.x,c.y);
+			}
 
-		for (Coordinate c : finset.getFinPoints()) {
-			// ignore the z coordinates; they pointsinto the figure and provide no useful information.
-			finBounds_m.update(c.x,c.y);
-		}
-		
-		final double EPSILON_X = 0.01f;
-		finBounds_m.getX().inflate(-EPSILON_X, EPSILON_X);
-		
-		final double finWidth_m = finBounds_m.getX().span();
-		final double finHeight_m = finBounds_m.getY().span();
-		
-		this.preferredFigureSize_px = new Dimension(
-				(int) (finWidth_m* scale + 2 * borderThickness_pixels),
-				(int) (finHeight_m* scale + 2 * borderThickness_pixels));
+			SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
+			final double maxRadius = Math.max( parent.getForeRadius(), parent.getAftRadius());
+			double maxMinYBound;
+			if( parent instanceof Transition ){	
+				maxMinYBound = -maxRadius;
+			}else{
+				maxMinYBound = -maxRadius*0.1;
+			}
 
-		if( !preferredFigureSize_px.equals( getPreferredSize()) ){
-			setPreferredSize( preferredFigureSize_px);
-			revalidate();
+			subjectBounds_m.getX().inflate( 0, MINIMUM_CANVAS_SIZE_METERS);
+			subjectBounds_m.getY().inflate( -maxMinYBound, MINIMUM_CANVAS_SIZE_METERS);		
 		}
-		
-		// vv DEBUG vv
-		dumpState( "calculateDimensions() ");
+
+
+		{ // update preferred figure Size
+			final double INCHES_PER_METER = 39.3701;
+			// dots     dots     inch
+			// ----  = ------ * -----
+			// meter    inch    meter
+			final double scale_dpm = GUIUtil.getDPI()* INCHES_PER_METER;
+
+			final int subjectWidth_px = (int)(subjectBounds_m.getX().span()*scale_dpm);
+			final int subjectHeight_px = (int)(subjectBounds_m.getX().span()*scale_dpm);
+
+			preferredFigureSize_px.width = subjectWidth_px + 2*borderThickness_px;
+			preferredFigureSize_px.height = subjectHeight_px + 2*borderThickness_px;
+
+			if( !preferredFigureSize_px.equals( getPreferredSize()) ){
+				setPreferredSize( preferredFigureSize_px);
+				revalidate();
+			}
+		}
 	}
 	
 	private void updateTransform(){
 		calculateDimensions();
-		final Point2D.Double rocketSize_m = finBounds_m.getSpanAsPoint2D();
-		final Point2D.Double rocketCenter_m = finBounds_m.getCenterAsPoint2D();
-		
-		final double rocketWidth_m = rocketSize_m.x;
-		final double rocketHeight_m = rocketSize_m.y;
+		//final Point2D.Double subjectSize_m = subjectBounds_m.getSpanAsPoint2D();
+		//final Point2D.Double subjectCenter_m = subjectBounds_m.getCenterAsPoint2D();
 
-		final int prefWidth = preferredFigureSize_px.width;
-		final int prefHeight = preferredFigureSize_px.height;
-		
-		double new_x_t, new_y_t;
-		// Calculate translation for figure centering
-		if (rocketWidth_m * scale + 2 * borderThickness_pixels < getWidth()) {
-			// Figure fits in the viewport
-			new_x_t = (getWidth() - rocketWidth_m * scale) / 2 - finBounds_m.getX().min * scale;			
-		} else {
-			// Figure does not fit in viewport
-			new_x_t = borderThickness_pixels - finBounds_m.getX().min* scale;
-		}
+		final double x_min_m = subjectBounds_m.getX().min;
+		final double subjectHeight_m = subjectBounds_m.getY().span();
+		final Point2D.Double newTranslation = new Point2D.Double(
+				borderThickness_px + x_min_m* scale*zoom,
+				borderThickness_px + subjectHeight_m * scale*zoom);
+		this.originLocation_px.width = (int)(newTranslation.x);
+		this.originLocation_px.height = (int)(newTranslation.y);
 		
 
-		if (rocketHeight_m * scale + 2 * borderThickness_pixels < getHeight()) {
-			new_y_t = getHeight() - borderThickness_pixels;
-		} else {
-			new_y_t = borderThickness_pixels + rocketHeight_m * scale;
-		}
-		
-		if (Math.abs(translateX - new_x_t) > 1 || Math.abs(translateY - new_y_t) > 1) {
-			// Origin has changed, fire event
-			translateX = new_x_t;
-			translateY = new_y_t;
-			fireChangeEvent();
-		}
+		// vvv DEBUG vvv
+		dumpState("updateTransform()");
+		System.err.println("    new_translation: ("+newTranslation.x+", "+newTranslation.y+")");
+		// ^^^^ DEBUG ^^^^
 
+		
 		// Calculate and store the transformation used
 		transform = new AffineTransform();
-		transform.translate(translateX, translateY);
-		transform.scale(scale / EXTRA_SCALE, -scale / EXTRA_SCALE);
+		transform.translate((double)originLocation_px.width, (double)originLocation_px.height);
+		transform.scale(scale*zoom , -scale*zoom );
 	}
 	
 	public void updateFigure(){
 		updateTransform();
 	}
-	
-	// ======  ====== 'Scrollable' interface methods ====== ====== 
-
-
-	@Override
-	public boolean getScrollableTracksViewportHeight() {
-		return false;
-	}
-
-
-	@Override
-	public boolean getScrollableTracksViewportWidth() {
-		return false;
-	}
-
-
-
-	@Override
-	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-		int value=0;
-		if( orientation == SwingConstants.VERTICAL ){
-			value = this.drawnSize_px.width / FinPointFigure.BLOCK_SCROLL_INCREMENT_DIVISOR; 
-		}else if( orientation == SwingConstants.VERTICAL ){
-			value = this.drawnSize_px.width / FinPointFigure.BLOCK_SCROLL_INCREMENT_DIVISOR;
-		}
-		
-		value = Math.max( value, FinPointFigure.BLOCK_SCROLL_MINIMUM_INCREMENT_PIXELS);
-		return value;
-	}
-
-
-	@Override
-	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
-		int value=0;
-		if( orientation == SwingConstants.VERTICAL ){
-			value = this.drawnSize_px.width / FinPointFigure.UNIT_SCROLL_INCREMENT_DIVISOR; 
-		}else if( orientation == SwingConstants.VERTICAL ){
-			value = this.drawnSize_px.width / FinPointFigure.UNIT_SCROLL_INCREMENT_DIVISOR;
-		}
-		
-		value = Math.max( value, FinPointFigure.UNIT_SCROLL_MINIMUM_INCREMENT_PIXELS);
-		return value;
-	}
-
-	@Override
-	public Dimension getPreferredScrollableViewportSize() {
-		return this.preferredFigureSize_px;
-	}
-	
-
 
 }

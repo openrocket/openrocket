@@ -20,7 +20,7 @@ public interface ScaleFigure extends ChangeSource {
 	public static final double INCHES_PER_METER = 39.3701;
 	public static final double METERS_PER_INCH = 0.0254;
 
-	public static final double MINIMUM_ZOOM=0.01; // == 1%
+	public static final double MINIMUM_ZOOM=0.001; // ==  00.1%
 	public static final double MAXIMUM_ZOOM=1000; // 100,000 %
 	
 	

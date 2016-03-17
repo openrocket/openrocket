@@ -19,13 +19,17 @@ public class Bounds {
 			max = Double.MIN_VALUE;
 			min = Double.MAX_VALUE; }
 		
+		public void reset( final DimensionBounds other){
+			max = other.max;
+			min = other.min; }
+		
+		
 		public double center(){
 			return ((max-min)/2);
 		}
 		
-		/* 
+		/** 
 		 * Ensures that the bounds in this dimension cover NO MORE THAN these values
-		 * 
 		 */
 		public void clamp( final double _min, final double _max){
 			min = Math.max( min, _min);
@@ -40,14 +44,17 @@ public class Bounds {
 		public boolean containsNAN(){
 			return ( Double.isNaN(max) & Double.isNaN(min));}
 		
-		/* 
+		/** 
 		 * Ensures the bounds in this dimension cover NO LESS THAN these values  
 		 * 
 		 * passing NaN for either value propogates NaN values to this bounds itself
+		 * 
+		 * @param newMin the min should be updated to this value or lower
+		 * @param newMax the min should be updated to this value or higher
 		 */
-		public void inflate( final double _newMin, final double _newMax){
-			min = Math.min( min, _newMin);
-			max = Math.max( max, _newMax);}
+		public void inflate( final double newMin, final double newMax){
+			min = Math.min( min, newMin);
+			max = Math.max( max, newMax);}
 		
 		public double span(){
 			return (max-min);}
@@ -60,10 +67,10 @@ public class Bounds {
 		
 		@Override
 		public String toString(){
-			return String.format("{ min: %6.4  max: %6.4}", min, max);}
+			return String.format("{ min: %6.4g  max: %6.4g}", min, max);}
 		
 		public String toDebug(){
-			return String.format("{ min: %6.4  max: %6.4  span: %6.4  ctr: %6.4g }", min, max, span(), center());}
+			return String.format("{ min: %6.4g  max: %6.4g  span: %6.4g  ctr: %6.4g }", min, max, span(), center());}
 
 	}
 	
@@ -132,6 +139,10 @@ public class Bounds {
 
 	public void inflate( final int dimensionIndex, final double newMinimum, final double newMaximum){
 		getDim( dimensionIndex ).inflate(newMinimum, newMaximum);
+	}
+
+	public void update( final int dimensionIndex, final double newValue){
+		boundList[dimensionIndex].update(newValue); 
 	}
 	
 	public void update( final double _x, final double _y){
@@ -223,21 +234,16 @@ public class Bounds {
 		}
 	}
 	
+	public void reset( final Bounds other){
+		int dimensionsToUpdate = Math.min( getDimensionCount(), other.getDimensionCount());
+		
+		for( int i=0; i < dimensionsToUpdate; ++i){
+			boundList[i].reset( other.boundList[i]);
+		}
+	}
+	
 	public void clamp( final int index, final double newMin, final double newMax ){
 		boundList[index].clamp( newMin, newMax);
-	}
-	
-	public void clampX( final double newMin, final double newMax ){
-		clamp( X, newMin, newMax);
-	}
-	
-	public void clampY( final double newMin, final double newMax ){
-		clamp( Y, newMin, newMax);
-	}
-	
-	
-	public void clampZ( final double newMin, final double newMax ){
-		clamp( Z, newMin, newMax);
 	}
 	
 }
