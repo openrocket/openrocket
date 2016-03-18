@@ -517,6 +517,7 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
+		rocket.setSelectedConfiguration( rocket.getFlightConfiguration( fcid[0]));
 		rocket.getSelectedConfiguration().setAllStages();
 		rocket.enableEvents();
 		return rocket;
@@ -1162,6 +1163,7 @@ public class TestRockets {
 		}
 		
 		rocket.enableEvents();
+		rocket.setSelectedConfiguration(config);
 		config.setAllStages();
 		
 		return rocket;

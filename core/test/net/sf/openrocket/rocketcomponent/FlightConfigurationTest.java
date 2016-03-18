@@ -7,13 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.optimization.rocketoptimization.TestRocketOptimizationFunction;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
@@ -157,19 +150,12 @@ public class FlightConfigurationTest extends BaseTestCase {
 	public void testConfigurationSwitching() {
 		/* Setup */
 		Rocket rkt = TestRockets.makeEstesAlphaIII();
-		//FlightConfiguration config = rkt.getSelectedConfiguration();
 		
 		InnerTube smmt = (InnerTube)rkt.getChild(0).getChild(1).getChild(2);
-		System.err.println( smmt.toMotorDebug());
 		
-		final String configDump= rkt.toDebugConfigs();
-		System.err.println("configs:\n" +configDump);
-//		final String treedump = rkt.toDebugTree();
-//		System.err.println("treedump: \n" + treedump);
-		
-		
-		//int actualMotorCount = smmt.getM
-		//assertThat("number of motor configurations doesn't actually match.", actualMotorCount, equalTo(expectedMotorCount));
+		int expectedMotorCount = 5;
+		int actualMotorCount = smmt.getMotorCount();
+		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
 		
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
