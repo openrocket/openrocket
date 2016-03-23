@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="jar://$MODULE_DIR$/lib-extra/RXTXcomm.jar!/" />
+    <libelement value="file://$MODULE_DIR$/resources" />
+    <libelement value="jar://$MODULE_DIR$/lib/opencsv-2.3.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/guice-3.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/guice-multibindings-3.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/javax.inject.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/aopalliance.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/slf4j-api-1.7.5.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/annotation-detector-3.0.2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/hamcrest-core-1.3.0RC1.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/hamcrest-library-1.3.0RC1.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/jmock-2.6.0-RC2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.6.0-RC2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/junit-dep-4.8.2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/test-plugin.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../lib-test/uispec4j-2.3-jdk16.jar!/" />
+    <src_description expected_position="0">
+      <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
+      <src_folder value="file://$MODULE_DIR$/src-extra" expected_position="1" />
+      <src_folder value="file://$MODULE_DIR$/test" expected_position="2" />
+    </src_description>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src-extra" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="module-library">
+      <library name="RXTXcomm.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib-extra/RXTXcomm.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="resources">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/resources" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="opencsv-2.3.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/opencsv-2.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="guice-3.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/guice-3.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="guice-multibindings-3.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/guice-multibindings-3.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="javax.inject.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/javax.inject.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="aopalliance.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/aopalliance.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="slf4j-api-1.7.5.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/slf4j-api-1.7.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="annotation-detector-3.0.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/annotation-detector-3.0.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="hamcrest-core-1.3.0RC1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-core-1.3.0RC1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="hamcrest-library-1.3.0RC1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-library-1.3.0RC1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jmock-2.6.0-RC2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-2.6.0-RC2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jmock-junit4-2.6.0-RC2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.6.0-RC2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="junit-dep-4.8.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/junit-dep-4.8.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="test-plugin.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/test-plugin.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="uispec4j-2.3-jdk16.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/uispec4j-2.3-jdk16.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>
