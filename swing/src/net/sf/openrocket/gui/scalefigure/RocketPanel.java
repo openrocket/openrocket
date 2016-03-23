@@ -652,6 +652,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
 		extraText.setMass(cg.weight);
+		extraText.setMassWithoutMotors( massCalculator.getCG( configuration, MassCalcType.NO_MOTORS ).weight );
 		extraText.setWarnings(warnings);
 		
 		
