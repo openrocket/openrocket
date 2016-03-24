@@ -12,9 +12,9 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 	
 	private final static long DEFAULT_MOST_SIG_BITS = 0xF4F2F1F0;
 	private final static UUID ERROR_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 2489);
-	private final static String ERROR_KEY_NAME = "ErrorKey";
+	private final static String ERROR_KEY_NAME = "ErrorKey".intern();
 	private final static UUID DEFAULT_VALUE_UUID = new UUID( DEFAULT_MOST_SIG_BITS, 5676);
-	private final static String DEFAULT_VALUE_NAME = "DefaultKey";
+	private final static String DEFAULT_VALUE_NAME = "DefaultKey".intern();
 	
 	public final static FlightConfigurationId ERROR_FCID = new FlightConfigurationId( FlightConfigurationId.ERROR_UUID);
 	public final static FlightConfigurationId DEFAULT_VALUE_FCID = new FlightConfigurationId( FlightConfigurationId.DEFAULT_VALUE_UUID ); 
@@ -65,7 +65,7 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		}
 	}
 	
-	public String getFullKeyText(){
+	public String toFullKey(){
 		return this.key.toString();
 	}
 	

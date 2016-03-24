@@ -8,10 +8,8 @@ import java.util.List;
 
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.file.motor.MotorLoader;
-import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 
@@ -60,30 +58,23 @@ public class MotorCorrelation {
 	 * @param motor2	the second motor.
 	 * @return			the scaled cross-correlation of the two thrust curves.
 	 */
-	public static double crossCorrelation(Motor motor1, Motor motor2) {
-		MotorState m1 = motor1.getNewInstance();
-		MotorState m2 = motor2.getNewInstance();
-		
-		AtmosphericConditions cond = new AtmosphericConditions();
-		
+	public static double crossCorrelation(Motor motor1, Motor motor2) {		
 		double t;
 		double auto1 = 0;
 		double auto2 = 0;
 		double cross = 0;
 		for (t = 0; t < 1000; t += 0.01) {
-			m1.step(t, 0, cond);
-			m2.step(t, 0, cond);
 			
-			double t1 = m1.getThrust();
-			double t2 = m2.getThrust();
+			double thrust1 = motor1.getThrustAtMotorTime( t); 
+			double thrust2 = motor2.getThrustAtMotorTime( t);
 			
-			if (t1 < 0 || t2 < 0) {
-				throw new BugException("Negative thrust, t1=" + t1 + " t2=" + t2);
+			if ( thrust1 < 0 || thrust2 < 0) {
+				throw new BugException("Negative thrust, t1=" + thrust1 + " t2=" + thrust2);
 			}
 			
-			auto1 += t1 * t1;
-			auto2 += t2 * t2;
-			cross += t1 * t2;
+			auto1 += thrust1 * thrust1;
+			auto2 += thrust2 * thrust2;
+			cross += thrust1 * thrust2;
 		}
 		
 		double auto = Math.max(auto1, auto2);

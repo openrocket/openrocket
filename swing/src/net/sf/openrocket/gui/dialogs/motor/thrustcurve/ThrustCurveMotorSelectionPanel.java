@@ -181,7 +181,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					String sel = (String) delayBox.getSelectedItem();
 					//// None
 					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.equalsIgnoreCase.None"))) {
-						selectedDelay = Motor.PLUGGED;
+						selectedDelay = Motor.PLUGGED_DELAY;
 					} else {
 						try {
 							selectedDelay = Double.parseDouble(sel);
@@ -325,7 +325,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		motorFilterPanel.setMotorMount(mountToEdit);
 		
-		MotorConfiguration curMotorInstance = mountToEdit.getMotorInstance(_fcid);
+		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(_fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;

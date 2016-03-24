@@ -173,12 +173,12 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 						
 						double d = Double.parseDouble(delay);
 						if (d >= DELAY_LIMIT)
-							d = Motor.PLUGGED;
+							d = Motor.PLUGGED_DELAY;
 						delayList.add(d);
 						
 					} catch (NumberFormatException e) {
 						if (str.equalsIgnoreCase("P") || str.equalsIgnoreCase("plugged")) {
-							delayList.add(Motor.PLUGGED);
+							delayList.add(Motor.PLUGGED_DELAY);
 						}
 					}
 				}

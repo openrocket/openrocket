@@ -1,10 +1,10 @@
 package net.sf.openrocket.simulation.listeners;
 
-import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.MotorState;
+import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 
@@ -43,8 +43,8 @@ public interface SimulationEventListener {
 	 * @param instance	the motor instance being ignited
 	 * @return			<code>true</code> to ignite the motor, <code>false</code> to abort ignition
 	 */
-	public boolean motorIgnition(SimulationStatus status, MotorInstanceId motorId, MotorMount mount,
-			MotorState instance) throws SimulationException;
+	public boolean motorIgnition(SimulationStatus status, MotorConfigurationId motorId, MotorMount mount,
+			MotorClusterState instance) throws SimulationException;
 	
 	
 	/**

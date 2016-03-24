@@ -21,9 +21,8 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
-	
-	private static final long serialVersionUID = 6903386330489783515L;
 
 	private final ThrustCurveMotorSelectionPanel selectionPanel;
 	

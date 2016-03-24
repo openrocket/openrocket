@@ -9,6 +9,7 @@ import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -299,13 +300,14 @@ public class MassCalculatorTest extends BaseTestCase {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		
 		InnerTube mmt = (InnerTube) rocket.getChild(0).getChild(1).getChild(2);
-		Motor activeMotor = mmt.getMotorInstance( rocket.getSelectedConfiguration().getId()).getMotor();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getId();
+		Motor activeMotor = mmt.getMotorConfig( fcid ).getMotor();
 		String desig = activeMotor.getDesignation();
 		
 		double expLaunchMass = 0.0164; // kg
 		double expSpentMass = 0.0131; // kg
-		assertEquals(" Motor Mass "+desig+" is incorrect: ", expLaunchMass, activeMotor.getLaunchCG().weight, EPSILON);
-		assertEquals(" Motor Mass "+desig+" is incorrect: ", expSpentMass, activeMotor.getEmptyCG().weight, EPSILON);
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expLaunchMass, activeMotor.getLaunchMass(), EPSILON);
+		assertEquals(" Motor Mass "+desig+" is incorrect: ", expSpentMass, activeMotor.getBurnoutMass(), EPSILON);
 		
 		// Validate Booster Launch Mass
 		MassCalculator mc = new MassCalculator();

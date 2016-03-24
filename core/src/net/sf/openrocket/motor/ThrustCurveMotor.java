@@ -8,18 +8,15 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
 
-
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Serializable {
-	/**
-	 * 
-	 */
+	// NECESSARY field, for this class -- this class is serialized in the motor database, and loaded directly.
 	private static final long serialVersionUID = -1490333207132694479L;
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotor.class);
 	
@@ -45,12 +42,17 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private final double length;
 	private final double[] time;
 	private final double[] thrust;
-	private final Coordinate[] cg;
-	
+//	private final double[] cgx;   // cannot add without rebuilding the motor database ... automatically on every user's install.
+//	private final double[] mass; // cannot add without rebuilding the motor database ... on every user's install.  
+	private final Coordinate[] cg; /// @deprecated, but required b/c the motor database is serialized java classes.
 	private double maxThrust;
 	private double burnTime;
 	private double averageThrust;
 	private double totalImpulse;
+	
+	private final double unitRotationalInertia;
+	private final double unitLongitudinalInertia;
+	
 	
 	/**
 	 * Deep copy constructor.
@@ -63,19 +65,22 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		this.designation = m.designation;
 		this.description = m.description;
 		this.type = m.type;
-		this.delays = ArrayUtils.copyOf(m.delays, m.delays.length);
+		this.delays = Arrays.copyOf(m.delays, m.delays.length);
 		this.diameter = m.diameter;
 		this.length = m.length;
-		this.time = ArrayUtils.copyOf(m.time, m.time.length);
-		this.thrust = ArrayUtils.copyOf(m.thrust, m.thrust.length);
-		this.cg = new Coordinate[m.cg.length];
-		for (int i = 0; i < cg.length; i++) {
-			this.cg[i] = m.cg[i].clone();
-		}
+		this.time = Arrays.copyOf(m.time, m.time.length);
+		this.thrust = Arrays.copyOf(m.thrust, m.thrust.length);
+		this.cg = m.getCGPoints().clone();
+//		this.cgx = Arrays.copyOf(m.cgx, m.cgx.length);
+//		this.mass = Arrays.copyOf(m.mass, m.mass.length);
 		this.maxThrust = m.maxThrust;
 		this.burnTime = m.burnTime;
 		this.averageThrust = m.averageThrust;
 		this.totalImpulse = m.totalImpulse;
+		
+		this.unitRotationalInertia = m.unitRotationalInertia;
+		this.unitLongitudinalInertia = m.unitLongitudinalInertia;
+
 	}
 	
 	/**
@@ -162,8 +167,19 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		this.time = time.clone();
 		this.thrust = thrust.clone();
 		this.cg = cg.clone();
-		
+//		this.cgx = new double[ cg.length];
+//		this.mass = new double[ cg.length];
+//		for (int cgIndex = 0; cgIndex < cg.length; ++cgIndex){
+//			this.cgx[cgIndex] = cg[cgIndex].x;
+//			this.mass[cgIndex] = cg[cgIndex].weight;
+//		}
+		unitRotationalInertia = Inertia.filledCylinderRotational( this.diameter / 2);
+		unitLongitudinalInertia = Inertia.filledCylinderLongitudinal( this.diameter / 2, this.length);
+
 		computeStatistics();
+
+		// This constructor is not called upon serialized data constructor.
+		//System.err.println("loading motor: "+designation);
 	}
 	
 	
@@ -186,6 +202,65 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return time.clone();
 	}
 	
+	/* 
+	 * find the index to data that corresponds to the given time:
+	 *  
+	 * Pseudo Index is two parts: 
+	 *     integer : simple index into the array
+	 *     fractional part:  [0,1]: weighting to interpolate between the given index and the next index. 
+	 *  
+	 * @param is time after motor ignition, in seconds
+	 * @return a pseudo index to this motor's data. 
+	 */
+	public double getPseudoIndex( final double motorTime ){
+		final double SNAP_DISTANCE = 0.001;
+		
+		if( time.length == 0 ){
+			return Double.NaN;
+		}
+		
+		if( 0 > motorTime ){
+			return 0.0;
+		}
+		
+		int lowerBoundIndex=0;
+		int upperBoundIndex=0;
+		while( ( upperBoundIndex < time.length ) && ( motorTime >= time[upperBoundIndex] )){
+			++upperBoundIndex;
+		}	
+		lowerBoundIndex = upperBoundIndex-1;
+		if( upperBoundIndex == time.length ){
+			return time.length - 1; 
+		}
+		
+		if ( SNAP_DISTANCE > Math.abs( motorTime - time[lowerBoundIndex])){
+			return lowerBoundIndex;
+		}
+		
+		double lowerBoundTime = time[lowerBoundIndex];
+		double upperBoundTime = time[upperBoundIndex];
+		double timeFraction  = motorTime - lowerBoundTime;
+		double indexFraction = ( timeFraction ) / ( upperBoundTime - lowerBoundTime );
+
+		if( indexFraction < SNAP_DISTANCE ){
+			// round down to last index
+			return lowerBoundIndex;
+		}else if( indexFraction > (1-SNAP_DISTANCE)){
+			// round up to next index
+			return ++lowerBoundIndex;
+		}else{
+			// general case 
+			return lowerBoundIndex + indexFraction;
+		}
+	}
+	
+	@Override
+	public double getThrustAtMotorTime( final double searchTime ){
+		double pseudoIndex = getPseudoIndex( searchTime );
+		return getThrustAtIndex( pseudoIndex ); 
+	}
+
+	
 	/**
 	 * Returns the array of thrust points for this thrust curve.
 	 * @return	an array of thrust samples
@@ -194,13 +269,25 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return thrust.clone();
 	}
 	
-	/**
-	 * Returns the array of CG points for this thrust curve.
-	 * @return	an array of CG samples
-	 */
-	public Coordinate[] getCGPoints() {
+//	/**
+//	 * Returns the array of CG points for this thrust curve.
+//	 * @return	an array of CG samples
+//	 */
+//	public double[] getCGxPoints() {
+//		return cgx;
+//	}
+	
+	public Coordinate[] getCGPoints(){
 		return cg.clone();
 	}
+	
+//	/**
+//	 * Returns the array of Mass values for this thrust curve.
+//	 * @return	an array of Masses
+//	 */
+//	public double[] getMassPoints() {
+//		return mass;
+//	}
 	
 	/**
 	 * Return a list of standard delays defined for this motor.
@@ -221,6 +308,25 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return type;
 	}
 	
+	public double getUnitLongitudinalInertia() {
+		return this.unitLongitudinalInertia;
+	}
+	
+	public double getUnitRotationalInertia() {
+		return this.unitRotationalInertia;
+	}
+
+	public double getIxxAtTime( final double searchTime) {
+		final double index = getPseudoIndex( searchTime); 
+		//return this.unitLongitudinalInertia * this.getMassAtIndex( index);
+		return this.unitLongitudinalInertia * this.getCGAtIndex( index).weight;
+	}
+	
+	public double getIyyAtTime( final double searchTime) {
+		final double index = getPseudoIndex( searchTime); 
+		//return this.unitRotationalInertia * this.getMassAtIndex( index);
+		return this.unitRotationalInertia * this.getCGAtIndex( index).weight;
+	}
 	
 	@Override
 	public String getDesignation() {
@@ -248,29 +354,104 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return length;
 	}
 	
-	
 	@Override
-	public ThrustCurveMotorState getNewInstance() {
-		return new ThrustCurveMotorState(this);
-	}
-	
-	
-	@Override
-	public Coordinate getLaunchCG() {
-		return cg[0];
+	public ThrustCurveMotor clone() {
+		return new ThrustCurveMotor(this);
 	}
 	
 	@Override
-	public Coordinate getEmptyCG() {
-		return cg[cg.length - 1];
+	public double getLaunchCGx() {
+		return cg[0].x;//cgx[0];
 	}
 	
-	//   Coordinate getCG(int index)
-	//   double getThrust( int index)
-	//   double getTime( int index)
+	@Override
+	public double getBurnoutCGx() {
+		return cg[cg.length - 1].x;// cgx[ cg.length - 1];
+	}
+	
+	@Override
+	public double getLaunchMass() {
+		return cg[0].weight;//mass[0];
+	}
+	
+	@Override
+	public double getBurnoutMass() {
+		return cg[cg.length-1].weight; //mass[mass.length - 1];
+	}
+	
+	private static double interpolateValueAtIndex( final double[] values, final double pseudoIndex ){
+		final double SNAP_TOLERANCE = 0.0001;
+
+		final double upperFrac = pseudoIndex%1;
+		final double lowerFrac = 1-upperFrac;
+		final int lowerIndex = (int)pseudoIndex;
+		final int upperIndex= lowerIndex+1;
+
+		// if the pseudo 
+		if( SNAP_TOLERANCE > (1-lowerFrac) ){
+			// index ~= int ... therefore:
+			return values[ (int) pseudoIndex ];
+		}else if( SNAP_TOLERANCE > upperFrac ){
+			return values[ (int)upperIndex ];
+		}
+		
+		final double lowerValue = values[lowerIndex];
+		final double upperValue = values[upperIndex];
+		
+		// return simple linear interpolation
+		return ( lowerValue*lowerFrac + upperValue*upperFrac );
+	}
+
+	public double getThrustAtIndex( final double pseudoIndex ){
+		return interpolateValueAtIndex( this.thrust, pseudoIndex );	
+	}
+	
+	public double getMotorTimeAtIndex( final double index ){
+		return interpolateValueAtIndex( this.time, index );
+	}
+
+	@Deprecated
+	public Coordinate getCGAtIndex( final double pseudoIndex ){
+		final double SNAP_TOLERANCE = 0.0001;
+
+		final double upperFrac = pseudoIndex%1;
+		final double lowerFrac = 1-upperFrac;
+		final int lowerIndex = (int)pseudoIndex;
+		final int upperIndex= lowerIndex+1;
+
+		// if the pseudo 
+		if( SNAP_TOLERANCE > (1-lowerFrac) ){
+			// index ~= int ... therefore:
+			return cg[ (int) pseudoIndex ];
+		}else if( SNAP_TOLERANCE > upperFrac ){
+			return cg[ (int)upperIndex ];
+		}
+		
+		final Coordinate lowerValue = cg[lowerIndex].multiply(lowerFrac);
+		final Coordinate upperValue = cg[upperIndex].multiply(upperFrac);
+		
+		// return simple linear interpolation
+		return lowerValue.add( upperValue );
+	}
+
+	
+//	public double getCGxAtIndex( final double index){
+//		//return interpolateValueAtIndex( this.cgx, index );
+//		
+//	}
+//	
+//	public double getMassAtIndex( final double index){
+//		//return interpolateValueAtIndex( this.mass, index );
+//		
+//	}
+	
+	
+	
+	//   int getCutoffIndex();
+	
 	//   double getCutoffTime()
 	//   int getCutoffIndex();
-	//   double interpolateThrust(...)
+
 	//   Coordinate interpolateCG( ... ) 
 	
 	//
@@ -304,7 +485,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	public double getCutOffTime() {
-		return this.time[this.time.length - 1];
+		return time[time.length - 1];
 	}
 	
 	/**
@@ -398,7 +579,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	//////////  Static methods
 	
 	/**
-	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED},
+	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED_DELAY},
 	 * returns "P".
 	 *  
 	 * @param delay		the delay time.
@@ -409,7 +590,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	/**
-	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED},
+	 * Return a String representation of a delay time.  If the delay is {@link #PLUGGED_DELAY},
 	 * <code>plugged</code> is returned.
 	 *   
 	 * @param delay  	the delay time.
@@ -417,7 +598,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * @return			the String representation.
 	 */
 	public static String getDelayString(double delay, String plugged) {
-		if (delay == PLUGGED)
+		if (delay == PLUGGED_DELAY)
 			return plugged;
 		delay = Math.rint(delay * 10) / 10;
 		if (MathUtil.equals(delay, Math.rint(delay)))

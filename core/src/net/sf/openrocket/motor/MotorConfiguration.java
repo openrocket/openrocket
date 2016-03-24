@@ -1,10 +1,10 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 
@@ -14,13 +14,15 @@ import net.sf.openrocket.util.Inertia;
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
-	public static final String EMPTY_DESCRIPTION = "Empty Configuration";
+	public static final String EMPTY_DESCRIPTION = "Empty Motor Configuration".intern();
+
+	protected final MotorMount mount;
+	protected final FlightConfigurationId fcid;
+	protected final MotorConfigurationId id;
 	
-	protected MotorMount mount = null;
+	protected String name = "";
 	protected Motor motor = null;
 	protected double ejectionDelay = 0.0;
-
-	protected MotorInstanceId id = null;
 
 	protected boolean ignitionOveride = false;
 	protected double ignitionDelay = 0.0;
@@ -28,59 +30,53 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	protected int modID = 0;
 	
-	public MotorConfiguration( Motor motor ) {
-		this();
-		this.motor = motor;
-	}
-	
-	public MotorConfiguration() {
-		this.id = MotorInstanceId.EMPTY_ID;
+	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid ) {
+		if (null == _mount ) {
+			throw new NullPointerException("Provided MotorMount was null");
+		}
+		if (null == _fcid ) {
+			throw new NullPointerException("Provided FlightConfigurationId was null");
+		}
+
+		this.mount = _mount;
+		this.fcid = _fcid;
+		this.id = new MotorConfigurationId( _mount, _fcid );
+		
+		this.motor = null;
 		ejectionDelay = 0.0;
-		ignitionEvent = IgnitionEvent.LAUNCH;
+		ignitionEvent = IgnitionEvent.NEVER;
 		ignitionDelay = 0.0;
+		
+
 		modID++;
 	}
 	
-	public MotorState getSimulationState() {
-		MotorState state = motor.getNewInstance();
-		state.setEjectionDelay( this.ejectionDelay );
-		if( ignitionOveride ) {
-			state.setIgnitionEvent( this.ignitionEvent );
-			state.setIgnitionDelay( this.ignitionDelay );
-		} else {
-			MotorConfiguration defInstance = mount.getDefaultMotorInstance();
-			state.setIgnitionEvent( defInstance.ignitionEvent );
-			state.setIgnitionDelay( defInstance.ignitionDelay );
+	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid, final MotorConfiguration _template ) {
+		this( _mount, _fcid);
+		
+		if( null != _template){
+			ejectionDelay = _template.getEjectionDelay();
+			ignitionEvent = _template.getIgnitionEvent();
+			ignitionDelay = _template.getIgnitionDelay();
 		}
-		state.setMount( mount );
-		state.setId( id );
-		return state;
 	}
 	
 	public boolean hasIgnitionOverride() {
 		return ignitionOveride;
 	}
-	
-	public boolean isActive() {
-		return motor != null;
-	}
-	
-	public String getDescription(){
+
+	public String toMotorDescription(){
 		if( motor == null ){
-			return EMPTY_DESCRIPTION;
+			return "<Empty>";
 		}else{
 			return this.motor.getDesignation() + "-" + (int)this.getEjectionDelay();
 		}
 	}
 	
-	public MotorInstanceId getID() {
+	public MotorConfigurationId getID() {
 		return this.id;
 	}
-	
-	public void setID(final MotorInstanceId _id) {
-		this.id = _id;
-	}
-	
+		
 	public void setMotor(Motor motor){
 		this.motor = motor;
 	}
@@ -91,10 +87,6 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public MotorMount getMount() {
 		return mount;
-	}
-	
-	public void setMount(MotorMount mount) {
-		this.mount = mount;
 	}
 	
 	public double getEjectionDelay() {
@@ -138,14 +130,20 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.ignitionOveride = true;
 	}
 	
-	public Coordinate getOffset( ){
-		if( null == mount ){
-			return Coordinate.NaN;
+
+	public int getMotorCount() {
+		if( mount instanceof InnerTube ){
+			InnerTube inner = (InnerTube) mount;
+			return inner.getClusterConfiguration().getClusterCount();
 		}else{
-			RocketComponent comp = (RocketComponent) mount;
-			double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
-			return new Coordinate(delta_x, 0, 0);
+			 return 1;
 		}
+	}
+
+	public Coordinate getOffset( ){
+		RocketComponent comp = (RocketComponent) mount;
+		double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
+		return new Coordinate(delta_x, 0, 0);	
 	}
 	
 	public double getUnitLongitudinalInertia() {
@@ -164,7 +162,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	public double getPropellantMass(){
 		if ( motor != null ) {
-			return (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+			return (motor.getLaunchMass() - motor.getBurnoutMass());
 		}
 		return 0.0;
 	}
@@ -201,9 +199,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	 */
 	@Override
 	public MotorConfiguration clone( ) {
-		MotorConfiguration clone = new MotorConfiguration();
+		MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
 		clone.motor = this.motor;
-		clone.mount = this.mount;
 		clone.ejectionDelay = this.ejectionDelay;
 		clone.ignitionOveride = this.ignitionOveride;
 		clone.ignitionDelay = this.ignitionDelay;
@@ -218,4 +215,28 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	@Override
 	public void update(){
 	}
+
+	public String toDescription(){
+		return ( this.toMotorDescription()+
+				" in: "+mount.getDebugName()+
+				" ign@: "+this.toIgnitionDescription() );
+	}
+	
+	public String toIgnitionDescription(){
+		return this.ignitionEvent.getName()+" + "+this.ignitionDelay+"s ";
+	}
+	
+	public String toDebugDetail( ) {
+		StringBuilder buf = new StringBuilder();
+		
+		buf.append(String.format(">> in: %28s::%10s    %8s ign@: %12s ",
+				mount.getDebugName(),
+				fcid.toShortKey(),
+				toMotorDescription(),
+				toIgnitionDescription() ));
+		
+		return buf.toString();
+	}
+	
+
 }

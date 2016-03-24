@@ -1,8 +1,6 @@
 package net.sf.openrocket.motor;
 
-import net.sf.openrocket.simulation.MotorState;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Coordinate;
 
 public class ThrustCurveMotorPlaceholder implements Motor {
 	
@@ -75,18 +73,8 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 	
 	@Override
-	public MotorState getNewInstance() {
+	public Motor clone() {
 		throw new BugException("Called getInstance on PlaceholderMotor");
-	}
-	
-	@Override
-	public Coordinate getLaunchCG() {
-		return new Coordinate(length / 2, 0, 0, launchMass);
-	}
-	
-	@Override
-	public Coordinate getEmptyCG() {
-		return new Coordinate(length / 2, 0, 0, emptyMass);
 	}
 	
 	@Override
@@ -182,6 +170,32 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	public String toString() {
 		return "ThrustCurveMotorPlaceholder [manufacturer=" + manufacturer
 				+ ", designation=" + designation + "]";
+	}
+	
+	@Override
+	public double getLaunchCGx() {
+		return length / 2;
+	}
+
+	@Override
+	public double getBurnoutCGx() {
+		return length / 2;
+	}
+
+	@Override
+	public double getLaunchMass() {
+		return launchMass;
+	}
+
+	@Override
+	public double getBurnoutMass() {
+		return emptyMass;
+	}
+
+
+	@Override
+	public double getThrustAtMotorTime(double pseudoIndex) {
+		return 0;
 	}
 	
 }

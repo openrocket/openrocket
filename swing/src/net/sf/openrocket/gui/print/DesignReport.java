@@ -356,8 +356,8 @@ public class DesignReport {
 				MotorMount mount = (MotorMount) c;
 				
 				// TODO: refactor this... it's redundant with containing if, and could probably be simplified 
-				if (mount.isMotorMount() && (mount.getMotorInstance(motorId) != null) &&(null != mount.getMotorInstance(motorId).getMotor())) {
-					Motor motor = mount.getMotorInstance(motorId).getMotor();
+				if (mount.isMotorMount() && (mount.getMotorConfig(motorId) != null) &&(null != mount.getMotorConfig(motorId).getMotor())) {
+					Motor motor = mount.getMotorConfig(motorId).getMotor();
 					int motorCount = mount.getMotorCount();
 					
 					
@@ -388,7 +388,7 @@ public class DesignReport {
 					motorTable.addCell(ITextHelper.createCell(
 							ttwFormat.format(ttw) + ":1", border));
 					
-					double propMass = (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+					double propMass = (motor.getLaunchMass() - motor.getBurnoutMass());
 					motorTable.addCell(ITextHelper.createCell(
 							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
 					

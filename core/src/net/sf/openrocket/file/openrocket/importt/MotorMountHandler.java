@@ -10,11 +10,10 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -65,26 +64,21 @@ class MotorMountHandler extends AbstractElementHandler {
 		// System.err.println("closing MotorMount element: "+ element);
 		
 		if (element.equals("motor")) {
-			// yes, this is confirmed to be the FLIGHT config id == motor instance id.
 			FlightConfigurationId fcid = new FlightConfigurationId(attributes.get("configid"));
 			if (!fcid.isValid()) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
 			Motor motor = motorHandler.getMotor(warnings);
+			MotorConfiguration motorConfig = new MotorConfiguration( mount, fcid, mount.getDefaultMotorConfig());
+			motorConfig.setMotor(motor);
+			motorConfig.setEjectionDelay(motorHandler.getDelay(warnings));
 			
-			MotorConfiguration motorInstance = new MotorConfiguration();
-			motorInstance.setMotor(motor);
-			RocketComponent mountComponent = (RocketComponent)mount;
-			motorInstance.setMount(mount);
-			motorInstance.setID( new MotorInstanceId(mountComponent.getID(), 1));
-			motorInstance.setEjectionDelay(motorHandler.getDelay(warnings));
-			
-			mount.setMotorInstance(fcid, motorInstance);
+			mount.setMotorConfig( motorConfig, fcid);
 
 			Rocket rkt = ((RocketComponent)mount).getRocket();
 			rkt.createFlightConfiguration(fcid);
-			rkt.getFlightConfiguration(fcid).addMotor(motorInstance);
+			rkt.getFlightConfiguration(fcid).addMotor(motorConfig);
 			return;
 		}
 		
@@ -95,7 +89,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			MotorConfiguration inst = mount.getMotorInstance(fcid);
+			MotorConfiguration inst = mount.getMotorConfig(fcid);
 			inst.setIgnitionDelay(ignitionConfigHandler.ignitionDelay);
 			inst.setIgnitionEvent(ignitionConfigHandler.ignitionEvent);
 			return;
@@ -114,7 +108,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			mount.getDefaultMotorInstance().setIgnitionEvent(event);
+			mount.getDefaultMotorConfig().setIgnitionEvent(event);
 			
 			return;
 		}
@@ -128,7 +122,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			mount.getDefaultMotorInstance().setIgnitionDelay(d);
+			mount.getDefaultMotorConfig().setIgnitionDelay(d);
 			return;
 		}
 		

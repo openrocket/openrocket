@@ -16,14 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.UnitGroup;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,6 +25,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
 
 @SuppressWarnings("serial")
 class MotorInformationPanel extends JPanel {
@@ -230,7 +230,7 @@ class MotorInformationPanel extends JPanel {
 		
 		this.selectedMotorSet = motors;
 		this.selectedMotor = selectedMotor;
-		
+
 		// Update thrust curve data
 		double impulse = selectedMotor.getTotalImpulseEstimate();
 		MotorClass mc = MotorClass.getMotorClass(impulse);
@@ -246,9 +246,9 @@ class MotorInformationPanel extends JPanel {
 		burnTimeLabel.setText(UnitGroup.UNITS_SHORT_TIME.getDefaultUnit().toStringUnit(
 				selectedMotor.getBurnTimeEstimate()));
 		launchMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
-				selectedMotor.getLaunchCG().weight));
+				selectedMotor.getLaunchMass()));
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
-				selectedMotor.getEmptyCG().weight));
+				selectedMotor.getBurnoutMass()));
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
 		if (digestLabel != null) {
 			digestLabel.setText(selectedMotor.getDigest());

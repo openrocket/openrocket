@@ -22,9 +22,9 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -47,7 +47,7 @@ public class IgnitionSelectionDialog extends JDialog {
 	public IgnitionSelectionDialog(Window parent, final FlightConfigurationId curFCID, MotorMount _mount) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		curMount = _mount;
-		curMotorInstance = curMount.getMotorInstance(curFCID);
+		curMotorInstance = curMount.getMotorConfig(curFCID);
 	    startIgnitionEvent = curMotorInstance.getIgnitionEvent();
 	    startIgnitionDelay =  curMotorInstance.getIgnitionDelay();
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -106,7 +106,7 @@ public class IgnitionSelectionDialog extends JDialog {
 					IgnitionEvent cie = curMotorInstance.getIgnitionEvent();
 					
 					// update the default instance
-					final MotorConfiguration defaultMotorInstance = curMount.getDefaultMotorInstance();
+					final MotorConfiguration defaultMotorInstance = curMount.getDefaultMotorConfig();
 					defaultMotorInstance.setIgnitionDelay( cid);
 					defaultMotorInstance.setIgnitionEvent( cie);
 					

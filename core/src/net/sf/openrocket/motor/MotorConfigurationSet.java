@@ -1,8 +1,9 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 /**
@@ -12,8 +13,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorConfiguration> {
 	public static final int DEFAULT_MOTOR_EVENT_TYPE = ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.EVENT_CHANGE;
 	
-	public MotorConfigurationSet(RocketComponent component ) {
-		super( new MotorConfiguration());
+	public MotorConfigurationSet(final MotorMount mount ) {
+		super( new MotorConfiguration( mount, FlightConfigurationId.DEFAULT_VALUE_FCID ));
 	}
 	
 	/**
@@ -35,27 +36,16 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	@Override
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("====== Dumping MotorConfigurationSet for mount ("+this.size()+ " motors)\n");
-		MotorConfiguration defaultConfig = this.getDefault();
-		buffer.append("          (Ignition@ "+ defaultConfig.getIgnitionEvent().name +"  +"+defaultConfig.getIgnitionDelay()+"sec )\n");
+		final MotorMount mnt = this.getDefault().getMount();
+		buffer.append("====== Dumping MotorConfigurationSet: "+this.size()+ " motors in "+mnt.getDebugName()+" \n");
 		
 		for( FlightConfigurationId loopFCID : this.map.keySet()){
-			String shortKey = loopFCID.toShortKey();
-			
-			MotorConfiguration curInstance = this.map.get(loopFCID);
-			String designation;
-			if( null == curInstance.getMotor() ){
-				designation = "<EMPTY>";
+			MotorConfiguration curConfig = this.map.get(loopFCID);
+			if( this.isDefault(loopFCID)){
+				buffer.append( " [DEFAULT] "+curConfig.toDebugDetail()+"\n");
 			}else{
-				designation = curInstance.getMotor().getDesignation(curInstance.getEjectionDelay());
+				buffer.append( "           "+curConfig.toDebugDetail() +"\n");
 			}
-			String ignition = curInstance.getIgnitionEvent().name;
-			double delay = curInstance.getIgnitionDelay();
-			if( 0 != delay ){
-				ignition += " +"+delay;
-			}
-			buffer.append(String.format("              >> [%10s]= %6s  @ %4s\n",
-					shortKey, designation, ignition  ));
 		}
 		return buffer.toString();
 	}

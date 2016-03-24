@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class ParallelStageTest extends BaseTestCase {
@@ -204,6 +205,25 @@ public class ParallelStageTest extends BaseTestCase {
 		
 	}
 
+
+	@Test
+	public void testStageAncestry() {
+		RocketComponent rocket = TestRockets.makeFalcon9Heavy();
+		
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = (AxialStage) core.getChild(1);
+		
+		AxialStage sustainerPrev = sustainer.getPreviousStage();
+		assertThat("sustainer parent is not found correctly: ", sustainerPrev, equalTo(null));
+		
+		AxialStage corePrev = core.getPreviousStage();
+		assertThat("core parent is not found correctly: ", corePrev, equalTo(sustainer));
+		
+		AxialStage boosterPrev = booster.getPreviousStage();
+		assertThat("booster parent is not found correctly: ", boosterPrev, equalTo(core));
+	}
+	
 	@Test
 	public void testSetStagePosition_topOfStack() {
 		// setup

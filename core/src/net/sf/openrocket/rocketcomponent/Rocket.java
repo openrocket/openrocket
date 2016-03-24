@@ -191,6 +191,10 @@ public class Rocket extends RocketComponent {
 	public Collection<AxialStage> getStageList() {
 		return this.stageMap.values();
 	}
+
+	public AxialStage getStage( final int stageNumber ) {
+		return this.stageMap.get( stageNumber);
+	}
 	
 	/*
 	 * Returns the stage at the top of the central stack
@@ -662,7 +666,7 @@ public class Rocket extends RocketComponent {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotorInstance(fcid).getMotor() != null) {
+				if (mount.getMotorConfig(fcid).getMotor() != null) {
 					return true;
 				}
 			}
@@ -817,11 +821,11 @@ public class Rocket extends RocketComponent {
 	public String toDebugConfigs(){
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("====== Dumping %d Configurations from rocket: \n", this.getConfigurationCount(), this.getName()));
-		final String fmt = "    [%-12s]: %s\n";
+		final String fmt = "    [%12s]: %s\n";
 		for( FlightConfiguration config : this.configSet.values() ){
 			String shortKey = config.getId().toShortKey();
 			if( this.selectedConfiguration.equals( config)){
-				shortKey = shortKey+"<=";
+				shortKey = "=>" + shortKey;
 			}
 			buf.append(String.format(fmt, shortKey, config.getName() ));
 		}

@@ -9,14 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.motor.MotorInstanceId;
+import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -88,7 +86,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			currentStatus = toSimulate.pop();
 			log.info(">>Starting simulation of branch: "+currentStatus.getFlightData().getBranchName());
-
+			
 			FlightDataBranch dataBranch = simulateLoop();
 			flightData.addBranch(dataBranch);
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
@@ -192,15 +190,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 							currentStatus.getConfiguration().getRocket()));
 				}
 				
-				
-				// Check for burnt out motors
-				for( MotorState motor : currentStatus.getAllMotors()){
-					MotorInstanceId motorId = motor.getID();
-					if (!motor.isActive() && currentStatus.addBurntOutMotor(motorId)) {
-						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
-								(RocketComponent) motor.getMount(), motorId));
-					}
-				}
+//				//@Obsolete
+//				//@Redundant
+//				// Check for burnt out motors
+//				for( MotorClusterState state : currentStatus.getActiveMotors()){
+//					if ( state.isSpent()){
+//						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
+//								(RocketComponent) state.getMount(), state));
+//					}
+//				}
 				
 				// Check for Tumbling
 				// Conditions for transision are:
@@ -268,18 +266,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				continue;
 			}
 			
-			if (event.getType() != FlightEvent.Type.ALTITUDE) {
-				log.trace("BasicEventSimulationEngine:  Handling event " + event);
-			}
-			
-			if (event.getType() == FlightEvent.Type.IGNITION) {
-				MotorMount mount = (MotorMount) event.getSource();
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState instance = currentStatus.getMotor(motorId);
-				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, instance)) {
-					continue;
-				}
-			}
 			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				RecoveryDevice device = (RecoveryDevice) event.getSource();
 				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
@@ -288,18 +274,22 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorState inst : currentStatus.getActiveMotors() ){
-				IgnitionEvent ignitionEvent = inst.getIgnitionEvent();
-				MotorMount mount = inst.getMount();
-				RocketComponent component = (RocketComponent) mount;
-				
-				if (ignitionEvent.isActivationEvent(event, component)) {
-					double ignitionDelay = inst.getIgnitionDelay();
-					// TODO:  this event seems to get enque'd multiple times -- more than necessary...
-					//System.err.println("Queing ignition of mtr:"+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
-					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
-							currentStatus.getSimulationTime() + ignitionDelay,
-							component, inst.getID() ));
+			for (MotorClusterState state : currentStatus.getActiveMotors() ){
+				if( state.testForIgnition(event )){
+					final double simulationTime = currentStatus.getSimulationTime() ;
+					MotorClusterState sourceState = (MotorClusterState) event.getData();
+					double ignitionDelay = 0;
+					if(( event.getType() == FlightEvent.Type.BURNOUT)|| ( event.getType() == FlightEvent.Type.EJECTION_CHARGE)){
+						ignitionDelay = sourceState.getEjectionDelay();
+					}
+					final double ignitionTime = currentStatus.getSimulationTime() + ignitionDelay; 
+					final RocketComponent mount = (RocketComponent)state.getMount();
+					
+					// TODO:  this event seems to get enqueue'd multiple times ... 
+					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
+					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					
+					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, mount, state ));
 				}
 			}
 			
@@ -339,15 +329,28 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			case IGNITION: {
-				// Ignite the motor
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState inst = currentStatus.getMotor( motorId);
-				inst.setIgnitionTime(event.getTime());
-				//System.err.println("Igniting motor: "+inst.getMotor().getDesignation()+" @"+currentStatus.getSimulationTime());
+				MotorClusterState motorState = (MotorClusterState) event.getData();
 				
+				log.info("  Igniting motor: "+motorState.toDescription()+" @"+currentStatus.getSimulationTime());
+				motorState.ignite( event.getTime());
+
+				// Ignite the motor
 				currentStatus.setMotorIgnited(true);
 				currentStatus.getFlightData().addEvent(event);
 				
+				// ... ignite ...uhh, again? 
+				// TBH, I'm not sure what this call is for. It seems to be mostly a bunch of event distribution.
+				MotorConfigurationId motorId = motorState.getID(); 
+				MotorMount mount = (MotorMount) event.getSource();
+				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, motorState)) {
+					continue;
+				}
+				
+				// and queue up the burnout for this motor, as well. 
+				double duration = motorState.getMotor().getBurnTimeEstimate();
+				double burnout = currentStatus.getSimulationTime() + duration;
+				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
+							event.getSource(), motorState ));
 				break;
 			}
 			
@@ -370,19 +373,27 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isLiftoff()) {
 					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
 				}
+				
 				// Add ejection charge event
-				MotorInstanceId motorId = (MotorInstanceId) event.getData();
-				MotorState motor = currentStatus.getMotor( motorId);
-				double delay = motor.getEjectionDelay();
-				if (delay != Motor.PLUGGED) {
+				MotorClusterState motorState = (MotorClusterState) event.getData();
+				motorState.burnOut( event.getTime() );
+
+				AxialStage stage = motorState.getMount().getStage();
+				log.debug( " adding EJECTION_CHARGE event for stage "+stage.getStageNumber()+": "+stage.getName());
+				log.debug( "                         .... for motor "+motorState.getMotor().getDesignation());
+				
+				double delay = motorState.getEjectionDelay();
+				if ( motorState.hasEjectionCharge() ){
 					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
-							event.getSource(), event.getData()));
+							stage, event.getData()));
 				}
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case EJECTION_CHARGE: {
+				MotorClusterState motorState = (MotorClusterState) event.getData();
+				motorState.expend( event.getTime() );
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
@@ -392,17 +403,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.getFlightData().addEvent(event);
 				
 				RocketComponent boosterStage = event.getSource();
-				int stageNumber = boosterStage.getStageNumber();
+				final int stageNumber = boosterStage.getStageNumber();
 	
-				// Prepare the booster status for simulation.
+				// Mark the status as having dropped the booster
+				currentStatus.getConfiguration().clearStage( stageNumber);
+				
+				// Prepare the simulation branch
 				SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 				boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
 				// Mark the booster status as only having the booster.
 				boosterStatus.getConfiguration().setOnlyStage(stageNumber);
 				toSimulate.add(boosterStatus);
-				
-				// Mark the status as having dropped the booster
-				currentStatus.getConfiguration().clearStage( stageNumber);
+				log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
+						currentStatus.getSimulationTime(), 
+						currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
 				
 				break;
 			}
@@ -474,6 +488,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case ALTITUDE:
+				log.trace("BasicEventSimulationEngine:  Handling event " + event);
 				break;
 			
 			case TUMBLE:
@@ -568,14 +583,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
-//			log.error(" cloned simConditions: "+conds.toString()
-//						+" ... "+conds.getRocket().getName()
-//						+" ... "+conds.getFlightConfigurationID().toShortKey());
-//			FlightConfigurationID dbid = conds.getFlightConfigurationID();
-//			FlightConfiguration cloneConfig = conds.getRocket().getFlightConfiguration( dbid );
-//			System.err.println("        configId: "+dbid.toShortKey());
-//			System.err.println("        motors detail: "+cloneConfig.toMotorDetail());
-								
+		
 			FlightData d = e.simulate(conds);
 			return d;
 		} catch (Exception e) {
