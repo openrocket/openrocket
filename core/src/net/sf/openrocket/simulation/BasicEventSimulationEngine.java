@@ -440,12 +440,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// TODO: HIGH: Check stage activeness for other events as well?
 					
 					// Check whether any motor in the active stages is active anymore
-					Collection<MotorConfiguration> activeMotors = currentStatus.getConfiguration().getActiveMotors();
-					for (MotorConfiguration curMotor : activeMotors) {
-						RocketComponent comp = ((RocketComponent) curMotor.getMount());
-						int stageNumber = comp.getStageNumber();
-						if (!currentStatus.getConfiguration().isStageActive(stageNumber))
+					for (MotorClusterState state : currentStatus.getActiveMotors() ) {
+						if ( state.isSpent() ) {
 							continue;
+						}
 						currentStatus.getWarnings().add(Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING);
 					}
 					
