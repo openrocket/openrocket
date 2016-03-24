@@ -109,9 +109,13 @@ public class RocketInfo implements FigureElement {
 	public void setDiameter(double diameter) {
 		this.diameter = diameter;
 	}
-	
+
 	public void setMass(double mass) {
 		this.mass = mass;
+	}
+
+	public void setMassWithoutMotors(double mass) {
+		this.massWithoutMotors = mass;
 	}
 	
 	public void setWarnings(WarningSet warnings) {
@@ -164,7 +168,7 @@ public class RocketInfo implements FigureElement {
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
-		g2.drawGlyphVector(massLine, x1, y1+2*line);
+		g2.drawGlyphVector(massLineWithoutMotors, x1, y1+2*line);
 
 		if( configuration.hasMotors() ) {
 			//// Mass with motors
