@@ -48,6 +48,7 @@ public class ZoomSelector extends JPanel {
 				double scale = scrollPane.getZoom();
 				scale = getFartherZoom(scale);
 				scrollPane.setZoom(scale);
+				setZoomText();
 			}
 		});
 		add(button, "gap");
@@ -104,6 +105,7 @@ public class ZoomSelector extends JPanel {
 				double scale = scrollPane.getZoom();
 				scale = getCloserZoom(scale);
 				scrollPane.setZoom(scale);
+				setZoomText();
 			}
 		});
 		add(button, "gapleft rel");

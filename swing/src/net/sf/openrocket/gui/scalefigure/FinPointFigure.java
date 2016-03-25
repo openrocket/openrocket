@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
-import net.sf.openrocket.gui.util.GUIUtil;
+
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -45,8 +45,10 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
 	private static final float GRID_LINE_BASE_WIDTH = 0.001f;
 	
+	private static final int LINE_WIDTH_PIXELS = 1;
 	// the size of the boxes around each fin point vertex
-	private static final int BOX_WIDTH_PIXELS = 8; 
+	private static final float BOX_WIDTH_PIXELS = 12; 
+	
 	private static final double MINOR_TICKS = 0.03;
 	private static final double MAJOR_TICKS = 0.1;
 	
@@ -66,7 +68,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	protected int borderThickness_px = DEFAULT_BORDER_PIXELS;
 	
 	// actual number to multiply against rocket coordinates to display in UI 
-	final protected double scale = 1000.0;
+	protected final static double scale = 1000.0;
 	
 	// zoom factor, in the traditional % zoom units
 	// 1.0 === 100% === no scaling.
@@ -106,7 +108,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		System.err.println("    act. size (px):"+this.getWidth()+", "+this.getHeight());
 		System.err.println("  ");
 		System.err.println("    current zoom= "+this.zoom*100+"%)");
-		System.err.println("    current scale = "+this.scale+")");
+		System.err.println("    current scale = "+FinPointFigure.scale+")");
 	}
 	
 	@Override
@@ -131,8 +133,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		
 		this.zoom = newZoom;
 		
-		// vv DEBUG vv 
-		dumpState(" setZoom( "+newZoomRequest*100+"% );");
+		// dumpState(" setZoom( "+newZoomRequest*100+"% );");
 		
 		updateTransform();
 		repaint();
@@ -268,26 +269,29 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	private void paintFinShape(Graphics2D g2){
 		final Coordinate[] points = finset.getFinPoints();
 		
+		// excludes fin tab
 		Path2D.Double shape = new Path2D.Double();
 		shape.moveTo(0, 0);
 		for (int i = 1; i < points.length; i++) {
 			shape.lineTo(points[i].x, points[i].y);
 		}
 
-		final float fin_edge_width = (float)finset.getThickness();  //FinPointFigure.FIN_EDGE_WIDTH;
-		g2.setStroke(new BasicStroke( fin_edge_width,
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		final float finEdgeWidth_m = (float) (LINE_WIDTH_PIXELS / scale / zoom );
+		g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setColor(Color.BLUE);
 		g2.draw(shape);
-
+		
 		// Fin point boxes
-		g2.setColor(new Color(150, 0, 0));
-		final double boxWidth = BOX_WIDTH_PIXELS;
+		final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale / zoom);
+		final float boxEdgeWidth_m = (float) ( LINE_WIDTH_PIXELS / scale / zoom );
+        g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        g2.setColor(new Color(150, 0, 0));
+		
 		final double boxHalfWidth = boxWidth/2;
 		finPointHandles = new Rectangle2D.Double[points.length];
 		for (int i = 0; i < points.length; i++) {
 			Coordinate c = points[i];
-			System.err.println("    [] drawing fin vertex at ("+c.toString());
+			//System.err.println("    [] drawing fin vertex at ("+c.toString());
 			finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
 			g2.draw(finPointHandles[i]);
 		}
@@ -312,15 +316,14 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		int x0 = visible.x - 3;
 		int x1 = visible.x + visible.width + 4;
 		
-		SymmetricComponent symComp = (SymmetricComponent) finset.getParent();
-		final float BODY_LINE_WIDTH = (float)symComp.getThickness();
-		g2.setStroke(new BasicStroke( BODY_LINE_WIDTH,
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+		//SymmetricComponent symComp = (SymmetricComponent) finset.getParent();
+		//final float bodyLineWidth = (float)symComp.getThickness();
+		final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale / zoom ); 
+		g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setColor(Color.BLACK);
-	
+
 		g2.drawLine((int) x0, 0, (int)x1, 0);
 	}
-
 	
 	public int getIndexByPoint(double x, double y) {
 		if (finPointHandles == null)
@@ -444,30 +447,32 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 			subjectBounds_m.getX().inflate( 0, MINIMUM_CANVAS_SIZE_METERS);
 			subjectBounds_m.getY().inflate( -maxMinYBound, MINIMUM_CANVAS_SIZE_METERS);		
 		}
+	}
+	
+	private void calculateFigureSize(){
+		// update preferred figure Size
+		//final double INCHES_PER_METER = 39.3701;
+		// dots     dots     inch
+		// ----  = ------ * -----
+		// meter    inch    meter
+		//final double scale_dpm = GUIUtil.getDPI()* INCHES_PER_METER * zoom;
+		final double figureSizeScale = scale*zoom;
 
+		final int subjectWidth_px = (int)(subjectBounds_m.getX().span()*figureSizeScale);
+		final int subjectHeight_px = (int)(subjectBounds_m.getY().span()*figureSizeScale);
 
-		{ // update preferred figure Size
-			final double INCHES_PER_METER = 39.3701;
-			// dots     dots     inch
-			// ----  = ------ * -----
-			// meter    inch    meter
-			final double scale_dpm = GUIUtil.getDPI()* INCHES_PER_METER;
+		preferredFigureSize_px.width = subjectWidth_px + 2*borderThickness_px;
+		preferredFigureSize_px.height = subjectHeight_px + 2*borderThickness_px;
 
-			final int subjectWidth_px = (int)(subjectBounds_m.getX().span()*scale_dpm);
-			final int subjectHeight_px = (int)(subjectBounds_m.getX().span()*scale_dpm);
-
-			preferredFigureSize_px.width = subjectWidth_px + 2*borderThickness_px;
-			preferredFigureSize_px.height = subjectHeight_px + 2*borderThickness_px;
-
-			if( !preferredFigureSize_px.equals( getPreferredSize()) ){
-				setPreferredSize( preferredFigureSize_px);
-				revalidate();
-			}
-		}
+		if( !preferredFigureSize_px.equals( getPreferredSize()) ){
+			setPreferredSize( preferredFigureSize_px);
+			revalidate();
+		}	
 	}
 	
 	private void updateTransform(){
 		calculateDimensions();
+		calculateFigureSize();
 		//final Point2D.Double subjectSize_m = subjectBounds_m.getSpanAsPoint2D();
 		//final Point2D.Double subjectCenter_m = subjectBounds_m.getCenterAsPoint2D();
 
