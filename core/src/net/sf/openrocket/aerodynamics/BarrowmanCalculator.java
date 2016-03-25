@@ -36,6 +36,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private static final String BARROWMAN_PACKAGE = "net.sf.openrocket.aerodynamics.barrowman";
 	private static final String BARROWMAN_SUFFIX = "Calc";
 	
+	public boolean debug;
 	
 	private Map<RocketComponent, RocketComponentCalc> calcMap = null;
 	
@@ -174,6 +175,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 		
+		if( debug ){
+			System.out.println(">> calculating Non-Axial Forces in "+this.getClass().getSimpleName());}	
 		
 		if( ! isContinuous(  configuration.getRocket() ) ){
 			warnings.add( Warning.DIAMETER_DISCONTINUITY);
@@ -185,13 +188,22 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (!component.isAerodynamic())
 				continue;
 			
-
+			if( debug ){
+				System.out.println("  ");
+				System.out.println("  >> For comp: "+component.getName());
+			}
+			
 			// Call calculation method
 			forces.zero();
 			RocketComponentCalc calcObj = calcMap.get(component);
 			calcObj.calculateNonaxialForces(conditions, forces, warnings);
 			
-
+//			if( debug ){
+//				System.out.println("    Cd: "+forces.getCD()); // not of interest right now
+//				System.out.println("    Cp: "+forces.getCP());
+//			}
+			
+			// NYI.  Worth the effort? 
 //			// to account for non axi-symmetric rockets such as a Delta-IV heavy, or a Falcon-9 Heavy
 //			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
 //				RingInstanceable ring = (RingInstanceable)component;
@@ -211,12 +223,24 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 //			}
 			
 			int instanceCount = component.getLocations().length;
-			Coordinate x_cp_comp = forces.getCP();
-			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight * instanceCount);
-			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
-			forces.setCP(x_cp_absolute);
+			final Coordinate cp_comp = forces.getCP();
+			// not LITERALLY a coordinate--
+			//   CP is, strictly speaking, the x,y,z point.
+			//   here, the '<Coordinate>.weight' is the magnitude of the pitching moment
+			// cp_comp.x == $\bar{x}_N$ == x coordinate of the C_P; from the front of this component
+			// cp_comp.weight == $C_N_{\alpha}_N$ == pitching moment per radian; about the CP
+			final Coordinate cp_weighted = cp_comp.setWeight(cp_comp.weight * instanceCount);
+			final Coordinate cp_absolute = component.toAbsolute(cp_weighted)[0];
+			forces.setCP( cp_absolute);
 			double CN_instanced = forces.getCN() * instanceCount;
 			forces.setCm(CN_instanced * forces.getCP().x / conditions.getRefLength());
+			if( debug ){
+				if( 0 != cp_comp.weight){
+					System.out.println("      Cp, comp: "+cp_comp);
+					System.out.println("      Cp, weighted: "+cp_weighted+" (account for instancing)");
+					System.out.println("      Cp, abs: "+cp_absolute);
+				}
+			}
 			
 			if (map != null) {
 				AerodynamicForces f = map.get(component);
@@ -241,8 +265,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			total.setCroll(total.getCroll() + forces.getCroll());
 			total.setCrollDamp(total.getCrollDamp() + forces.getCrollDamp());
 			total.setCrollForce(total.getCrollForce() + forces.getCrollForce());
+			
+			if( debug ){
+				if( 0 != cp_comp.weight){
+					System.out.println("  << total CP: "+total.getCP().weight+"@"+total.getCP().x+" (this iteration)");}}
 		}
 		
+		if( debug ){
+			System.out.println("<< total CP: "+total.getCP().weight+"@"+total.getCP().x);}
+
 		return total;
 	}
 	
