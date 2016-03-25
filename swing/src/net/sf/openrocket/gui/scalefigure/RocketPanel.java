@@ -140,7 +140,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	// The functional ID of the rocket that was simulated
 	private int flightDataFunctionalID = -1;
-		private FlightConfigurationId flightDataMotorID = null;
+	private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
@@ -572,10 +572,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (!Double.isNaN(cpMach)) {
 			conditions.setMach(cpMach);
-			extraText.setMach(cpMach);
 		} else {
 			conditions.setMach(Application.getPreferences().getDefaultMach());
-			extraText.setMach(Application.getPreferences().getDefaultMach());
 		}
 
 		if (!Double.isNaN(cpAOA)) {
@@ -644,6 +642,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
 		extraText.setMass(cg.weight);
+		extraText.setMassWithoutMotors(  massCalculator.getCG( curConfig, MassCalcType.NO_MOTORS ).weight );
 		extraText.setWarnings(warnings);
 
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
@@ -780,10 +779,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Adds the extra data to the figure.  Currently this includes the CP and CG carets.
 	 */
 	private void addExtras() {
-		FlightConfiguration curConfig = document.getDefaultConfiguration();
 		extraCG = new CGCaret(0, 0);
 		extraCP = new CPCaret(0, 0);
-		extraText = new RocketInfo(curConfig);
+		extraText = new RocketInfo(document.getRocket());
 		updateExtras();
 
 		figure.clearRelativeExtra();
