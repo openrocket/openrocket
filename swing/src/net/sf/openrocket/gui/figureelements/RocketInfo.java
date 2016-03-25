@@ -47,10 +47,10 @@ public class RocketInfo implements FigureElement {
 	private double cg = 0, cp = 0;
 	private double length = 0, diameter = 0;
 	private double mass = 0;
+	private double massWithoutMotors = 0;
 	private double aoa = Double.NaN;
 	private double theta = Double.NaN;
-	private double mach = Application.getPreferences().getDefaultMach();
-	
+
 	private WarningSet warnings = null;
 	
 	private boolean calculatingData = false;
@@ -59,7 +59,6 @@ public class RocketInfo implements FigureElement {
 	private Graphics2D g2 = null;
 	private float line = 0;
 	private float x1, x2, y1, y2;
-	
 	
 	
 	
@@ -110,9 +109,13 @@ public class RocketInfo implements FigureElement {
 	public void setDiameter(double diameter) {
 		this.diameter = diameter;
 	}
-	
+
 	public void setMass(double mass) {
 		this.mass = mass;
+	}
+
+	public void setMassWithoutMotors(double mass) {
+		this.massWithoutMotors = mass;
 	}
 	
 	public void setWarnings(WarningSet warnings) {
@@ -125,10 +128,6 @@ public class RocketInfo implements FigureElement {
 	
 	public void setTheta(double theta) {
 		this.theta = theta;
-	}
-	
-	public void setMach(double mach) {
-		this.mach = mach;
 	}
 	
 	
@@ -152,32 +151,37 @@ public class RocketInfo implements FigureElement {
 				trans.get("RocketInfo.lengthLine.maxdiameter") +" " + 
 				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(diameter));
 		
-		String massText;
-		if (configuration.hasMotors())
-			//// Mass with motors 
-			massText = trans.get("RocketInfo.massText1") +" ";
-		else
-			//// Mass with no motors 
-			massText = trans.get("RocketInfo.massText2") +" ";
-		
-		massText += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
-		
-		GlyphVector massLine = createText(massText);
+		String massTextWithMotors;
+		String massTextWithoutMotors;
 
-		
+		/// Mass with no motors
+		massTextWithoutMotors = trans.get("RocketInfo.massWithoutMotors") +" ";
+		massTextWithoutMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(massWithoutMotors);
+
+		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
+
 		g2.setColor(Color.BLACK);
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
-		g2.drawGlyphVector(massLine, x1, y1+2*line);
+		g2.drawGlyphVector(massLineWithoutMotors, x1, y1+2*line);
+
+		if( configuration.hasMotors() ) {
+			//// Mass with motors
+			massTextWithMotors = trans.get("RocketInfo.massWithMotors") + " ";
+			massTextWithMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
+			GlyphVector massLineWithMotors = createText(massTextWithMotors);
+			g2.drawGlyphVector(massLineWithMotors, x1, y1+3*line);
+		}
 
 	}
 	
 	
 	private void drawStabilityInfo() {
 		String at;
-		//// at M=
-		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(Application.getPreferences().getDefaultMach());
+        //// at M=
+		double defaultMach = Application.getPreferences().getDefaultMach();
+		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(defaultMach);
 		if (!Double.isNaN(aoa)) {
 			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
 		}
@@ -239,7 +243,7 @@ public class RocketInfo implements FigureElement {
 		g2.drawGlyphVector(atText, atPos, y1 + 3*line);
 
 	}
-
+    
     /**
      * Get the mass, in default mass units.
      * 

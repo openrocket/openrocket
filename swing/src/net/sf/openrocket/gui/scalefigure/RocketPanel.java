@@ -572,10 +572,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (!Double.isNaN(cpMach)) {
 			conditions.setMach(cpMach);
-			extraText.setMach(cpMach);
 		} else {
 			conditions.setMach(Application.getPreferences().getDefaultMach());
-			extraText.setMach(Application.getPreferences().getDefaultMach());
 		}
 
 		if (!Double.isNaN(cpAOA)) {
