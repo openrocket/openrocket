@@ -14,6 +14,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
@@ -41,7 +42,7 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private final FlightConfiguration configuration;
+	private final Rocket rocket;
 	private final UnitGroup stabilityUnits;
 	
 	private double cg = 0, cp = 0;
@@ -63,9 +64,9 @@ public class RocketInfo implements FigureElement {
 	
 	
 	
-	public RocketInfo(FlightConfiguration configuration) {
-		this.configuration = configuration;
-		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
+	public RocketInfo(final Rocket _rkt) {
+		this.rocket = _rkt;
+		this.stabilityUnits = UnitGroup.stabilityUnits(rocket.getSelectedConfiguration());
 	}
 	
 	
@@ -143,7 +144,7 @@ public class RocketInfo implements FigureElement {
 	
 	
 	private void drawMainInfo() {
-		GlyphVector name = createText(configuration.getRocket().getName());
+		GlyphVector name = createText(rocket.getRocket().getName());
 		GlyphVector lengthLine = createText(
 				//// Length
 				trans.get("RocketInfo.lengthLine.Length") +" " + UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(length) +
@@ -153,7 +154,8 @@ public class RocketInfo implements FigureElement {
 		
 		String massTextWithMotors;
 		String massTextWithoutMotors;
-
+		
+		
 		/// Mass with no motors
 		massTextWithoutMotors = trans.get("RocketInfo.massWithoutMotors") +" ";
 		massTextWithoutMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(massWithoutMotors);
@@ -166,7 +168,7 @@ public class RocketInfo implements FigureElement {
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
 		g2.drawGlyphVector(massLineWithoutMotors, x1, y1+2*line);
 
-		if( configuration.hasMotors() ) {
+		if( rocket.getSelectedConfiguration().hasMotors() ) {
 			//// Mass with motors
 			massTextWithMotors = trans.get("RocketInfo.massWithMotors") + " ";
 			massTextWithMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
