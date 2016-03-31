@@ -154,8 +154,7 @@ public class RocketInfo implements FigureElement {
 		
 		String massTextWithMotors;
 		String massTextWithoutMotors;
-		
-		
+
 		/// Mass with no motors
 		massTextWithoutMotors = trans.get("RocketInfo.massWithoutMotors") +" ";
 		massTextWithoutMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(massWithoutMotors);
