@@ -50,6 +50,7 @@ public class RocketInfo implements FigureElement {
 	private double aoa = Double.NaN;
 	private double theta = Double.NaN;
 	private double mach = Application.getPreferences().getDefaultMach();
+	private double massWithoutMotors = 0;
 	
 	private WarningSet warnings = null;
 	
@@ -110,9 +111,13 @@ public class RocketInfo implements FigureElement {
 	public void setDiameter(double diameter) {
 		this.diameter = diameter;
 	}
-	
+
 	public void setMass(double mass) {
 		this.mass = mass;
+	}
+
+	public void setMassWithoutMotors(double mass) {
+		this.massWithoutMotors = mass;
 	}
 	
 	public void setWarnings(WarningSet warnings) {
@@ -152,24 +157,28 @@ public class RocketInfo implements FigureElement {
 				trans.get("RocketInfo.lengthLine.maxdiameter") +" " + 
 				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(diameter));
 		
-		String massText;
-		if (configuration.hasMotors())
-			//// Mass with motors 
-			massText = trans.get("RocketInfo.massText1") +" ";
-		else
-			//// Mass with no motors 
-			massText = trans.get("RocketInfo.massText2") +" ";
-		
-		massText += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
-		
-		GlyphVector massLine = createText(massText);
+		String massTextWithMotors;
+		String massTextWithoutMotors;
 
-		
+		/// Mass with no motors
+		massTextWithoutMotors = trans.get("RocketInfo.massWithoutMotors") +" ";
+		massTextWithoutMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(massWithoutMotors);
+
+		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
+
 		g2.setColor(Color.BLACK);
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
-		g2.drawGlyphVector(massLine, x1, y1+2*line);
+		g2.drawGlyphVector(massLineWithoutMotors, x1, y1+2*line);
+
+		if( configuration.hasMotors() ) {
+			//// Mass with motors
+			massTextWithMotors = trans.get("RocketInfo.massWithMotors") + " ";
+			massTextWithMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
+			GlyphVector massLineWithMotors = createText(massTextWithMotors);
+			g2.drawGlyphVector(massLineWithMotors, x1, y1+3*line);
+		}
 
 	}
 	
