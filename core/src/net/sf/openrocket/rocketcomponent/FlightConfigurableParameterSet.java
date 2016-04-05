@@ -75,6 +75,11 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		this.map.put( defaultValueId, nextDefaultValue);
 	}
 	
+	public boolean containsId( final FlightConfigurationId fcid){
+		return this.map.containsKey(fcid);
+	}	
+
+	
 	@Override
 	public Iterator<E> iterator() {
 		return map.values().iterator();
@@ -135,9 +140,6 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @return		the parameter to use (never null)
 	 */
 	public E get(FlightConfigurationId id) {
-		if( id.hasError() ){
-			throw new NullPointerException("Attempted to retrieve a parameter with an error key!");
-		}
 		E toReturn;
 		if (map.containsKey(id)) {
 			toReturn = map.get(id);
@@ -212,6 +214,10 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 			set( fcid, null);
 		}
 	}
+	
+	public void remove(){
+		reset();
+	}
 
 	/* 
 	 * Clears all configuration-specific settings -- meaning querying the parameter for any configuration will return the default value.
@@ -246,12 +252,14 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		return buf.toString();
 	}
 
-
 	public void update(){
 		for( E curValue: this.map.values() ){
 			curValue.update();
 		}
 	}
-			
+
+	public FlightConfiguration[] toArray() {
+		return map.values().toArray( new FlightConfiguration[0]);
+	}
 	
 }
