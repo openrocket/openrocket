@@ -384,7 +384,7 @@ public class TestRockets {
 	public static final Rocket makeEstesAlphaIII(){
 		Rocket rocket = new Rocket();
 		FlightConfigurationId fcid[] = new FlightConfigurationId[5]; 
-		fcid[0] = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		fcid[0] = new FlightConfigurationId();
 		rocket.createFlightConfiguration(fcid[0]);
 		fcid[1] = new FlightConfigurationId();
 		rocket.createFlightConfiguration(fcid[1]);

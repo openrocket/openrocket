@@ -577,7 +577,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	public List<FlightConfigurationId> getIds(){
-		return configSet.getSortedConfigurationIDs();
+		return configSet.getIds();
 	}
 
 	
@@ -594,7 +594,7 @@ public class Rocket extends RocketComponent {
 	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
 	 * ID cannot be removed, and an attempt to remove it will be silently ignored.
 	 *
-	 * @param id   the flight configuration ID to remove
+	 * @param fcid   the flight configuration ID to remove
 	 */
 	public void removeFlightConfigurationID(FlightConfigurationId fcid) {
 		checkState();
@@ -626,7 +626,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * Check whether the given motor configuration ID has motors defined for it.
 	 *
-	 * @param id	the FlightConfigurationID containing the motor (may be invalid).
+	 * @param fcid	the FlightConfigurationID containing the motor (may be invalid).
 	 * @return		whether any motors are defined for it.
 	 */
 	public boolean hasMotors(FlightConfigurationId fcid) {
@@ -655,7 +655,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
-	 * @param id the flight configuration id
+	 * @param fcid the flight configuration id
 	 * @return	FlightConfiguration instance 
 	 */
 	public FlightConfiguration createFlightConfiguration(final FlightConfigurationId fcid) {
@@ -678,7 +678,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
-	 * @param id   the flight configuration id
+	 * @param fcid   the flight configuration id
 	 * @return	   a FlightConfiguration instance 
 	 */
 	public FlightConfiguration getFlightConfiguration(final FlightConfigurationId fcid) {
@@ -689,7 +689,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.  
 	 *
-	 * @param id   the flight configuration index number
+	 * @param configIndex the flight configuration index number
 	 * @return	   a FlightConfiguration instance 
 	 */
 	public FlightConfiguration getFlightConfiguration(final int configIndex) {
@@ -723,8 +723,8 @@ public class Rocket extends RocketComponent {
 	 * Associate the given ID and flight configuration.
 	 * <code>null</code> or an empty string.
 	 *
-	 * @param id	the flight configuration id
-	 * @param name	the name for the flight configuration
+	 * @param fcid	the flight configuration id
+	 * @param newConfig new FlightConfiguration to store
 	 */
 	public void setFlightConfiguration(final FlightConfigurationId fcid, FlightConfiguration newConfig) {
 		checkState();

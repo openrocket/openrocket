@@ -138,7 +138,7 @@ public class ParameterSetTest extends BaseTestCase {
 		// testSet.getSortedConfigurationIDs()
 		// >> this function should ONLY return ids for the overrides
 		assertThat("getIds() broken!\n"+testSet.toDebug(), testSet.getIds().size(), equalTo( testSet.size()));
-		assertThat("getIds() broken!\n"+testSet.toDebug(), testSet.getSortedConfigurationIDs().size(), equalTo( testSet.getIds().size() ) );		
+		assertThat("getIds() broken!\n"+testSet.toDebug(), testSet.getIds().size(), equalTo( testSet.getIds().size() ) );
 	}
 	
 	@Test
