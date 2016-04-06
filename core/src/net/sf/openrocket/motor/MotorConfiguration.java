@@ -26,7 +26,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	protected boolean ignitionOveride = false;
 	protected double ignitionDelay = 0.0;
-	protected IgnitionEvent ignitionEvent = IgnitionEvent.NEVER;
+	protected IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
 	
 	protected int modID = 0;
 	
@@ -41,13 +41,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.mount = _mount;
 		this.fcid = _fcid;
 		this.id = new MotorConfigurationId( _mount, _fcid );
-		
-		this.motor = null;
-		ejectionDelay = 0.0;
-		ignitionEvent = IgnitionEvent.NEVER;
-		ignitionDelay = 0.0;
-		
-
+        
 		modID++;
 	}
 	

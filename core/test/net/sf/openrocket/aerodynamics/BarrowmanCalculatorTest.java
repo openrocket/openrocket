@@ -81,7 +81,6 @@ public class BarrowmanCalculatorTest {
 			exp_cpx = ( cna_nose*cpx_nose + cna_body*cpx_body + cna_3fin*cpx_3fin + cna_lugs*cpx_lugs)/exp_cna;
 		}
 		
-		// calculated from OpenRocket 15.03
 		Coordinate cp_calc = calc.getCP(config, conditions, warnings);
 		
 		assertEquals(" Estes Alpha III CNa value is incorrect:", exp_cna, cp_calc.weight, EPSILON);
@@ -117,9 +116,8 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		
-		// no clue:
-		double expCPx = 1.0367644;
-		double expCNa = 14.169;
+		double expCPx = 0.994642;
+		double expCNa = 15.437111;
 		Coordinate calcCP = calc.getCP(config, conditions, warnings);
 		
 		assertEquals(" Falcon 9 Heavy CP x value is incorrect:", expCPx, calcCP.x, EPSILON);

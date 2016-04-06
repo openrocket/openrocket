@@ -28,17 +28,12 @@ import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.main.UndoRedoAction;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.EngineBlock;
-import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
@@ -71,8 +66,8 @@ public class IntegrationTest {
 	private Action undoAction, redoAction;
 	
 	private AerodynamicCalculator aeroCalc = new BarrowmanCalculator();
-	private MassCalculator massCalc = new BasicMassCalculator();
-	private Configuration config;
+	private MassCalculator massCalc = new MassCalculator();
+	private FlightConfiguration config;
 	private FlightConditions conditions;
 	private String massComponentID = null;
 	
@@ -113,7 +108,8 @@ public class IntegrationTest {
 		
 		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
-		config = document.getSimulation(0).getConfiguration();
+        FlightConfigurationId fcid = document.getSimulation(0).getFlightConfigurationId();
+		config = document.getRocket().getFlightConfiguration(fcid);
 		conditions = new FlightConditions(config);
 		
 		// Test undo state
