@@ -291,7 +291,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		finPointHandles = new Rectangle2D.Double[points.length];
 		for (int i = 0; i < points.length; i++) {
 			Coordinate c = points[i];
-			//System.err.println("    [] drawing fin vertex at ("+c.toString());
 			finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
 			g2.draw(finPointHandles[i]);
 		}
@@ -306,9 +305,38 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		}
 	}
 	
+	// NOTE:  This function drawns relative to the reference point of the BODY component
+	// In other words: 0,0 == the front, foreRadius of the body component
 	private void paintBodyTransition( Graphics2D g2){	
-		paintBodyTube(g2); // temporary
-		// TODO : implement me! 
+	    //Rectangle visible = g2.getClipBounds();
+        
+        // setup lines 
+        final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale / zoom ); 
+        g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        g2.setColor(Color.BLACK);
+
+        Transition body = (Transition) finset.getParent();
+        final float xResolution_m = 0.01f; // distance between draw points, in meters 
+        final float referenceRadius_m = (float) ( body.getForeRadius() );
+        final float length_m = (float)( body.getLength());
+        
+        Path2D.Double bodyShape = new Path2D.Double();
+        bodyShape.moveTo( 0, -referenceRadius_m);
+        bodyShape.lineTo( 0, body.getForeRadius()-referenceRadius_m);
+        
+        Point2D.Float cur = new Point2D.Float( xResolution_m, (float) (body.getForeRadius() - referenceRadius_m));
+              
+        for( cur.x = xResolution_m ; cur.x < length_m;  cur.x += xResolution_m ){
+            cur.y = (float) body.getRadius( cur.x) - referenceRadius_m;
+            
+            bodyShape.lineTo( cur.x, cur.y);
+        }
+        
+        // draw end-cap
+        bodyShape.lineTo( length_m, body.getAftRadius() - referenceRadius_m);
+        bodyShape.lineTo( length_m, -referenceRadius_m);
+        
+        g2.draw(bodyShape);
 	}
 	
 	private void paintBodyTube( Graphics2D g2){
@@ -316,8 +344,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		int x0 = visible.x - 3;
 		int x1 = visible.x + visible.width + 4;
 		
-		//SymmetricComponent symComp = (SymmetricComponent) finset.getParent();
-		//final float bodyLineWidth = (float)symComp.getThickness();
 		final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale / zoom ); 
 		g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setColor(Color.BLACK);
@@ -486,8 +512,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		
 
 		// vvv DEBUG vvv
-		dumpState("updateTransform()");
-		System.err.println("    new_translation: ("+newTranslation.x+", "+newTranslation.y+")");
+		//dumpState("updateTransform()");
+		//System.err.println("    new_translation: ("+newTranslation.x+", "+newTranslation.y+")");
 		// ^^^^ DEBUG ^^^^
 
 		
