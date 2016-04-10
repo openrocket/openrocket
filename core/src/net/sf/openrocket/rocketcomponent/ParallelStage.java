@@ -81,8 +81,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
-		this.separations.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		this.separations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override

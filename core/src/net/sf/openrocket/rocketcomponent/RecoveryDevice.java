@@ -90,8 +90,8 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
-		deploymentConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		deploymentConfigurations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	

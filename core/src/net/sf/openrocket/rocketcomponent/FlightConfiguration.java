@@ -465,25 +465,40 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
         // Note the stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
         clone.setName("clone[#"+clone.instanceNumber+"]"+clone.fcid.toShortKey());
-        //FlightConfigurationId cloneId = clone.getFlightConfigurationID();
 
-        System.err.println("  cloning from: "+this.toDebug());
-        System.err.println("  cloning to:   "+clone.toDebug());
-
-//		// clone motor instances.
-//        for( MotorConfiguration motor : motors.values() ){
-//            MotorConfiguration cloneMotor = new MotorConfiguration( motor, cloneId);
-//            clone.addMotor( cloneMotor);
-//            cloneMotor.getMount().setMotorConfig(cloneMotor, cloneId);
-//        }
-
-		clone.cachedBounds = this.cachedBounds.clone();
+        clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
 		return clone;
 	}
-	
+
+    /**
+     * Copy all available information attached to this, and attached copies to the
+     * new configuration
+     *
+     * @param copyId attached the new configuration to this Id
+     * @return the new configuration
+     */
+    @Override
+    public FlightConfiguration copy( final FlightConfigurationId copyId ) {
+        // Note the stages are updated in the constructor call.
+        FlightConfiguration copy= new FlightConfiguration( this.rocket, copyId );
+
+        // copy motor instances.
+        for( final MotorConfiguration sourceMotor: motors.values() ){
+            MotorConfiguration cloneMotor = sourceMotor.copy( copyId);
+            copy.addMotor( cloneMotor);
+            cloneMotor.getMount().setMotorConfig(cloneMotor, copyId);
+        }
+
+        copy.cachedBounds = this.cachedBounds.clone();
+        copy.modID = this.modID;
+        copy.boundsModID = -1;
+        copy.refLengthModID = -1;
+        return copy;
+    }
+
 	@Override
 	public int getModID() {
 		// TODO: this doesn't seem consistent...
@@ -509,10 +524,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	@Override
 	public boolean equals(Object other){
-		if( other instanceof FlightConfiguration ){
-			return this.fcid.equals( ((FlightConfiguration)other).fcid);
-		}
-		return false;	
+		return (( other instanceof FlightConfiguration ) &&
+			    this.fcid.equals( ((FlightConfiguration)other).fcid));
 	}
 	
 	@Override

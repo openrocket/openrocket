@@ -18,17 +18,12 @@ public final class MotorConfigurationId {
 	
 	private final static String ERROR_ID_TEXT = "MotorInstance Error Id".intern();
 	private final static UUID ERROR_KEY = new UUID( 62274413, 56768908);
-	public final static MotorConfigurationId ERROR_ID = new MotorConfigurationId();
 
-	private MotorConfigurationId( ) {
-		this.key = MotorConfigurationId.ERROR_KEY;	
-	}
-	
 	/**
 	 * Sole constructor.
 	 * 
-	 * @param componentName	the component ID, must not be null
-	 * @param number		a positive motor number
+	 * @param _mount the component ID, must not be null
+	 * @param _fcid the key for a
 	 */
 	public MotorConfigurationId(final MotorMount _mount, final FlightConfigurationId _fcid) {
 		if (null == _mount ) {
@@ -43,7 +38,6 @@ public final class MotorConfigurationId {
 		final long lower = _fcid.key.getLeastSignificantBits();
 		this.key = new UUID( upper, lower);
 	}
-
 		
 	@Override
 	public boolean equals(Object other) {

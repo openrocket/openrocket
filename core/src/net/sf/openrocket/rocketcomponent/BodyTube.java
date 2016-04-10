@@ -397,8 +397,8 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
-		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		motors.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	@Override

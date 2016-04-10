@@ -73,11 +73,7 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 	public int hashCode() {
 		return this.key.hashCode();
 	}
-	
-	public UUID intern() {
-		return this.key;
-	}
-	
+
 	public boolean hasError(){
 		return (ERROR_UUID == this.key);
 	}

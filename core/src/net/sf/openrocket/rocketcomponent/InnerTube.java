@@ -304,8 +304,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
-	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
-		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		motors.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	

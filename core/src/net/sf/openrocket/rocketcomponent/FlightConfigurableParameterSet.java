@@ -221,10 +221,11 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 		setDefault(tempValue);
 	}
 	
-	public FlightConfigurationId cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+	public FlightConfigurationId copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		// clones the ENTRIES for the given fcid's.
 		E oldValue = this.get(oldConfigId);
-		this.set(newConfigId, oldValue.clone());
+        E newValue = oldValue.copy( newConfigId);
+        this.set(newConfigId, newValue );
 		update();
 		return newConfigId;
 	}

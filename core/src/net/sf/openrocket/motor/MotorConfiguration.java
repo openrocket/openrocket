@@ -186,23 +186,36 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public int hashCode() {
 		return this.id.hashCode();
 	}
-	
-	/**
-	 * Create a new instance of this motor instance.  The state of the motor is
-	 * identical to this instance and can be used independently from this one.
-	 */
-	@Override
-	public MotorConfiguration clone( ) {
-		MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
-		clone.motor = this.motor;
-		clone.ejectionDelay = this.ejectionDelay;
-		clone.ignitionOveride = this.ignitionOveride;
-		clone.ignitionDelay = this.ignitionDelay;
-		clone.ignitionEvent = this.ignitionEvent;
-		return clone;
-	}
-	
-	public int getModID() {
+
+    /**
+     * Create a new instance of this motor instance.  The state of the motor is
+     * identical to this instance and can be used independently from this one.
+     */
+    @Override
+    public MotorConfiguration clone( ) {
+        MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
+        clone.motor = this.motor;
+        clone.ejectionDelay = this.ejectionDelay;
+        clone.ignitionOveride = this.ignitionOveride;
+        clone.ignitionDelay = this.ignitionDelay;
+        clone.ignitionEvent = this.ignitionEvent;
+        return clone;
+    }
+
+    @Override
+    public MotorConfiguration copy( final FlightConfigurationId copyId){
+        MotorConfiguration clone = new MotorConfiguration( this.mount, copyId);
+        clone.motor = this.motor;
+        clone.ejectionDelay = this.ejectionDelay;
+        clone.ignitionOveride = this.ignitionOveride;
+        clone.ignitionDelay = this.ignitionDelay;
+        clone.ignitionEvent = this.ignitionEvent;
+        return clone;
+    }
+
+
+
+    public int getModID() {
 		return modID;
 	}
 	

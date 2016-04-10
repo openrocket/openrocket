@@ -141,6 +141,9 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	
 	@Override
 	public DeploymentConfiguration clone() {
+        return copy(null);
+    }
+    public DeploymentConfiguration copy( final FlightConfigurationId copyId) {
 		DeploymentConfiguration that = new DeploymentConfiguration();
 		that.deployAltitude = this.deployAltitude;
 		that.deployDelay = this.deployDelay;

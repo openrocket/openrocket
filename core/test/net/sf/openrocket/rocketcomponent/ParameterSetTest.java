@@ -51,11 +51,16 @@ public class ParameterSetTest extends BaseTestCase {
 		public String toString(){
 			return "tp#:"+id;
 		}
-		
-		@Override
-		public TestParameter clone(){
-			return new TestParameter();
-		}
+
+        @Override
+        public TestParameter clone(){
+            return new TestParameter();
+        }
+
+        @Override
+        public TestParameter copy( final FlightConfigurationId copyId){
+            return new TestParameter();
+        }
 	};
 	
 	@Before
@@ -230,7 +235,7 @@ public class ParameterSetTest extends BaseTestCase {
 		assertThat("set stores default value correctly: ", testSet.get(fcid2), equalTo( tp2 )); 
 		
 		FlightConfigurationId fcid3 = new FlightConfigurationId();
-		testSet.cloneFlightConfiguration(fcid2, fcid3);
+		testSet.copyFlightConfiguration(fcid2, fcid3);
 		// fcid <=> tp2 should be stored....
 		assertThat("set should contain zero overrides: ", testSet.size(), equalTo( 2 ));
 		assertThat("set stores default value correctly: ", testSet.get(fcid3), not( testSet.getDefault() )); 
