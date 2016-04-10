@@ -131,6 +131,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withStageSeparationConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
+        rocketDocs.add(TestRockets.makeTestRocket_v108_withBoosters());
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
 		
 		StorageOptions options = new StorageOptions();

@@ -101,14 +101,13 @@ public class TestRockets {
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
 		//          Coordinate[] cg, String digest);
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
-				Manufacturer.getManufacturer("Estes"),"A8", " SU Black Powder", 
+		return new ThrustCurveMotor(
+				Manufacturer.getManufacturer("Estes"),"A8", " SU Black Powder",
 				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
 				new double[] { 0, 1, 2 }, new double[] { 0, 9, 0 },
 				new Coordinate[] {
-					new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)}, 
+					new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)},
 				"digest A8 test");
-		return mtr;
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -117,14 +116,13 @@ public class TestRockets {
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
 		//          Coordinate[] cg, String digest);
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
+		return new ThrustCurveMotor(
 				Manufacturer.getManufacturer("Estes"),"B4", " SU Black Powder", 
 				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
 				new double[] { 0, 1, 2 }, new double[] { 0, 11.4, 0 },
 				new Coordinate[] {
 					new Coordinate(0.035, 0, 0, 0.0195),new Coordinate(.035, 0, 0, 0.0155),new Coordinate(.035, 0, 0, 0.013)}, 
 				"digest B4 test");
-		return mtr;
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -133,26 +131,24 @@ public class TestRockets {
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
 		//          Coordinate[] cg, String digest);
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
+		return new ThrustCurveMotor(
 				Manufacturer.getManufacturer("Estes"),"C6", " SU Black Powder", 
 				Motor.Type.SINGLE, new double[] {0,3,5,7}, 0.018, 0.070,
 				new double[] { 0, 1, 2 }, new double[] { 0, 6, 0 },
 				new Coordinate[] {
 					new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.012)}, 
 				"digest C6 test");
-		return mtr;
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_D21_18mm(){
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
+		return new ThrustCurveMotor(
 			Manufacturer.getManufacturer("AeroTech"),"D21", "Desc", 
 			Motor.Type.SINGLE, new double[] {}, 0.018, 0.07,
 			new double[] { 0, 1, 2 }, new double[] { 0, 32, 0 },
 			new Coordinate[] {
 				new Coordinate(.035, 0, 0, 0.025),new Coordinate(.035, 0, 0, .020),new Coordinate(.035, 0, 0, 0.0154)}, 
 			"digest D21 test");
-	    return mtr;
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -161,14 +157,13 @@ public class TestRockets {
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
 		//          Coordinate[] cg, String digest);
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
+		return new ThrustCurveMotor(
 				Manufacturer.getManufacturer("AeroTech"),"M1350", "Desc", 
 				Motor.Type.SINGLE, new double[] {}, 0.075, 0.622,
 				new double[] { 0, 1, 2 }, new double[] { 0, 1357, 0 },
 				new Coordinate[] {
 					new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)}, 
 				"digest M1350 test");
-		return mtr;
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -177,14 +172,13 @@ public class TestRockets {
 		//			Motor.Type type, double[] delays, double diameter, double length,
 		//			double[] time, double[] thrust,
 		//          Coordinate[] cg, String digest);
-		ThrustCurveMotor mtr = new ThrustCurveMotor(
+		return new ThrustCurveMotor(
 				Manufacturer.getManufacturer("AeroTech"),"G77", "Desc", 
 				Motor.Type.SINGLE, new double[] {4,7,10},0.029, 0.124,
 				new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
 				new Coordinate[] {
 					new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)}, 
 				"digest G77 test");
-		return mtr;
 	}
 	
 	// 
@@ -1029,7 +1023,10 @@ public class TestRockets {
 	public static Rocket makeFalcon9Heavy() {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
-		FlightConfiguration selConfig = rocket.getSelectedConfiguration();
+
+
+		FlightConfiguration selConfig = rocket.createFlightConfiguration(null);
+        rocket.setSelectedConfiguration(selConfig);
 		FlightConfigurationId selFCID = selConfig.getFlightConfigurationID();
 		
 		// ====== Payload Stage ======

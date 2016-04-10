@@ -81,8 +81,8 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  * @author Bill Kuker <bkuker@billkuker.com>
  */
+@SuppressWarnings("serial")
 public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
-	private static final long serialVersionUID = 1L;
 
 	private static final Translator trans = Application.getTranslator();
 

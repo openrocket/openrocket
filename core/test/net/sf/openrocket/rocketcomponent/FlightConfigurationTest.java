@@ -142,12 +142,43 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config.setAllStages();
 		
 	}
-	
-	/**
-	 * Single stage rocket specific configuration tests
-	 */
-	@Test
-	public void testConfigurationSwitching() {
+
+    @Test
+    public void testCreateConfigurationNullId() {
+		/* Setup */
+        Rocket rkt = TestRockets.makeEstesAlphaIII();
+
+        // PRE-CONDITION:
+        // test that all configurations correctly loaded:
+        int expectedConfigCount = 5;
+        int actualConfigCount = rkt.getConfigurationCount();
+        assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
+
+        // create with
+        rkt.createFlightConfiguration(null);
+        expectedConfigCount = 6;
+        actualConfigCount = rkt.getConfigurationCount();
+        assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount, equalTo(expectedConfigCount));
+    }
+
+    @Test
+    public void testGetNullSelectedConfiguration(){
+        Rocket rkt = new Rocket();
+
+        // PRE-CONDITION:
+        // test that all configurations correctly loaded:
+        int expectedConfigCount = 0;
+        int actualConfigCount = rkt.getConfigurationCount();
+        assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
+
+        rkt.getSelectedConfiguration();
+        expectedConfigCount = 1;
+        actualConfigCount = rkt.getConfigurationCount();
+        assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount, equalTo(expectedConfigCount));
+    }
+
+    @Test
+	public void testConfigurationSpecific() {
 		/* Setup */
 		Rocket rkt = TestRockets.makeEstesAlphaIII();
 		
@@ -156,14 +187,21 @@ public class FlightConfigurationTest extends BaseTestCase {
 		int expectedMotorCount = 5;
 		int actualMotorCount = smmt.getMotorCount();
 		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
-		
+
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
 		int actualConfigCount = rkt.getConfigurationCount();
 		assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
-		
-		
-	}
+
+        actualConfigCount = rkt.getIds().size();
+        assertThat("number of configuration array ids doesn't actually match.",
+                actualConfigCount, equalTo(expectedConfigCount));
+
+        int expectedConfigArraySize = 6;
+        int actualConfigArraySize = rkt.toConfigArray().length;
+        assertThat("Size of configuration arrays doesn't actually match.",
+                actualConfigArraySize, equalTo(expectedConfigArraySize));
+    }
 	
 	/**
 	 * Multi stage rocket specific configuration tests

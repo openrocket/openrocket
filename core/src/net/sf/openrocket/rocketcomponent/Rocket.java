@@ -34,14 +34,12 @@ public class Rocket extends RocketComponent {
 	private static final Logger log = LoggerFactory.getLogger(Rocket.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	public static final String DEFAULT_NAME = "[{motors}]";
-	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
-	
-	
+	protected static final double DEFAULT_REFERENCE_LENGTH = 0.01;
+
 	/**
 	 * List of component change listeners.
 	 */
-	private List<EventListener> listenerList = new ArrayList<EventListener>();
+	private List<EventListener> listenerList = new ArrayList<>();
 	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
@@ -69,7 +67,7 @@ public class Rocket extends RocketComponent {
 	// Flight configuration list
 	private FlightConfiguration selectedConfiguration;
 	private FlightConfigurableParameterSet<FlightConfiguration> configSet;
-	private HashMap<Integer, AxialStage> stageMap = new HashMap<Integer, AxialStage>();
+	private HashMap<Integer, AxialStage> stageMap = new HashMap<>();
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -84,12 +82,11 @@ public class Rocket extends RocketComponent {
 		aeroModID = modID;
 		treeModID = modID;
 		functionalModID = modID;
-		
 
 		// must be after the hashmaps :P 
-		
-		configSet = new FlightConfigurableParameterSet<FlightConfiguration>( new FlightConfiguration(this, FlightConfigurationId.DEFAULT_VALUE_FCID) );		 
-		this.selectedConfiguration = configSet.getDefault();
+        FlightConfiguration defaultConfig = new FlightConfiguration(this, FlightConfigurationId.DEFAULT_VALUE_FCID);
+		configSet = new FlightConfigurableParameterSet<>( defaultConfig );
+		this.selectedConfiguration = defaultConfig;
 	}
 	
 	public String getDesigner() {
@@ -211,7 +208,7 @@ public class Rocket extends RocketComponent {
 	 * 
 	 * @Return a reference to the topmost stage
 	 */
-	public AxialStage getBottomCoreStage(){
+	/*package-local*/ AxialStage getBottomCoreStage(){
 		// get last stage that's a direct child of the rocket.
 		return (AxialStage) children.get( children.size()-1 );
 	}
@@ -223,8 +220,8 @@ public class Rocket extends RocketComponent {
 		}
 		return guess;
 	}
-	
-	public void trackStage(final AxialStage newStage) {
+
+    /*package-local*/ void trackStage(final AxialStage newStage) {
 		int stageNumber = newStage.getStageNumber();
 		AxialStage value = stageMap.get(stageNumber);
 		
@@ -236,8 +233,8 @@ public class Rocket extends RocketComponent {
 			this.stageMap.put(stageNumber, newStage);
 		}
 	}
-	
-	public void forgetStage(final AxialStage oldStage) {
+
+    /*package-local*/ void forgetStage(final AxialStage oldStage) {
 		this.stageMap.remove(oldStage.getStageNumber());
 	}
 	
@@ -569,7 +566,10 @@ public class Rocket extends RocketComponent {
 	 */
 	public FlightConfiguration getSelectedConfiguration() {
 		checkState();
-		return this.selectedConfiguration;
+        if( this.selectedConfiguration == this.configSet.getDefault() ){
+            selectedConfiguration = createFlightConfiguration(null);
+        }
+        return selectedConfiguration;
 	}
 	
 	public int getConfigurationCount(){
@@ -650,28 +650,29 @@ public class Rocket extends RocketComponent {
 		}
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
 	 * @param fcid the flight configuration id
 	 * @return	FlightConfiguration instance 
 	 */
-	public FlightConfiguration createFlightConfiguration(final FlightConfigurationId fcid) {
+	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
-		if( null == fcid ){
-			return configSet.getDefault();
+
+        if( null == fcid ){
+            // fall-through to the default case...
+            // creating a FlightConfiguration( null ) just allocates a fresh new FCID
 		}else if( fcid.hasError() ){
 			return configSet.getDefault();
 		}else if( configSet.containsId(fcid)){
 			return this.getFlightConfiguration(fcid);
-		}else{
-			FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
-			this.configSet.set(fcid, nextConfig);
-			fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
-			return nextConfig;
 		}
+        FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
+        this.configSet.set(nextConfig.getFlightConfigurationID(), nextConfig);
+        fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+        return nextConfig;
 	}
 	
 	
@@ -697,7 +698,7 @@ public class Rocket extends RocketComponent {
 	}
 
 	public FlightConfigurationId getId( final int configIndex) {
-		List<FlightConfigurationId> idList = this.getIds();
+		List<FlightConfigurationId> idList = configSet.getIds();
 		return idList.get(configIndex);
 	}
 
