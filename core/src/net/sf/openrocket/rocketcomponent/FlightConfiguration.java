@@ -343,15 +343,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		modID++;
 	}
-	
-	public Set<MotorConfigurationId> getMotorIDs() {
-		return motors.keySet();
-	}
-	
-	public MotorConfiguration getMotorInstance(MotorConfigurationId id) {
-		return motors.get(id);
-	}
-	
+
 	public boolean hasMotors() {
 		return (0 < motors.size());
 	}

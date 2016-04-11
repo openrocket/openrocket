@@ -511,7 +511,7 @@ public class Rocket extends RocketComponent {
 	public void freeze() {
 		checkState();
 		if (freezeList == null) {
-			freezeList = new LinkedList<ComponentChangeEvent>();
+			freezeList = new LinkedList<>();
 			log.debug("Freezing Rocket");
 		} else {
 			Application.getExceptionHandler().handleErrorCondition("Attempting to freeze Rocket when it is already frozen, " +
@@ -702,24 +702,12 @@ public class Rocket extends RocketComponent {
 		return idList.get(configIndex);
 	}
 
-	public void setSelectedConfiguration(final FlightConfiguration config) {
+	public void setSelectedConfiguration(final FlightConfigurationId selectId) {
 		checkState();
-		this.selectedConfiguration = config;
+		this.selectedConfiguration = this.configSet.get( selectId );
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}	
-	
-	public void setDefaultConfiguration(final FlightConfigurationId fcid) {
-		checkState();
-		
-		if( fcid.hasError() ){
-			log.error("attempt to set a 'fcid = config' with a error fcid.  Ignored.", new IllegalArgumentException("error id:"+fcid));
-			return;
-		}else if( this.configSet.containsId(fcid)){
-			this.selectedConfiguration = configSet.get(fcid);
-			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-		}
-	}	
-	
+
 	/**
 	 * Associate the given ID and flight configuration.
 	 * <code>null</code> or an empty string.

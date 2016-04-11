@@ -515,7 +515,7 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
-		rocket.setSelectedConfiguration( rocket.getFlightConfiguration( fcid[0]));
+		rocket.setSelectedConfiguration( fcid[0] );
 		rocket.getSelectedConfiguration().setAllStages();
 		rocket.enableEvents();
 		return rocket;
@@ -535,8 +535,7 @@ public class TestRockets {
 			fcid[i] = new FlightConfigurationId();
 			rocket.createFlightConfiguration(fcid[i]);
 		}
-		FlightConfiguration selectedConfiguration = rocket.getFlightConfiguration(fcid[0]);
-				
+
 		double noseconeLength = 0.07;
 		double noseconeRadius = 0.012;
 		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, noseconeLength, noseconeRadius);
@@ -708,7 +707,7 @@ public class TestRockets {
 
 		}
 		rocket.getSelectedConfiguration().setAllStages();
-		rocket.setSelectedConfiguration( selectedConfiguration );
+		rocket.setSelectedConfiguration( fcid[0] );
 		rocket.enableEvents();
 		return rocket;
 	}
@@ -1024,11 +1023,10 @@ public class TestRockets {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
 
+        FlightConfiguration selConfig = rocket.createFlightConfiguration(null);
+        FlightConfigurationId selFCID = selConfig.getFlightConfigurationID();
+        rocket.setSelectedConfiguration(selFCID);
 
-		FlightConfiguration selConfig = rocket.createFlightConfiguration(null);
-        rocket.setSelectedConfiguration(selConfig);
-		FlightConfigurationId selFCID = selConfig.getFlightConfigurationID();
-		
 		// ====== Payload Stage ======
 		// ====== ====== ====== ======
 		AxialStage payloadStage = new AxialStage();
@@ -1175,7 +1173,7 @@ public class TestRockets {
 		}
 		
 		rocket.enableEvents();
-		rocket.setSelectedConfiguration(selConfig);
+		rocket.setSelectedConfiguration( selFCID);
 		selConfig.setAllStages();
 		
 		return rocket;

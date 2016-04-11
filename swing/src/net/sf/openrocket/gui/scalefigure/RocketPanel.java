@@ -320,7 +320,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				FlightConfiguration newConfig = (FlightConfiguration)configComboBox.getSelectedItem();
-				document.getRocket().setSelectedConfiguration( newConfig);
+                document.getRocket().setSelectedConfiguration( newConfig.getId());
 				updateExtras();
 				updateFigures();
 			}
