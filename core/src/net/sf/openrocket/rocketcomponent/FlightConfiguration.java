@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +49,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.stage = _stage;
 			this.prev = _prev;
 			this.active = _active;
-		}
-		
-		public int getKey(){
-			return this.stage.getStageNumber();
 		}
 		
 		@Override
@@ -119,7 +114,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/** 
 	 * This method flags a stage inactive.  Other stages are unaffected.
 	 * 
-	 * @param stageNumber  stage number to inactivate
+	 * @param stageNumber  stage number to turn off
 	 */
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
@@ -214,7 +209,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/**
-	 * @return the compoment for the bottom-most center, active stage.
+	 * @return the component for the bottom-most center, active stage.
 	 */
 	public AxialStage getBottomStage() {
 		AxialStage bottomStage = null;
@@ -248,12 +243,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return Math.PI * MathUtil.pow2(getReferenceLength() / 2);
 	}
 	
-	public FlightConfigurationId getFlightConfigurationID() {
-		return fcid;
-	}
-	
+    public FlightConfigurationId getFlightConfigurationID() {
+	   return fcid;
+    }
+
 	public FlightConfigurationId getId() {
-		return getFlightConfigurationID();
+		return fcid;
 	}
 	
 	////////////////  Listeners  ////////////////
@@ -506,7 +501,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if(( null == newName ) ||( "".equals(newName))){
 			this.configurationName = null;
 			return;
-		}else if( ! this.getFlightConfigurationID().isValid()){
+		}else if( ! this.getId().isValid()){
 			return;
 		}else if( newName.equals(this.configurationName)){
 			return;
@@ -532,10 +527,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// DEBUG / DEVEL
 	public String toStageListDetail() {
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("\nDumping %d stages for config: %s: (#: %d)\n", this.stages.size(), this.getName(), this.instanceNumber));
+		buf.append(String.format("\nDumping %d stages for config: %s: (%s)(#: %d)\n", 
+				stages.size(), getName(), getId().toShortKey(), instanceNumber));
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
-		for (StageFlags flags : this.stages.values()) {
+		for (StageFlags flags : stages.values()) {
 			AxialStage curStage = flags.stage;
 			buf.append(String.format(fmt, curStage.getStageNumber(), (flags.active?" on": "off"), curStage.getName()));
 		}
@@ -547,7 +543,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public String toMotorDetail(){
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping %2d Motors for configuration %s (%s)(#: %s)\n", 
-				this.motors.size(), this.getName(), this.getFlightConfigurationID().toFullKey(), this.instanceNumber));
+				motors.size(), getName(), getId().toShortKey(), this.instanceNumber));
 		
 		for( MotorConfiguration curConfig : this.motors.values() ){
 			buf.append("    "+curConfig.toDebugDetail()+"\n");

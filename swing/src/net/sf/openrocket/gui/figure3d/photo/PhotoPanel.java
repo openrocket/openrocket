@@ -91,7 +91,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		((GLAutoDrawable) canvas).invoke(false, new GLRunnable() {
 			@Override
 			public boolean run(final GLAutoDrawable drawable) {
-				PhotoPanel.this.configuration = doc.getDefaultConfiguration();
+				PhotoPanel.this.configuration = doc.getSelectedConfiguration();
 				cachedBounds = null;
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);

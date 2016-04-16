@@ -162,23 +162,7 @@ public class FlightConfigurationTest extends BaseTestCase {
     }
 
     @Test
-    public void testGetNullSelectedConfiguration(){
-        Rocket rkt = new Rocket();
-
-        // PRE-CONDITION:
-        // test that all configurations correctly loaded:
-        int expectedConfigCount = 0;
-        int actualConfigCount = rkt.getConfigurationCount();
-        assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
-
-        rkt.getSelectedConfiguration();
-        expectedConfigCount = 1;
-        actualConfigCount = rkt.getConfigurationCount();
-        assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount, equalTo(expectedConfigCount));
-    }
-
-    @Test
-	public void testConfigurationSpecific() {
+	public void testMotorConfigurations() {
 		/* Setup */
 		Rocket rkt = TestRockets.makeEstesAlphaIII();
 		
@@ -187,6 +171,12 @@ public class FlightConfigurationTest extends BaseTestCase {
 		int expectedMotorCount = 5;
 		int actualMotorCount = smmt.getMotorCount();
 		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
+
+    }
+    
+    @Test
+    public void testFlightConfigurationGetters(){
+		Rocket rkt = TestRockets.makeEstesAlphaIII();
 
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
@@ -197,10 +187,25 @@ public class FlightConfigurationTest extends BaseTestCase {
         assertThat("number of configuration array ids doesn't actually match.",
                 actualConfigCount, equalTo(expectedConfigCount));
 
-        int expectedConfigArraySize = 6;
-        int actualConfigArraySize = rkt.toConfigArray().length;
-        assertThat("Size of configuration arrays doesn't actually match.",
-                actualConfigArraySize, equalTo(expectedConfigArraySize));
+        // upon success, these silently complete.
+        // upon failure, they'll throw exceptions:
+        rkt.getFlightConfigurationByIndex(4);
+        rkt.getFlightConfigurationByIndex(5, true);
+    }
+    
+
+    @Test(expected=java.lang.IndexOutOfBoundsException.class)
+    public void testGetFlightConfigurationOutOfBounds(){
+    	Rocket rkt = TestRockets.makeEstesAlphaIII();
+
+		// test that all configurations correctly loaded:
+		int expectedConfigCount = 5;
+		int actualConfigCount = rkt.getConfigurationCount();
+		assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
+
+		// this SHOULD throw an exception -- 
+		//      it's out of bounds on, and no configuration exists at index 5.
+    	rkt.getFlightConfigurationByIndex(5);  
     }
 	
 	/**

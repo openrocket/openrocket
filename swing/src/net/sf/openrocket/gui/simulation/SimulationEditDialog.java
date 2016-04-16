@@ -21,10 +21,12 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 
@@ -145,8 +147,10 @@ public class SimulationEditDialog extends JDialog {
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 			panel.add(label, "growx 0, gapright para");
 			
-			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<FlightConfiguration>( document.getRocket().toConfigArray());
-			configComboBox.setSelectedItem( document.getRocket().getSelectedConfiguration().getId() );
+			final Rocket rkt = document.getRocket();
+			final ConfigurationModel configModel = new ConfigurationModel( rkt);
+			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>(configModel);
+			configComboBox.setSelectedItem( rkt.getSelectedConfiguration().getId() );
 			
 			//// Select the motor configuration to use.
 			configComboBox.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));

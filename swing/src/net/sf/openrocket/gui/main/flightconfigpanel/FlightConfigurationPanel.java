@@ -26,6 +26,7 @@ import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
+@SuppressWarnings("serial")
 public class FlightConfigurationPanel extends JPanel implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 	

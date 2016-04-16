@@ -482,7 +482,12 @@ public class Rocket extends RocketComponent {
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : list) {
-			if (l instanceof ComponentChangeListener) {
+            { // vvvv DEVEL vvvv
+                //System.err.println("notifying listener.  (type= "+l.getClass().getSimpleName()+")");
+                //System.err.println("                     (type= "+l.getClass().getName()+")");
+            } // ^^^^ DEVEL ^^^^
+
+            if (l instanceof ComponentChangeListener) {
 				((ComponentChangeListener) l).componentChanged(cce);
 			} else if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(cce);
@@ -577,16 +582,6 @@ public class Rocket extends RocketComponent {
 		return configSet.getIds();
 	}
 
-	
-	/**
-	 * Primarily for use with UI elements 
-	 * 
-	 * @return list of attached flight configurations (unordered)
-	 */
-	public FlightConfiguration[] toConfigArray(){
-		return this.configSet.toArray();
-	}
-	
 	/**
 	 * Remove a flight configuration ID from the configuration IDs.  The
      * <code>FlightConfigurationId.DEFAULT_VALUE_FCID</code> ID cannot be removed,
@@ -668,7 +663,7 @@ public class Rocket extends RocketComponent {
 			return this.getFlightConfiguration(fcid);
 		}
         FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
-        this.configSet.set(nextConfig.getFlightConfigurationID(), nextConfig);
+        this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
         return nextConfig;
 	}
@@ -685,13 +680,25 @@ public class Rocket extends RocketComponent {
 		return this.configSet.get(fcid);
 	}
 
+	public FlightConfiguration getFlightConfigurationByIndex(final int configIndex) {
+		return getFlightConfigurationByIndex( configIndex, false);
+	}
+		
 	/**
-	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.  
+	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.
+	 * If the default instance is allowed, the default will be at index 0. 
 	 *
-	 * @param configIndex the flight configuration index number
-	 * @return	   a FlightConfiguration instance 
+	 * @param 	includeDefault 	Whether to allow returning the default instance
+	 * @param 	configIndex 	The flight configuration index number
+	 * @return	a 				FlightConfiguration instance 
 	 */
-	public FlightConfiguration getFlightConfiguration(final int configIndex) {
+	public FlightConfiguration getFlightConfigurationByIndex( int configIndex, final boolean allowDefault ) {
+		if( allowDefault ){
+			if( 0 == configIndex ){
+				return configSet.getDefault();
+			}
+			--configIndex;
+		}
 		return this.configSet.get( this.getId(configIndex));
 	}
 
@@ -704,7 +711,7 @@ public class Rocket extends RocketComponent {
 		checkState();
 		this.selectedConfiguration = this.configSet.get( selectId );
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}	
+	}
 
 	/**
 	 * Associate the given ID and flight configuration.
@@ -727,7 +734,6 @@ public class Rocket extends RocketComponent {
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
 	
 	////////  Obligatory component information
 	@Override
