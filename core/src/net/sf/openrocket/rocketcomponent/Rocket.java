@@ -566,9 +566,6 @@ public class Rocket extends RocketComponent {
 	 */
 	public FlightConfiguration getSelectedConfiguration() {
 		checkState();
-        if( this.selectedConfiguration == this.configSet.getDefault() ){
-            selectedConfiguration = createFlightConfiguration(null);
-        }
         return selectedConfiguration;
 	}
 	
@@ -591,8 +588,9 @@ public class Rocket extends RocketComponent {
 	}
 	
 	/**
-	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
-	 * ID cannot be removed, and an attempt to remove it will be silently ignored.
+	 * Remove a flight configuration ID from the configuration IDs.  The
+     * <code>FlightConfigurationId.DEFAULT_VALUE_FCID</code> ID cannot be removed,
+     * and an attempt to remove it will be silently ignored.
 	 *
 	 * @param fcid   the flight configuration ID to remove
 	 */
@@ -604,7 +602,7 @@ public class Rocket extends RocketComponent {
 		
 		// Get current configuration:
 		this.configSet.reset( fcid);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
