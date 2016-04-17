@@ -96,6 +96,54 @@ public class FreeformFinSetTest extends BaseTestCase {
 		
 	}
 	
+    
+    @Test
+       public void testRelativeLocation() throws Exception {
+               final Rocket rkt = new Rocket();
+               final AxialStage stg = new AxialStage();
+               rkt.addChild(stg);
+               BodyTube body = new BodyTube(2.0, 0.01);
+               stg.addChild(body);
+               
+               // This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
+               // It can be decomposed into a rectangle followed by a triangle
+               //     +--+
+               //    /   |
+               //   /    |
+               //  +-----+
+               FreeformFinSet fins = new FreeformFinSet();
+               fins.setFinCount(1);
+               Coordinate[] initPoints = new Coordinate[] {
+                               new Coordinate(0, 0),
+                               new Coordinate(0.5, 1),
+                               new Coordinate(1, 1),
+                               new Coordinate(1, 0)
+               };
+               fins.setPoints(initPoints);
+               body.addChild(fins);
+
+               final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+               final double[] offs = {1.0, 0.0, 0.4, -0.2};
+               final double[] expOffs = {1.0, 0.5, 0.9, 0.8};
+               for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+                       fins.setRelativePosition( pos[caseIndex]);
+                       fins.setPositionValue( offs[caseIndex]);
+                       final double x_delta = fins.getAxialOffset();//getTranslationDelta( this.getLength());
+                       
+                       Coordinate actualPoints[] = fins.getFinPoints();
+                               
+                       final String rawPointDescr = "\n"+fins.toDebugDetail().toString()+"\n>> axial offset: "+x_delta;
+                       
+                       Coordinate[] displayPoints = FinSet.translatePoints( actualPoints, x_delta, 0);
+
+                       for( int index=0; index < displayPoints.length; ++index){
+                               assertEquals(String.format("Bad Fin Position.x (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr), initPoints[index].x + expOffs[caseIndex], displayPoints[index].x, EPSILON);
+                               assertEquals(String.format("Bad Fin Position.y (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr), initPoints[index].y, displayPoints[index].y, EPSILON);
+                       }
+               }
+       }
+
+	
 	@Test
 	public void testWildmanVindicatorShape() throws Exception {
 		// This fin shape is similar to the aft fins on the Wildman Vindicator.

@@ -982,26 +982,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return false;
 	}
 	
-	/**
-	 * Set the position value of the component.  The exact meaning of the value
-	 * depends on the current relative positioning.
-	 * <p>
-	 * Mince many components do not support setting the relative position.  A component that does support
-	 * it should override this with a public method that simply calls this
-	 * supermethod AND fire a suitable ComponentChangeEvent.
-	 * 
-	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setAxialOffset' instead.
-	 * @param value		the position value of the component.
-	 */
-	@Deprecated
-	public void setPositionValue(double value) {
-		//		if (MathUtil.equals(this.position.x, value))
-		//			return;
-		//		//		checkState();
-		//		//		this.position = new Coordinate(value, 0, 0);
-		setAxialOffset(value);
-	}
-	
 	
 	protected void setAfter(RocketComponent referenceComponent) {
 		checkState();
@@ -1029,6 +1009,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
 	}
 	
+	/**
+	 * Set the position value of the component.  The exact meaning of the value
+	 * depends on the current relative positioning.
+	 * <p>
+	 * Since many components do not support setting the relative position.  A component that does support
+	 * it should override this with a public method that simply calls this
+	 * supermethod AND fire a suitable ComponentChangeEvent.
+	 * 
+	 * @param value		the desired offset of this component, relative to its parent
+	 */
 	public void setAxialOffset(double _value) {
 		this.setAxialOffset(this.relativePosition, _value);
 		this.fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

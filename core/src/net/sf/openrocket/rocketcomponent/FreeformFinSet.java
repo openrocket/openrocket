@@ -120,8 +120,6 @@ public class FreeformFinSet extends FinSet {
 		return freeform;
 	}
 	
-	
-	
 	/**
 	 * Add a fin point between indices <code>index-1</code> and <code>index</code>.
 	 * The point is placed at the midpoint of the current segment.
@@ -140,7 +138,17 @@ public class FreeformFinSet extends FinSet {
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	/** 
+	 * Returns the x dimesion of the fin-body base.  It is not a euclidean distance, but simply the x difference.
+	 * 
+	 * Base length may be larger OR smaller than the overall length, i.e. this.length
+	 * 
+	 * @return
+	 */
+	public double getBaseLength(){
+		return (points.get(points.size()-1).x - points.get(0).x);
+	}
 	
 	/**
 	 * Remove the fin point with the given index.  The first and last fin points
@@ -167,9 +175,18 @@ public class FreeformFinSet extends FinSet {
 	public int getPointCount() {
 		return points.size();
 	}
-	
-	public void setPoints(Coordinate[] points) throws IllegalFinPointException {
-		setPoints(Arrays.asList(points));
+
+	/**
+	 * The first point is assumed to be at the origin.  If it isn't, it will be moved there.
+	 * 
+	 * @param newPoints
+	 * @throws IllegalFinPointException
+	 */
+	public void setPoints(Coordinate[] newPoints) throws IllegalFinPointException {
+		Coordinate p0 = newPoints[0];
+		newPoints = translatePoints( newPoints, p0.x, p0.y);
+		
+		setPoints(Arrays.asList( newPoints));
 	}
 	
 	public void setPoints(List<Coordinate> points) throws IllegalFinPointException {
@@ -289,6 +306,29 @@ public class FreeformFinSet extends FinSet {
 		double ub = ((ax1 - ax0) * (ay0 - by0) - (ay1 - ay0) * (ax0 - bx0)) / d;
 		
 		return (ua >= 0) && (ua <= 1) && (ub >= 0) && (ub <= 1);
+	}
+	
+	@Override
+	public double getAxialOffset() {
+		mutex.verify();
+
+		double parentLength;
+		if( null == this.parent ){
+			parentLength=0.;
+		}else{
+			parentLength=this.getParent().getLength();
+		}
+		
+		final double finLength = getBaseLength();
+		switch( relativePosition ){
+		default:
+		case TOP:
+			return this.x_offset;
+		case BOTTOM:
+			return parentLength - finLength + this.x_offset;
+		case MIDDLE:
+			return ((parentLength - finLength)/2 + this.x_offset);
+		}
 	}
 	
 	

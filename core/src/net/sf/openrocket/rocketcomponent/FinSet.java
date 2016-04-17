@@ -243,10 +243,8 @@ public abstract class FinSet extends ExternalComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
-	@Override
 	public void setPositionValue(double value) {
-		super.setPositionValue(value);
+		super.setAxialOffset(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -681,9 +679,16 @@ public abstract class FinSet extends ExternalComponent {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-	
-	
-	
+
+	final public static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
+		Coordinate[] returnPoints = new Coordinate[inp.length];
+		for( int index=0; index < inp.length; ++index){
+			final double new_x = inp[index].x + x_delta;
+			final double new_y = inp[index].y + y_delta;
+			returnPoints[index] = new Coordinate(new_x, new_y);
+		}
+		return returnPoints; 
+	}
 	
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin.  

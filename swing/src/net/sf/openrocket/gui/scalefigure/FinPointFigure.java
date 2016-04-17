@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -267,13 +268,20 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	}
 
 	private void paintFinShape(Graphics2D g2){
-		final Coordinate[] points = finset.getFinPoints();
+		final Coordinate[] designPoints = finset.getFinPoints();
+		
+		// translate to location on parent component
+		final double x_start = finset.getAxialOffset();
+		final SymmetricComponent parentBody = (Transition)finset.getParent();
+		final double y_start = parentBody.getRadius(x_start) - parentBody.getForeRadius();
+		final Coordinate[] drawPoints = FinSet.translatePoints(designPoints, x_start, y_start);
 		
 		// excludes fin tab
 		Path2D.Double shape = new Path2D.Double();
-		shape.moveTo(0, 0);
-		for (int i = 1; i < points.length; i++) {
-			shape.lineTo(points[i].x, points[i].y);
+		Coordinate startPoint= drawPoints[0];
+		shape.moveTo( startPoint.x, startPoint.y);
+		for (int i = 1; i < drawPoints.length; i++) {
+			shape.lineTo( drawPoints[i].x, drawPoints[i].y);
 		}
 
 		final float finEdgeWidth_m = (float) (LINE_WIDTH_PIXELS / scale / zoom );
@@ -288,9 +296,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
         g2.setColor(new Color(150, 0, 0));
 		
 		final double boxHalfWidth = boxWidth/2;
-		finPointHandles = new Rectangle2D.Double[points.length];
-		for (int i = 0; i < points.length; i++) {
-			Coordinate c = points[i];
+		finPointHandles = new Rectangle2D.Double[ drawPoints.length];
+		for (int i = 0; i < drawPoints.length; i++) {
+			Coordinate c = drawPoints[i];
 			finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
 			g2.draw(finPointHandles[i]);
 		}
