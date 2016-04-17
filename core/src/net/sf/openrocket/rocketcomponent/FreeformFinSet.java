@@ -216,42 +216,50 @@ public class FreeformFinSet extends FinSet {
 	 * @throws IllegalFinPointException	if the specified fin point would cause intersecting
 	 * 									segments
 	 */
-	public void setPoint(int index, double x, double y) throws IllegalFinPointException {
-		if (y < 0)
-			y = 0;
+	public void setPoint( final int index, double x, double y) throws IllegalFinPointException {
+		// x,y start out in parent-space; so first, translate (x,y) into fin-space
+		
+		final SymmetricComponent sym = (Transition)getParent();
+		final double x_fin = getAxialOffset(); // x @ fin start, parent frame
+		final double r_fin = sym.getRadius(x_fin); // radius of body @ fin start
+		final double r_ref = sym.getForeRadius(); // reference radius of body (front)
+		final double r_new = sym.getRadius(x); // radius of body @ point
+		final double y_fin = r_fin - r_ref;  // y @ fin start, parent frame
+
+		// ^^^^ parent-body-space corodinates ^^^^
+		x -= x_fin;
+		y -= y_fin;
+		// vvvv we are now in fin-space coordinates vvvv
+
+		final double y_body = r_new - r_fin;		
+		if (y < y_body){
+			y = y_body;
+		}
 		
 		double x0, y0, x1, y1;
 		
 		if (index == 0) {
-			
-			// Restrict point
+			// Restrict first point to be in front of last point.
 			x = Math.min(x, points.get(points.size() - 1).x);
-			y = 0;
+			
 			x0 = Double.NaN;
 			y0 = Double.NaN;
 			x1 = points.get(1).x;
 			y1 = points.get(1).y;
-			
 		} else if (index == points.size() - 1) {
-			
-			// Restrict point
-			x = Math.max(x, 0);
-			y = 0;
+			// Restrict last point to be behind first point
+			x = Math.max(points.get(0).x, x);
+
 			x0 = points.get(index - 1).x;
 			y0 = points.get(index - 1).y;
 			x1 = Double.NaN;
 			y1 = Double.NaN;
-			
 		} else {
-			
 			x0 = points.get(index - 1).x;
 			y0 = points.get(index - 1).y;
 			x1 = points.get(index + 1).x;
 			y1 = points.get(index + 1).y;
-			
 		}
-		
-		
 		
 		// Check for intersecting
 		double px0, py0, px1, py1;
@@ -276,19 +284,18 @@ public class FreeformFinSet extends FinSet {
 			py0 = py1;
 		}
 		
+		// if moving first point, translate entire fin to match
 		if (index == 0) {
-			
 			//System.out.println("Set point zero to x:" + x);
 			for (int i = 1; i < points.size(); i++) {
 				Coordinate c = points.get(i);
 				points.set(i, c.setX(c.x - x));
 			}
-			
 		} else {
-			
 			points.set(index, new Coordinate(x, y));
-			
 		}
+		
+		// set fin length
 		if (index == 0 || index == points.size() - 1) {
 			this.length = points.get(points.size() - 1).x;
 		}
@@ -319,7 +326,7 @@ public class FreeformFinSet extends FinSet {
 			parentLength=this.getParent().getLength();
 		}
 		
-		final double finLength = getBaseLength();
+		final double finLength = this.length;
 		switch( relativePosition ){
 		default:
 		case TOP:
