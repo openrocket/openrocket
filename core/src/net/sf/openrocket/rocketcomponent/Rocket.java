@@ -595,6 +595,10 @@ public class Rocket extends RocketComponent {
 			return;
 		}
 		
+		if( selectedConfiguration.getId().equals( fcid)){
+			selectedConfiguration = configSet.getDefault();
+		}
+		
 		// Get current configuration:
 		this.configSet.reset( fcid);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
