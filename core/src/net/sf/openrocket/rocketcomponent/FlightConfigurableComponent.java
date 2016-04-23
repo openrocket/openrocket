@@ -16,4 +16,11 @@ public interface FlightConfigurableComponent {
 	 */
 	void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId);
 	
+	/**
+	 * Reset a specific flight configuration ID to use the default parameter value.
+	 * 
+	 * @param fcid	the flight configuration ID
+	 */
+	void reset( final FlightConfigurationId fcid);
+	
 }

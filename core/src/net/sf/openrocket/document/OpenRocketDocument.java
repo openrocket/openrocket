@@ -286,7 +286,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				removeSimulation(s);
 			}
 		}
-		rocket.removeFlightConfigurationID(configId);
+		rocket.removeFlightConfiguration(configId);
 	}
 	
 	

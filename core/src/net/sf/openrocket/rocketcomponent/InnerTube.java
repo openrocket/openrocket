@@ -308,6 +308,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		motors.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
+	@Override
+	public void reset( final FlightConfigurationId fcid){
+		this.motors.reset(fcid);
+	}
 	
 	@Override
     public void setMotorMount(boolean _active){

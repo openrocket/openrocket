@@ -589,7 +589,7 @@ public class Rocket extends RocketComponent {
 	 *
 	 * @param fcid   the flight configuration ID to remove
 	 */
-	public void removeFlightConfigurationID(FlightConfigurationId fcid) {
+	public void removeFlightConfiguration(final FlightConfigurationId fcid) {
 		checkState();
 		if( fcid.hasError() ){
 			return;
@@ -599,6 +599,17 @@ public class Rocket extends RocketComponent {
 			selectedConfiguration = configSet.getDefault();
 		}
 		
+		// removed any component configuration tied to this FCID
+		Iterator<RocketComponent> iterator = this.iterator();
+		while (iterator.hasNext()) {
+			RocketComponent comp = iterator.next();
+			
+			if (comp instanceof FlightConfigurableComponent){
+				FlightConfigurableComponent confbl = (FlightConfigurableComponent)comp;
+				confbl.reset( fcid);
+			}
+		}
+				
 		// Get current configuration:
 		this.configSet.reset( fcid);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);

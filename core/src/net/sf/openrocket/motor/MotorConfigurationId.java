@@ -33,10 +33,9 @@ public final class MotorConfigurationId {
 			throw new NullPointerException("Provided FlightConfigurationId was null");
 		}
 		
-		// Use intern so comparison can be done using == instead of equals()
-		final long upper = ((long)_mount.getID().hashCode()) << 32;
-		final long lower = _fcid.key.getLeastSignificantBits();
-		this.key = new UUID( upper, lower);
+		final long mountHash= ((long)_mount.getID().hashCode()) << 32;
+		final long fcidLower = _fcid.key.getMostSignificantBits();
+		this.key = new UUID( mountHash, fcidLower);
 	}
 		
 	@Override
@@ -56,6 +55,10 @@ public final class MotorConfigurationId {
 		return key.hashCode();
 	}
 	
+	public String toDebug(){
+		return toShortKey();
+	}
+	
 	@Override
 	public String toString(){
 		if( this.key == MotorConfigurationId.ERROR_KEY){
@@ -63,5 +66,14 @@ public final class MotorConfigurationId {
 		}else{
 			return key.toString();
 		}
+	}
+
+	public String toShortKey() {
+		final String keyString = key.toString();
+		final int lastIndex = -1 + keyString.length();
+		final int chunkLen = 4;
+		
+		// return the head + tail of the full 64-character id
+		return (keyString.substring(0,chunkLen)+"/"+keyString.substring(lastIndex - chunkLen,lastIndex));
 	}
 }

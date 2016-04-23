@@ -94,6 +94,10 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		deploymentConfigurations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
+	@Override
+	public void reset( final FlightConfigurationId fcid){
+		deploymentConfigurations.reset(fcid);
+	}
 	
 	@Override
 	public double getComponentMass() {

@@ -371,7 +371,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					continue;
 				}
 				
-				this.motors.put( motorConfig.getID(), motorConfig);
+				this.motors.put( motorConfig.getMID(), motorConfig);
 			}
 		}
 		

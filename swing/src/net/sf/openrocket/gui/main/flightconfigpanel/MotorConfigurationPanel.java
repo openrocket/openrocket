@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -200,23 +201,22 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         if ( (null == fcid )||( null == curMount )){
             return;
         }
-        
-        //MotorInstance curInstance = curMount.getMotorInstance( fcid );
-        // curInstance may be empty here...
-        //String mountName = ((RocketComponent)curMount).getName();
-        //System.err.println("?? Selecting motor "+curInstance+" for mount: "+mountName+" for config: "+fcid.toShortKey());
-        
+
+        if( fcid.equals( FlightConfigurationId.DEFAULT_VALUE_FCID)){
+        	throw new IllegalStateException("Attempting to set a motor on the default FCID.");
+        }
+
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
 
-		Motor mtr = motorChooserDialog.getSelectedMotor();
+        Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
-			MotorConfiguration curConfig = curMount.getMotorConfig(fcid);
-			curConfig.setMotor(mtr);
-			curConfig.setEjectionDelay(d);
-			curConfig.setIgnitionEvent( IgnitionEvent.NEVER);
-			curMount.setMotorConfig( curConfig, fcid);
+	        final MotorConfiguration templateConfig = curMount.getMotorConfig(fcid);
+	        final MotorConfiguration newConfig = new MotorConfiguration( curMount, fcid, templateConfig);
+	        newConfig.setMotor(mtr);
+			newConfig.setEjectionDelay(d);
+			curMount.setMotorConfig( newConfig, fcid);
 		}
 
 		fireTableDataChanged();

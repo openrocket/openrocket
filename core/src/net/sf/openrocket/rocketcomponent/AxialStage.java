@@ -37,6 +37,11 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return separations;
 	}
 	
+	@Override
+	public void reset( final FlightConfigurationId fcid){
+		separations.reset(fcid);
+	}
+	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {

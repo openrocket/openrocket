@@ -92,7 +92,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		return outerRadius;
 	}
 	
-	
 	/**
 	 * Set the outer radius of the body tube.  If the radius is less than the wall thickness,
 	 * the wall thickness is decreased accordingly of the value of the radius.
@@ -394,6 +393,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	public Iterator<MotorConfiguration> getMotorIterator(){
 		return this.motors.iterator();
+	}
+	
+	@Override
+	public void reset( final FlightConfigurationId fcid){
+		this.motors.reset(fcid);
 	}
 
 	@Override

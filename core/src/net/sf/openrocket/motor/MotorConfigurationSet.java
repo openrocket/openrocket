@@ -4,7 +4,6 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 /**
  * FlightConfigurationSet for motors.
@@ -24,8 +23,15 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	 * @param component		the rocket component on which events are fired when the parameter values are changed
 	 * @param eventType		the event type that will be fired on changes
 	 */
-	public MotorConfigurationSet(FlightConfigurableParameterSet<MotorConfiguration> configSet, RocketComponent component) {
-		super(configSet);
+	public MotorConfigurationSet(FlightConfigurableParameterSet<MotorConfiguration> sourceSet, final MotorMount newMount) {
+		// creates a new empty config w/ default value
+		super( new MotorConfiguration( newMount, FlightConfigurationId.DEFAULT_VALUE_FCID ));
+		
+		for( MotorConfiguration sourceConfig : sourceSet ){
+			FlightConfigurationId nextFCID = sourceConfig.getFCID();
+			MotorConfiguration nextValue = new MotorConfiguration( newMount, nextFCID, sourceConfig);
+			set( nextFCID, nextValue );
+		}
 	}
 	
 	@Override
@@ -42,10 +48,18 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 		for( FlightConfigurationId loopFCID : this.map.keySet()){
 			MotorConfiguration curConfig = this.map.get(loopFCID);
 			if( this.isDefault(loopFCID)){
-				buffer.append( " [DEFAULT] "+curConfig.toDebugDetail()+"\n");
+				buffer.append( "  [DEF]");
 			}else{
-				buffer.append( "           "+curConfig.toDebugDetail() +"\n");
+				buffer.append( "       ");
 			}
+			
+			buffer.append(String.format("@%10s=[fcid//%8s][mid//%8s][    %8s ign@: %12s]\n",
+					loopFCID.toShortKey(),
+					curConfig.getFCID().toShortKey(),
+					curConfig.getMID().toShortKey(),
+					curConfig.toMotorDescription(),
+					curConfig.toIgnitionDescription() ));
+						
 		}
 		return buffer.toString();
 	}
