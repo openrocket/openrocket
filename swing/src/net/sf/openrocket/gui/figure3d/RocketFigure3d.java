@@ -34,31 +34,32 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jogamp.opengl.util.awt.Overlay;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.Splash;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jogamp.opengl.util.awt.Overlay;
-
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
 	
-	public static final int TYPE_FIGURE = 0;
-	public static final int TYPE_UNFINISHED = 1;
-	public static final int TYPE_FINISHED = 2;
+	public static final int TYPE_FIGURE = 2;
+	public static final int TYPE_UNFINISHED = 3;
+	public static final int TYPE_FINISHED = 4;
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
@@ -74,7 +75,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static final int CARET_SIZE = 20;
 	
 	private final OpenRocketDocument document;
-	private final Configuration configuration;
+	private final Rocket rkt;
 	private Component canvas;
 	
 	
@@ -95,9 +96,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	RocketRenderer rr = new FigureRenderer();
 	
-	public RocketFigure3d(final OpenRocketDocument document, final Configuration config) {
+	public RocketFigure3d(final OpenRocketDocument document) {
 		this.document = document;
-		this.configuration = config;
+		this.rkt = document.getRocket();
 		this.setLayout(new BorderLayout());
 		
 		//Only initizlize GL if 3d is enabled.
@@ -292,8 +293,10 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		setupView(gl, glu);
 		
+		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 		if (pickPoint != null) {
 			gl.glDisable(GLLightingFunc.GL_LIGHTING);
+			
 			final RocketComponent picked = rr.pick(drawable, configuration,
 					pickPoint, pickEvent.isShiftDown() ? selection : null);
 			if (csl != null) {
@@ -485,6 +488,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			return cachedBounds;
 		} else {
 			final Bounds b = new Bounds();
+			final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 			final Collection<Coordinate> bounds = configuration.getBounds();
 			for (Coordinate c : bounds) {
 				b.xMax = Math.max(b.xMax, c.x);

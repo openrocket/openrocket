@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.figure3d;
 
 import java.awt.Point;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -12,17 +11,19 @@ import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.figure3d.geometry.ComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.DisplayListComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
@@ -54,7 +55,7 @@ public abstract class RocketRenderer {
 	
 	public abstract void flushTextureCache(GLAutoDrawable drawable);
 	
-	public RocketComponent pick(GLAutoDrawable drawable, Configuration configuration, Point p,
+	public RocketComponent pick(GLAutoDrawable drawable, FlightConfiguration configuration, Point p,
 			Set<RocketComponent> ignore) {
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
@@ -62,7 +63,7 @@ public abstract class RocketRenderer {
 		// Store a vector of pickable parts.
 		final Vector<RocketComponent> pickParts = new Vector<RocketComponent>();
 		
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (ignore != null && ignore.contains(c))
 				continue;
 			
@@ -99,7 +100,7 @@ public abstract class RocketRenderer {
 		return pickParts.get(pickIndex);
 	}
 	
-	public void render(GLAutoDrawable drawable, Configuration configuration, Set<RocketComponent> selection) {
+	public void render(GLAutoDrawable drawable, FlightConfiguration configuration, Set<RocketComponent> selection) {
 		
 		if (cr == null)
 			throw new IllegalStateException(this + " Not Initialized");
@@ -116,7 +117,7 @@ public abstract class RocketRenderer {
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 			gl.glLineWidth(5.0f);
 			
-			for (RocketComponent c : configuration) {
+			for (RocketComponent c : configuration.getActiveComponents()) {
 				if (selection.contains(c)) {
 					// Draw as lines, set Z to nearest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
@@ -141,7 +142,7 @@ public abstract class RocketRenderer {
 		gl.glCullFace(GL.GL_BACK);
 		
 		// Draw all inner components
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (isDrawn(c)) {
 				if (!isDrawnTransparent(c)) {
 					renderComponent(gl, c, 1.0f);
@@ -153,7 +154,7 @@ public abstract class RocketRenderer {
 		
 		// Draw T&T front faces blended, without depth test
 		gl.glEnable(GL.GL_BLEND);
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (isDrawn(c)) {
 				if (isDrawnTransparent(c)) {
 					renderComponent(gl, c, 0.2f);
@@ -164,25 +165,50 @@ public abstract class RocketRenderer {
 		
 	}
 	
-	private void renderMotors(GL2 gl, Configuration configuration) {
-		String motorID = configuration.getFlightConfigurationID();
-		Iterator<MotorMount> iterator = configuration.motorIterator();
-		while (iterator.hasNext()) {
-			MotorMount mount = iterator.next();
-			Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
-			double length = motor.getLength();
+	private void renderMotors(GL2 gl, FlightConfiguration configuration) {
+		FlightConfigurationId motorID = configuration.getFlightConfigurationID();
+		
+//		for( RocketComponent comp : configuration.getActiveComponents()){
+//			if( comp instanceof MotorMount){
+//			
+//				MotorMount mount = (MotorMount) comp;
+//				Motor motor = mount.getMotorInstance(motorID).getMotor();
+//				if( null == motor )???;
+//				double length = motor.getLength();
+//			
+//				Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
+//						.getLength() + mount.getMotorOverhang() - length));
+//			
+//				for (int i = 0; i < position.length; i++) {
+//					gl.glPushMatrix();
+//					gl.glTranslated(position[i].x, position[i].y, position[i].z);
+//					renderMotor(gl, motor);
+//					gl.glPopMatrix();
+//				}
+//			}
+//		}
+		
+		for( MotorConfiguration curMotor : configuration.getActiveMotors()){
+			MotorMount mount = curMotor.getMount();
+			Motor motor = curMotor.getMotor();
 			
+			if( null == motor ){
+				throw new NullPointerException(" null motor from configuration.getActiveMotors...  this is a bug.");
+			}
+			
+			double length = motor.getLength();
+		
 			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
 					.getLength() + mount.getMotorOverhang() - length));
-			
+		
 			for (int i = 0; i < position.length; i++) {
 				gl.glPushMatrix();
 				gl.glTranslated(position[i].x, position[i].y, position[i].z);
 				renderMotor(gl, motor);
 				gl.glPopMatrix();
 			}
+			
 		}
-		
 	}
 	
 	protected void renderMotor(GL2 gl, Motor motor) {

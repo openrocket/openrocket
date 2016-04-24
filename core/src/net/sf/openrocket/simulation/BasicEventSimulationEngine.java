@@ -1,21 +1,23 @@
 package net.sf.openrocket.simulation;
 
-import java.util.Iterator;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.motor.MotorConfigurationId;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -26,10 +28,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.SimpleStack;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class BasicEventSimulationEngine implements SimulationEngine {
@@ -52,12 +50,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private SimulationStepper currentStepper;
 	
-	private SimulationStatus status;
+	private SimulationStatus currentStatus;
 	
-	private String flightConfigurationId;
+	private FlightConfigurationId fcid;
 	
-	private SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
-	
+	// this is just a list of simulation branches to 
+	Deque<SimulationStatus> toSimulate = new ArrayDeque<SimulationStatus>();
 	
 	@Override
 	public FlightData simulate(SimulationConditions simulationConditions) throws SimulationException {
@@ -66,46 +64,45 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		FlightData flightData = new FlightData();
 		
 		// Set up rocket configuration
-		Configuration configuration = setupConfiguration(simulationConditions);
-		flightConfigurationId = configuration.getFlightConfigurationID();
-		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
-		if (motorConfiguration.getMotorIDs().isEmpty()) {
+		this.fcid = simulationConditions.getFlightConfigurationID();
+		FlightConfiguration simulationConfig = simulationConditions.getRocket().getFlightConfiguration( this.fcid).clone();
+		if ( ! simulationConfig.hasMotors() ) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
 		
-		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions);
-		status.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
+		currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 		{
-			// main sustainer stage
-			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.TYPE_TIME));
+			// main simulation branch 
+			final String branchName = simulationConfig.getRocket().getTopmostStage().getName();
+			currentStatus.setFlightData(new FlightDataBranch( branchName, FlightDataType.TYPE_TIME));
 		}
-		stages.add(status);
+		toSimulate.add(currentStatus);
 		
-		SimulationListenerHelper.fireStartSimulation(status);
-		
-		while (true) {
-			if (stages.size() == 0) {
+		SimulationListenerHelper.fireStartSimulation(currentStatus);
+		do{
+			if( null == toSimulate.peek()){
 				break;
 			}
-			SimulationStatus stageStatus = stages.pop();
-			if (stageStatus == null) {
-				break;
-			}
-			status = stageStatus;
+			currentStatus = toSimulate.pop();
+			log.info(">>Starting simulation of branch: "+currentStatus.getFlightData().getBranchName());
+			
 			FlightDataBranch dataBranch = simulateLoop();
 			flightData.addBranch(dataBranch);
-			flightData.getWarningSet().addAll(status.getWarnings());
-		}
+			flightData.getWarningSet().addAll(currentStatus.getWarnings());
+			
+			log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s", 
+							dataBranch.getBranchName(),
+							currentStatus.getSimulationTime(),
+							dataBranch.getLast(FlightDataType.TYPE_TIME)));
+		}while( ! toSimulate.isEmpty());
 		
-		SimulationListenerHelper.fireEndSimulation(status, null);
-		
-		configuration.release();
+		SimulationListenerHelper.fireEndSimulation(currentStatus, null);
 		
 		if (!flightData.getWarningSet().isEmpty()) {
 			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 		}
-		
+
 		return flightData;
 	}
 	
@@ -113,95 +110,95 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
-		status = currentStepper.initialize(status);
+		currentStatus = currentStepper.initialize(currentStatus);
 		
 		// Get originating position (in case listener has modified launch position)
-		Coordinate origin = status.getRocketPosition();
-		Coordinate originVelocity = status.getRocketVelocity();
+		Coordinate origin = currentStatus.getRocketPosition();
+		Coordinate originVelocity = currentStatus.getRocketVelocity();
 		
 		try {
+			
 			// Start the simulation
 			while (handleEvents()) {
-				
 				// Take the step
-				double oldAlt = status.getRocketPosition().z;
+				double oldAlt = currentStatus.getRocketPosition().z;
 				
-				if (SimulationListenerHelper.firePreStep(status)) {
+				if (SimulationListenerHelper.firePreStep(currentStatus)) {
 					// Step at most to the next event
 					double maxStepTime = Double.MAX_VALUE;
-					FlightEvent nextEvent = status.getEventQueue().peek();
+					FlightEvent nextEvent = currentStatus.getEventQueue().peek();
 					if (nextEvent != null) {
-						maxStepTime = MathUtil.max(nextEvent.getTime() - status.getSimulationTime(), 0.001);
+						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
 					}
-					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
-					currentStepper.step(status, maxStepTime);
+					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + currentStatus.getSimulationTime());
+					currentStepper.step(currentStatus, maxStepTime);
 				}
-				SimulationListenerHelper.firePostStep(status);
+				SimulationListenerHelper.firePostStep(currentStatus);
 				
 				
 				// Check for NaN values in the simulation status
 				checkNaN();
 				
 				// Add altitude event
-				addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, status.getSimulationTime(),
-						status.getConfiguration().getRocket(),
-						new Pair<Double, Double>(oldAlt, status.getRocketPosition().z)));
+				addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
+						currentStatus.getConfiguration().getRocket(),
+						new Pair<Double, Double>(oldAlt, currentStatus.getRocketPosition().z)));
 				
-				if (status.getRocketPosition().z > status.getMaxAlt()) {
-					status.setMaxAlt(status.getRocketPosition().z);
+				if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
+					currentStatus.setMaxAlt(currentStatus.getRocketPosition().z);
 				}
 				
 				
 				// Position relative to start location
-				Coordinate relativePosition = status.getRocketPosition().sub(origin);
+				Coordinate relativePosition = currentStatus.getRocketPosition().sub(origin);
 				
 				// Add appropriate events
-				if (!status.isLiftoff()) {
+				if (!currentStatus.isLiftoff()) {
 					
 					// Avoid sinking into ground before liftoff
 					if (relativePosition.z < 0) {
-						status.setRocketPosition(origin);
-						status.setRocketVelocity(originVelocity);
+						currentStatus.setRocketPosition(origin);
+						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
 					if (relativePosition.z > 0.02) {
-						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, status.getSimulationTime()));
+						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
 					}
 					
 				} else {
 					
 					// Check ground hit after liftoff
-					if (status.getRocketPosition().z < 0) {
-						status.setRocketPosition(status.getRocketPosition().setZ(0));
-						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, status.getSimulationTime()));
-						addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, status.getSimulationTime()));
+					if (currentStatus.getRocketPosition().z < 0) {
+						currentStatus.setRocketPosition(currentStatus.getRocketPosition().setZ(0));
+						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
+						addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 					}
 					
 				}
 				
 				// Check for launch guide clearance
-				if (!status.isLaunchRodCleared() &&
-						relativePosition.length() > status.getSimulationConditions().getLaunchRodLength()) {
-					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, status.getSimulationTime(), null));
+				if (!currentStatus.isLaunchRodCleared() &&
+						relativePosition.length() > currentStatus.getSimulationConditions().getLaunchRodLength()) {
+					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
 				}
 				
 				
 				// Check for apogee
-				if (!status.isApogeeReached() && status.getRocketPosition().z < status.getMaxAlt() - 0.01) {
-					status.setMaxAltTime(status.getSimulationTime());
-					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
-							status.getConfiguration().getRocket()));
+				if (!currentStatus.isApogeeReached() && currentStatus.getRocketPosition().z < currentStatus.getMaxAlt() - 0.01) {
+					currentStatus.setMaxAltTime(currentStatus.getSimulationTime());
+					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, currentStatus.getSimulationTime(),
+							currentStatus.getConfiguration().getRocket()));
 				}
 				
-				
-				// Check for burnt out motors
-				for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
-					MotorInstance motor = status.getMotorConfiguration().getMotorInstance(motorId);
-					if (!motor.isActive() && status.addBurntOutMotor(motorId)) {
-						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
-								(RocketComponent) status.getMotorConfiguration().getMotorMount(motorId), motorId));
-					}
-				}
+//				//@Obsolete
+//				//@Redundant
+//				// Check for burnt out motors
+//				for( MotorClusterState state : currentStatus.getActiveMotors()){
+//					if ( state.isSpent()){
+//						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
+//								(RocketComponent) state.getMount(), state));
+//					}
+//				}
 				
 				// Check for Tumbling
 				// Conditions for transision are:
@@ -211,23 +208,23 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// and aoa > AOA_TUMBLE_CONDITION threshold
 				// and thrust < THRUST_TUMBLE_CONDITION threshold
 				
-				if (!status.isTumbling()) {
-					final double t = status.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE);
-					final double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
-					final double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
-					final double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+				if (!currentStatus.isTumbling()) {
+					final double t = currentStatus.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE);
+					final double cp = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
+					final double cg = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
+					final double aoa = currentStatus.getFlightData().getLast(FlightDataType.TYPE_AOA);
 					
 					final boolean wantToTumble = (cg > cp && aoa > AOA_TUMBLE_CONDITION);
 					
 					if (wantToTumble) {
 						final boolean tooMuchThrust = t > THRUST_TUMBLE_CONDITION;
-						final boolean isSustainer = status.getConfiguration().isStageActive(0);
-						final boolean isApogee = status.isApogeeReached();
+						//final boolean isSustainer = status.getConfiguration().isStageActive(0);
+						final boolean isApogee = currentStatus.isApogeeReached();
 						if (tooMuchThrust) {
-							status.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
+							currentStatus.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
 						} else if (isApogee) {
-							addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
-							status.setTumbling(true);
+							addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+							currentStatus.setTumbling(true);
 						}
 					}
 					
@@ -236,61 +233,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 		} catch (SimulationException e) {
-			SimulationListenerHelper.fireEndSimulation(status, e);
+			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
 			// Add FlightEvent for Abort.
-			status.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, status.getSimulationTime(), status.getConfiguration().getRocket(), e.getLocalizedMessage()));
-			status.getWarnings().add(e.getLocalizedMessage());
+			currentStatus.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
+			currentStatus.getWarnings().add(e.getLocalizedMessage());
 		}
 		
-		return status.getFlightData();
-	}
-	
-	/**
-	 * Create a rocket configuration from the launch conditions.
-	 *
-	 * @param simulation	the launch conditions.
-	 * @return				a rocket configuration with all stages attached.
-	 */
-	private Configuration setupConfiguration(SimulationConditions simulation) {
-		Configuration configuration = new Configuration(simulation.getRocket());
-		configuration.setAllStages();
-		configuration.setFlightConfigurationID(simulation.getMotorConfigurationID());
-		
-		return configuration;
-	}
-	
-	
-	
-	/**
-	 * Create a new motor instance configuration for the rocket configuration.
-	 *
-	 * @param configuration		the rocket configuration.
-	 * @return					a new motor instance configuration with all motors in place.
-	 */
-	private MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
-		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
-		final String flightConfigId = configuration.getFlightConfigurationID();
-		
-		Iterator<MotorMount> iterator = configuration.motorIterator();
-		while (iterator.hasNext()) {
-			MotorMount mount = iterator.next();
-			RocketComponent component = (RocketComponent) mount;
-			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(flightConfigId);
-			IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
-			Motor motor = motorConfig.getMotor();
-			
-			if (motor != null) {
-				Coordinate[] positions = component.toAbsolute(mount.getMotorPosition(flightConfigId));
-				for (int i = 0; i < positions.length; i++) {
-					Coordinate position = positions[i];
-					MotorId id = new MotorId(component.getID(), i + 1);
-					motors.addMotor(id, motor.getInstance(), motorConfig.getEjectionDelay(), mount,
-							ignitionConfig.getIgnitionEvent(), ignitionConfig.getIgnitionDelay(), position);
-				}
-			}
-		}
-		return motors;
-	}
+		return currentStatus.getFlightData();
+	}	
 	
 	/**
 	 * Handles events occurring during the flight from the event queue.
@@ -301,65 +251,56 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		boolean ret = true;
 		FlightEvent event;
 		
-		log.trace("HandleEvents: current branch = " + status.getFlightData().getBranchName());
-		log.trace("EventQueue = " + status.getEventQueue().toString());
+		log.trace("HandleEvents: current branch = " + currentStatus.getFlightData().getBranchName());
+		log.trace("EventQueue = " + currentStatus.getEventQueue().toString());
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			
 			// Ignore events for components that are no longer attached to the rocket
 			if (event.getSource() != null && event.getSource().getParent() != null &&
-					!status.getConfiguration().isStageActive(event.getSource().getStageNumber())) {
+					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
 				continue;
 			}
 			
 			// Call simulation listeners, allow aborting event handling
-			if (!SimulationListenerHelper.fireHandleFlightEvent(status, event)) {
+			if (!SimulationListenerHelper.fireHandleFlightEvent(currentStatus, event)) {
 				continue;
-			}
-			
-			if (event.getType() != FlightEvent.Type.ALTITUDE) {
-				log.trace("BasicEventSimulationEngine:  Handling event " + event);
-			}
-			
-			if (event.getType() == FlightEvent.Type.IGNITION) {
-				MotorMount mount = (MotorMount) event.getSource();
-				MotorId motorId = (MotorId) event.getData();
-				MotorInstance instance = status.getMotorConfiguration().getMotorInstance(motorId);
-				if (!SimulationListenerHelper.fireMotorIgnition(status, motorId, mount, instance)) {
-					continue;
-				}
 			}
 			
 			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				RecoveryDevice device = (RecoveryDevice) event.getSource();
-				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(status, device)) {
+				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
 					continue;
 				}
 			}
 			
-			
-			
 			// Check for motor ignition events, add ignition events to queue
-			for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
-				IgnitionConfiguration.IgnitionEvent ignitionEvent = status.getMotorConfiguration().getMotorIgnitionEvent(id);
-				MotorMount mount = status.getMotorConfiguration().getMotorMount(id);
-				RocketComponent component = (RocketComponent) mount;
-				
-				if (ignitionEvent.isActivationEvent(event, component)) {
-					double ignitionDelay = status.getMotorConfiguration().getMotorIgnitionDelay(id);
-					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
-							status.getSimulationTime() + ignitionDelay,
-							component, id));
+			for (MotorClusterState state : currentStatus.getActiveMotors() ){
+				if( state.testForIgnition(event )){
+					final double simulationTime = currentStatus.getSimulationTime() ;
+					MotorClusterState sourceState = (MotorClusterState) event.getData();
+					double ignitionDelay = 0;
+					if(( event.getType() == FlightEvent.Type.BURNOUT)|| ( event.getType() == FlightEvent.Type.EJECTION_CHARGE)){
+						ignitionDelay = sourceState.getEjectionDelay();
+					}
+					final double ignitionTime = currentStatus.getSimulationTime() + ignitionDelay; 
+					final RocketComponent mount = (RocketComponent)state.getMount();
+					
+					// TODO:  this event seems to get enqueue'd multiple times ... 
+					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
+					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					
+					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, mount, state ));
 				}
 			}
 			
 			
 			// Check for stage separation event
-			for (int stageNo : status.getConfiguration().getActiveStages()) {
+			for (AxialStage stage : currentStatus.getConfiguration().getActiveStages()) {
+				int stageNo = stage.getStageNumber();
 				if (stageNo == 0)
 					continue;
 				
-				Stage stage = (Stage) status.getConfiguration().getRocket().getChild(stageNo);
-				StageSeparationConfiguration separationConfig = stage.getStageSeparationConfiguration().get(flightConfigurationId);
+				StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(this.fcid);
 				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
 					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
 							event.getTime() + separationConfig.getSeparationDelay(), stage));
@@ -368,12 +309,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			
 			// Check for recovery device deployment, add events to queue
-			Iterator<RocketComponent> rci = status.getConfiguration().iterator();
-			while (rci.hasNext()) {
-				RocketComponent c = rci.next();
+			for (RocketComponent c : currentStatus.getConfiguration().getActiveComponents()) {
 				if (!(c instanceof RecoveryDevice))
 					continue;
-				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfiguration().get(flightConfigurationId);
+				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfigurations().get(this.fcid);
 				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
 					addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
@@ -381,90 +320,115 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
-			
 			// Handle event
 			switch (event.getType()) {
 			
 			case LAUNCH: {
-				status.getFlightData().addEvent(event);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case IGNITION: {
-				// Ignite the motor
-				MotorId motorId = (MotorId) event.getData();
-				MotorInstanceConfiguration config = status.getMotorConfiguration();
-				config.setMotorIgnitionTime(motorId, event.getTime());
-				status.setMotorIgnited(true);
-				status.getFlightData().addEvent(event);
+				MotorClusterState motorState = (MotorClusterState) event.getData();
 				
+				log.info("  Igniting motor: "+motorState.toDescription()+" @"+currentStatus.getSimulationTime());
+				motorState.ignite( event.getTime());
+
+				// Ignite the motor
+				currentStatus.setMotorIgnited(true);
+				currentStatus.getFlightData().addEvent(event);
+				
+				// ... ignite ...uhh, again? 
+				// TBH, I'm not sure what this call is for. It seems to be mostly a bunch of event distribution.
+				MotorConfigurationId motorId = motorState.getID(); 
+				MotorMount mount = (MotorMount) event.getSource();
+				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, motorState)) {
+					continue;
+				}
+				
+				// and queue up the burnout for this motor, as well. 
+				double duration = motorState.getMotor().getBurnTimeEstimate();
+				double burnout = currentStatus.getSimulationTime() + duration;
+				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
+							event.getSource(), motorState ));
 				break;
 			}
 			
 			case LIFTOFF: {
 				// Mark lift-off as occurred
-				status.setLiftoff(true);
-				status.getFlightData().addEvent(event);
+				currentStatus.setLiftoff(true);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case LAUNCHROD: {
 				// Mark launch rod as cleared
-				status.setLaunchRodCleared(true);
-				status.getFlightData().addEvent(event);
+				currentStatus.setLaunchRodCleared(true);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
-				if (!status.isLiftoff()) {
+				if (!currentStatus.isLiftoff()) {
 					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
 				}
+				
 				// Add ejection charge event
-				MotorId motorId = (MotorId) event.getData();
-				double delay = status.getMotorConfiguration().getEjectionDelay(motorId);
-				if (delay != Motor.PLUGGED) {
-					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, status.getSimulationTime() + delay,
-							event.getSource(), event.getData()));
+				MotorClusterState motorState = (MotorClusterState) event.getData();
+				motorState.burnOut( event.getTime() );
+
+				AxialStage stage = motorState.getMount().getStage();
+				log.debug( " adding EJECTION_CHARGE event for stage "+stage.getStageNumber()+": "+stage.getName());
+				log.debug( "                         .... for motor "+motorState.getMotor().getDesignation());
+				
+				double delay = motorState.getEjectionDelay();
+				if ( motorState.hasEjectionCharge() ){
+					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
+							stage, event.getData()));
 				}
-				status.getFlightData().addEvent(event);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case EJECTION_CHARGE: {
-				status.getFlightData().addEvent(event);
+				MotorClusterState motorState = (MotorClusterState) event.getData();
+				motorState.expend( event.getTime() );
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 			case STAGE_SEPARATION: {
 				// Record the event.
-				status.getFlightData().addEvent(event);
+				currentStatus.getFlightData().addEvent(event);
 				
-				RocketComponent stage = event.getSource();
-				int n = stage.getStageNumber();
-				
-				// Prepare the booster status for simulation.
-				SimulationStatus boosterStatus = new SimulationStatus(status);
-				boosterStatus.setFlightData(new FlightDataBranch(stage.getName(), FlightDataType.TYPE_TIME));
-				
-				stages.add(boosterStatus);
-				
+				RocketComponent boosterStage = event.getSource();
+				final int stageNumber = boosterStage.getStageNumber();
+	
 				// Mark the status as having dropped the booster
-				status.getConfiguration().setToStage(n - 1);
+				currentStatus.getConfiguration().clearStage( stageNumber);
 				
+				// Prepare the simulation branch
+				SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
+				boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
 				// Mark the booster status as only having the booster.
-				boosterStatus.getConfiguration().setOnlyStage(n);
+				boosterStatus.getConfiguration().setOnlyStage(stageNumber);
+				toSimulate.add(boosterStatus);
+				log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
+						currentStatus.getSimulationTime(), 
+						currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
+				
 				break;
 			}
 			
 			case APOGEE:
 				// Mark apogee as reached
-				status.setApogeeReached(true);
-				status.getFlightData().addEvent(event);
+				currentStatus.setApogeeReached(true);
+				currentStatus.getFlightData().addEvent(event);
 				// This apogee event might be the optimum if recovery has not already happened.
-				if (status.getSimulationConditions().isCalculateExtras() && status.getDeployedRecoveryDevices().size() == 0) {
-					status.getFlightData().setOptimumAltitude(status.getMaxAlt());
-					status.getFlightData().setTimeToOptimumAltitude(status.getMaxAltTime());
+				if (currentStatus.getSimulationConditions().isCalculateExtras() && currentStatus.getDeployedRecoveryDevices().size() == 0) {
+					currentStatus.getFlightData().setOptimumAltitude(currentStatus.getMaxAlt());
+					currentStatus.getFlightData().setTimeToOptimumAltitude(currentStatus.getMaxAltTime());
 				}
 				break;
 			
@@ -472,72 +436,77 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				RocketComponent c = event.getSource();
 				int n = c.getStageNumber();
 				// Ignore event if stage not active
-				if (status.getConfiguration().isStageActive(n)) {
+				if (currentStatus.getConfiguration().isStageActive(n)) {
 					// TODO: HIGH: Check stage activeness for other events as well?
 					
 					// Check whether any motor in the active stages is active anymore
-					for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
-						int stage = ((RocketComponent) status.getMotorConfiguration().
-								getMotorMount(motorId)).getStageNumber();
-						if (!status.getConfiguration().isStageActive(stage))
+					for (MotorClusterState state : currentStatus.getActiveMotors() ) {
+						if ( state.isSpent() ) {
 							continue;
-						if (!status.getMotorConfiguration().getMotorInstance(motorId).isActive())
-							continue;
-						status.getWarnings().add(Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING);
+						}
+						currentStatus.getWarnings().add(Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING);
 					}
 					
 					// Check for launch rod
-					if (!status.isLaunchRodCleared()) {
-						status.getWarnings().add(Warning.RECOVERY_LAUNCH_ROD);
+					if (!currentStatus.isLaunchRodCleared()) {
+						currentStatus.getWarnings().add(Warning.RECOVERY_LAUNCH_ROD);
 					}
 					
 					// Check current velocity
-					if (status.getRocketVelocity().length() > 20) {
-						status.getWarnings().add(new Warning.HighSpeedDeployment(status.getRocketVelocity().length()));
+					if (currentStatus.getRocketVelocity().length() > 20) {
+						currentStatus.getWarnings().add(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length()));
 					}
 					
-					status.setLiftoff(true);
-					status.getDeployedRecoveryDevices().add((RecoveryDevice) c);
+					currentStatus.setLiftoff(true);
+					currentStatus.getDeployedRecoveryDevices().add((RecoveryDevice) c);
 					
 					// If we haven't already reached apogee, then we need to compute the actual coast time
 					// to determine the optimum altitude.
-					if (status.getSimulationConditions().isCalculateExtras() && !status.isApogeeReached()) {
+					if (currentStatus.getSimulationConditions().isCalculateExtras() && !currentStatus.isApogeeReached()) {
 						FlightData coastStatus = computeCoastTime();
-						status.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
-						status.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
+
+						currentStatus.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
+						currentStatus.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
 					}
 					
 					this.currentStepper = this.landingStepper;
-					this.status = currentStepper.initialize(status);
+					this.currentStatus = currentStepper.initialize(currentStatus);
 					
-					status.getFlightData().addEvent(event);
+					currentStatus.getFlightData().addEvent(event);
 				}
 				break;
 			
 			case GROUND_HIT:
-				status.getFlightData().addEvent(event);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			
 			case SIMULATION_END:
 				ret = false;
-				status.getFlightData().addEvent(event);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			
 			case ALTITUDE:
+				log.trace("BasicEventSimulationEngine:  Handling event " + event);
 				break;
 			
 			case TUMBLE:
 				this.currentStepper = this.tumbleStepper;
-				this.status = currentStepper.initialize(status);
-				status.getFlightData().addEvent(event);
+				this.currentStatus = currentStepper.initialize(currentStatus);
+				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
 			
 		}
 		
+		if( 1200 < currentStatus.getSimulationTime() ){
+			ret = false;
+			log.error("Simulation hit max time (1200s): aborting.");
+			currentStatus.getFlightData().addEvent(new FlightEvent( FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+		}
+		
 		
 		// If no motor has ignited, abort
-		if (!status.isMotorIgnited()) {
+		if (!currentStatus.isMotorIgnited()) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noIgnition"));
 		}
 		
@@ -550,8 +519,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param event		the event to add to the queue.
 	 */
 	private void addEvent(FlightEvent event) throws SimulationException {
-		if (SimulationListenerHelper.fireAddFlightEvent(status, event)) {
-			status.getEventQueue().add(event);
+		if (SimulationListenerHelper.fireAddFlightEvent(currentStatus, event)) {
+			currentStatus.getEventQueue().add(event);
 		}
 	}
 	
@@ -565,16 +534,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @return			the flight event to handle, or null
 	 */
 	private FlightEvent nextEvent() {
-		EventQueue queue = status.getEventQueue();
+		EventQueue queue = currentStatus.getEventQueue();
 		FlightEvent event = queue.peek();
 		if (event == null)
 			return null;
 		
 		// Jump to event if no motors have been ignited
-		if (!status.isMotorIgnited() && event.getTime() > status.getSimulationTime()) {
-			status.setSimulationTime(event.getTime());
+		if (!currentStatus.isMotorIgnited() && event.getTime() > currentStatus.getSimulationTime()) {
+			currentStatus.setSimulationTime(event.getTime());
 		}
-		if (event.getTime() <= status.getSimulationTime()) {
+		if (event.getTime() <= currentStatus.getSimulationTime()) {
 			return queue.poll();
 		} else {
 			return null;
@@ -586,33 +555,33 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private void checkNaN() throws SimulationException {
 		double d = 0;
 		boolean b = false;
-		d += status.getSimulationTime();
-		d += status.getPreviousTimeStep();
-		b |= status.getRocketPosition().isNaN();
-		b |= status.getRocketVelocity().isNaN();
-		b |= status.getRocketOrientationQuaternion().isNaN();
-		b |= status.getRocketRotationVelocity().isNaN();
-		d += status.getEffectiveLaunchRodLength();
+		d += currentStatus.getSimulationTime();
+		d += currentStatus.getPreviousTimeStep();
+		b |= currentStatus.getRocketPosition().isNaN();
+		b |= currentStatus.getRocketVelocity().isNaN();
+		b |= currentStatus.getRocketOrientationQuaternion().isNaN();
+		b |= currentStatus.getRocketRotationVelocity().isNaN();
+		d += currentStatus.getEffectiveLaunchRodLength();
 		
 		if (Double.isNaN(d) || b) {
 			log.error("Simulation resulted in NaN value:" +
-					" simulationTime=" + status.getSimulationTime() +
-					" previousTimeStep=" + status.getPreviousTimeStep() +
-					" rocketPosition=" + status.getRocketPosition() +
-					" rocketVelocity=" + status.getRocketVelocity() +
-					" rocketOrientationQuaternion=" + status.getRocketOrientationQuaternion() +
-					" rocketRotationVelocity=" + status.getRocketRotationVelocity() +
-					" effectiveLaunchRodLength=" + status.getEffectiveLaunchRodLength());
+					" simulationTime=" + currentStatus.getSimulationTime() +
+					" previousTimeStep=" + currentStatus.getPreviousTimeStep() +
+					" rocketPosition=" + currentStatus.getRocketPosition() +
+					" rocketVelocity=" + currentStatus.getRocketVelocity() +
+					" rocketOrientationQuaternion=" + currentStatus.getRocketOrientationQuaternion() +
+					" rocketRotationVelocity=" + currentStatus.getRocketRotationVelocity() +
+					" effectiveLaunchRodLength=" + currentStatus.getEffectiveLaunchRodLength());
 			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.NaNResult"));
 		}
 	}
 	
 	private FlightData computeCoastTime() {
 		try {
-			SimulationConditions conds = status.getSimulationConditions().clone();
+			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
-			
+		
 			FlightData d = e.simulate(conds);
 			return d;
 		} catch (Exception e) {

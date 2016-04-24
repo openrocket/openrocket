@@ -256,7 +256,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						if (!rings.isEmpty()) {
 							FinSet.TabRelativePosition temp = (FinSet.TabRelativePosition) em.getSelectedItem();
 							em.setSelectedItem(FinSet.TabRelativePosition.FRONT);
-							double len = computeFinTabLength(rings, component.asPositionValue(RocketComponent.Position.TOP, parent),
+							double len = computeFinTabLength(rings, component.asPositionValue(RocketComponent.Position.TOP),
 										component.getLength(), mts, parent);
 							mtl.setValue(len);
 							//Be nice to the user and set the tab relative position enum back the way they had it.
@@ -305,8 +305,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			Collections.sort(rings, new Comparator<CenteringRing>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
-					return (int) (1000d * (centeringRing.asPositionValue(RocketComponent.Position.TOP, relativeTo) -
-							centeringRing1.asPositionValue(RocketComponent.Position.TOP, relativeTo)));
+					return (int) (1000d * (centeringRing.asPositionValue(RocketComponent.Position.TOP) -
+							centeringRing1.asPositionValue(RocketComponent.Position.TOP)));
 						}
 			});
 			
@@ -315,7 +315,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				//Handle centering rings that overlap or are adjacent by synthetically merging them into one virtual ring.
 				if (!positionsFromTop.isEmpty() &&
 						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >=
-                                centeringRing.asPositionValue(RocketComponent.Position.TOP, relativeTo)) {
+                                centeringRing.asPositionValue(RocketComponent.Position.TOP)) {
 					SortableRing adjacent = positionsFromTop.get(positionsFromTop.size() - 1);
 					adjacent.merge(centeringRing, relativeTo);
 				} else {
@@ -440,7 +440,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 */
 		SortableRing(CenteringRing r, RocketComponent relativeTo) {
 			thickness = r.getLength();
-			positionFromTop = r.asPositionValue(RocketComponent.Position.TOP, relativeTo);
+			positionFromTop = r.asPositionValue(RocketComponent.Position.TOP);
 		}
 		
 		/**
@@ -449,7 +449,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 * @param adjacent the adjacent ring
 		 */
 		public void merge(CenteringRing adjacent, RocketComponent relativeTo) {
-			double v = adjacent.asPositionValue(RocketComponent.Position.TOP, relativeTo);
+			double v = adjacent.asPositionValue(RocketComponent.Position.TOP);
 			if (positionFromTop < v) {
 				thickness = (v + adjacent.getLength()) - positionFromTop;
 			} else {

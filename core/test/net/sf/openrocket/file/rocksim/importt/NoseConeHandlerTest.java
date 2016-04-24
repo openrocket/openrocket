@@ -10,7 +10,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Transition;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
             //success
         }
 
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         NoseConeHandler handler = new NoseConeHandler(null, stage, new WarningSet());
         NoseCone component = (NoseCone) getField(handler, "noseCone");
         assertContains(component, stage.getChildren());
@@ -52,8 +52,8 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new NoseConeHandler(null, new Stage(), new WarningSet()).openElement(null, null, null));
-        Assert.assertNotNull(new NoseConeHandler(null, new Stage(), new WarningSet()).openElement("AttachedParts", null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new NoseConeHandler(null, new AxialStage(), new WarningSet()).openElement(null, null, null));
+        Assert.assertNotNull(new NoseConeHandler(null, new AxialStage(), new WarningSet()).openElement("AttachedParts", null, null));
     }
 
     /**
@@ -65,7 +65,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
     @Test
     public void testCloseElement() throws Exception {
 
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
@@ -188,7 +188,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new NoseConeHandler(null, new Stage(), new WarningSet()).getComponent() instanceof NoseCone);
+        Assert.assertTrue(new NoseConeHandler(null, new AxialStage(), new WarningSet()).getComponent() instanceof NoseCone);
     }
 
     /**
@@ -198,6 +198,6 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new NoseConeHandler(null, new Stage(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new NoseConeHandler(null, new AxialStage(), new WarningSet()).getMaterialType());
     }
 }

@@ -2,7 +2,8 @@ package net.sf.openrocket.aerodynamics;
 
 import java.util.Map;
 
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
@@ -22,7 +23,7 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @param warnings			the set in which to place warnings, or <code>null</code>
 	 * @return					the CP position in absolute coordinates
 	 */
-	public Coordinate getCP(Configuration configuration, FlightConditions conditions, WarningSet warnings);
+	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions, WarningSet warnings);
 	
 	/**
 	 * Calculate the aerodynamic forces acting upon the rocket.
@@ -32,7 +33,7 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @param warnings			the set in which to place warnings, or <code>null</code>.
 	 * @return					the aerodynamic forces acting upon the rocket.
 	 */
-	public AerodynamicForces getAerodynamicForces(Configuration configuration,
+	public AerodynamicForces getAerodynamicForces(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings);
 	
 	/**
@@ -45,7 +46,7 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * 							exerts.  The map contains an value for the base rocket, which is the total
 	 * 							aerodynamic forces.
 	 */
-	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(Configuration configuration,
+	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings);
 	
 	/**
@@ -57,7 +58,7 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @param warnings			the set in which to place warnings, or <code>null</code>.
 	 * @return					the worst (foremost) CP position for any lateral wind angle.
 	 */
-	public Coordinate getWorstCP(Configuration configuration, FlightConditions conditions,
+	public Coordinate getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings);
 	
 	/**
@@ -66,5 +67,6 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @return	a new, independent instance of this aerodynamic calculator type
 	 */
 	public AerodynamicCalculator newInstance();
-	
+		
+	public boolean isContinuous( final Rocket rkt);
 }

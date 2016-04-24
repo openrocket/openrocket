@@ -23,6 +23,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class EllipticalFinSetConfig extends FinSetConfig {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -31,10 +32,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		DoubleModel m;
 		JSpinner spin;
-		JComboBox combo;
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
-		
 		
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
@@ -111,7 +110,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Positionrelativeto")));
 		
-		combo = new JComboBox(
+		JComboBox<RocketComponent.Position> positionCombo= new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
@@ -119,7 +118,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
 						}));
-		panel.add(combo, "spanx, growx, wrap");
+		panel.add(positionCombo, "spanx, growx, wrap");
 		
 		//// plus
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.plus")), "right");
@@ -150,9 +149,9 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		////  Cross section
 		//// Fin cross section:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")), "span, split");
-		combo = new JComboBox(
+		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
 				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add(combo, "growx, wrap unrel");
+		panel.add( sectionCombo, "growx, wrap unrel");
 		
 		
 		////  Thickness:

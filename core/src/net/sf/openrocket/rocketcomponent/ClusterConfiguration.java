@@ -52,7 +52,13 @@ public class ClusterConfiguration {
 								 Math.sin(2*Math.PI*3/5),Math.cos(2*Math.PI*3/5),
 								 Math.sin(2*Math.PI*4/5),Math.cos(2*Math.PI*4/5)),
 		new ClusterConfiguration("6-star", 0,0, 0,1, SQRT3/2,0.5, SQRT3/2,-0.5,
-				 				 0,-1, -SQRT3/2,-0.5, -SQRT3/2,0.5)
+								 0,-1, -SQRT3/2,-0.5, -SQRT3/2,0.5),
+		new ClusterConfiguration("9-grid",  -1.4,1.4,  0,1.4,  1.4,1.4, 
+											-1.4,0,    0,0,    1.4,0,
+											-1.4,-1.4, 0,-1.4, 1.4,-1.4),
+		new ClusterConfiguration("9-star",  0, 0, 
+								 1.4,0, 1.4/SQRT2,-1.4/SQRT2, 0,-1.4, -1.4/SQRT2,-1.4/SQRT2,
+								 -1.4,0, -1.4/SQRT2,1.4/SQRT2, 0,1.4, 1.4/SQRT2,1.4/SQRT2)
 	};
 	
 	

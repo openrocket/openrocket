@@ -40,6 +40,7 @@ import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.Utils;
 
+@SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
 
 	public GeneralPreferencesPanel(JDialog parent) {

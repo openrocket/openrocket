@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class EditDecalDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();

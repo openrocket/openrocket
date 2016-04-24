@@ -91,6 +91,7 @@ public class Variable {
 		return start;
 	}
 	
+	@Override
 	public String toString(){
 		if ( arrayValue.length > 1 ){
 			String out = name + " is Array (length " + new Integer(arrayValue.length).toString() + ") : {";

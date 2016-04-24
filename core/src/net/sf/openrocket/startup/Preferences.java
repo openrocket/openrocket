@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
@@ -758,6 +759,7 @@ public abstract class Preferences implements ChangeSource {
 			DEFAULT_COLORS.put(TubeFinSet.class, "0,0,200");
 			DEFAULT_COLORS.put(FinSet.class, "0,0,200");
 			DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
+			DEFAULT_COLORS.put(RailButton.class, "0,0,180");
 			DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
 			DEFAULT_COLORS.put(MassObject.class, "0,0,0");
 			DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");

@@ -6,7 +6,7 @@ import java.util.EventObject;
 import java.util.List;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
@@ -84,7 +84,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * 
 	 * @param config   the configuration of which the reference length is taken.
 	 */
-	public FlightConditions(Configuration config) {
+	public FlightConditions(FlightConfiguration config) {
 		if (config != null)
 			setRefLength(config.getReferenceLength());
 		this.modID = UniqueID.next();
@@ -95,7 +95,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * Set the reference length from the given configuration.
 	 * @param config	the configuration from which to get the reference length.
 	 */
-	public void setReference(Configuration config) {
+	public void setReference(FlightConfiguration config) {
 		setRefLength(config.getReferenceLength());
 	}
 	

@@ -10,6 +10,7 @@ import javax.swing.JMenuItem;
 /**
  * Implements a menu for the example Open Rocket design files.
  */
+@SuppressWarnings("serial")
 public final class ExampleDesignFileAction extends JMenu {
 
     /**

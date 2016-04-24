@@ -1,12 +1,11 @@
 package net.sf.openrocket.simulation;
 
+import java.util.Collection;
+
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
+import net.sf.openrocket.masscalc.MassData;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstance;
-import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.util.BugException;
@@ -45,7 +44,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the wind to use, allowing listeners to override.
 	 * 
@@ -75,7 +74,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the gravity to use, allowing listeners to override.
 	 * 
@@ -104,7 +103,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the mass data to use, allowing listeners to override.
 	 * 
@@ -124,12 +123,14 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
-		cg = calc.getCG(status.getConfiguration(), status.getMotorConfiguration());
-		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(), status.getMotorConfiguration());
-		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(), status.getMotorConfiguration());
-		propellantMass = calc.getPropellantMass(status.getConfiguration(), status.getMotorConfiguration());
-		mass = new MassData(cg, longitudinalInertia, rotationalInertia, propellantMass);
-		
+		// not sure if this is actually Launch mass or not...
+		cg = calc.getCG(status.getConfiguration(), MassCalcType.LAUNCH_MASS);  
+		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
+		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
+		mass = new MassData(cg, rotationalInertia, longitudinalInertia);
+		propellantMass = calc.getPropellantMass(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);
+		mass.setPropellantMass( propellantMass ); 
+				
 		// Call post-listener
 		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
 		
@@ -142,9 +143,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
-
-
 	/**
 	 * Calculate the average thrust produced by the motors in the current configuration, allowing
 	 * listeners to override.  The average is taken between <code>status.time</code> and 
@@ -170,20 +168,11 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			return thrust;
 		}
 		
-		Configuration configuration = status.getConfiguration();
-		
-		// Iterate over the motors and calculate combined thrust
-		MotorInstanceConfiguration mic = status.getMotorConfiguration();
-		if (!stepMotors) {
-			mic = mic.clone();
-		}
-		mic.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
-		for (MotorId id : mic.getMotorIDs()) {
-			if (configuration.isComponentActive((RocketComponent) mic.getMotorMount(id))) {
-				MotorInstance motor = mic.getMotorInstance(id);
-				thrust += motor.getThrust();
-			}
+		final double currentTime = status.getSimulationTime() + timestep;
+		Collection<MotorClusterState> activeMotorList = status.getMotors();
+		for (MotorClusterState currentMotorState : activeMotorList ) {
+			thrust += currentMotorState.getThrust( currentTime, atmosphericConditions );
 		}
 		
 		// Post-listeners

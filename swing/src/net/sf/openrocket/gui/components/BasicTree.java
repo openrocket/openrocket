@@ -12,8 +12,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+@SuppressWarnings("serial")
 public class BasicTree extends JTree {
-	
 
 	public BasicTree() {
 		super();

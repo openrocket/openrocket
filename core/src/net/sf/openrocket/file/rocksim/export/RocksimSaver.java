@@ -9,18 +9,17 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.Stage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for converting an OpenRocket design to a Rocksim design.
@@ -93,12 +92,12 @@ public class RocksimSaver extends RocketSaver {
 	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
 		RocketDesignDTO result = new RocketDesignDTO();
 		
-		MassCalculator massCalc = new BasicMassCalculator();
+		MassCalculator massCalc = new MassCalculator();
 		
-		final Configuration configuration = new Configuration(rocket);
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		final double cg = massCalc.getCG(configuration, MassCalculator.MassCalcType.NO_MOTORS).x *
 				RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
-		configuration.release();
+
 		int stageCount = rocket.getStageCount();
 		if (stageCount == 3) {
 			result.setStage321CG(cg);
@@ -125,7 +124,7 @@ public class RocksimSaver extends RocketSaver {
 		return result;
 	}
 	
-	private StageDTO toStageDTO(Stage stage, RocketDesignDTO designDTO, int stageNumber) {
+	private StageDTO toStageDTO(AxialStage stage, RocketDesignDTO designDTO, int stageNumber) {
 		return new StageDTO(stage, designDTO, stageNumber);
 	}
 	

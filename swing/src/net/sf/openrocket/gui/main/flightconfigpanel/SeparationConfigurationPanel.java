@@ -16,18 +16,19 @@ import javax.swing.SwingUtilities;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
-public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage> {
-	
+public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialStage> {
+	private static final long serialVersionUID = -1556652925279847316L;
 	static final Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	private FlightConfigurableTableModel<Stage> separationTableModel;
+	private FlightConfigurableTableModel<AxialStage> separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
 	
@@ -65,9 +66,11 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	@Override
 	protected JTable initializeTable() {
 		//// Separation selection 
-		separationTableModel = new FlightConfigurableTableModel<Stage>(Stage.class, rocket) {
+		separationTableModel = new FlightConfigurableTableModel<AxialStage>(AxialStage.class, rocket) {
+			private static final long serialVersionUID = 7979648984099308970L;
+
 			@Override
-			protected boolean includeComponent(Stage component) {
+			protected boolean includeComponent(AxialStage component) {
 				return component.getStageNumber() > 0;
 			}
 
@@ -92,7 +95,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	}
 
 	private void selectDeployment() {
-		Stage stage = getSelectedComponent();
+		AxialStage stage = getSelectedComponent();
 		if (stage == null) {
 			return;
 		}
@@ -102,12 +105,15 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	}
 	
 	private void resetDeployment() {
-		Stage stage = getSelectedComponent();
+		AxialStage stage = getSelectedComponent();
 		if (stage == null) {
 			return;
 		}
-		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		stage.getStageSeparationConfiguration().resetDefault(id);
+		
+		// why? 
+		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		stage.getSeparationConfigurations().reset(id);
+		
 		fireTableDataChanged();
 	}
 	public void updateButtonState() {
@@ -116,14 +122,15 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		resetDeploymentButton.setEnabled(componentSelected);
 	}
 	
-	private class SeparationTableCellRenderer extends FlightConfigurablePanel<Stage>.FlightConfigurableCellRenderer {
-		
+	private class SeparationTableCellRenderer extends FlightConfigurablePanel<AxialStage>.FlightConfigurableCellRenderer {
+		private static final long serialVersionUID = -7066580803931938686L;
+
 		@Override
-		protected JLabel format(Stage stage, String configId, JLabel label) {
-			StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(configId);
+		protected JLabel format(AxialStage stage, FlightConfigurationId configId, JLabel label) {
+			StageSeparationConfiguration sepConfig = stage.getSeparationConfigurations().get(configId);
 			String spec = getSeparationSpecification(sepConfig);
 			label.setText(spec);
-			if (stage.getStageSeparationConfiguration().isDefault(configId)) {
+			if (stage.getSeparationConfigurations().isDefault(configId)) {
 				shaded(label);
 			} else {
 				regular(label);

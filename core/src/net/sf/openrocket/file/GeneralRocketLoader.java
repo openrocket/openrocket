@@ -92,6 +92,7 @@ public class GeneralRocketLoader {
 	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
 		try {
 			loadStep1(source);
+			doc.getRocket().enableEvents();
 			return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream: " + e.getMessage(), e);
@@ -146,7 +147,6 @@ public class GeneralRocketLoader {
 		
 		// Check for ZIP (for future compatibility)
 		if (buffer[0] == ZIP_SIGNATURE[0] && buffer[1] == ZIP_SIGNATURE[1]) {
-			OpenRocketDocument doc;
 			isContainer = true;
 			setAttachmentFactory();
 			// Search for entry with name *.ork
@@ -158,11 +158,11 @@ public class GeneralRocketLoader {
 				}
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
 					loadRocket(in);
-					return;
 				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
 					loadRocket(in);
-					return;
 				}
+				in.close();
+				return;
 			}
 			
 		}

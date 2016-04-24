@@ -114,7 +114,7 @@ public abstract class Unit {
 		double sign = Math.signum(val);
 		val = Math.abs(val);
 		double mul = 1.0;
-		while (val < 100) {
+		while (val < 100 && mul < 1000) {
 			mul *= 10;
 			val *= 10;
 		}

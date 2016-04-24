@@ -4,7 +4,7 @@ import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.ArrayList;
 
@@ -40,7 +40,7 @@ public class StageDTO {
      * @param design      the encompassing container DTO
      * @param stageNumber the stage number (3 is always at the top, even if it's the only one)
      */
-    public StageDTO(Stage theORStage, RocketDesignDTO design, int stageNumber) {
+    public StageDTO(AxialStage theORStage, RocketDesignDTO design, int stageNumber) {
 
         if (stageNumber == 3) {
             if (theORStage.isMassOverridden()) {

@@ -1,12 +1,12 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
 
 /**
  * This class models an XML element for a Rocksim LaunchLug.
@@ -35,7 +35,7 @@ public class LaunchLugDTO extends BasePartDTO {
         super(theORLaunchLug);
         setId(theORLaunchLug.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setOd(theORLaunchLug.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRadialAngle(theORLaunchLug.getRadialDirection());
+        setRadialAngle(theORLaunchLug.getAngularOffset());
     }
 
     public double getOd() {

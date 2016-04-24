@@ -11,6 +11,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class CompassSelector extends CompassPointer {
 	
 	private final DoubleModel model;

@@ -7,30 +7,6 @@ import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.formatting.RocketDescriptor;
-import net.sf.openrocket.gui.figureelements.FigureElement;
-import net.sf.openrocket.gui.figureelements.RocketInfo;
-import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Chars;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Utils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +20,29 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.formatting.RocketDescriptor;
+import net.sf.openrocket.gui.figureelements.FigureElement;
+import net.sf.openrocket.gui.figureelements.RocketInfo;
+import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.util.Utils;
 
 /**
  * <pre>
@@ -164,11 +163,11 @@ public class DesignReport {
 		PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
 		
 		Rocket rocket = rocketDocument.getRocket();
-		final Configuration configuration = rocket.getDefaultConfiguration().clone();
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();//.clone();
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
 		
-		final PrintFigure figure = new PrintFigure(configuration);
+		final PrintFigure figure = new PrintFigure(rocket);
 		figure.setRotation(rotation);
 		
 		FigureElement cp = panel.getExtraCP();
@@ -193,7 +192,7 @@ public class DesignReport {
 		canvas.showText("" + rocket.getStageCount());
 		
 		
-		if (configuration.hasMotors()) {
+		if ( configuration.hasMotors()){
 			if (configuration.getStageCount() > 1) {
 				canvas.newlineShowText(MASS_WITH_MOTORS);
 			} else {
@@ -223,27 +222,30 @@ public class DesignReport {
 			paragraph.setSpacingAfter(heightOfDiagramAndText);
 			document.add(paragraph);
 			
-			String[] motorIds = rocket.getFlightConfigurationIDs();
 			List<Simulation> simulations = rocketDocument.getSimulations();
 			
-			for (int j = 0; j < motorIds.length; j++) {
-				String motorId = motorIds[j];
-				if (motorId != null) {
-					PdfPTable parent = new PdfPTable(2);
-					parent.setWidthPercentage(100);
-					parent.setHorizontalAlignment(Element.ALIGN_LEFT);
-					parent.setSpacingBefore(0);
-					parent.setWidths(new int[] { 1, 3 });
-					int leading = 0;
-					//The first motor config is always null.  Skip it and the top-most motor, then set the leading.
-					if (j > 1) {
-						leading = 25;
-					}
-					FlightData flight = findSimulation(motorId, simulations);
-					addFlightData(flight, rocket, motorId, parent, leading);
-					addMotorData(rocket, motorId, parent);
-					document.add(parent);
+			int motorNumber = 0;
+			for( FlightConfigurationId fcid : rocket.getIds()){
+				
+				PdfPTable parent = new PdfPTable(2);
+				parent.setWidthPercentage(100);
+				parent.setHorizontalAlignment(Element.ALIGN_LEFT);
+				parent.setSpacingBefore(0);
+				parent.setWidths(new int[] { 1, 3 });
+				
+				
+				int leading = 0;
+				//The first motor config is always null.  Skip it and the top-most motor, then set the leading.
+				if ( motorNumber > 1) {
+					leading = 25;
 				}
+				
+				FlightData flight = findSimulation( fcid, simulations);
+				addFlightData(flight, rocket, fcid, parent, leading);
+				addMotorData(rocket, fcid, parent);
+				document.add(parent);
+					
+				motorNumber++;
 			}
 		} catch (DocumentException e) {
 			log.error("Could not modify document.", e);
@@ -305,7 +307,7 @@ public class DesignReport {
 	 * @param motorId	the motor ID to output
 	 * @param parent	the parent to which the motor data will be added
 	 */
-	private void addMotorData(Rocket rocket, String motorId, final PdfPTable parent) {
+	private void addMotorData(Rocket rocket, FlightConfigurationId motorId, final PdfPTable parent) {
 		
 		PdfPTable motorTable = new PdfPTable(8);
 		motorTable.setWidthPercentage(68);
@@ -325,10 +327,9 @@ public class DesignReport {
 		
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
 		
-		MassCalculator massCalc = new BasicMassCalculator();
+		MassCalculator massCalc = new MassCalculator();
 		
-		Configuration config = new Configuration(rocket);
-		config.setFlightConfigurationID(motorId);
+		FlightConfiguration config = rocket.createFlightConfiguration(motorId);
 		
 		int totalMotorCount = 0;
 		double totalPropMass = 0;
@@ -341,8 +342,9 @@ public class DesignReport {
 		boolean topBorder = false;
 		for (RocketComponent c : rocket) {
 			
-			if (c instanceof Stage) {
-				config.setToStage(stage);
+			if (c instanceof AxialStage) {
+				config.clearAllStages();
+				config.setOnlyStage(stage);
 				stage++;
 				stageMass = massCalc.getCG(config, MassCalcType.LAUNCH_MASS).weight;
 				// Calculate total thrust-to-weight from only lowest stage motors
@@ -353,9 +355,10 @@ public class DesignReport {
 			if (c instanceof MotorMount && ((MotorMount) c).isMotorMount()) {
 				MotorMount mount = (MotorMount) c;
 				
-				if (mount.isMotorMount() && mount.getMotor(motorId) != null) {
-					Motor motor = mount.getMotor(motorId);
-					int motorCount = c.toAbsolute(Coordinate.NUL).length;
+				// TODO: refactor this... it's redundant with containing if, and could probably be simplified 
+				if (mount.isMotorMount() && (mount.getMotorConfig(motorId) != null) &&(null != mount.getMotorConfig(motorId).getMotor())) {
+					Motor motor = mount.getMotorConfig(motorId).getMotor();
+					int motorCount = mount.getMotorCount();
 					
 					
 					int border = Rectangle.NO_BORDER;
@@ -385,7 +388,7 @@ public class DesignReport {
 					motorTable.addCell(ITextHelper.createCell(
 							ttwFormat.format(ttw) + ":1", border));
 					
-					double propMass = (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+					double propMass = (motor.getLaunchMass() - motor.getBurnoutMass());
 					motorTable.addCell(ITextHelper.createCell(
 							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
 					
@@ -426,7 +429,6 @@ public class DesignReport {
 		c.setBorder(PdfPCell.LEFT);
 		c.setBorderWidthTop(0f);
 		parent.addCell(c);
-		config.release();
 	}
 	
 	
@@ -439,7 +441,7 @@ public class DesignReport {
 	 * @param parent    the parent to which the simulation flight data will be added
 	 * @param leading   the number of points for the leading
 	 */
-	private void addFlightData(final FlightData flight, final Rocket theRocket, final String motorId, final PdfPTable parent, int leading) {
+	private void addFlightData(final FlightData flight, final Rocket theRocket, final FlightConfigurationId motorId, final PdfPTable parent, int leading) {
 		
 		// Output the flight data
 		if (flight != null) {
@@ -505,13 +507,13 @@ public class DesignReport {
 	 *
 	 * @return the flight data from the simulation for the specified motor id, or null if not found
 	 */
-	private FlightData findSimulation(final String motorId, List<Simulation> simulations) {
+	private FlightData findSimulation(final FlightConfigurationId motorId, List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
 		try {
 			for (int i = 0; i < simulations.size(); i++) {
 				Simulation simulation = simulations.get(i);
-				if (Utils.equals(simulation.getOptions().getMotorConfigurationID(), motorId)) {
+				if (Utils.equals(simulation.getId(), motorId)) {
 					simulation = simulation.copy();
 					simulation.simulate();
 					flight = simulation.getSimulatedData();

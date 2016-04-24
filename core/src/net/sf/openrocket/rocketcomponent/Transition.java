@@ -23,8 +23,8 @@ public class Transition extends SymmetricComponent {
 	private double shapeParameter;
 	private boolean clipped; // Not to be read - use isClipped(), which may be overriden
 
-	private double radius1, radius2;
-	private boolean autoRadius1, autoRadius2; // Whether the start radius is automatic
+	private double foreRadius, aftRadius;
+	private boolean autoForeRadius, autoAftRadius2; // Whether the start radius is automatic
 
 
 	private double foreShoulderRadius;
@@ -43,11 +43,11 @@ public class Transition extends SymmetricComponent {
 	public Transition() {
 		super();
 
-		this.radius1 = DEFAULT_RADIUS;
-		this.radius2 = DEFAULT_RADIUS;
+		this.foreRadius = DEFAULT_RADIUS;
+		this.aftRadius = DEFAULT_RADIUS;
 		this.length = DEFAULT_RADIUS * 3;
-		this.autoRadius1 = true;
-		this.autoRadius2 = true;
+		this.autoForeRadius = true;
+		this.autoAftRadius2 = true;
 
 		this.type = Shape.CONICAL;
 		this.shapeParameter = 0;
@@ -82,18 +82,18 @@ public class Transition extends SymmetricComponent {
 				r = DEFAULT_RADIUS;
 			return r;
 		}
-		return radius1;
+		return foreRadius;
 	}
 
 	public void setForeRadius(double radius) {
-		if ((this.radius1 == radius) && (autoRadius1 == false))
+		if ((this.foreRadius == radius) && (autoForeRadius == false))
 			return;
 
-		this.autoRadius1 = false;
-		this.radius1 = Math.max(radius, 0);
+		this.autoForeRadius = false;
+		this.foreRadius = Math.max(radius, 0);
 
-		if (this.thickness > this.radius1 && this.thickness > this.radius2)
-			this.thickness = Math.max(this.radius1, this.radius2);
+		if (this.thickness > this.foreRadius && this.thickness > this.aftRadius)
+			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -101,14 +101,14 @@ public class Transition extends SymmetricComponent {
 
 	@Override
 	public boolean isForeRadiusAutomatic() {
-		return autoRadius1;
+		return autoForeRadius;
 	}
 
 	public void setForeRadiusAutomatic(boolean auto) {
-		if (autoRadius1 == auto)
+		if (autoForeRadius == auto)
 			return;
 
-		autoRadius1 = auto;
+		autoForeRadius = auto;
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -130,20 +130,20 @@ public class Transition extends SymmetricComponent {
 				r = DEFAULT_RADIUS;
 			return r;
 		}
-		return radius2;
+		return aftRadius;
 	}
 
 
 
 	public void setAftRadius(double radius) {
-		if ((this.radius2 == radius) && (autoRadius2 == false))
+		if ((this.aftRadius == radius) && (autoAftRadius2 == false))
 			return;
 
-		this.autoRadius2 = false;
-		this.radius2 = Math.max(radius, 0);
+		this.autoAftRadius2 = false;
+		this.aftRadius = Math.max(radius, 0);
 
-		if (this.thickness > this.radius1 && this.thickness > this.radius2)
-			this.thickness = Math.max(this.radius1, this.radius2);
+		if (this.thickness > this.foreRadius && this.thickness > this.aftRadius)
+			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -151,14 +151,14 @@ public class Transition extends SymmetricComponent {
 
 	@Override
 	public boolean isAftRadiusAutomatic() {
-		return autoRadius2;
+		return autoAftRadius2;
 	}
 
 	public void setAftRadiusAutomatic(boolean auto) {
-		if (autoRadius2 == auto)
+		if (autoAftRadius2 == auto)
 			return;
 
-		autoRadius2 = auto;
+		autoAftRadius2 = auto;
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

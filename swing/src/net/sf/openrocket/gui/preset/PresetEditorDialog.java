@@ -68,7 +68,9 @@ import net.sf.openrocket.unit.UnitGroup;
  * Preset editor for creating new preset components.
  */
 public class PresetEditorDialog extends JDialog implements ItemListener {
-	
+
+	private static final long serialVersionUID = -3298642844886682536L;
+
 	private static Translator trans = Application.getTranslator();
 	
 	private static final Logger log = LoggerFactory.getLogger(PresetEditorDialog.class);
@@ -81,7 +83,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	final PresetInputVerifier NON_NEGATIVE_INTEGER = new PresetInputVerifier(Pattern.compile(NON_NEGATIVE_INTEGER_FIELD));
 	
 	private final JPanel contentPanel = new JPanel();
-	private DeselectableComboBox typeCombo;
+	private DeselectableComboBox<String> typeCombo;
 	private JTextField mfgTextField;
 	private MaterialChooser materialChooser;
 	private MaterialHolder holder = null;
@@ -90,7 +92,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private JTextField ncDescTextField;
 	private DoubleModel ncLength;
 	private JCheckBox ncFilledCB;
-	private JComboBox ncShapeCB;
+	private JComboBox<String> ncShapeCB;
 	private DoubleModel ncAftDia;
 	private DoubleModel ncAftShoulderDia;
 	private DoubleModel ncAftShoulderLen;
@@ -110,7 +112,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private DoubleModel trMass;
 	private ImageIcon trImage;
 	private JCheckBox trFilledCB;
-	private JComboBox trShapeCB;
+	private JComboBox<String> trShapeCB;
 	private JButton trImageBtn;
 	
 	private JTextField btPartNoTextField;
@@ -257,9 +259,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		contentPanel.add(componentOverlayPanel, "cell 1 3 5 2,grow");
 		componentOverlayPanel.setLayout(new CardLayout(0, 0));
 		
-		typeCombo = new DeselectableComboBox();
+		typeCombo = new DeselectableComboBox<String>();
 		typeCombo.addItemListener(this);
-		typeCombo.setModel(new DefaultComboBoxModel());
+		typeCombo.setModel(new DefaultComboBoxModel<String>());
 		setItems(typeCombo, toEdit);
 		contentPanel.add(typeCombo, "cell 3 1,growx");
 		
@@ -306,8 +308,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel ncShapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape"));
 			ncPanel.add(ncShapeLabel, "cell 0 2,alignx left");
 			
-			ncShapeCB = new JComboBox();
-			ncShapeCB.setModel(new DefaultComboBoxModel(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+			ncShapeCB = new JComboBox<String>();
+			ncShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
 					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
 			ncPanel.add(ncShapeCB, "cell 1 2,growx");
 			
@@ -405,8 +407,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel trShapeLabel = new JLabel("Shape:");
 			trPanel.add(trShapeLabel, "cell 0 2,alignx left");
 			
-			trShapeCB = new JComboBox();
-			trShapeCB.setModel(new DefaultComboBoxModel(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+			trShapeCB = new JComboBox<String>();
+			trShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
 					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
 			trPanel.add(trShapeCB, "cell 1 2,growx");
 			
@@ -1177,7 +1179,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	 * @param cb     the combo box component
 	 * @param preset the preset being edited
 	 */
-	private void setItems(DeselectableComboBox cb, ComponentPreset preset) {
+	private void setItems(DeselectableComboBox<String> cb, ComponentPreset preset) {
 		cb.addItem(trans.get(NOSE_CONE_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.NOSE_CONE));
 		cb.addItem(trans.get(BODY_TUBE_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.BODY_TUBE));
 		cb.addItem(trans.get(BULKHEAD_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.BULK_HEAD));
@@ -1507,7 +1509,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		}
 	}
 	
-	private void setMaterial(final JComboBox chooser, final ComponentPreset preset, final MaterialHolder holder,
+	private void setMaterial(final JComboBox<Material> chooser, final ComponentPreset preset, final MaterialHolder holder,
 			final Material.Type theType, final TypedKey<Material> key) {
 		if (holder == null) {
 			chooser.setModel(new MaterialModel(PresetEditorDialog.this, theType));
@@ -2190,8 +2192,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		}
 	}
 	
-	class MaterialChooser extends JComboBox {
-		
+	class MaterialChooser extends JComboBox<Material> {
+		private static final long serialVersionUID = -6066457077483291319L;
+
 		public MaterialChooser() {
 		}
 		
@@ -2207,7 +2210,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		 * @beaninfo bound: true description: Model that the combo box uses to get data to display.
 		 */
 		@Override
-		public void setModel(final ComboBoxModel aModel) {
+		public void setModel(final ComboBoxModel<Material> aModel) {
 			if (getModel() instanceof MaterialModel) {
 				MaterialModel old = (MaterialModel) getModel();
 				old.removeListener();

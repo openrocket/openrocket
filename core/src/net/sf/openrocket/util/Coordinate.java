@@ -59,7 +59,7 @@ public final class Coordinate implements Cloneable, Serializable {
 	////////  End debug section
 	
 	
-	
+	public static final Coordinate ZERO = new Coordinate(0, 0, 0, 0);
 	public static final Coordinate NUL = new Coordinate(0, 0, 0, 0);
 	public static final Coordinate NaN = new Coordinate(Double.NaN, Double.NaN,
 			Double.NaN, Double.NaN);
@@ -151,7 +151,7 @@ public final class Coordinate implements Cloneable, Serializable {
 	
 	/**
 	 * Subtract a Coordinate from this Coordinate.  The weight of the resulting Coordinate
-	 * is the same as of this Coordinate, the weight of the argument is ignored.
+	 * is the same as of this Coordinate; i.e. the weight of the argument is ignored.
 	 * 
 	 * @param other  Coordinate to subtract from this.
 	 * @return  The result

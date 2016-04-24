@@ -9,7 +9,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
             //success
         }
 
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         BodyTubeHandler handler = new BodyTubeHandler(null, stage, new WarningSet());
         BodyTube component = (BodyTube) getField(handler, "bodyTube");
         assertContains(component, stage.getChildren());
@@ -50,8 +50,8 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new BodyTubeHandler(null, new Stage(), new WarningSet()).openElement(null, null, null));
-        Assert.assertNotNull(new BodyTubeHandler(null, new Stage(), new WarningSet()).openElement("AttachedParts", null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new BodyTubeHandler(null, new AxialStage(), new WarningSet()).openElement(null, null, null));
+        Assert.assertNotNull(new BodyTubeHandler(null, new AxialStage(), new WarningSet()).openElement("AttachedParts", null, null));
     }
 
     /**
@@ -62,7 +62,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testCloseElement() throws Exception {
-        Stage stage = new Stage();
+        AxialStage stage = new AxialStage();
         BodyTubeHandler handler = new BodyTubeHandler(null, stage, new WarningSet());
         BodyTube component = (BodyTube) getField(handler, "bodyTube");
         HashMap<String, String> attributes = new HashMap<String, String>();
@@ -134,7 +134,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new BodyTubeHandler(null, new Stage(), new WarningSet()).getComponent() instanceof BodyTube);
+        Assert.assertTrue(new BodyTubeHandler(null, new AxialStage(), new WarningSet()).getComponent() instanceof BodyTube);
     }
 
     /**
@@ -144,7 +144,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new BodyTubeHandler(null, new Stage(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new BodyTubeHandler(null, new AxialStage(), new WarningSet()).getMaterialType());
     }
 
 }
