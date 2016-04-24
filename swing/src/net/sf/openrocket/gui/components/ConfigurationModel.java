@@ -10,7 +10,7 @@ import javax.swing.event.ListDataListener;
 
 import java.util.EventObject;
 
-public class ConfigurationModel implements ComboBoxModel<FlightConfiguration>, StateChangeListener {
+public class ConfigurationModel implements MutableComboBoxModel<FlightConfiguration>, StateChangeListener {
 
     private final Rocket rkt;
     private final JComboBox<FlightConfiguration> combo;
@@ -65,6 +65,22 @@ public class ConfigurationModel implements ComboBoxModel<FlightConfiguration>, S
 		// delegate event handling to the rocket
 		// ignore any listen requests here...
 	}
+
+	// ====== MutableComboBoxModel Functions ======
+	// these functions don't need to do anything, just being a 'mutable' version of the combo box
+	// is enough to allow updating the UI
+	
+	@Override
+	public void addElement(FlightConfiguration arg0) {}
+
+	@Override
+	public void insertElementAt(FlightConfiguration arg0, int arg1) {}
+
+	@Override
+	public void removeElement(Object arg0) {}
+
+	@Override
+	public void removeElementAt(int arg0) {}
 
 
 }
