@@ -4,15 +4,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class FinSetConfigTest extends BaseTestCase {
 
@@ -246,7 +246,7 @@ public class FinSetConfigTest extends BaseTestCase {
         rings.add(ring2);
         rings.add(ring3);
         BodyTube parent = new BodyTube(1.0d, 0.1d);
-        parent.setPositionValue(0);
+        parent.setAxialOffset( 0);
         parent.addChild(ring1);
         parent.addChild(ring2);
         parent.addChild(ring3);
