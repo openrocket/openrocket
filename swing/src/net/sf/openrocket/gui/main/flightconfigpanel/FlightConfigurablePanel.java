@@ -137,6 +137,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
+			@SuppressWarnings("unchecked")
 			Pair<String,T> selectedComponent = (Pair<String,T>) tableValue;
 			return selectedComponent.getV();
 		}
@@ -151,6 +152,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
+			@SuppressWarnings("unchecked")
 			Pair<FlightConfigurationId,T> selectedComponent = (Pair<FlightConfigurationId,T>) tableValue;
 			FlightConfigurationId fcid = selectedComponent.getU();
 			return fcid;

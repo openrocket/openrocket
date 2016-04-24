@@ -43,7 +43,8 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	public String toDebug(){
 		StringBuilder buffer = new StringBuilder();
 		final MotorMount mnt = this.getDefault().getMount();
-		buffer.append("====== Dumping MotorConfigurationSet: "+this.size()+ " motors in "+mnt.getDebugName()+" \n");
+		buffer.append(String.format(" ====== Dumping MotorConfigurationSet: %d motors in %s ====== ",
+				this.size(), mnt.getDebugName() ));
 		
 		for( FlightConfigurationId loopFCID : this.map.keySet()){
 			MotorConfiguration curConfig = this.map.get(loopFCID);

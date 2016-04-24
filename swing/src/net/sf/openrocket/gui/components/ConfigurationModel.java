@@ -13,18 +13,17 @@ import java.util.EventObject;
 public class ConfigurationModel implements ComboBoxModel<FlightConfiguration>, StateChangeListener {
 
     private final Rocket rkt;
+    private final JComboBox<FlightConfiguration> combo;
     
-    //private FlightConfigurationSelector(){}
-
-    public ConfigurationModel( final Rocket _rkt) {
-        rkt = _rkt;
+    public ConfigurationModel( final Rocket _rkt, final JComboBox<FlightConfiguration> _combo) {
+        this.rkt = _rkt;
+        this.combo = _combo;
     }
 
-
 	@Override
-	public void stateChanged(EventObject e) {
-//		FlightConfiguration newConfig = (FlightConfiguration)this.getSelectedItem();
-//        rkt.setSelectedConfiguration( newConfig.getId());
+	public void stateChanged(EventObject eo) {
+		combo.revalidate();
+		combo.repaint();
     }
 
 

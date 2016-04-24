@@ -159,6 +159,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		if (currentId == null)
 			return;
+		System.err.println(this.rocket.toDebugConfigs());
 		document.removeFlightConfigurationAndSimulations(currentId);
 		configurationChanged();
 	}

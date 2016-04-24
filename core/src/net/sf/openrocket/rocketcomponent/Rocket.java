@@ -594,7 +594,7 @@ public class Rocket extends RocketComponent {
 		if( fcid.hasError() ){
 			return;
 		}
-		
+				
 		if( selectedConfiguration.getId().equals( fcid)){
 			selectedConfiguration = configSet.getDefault();
 		}
@@ -724,6 +724,12 @@ public class Rocket extends RocketComponent {
 
 	public void setSelectedConfiguration(final FlightConfigurationId selectId) {
 		checkState();
+		
+		if( selectId.equals( selectedConfiguration.getFlightConfigurationID())){
+			// if desired configuration is already selected, skip the event
+			return;
+		}
+		
 		this.selectedConfiguration = this.configSet.get( selectId );
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -744,6 +750,9 @@ public class Rocket extends RocketComponent {
 
 		if (null == newConfig){
 			configSet.reset( fcid);
+		}else if( fcid.equals( configSet.get(fcid).getFlightConfigurationID())){
+			// this mapping already exists; skip the event
+			return;
 		}else{
 			configSet.set(fcid, newConfig);
 		}
@@ -829,7 +838,8 @@ public class Rocket extends RocketComponent {
 	
 	public String toDebugConfigs(){
 		StringBuilder buf = new StringBuilder();
-		buf.append(String.format("====== Dumping %d Configurations from rocket: \n", this.getConfigurationCount(), this.getName()));
+		buf.append(String.format("====== Dumping %d Configurations from rocket: %s ======\n", 
+				this.getConfigurationCount(), this.getName()));
 		final String fmt = "    [%12s]: %s\n";
 		for( FlightConfiguration config : this.configSet ){
 			String shortKey = config.getId().toShortKey();

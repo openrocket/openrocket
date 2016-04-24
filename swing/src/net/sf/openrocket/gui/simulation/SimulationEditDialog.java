@@ -148,9 +148,9 @@ public class SimulationEditDialog extends JDialog {
 			panel.add(label, "growx 0, gapright para");
 			
 			final Rocket rkt = document.getRocket();
-			final ConfigurationModel configModel = new ConfigurationModel( rkt);
-			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>(configModel);
-			configComboBox.setSelectedItem( rkt.getSelectedConfiguration().getId() );
+			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
+			final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
+			configComboBox.setModel( configModel);
 			
 			//// Select the motor configuration to use.
 			configComboBox.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));

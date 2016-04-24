@@ -320,9 +320,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
 
-		final ConfigurationModel configModel = new ConfigurationModel(rkt);
-		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>(configModel);
+		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
+		final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
 		rkt.addChangeListener( configModel );
+		configComboBox.setModel(configModel);
 		add(configComboBox, "wrap, width 16%, wmin 100");
 
 
