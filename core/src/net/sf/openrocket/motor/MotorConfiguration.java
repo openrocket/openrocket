@@ -16,19 +16,18 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public static final String EMPTY_DESCRIPTION = "Empty Motor Configuration".intern();
 
-	protected final MotorMount mount;
-	protected final FlightConfigurationId fcid;
-	protected final MotorConfigurationId id;
+	private final MotorMount mount;
+	private final FlightConfigurationId fcid;
+	private final MotorConfigurationId mid;
 	
-	protected String name = "";
-	protected Motor motor = null;
-	protected double ejectionDelay = 0.0;
+	private Motor motor = null;
+	private double ejectionDelay = 0.0;
 
-	protected boolean ignitionOveride = false;
-	protected double ignitionDelay = 0.0;
-	protected IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
+	private boolean ignitionOveride = false;
+	private double ignitionDelay = 0.0;
+	private IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
 	
-	protected int modID = 0;
+	private int modID = 0;
 	
 	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid ) {
 		if (null == _mount ) {
@@ -40,7 +39,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 		this.mount = _mount;
 		this.fcid = _fcid;
-		this.id = new MotorConfigurationId( _mount, _fcid );
+		this.mid = new MotorConfigurationId( _mount, _fcid );
         
 		modID++;
 	}
@@ -68,7 +67,15 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	}
 	
 	public MotorConfigurationId getID() {
-		return this.id;
+		return this.mid;
+	}
+
+	public FlightConfigurationId getFCID() {
+		return fcid;
+	}
+	
+	public MotorConfigurationId getMID() {
+		return mid;
 	}
 		
 	public void setMotor(Motor motor){
@@ -175,7 +182,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 			return false;
 		}else if( other instanceof MotorConfiguration ){
 			MotorConfiguration omi = (MotorConfiguration)other;
-			if( this.id.equals( omi.id)){
+			if( this.mid.equals( omi.mid)){
 				return true;
 			}
 		}
@@ -184,25 +191,38 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	@Override
 	public int hashCode() {
-		return this.id.hashCode();
+		return this.mid.hashCode();
 	}
-	
-	/**
-	 * Create a new instance of this motor instance.  The state of the motor is
-	 * identical to this instance and can be used independently from this one.
-	 */
-	@Override
-	public MotorConfiguration clone( ) {
-		MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
-		clone.motor = this.motor;
-		clone.ejectionDelay = this.ejectionDelay;
-		clone.ignitionOveride = this.ignitionOveride;
-		clone.ignitionDelay = this.ignitionDelay;
-		clone.ignitionEvent = this.ignitionEvent;
-		return clone;
-	}
-	
-	public int getModID() {
+
+    /**
+     * Create a new instance of this motor instance.  The state of the motor is
+     * identical to this instance and can be used independently from this one.
+     */
+    @Override
+    public MotorConfiguration clone( ) {
+        MotorConfiguration clone = new MotorConfiguration( this.mount, this.fcid);
+        clone.motor = this.motor;
+        clone.ejectionDelay = this.ejectionDelay;
+        clone.ignitionOveride = this.ignitionOveride;
+        clone.ignitionDelay = this.ignitionDelay;
+        clone.ignitionEvent = this.ignitionEvent;
+        return clone;
+    }
+
+    @Override
+    public MotorConfiguration copy( final FlightConfigurationId copyId){
+        MotorConfiguration clone = new MotorConfiguration( this.mount, copyId);
+        clone.motor = this.motor;
+        clone.ejectionDelay = this.ejectionDelay;
+        clone.ignitionOveride = this.ignitionOveride;
+        clone.ignitionDelay = this.ignitionDelay;
+        clone.ignitionEvent = this.ignitionEvent;
+        return clone;
+    }
+
+
+
+    public int getModID() {
 		return modID;
 	}
 	
@@ -223,14 +243,15 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	public String toDebugDetail( ) {
 		StringBuilder buf = new StringBuilder();
 		
-		buf.append(String.format(">> in: %28s::%10s    %8s ign@: %12s ",
+		buf.append(String.format("[in: %28s][fcid %10s][mid %10s][    %8s ign@: %12s]",
 				mount.getDebugName(),
 				fcid.toShortKey(),
+				mid.toDebug(),
 				toMotorDescription(),
 				toIgnitionDescription() ));
 		
 		return buf.toString();
 	}
-	
+
 
 }

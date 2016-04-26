@@ -18,17 +18,12 @@ public final class MotorConfigurationId {
 	
 	private final static String ERROR_ID_TEXT = "MotorInstance Error Id".intern();
 	private final static UUID ERROR_KEY = new UUID( 62274413, 56768908);
-	public final static MotorConfigurationId ERROR_ID = new MotorConfigurationId();
 
-	private MotorConfigurationId( ) {
-		this.key = MotorConfigurationId.ERROR_KEY;	
-	}
-	
 	/**
 	 * Sole constructor.
 	 * 
-	 * @param componentName	the component ID, must not be null
-	 * @param number		a positive motor number
+	 * @param _mount the component ID, must not be null
+	 * @param _fcid the key for a
 	 */
 	public MotorConfigurationId(final MotorMount _mount, final FlightConfigurationId _fcid) {
 		if (null == _mount ) {
@@ -38,12 +33,10 @@ public final class MotorConfigurationId {
 			throw new NullPointerException("Provided FlightConfigurationId was null");
 		}
 		
-		// Use intern so comparison can be done using == instead of equals()
-		final long upper = ((long)_mount.getID().hashCode()) << 32;
-		final long lower = _fcid.key.getLeastSignificantBits();
-		this.key = new UUID( upper, lower);
+		final long mountHash= ((long)_mount.getID().hashCode()) << 32;
+		final long fcidLower = _fcid.key.getMostSignificantBits();
+		this.key = new UUID( mountHash, fcidLower);
 	}
-
 		
 	@Override
 	public boolean equals(Object other) {
@@ -62,6 +55,10 @@ public final class MotorConfigurationId {
 		return key.hashCode();
 	}
 	
+	public String toDebug(){
+		return toShortKey();
+	}
+	
 	@Override
 	public String toString(){
 		if( this.key == MotorConfigurationId.ERROR_KEY){
@@ -69,5 +66,14 @@ public final class MotorConfigurationId {
 		}else{
 			return key.toString();
 		}
+	}
+
+	public String toShortKey() {
+		final String keyString = key.toString();
+		final int lastIndex = -1 + keyString.length();
+		final int chunkLen = 4;
+		
+		// return the head + tail of the full 64-character id
+		return (keyString.substring(0,chunkLen)+"/"+keyString.substring(lastIndex - chunkLen,lastIndex));
 	}
 }

@@ -5,8 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -42,6 +40,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
@@ -75,18 +74,19 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
+
 /**
  * A JPanel that contains a RocketFigure and buttons to manipulate the figure. 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  * @author Bill Kuker <bkuker@billkuker.com>
  */
+@SuppressWarnings("serial")
 public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
-	private static final long serialVersionUID = 1L;
 
 	private static final Translator trans = Application.getTranslator();
 
-	public static enum VIEW_TYPE {
+	public enum VIEW_TYPE {
 		SideView(false, RocketFigure.VIEW_SIDE),
 		BackView(false, RocketFigure.VIEW_BACK),
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
@@ -96,7 +96,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		public final boolean is3d;
 		private final int type;
 
-		private VIEW_TYPE(final boolean is3d, final int type) {
+		VIEW_TYPE(final boolean is3d, final int type) {
 			this.is3d = is3d;
 			this.type = type;
 		};
@@ -140,7 +140,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	// The functional ID of the rocket that was simulated
 	private int flightDataFunctionalID = -1;
-		private FlightConfigurationId flightDataMotorID = null;
+    private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
@@ -271,12 +271,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Creates the layout and components of the panel.
 	 */
 	private void createPanel() {
+		final Rocket rkt = document.getRocket();
+
+		rkt.addChangeListener(new StateChangeListener(){
+			@Override
+			public void stateChanged(EventObject eo) {
+				updateExtras();
+				updateFigures();
+			}
+		});
+
 		setLayout(new MigLayout("", "[shrink][grow]", "[shrink][shrink][grow][shrink]"));
 
 		setPreferredSize(new Dimension(800, 300));
 
-		// View Type Dropdown
-		@SuppressWarnings("serial") // because java throws a warning without this.
+		// View Type drop-down
 		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
 
 			@Override
@@ -301,7 +310,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(scaleSelector);
 
 		// Stage selector
-		final Rocket rkt = document.getRocket(); 
 		StageSelector stageSelector = new StageSelector( rkt );
 		rkt.addChangeListener(stageSelector);
 		add(stageSelector);
@@ -311,21 +319,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
-		
-		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<FlightConfiguration>( document.getRocket().toConfigArray());
-		
+
+		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
+		final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
+		rkt.addChangeListener( configModel );
+		configComboBox.setModel(configModel);
 		add(configComboBox, "wrap, width 16%, wmin 100");
 
-		configComboBox.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				FlightConfiguration newConfig = (FlightConfiguration)configComboBox.getSelectedItem();
-				document.getRocket().setSelectedConfiguration( newConfig);
-				updateExtras();
-				updateFigures();
-			}
-		});
-		
 
 		// Create slider and scroll pane
 		DoubleModel theta = new DoubleModel(figure, "Rotation",
@@ -361,8 +361,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		return aerodynamicCalculator;
 	}
 
-	public FlightConfiguration getConfiguration() {
-		return document.getDefaultConfiguration();
+	public FlightConfiguration getSelectedConfiguration() {
+		return document.getSelectedConfiguration();
 	}
 
 	/**
@@ -565,7 +565,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		Coordinate cp, cg;
 		double cpx, cgx;
 
-		FlightConfiguration curConfig = document.getDefaultConfiguration();
+		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
 		FlightConditions conditions = new FlightConditions(curConfig);
 		warnings.clear();
@@ -644,7 +644,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
 		extraText.setMass(cg.weight);
-		extraText.setMassWithoutMotors( massCalculator.getCG( getConfiguration(), MassCalcType.NO_MOTORS ).weight );
+		extraText.setMassWithoutMotors( massCalculator.getCG( getSelectedConfiguration(), MassCalcType.NO_MOTORS ).weight );
 		extraText.setWarnings(warnings);
 
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
@@ -672,12 +672,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Check whether data is already up to date
 		if (flightDataFunctionalID == curConfig.getRocket().getFunctionalModID() &&
-				flightDataMotorID == curConfig.getFlightConfigurationID()) {
+				flightDataMotorID == curConfig.getId()) {
 			return;
 		}
 
 		flightDataFunctionalID = curConfig.getRocket().getFunctionalModID();
-		flightDataMotorID = curConfig.getFlightConfigurationID();
+		flightDataMotorID = curConfig.getId();
 
 		// Stop previous computation (if any)
 		stopBackgroundSimulation();
@@ -695,7 +695,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			Rocket duplicate = (Rocket) document.getRocket().copy();
 			Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-			simulation.setFlightConfigurationId( document.getDefaultConfiguration().getFlightConfigurationID());
+			simulation.setFlightConfigurationId( document.getSelectedConfiguration().getId());
 
 			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
 			backgroundSimulationExecutor.execute(backgroundSimulationWorker);
@@ -781,7 +781,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Adds the extra data to the figure.  Currently this includes the CP and CG carets.
 	 */
 	private void addExtras() {
-		FlightConfiguration curConfig = document.getDefaultConfiguration();
+		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		extraCG = new CGCaret(0, 0);
 		extraCP = new CPCaret(0, 0);
 		extraText = new RocketInfo(curConfig);

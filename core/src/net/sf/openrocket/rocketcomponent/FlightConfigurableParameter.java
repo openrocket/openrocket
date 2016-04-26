@@ -10,11 +10,18 @@ package net.sf.openrocket.rocketcomponent;
 public interface FlightConfigurableParameter<E> {
 	
 	/**
-	 * Return a copy of this object.  The listeners must not be copied
-	 * to the new object.
+	 * return an exact copy of this object
 	 */
-	public E clone();
-	
-	public void update();
+	E clone();
+
+    /**
+     * return a copy of this object, corresponding to the specified Id
+     *
+     * @param fcid id to attach the new object to
+     * @return the desired copy
+     */
+    E copy( final FlightConfigurationId fcid );
+
+	void update();
 	
 }

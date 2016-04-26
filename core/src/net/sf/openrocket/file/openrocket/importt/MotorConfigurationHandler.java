@@ -62,9 +62,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		}
 		
 		if ("true".equals(attributes.remove("default"))) {
-			// also associate this configuration with the default. 
-			FlightConfiguration fc = rocket.getFlightConfiguration(fcid);
-			rocket.setSelectedConfiguration( fc);
+			rocket.setSelectedConfiguration( fcid);
 		}
 		
 		super.closeElement(element, attributes, content, warnings);

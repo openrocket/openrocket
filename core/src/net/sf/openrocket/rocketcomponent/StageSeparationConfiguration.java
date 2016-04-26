@@ -135,6 +135,10 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	@Override
 	public StageSeparationConfiguration clone() {
+        return copy(null);
+    }
+
+    public StageSeparationConfiguration copy( final FlightConfigurationId copyId){
 		StageSeparationConfiguration clone = new StageSeparationConfiguration();
 		clone.separationEvent = this.separationEvent;
 		clone.separationDelay = this.separationDelay;

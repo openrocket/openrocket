@@ -47,7 +47,7 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 	
 	@Override
 	public int getSize() {
-		this.idList = this.sourceSet.getSortedConfigurationIDs();
+		this.idList = this.sourceSet.getIds();
 		return this.idList.size();
 	}
 	
@@ -109,7 +109,7 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 				return;
 		}
 		fireListDataEvent();
-		this.idList = this.sourceSet.getSortedConfigurationIDs();		
+		this.idList = this.sourceSet.getIds();		
 	}
 	
 }

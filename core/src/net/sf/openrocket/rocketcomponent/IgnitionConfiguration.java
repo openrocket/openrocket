@@ -34,13 +34,16 @@ public class IgnitionConfiguration implements FlightConfigurableParameter<Igniti
 
 	@Override
 	public IgnitionConfiguration clone() {
-		IgnitionConfiguration clone = new IgnitionConfiguration();
+        return this.copy(null);
+    }
+
+    public IgnitionConfiguration copy( final FlightConfigurationId copyId) {
+        IgnitionConfiguration clone = new IgnitionConfiguration();
 		clone.ignitionDelay = this.ignitionDelay;
 		clone.ignitionEvent = this.ignitionEvent;
 		clone.ignitionTime = this.ignitionTime;
 		return clone;
-	}
-
+    }
 
 	@Override
 	public void update(){

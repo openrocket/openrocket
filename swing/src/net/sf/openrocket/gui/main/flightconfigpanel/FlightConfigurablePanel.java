@@ -29,9 +29,10 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
+
+@SuppressWarnings("serial")
 public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel {
 
-	private static final long serialVersionUID = 3359871704879603700L;
 	protected static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurablePanel.class);
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -136,6 +137,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
+			@SuppressWarnings("unchecked")
 			Pair<String,T> selectedComponent = (Pair<String,T>) tableValue;
 			return selectedComponent.getV();
 		}
@@ -150,6 +152,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
+			@SuppressWarnings("unchecked")
 			Pair<FlightConfigurationId,T> selectedComponent = (Pair<FlightConfigurationId,T>) tableValue;
 			FlightConfigurationId fcid = selectedComponent.getU();
 			return fcid;
@@ -160,7 +163,6 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
-		private static final long serialVersionUID = 2026945220957913776L;
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object newValue, boolean isSelected, boolean hasFocus, int row, int column) {

@@ -39,7 +39,6 @@ public class RocketTest extends BaseTestCase {
 		FlightConfigurationId fcid5 = config5.getId();
 		assertThat("fcids should match: ", config2.getId(), equalTo(fcid5));
 		assertThat("Configurations should bef different match: "+config2.toDebug()+"=?="+config5.toDebug(), config2.instanceNumber, not( config5.instanceNumber));
-	
 	}
 	
 	

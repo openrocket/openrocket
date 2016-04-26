@@ -47,6 +47,7 @@ import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -75,7 +76,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 	private final FlightConditions conditions;
-	private final FlightConfiguration configuration;
+	private final Rocket rkt;
 	private final DoubleModel theta, aoa, mach, roll;
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
@@ -105,11 +106,11 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		add(panel);
 
-		this.configuration = rocketPanel.getConfiguration();
+		rkt = rocketPanel.getDocument().getRocket();
 		this.aerodynamicCalculator = rocketPanel.getAerodynamicCalculator().newInstance();
 
 
-		conditions = new FlightConditions(configuration);
+		conditions = new FlightConditions(rkt.getSelectedConfiguration());
 
 		rocketPanel.setCPAOA(0);
 		aoa = new DoubleModel(rocketPanel, "CPAOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
@@ -169,7 +170,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		// Stage and motor selection:
 		//// Active stages:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.activestages")), "spanx, split, gapafter rel");
-		Rocket rkt = rocketPanel.getDocument().getRocket();
 		panel.add(new StageSelector( rkt), "gapafter paragraph");
 
 		//// Motor configuration:
@@ -177,9 +177,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
 
-		JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>( configuration.getRocket().toConfigArray());
-
-		panel.add(combo, "wrap");
+		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
+		final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
+		configComboBox.setModel( configModel);
+		panel.add( configComboBox, "wrap");
 
 
 		// Tabbed pane
@@ -517,6 +518,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	 */
 	@Override
 	public void stateChanged(EventObject e) {
+		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 		AerodynamicForces forces;
 		WarningSet set = new WarningSet();
 		conditions.setAOA(aoa.getValue());
@@ -580,12 +582,12 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			data[1] = MassCalcType.LAUNCH_MASS.getCG(motorConfig);
 		}
 		
-		forces = aeroData.get(configuration.getRocket());
+		forces = aeroData.get(rkt);
 		if (forces != null) {
 			Object[] data = new Object[3];
 			cgData.add(data);
-			data[0] = configuration.getRocket();
-			data[1] = massData.get(configuration.getRocket());
+			data[0] = rkt;
+			data[1] = massData.get(rkt);
 			data[2] = forces;
 			dragData.add(forces);
 			rollData.add(forces);

@@ -49,9 +49,9 @@ import net.sf.openrocket.util.Transformation;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class RocketFigure extends AbstractScaleFigure {
-	private static final long serialVersionUID = 45884403769043138L;
-
+	
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";

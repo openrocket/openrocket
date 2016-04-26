@@ -26,9 +26,8 @@ import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
+@SuppressWarnings("serial")
 public class FlightConfigurationPanel extends JPanel implements StateChangeListener {
-	private static final long serialVersionUID = -5467500312467789009L;
-	//private static final Logger log = LoggerFactory.getLogger(FlightConfigurationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private final OpenRocketDocument document;
@@ -117,36 +116,36 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		updateButtonState();
 
 		this.add(tabs, "spanx, grow, wrap rel");
-
 	}
 	
 	private void addConfiguration() {
-		FlightConfigurationId newFCID = new FlightConfigurationId();
-		FlightConfiguration newConfig = new FlightConfiguration( rocket, newFCID );
-		
-		rocket.setFlightConfiguration(newFCID, newConfig);
-		
+		FlightConfigurationId newId = new FlightConfigurationId();
+		FlightConfiguration newConfig = new FlightConfiguration( rocket, newId );
+		rocket.setFlightConfiguration( newId, newConfig);
+
 		// Create a new simulation for this configuration.
-		createSimulationForNewConfiguration();
+		createSimulationForNewConfiguration( newId );
 		
 		configurationChanged();
 	}
 	
 	private void copyConfiguration() {
-		FlightConfiguration oldConfig = rocket.getSelectedConfiguration();
-		FlightConfiguration newConfig = oldConfig.clone();
-		FlightConfigurationId oldId = oldConfig.getFlightConfigurationID();
-		FlightConfigurationId newId = newConfig.getFlightConfigurationID();
-		
+        FlightConfigurationId oldId = this.motorConfigurationPanel.getSelectedConfigurationId();
+        FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
+
+        FlightConfigurationId newId = new FlightConfigurationId();
+		FlightConfiguration newConfig = oldConfig.copy( newId);
+
 		for (RocketComponent c : rocket) {
 			if (c instanceof FlightConfigurableComponent) {
-				((FlightConfigurableComponent) c).cloneFlightConfiguration(oldId, newId);
+				((FlightConfigurableComponent) c).copyFlightConfiguration(oldId, newId);
 			}
 		}
-		rocket.setFlightConfiguration(newId, newConfig);
-		
-		// Create a new simulation for this configuration.
-		createSimulationForNewConfiguration();
+        rocket.setFlightConfiguration( newId, newConfig);
+
+
+        // Create a new simulation for this configuration.
+		createSimulationForNewConfiguration( newId);
 		
 		configurationChanged();
 	}
@@ -160,6 +159,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		if (currentId == null)
 			return;
+		System.err.println(this.rocket.toDebugConfigs());
 		document.removeFlightConfigurationAndSimulations(currentId);
 		configurationChanged();
 	}
@@ -167,11 +167,13 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	/**
 	 * prereq - assumes that the new configuration has been set as the default configuration.
 	 */
-	private void createSimulationForNewConfiguration() {
+	private void createSimulationForNewConfiguration( final FlightConfigurationId fcid ) {
 		Simulation newSim = new Simulation(rocket);
 		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
-		newSim.setName(doc.getNextSimulationName());
-		doc.addSimulation(newSim);
+        if (doc != null) {
+            newSim.setName(doc.getNextSimulationName());
+            doc.addSimulation(newSim);
+        }
 	}
 	
 	private void configurationChanged() {
@@ -192,7 +194,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		int motorMountCount = rocket.accept(new ListMotorMounts()).size();
 		
 		// Count the number of recovery devices
-		int recoveryDeviceCount = rocket.accept(new ListComponents<RecoveryDevice>(RecoveryDevice.class)).size();
+		int recoveryDeviceCount = rocket.accept(new ListComponents<>(RecoveryDevice.class)).size();
 		
 		// Count the number of stages
 		int stageCount = rocket.getStageCount();
