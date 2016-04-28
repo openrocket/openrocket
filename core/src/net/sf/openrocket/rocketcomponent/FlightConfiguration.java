@@ -10,8 +10,10 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -27,9 +29,7 @@ import net.sf.openrocket.util.Monitorable;
  */
 public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
-	
-	private final static String NO_MOTORS_NAME = "[No Motors Defined]";
-    private final static String DEFAULT_CONFIGURATION_NAME = NO_MOTORS_NAME;
+	private static final Translator trans = Application.getTranslator();
 
     private String configurationName=null;
 	
@@ -314,7 +314,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 		}
 		if( 0 == activeMotorCount ){
-			return DEFAULT_CONFIGURATION_NAME;
+			return trans.get("MotorMount.NoMotors");
 		}
 		buff.append("]");
 		return buff.toString();
