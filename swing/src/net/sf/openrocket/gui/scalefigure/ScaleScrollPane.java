@@ -50,6 +50,7 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	public static final int MINOR_TICKS = 3;
 	public static final int MAJOR_TICKS = 30;
 	
+	public static final String ZOOM_PROPERTY = "zoom";
 	
 	private JComponent component;
 	private ScaleFigure figure;
@@ -170,7 +171,10 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		if (fit) {
 		    validate();
 			Dimension viewSize = viewport.getExtentSize();
-            figure.zoomToSize( viewSize);
+			figure.zoomToSize( viewSize);
+            
+            revalidate();
+            this.firePropertyChange( ZOOM_PROPERTY, 1.0, figure.getZoom());
 		}
 	}
 	
@@ -183,7 +187,6 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	}
 	
 	public void setZoom(final double newScale) {
-	    System.err.println("DB::"+toViewportString());
 	    
 		// if explicitly setting a zoom level, turn off fitting
 		if (fit) {
@@ -196,8 +199,6 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	
 		figure.setZoom(newScale);
 		revalidate();
-		horizontalRuler.repaint();
-		verticalRuler.repaint();
 	}
 	
 	public Unit getCurrentUnit() {
@@ -209,7 +210,19 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
         return ("Viewport::("+view.getWidth()+","+view.getHeight()+")"
                 +"@("+view.getX()+", "+view.getY()+")");
     }
-	
+    
+    @Override
+    public void revalidate(){
+        
+        if( null != horizontalRuler){
+            horizontalRuler.repaint();
+        }
+        if( null != verticalRuler ){
+            verticalRuler.repaint();
+        }
+        
+        super.revalidate();
+    }
 	////////////////  Mouse handlers  ////////////////
 	
 	

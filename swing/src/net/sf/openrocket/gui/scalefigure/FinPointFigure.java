@@ -50,7 +50,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	// the size of the boxes around each fin point vertex
 	private static final float BOX_WIDTH_PIXELS = 12; 
 	
-	private static final double MINOR_TICKS = 0.01;
+	private static final double MINOR_TICKS = 0.05;
 	private static final double MAJOR_TICKS = 0.1;
 	
 	private final FreeformFinSet finset;
@@ -155,7 +155,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		double minZoom = Math.min( widthZoom, heightZoom);
         double clampedZoom = MathUtil.clamp( minZoom, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 		
-	    this.setZoom( clampedZoom );    
+        this.setZoom( clampedZoom );    
 	}
 	
 	@Override

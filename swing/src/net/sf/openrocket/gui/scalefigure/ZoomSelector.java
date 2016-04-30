@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.scalefigure;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.EventObject;
@@ -17,7 +19,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
-public class ZoomSelector extends JPanel {
+public class ZoomSelector extends JPanel implements PropertyChangeListener {
 
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
@@ -39,6 +41,7 @@ public class ZoomSelector extends JPanel {
 		super(new MigLayout());
 
 		this.scrollPane = scroll;
+		this.scrollPane.addPropertyChangeListener(ScaleScrollPane.ZOOM_PROPERTY, this);
 
 		// Zoom out button
 		JButton button = new JButton(Icons.ZOOM_OUT);
@@ -159,5 +162,14 @@ public class ZoomSelector extends JPanel {
 		}
 		super.setEnabled(b);
 	}
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if( evt.getPropertyName().equals( ScaleScrollPane.ZOOM_PROPERTY) ){
+            if( this.scrollPane.isFitting()){
+                this.setZoomText();
+            }
+        }
+    }
 
 }

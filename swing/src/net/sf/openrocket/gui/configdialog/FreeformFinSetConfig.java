@@ -228,7 +228,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
-		
 		panel.add(tablePane, "growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane, "gap unrel, spanx, spany 3, growx, growy 1000, height 100lp:250lp:, wrap");
 		
@@ -236,7 +235,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
 		
 		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
-		panel.add(new ZoomSelector(figurePane), "spany 2, aligny 50%");
+		ZoomSelector selector = new ZoomSelector(figurePane);
+		panel.add( selector, "spany 2, aligny 50%");
 		
 		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
 		importButton.addActionListener(new ActionListener() {
