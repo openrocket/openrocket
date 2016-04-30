@@ -20,8 +20,8 @@ public interface ScaleFigure extends ChangeSource {
 	public static final double INCHES_PER_METER = 39.3701;
 	public static final double METERS_PER_INCH = 0.0254;
 
-	public static final double MINIMUM_ZOOM=0.001; // ==  00.1%
-	public static final double MAXIMUM_ZOOM=1000; // 100,000 %
+	public static final double MINIMUM_ZOOM = 0.01; // ==        1 %
+	public static final double MAXIMUM_ZOOM = 1000;  // == 100,000 %
 	
 	
 	
@@ -39,12 +39,7 @@ public interface ScaleFigure extends ChangeSource {
 	 * 
 	 * @param bounds the dimension 
 	 */
-	@Deprecated
 	public void zoomToSize( final Dimension bounds );
-	
-	
-	// even better would be to re-zoom AND re-center.
-	public void zoomToBounds( final Dimension center, final Dimension bounds);
 	
 	/**
 	 * Return the scale level of the figure.  A scale value of 1.0 indicates an original

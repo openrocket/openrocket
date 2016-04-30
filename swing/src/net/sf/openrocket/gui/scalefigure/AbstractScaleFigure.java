@@ -100,11 +100,6 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		setZoom(s);
 	}
 	
-	@Override
-	public void zoomToBounds( final Dimension center , final Dimension bounds ){
-		throw new IllegalStateException("This method is not yet implemented!");
-	}
-	
 
 	@Override
 	public Dimension getBorderPixels() {

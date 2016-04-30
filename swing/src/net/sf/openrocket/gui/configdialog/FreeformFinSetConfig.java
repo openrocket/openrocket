@@ -55,8 +55,9 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 
+@SuppressWarnings("serial")
 public class FreeformFinSetConfig extends FinSetConfig {
-	private static final long serialVersionUID = 2504130276828826021L;
+
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -308,17 +309,13 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private class FinPointScrollPane extends ScaleScrollPane {
-		private static final long serialVersionUID = 2232218393756983666L;
 
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
 		
 		private int dragIndex = -1;
 		
 		public FinPointScrollPane( final FinPointFigure _figure) {
-			super( _figure, false); // Disallow fitting as it's buggy
-			
-			setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-			setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			super( _figure, true);
 		}
 		
 		@Override
@@ -424,11 +421,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			return figure.convertPoint(x, y);
 		}
 		
-		
 	}
-	
-	
-	
 	
 	
 	private enum Columns {
@@ -480,7 +473,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 	
 	private class FinPointTableModel extends AbstractTableModel {
-		private static final long serialVersionUID = 4803736958177227852L;
 
 		@Override
 		public int getColumnCount() {

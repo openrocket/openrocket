@@ -88,7 +88,7 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		this.component = component;
 		this.figure = (ScaleFigure) component;
 		this.allowFit = allowFit;
-		
+		setFitting(allowFit);
 		
 		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
@@ -105,11 +105,11 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		UnitSelector selector = new UnitSelector(rulerUnit);
 		selector.setFont(new Font("SansSerif", Font.PLAIN, 8));
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, selector);
-		// default behavior is fine.
-//		this.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
-//		this.setCorner(JScrollPane.LOWER_LEFT_CORNER, new JPanel());
-//		this.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
 		
+		// just let the API handle this -- the default works fine.
+        setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
 		
@@ -168,15 +168,9 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		}
 		this.fit = fit;
 		if (fit) {
-			setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-			validate();
-			Dimension view = viewport.getExtentSize();
-			figure.zoomToSize( view);
-			//figure.zoomToBounds( ?center, bounds );
-		} else {
-			setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		    validate();
+			Dimension viewSize = viewport.getExtentSize();
+            figure.zoomToSize( viewSize);
 		}
 	}
 	
@@ -189,6 +183,8 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	}
 	
 	public void setZoom(final double newScale) {
+	    System.err.println("DB::"+toViewportString());
+	    
 		// if explicitly setting a zoom level, turn off fitting
 		if (fit) {
 			setFitting(false);
@@ -199,6 +195,7 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		}
 	
 		figure.setZoom(newScale);
+		revalidate();
 		horizontalRuler.repaint();
 		verticalRuler.repaint();
 	}
@@ -207,6 +204,11 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		return rulerUnit.getCurrentUnit();
 	}
 	
+    public String toViewportString(){
+        Rectangle view = this.getViewport().getViewRect();
+        return ("Viewport::("+view.getWidth()+","+view.getHeight()+")"
+                +"@("+view.getX()+", "+view.getY()+")");
+    }
 	
 	////////////////  Mouse handlers  ////////////////
 	
