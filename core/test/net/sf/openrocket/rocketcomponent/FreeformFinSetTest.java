@@ -126,8 +126,7 @@ public class FreeformFinSetTest extends BaseTestCase {
                final double[] offs = {1.0, 0.0, 0.4, -0.2};
                final double[] expOffs = {1.0, 0.5, 0.9, 0.8};
                for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
-                       fins.setRelativePosition( pos[caseIndex]);
-                       fins.setPositionValue( offs[caseIndex]);
+                       fins.setAxialOffset( pos[caseIndex], offs[caseIndex]);
                        final double x_delta = fins.getAxialOffset();//getTranslationDelta( this.getLength());
                        
                        Coordinate actualPoints[] = fins.getFinPoints();
@@ -272,8 +271,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		sourceSet.setOverrideCGX(0.012);
 		sourceSet.setOverrideMass(0.0123);
 		sourceSet.setOverrideSubcomponents(true);
-		sourceSet.setPositionValue(0.1);
-		sourceSet.setRelativePosition(Position.ABSOLUTE);
+		sourceSet.setAxialOffset(Position.ABSOLUTE, 0.1);
+		
 		sourceSet.setTabHeight(0.01);
 		sourceSet.setTabLength(0.02);
 		sourceSet.setTabRelativePosition( Position.BOTTOM);
@@ -310,8 +309,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		sourceSet.setOverrideCGX(0.012);
 		sourceSet.setOverrideMass(0.0123);
 		sourceSet.setOverrideSubcomponents(true);
-		sourceSet.setPositionValue(0.1);
-		sourceSet.setRelativePosition(Position.ABSOLUTE);
+		sourceSet.setAxialOffset(Position.ABSOLUTE, 0.1);
+		
 		sourceSet.setTabHeight(0.01);
 		sourceSet.setTabLength(0.02);
 		sourceSet.setTabRelativePosition( Position.BOTTOM);

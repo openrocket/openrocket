@@ -681,7 +681,7 @@ public class TestRockets {
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 			finset.setThickness( 0.0032);
 			finset.setRelativePosition(Position.BOTTOM);
-			finset.setPositionValue(1);
+			finset.setAxialOffset(1.0);
 			finset.setName("Booster Fins");
 			boosterTube.addChild(finset);
 			
@@ -916,7 +916,7 @@ public class TestRockets {
 		auxfinset.setThickness(0.008);
 		auxfinset.setCrossSection(CrossSection.AIRFOIL);
 		auxfinset.setRelativePosition(Position.TOP);
-		auxfinset.setPositionValue(0.28);
+		auxfinset.setAxialOffset(0.28);
 		auxfinset.setBaseRotation(Math.PI / 2);
 		tube1.addChild(auxfinset);
 		
@@ -994,7 +994,7 @@ public class TestRockets {
 		finset.setThickness(0.005);
 		finset.setSweep(0.3);
 		finset.setRelativePosition(Position.BOTTOM);
-		finset.setPositionValue(-0.03);
+		finset.setAxialOffset(-0.03);
 		finset.setBaseRotation(Math.PI / 2);
 		tube3.addChild(finset);
 		
@@ -1113,7 +1113,7 @@ public class TestRockets {
 			coreFins.setName("Core Fins");
 			coreFins.setFinCount(4);
 			coreFins.setRelativePosition(Position.BOTTOM);
-			coreFins.setPositionValue(0.0);
+			coreFins.setAxialOffset(0.0);
 			coreFins.setBaseRotation( Math.PI / 4);
 			coreFins.setThickness(0.003);
 			coreFins.setCrossSection(CrossSection.ROUNDED);

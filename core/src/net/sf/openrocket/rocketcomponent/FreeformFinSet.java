@@ -220,7 +220,7 @@ public class FreeformFinSet extends FinSet {
 		// x,y start out in parent-space; so first, translate (x,y) into fin-space
 		
 		final SymmetricComponent sym = (Transition)getParent();
-		final double x_fin = getAxialOffset(); // x @ fin start, parent frame
+		final double x_fin = asPositionValue(Position.TOP); // x @ fin start, parent frame
 		final double r_fin = sym.getRadius(x_fin); // radius of body @ fin start
 		final double r_ref = sym.getForeRadius(); // reference radius of body (front)
 		final double r_new = sym.getRadius(x); // radius of body @ point
@@ -322,30 +322,6 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	@Override
-	public double getAxialOffset() {
-		mutex.verify();
-
-		double parentLength;
-		if( null == this.parent ){
-			parentLength=0.;
-		}else{
-			parentLength=this.getParent().getLength();
-		}
-		
-		final double finLength = this.length;
-		switch( relativePosition ){
-		default:
-		case TOP:
-			return this.x_offset;
-		case BOTTOM:
-			return parentLength - finLength + this.x_offset;
-		case MIDDLE:
-			return ((parentLength - finLength)/2 + this.x_offset);
-		}
-	}
-	
-	
-	@Override
 	public Coordinate[] getFinPoints() {
 		return points.toArray(new Coordinate[0]);
 	}
@@ -384,10 +360,11 @@ public class FreeformFinSet extends FinSet {
 		}
 		// the last point *is* restricted to be on the surface of its owning component:
 		SymmetricComponent body = (SymmetricComponent)this.getParent();
-		final double x_offs = this.getAxialOffset();
-		if( pts.get(lastIndex).y < body.getRadius( pts.get(lastIndex).x + x_offs )){
-			System.err.println("End point does not touch the body. illegal.");
-			//throw new IllegalFinPointException("End point does not touch the body. illegal.");
+		if( null != body ){
+			final double x_offs = this.getAxialOffset();
+			if( pts.get(lastIndex).y < body.getRadius( pts.get(lastIndex).x + x_offs )){
+				throw new IllegalFinPointException("End point does not touch its parent body. illegal.");
+			}
 		}
 
 		for (int i = 0; i < lastIndex; i++) {

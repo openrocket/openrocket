@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.unit.Tick;
@@ -39,7 +40,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	
 
 	// Number of pixels to leave at edges when fitting figure
-	protected static final int DEFAULT_BORDER_PIXELS = 20;	
+	protected static final int DEFAULT_BORDER_PIXELS = 32;	
 	
 	protected static final float MINIMUM_CANVAS_SIZE_METERS = 0.01f; // i.e. 1 cm
 	
@@ -258,12 +259,12 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	    final Coordinate[] designPoints = finset.getFinPoints();
 		
 		// translate to location on parent component
-		final double x_start = finset.getAxialOffset();
+		final double x_start = finset.asPositionValue(Position.TOP);
 		final SymmetricComponent parentBody = (Transition)finset.getParent();
 		final double y_start = parentBody.getRadius(x_start) - parentBody.getForeRadius();
 		final Coordinate[] drawPoints = FinSet.translatePoints(designPoints, x_start, y_start);
 		
-		// excludes fin tab
+		// INCLUDES fin tab
 		Path2D.Double shape = new Path2D.Double();
 		Coordinate startPoint= drawPoints[0];
 		shape.moveTo( startPoint.x, startPoint.y);
@@ -457,10 +458,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		}
 		
 		SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
-		final double maxRadius = Math.max( parent.getForeRadius(), parent.getAftRadius());
 		
-		subjectBounds_m.getX().inflate( 0, MINIMUM_CANVAS_SIZE_METERS);
-		subjectBounds_m.getY().inflate( -maxRadius, MINIMUM_CANVAS_SIZE_METERS);
+		subjectBounds_m.getX().inflate( 0, Math.max( parent.getLength(), MINIMUM_CANVAS_SIZE_METERS));
+		subjectBounds_m.getY().inflate( -parent.getForeRadius(), Math.max( parent.getAftRadius(), MINIMUM_CANVAS_SIZE_METERS));
 	}
 	
 	private void calculateFigureSize(){
@@ -472,16 +472,14 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		//final double scale_dpm = GUIUtil.getDPI()* INCHES_PER_METER * zoom;
 		final double figureSizeScale = scale*zoom;
 		
-		final int subjectWidth_px = (int)(subjectBounds_m.getX().span()*figureSizeScale);
-		final int subjectHeight_px = (int)(subjectBounds_m.getY().span()*figureSizeScale);
-
-		preferredFigureSize_px.width = subjectWidth_px + 2*borderThickness_px;
-		preferredFigureSize_px.height = subjectHeight_px + 2*borderThickness_px;
+		preferredFigureSize_px.width = (int)(subjectBounds_m.getX().span()*figureSizeScale) + 2*borderThickness_px;
+		preferredFigureSize_px.height = (int)(subjectBounds_m.getY().span()*figureSizeScale) + 2*borderThickness_px;
 
 		if( !preferredFigureSize_px.equals( getPreferredSize()) ){
 			setPreferredSize( preferredFigureSize_px);
 			revalidate();
-		}	
+		}
+		
 	}
 	
 	private void updateTransform(){
@@ -489,11 +487,9 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		calculateDimensions();
 		calculateFigureSize();
 
-		final double x_min_m = subjectBounds_m.getX().min;
-		final double finHeight_m = subjectBounds_m.getY().max;
 		final Point2D.Double newTranslation = new Point2D.Double(
-				borderThickness_px + x_min_m*scale*zoom,
-				borderThickness_px + finHeight_m*scale*zoom);
+				borderThickness_px,
+				borderThickness_px + subjectBounds_m.getY().max*scale*zoom);
 		this.originLocation_px.width = (int)(newTranslation.x);
 		this.originLocation_px.height = (int)(newTranslation.y);
 		

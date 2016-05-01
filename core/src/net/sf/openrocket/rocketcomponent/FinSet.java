@@ -243,12 +243,6 @@ public abstract class FinSet extends ExternalComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	public void setPositionValue(double value) {
-		super.setAxialOffset(value);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
 	public double getTabHeight() {
 		return tabHeight;
 	}
