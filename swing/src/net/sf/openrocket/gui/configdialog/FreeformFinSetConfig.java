@@ -505,6 +505,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (!(o instanceof String))
 				return;
 			
+			// bounds check that indices are valid
 			if (rowIndex < 0 || rowIndex >= finset.getFinPoints().length || columnIndex < 0 || columnIndex >= Columns.values().length) {
 				throw new IllegalArgumentException("Index out of bounds, row=" + rowIndex + " column=" + columnIndex + " fin point count=" + finset.getFinPoints().length);
 			}

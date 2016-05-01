@@ -225,7 +225,8 @@ public class FreeformFinSet extends FinSet {
 		final double r_ref = sym.getForeRadius(); // reference radius of body (front)
 		final double r_new = sym.getRadius(x); // radius of body @ point
 		final double y_fin = r_fin - r_ref;  // y @ fin start, parent frame
-
+		
+		
 		// ^^^^ parent-body-space corodinates ^^^^
 		x -= x_fin;
 		y -= y_fin;
@@ -238,6 +239,7 @@ public class FreeformFinSet extends FinSet {
 		
 		double x0, y0, x1, y1;
 		
+		System.err.println("  attempting to set last fin point to: "+x+", "+y);
 		if (index == 0) {
 			// Restrict first point to be in front of last point.
 			x = Math.min(x, points.get(points.size() - 1).x);
@@ -249,6 +251,10 @@ public class FreeformFinSet extends FinSet {
 		} else if (index == points.size() - 1) {
 			// Restrict last point to be behind first point
 			x = Math.max(points.get(0).x, x);
+			
+			// constrain x to connect back to the body before it ends
+			x = Math.min(x, (sym.length - x_fin));
+			y = sym.getRadius(x + x_fin) - r_fin; 
 
 			x0 = points.get(index - 1).x;
 			y0 = points.get(index - 1).y;
@@ -285,7 +291,7 @@ public class FreeformFinSet extends FinSet {
 		}
 		
 		// if moving first point, translate entire fin to match
-		if (index == 0) {
+		if ( 0 == index ) {
 			//System.out.println("Set point zero to x:" + x);
 			for (int i = 1; i < points.size(); i++) {
 				Coordinate c = points.get(i);
@@ -369,13 +375,23 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	private void validate(ArrayList<Coordinate> pts) throws IllegalFinPointException {
-		final int n = pts.size();
-		if (pts.get(0).x != 0 || pts.get(0).y != 0 ||
-				pts.get(n - 1).x < 0 || pts.get(n - 1).y != 0) {
-			throw new IllegalFinPointException("Start or end point illegal.");
+		final int lastIndex = pts.size() - 1;
+		if (pts.get(0).x != 0 || pts.get(0).y != 0 ){
+			throw new IllegalFinPointException("Start point illegal.");
 		}
-		for (int i = 0; i < n - 1; i++) {
-			for (int j = i + 2; j < n - 1; j++) {
+		if( pts.get(lastIndex).x < 0){
+			throw new IllegalFinPointException("End point illegal.");
+		}
+		// the last point *is* restricted to be on the surface of its owning component:
+		SymmetricComponent body = (SymmetricComponent)this.getParent();
+		final double x_offs = this.getAxialOffset();
+		if( pts.get(lastIndex).y < body.getRadius( pts.get(lastIndex).x + x_offs )){
+			System.err.println("End point does not touch the body. illegal.");
+			//throw new IllegalFinPointException("End point does not touch the body. illegal.");
+		}
+
+		for (int i = 0; i < lastIndex; i++) {
+			for (int j = i + 2; j < lastIndex; j++) {
 				if (intersects(pts.get(i).x, pts.get(i).y, pts.get(i + 1).x, pts.get(i + 1).y,
 						pts.get(j).x, pts.get(j).y, pts.get(j + 1).x, pts.get(j + 1).y)) {
 					throw new IllegalFinPointException("segments intersect");
