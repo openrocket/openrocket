@@ -162,8 +162,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
 		
-		
-		
 		////  Cross section
 		//// Fin cross section:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
@@ -304,7 +302,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			figure.repaint();
 		}
 	}
-	
 	
 	
 	

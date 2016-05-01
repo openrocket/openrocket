@@ -52,8 +52,8 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 	
 	public static final String ZOOM_PROPERTY = "zoom";
 	
-	private JComponent component;
-	private ScaleFigure figure;
+	private final JComponent component;
+	private final ScaleFigure figure;
 	
 	private DoubleModel rulerUnit;
 	private Ruler horizontalRuler;
@@ -198,6 +198,7 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 		}
 	
 		figure.setZoom(newScale);
+		
 		revalidate();
 	}
 	
@@ -213,12 +214,15 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
     
     @Override
     public void revalidate(){
+        if( null != component ){
+            component.revalidate();
+        }
         
         if( null != horizontalRuler){
-            horizontalRuler.repaint();
+            horizontalRuler.revalidate();
         }
         if( null != verticalRuler ){
-            verticalRuler.repaint();
+            verticalRuler.revalidate();
         }
         
         super.revalidate();
