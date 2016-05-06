@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -53,6 +52,7 @@ import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 
 @SuppressWarnings("serial")
@@ -271,9 +271,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
 				CustomFinImporter importer = new CustomFinImporter();
-				List<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
+				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
-				finset.setPoints(points);
+				finset.setPoints( points);
 			} catch (IllegalFinPointException e) {
 				log.warn("Error storing fin points", e);
 				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),

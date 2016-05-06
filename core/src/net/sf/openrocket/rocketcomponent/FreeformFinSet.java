@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -163,10 +163,14 @@ public class FreeformFinSet extends FinSet {
 			throw new IllegalFinPointException("cannot remove first or last point");
 		}
 		
-		ArrayList<Coordinate> copy = this.points.clone();
-		copy.remove(index);
-		validate(copy);
-		this.points = copy;
+		@SuppressWarnings("unchecked")
+		ArrayList<Coordinate> copy = (ArrayList<Coordinate>)this.points.clone();
+		
+		this.points.remove(index);
+		if( ! validate()){
+			// if error, rollback.  
+			this.points = copy;
+		}
 		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -186,13 +190,27 @@ public class FreeformFinSet extends FinSet {
 		Coordinate p0 = newPoints[0];
 		newPoints = translatePoints( newPoints, p0.x, p0.y);
 		
-		setPoints(Arrays.asList( newPoints));
+		ArrayList<Coordinate> newList = new ArrayList<Coordinate>();
+		newList.addAll( Arrays.asList( newPoints));
+		setPoints( newList );
 	}
 	
-	public void setPoints(List<Coordinate> points) throws IllegalFinPointException {
-		ArrayList<Coordinate> list = new ArrayList<Coordinate>(points);
-		validate(list);
-		this.points = list;
+
+	/**
+	 * The first point is assumed to be at the origin.  If it isn't, it will be moved there.
+	 * 
+	 * @param newPoints
+	 * @throws IllegalFinPointException
+	 */
+	// WARNING:  this is the Openrocket custom ArrayList instance.   not the standard one... 
+	public void setPoints( ArrayList<Coordinate> newPoints) throws IllegalFinPointException {
+		@SuppressWarnings("unchecked")
+		ArrayList<Coordinate> copy = (ArrayList<Coordinate>)this.points.clone();
+		
+		this.points = newPoints;
+		if( ! validate()){
+			this.points = copy;
+		}
 		
 		this.length = points.get(points.size() - 1).x;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -342,42 +360,69 @@ public class FreeformFinSet extends FinSet {
 		return trans.get("FreeformFinSet.FreeformFinSet");
 	}
 	
-	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();
-		((FreeformFinSet) c).points = this.points.clone();
+		
+		((FreeformFinSet) c).points = (ArrayList<Coordinate>)this.points.clone();
+		
 		return c;
 	}
 	
-	private void validate(ArrayList<Coordinate> pts) throws IllegalFinPointException {
-		final int lastIndex = pts.size() - 1;
-		if (pts.get(0).x != 0 || pts.get(0).y != 0 ){
-			throw new IllegalFinPointException("Start point illegal.");
+	private boolean validate() {
+		final Coordinate firstPoint = this.points.get(0);
+		if (firstPoint.x != 0 || firstPoint.y != 0 ){
+			log.error("Start point illegal --  not located at (0,0): "+firstPoint);
+			return false;
 		}
-		if( pts.get(lastIndex).x < 0){
-			throw new IllegalFinPointException("End point illegal.");
+		final int lastIndex = this.points.size() - 1;
+		final Coordinate lastPoint = this.points.get(0);
+		if( lastPoint.x < 0){
+			log.error("End point illegal: end point starts in front of start point: "+lastPoint.x);
+			return false;
 		}
 		// the last point *is* restricted to be on the surface of its owning component:
-		SymmetricComponent body = (SymmetricComponent)this.getParent();
-		if( null != body ){
-			final double x_offs = this.getAxialOffset();
-			if( pts.get(lastIndex).y < body.getRadius( pts.get(lastIndex).x + x_offs )){
-				throw new IllegalFinPointException("End point does not touch its parent body. illegal.");
+		SymmetricComponent symBody = (SymmetricComponent)this.getParent();
+		if( null != symBody ){
+			// ^^^  fin frame ^^^
+			// vvv body frame vvv 
+			final double startOffset = this.asPositionValue( Position.TOP );
+			final Coordinate finStart = this.position.setY( symBody.getRadius(startOffset) );
+			
+			// campare x-values 
+			final Coordinate finAtLast = lastPoint.add(finStart); 
+			if( symBody.getLength() < finAtLast.x ){
+				log.error("End point falls after parent body ends: ["+symBody.getName()+"].  Exception: ", new IllegalFinPointException("Fin ends after its parent body \""+symBody.getName()+"\". Ignoring."));
+				log.error(String.format("    ..fin end@         (%6.2g,%6.2g)", finAtLast.x, finAtLast.y));
+				return false;
+			}
+			
+			// compare the y-values
+			final Coordinate bodyAtLast = finAtLast.setY( symBody.getRadius( finAtLast.x ) ); 
+			if( 0.0001 < Math.abs( finAtLast.y - bodyAtLast.y) ){
+				log.error("End point does not touch its parent body ["+symBody.getName()+"].  exception: ", new IllegalFinPointException("End point does not touch its parent body. illegal.")); 
+				log.error(String.format("    ..fin end@         (%6.2g,%6.2g)", finAtLast.x, finAtLast.y));
+				return false;
 			}
 		}
 
+		final ArrayList<Coordinate> pts = this.points;
 		for (int i = 0; i < lastIndex; i++) {
 			for (int j = i + 2; j < lastIndex; j++) {
 				if (intersects(pts.get(i).x, pts.get(i).y, pts.get(i + 1).x, pts.get(i + 1).y,
 						pts.get(j).x, pts.get(j).y, pts.get(j + 1).x, pts.get(j + 1).y)) {
-					throw new IllegalFinPointException("segments intersect");
+					log.error("segments intersect: indices: "+i+", "+j);
+					return false;
 				}
 			}
 			if (pts.get(i).z != 0) {
-				throw new IllegalFinPointException("z-coordinate not zero");
+				log.error("z-coordinate not zero");
+				return false;
 			}
 		}
+		
+		return true;
 	}
 	
 	@Override

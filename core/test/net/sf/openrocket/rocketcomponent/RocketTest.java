@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
@@ -149,4 +150,51 @@ public class RocketTest extends BaseTestCase {
 		}
 	}
 	
+	@Test
+	public void testRelativePositioning(){
+		final double EPSILON = MathUtil.EPSILON;
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		
+		AxialStage stage= (AxialStage)rocket.getChild(0);
+		
+		//NoseCone nose = (NoseCone)stage.getChild(0);
+		BodyTube body = (BodyTube)stage.getChild(1);
+		FinSet fins = (FinSet)body.getChild(0);
+//		LaunchLug lug = (LaunchLug)body.getChild(1);
+//		InnerTube mmt = (InnerTube)body.getChild(2);
+//		EngineBlock block = (EngineBlock)mmt.getChild(0);
+//		Parachute chute = (Parachute)body.getChild(3);
+//		CenteringRing center = (CenteringRing)body.getChild(4);
+		
+//		String treeDump = rocket.toDebugTree();
+//		System.err.println(treeDump);
+
+		// less test, more documentation of existing lengths
+		final double expBodyLength = 0.2;
+		final double actBodyLength = body.getLength();
+		assertEquals( body.getName()+" has an unexpected length: ", expBodyLength, actBodyLength, EPSILON);
+		
+		final double expFinLength = 0.05;
+		final double actFinLength = fins.getLength();
+		assertEquals( fins.getName()+" has an unexpected length: ", expFinLength, actFinLength, EPSILON);
+		
+		// diff = 0.15 = (0.2 - 0.05)
+		
+		// vv ACTUAL Test vv
+		RocketComponent cc = fins;
+		final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+        final double[] expOffs = {0.10, 0.0, 0.04, -0.02};
+        final double[] expPos =  {0.10, 0.075, 0.115, 0.13};
+        for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+            cc.setAxialOffset( pos[caseIndex], expOffs[caseIndex]);
+            		
+            final double actOffset = cc.getAxialOffset();
+            assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+           		 expOffs[caseIndex], actOffset, EPSILON);
+            
+            final double actPos = cc.asPositionValue(Position.TOP);
+            assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+           		 expPos[caseIndex], actPos, EPSILON);
+        }
+	}
 }
