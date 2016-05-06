@@ -256,6 +256,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	}
 
 	private void paintFinShape(Graphics2D g2){
+        // excludes fin tab points
 	    final Coordinate[] designPoints = finset.getFinPoints();
 		
 		// translate to location on parent component
@@ -264,7 +265,6 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 		final double y_start = parentBody.getRadius(x_start) - parentBody.getForeRadius();
 		final Coordinate[] drawPoints = FinSet.translatePoints(designPoints, x_start, y_start);
 		
-		// INCLUDES fin tab
 		Path2D.Double shape = new Path2D.Double();
 		Coordinate startPoint= drawPoints[0];
 		shape.moveTo( startPoint.x, startPoint.y);

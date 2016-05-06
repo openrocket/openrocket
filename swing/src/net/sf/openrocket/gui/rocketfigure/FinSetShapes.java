@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.rocketfigure;
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -20,51 +21,65 @@ public class FinSetShapes extends RocketComponentShape {
 
 		
 		int finCount = finset.getFinCount();
+        // TODO: MEDIUM: sloping radius
+        double radius = finset.getBodyRadius();
+        
 		Transformation cantRotation = finset.getCantRotation();
 		Transformation baseRotation = finset.getBaseRotationTransformation(); // rotation about x-axis
+		Transformation radialTranslation = new Transformation( 0, radius, 0);
 		Transformation finRotation = finset.getFinRotationTransformation();
+		Transformation compositeTransform = cantRotation.applyTransformation(radialTranslation).applyTransformation(baseRotation);		
 		
 		Coordinate finSetFront = componentAbsoluteLocation;
-		Coordinate finPoints[] = finset.getFinPointsWithTab();
+		Coordinate finPoints[] = finset.getFinPoints();
+        Coordinate tabPoints[] = finset.getTabPoints();
 		
-		// TODO: MEDIUM: sloping radius
-		double radius = finset.getBodyRadius();
 		
-		// Translate & rotate the coordinates
-		for (int i=0; i<finPoints.length; i++) {
-			finPoints[i] = cantRotation.transform(finPoints[i]);
-			finPoints[i] = baseRotation.transform(finPoints[i].add(0,radius,0));
-		}
-		
-
+		// Translate & rotate points into place
+        finPoints = compositeTransform.transform( finPoints );
+        tabPoints = compositeTransform.transform( tabPoints);
+        
 		// Generate shapes
-		RocketComponentShape[] finShape = new RocketComponentShape[ finCount];
-		for (int finNum=0; finNum<finCount; finNum++) {
-			Coordinate a;
-			Path2D.Float p;
-			
-			// Make polygon
-			p = new Path2D.Float();
-			for (int i=0; i<finPoints.length; i++) {
-				// previous version
-				// a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
-				a = transformation.transform(finSetFront.add(finPoints[i]));
-				
-				if (i==0)
-					p.moveTo(a.x*S, a.y*S);
-				else
-					p.lineTo(a.x*S, a.y*S);			
-			}
-			
-			p.closePath();
-			finShape[finNum] = new RocketComponentShape( p, finset);
+        ArrayList<RocketComponentShape> shapeList = new ArrayList<>();
+        for (int finNum=0; finNum<finCount; finNum++) {
+            Coordinate a;
+            Path2D.Float p;
+            
+            // Make fin polygon
+            p = new Path2D.Float();
+            for (int i=0; i<finPoints.length; i++) {
+                // previous version
+                // a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
+                a = transformation.transform(finSetFront.add(finPoints[i]));
+                
+                if (i==0)
+                    p.moveTo(a.x*S, a.y*S);
+                else
+                    p.lineTo(a.x*S, a.y*S);         
+            }
+            shapeList.add( new RocketComponentShape( p, finset));
+            
+            // Make tab polygon
+            p = new Path2D.Float();
+            for (int i=0; i<tabPoints.length; i++) {
+                // previous version
+                // a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
+                a = transformation.transform(finSetFront.add(tabPoints[i]));
+                
+                if (i==0)
+                    p.moveTo(a.x*S, a.y*S);
+                else
+                    p.lineTo(a.x*S, a.y*S);         
+            }
+            shapeList.add( new RocketComponentShape( p, finset));
 
-			// Rotate fin coordinates
-			for (int i=0; i<finPoints.length; i++)
-				finPoints[i] = finRotation.transform(finPoints[i]);
-		}
-		
-		return finShape;
+            // Rotate fin, tab coordinates
+            finPoints = finRotation.transform(finPoints);
+            tabPoints = finRotation.transform(tabPoints);
+            
+        }
+        
+		return shapeList.toArray(new RocketComponentShape[0]);
 	}
 	
 	public static RocketComponentShape[] getShapesBack(

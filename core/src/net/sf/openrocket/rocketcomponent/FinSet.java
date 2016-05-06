@@ -1,13 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -696,42 +696,60 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	/**
-	 * Return a list of coordinates defining the geometry of a single fin, including a
-	 * possible fin tab.  The coordinates are the XY-coordinates of points defining the 
-	 * shape of a single fin, where the origin is the leading root edge.  This implementation
-	 * calls {@link #getFinPoints()} and adds the necessary points for the fin tab.
+	 * Return a list of coordinates defining the geometry of a single fin tab. 
+	 * The coordinates are the XY-coordinates of points defining the 
+	 * shape of a single fin, where the origin is the leading root edge, and the height
+	 * (aka 'depth') is the radial distance inwards from the leading root edge.  
+	 * 
+	 * 
 	 * The tab coordinates will have a negative y value.
 	 * 
 	 * @return  List of XY-coordinates.
 	 */
-	public Coordinate[] getFinPointsWithTab() {
-		Coordinate[] points = getFinPoints();
+	public Coordinate[] getTabPoints() {
 		
 		if (MathUtil.equals(getTabHeight(), 0) ||
 				MathUtil.equals(getTabLength(), 0))
-			return points;
+			return new Coordinate[0];
 		
-		double x1 = getTabFrontEdge();
-		double x2 = getTabTrailingEdge();
-		double y = -getTabHeight();
+		final int pointCount = 4;
+		Coordinate[] points = new Coordinate[pointCount];
+		final double xFin = this.getFinFront();
 		
-		boolean add1 = x1 != points[0].x;
-		boolean add2 = x2 != points[points.length - 1].x;
+		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
 		
-		int n = points.length;
-		points = ArrayUtils.copyOf(points, points.length + 2 + (add1 ? 1 : 0) + (add2 ? 1 : 0));
+		final double xFront = getTabFrontEdge();
+		final double yFront = symmetricParent.getRadius( xFront + xFin ) - symmetricParent.getForeRadius();
+		final double xTrail = getTabTrailingEdge();
+		final double yTrail = symmetricParent.getRadius( xTrail + xFin ) - symmetricParent.getForeRadius();
+		final double yBottom= -getTabHeight();
 		
-		if (add2)
-			points[n++] = new Coordinate(x2, 0);
-		points[n++] = new Coordinate(x2, y);
-		points[n++] = new Coordinate(x1, y);
-		if (add1)
-			points[n++] = new Coordinate(x1, 0);
+		points[0] = new Coordinate(xFront, yFront);
+		points[1] = new Coordinate(xFront, yBottom);
+		points[2] = new Coordinate(xTrail, yBottom);
+		points[3] = new Coordinate(xTrail, yTrail);
 		
 		return points;
 	}
 	
+	protected double getFinFront() {
+		return this.asPositionValue(Position.TOP);
+	}
+
+	/* 
+	 * yes, this may overcount points between the fin, and the fin tabs, but this "should" not cause any glitches.
+	 * Therefore, the very minor performance hit is not worth the code complexity of dealing with.
+	 */
+	public Coordinate[] getFinPointsWithTab() {
+		final Coordinate[] finPoints = getFinPoints();
+		final Coordinate[] tabPoints = getTabPoints();
+		
+		Coordinate[] combinedPoints = Arrays.copyOf(finPoints, finPoints.length + tabPoints.length);
+		System.arraycopy(tabPoints, 0, combinedPoints, finPoints.length, tabPoints.length);
+		return combinedPoints;
+	}
 	
+
 	
 	/**
 	 * Get the span of a single fin.  That is, the length from the root to the tip of the fin.
@@ -791,5 +809,5 @@ public abstract class FinSet extends ExternalComponent {
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
+
 }
