@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
+	final double EPSILON = 0.0001;
 	
 	@Test
 	public void testTrapezoidCGComputation() {
@@ -43,4 +45,94 @@ public class FinSetTest extends BaseTestCase {
 		
 	}
 	
+
+    @Test
+    public void testRelativeLocation() throws IllegalFinPointException {
+    	 final Rocket rkt = new Rocket();
+         final AxialStage stg = new AxialStage();
+         rkt.addChild(stg);
+         BodyTube body = new BodyTube(2.0, 0.01);
+         stg.addChild(body);
+         
+         // Fin length = 1
+         // Body Length = 2
+         //          +--+
+         //         /   |
+         //        /    |
+         //   +---+-----+---+
+         FreeformFinSet fins = new FreeformFinSet();
+         fins.setFinCount(1);
+         Coordinate[] initPoints = new Coordinate[] {
+                         new Coordinate(0, 0),
+                         new Coordinate(0.5, 1),
+                         new Coordinate(1, 1),
+                         new Coordinate(1, 0)
+         };
+         fins.setPoints(initPoints);
+         body.addChild(fins);
+
+         final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+         final double[] expOffs = {1.0, 0.0, 0.4, -0.2};
+         final double[] expPos = {1.0, 0.5, 0.9, 0.8};
+         for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+             fins.setAxialOffset( pos[caseIndex], expOffs[caseIndex]);
+             
+             final double actOffset = fins.getAxialOffset();
+             assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+            		 expOffs[caseIndex], actOffset, EPSILON);
+             
+             final double actPos = fins.getLocations()[0].x;
+             assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+            		 expPos[caseIndex], actPos, EPSILON);
+         }
+    }
+    
+    
+
+    @Test
+    public void testTabLocation() throws IllegalFinPointException {
+    	 final Rocket rkt = new Rocket();
+         final AxialStage stg = new AxialStage();
+         rkt.addChild(stg);
+         BodyTube body = new BodyTube(0.2, 0.001);
+         stg.addChild(body);
+         
+         // Fin length = 1
+         // Tab Length = 2
+         //          +--+
+         //         /   |
+         //        /    |
+         //   +---+-----+---+
+         //
+         FinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
+         fins.setAxialOffset( Position.MIDDLE, 0.0);
+         body.addChild(fins);
+         // fins.length = 0.05;
+         fins.setTabLength(0.01);
+
+         final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+         final double[] expShift = {0.1, 0.0, 0.01, -0.02};
+         final double[] expFront = {0.1, 0.02, 0.03, 0.02};
+         for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+     	 	fins.setTabRelativePosition( pos[caseIndex]);
+     	 	fins.setTabShift( expShift[caseIndex]);
+             
+    	 	double actFront= fins.getTabFrontEdge();
+    	 	assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+           		 	expFront[caseIndex], actFront, EPSILON);
+            double actShift = fins.getTabShift();
+            assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+            		expShift[caseIndex], actShift, EPSILON);
+            
+            fins.setTabRelativePosition( Position.TOP);
+            actShift = fins.getTabShift();
+            actFront = fins.getTabFrontEdge();
+            assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+                 expFront[caseIndex], actFront, EPSILON);
+            assertEquals(String.format(" Relative Positioning doesn't match when reshift to top, from "+pos[caseIndex].name()),
+           		 expFront[caseIndex], actShift, EPSILON);
+           
+         }
+    }
+    
 }

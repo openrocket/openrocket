@@ -270,11 +270,35 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public double getTabShift() {
-		return tabShift;
+		System.err.println(String.format("get tab shift: (%6.4g via %s)", tabShift, tabRelativePosition.name()));
+		switch ( this.tabRelativePosition) {
+		case TOP:
+			return this.tabShift;
+		case MIDDLE:
+			return this.tabShift + tabLength / 2 - getLength() / 2;
+		case BOTTOM:
+			return this.tabShift + tabLength - length;
+		default:
+			throw new IllegalArgumentException("position=" + position);
+		}	
 	}
 	
-	public void setTabShift(double shift) {
-		this.tabShift = shift;
+	public void setTabShift( final double newShift) {
+		switch ( tabRelativePosition) {
+		case TOP:
+			this.tabShift = newShift;
+			break;
+		case MIDDLE:
+			this.tabShift = newShift - tabLength / 2 + this.length / 2;
+			break;
+		case BOTTOM:
+			this.tabShift = newShift - tabLength + this.length;
+			break;
+		default:
+			throw new IllegalArgumentException("position=" + position);
+		}
+		
+		System.err.println(String.format("set tab shift to: (%6.4g via %s", tabShift, tabRelativePosition.name()));
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -283,31 +307,8 @@ public abstract class FinSet extends ExternalComponent {
 		return tabRelativePosition;
 	}
 	
-	public void setTabRelativePosition( Position position) {
-		if (this.tabRelativePosition == position)
-			return;
-		
-		
-		double front = getTabFrontEdge();
-		switch (position) {
-		case TOP:
-			this.tabShift = front;
-			break;
-		
-		case MIDDLE:
-			this.tabShift = front + tabLength / 2 - getLength() / 2;
-			break;
-		
-		case BOTTOM:
-			this.tabShift = front + tabLength - getLength();
-			break;
-		
-		default:
-			throw new IllegalArgumentException("position=" + position);
-		}
-		this.tabRelativePosition = position;
-		
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	public void setTabRelativePosition( final Position newPosition) {
+		this.tabRelativePosition = newPosition;
 	}
 	
 	
@@ -315,37 +316,14 @@ public abstract class FinSet extends ExternalComponent {
 	 * Return the tab front edge position from the front of the fin.
 	 */
 	public double getTabFrontEdge() {
-		switch (this.tabRelativePosition) {
-		case TOP:
-			return tabShift;
-			
-		case MIDDLE:
-			return getLength() / 2 - tabLength / 2 + tabShift;
-			
-		case BOTTOM:
-			return getLength() - tabLength + tabShift;
-			
-		default:
-			throw new IllegalStateException("tabRelativePosition=" + tabRelativePosition);
-		}
+		return tabShift;
 	}
 	
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
 	public double getTabTrailingEdge() {
-		switch (this.tabRelativePosition) {
-		case TOP:
-			return tabLength + tabShift;
-		case MIDDLE:
-			return getLength() / 2 + tabLength / 2 + tabShift;
-			
-		case BOTTOM:
-			return getLength() + tabShift;
-			
-		default:
-			throw new IllegalStateException("tabRelativePosition=" + tabRelativePosition);
-		}
+		return tabShift + tabLength;
 	}
 	
 	
@@ -714,20 +692,20 @@ public abstract class FinSet extends ExternalComponent {
 		
 		final int pointCount = 4;
 		Coordinate[] points = new Coordinate[pointCount];
-		final double xFin = this.getFinFront();
-		
+		final double xFinFront = this.getFinFront();
 		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+		final double yFinFront = symmetricParent.getRadius( xFinFront );
 		
-		final double xFront = getTabFrontEdge();
-		final double yFront = symmetricParent.getRadius( xFront + xFin ) - symmetricParent.getForeRadius();
-		final double xTrail = getTabTrailingEdge();
-		final double yTrail = symmetricParent.getRadius( xTrail + xFin ) - symmetricParent.getForeRadius();
-		final double yBottom= -getTabHeight();
+		final double xTabFront = getTabFrontEdge();
+		final double yTabFront = symmetricParent.getRadius( xFinFront + xTabFront ) - yFinFront;
+		final double xTabTrail = getTabTrailingEdge();
+		final double yTabTrail = symmetricParent.getRadius( xFinFront + xTabTrail ) - yFinFront;
+		final double yTabBottom = -getTabHeight();
 		
-		points[0] = new Coordinate(xFront, yFront);
-		points[1] = new Coordinate(xFront, yBottom);
-		points[2] = new Coordinate(xTrail, yBottom);
-		points[3] = new Coordinate(xTrail, yTrail);
+		points[0] = new Coordinate(xTabFront, yTabFront);
+		points[1] = new Coordinate(xTabFront, yTabBottom );
+		points[2] = new Coordinate(xTabTrail, yTabBottom );
+		points[3] = new Coordinate(xTabTrail, yTabTrail);
 		
 		return points;
 	}

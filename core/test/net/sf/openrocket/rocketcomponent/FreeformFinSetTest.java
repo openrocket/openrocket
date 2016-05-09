@@ -96,49 +96,6 @@ public class FreeformFinSetTest extends BaseTestCase {
 		
 	}
 	
-    
-    @Test
-    public void testRelativeLocation() throws IllegalFinPointException {
-    	 final Rocket rkt = new Rocket();
-         final AxialStage stg = new AxialStage();
-         rkt.addChild(stg);
-         BodyTube body = new BodyTube(2.0, 0.01);
-         stg.addChild(body);
-         
-         // Fin length = 1
-         // Body Length = 2
-         //          +--+
-         //         /   |
-         //        /    |
-         //   +---+-----+---+
-         //
-         FreeformFinSet fins = new FreeformFinSet();
-         fins.setFinCount(1);
-         Coordinate[] initPoints = new Coordinate[] {
-                         new Coordinate(0, 0),
-                         new Coordinate(0.5, 1),
-                         new Coordinate(1, 1),
-                         new Coordinate(1, 0)
-         };
-         fins.setPoints(initPoints);
-         body.addChild(fins);
-
-         final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
-         final double[] expOffs = {1.0, 0.0, 0.4, -0.2};
-         final double[] expPos = {1.0, 0.5, 0.9, 0.8};
-         for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
-                 fins.setAxialOffset( pos[caseIndex], expOffs[caseIndex]);
-                 
-                 final double actOffset = fins.getAxialOffset();
-                 assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
-                		 expOffs[caseIndex], actOffset, EPSILON);
-                 
-                 final double actPos = fins.getLocations()[0].x;
-                 assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
-                		 expPos[caseIndex], actPos, EPSILON);
-         }
-    }
-    
     @Test
     public void testTranslatePoints() throws IllegalFinPointException {
                final Rocket rkt = new Rocket();
