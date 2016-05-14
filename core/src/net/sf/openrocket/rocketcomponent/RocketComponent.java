@@ -922,11 +922,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
 	public double asPositionValue(Position thePosition) {
-		double relativeLength;
+		double parentLength;
 		if (null == this.parent) {
-			 relativeLength = 0;
+			 parentLength = 0;
 		}else{
-			relativeLength = this.parent.length;
+			parentLength = this.parent.length;
 		}
 		
 		double thisX = this.position.x;
@@ -934,28 +934,56 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		switch (thePosition) {
 		case AFTER:
-			result = thisX - relativeLength;
+			result = thisX - parentLength;
 			break;
 		case ABSOLUTE:
 			Coordinate[] insts = this.getLocations();
 			result = insts[0].x;
 			break;
-		case TOP:
-			result = thisX;
-			break;
-		case MIDDLE:
-			result = thisX + (-relativeLength + this.getLength()) / 2;
-			break;
-		case BOTTOM:
-			result = thisX + (-relativeLength + this.getLength());
-			break;
 		default:
-			throw new BugException("Unknown position type: " + thePosition);
+			result = RocketComponent.getRelativeOffset( thePosition, thisX, this.getLength(), parentLength);
+			break;
 		}
 		
 		return result;
 	}
 	
+	// intended for relative positioning of all components
+	protected final static double getRelativeOffset( final Position positionMethod, double fromFront, 
+											final double subjectLength, final double referenceLength){
+		switch ( positionMethod ) {
+		case TOP:
+			return fromFront;
+		case MIDDLE:
+			return (fromFront + subjectLength/2 - referenceLength/2);
+		case BOTTOM:
+			return (fromFront + subjectLength - referenceLength);
+		default:
+			throw new IllegalArgumentException("unknown position type=" + positionMethod);
+		}
+	}
+
+	protected final static double getFrontDistance( double newOffset, final Position positionMethod,
+							final double subjectLength, final double referenceLength){
+		
+		double newFront = Double.NaN;
+		switch ( positionMethod ) {		
+		case TOP:
+			newFront = newOffset;
+			break;
+		case MIDDLE:
+			newFront = newOffset - subjectLength / 2 + referenceLength / 2;
+			break;
+		case BOTTOM:
+			newFront = newOffset - subjectLength + referenceLength;
+			break;
+		default:
+			throw new IllegalArgumentException("position=" + positionMethod);
+		}
+		
+		return newFront;
+	}
+
 	/**
 	 * Get the position value of the component.  The exact meaning of the value is
 	 * dependent on the current relative positioning.
@@ -1056,17 +1084,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// no-op 
 			// this.setAfter(this.previousComponent);
 			return;
-		case TOP:
-			newAxialPosition = newOffset;
-			break;
-		case MIDDLE:
-			newAxialPosition = (refLength - this.length) / 2 + newOffset;
-			break;
-		case BOTTOM:
-			newAxialPosition = (refLength - this.length) + newOffset;
-			break;
 		default:
-			throw new BugException("Unknown position type: " + this.relativePosition);
+			newAxialPosition = RocketComponent.getFrontDistance(newOffset, this.relativePosition, this.length, refLength);			
 		}
 		
 		// snap to zero if less than the threshold 'EPSILON'

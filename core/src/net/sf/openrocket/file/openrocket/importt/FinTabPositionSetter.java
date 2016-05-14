@@ -42,7 +42,11 @@ class FinTabPositionSetter extends DoubleSetter {
 			if( null == position ){
 				warnings.add("Illegal attribute value '" + relative + "' encountered.");
 			}else{
+				// this order is significant!  It allows preloading the tab at the correct position
+				// before all of the fin info is loaded.
+				// first, load the shift, as if it was from the front of the fins
 				super.set(c, s, attributes, warnings);
+				// then set the desired positioning method
 				((FinSet) c).setTabRelativePosition(position);
 			}
 		

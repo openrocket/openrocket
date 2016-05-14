@@ -16,7 +16,6 @@ import net.sf.openrocket.util.Transformation;
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
 	
-	
 	/**
 	 * Maximum allowed cant of fins.
 	 */
@@ -96,8 +95,8 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
-	private double tabShift = 0;
-	private Position tabRelativePosition = Position.MIDDLE;
+	private double tabFront = 0;
+	private Position tabRelativePosition = Position.TOP;
 	
 	/*
 	 * Fin fillet properties
@@ -270,32 +269,13 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public double getTabShift() {
-		switch ( this.tabRelativePosition) {
-		case TOP:
-			return this.tabShift;
-		case MIDDLE:
-			return this.tabShift + tabLength / 2 - getLength() / 2;
-		case BOTTOM:
-			return this.tabShift + tabLength - length;
-		default:
-			throw new IllegalArgumentException("position=" + position);
-		}	
+		return RocketComponent.getRelativeOffset( this.tabRelativePosition, this.tabFront, 
+												  this.tabLength, this.length);
 	}
 	
 	public void setTabShift( final double newShift) {
-		switch ( tabRelativePosition) {
-		case TOP:
-			this.tabShift = newShift;
-			break;
-		case MIDDLE:
-			this.tabShift = newShift - tabLength / 2 + this.length / 2;
-			break;
-		case BOTTOM:
-			this.tabShift = newShift - tabLength + this.length;
-			break;
-		default:
-			throw new IllegalArgumentException("position=" + position);
-		}
+		this.tabFront = RocketComponent.getFrontDistance(
+				newShift, this.tabRelativePosition, this.tabLength, this.length);
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -315,14 +295,14 @@ public abstract class FinSet extends ExternalComponent {
 	 * Return the tab front edge position from the front of the fin.
 	 */
 	public double getTabFrontEdge() {
-		return tabShift;
+		return tabFront;
 	}
 	
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
 	public double getTabTrailingEdge() {
-		return tabShift + tabLength;
+		return tabFront + tabLength;
 	}
 	
 	
@@ -752,7 +732,7 @@ public abstract class FinSet extends ExternalComponent {
 		this.tabHeight = src.tabHeight;
 		this.tabLength = src.tabLength;
 		this.tabRelativePosition = src.tabRelativePosition;
-		this.tabShift = src.tabShift;
+		this.tabFront = src.tabFront;
 		
 		return super.copyFrom(c);
 	}
