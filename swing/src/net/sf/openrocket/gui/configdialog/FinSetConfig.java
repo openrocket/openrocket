@@ -2,9 +2,12 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 
@@ -217,7 +220,14 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		final EnumModel<RocketComponent.Position> em =
 				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
-		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
+		JComboBox<RocketComponent.Position>  posBox = new JComboBox<>(em);
+		posBox.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent arg0) {
+                mts.stateChanged(new EventObject(this));
+            }
+		});
+		panel.add( posBox);
 		
 
 		// Calculate fin tab height, length, and position

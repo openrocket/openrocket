@@ -31,7 +31,6 @@ public class FinSetShapes extends RocketComponentShape {
 		Transformation compositeTransform = cantRotation.applyTransformation(radialTranslation).applyTransformation(baseRotation);		
 		
 		Coordinate finSetFront = componentAbsoluteLocation;
-		System.err.println("  drawing fins:"+component.getName()+" comp Abs Location: "+finSetFront);
 		Coordinate finPoints[] = finset.getFinPoints();
         Coordinate tabPoints[] = finset.getTabPoints();
 		
