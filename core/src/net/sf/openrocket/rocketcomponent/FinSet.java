@@ -270,7 +270,6 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public double getTabShift() {
-		System.err.println(String.format("get tab shift: (%6.4g via %s)", tabShift, tabRelativePosition.name()));
 		switch ( this.tabRelativePosition) {
 		case TOP:
 			return this.tabShift;
@@ -298,7 +297,6 @@ public abstract class FinSet extends ExternalComponent {
 			throw new IllegalArgumentException("position=" + position);
 		}
 		
-		System.err.println(String.format("set tab shift to: (%6.4g via %s", tabShift, tabRelativePosition.name()));
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -309,6 +307,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	public void setTabRelativePosition( final Position newPosition) {
 		this.tabRelativePosition = newPosition;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -692,14 +691,14 @@ public abstract class FinSet extends ExternalComponent {
 		
 		final int pointCount = 4;
 		Coordinate[] points = new Coordinate[pointCount];
-		final double xFinFront = this.getFinFront();
+		final Coordinate finFront = this.getFinFront();
+		
 		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
-		final double yFinFront = symmetricParent.getRadius( xFinFront );
 		
 		final double xTabFront = getTabFrontEdge();
-		final double yTabFront = symmetricParent.getRadius( xFinFront + xTabFront ) - yFinFront;
+		final double yTabFront = symmetricParent.getRadius( finFront.x + xTabFront ) - finFront.y;
 		final double xTabTrail = getTabTrailingEdge();
-		final double yTabTrail = symmetricParent.getRadius( xFinFront + xTabTrail ) - yFinFront;
+		final double yTabTrail = symmetricParent.getRadius( finFront.x + xTabTrail ) - finFront.y;
 		final double yTabBottom = -getTabHeight();
 		
 		points[0] = new Coordinate(xTabFront, yTabFront);
@@ -710,13 +709,16 @@ public abstract class FinSet extends ExternalComponent {
 		return points;
 	}
 	
-	protected double getFinFront() {
-		return this.asPositionValue(Position.TOP);
+	public Coordinate getFinFront() {
+		final double xFinFront = asPositionValue(Position.TOP);
+		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+		final double yFinFront = symmetricParent.getRadius( xFinFront );
+		return new Coordinate(xFinFront, yFinFront);
 	}
 
 	/* 
-	 * yes, this may overcount points between the fin, and the fin tabs, but this "should" not cause any glitches.
-	 * Therefore, the very minor performance hit is not worth the code complexity of dealing with.
+	 * yes, this may over-count points between the fin and fin tabs, 
+	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
 		final Coordinate[] finPoints = getFinPoints();

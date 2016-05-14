@@ -178,7 +178,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				"w 100lp, growx 5, wrap");
 		
 
-		////  Tab length
+		////  Tab:
 		//// Tab height:
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
 		//// The spanwise height of the fin tab.
@@ -217,7 +217,6 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		final EnumModel<RocketComponent.Position> em =
 				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
-		
 		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
 		
 

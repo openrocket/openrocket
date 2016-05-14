@@ -450,12 +450,16 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	
 	
 	private void calculateDimensions() {
-		// update subject bounds
+        final Coordinate finFront = finset.getFinFront();
+
+        // update subject bounds
 		subjectBounds_m.reset();
 		for (Coordinate c : finset.getFinPoints()) {
 			// ignore the z coordinates; they point into the figure and provide no useful information.
-			subjectBounds_m.update(c.x,c.y);
+			subjectBounds_m.update( finFront.x + c.x, finFront.y + c.y);
 		}
+
+		//this.dumpState("calculateDimensions");
 		
 		SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
 		
