@@ -4,6 +4,9 @@ import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -13,12 +16,30 @@ public class FinSetShapes extends RocketComponentShape {
 
 	// TODO: LOW:  Clustering is ignored (FinSet cannot currently be clustered)
 
+    // calculate false if this fin is located within 1.0 degrees of 0/90/180/270.  Otherwise true.
+    private static boolean finRootVisible( final int finNum, final int finCount){
+        double angle_d = ((double)finNum) / ((double)finCount) *360.0;
+        final boolean visible = (1 < Math.abs( angle_d % 90.0));
+        return visible;
+    }
+    
+    private static boolean isRootFlat( final FinSet finset ){
+        RocketComponent parent = finset.getParent();
+        if( null == parent){
+            return true;
+        }else if( parent instanceof Transition ){
+            return false;
+        }
+        
+        // default to assume flat
+        return true;
+    }
+    
 	public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
 			Coordinate componentAbsoluteLocation) {
-		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
-
+		FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 		
 		int finCount = finset.getFinCount();
         // TODO: MEDIUM: sloping radius
@@ -42,36 +63,58 @@ public class FinSetShapes extends RocketComponentShape {
 		// Generate shapes
         ArrayList<RocketComponentShape> shapeList = new ArrayList<>();
         for (int finNum=0; finNum<finCount; finNum++) {
-            Coordinate a;
+            Coordinate curPoint;
             Path2D.Float p;
+            
+            // should we draw body-root intersection line?
+            // flag yes if fin is not at 0,90,180,270...
+            boolean drawRoot = finRootVisible( finNum, finCount);
+            boolean simpleRoot = isRootFlat( finset );
+            System.err.println(" drawing fins: "+component.getName()+" ... is flat? "+simpleRoot);
             
             // Make fin polygon
             p = new Path2D.Float();
             for (int i=0; i<finPoints.length; i++) {
                 // previous version
                 // a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
-                a = transformation.transform(finSetFront.add(finPoints[i]));
+                curPoint = transformation.transform(finSetFront.add(finPoints[i]));
                 
                 if (i==0)
-                    p.moveTo(a.x*S, a.y*S);
+                    p.moveTo(curPoint.x*S, curPoint.y*S);
                 else
-                    p.lineTo(a.x*S, a.y*S);         
+                    p.lineTo(curPoint.x*S, curPoint.y*S);         
+            }
+            if( drawRoot){
+                if( simpleRoot){
+                    p.closePath();
+                }else{
+                    p.closePath();
+                }
             }
             shapeList.add( new RocketComponentShape( p, finset));
             
             // Make tab polygon
             p = new Path2D.Float();
-            for (int i=0; i<tabPoints.length; i++) {
-                // previous version
-                // a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
-                a = transformation.transform(finSetFront.add(tabPoints[i]));
+            if( 0 < tabPoints.length ){
+                for (int i=0; i<tabPoints.length; i++) {
+                    curPoint = transformation.transform(finSetFront.add(tabPoints[i]));
+                    
+                    if (i==0)
+                        p.moveTo(curPoint.x*S, curPoint.y*S);
+                    else
+                        p.lineTo(curPoint.x*S, curPoint.y*S);         
+                }
                 
-                if (i==0)
-                    p.moveTo(a.x*S, a.y*S);
-                else
-                    p.lineTo(a.x*S, a.y*S);         
+                if( drawRoot ){
+                    if( simpleRoot){
+                        p.closePath();
+                    }else{
+                        p.closePath();    
+                    }
+                }
+                
+                shapeList.add( new RocketComponentShape( p, finset));
             }
-            shapeList.add( new RocketComponentShape( p, finset));
 
             // Rotate fin, tab coordinates
             finPoints = finRotation.transform(finPoints);
