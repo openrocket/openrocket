@@ -238,14 +238,13 @@ public class FreeformFinSet extends FinSet {
 		// x,y start out in parent-space; so first, translate (x,y) into fin-space
 		
 		final SymmetricComponent sym = (Transition)getParent();
-		final double x_fin = asPositionValue(Position.TOP); // x @ fin start, parent frame
+		final Coordinate finFront = this.getFinFront();
+		final double x_fin = finFront.x; // x @ fin start, parent frame
 		final double r_fin = sym.getRadius(x_fin); // radius of body @ fin start
-		final double r_ref = sym.getForeRadius(); // reference radius of body (front)
 		final double r_new = sym.getRadius(x); // radius of body @ point
-		final double y_fin = r_fin - r_ref;  // y @ fin start, parent frame
+		final double y_fin = finFront.y;
 		
-		
-		// ^^^^ parent-body-space corodinates ^^^^
+		// ^^^^ parent-body-space coordinates ^^^^
 		x -= x_fin;
 		y -= y_fin;
 		// vvvv we are now in fin-space coordinates vvvv
@@ -257,7 +256,7 @@ public class FreeformFinSet extends FinSet {
 		
 		double x0, y0, x1, y1;
 		
-		System.err.println("  attempting to set last fin point to: "+x+", "+y);
+		//System.err.println(String.format("  attempting to set fin point [%d] to: ( %6.4g, %6.4g)(fin-space)",	index, x, y));
 		if (index == 0) {
 			// Restrict first point to be in front of last point.
 			x = Math.min(x, points.get(points.size() - 1).x);
@@ -320,7 +319,7 @@ public class FreeformFinSet extends FinSet {
 		}
 		
 		// set fin length
-		if (index == 0 || index == points.size() - 1) {
+		if (index == 0 || (index == points.size() - 1)) {
 			this.length = points.get(points.size() - 1).x;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

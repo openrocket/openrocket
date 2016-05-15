@@ -50,6 +50,8 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
@@ -515,11 +517,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				
 				double value = UnitGroup.UNITS_LENGTH.fromString(str);
 				Coordinate c = finset.getFinPoints()[rowIndex];
-				if (columnIndex == Columns.X.ordinal())
+				if (columnIndex == Columns.X.ordinal()){
 					c = c.setX(value);
-				else
+				}else{
 					c = c.setY(value);
+				}
 				
+				final Coordinate finFront = finset.getFinFront();
+		        c = c.add(finFront);
+		        
 				finset.setPoint(rowIndex, c.x, c.y);
 				
 			} catch (NumberFormatException ignore) {
