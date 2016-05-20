@@ -41,13 +41,13 @@ public class RocketSaver extends RocketComponentSaver {
 		}
 		
 		
-		// Motor configurations
+		// Flight configurations
 		for (FlightConfigurationId fcid : rocket.getIds()) {
 			FlightConfiguration flightConfig = rocket.getFlightConfiguration(fcid); 
 			if (fcid == null)
 				continue;
 			
-			// these are actually FlightConfigurationIds, buuuuuuuuuut backwards-compatible tags.
+			// these are actually FlightConfigurationIds, but the old tag name is preserved for backwards-compatibility.
 			String str = "<motorconfiguration configid=\"" + fcid.key + "\"";
 			// if the configuration is the default, add the tag
 			if ( rocket.getSelectedConfiguration().equals( flightConfig )){

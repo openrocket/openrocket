@@ -1,10 +1,12 @@
 package net.sf.openrocket.motor;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 
@@ -14,8 +16,8 @@ import net.sf.openrocket.util.Inertia;
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
-	public static final String EMPTY_DESCRIPTION = "Empty Motor Configuration".intern();
-
+	private static final Translator trans = Application.getTranslator();
+	
 	private final MotorMount mount;
 	private final FlightConfigurationId fcid;
 	private final MotorConfigurationId mid;
@@ -60,7 +62,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	public String toMotorDescription(){
 		if( motor == null ){
-			return "<Empty>";
+			return trans.get("empty");
 		}else{
 			return this.motor.getDesignation() + "-" + (int)this.getEjectionDelay();
 		}

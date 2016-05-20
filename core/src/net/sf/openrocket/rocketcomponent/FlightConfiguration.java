@@ -314,7 +314,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 		}
 		if( 0 == activeMotorCount ){
-			return trans.get("MotorMount.NoMotors");
+			return trans.get("noMotors");
 		}
 		buff.append("]");
 		return buff.toString();
@@ -331,7 +331,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void addMotor(MotorConfiguration motorConfig) {
 		if( motorConfig.isEmpty() ){
-			throw new IllegalArgumentException("MotorInstance is empty.");
+			log.error("attempt to add an empty motorConfig! ignoring. ", new IllegalArgumentException("empty MotorInstance: "+motorConfig.toDebugDetail()));
 		}
 
 		this.motors.put( motorConfig.getID(), motorConfig);
