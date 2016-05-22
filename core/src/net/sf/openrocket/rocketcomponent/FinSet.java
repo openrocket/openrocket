@@ -631,16 +631,6 @@ public abstract class FinSet extends ExternalComponent {
 		return false;
 	}
 
-	final public static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
-		Coordinate[] returnPoints = new Coordinate[inp.length];
-		for( int index=0; index < inp.length; ++index){
-			final double new_x = inp[index].x + x_delta;
-			final double new_y = inp[index].y + y_delta;
-			returnPoints[index] = new Coordinate(new_x, new_y);
-		}
-		return returnPoints; 
-	}
-	
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin.  
 	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
@@ -650,6 +640,29 @@ public abstract class FinSet extends ExternalComponent {
 	 * @return  List of XY-coordinates.
 	 */
 	public abstract Coordinate[] getFinPoints();
+	
+	public boolean isRootStraight( ){
+        if( getParent() instanceof Transition){
+            if( ((Transition)getParent()).getType() == Transition.Shape.CONICAL ){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        
+        // by default, assume a flat base
+        return true;
+    }
+	
+	final public static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
+		Coordinate[] returnPoints = new Coordinate[inp.length];
+		for( int index=0; index < inp.length; ++index){
+			final double new_x = inp[index].x + x_delta;
+			final double new_y = inp[index].y + y_delta;
+			returnPoints[index] = new Coordinate(new_x, new_y);
+		}
+		return returnPoints; 
+	}
 	
 	
 	/**
@@ -769,5 +782,49 @@ public abstract class FinSet extends ExternalComponent {
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
+
+	public Coordinate[] getRootPoints() {
+		RocketComponent parentComp = getParent();
+		if( null == parentComp){
+			return null;
+		}if( parentComp instanceof BodyTube){
+			// flat, level base 
+			return new Coordinate[]{ 
+					getFinFront(),
+					getFinFront().add(getLength(),0,0)};
+		}else if( (parentComp instanceof Transition) 
+				&& ( ((Transition) parentComp).getType() == Transition.Shape.CONICAL )){
+			Transition parentTransition = (Transition) parentComp;
+			final Coordinate finFront = getFinFront();
+			
+			// straight line, but may shrink or grow
+			// flat, level base 
+			final Coordinate[] points = new Coordinate[2];
+			
+			points[0] = new Coordinate(0,0);
+			points[1] = new Coordinate( getLength(),
+							parentTransition.getRadius( getFinFront().x + getLength() ) - finFront.y);
+			
+			return points; 
+		}else{
+			// most complex case: curved, and may shrink/grow 
+			final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+			
+			final Coordinate finFront = getFinFront();
+			
+			final int intervalCount = 5;
+			final int pointCount = intervalCount+1;
+			final Coordinate[] points = new Coordinate[pointCount];
+			final double x_delta = (getLength()) / intervalCount;
+			double x_cur=0.0;
+			for( int index=0; index < points.length; ++index){
+				double x_ref = finFront.x + x_cur;
+				points[index] = new Coordinate( x_cur, symmetricParent.getRadius(x_ref)-finFront.y);
+				x_cur += x_delta;
+			}
+			return points;
+		}
+	}
+
 
 }
