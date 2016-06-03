@@ -249,7 +249,7 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getLaunchMass()));
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 				selectedMotor.getBurnoutMass()));
-		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
+		dataPointsLabel.setText("" + (selectedMotor.getSampleSize() - 1));
 		if (digestLabel != null) {
 			digestLabel.setText(selectedMotor.getDigest());
 		}

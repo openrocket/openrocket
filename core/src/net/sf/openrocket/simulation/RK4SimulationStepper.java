@@ -111,7 +111,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		/*
 		 * Compute the initial thrust estimate.  This is used for the first time step computation.
 		 */
-		store.thrustForce = calculateThrust(status, store.timestep, status.getPreviousAcceleration(),
+		store.thrustForce = calculateAvrageThrust(status, store.timestep, status.getPreviousAcceleration(),
 				status.getPreviousAtmosphericConditions(), false);
 		
 
@@ -180,7 +180,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * diminished by it affecting only 1/6th of the total, so it's an acceptable error.
 		 */
 		double thrustEstimate = store.thrustForce;
-		store.thrustForce = calculateThrust(status, store.timestep, store.longitudinalAcceleration,
+		store.thrustForce = calculateAvrageThrust(status, store.timestep, store.longitudinalAcceleration,
 				store.atmosphericConditions, true);
 		log.trace("Thrust at time " + store.timestep + " thrustForce = " + store.thrustForce);
 		double thrustDiff = Math.abs(store.thrustForce - thrustEstimate);
@@ -246,16 +246,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 
 		//// Sum all together,  y(n+1) = y(n) + h*(k1 + 2*k2 + 2*k3 + k4)/6
-		
-
-
 		Coordinate deltaV, deltaP, deltaR, deltaO;
 		deltaV = k2.a.add(k3.a).multiply(2).add(k1.a).add(k4.a).multiply(store.timestep / 6);
 		deltaP = k2.v.add(k3.v).multiply(2).add(k1.v).add(k4.v).multiply(store.timestep / 6);
 		deltaR = k2.ra.add(k3.ra).multiply(2).add(k1.ra).add(k4.ra).multiply(store.timestep / 6);
 		deltaO = k2.rv.add(k3.rv).multiply(2).add(k1.rv).add(k4.rv).multiply(store.timestep / 6);
 		
-
 
 		status.setRocketVelocity(status.getRocketVelocity().add(deltaV));
 		status.setRocketPosition(status.getRocketPosition().add(deltaP));

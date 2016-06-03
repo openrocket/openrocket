@@ -157,7 +157,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param stepMotors				whether to step the motors forward or work on a clone object
 	 * @return							the average thrust during the time step.
 	 */
-	protected double calculateThrust(SimulationStatus status, double timestep,
+	protected double calculateAvrageThrust(SimulationStatus status, double timestep,
 			double acceleration, AtmosphericConditions atmosphericConditions,
 			boolean stepMotors) throws SimulationException {
 		double thrust;
@@ -173,6 +173,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		Collection<MotorClusterState> activeMotorList = status.getMotors();
 		for (MotorClusterState currentMotorState : activeMotorList ) {
 			thrust += currentMotorState.getAverageThrust( status.getSimulationTime(), currentTime );
+			//thrust += currentMotorState.getThrust( currentTime );
 		}
 		
 		// Post-listeners

@@ -346,7 +346,7 @@ public class MassCalculator implements Monitorable {
 		for (MotorClusterState curConfig : activeMotorList ) {
 			int instanceCount = curConfig.getMount().getInstanceCount();
 			double motorTime = curConfig.getMotorTime(status.getSimulationTime());
-			mass += (curConfig.getMotor().getMassAtMotorTime(motorTime) - curConfig.getMotor().getBurnoutMass())*instanceCount;
+			mass += (curConfig.getMotor().getTotalMass(motorTime) - curConfig.getMotor().getBurnoutMass())*instanceCount;
 		}
 		return mass;
 	}
@@ -539,7 +539,6 @@ public class MassCalculator implements Monitorable {
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketMassModID = configuration.getRocket().getMassModID();
 			rocketTreeModID = configuration.getRocket().getTreeModID();
-			log.debug("Voiding the mass cache");
 			voidMassCache();
 		}
 	}

@@ -14,7 +14,8 @@ import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
 
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Serializable {
-	// NECESSARY field, for this class -- this class is serialized in the motor database, and loaded directly.
+	// NECESSARY field, for this class -- this class is serialized in the motor database....
+	// and loaded directly-- bypassing the existing class constructors.
 	private static final long serialVersionUID = -1490333207132694479L;
 
 	@SuppressWarnings("unused")
@@ -52,6 +53,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	private final double unitRotationalInertia;
 	private final double unitLongitudinalInertia;
+	
 	
 	
 	/**
@@ -212,7 +214,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * @param is time after motor ignition, in seconds
 	 * @return a pseudo index to this motor's data. 
 	 */
-	public double getPseudoIndex( final double motorTime ){
+	protected double getPseudoIndex( final double motorTime ){
 		final double SNAP_DISTANCE = 0.001;
 		
 		if( time.length == 0 ){
@@ -230,7 +232,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		}	
 		lowerBoundIndex = upperBoundIndex-1;
 		if( upperBoundIndex == time.length ){
-			return time.length - 1; 
+			return lowerBoundIndex; // == time.length-1; 
 		}
 		
 		if ( SNAP_DISTANCE > Math.abs( motorTime - time[lowerBoundIndex])){
@@ -253,7 +255,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return lowerBoundIndex + indexFraction;
 		}
 	}
-	
+
 	@Override
 	public double getAverageThrust( final double startTime, final double endTime ) {
 
@@ -298,13 +300,20 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		return avgImpulse / (endTime - startTime);
 	}
-	
+
 	@Override
-	public double getThrustAtMotorTime( final double searchTime ){
-		double pseudoIndex = getPseudoIndex( searchTime );
-		return getThrustAtIndex( pseudoIndex ); 
+	public double getThrust( final double motorTime ){
+		double pseudoIndex = getPseudoIndex( motorTime );
+		return ThrustCurveMotor.interpolateAtIndex( thrust, pseudoIndex);
 	}
 
+	@Override
+	public double getCGx( final double motorTime ){
+		double pseudoIndex = getPseudoIndex( motorTime );
+		return this.interpolateCenterOfMassAtIndex( pseudoIndex).x;
+	}
+	
+	
 	
 	/**
 	 * Returns the array of thrust points for this thrust curve.
@@ -323,7 +332,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 //	}
 	
 	public Coordinate[] getCGPoints(){
-		return cg.clone();
+		return cg;
 	}
 	
 //	/**
@@ -361,16 +370,16 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return this.unitRotationalInertia;
 	}
 
-	public double getIxxAtTime( final double searchTime) {
-		final double index = getPseudoIndex( searchTime); 
+	public double getIxx( final double searchTime) {
+		final double pseudoIndex = getPseudoIndex( searchTime); 
 		//return this.unitLongitudinalInertia * this.getMassAtIndex( index);
-		return this.unitLongitudinalInertia * this.getCGAtIndex( index).weight;
+		return this.unitLongitudinalInertia * interpolateCenterOfMassAtIndex( pseudoIndex).weight;
 	}
 	
-	public double getIyyAtTime( final double searchTime) {
-		final double index = getPseudoIndex( searchTime); 
+	public double getIyy( final double searchTime) {
+		final double pseudoIndex = getPseudoIndex( searchTime); 
 		//return this.unitRotationalInertia * this.getMassAtIndex( index);
-		return this.unitRotationalInertia * this.getCGAtIndex( index).weight;
+		return this.unitRotationalInertia * interpolateCenterOfMassAtIndex( pseudoIndex).weight;
 	}
 	
 	@Override
@@ -430,16 +439,18 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	// FIXME - there seems to be some numeric problems in here...
-	private static double interpolateValueAtIndex( final double[] values, final double pseudoIndex ){
+	// simple linear interpolation... not sample density for anything more complex
+	private static double interpolateAtIndex( final double[] values, final double pseudoIndex ){
 		final double SNAP_TOLERANCE = 0.0001;
 
+		// assumes that pseudoIndex > 1 
 		final double upperFrac = pseudoIndex%1;
 		final double lowerFrac = 1-upperFrac;
 		final int lowerIndex = (int)pseudoIndex;
 		final int upperIndex= lowerIndex+1;
 
 		// if the pseudo 
-		if( SNAP_TOLERANCE > lowerFrac ){ // 1-lowerFrac = 1-(1-upperFrac) = upperFrac ?!?
+		if( SNAP_TOLERANCE > lowerFrac ){
 			// index ~= int ... therefore:
 			return values[ lowerIndex ];
 		}else if( SNAP_TOLERANCE > upperFrac ){
@@ -453,23 +464,27 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return ( lowerValue*lowerFrac + upperValue*upperFrac );
 	}
 
-	public double getThrustAtIndex( final double pseudoIndex ){
-		return interpolateValueAtIndex( this.thrust, pseudoIndex );	
-	}
-	
-	public double getMotorTimeAtIndex( final double index ){
-		return interpolateValueAtIndex( this.time, index );
+
+	/**
+	 * for testing.  In practice, the return value should generally match the parameter value, (except for error conditions)
+	 * 
+	 * @ignore javadoc ignore
+	 * @param motorTime
+	 * @return the time at requested time
+	 */
+	public double getTime( final double motorTime ){
+		final double pseudoIndex = getPseudoIndex( motorTime);
+		final double foundTime = ThrustCurveMotor.interpolateAtIndex( this.time, pseudoIndex);
+		return foundTime;
 	}
 	
 	@Override
-	public double getMassAtMotorTime( final double motorTime ) {
-		double pseudoIndex = getPseudoIndex(motorTime);
-		Coordinate cg = getCGAtIndex( pseudoIndex );
-		return cg.weight;
+	public double getTotalMass( final double motorTime){
+		final double pseudoIndex = getPseudoIndex( motorTime); 
+		return interpolateCenterOfMassAtIndex( pseudoIndex).weight;
 	}
 
-	@Deprecated
-	public Coordinate getCGAtIndex( final double pseudoIndex ){
+	protected Coordinate interpolateCenterOfMassAtIndex( final double pseudoIndex ){
 		final double SNAP_TOLERANCE = 0.0001;
 
 		final double upperFrac = pseudoIndex%1;
@@ -477,9 +492,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		final int lowerIndex = (int)pseudoIndex;
 		final int upperIndex= lowerIndex+1;
 
-		// if the pseudo 
+		// if the pseudo index is close to an integer:
 		if( SNAP_TOLERANCE > (1-lowerFrac) ){
-			// index ~= int ... therefore:
 			return cg[ (int) pseudoIndex ];
 		}else if( SNAP_TOLERANCE > upperFrac ){
 			return cg[ (int)upperIndex ];
@@ -492,27 +506,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return lowerValue.average( upperValue );
 	}
 
-	
-//	public double getCGxAtIndex( final double index){
-//		//return interpolateValueAtIndex( this.cgx, index );
-//		
-//	}
-//	
-//	public double getMassAtIndex( final double index){
-//		//return interpolateValueAtIndex( this.mass, index );
-//		
-//	}
-	
-	
-	
-	//   int getCutoffIndex();
-	
-	//   double getCutoffTime()
-	//   int getCutoffIndex();
-
-	//   Coordinate interpolateCG( ... ) 
-	
-	//
 	public int getDataSize() {
 		return this.time.length;
 	}
@@ -664,8 +657,14 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return "" + delay;
 	}
 	
-	
-	
+	/**
+	 * This is the number of data points of measured thrust, CGx, mass, time.
+	 * 
+	 * @return return the size of the data arrays
+	 */
+	public int getSampleSize(){
+		return time.length;
+	}
 	
 	
 	

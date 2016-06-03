@@ -72,7 +72,7 @@ public class MotorCheck {
 							ok = false;
 						}
 						
-						int points = ((ThrustCurveMotor) m).getTimePoints().length;
+						int points = ((ThrustCurveMotor) m).getSampleSize();
 						if (points < WARN_POINTS) {
 							System.out.println("WARNING: Only " + points + " data points");
 							ok = false;

@@ -116,10 +116,6 @@ public interface Motor extends Cloneable {
 	public String getDigest();
 	
 	public Motor clone();
-	
-	// this is probably a badly-designed way to expose the thrust, but it's not worth worrying about until 
-	// there's a second (non-trivial) type of motor to support...
-	public double getThrustAtMotorTime( final double motorTimeDelta );
 		
 	public double getAverageThrust( final double startTime, final double endTime );
 
@@ -152,9 +148,32 @@ public interface Motor extends Cloneable {
 	public double getTotalImpulseEstimate();
 
 
-	double getMassAtMotorTime(final double motorTime);
-
-
 	double getBurnTime();
 
+	
+	/**
+	 * Return the thrust at a time offset from motor ignition
+	 * 
+	 * this is probably a badly-designed way to expose the thrust, but it's not worth worrying about until 
+	 * there's a second (non-trivial) type of motor to support...
+	 *
+ 	 * @param motorTime  time (in seconds) since motor ignition
+ 	 * @return thrust (double, in Newtons) at given time
+ 	 */
+	public double getThrust( final double motorTime);
+	
+	/**
+	 * Return the mass at a time offset from motor ignition
+	 * 
+     * @param motorTime  time (in seconds) since motor ignition
+	 */
+	public double getTotalMass( final double motorTime);
+
+	/** Return the mass at a given time 
+	 * 
+	 * @param motorTime  time (in seconds) since motor ignition
+	 * @return
+	 */
+	public double getCGx( final double motorTime);
+	
 }
