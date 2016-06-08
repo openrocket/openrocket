@@ -252,8 +252,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		FlightEvent event;
 		
 		log.trace("HandleEvents: current branch = " + currentStatus.getFlightData().getBranchName());
-		log.trace("EventQueue = " + currentStatus.getEventQueue().toString());
 		for (event = nextEvent(); event != null; event = nextEvent()) {
+			log.trace("EventQueue = " + currentStatus.getEventQueue().toString());
 			
 			// Ignore events for components that are no longer attached to the rocket
 			if (event.getSource() != null && event.getSource().getParent() != null &&
@@ -345,9 +345,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, motorState)) {
 					continue;
 				}
-				
+
 				// and queue up the burnout for this motor, as well. 
-				double duration = motorState.getMotor().getBurnTimeEstimate();
+//				double duration = motorState.getMotor().getBurnTimeEstimate();
+				double duration = motorState.getBurnTime();
 				double burnout = currentStatus.getSimulationTime() + duration;
 				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
 							event.getSource(), motorState ));
