@@ -44,9 +44,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private final double[] thrust;
 //	private final double[] cgx;   // cannot add without rebuilding the motor database ... automatically on every user's install.
 //	private final double[] mass; // cannot add without rebuilding the motor database ... on every user's install.  
-	private final Coordinate[] cg; /// @deprecated, but required b/c the motor database is serialized java classes.
+	private final Coordinate[] cg;
 	private double maxThrust;
-	private double burnTime;
+	private double burnTimeEstimate;
 	private double averageThrust;
 	private double totalImpulse;
 	
@@ -74,7 +74,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 //		this.cgx = Arrays.copyOf(m.cgx, m.cgx.length);
 //		this.mass = Arrays.copyOf(m.mass, m.mass.length);
 		this.maxThrust = m.maxThrust;
-		this.burnTime = m.burnTime;
+		this.burnTimeEstimate = m.burnTimeEstimate;
 		this.averageThrust = m.averageThrust;
 		this.totalImpulse = m.totalImpulse;
 		
@@ -255,6 +255,51 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	@Override
+	public double getAverageThrust( final double startTime, final double endTime ) {
+
+		int timeIndex = 0;
+
+		while( timeIndex < time.length-2 && startTime > time[timeIndex+1] ) {
+			timeIndex++;
+		}
+
+		if ( timeIndex == time.length ) {
+			return 0.0;
+		}
+		
+		if ( endTime <= time[timeIndex+1] ) {
+			// we are completely within this time slice so the computation of the average is pretty easy:
+			double avgImpulse = MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			avgImpulse += MathUtil.map(endTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			avgImpulse /= 2.0;
+			return avgImpulse;
+		}
+		
+		// portion from startTime through time[timeIndex]
+		double avgImpulse = 0.0;
+		// For numeric stability.
+		if( time[timeIndex+1] - startTime > 0.001 ) {
+			avgImpulse = (MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]) + thrust[timeIndex+1])
+			/ 2.0 * (time[timeIndex+1] - startTime);
+		}
+		
+		// Now add the whole steps;
+		timeIndex++;
+		while( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
+			avgImpulse += (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0 * (time[timeIndex+1]-time[timeIndex]);
+			timeIndex++;
+		}
+		
+		// Now add the bit after the last time index
+		if ( timeIndex < time.length -1 ) {
+			double endInstImpulse = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			avgImpulse += (thrust[timeIndex] + endInstImpulse) / 2.0 * (endTime - time[timeIndex]);
+		}
+		
+		return avgImpulse / (endTime - startTime);
+	}
+	
+	@Override
 	public double getThrustAtMotorTime( final double searchTime ){
 		double pseudoIndex = getPseudoIndex( searchTime );
 		return getThrustAtIndex( pseudoIndex ); 
@@ -355,7 +400,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	@Override
-	public ThrustCurveMotor clone() {
+	public Motor clone() {
 		return new ThrustCurveMotor(this);
 	}
 	
@@ -379,6 +424,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return cg[cg.length-1].weight; //mass[mass.length - 1];
 	}
 	
+	@Override
+	public double getBurnTime() {
+		return time[time.length-1];
+	}
+	
+	// FIXME - there seems to be some numeric problems in here...
 	private static double interpolateValueAtIndex( final double[] values, final double pseudoIndex ){
 		final double SNAP_TOLERANCE = 0.0001;
 
@@ -388,11 +439,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		final int upperIndex= lowerIndex+1;
 
 		// if the pseudo 
-		if( SNAP_TOLERANCE > (1-lowerFrac) ){
+		if( SNAP_TOLERANCE > lowerFrac ){ // 1-lowerFrac = 1-(1-upperFrac) = upperFrac ?!?
 			// index ~= int ... therefore:
-			return values[ (int) pseudoIndex ];
+			return values[ lowerIndex ];
 		}else if( SNAP_TOLERANCE > upperFrac ){
-			return values[ (int)upperIndex ];
+			return values[ upperIndex ];
 		}
 		
 		final double lowerValue = values[lowerIndex];
@@ -408,6 +459,13 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	public double getMotorTimeAtIndex( final double index ){
 		return interpolateValueAtIndex( this.time, index );
+	}
+	
+	@Override
+	public double getMassAtMotorTime( final double motorTime ) {
+		double pseudoIndex = getPseudoIndex(motorTime);
+		Coordinate cg = getCGAtIndex( pseudoIndex );
+		return cg.weight;
 	}
 
 	@Deprecated
@@ -431,7 +489,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		final Coordinate upperValue = cg[upperIndex].multiply(upperFrac);
 		
 		// return simple linear interpolation
-		return lowerValue.add( upperValue );
+		return lowerValue.average( upperValue );
 	}
 
 	
@@ -461,7 +519,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	@Override
 	public double getBurnTimeEstimate() {
-		return burnTime;
+		return burnTimeEstimate;
 	}
 	
 	@Override
@@ -541,7 +599,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		
 		// Burn time
-		burnTime = Math.max(burnEnd - burnStart, 0);
+		burnTimeEstimate = Math.max(burnEnd - burnStart, 0);
 		
 		
 		// Total impulse and average thrust
@@ -567,8 +625,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			}
 		}
 		
-		if (burnTime > 0) {
-			averageThrust /= burnTime;
+		if (burnTimeEstimate > 0) {
+			averageThrust /= burnTimeEstimate;
 		} else {
 			averageThrust = 0;
 		}

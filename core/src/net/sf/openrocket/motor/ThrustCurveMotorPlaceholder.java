@@ -197,5 +197,21 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	public double getThrustAtMotorTime(double pseudoIndex) {
 		return 0;
 	}
-	
+
+
+	@Override
+	public double getAverageThrust(double startTime, double endTime) {
+		return 0;
+	}
+
+	@Override
+	public double getMassAtMotorTime(final double motorTime) {
+		return 0;
+	}
+
+	@Override
+	public double getBurnTime() {
+		return 0;
+	}
+
 }
