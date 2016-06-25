@@ -1,6 +1,7 @@
 package net.sf.openrocket.motor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -116,8 +117,11 @@ public class ThrustCurveMotorTest {
 	    };
 		
 		for( Pair<Double,Double> testCase : testPairs ){
-			final double time = testCase.getV();
+			final double motorTime = testCase.getV();
 			final double expThrust = testCase.getU();
+			final double actThrust = mtr.getThrust(motorTime); 
+					
+			assertEquals( "Error in interpolating thrust: ", expThrust, actThrust,  0.001 );
 		}
 	}
 	
@@ -133,7 +137,7 @@ public class ThrustCurveMotorTest {
 	public void testTimeIndexingNegative(){
 		final ThrustCurveMotor mtr = motorX6;
 		// attempt to retrieve for a time before the motor ignites
-		assertEquals( 0.0, mtr.getTime( -1 ),  0.00000001 );
+		assertTrue( "Fault in negative time indexing: ", Double.isNaN( mtr.getTime( -1 )) );
 	}
 
 	@Test

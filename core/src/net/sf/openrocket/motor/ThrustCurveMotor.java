@@ -215,44 +215,51 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * @return a pseudo index to this motor's data. 
 	 */
 	protected double getPseudoIndex( final double motorTime ){
-		final double SNAP_DISTANCE = 0.001;
-		
-		if( time.length == 0 ){
+		if(( time.length == 0 )||( 0 > motorTime )){
 			return Double.NaN;
 		}
 		
-		if( 0 > motorTime ){
-			return 0.0;
-		}
-		
+		final int lowerIndex = getIndex( motorTime);
+		final double fraction = getIndexFraction( motorTime, lowerIndex );
+		return ((double)lowerIndex)+fraction;
+	}
+	
+	private int getIndex( final double motorTime ){
 		int lowerBoundIndex=0;
 		int upperBoundIndex=0;
 		while( ( upperBoundIndex < time.length ) && ( motorTime >= time[upperBoundIndex] )){
+			lowerBoundIndex = upperBoundIndex;
 			++upperBoundIndex;
 		}	
-		lowerBoundIndex = upperBoundIndex-1;
+		
+		return lowerBoundIndex; 
+	}
+	
+	private double getIndexFraction( final double motorTime, final int index ){
+		final double SNAP_DISTANCE = 0.0001;
+		
+		final int lowerBoundIndex= index;
+		final int upperBoundIndex= index+1;
+		
+		// we are already at the end of the time array.
 		if( upperBoundIndex == time.length ){
-			return lowerBoundIndex; // == time.length-1; 
+			return 0.;
 		}
 		
-		if ( SNAP_DISTANCE > Math.abs( motorTime - time[lowerBoundIndex])){
-			return lowerBoundIndex;
-		}
+		final double lowerBoundTime = time[lowerBoundIndex];
+		final double upperBoundTime = time[upperBoundIndex];
+		final double timeFraction  = motorTime - lowerBoundTime;
+		final double indexFraction = ( timeFraction ) / ( upperBoundTime - lowerBoundTime );
 		
-		double lowerBoundTime = time[lowerBoundIndex];
-		double upperBoundTime = time[upperBoundIndex];
-		double timeFraction  = motorTime - lowerBoundTime;
-		double indexFraction = ( timeFraction ) / ( upperBoundTime - lowerBoundTime );
-
-		if( indexFraction < SNAP_DISTANCE ){
-			// round down to last index
-			return lowerBoundIndex;
-		}else if( indexFraction > (1-SNAP_DISTANCE)){
+		if( SNAP_DISTANCE > indexFraction  ){
+			// round down to previous index
+			return 0.;
+		}else if( (1-SNAP_DISTANCE)< indexFraction ){
 			// round up to next index
-			return ++lowerBoundIndex;
+			return 1.;
 		}else{
 			// general case 
-			return lowerBoundIndex + indexFraction;
+			return indexFraction;
 		}
 	}
 
@@ -304,7 +311,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public double getThrust( final double motorTime ){
 		double pseudoIndex = getPseudoIndex( motorTime );
-		return ThrustCurveMotor.interpolateAtIndex( thrust, pseudoIndex);
+		
+		final double thrustAtTime= ThrustCurveMotor.interpolateAtIndex( thrust, pseudoIndex);
+		return thrustAtTime;
 	}
 
 	@Override
@@ -369,18 +378,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	public double getUnitRotationalInertia() {
 		return this.unitRotationalInertia;
 	}
-
-	public double getIxx( final double searchTime) {
-		final double pseudoIndex = getPseudoIndex( searchTime); 
-		//return this.unitLongitudinalInertia * this.getMassAtIndex( index);
-		return this.unitLongitudinalInertia * interpolateCenterOfMassAtIndex( pseudoIndex).weight;
-	}
-	
-	public double getIyy( final double searchTime) {
-		final double pseudoIndex = getPseudoIndex( searchTime); 
-		//return this.unitRotationalInertia * this.getMassAtIndex( index);
-		return this.unitRotationalInertia * interpolateCenterOfMassAtIndex( pseudoIndex).weight;
-	}
 	
 	@Override
 	public String getDesignation() {
@@ -443,12 +440,13 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private static double interpolateAtIndex( final double[] values, final double pseudoIndex ){
 		final double SNAP_TOLERANCE = 0.0001;
 
-		// assumes that pseudoIndex > 1 
-		final double upperFrac = pseudoIndex%1;
-		final double lowerFrac = 1-upperFrac;
 		final int lowerIndex = (int)pseudoIndex;
 		final int upperIndex= lowerIndex+1;
-
+//		
+		final double lowerFrac = pseudoIndex - ((double) lowerIndex);
+		final double upperFrac = 1-lowerFrac;
+		
+		
 		// if the pseudo 
 		if( SNAP_TOLERANCE > lowerFrac ){
 			// index ~= int ... therefore:
@@ -460,8 +458,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		final double lowerValue = values[lowerIndex];
 		final double upperValue = values[upperIndex];
 		
-		// return simple linear interpolation
-		return ( lowerValue*lowerFrac + upperValue*upperFrac );
+		// return simple linear inverse interpolation
+		return ( lowerValue*upperFrac + upperValue*lowerFrac );
 	}
 
 
