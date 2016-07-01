@@ -84,12 +84,12 @@ public class ThrustCurveMotorTest {
 	public void testVerifyMotorA8_3CG(){
 		final ThrustCurveMotor mtr = motorEstesA8_3;
 
-		final double actCGx0p041 = mtr.getCGx(0.041);
+		final double actCGx0p041 = mtr.getCMx(0.041);
 		assertEquals( 0.0352, actCGx0p041,  0.001 );
 		final double actMass0p041 = mtr.getTotalMass(  0.041 );
 		assertEquals( 0.016335, actMass0p041,  0.001 );
 
-		final double actCGx0p206 = mtr.getCGx( 0.206 );
+		final double actCGx0p206 = mtr.getCMx( 0.206 );
 		assertEquals( 0.0362, actCGx0p206,  0.001 );
 		final double actMass0p206 = mtr.getTotalMass( 0.206 );
 		assertEquals( 0.015285, actMass0p206,  0.001 );

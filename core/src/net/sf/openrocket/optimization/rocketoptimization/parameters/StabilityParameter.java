@@ -9,7 +9,6 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -66,7 +65,8 @@ public class StabilityParameter implements OptimizableParameter {
 		conditions.setRollRate(0);
 		
 		cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
-		cg = massCalculator.getCG(configuration, MassCalcType.LAUNCH_MASS);
+		// worst case CM is also 
+		cg = massCalculator.getRocketLaunchMassData(configuration).getCM();
 		
 		if (cp.weight > 0.000001)
 			cpx = cp.x;

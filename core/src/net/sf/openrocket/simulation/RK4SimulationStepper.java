@@ -327,8 +327,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		calculateForces(status, store);
 		
 		// Calculate mass data
-		store.massData = calculateMassData(status);
+		MassData dryMassData = calculateDryMassData(status);
 		
+		store.propellantMassData = calculatePropellantMassData(status);
+		store.rocketMassData = dryMassData.add( store.propellantMassData );
 
 		// Calculate the forces from the aerodynamic coefficients
 		
@@ -345,9 +347,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		double forceZ = store.thrustForce - store.dragForce;
 		
-		store.linearAcceleration = new Coordinate(-fN / store.massData.getCG().weight,
-					-fSide / store.massData.getCG().weight,
-					forceZ / store.massData.getCG().weight);
+		store.linearAcceleration = new Coordinate(-fN / store.rocketMassData.getCG().weight,
+					-fSide / store.rocketMassData.getCG().weight,
+					forceZ / store.rocketMassData.getCG().weight);
 		
 		store.linearAcceleration = store.thetaRotation.rotateZ(store.linearAcceleration);
 		
@@ -376,8 +378,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		} else {
 			
 			// Shift moments to CG
-			double Cm = store.forces.getCm() - store.forces.getCN() * store.massData.getCG().x / refLength;
-			double Cyaw = store.forces.getCyaw() - store.forces.getCside() * store.massData.getCG().x / refLength;
+			double Cm = store.forces.getCm() - store.forces.getCN() * store.rocketMassData.getCG().x / refLength;
+			double Cyaw = store.forces.getCyaw() - store.forces.getCside() * store.rocketMassData.getCG().x / refLength;
 			
 			// Compute moments
 			double momX = -Cyaw * dynP * refArea * refLength;
@@ -385,9 +387,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 			
 			// Compute acceleration in rocket coordinates
-			store.angularAcceleration = new Coordinate(momX / store.massData.getLongitudinalInertia(),
-						momY / store.massData.getLongitudinalInertia(),
-						momZ / store.massData.getRotationalInertia());
+			store.angularAcceleration = new Coordinate(momX / store.rocketMassData.getLongitudinalInertia(),
+						momY / store.rocketMassData.getLongitudinalInertia(),
+						momZ / store.rocketMassData.getRotationalInertia());
 			
 			store.rollAcceleration = store.angularAcceleration.z;
 			// TODO: LOW: This should be hypot, but does it matter?
@@ -595,24 +597,30 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_MACH_NUMBER, store.flightConditions.getMach());
 		}
 		
-		if (store.massData != null) {
-			data.setValue(FlightDataType.TYPE_CG_LOCATION, store.massData.getCG().x);
+		if (store.rocketMassData != null) {
+			data.setValue(FlightDataType.TYPE_CG_LOCATION, store.rocketMassData.getCG().x);
 		}
 		if (status.isLaunchRodCleared()) {
 			// Don't include CP and stability with huge launch AOA
 			if (store.forces != null) {
 				data.setValue(FlightDataType.TYPE_CP_LOCATION, store.forces.getCP().x);
 			}
-			if (store.forces != null && store.flightConditions != null && store.massData != null) {
+			if (store.forces != null && store.flightConditions != null && store.rocketMassData != null) {
 				data.setValue(FlightDataType.TYPE_STABILITY,
-						(store.forces.getCP().x - store.massData.getCG().x) / store.flightConditions.getRefLength());
+						(store.forces.getCP().x - store.rocketMassData.getCG().x) / store.flightConditions.getRefLength());
 			}
 		}
-		if (store.massData != null) {
-			data.setValue(FlightDataType.TYPE_MASS, store.massData.getCG().weight);
-			data.setValue(FlightDataType.TYPE_PROPELLANT_MASS, store.massData.getPropellantMass());
-			data.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, store.massData.getLongitudinalInertia());
-			data.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, store.massData.getRotationalInertia());
+
+		if( null != store.propellantMassData ){
+			data.setValue(FlightDataType.TYPE_PROPELLANT_MASS, store.propellantMassData.getCG().weight);
+			//data.setValue(FlightDataType.TYPE_PROPELLANT_LONGITUDINAL_INERTIA, store.propellantMassData.getLongitudinalInertia());
+			//data.setValue(FlightDataType.TYPE_PROPELLANT_ROTATIONAL_INERTIA, store.propellantMassData.getRotationalInertia());
+		}
+		if (store.rocketMassData != null) {
+			// N.B.: These refer to total mass
+			data.setValue(FlightDataType.TYPE_MASS, store.rocketMassData.getCG().weight);
+			data.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, store.rocketMassData.getLongitudinalInertia());
+			data.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, store.rocketMassData.getRotationalInertia());
 		}
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, store.thrustForce);
@@ -620,11 +628,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_GRAVITY, store.gravity);
 		
 		if (status.isLaunchRodCleared() && store.forces != null) {
-			if (store.massData != null && store.flightConditions != null) {
+			if (store.rocketMassData != null && store.flightConditions != null) {
 				data.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
-						store.forces.getCm() - store.forces.getCN() * store.massData.getCG().x / store.flightConditions.getRefLength());
+						store.forces.getCm() - store.forces.getCN() * store.rocketMassData.getCG().x / store.flightConditions.getRefLength());
 				data.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
-						store.forces.getCyaw() - store.forces.getCside() * store.massData.getCG().x / store.flightConditions.getRefLength());
+						store.forces.getCyaw() - store.forces.getCside() * store.rocketMassData.getCG().x / store.flightConditions.getRefLength());
 			}
 			data.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, store.forces.getCN());
 			data.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, store.forces.getCside());
@@ -707,7 +715,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		public double longitudinalAcceleration = Double.NaN;
 		
-		public MassData massData;
+		public MassData rocketMassData;
+		
+		public MassData propellantMassData;
 		
 		public Coordinate coriolisAcceleration;
 		

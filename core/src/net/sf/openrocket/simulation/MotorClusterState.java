@@ -82,6 +82,10 @@ public class MotorClusterState {
 		burnOut( _cutoffTime );		
 	}
 	
+	public MotorConfiguration getConfig(){
+		return config;
+	}
+	
 	public double getEjectionDelay() {
 		return config.getEjectionDelay();
 	}
@@ -92,6 +96,10 @@ public class MotorClusterState {
 
 	public double getPropellantMass(){
 		return (motor.getLaunchMass() - motor.getBurnoutMass());
+	}
+	
+	public double getPropellantMass( final double motorTime ){
+		return (motor.getPropellantMass( motorTime) - motor.getBurnoutMass());
 	}
 		
 	public MotorMount getMount(){

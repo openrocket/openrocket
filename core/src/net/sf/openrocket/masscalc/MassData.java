@@ -1,6 +1,7 @@
 package net.sf.openrocket.masscalc;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
+
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -227,16 +228,6 @@ public class MassData {
 		return I_cm.zz;
 	}
 	
-	// this is a tacked-on hack.
-	double m_p = Double.NaN; 
-	public void setPropellantMass( final double _mp){
-		this.m_p = _mp;
-	}
-	
-	public double getPropellantMass(){
-		return this.m_p;
-	}
-	
 	/**
 	 * Return a new instance of MassData moved by the delta vector supplied.
 	 * This function is intended to move the REFERENCE POINT, not the CM, and will leave 
@@ -293,8 +284,8 @@ public class MassData {
 
 	@Override
 	public String toString() {
-		return "MassData [cg=" + cm + ", longitudinalInertia=" + getIyy()
-				+ ", rotationalInertia=" + getIxx() + "]";
+		return "MassData [cg=" + cm 
+				+ ", rotationalInertia=" + getIxx() + ", longitudinalInertia=" + getIyy() + "]";
 	}
 
 }

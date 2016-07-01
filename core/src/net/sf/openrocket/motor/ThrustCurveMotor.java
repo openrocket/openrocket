@@ -43,8 +43,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private final double length;
 	private final double[] time;
 	private final double[] thrust;
-//	private final double[] cgx;   // cannot add without rebuilding the motor database ... automatically on every user's install.
-//	private final double[] mass; // cannot add without rebuilding the motor database ... on every user's install.  
+//	private final double[] cgx;   // cannot add without rebuilding the motor database ... *automatically on every user's install*
+//	private final double[] mass; // cannot add without rebuilding the motor database ... <see above>
 	private final Coordinate[] cg;
 	private double maxThrust;
 	private double burnTimeEstimate;
@@ -317,7 +317,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 
 	@Override
-	public double getCGx( final double motorTime ){
+	public double getCMx( final double motorTime ){
 		double pseudoIndex = getPseudoIndex( motorTime );
 		return this.interpolateCenterOfMassAtIndex( pseudoIndex).x;
 	}
@@ -378,6 +378,21 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	public double getUnitRotationalInertia() {
 		return this.unitRotationalInertia;
 	}
+
+	@Override
+	public double getUnitIxx() {
+		return this.unitRotationalInertia; 
+	}
+	
+	@Override
+	public double getUnitIyy() {
+		return this.unitLongitudinalInertia;
+	}
+	
+	@Override
+	public double getUnitIzz(){
+		return this.unitLongitudinalInertia;
+	}
 	
 	@Override
 	public String getDesignation() {
@@ -428,21 +443,19 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public double getBurnoutMass() {
 		return cg[cg.length-1].weight; //mass[mass.length - 1];
-	}
+	}	
 	
 	@Override
 	public double getBurnTime() {
 		return time[time.length-1];
 	}
 	
-	// FIXME - there seems to be some numeric problems in here...
-	// simple linear interpolation... not sample density for anything more complex
 	private static double interpolateAtIndex( final double[] values, final double pseudoIndex ){
 		final double SNAP_TOLERANCE = 0.0001;
 
 		final int lowerIndex = (int)pseudoIndex;
 		final int upperIndex= lowerIndex+1;
-//		
+	
 		final double lowerFrac = pseudoIndex - ((double) lowerIndex);
 		final double upperFrac = 1-lowerFrac;
 		
@@ -480,6 +493,17 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	public double getTotalMass( final double motorTime){
 		final double pseudoIndex = getPseudoIndex( motorTime); 
 		return interpolateCenterOfMassAtIndex( pseudoIndex).weight;
+	}
+
+	public double getPropellantMass(){
+		return (getLaunchMass() - getBurnoutMass());
+	}
+	
+	@Override
+	public double getPropellantMass( final Double motorTime){
+		final double pseudoIndex = getPseudoIndex( motorTime); 
+		final double totalMass = interpolateCenterOfMassAtIndex( pseudoIndex).weight;
+		return totalMass - this.getBurnoutMass();
 	}
 
 	protected Coordinate interpolateCenterOfMassAtIndex( final double pseudoIndex ){
@@ -692,6 +716,5 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return value;
 		
 	}
-	
-	
+
 }

@@ -659,28 +659,27 @@ public class Rocket extends RocketComponent {
 		return false;
 	}
 
-
 	/**
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
 	 * @param fcid the flight configuration id
 	 * @return	FlightConfiguration instance 
 	 */
-	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
+	public FlightConfigurationId createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
 
         if( null == fcid ){
-            // fall-through to the default case...
-            // creating a FlightConfiguration( null ) just allocates a fresh new FCID
+            // fall-through to the default case:
+            // ...creating a FlightConfiguration( null ) just allocates a fresh new FCID
 		}else if( fcid.hasError() ){
-			return configSet.getDefault();
+			return configSet.getDefault().getFlightConfigurationID();
 		}else if( configSet.containsId(fcid)){
-			return this.getFlightConfiguration(fcid);
+			return fcid;
 		}
         FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
         this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
-        return nextConfig;
+        return nextConfig.getFlightConfigurationID();
 	}
 	
 	
@@ -849,6 +848,10 @@ public class Rocket extends RocketComponent {
 			buf.append(String.format(fmt, shortKey, config.getName() ));
 		}
 		return buf.toString();
+	}
+
+	public FlightConfiguration getEmptyConfiguration() {
+		return this.configSet.getDefault();
 	}
 	
 }

@@ -164,6 +164,26 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return null; 
 	}
 	
-	
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
+		
+		Coordinate[] relCoords = this.getInstanceOffsets();
+		Coordinate[] absCoords = this.getLocations();
+		if( 1 == getInstanceCount()){
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;", indent+this.getName()+" (# "+this.getStageNumber()+")", 
+					this.getLength(), this.getOffset(), this.getLocations()[0]));
+			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+		}else{
+			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
+				Coordinate instanceRelativePosition = relCoords[instanceNumber];
+				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				final String prefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount()); 
+				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", prefix, this.getLength(), instanceRelativePosition, instanceAbsolutePosition));
+			}
+		}
+		
+	}
+
 	
 }

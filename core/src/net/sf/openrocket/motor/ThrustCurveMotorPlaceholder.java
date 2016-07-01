@@ -192,7 +192,6 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 		return emptyMass;
 	}
 
-
 	@Override
 	public double getThrust(double pseudoIndex) {
 		return 0;
@@ -209,13 +208,32 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 	
 	@Override
-	public double getCGx(double pseudoIndex) {
+	public double getPropellantMass( final Double motorTime){
+		return 0.;
+	}
+	
+	@Override
+	public double getCMx(double pseudoIndex) {
 		return 0;
 	}
-
+	
 	@Override
 	public double getBurnTime() { 
 		return 0; 
 	}
+	
+	@Override
+	public double getUnitIxx() {
+		return 0.; 
+	}
+	
+	@Override
+	public double getUnitIyy() {
+		return 0.;
+	}
 
+	@Override
+	public double getUnitIzz(){
+		return 0.;
+	}
 }

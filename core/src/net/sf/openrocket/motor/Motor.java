@@ -45,7 +45,11 @@ public interface Motor extends Cloneable {
 		}
 	}
 	
+	public static final double PSEUDO_TIME_EMPTY = Double.NaN;
+	public static final double PSEUDO_TIME_LAUNCH = 0.0;
+	public static final double PSEUDO_TIME_BURNOUT = Double.MAX_VALUE;
 	
+		
 	/**
 	 * Ejection charge delay value signifying a "plugged" motor with no ejection charge.
 	 * The value is that of <code>Double.POSITIVE_INFINITY</code>.
@@ -118,7 +122,7 @@ public interface Motor extends Cloneable {
 	public Motor clone();
 		
 	public double getAverageThrust( final double startTime, final double endTime );
-
+	
 	public double getLaunchCGx();
 	
 	public double getBurnoutCGx();
@@ -169,11 +173,18 @@ public interface Motor extends Cloneable {
 	 */
 	public double getTotalMass( final double motorTime);
 
+	public double getPropellantMass( final Double motorTime);
+	
 	/** Return the mass at a given time 
 	 * 
 	 * @param motorTime  time (in seconds) since motor ignition
 	 * @return
 	 */
-	public double getCGx( final double motorTime);
+	public double getCMx( final double motorTime);
 	
+	public double getUnitIxx();
+	
+	public double getUnitIyy();
+	
+	public double getUnitIzz();
 }

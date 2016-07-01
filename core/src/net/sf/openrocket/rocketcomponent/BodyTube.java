@@ -472,4 +472,9 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		copy.motors = new MotorConfigurationSet( this.motors, copy );
 		return copy;
 	}
+
+	@Override
+	public ClusterConfiguration getClusterConfiguration() {
+		return ClusterConfiguration.SINGLE;
+	}
 }

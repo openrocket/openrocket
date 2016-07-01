@@ -87,8 +87,7 @@ public class SimulationStatus implements Monitorable {
 	private int modID = 0;
 	private int modIDadd = 0;
 	
-	public SimulationStatus(FlightConfiguration configuration,
-			SimulationConditions simulationConditions) {
+	public SimulationStatus(FlightConfiguration configuration, SimulationConditions simulationConditions) {
 		
 		this.simulationConditions = simulationConditions;
 		this.configuration = configuration;

@@ -3,7 +3,6 @@ package net.sf.openrocket.simulation;
 import java.util.Collection;
 
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.masscalc.MassData;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -111,10 +110,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @return			the mass data to use
 	 * @throws SimulationException	if a listener throws SimulationException
 	 */
-	protected MassData calculateMassData(SimulationStatus status) throws SimulationException {
+	protected MassData calculateDryMassData(SimulationStatus status) throws SimulationException {
 		MassData mass;
-		Coordinate cg;
-		double longitudinalInertia, rotationalInertia, propellantMass;
 		
 		// Call pre-listener
 		mass = SimulationListenerHelper.firePreMassCalculation(status);
@@ -123,13 +120,34 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
-		// not sure if this is actually Launch mass or not...
-		cg = calc.getCG(status.getConfiguration(), MassCalcType.LAUNCH_MASS);  
-		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
-		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
-		mass = new MassData(cg, rotationalInertia, longitudinalInertia);
-		propellantMass = calc.getPropellantMass(status);
-		mass.setPropellantMass( propellantMass ); 
+
+		mass = calc.getRocketSpentMassData( status.getConfiguration() );  
+						
+		// Call post-listener
+		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
+		
+		checkNaN(mass.getCG());
+		checkNaN(mass.getLongitudinalInertia());
+		checkNaN(mass.getRotationalInertia());
+		
+		return mass;
+	}
+	
+	protected MassData calculatePropellantMassData(SimulationStatus status) throws SimulationException {
+		MassData mass;
+		
+		// Call pre-listener
+		mass = SimulationListenerHelper.firePreMassCalculation(status);
+		if (mass != null) {
+			return mass;
+		}
+		
+		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
+		
+		
+		
+		mass = calc.getPropellantMassData( status );  
+
 				
 		// Call post-listener
 		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
@@ -137,7 +155,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		checkNaN(mass.getCG());
 		checkNaN(mass.getLongitudinalInertia());
 		checkNaN(mass.getRotationalInertia());
-		checkNaN(mass.getPropellantMass());
 		
 		return mass;
 	}
