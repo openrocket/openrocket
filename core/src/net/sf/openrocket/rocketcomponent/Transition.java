@@ -534,7 +534,8 @@ public class Transition extends SymmetricComponent {
 		if (InternalComponent.class.isAssignableFrom(comptype)){
 			return true;
 		}else if ( FreeformFinSet.class.isAssignableFrom(comptype)){
-			return true;}
+			return true;
+		}
 		return false;
 	}
 

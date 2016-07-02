@@ -270,7 +270,6 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public double getTabShift() {
-		System.err.println(String.format("get tab shift: (%6.4g via %s)", tabShift, tabRelativePosition.name()));
 		switch ( this.tabRelativePosition) {
 		case TOP:
 			return this.tabShift;
@@ -298,7 +297,6 @@ public abstract class FinSet extends ExternalComponent {
 			throw new IllegalArgumentException("position=" + position);
 		}
 		
-		System.err.println(String.format("set tab shift to: (%6.4g via %s", tabShift, tabRelativePosition.name()));
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	

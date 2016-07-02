@@ -105,8 +105,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected Position relativePosition = Position.AFTER;
 	
 	/**
-	 * Offset of the position of this component relative to the normal position given by
-	 * relativePosition.  By default zero, i.e. no position change.
+	 * Offset of the position of this component relative to its parent component.  
+	 * Internal representation is ALWAYS interpereted as Position.TOP.
+	 * To get this offset via a different positioning method, use 'asPositionMethod(Position)' 
 	 */
 	protected double x_offset = 0;
 	
@@ -917,9 +918,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * is modified.
 	 *
 	 * @param thePosition the relative position to be used as the basis for the computation
-	 * @param relativeTo  the position is computed relative the the given component
 	 *
-	 * @return double position of the component relative to the parent, with respect to <code>position</code>
+	 * @return double position of the component relative to the parent, with respect to <code>thePosition</code>
 	 */
 	public double asPositionValue(Position thePosition) {
 		double relativeLength;
