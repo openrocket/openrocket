@@ -427,7 +427,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 			calculateDimensions();
 		}
 		
-		return new Dimension(originLocation_px.width, (int)originLocation_px.height);
+		return new Dimension(originLocation_px.width, originLocation_px.height);
 	}
 	
 //	public double getFigureWidth() {
@@ -452,12 +452,17 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	private void calculateDimensions() {
 		// update subject bounds
 		subjectBounds_m.reset();
+		
+        SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
+
+        final double x_fin = finset.asPositionValue(Position.TOP); // x @ fin start, body frame
+        final double y_fin = ( parent.getRadius(x_fin) - parent.getForeRadius());
+        
 		for (Coordinate c : finset.getFinPoints()) {
 			// ignore the z coordinates; they point into the figure and provide no useful information.
-			subjectBounds_m.update(c.x,c.y);
+			subjectBounds_m.update( c.x+x_fin, c.y+y_fin);
 		}
 		
-		SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
 		
 		subjectBounds_m.getX().inflate( 0, Math.max( parent.getLength(), MINIMUM_CANVAS_SIZE_METERS));
 		subjectBounds_m.getY().inflate( -parent.getForeRadius(), Math.max( parent.getAftRadius(), MINIMUM_CANVAS_SIZE_METERS));
@@ -489,7 +494,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 
 		final Point2D.Double newTranslation = new Point2D.Double(
 				borderThickness_px,
-				borderThickness_px + subjectBounds_m.getY().max*scale*zoom);
+				borderThickness_px + (subjectBounds_m.getY().max*scale*zoom));
 		this.originLocation_px.width = (int)(newTranslation.x);
 		this.originLocation_px.height = (int)(newTranslation.y);
 		
