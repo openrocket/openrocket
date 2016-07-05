@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
@@ -14,6 +17,7 @@ import net.sf.openrocket.util.Transformation;
 
 
 public abstract class FinSet extends ExternalComponent {
+	private static final Logger log = LoggerFactory.getLogger(FreeformFinSet.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	
@@ -270,33 +274,16 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public double getTabShift() {
-		switch ( this.tabRelativePosition) {
-		case TOP:
-			return this.tabShift;
-		case MIDDLE:
-			return this.tabShift + tabLength / 2 - getLength() / 2;
-		case BOTTOM:
-			return this.tabShift + tabLength - length;
-		default:
-			throw new IllegalArgumentException("position=" + position);
-		}	
+		return tabShift;
 	}
 	
+	/** 
+	 * internally, set the internal  
+	 * 
+	 * @param newShift
+	 */
 	public void setTabShift( final double newShift) {
-		switch ( tabRelativePosition) {
-		case TOP:
-			this.tabShift = newShift;
-			break;
-		case MIDDLE:
-			this.tabShift = newShift - tabLength / 2 + this.length / 2;
-			break;
-		case BOTTOM:
-			this.tabShift = newShift - tabLength + this.length;
-			break;
-		default:
-			throw new IllegalArgumentException("position=" + position);
-		}
-		
+		this.tabShift = newShift;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -305,23 +292,27 @@ public abstract class FinSet extends ExternalComponent {
 		return tabRelativePosition;
 	}
 	
-	public void setTabRelativePosition( final Position newPosition) {
-		this.tabRelativePosition = newPosition;
+	public void setTabRelativePosition( final Position newPositionMethod) {
+		final double oldFront = getTabFrontEdge();
+		
+		this.tabRelativePosition = newPositionMethod;
+		this.tabShift = Position.shiftViaMethod( oldFront, newPositionMethod, this.length, this.tabLength);
+		
+		fireComponentChangeEvent( ComponentChangeEvent.MASS_CHANGE);
 	}
-	
 	
 	/**
 	 * Return the tab front edge position from the front of the fin.
 	 */
 	public double getTabFrontEdge() {
-		return tabShift;
+		return Position.getAsTop( this.tabShift, this.tabRelativePosition, this.length, this.tabLength );
 	}
 	
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
 	public double getTabTrailingEdge() {
-		return tabShift + tabLength;
+		return (getTabFrontEdge() + tabLength);
 	}
 	
 	
@@ -444,8 +435,6 @@ public abstract class FinSet extends ExternalComponent {
 			final double y0 = points[i].y;
 			final double y1 = points[i + 1].y;
 		
-			//System.err.println(String.format("    @ (%6g, %6g): A:%g    cgx:%g    cgy:%g", x0, y0, finArea, finCGx, finCGy));  
-			
 			double da = (y0 + y1) * (x1 - x0) / 2;
 			finArea += da;
 			if (Math.abs(y0 + y1) < 0.00001) {

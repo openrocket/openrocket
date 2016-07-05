@@ -202,7 +202,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label, "gapleft para");
 		
 		final DoubleModel mts = new DoubleModel(component, "TabShift", UnitGroup.UNITS_LENGTH);
-		
+		component.addChangeListener( mts);
 		spin = new JSpinner(mts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -210,14 +210,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(mts), "growx");
 		panel.add(new BasicSlider(mts.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
 		
-
 		//// relative to
 		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
 		final EnumModel<RocketComponent.Position> em =
 				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
-		
 		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
 		
 

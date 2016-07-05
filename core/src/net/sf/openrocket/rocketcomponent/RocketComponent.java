@@ -70,6 +70,53 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		public String toString() {
 			return title;
 		}
+		
+
+		/** 
+		 * used for translating a shift distance from the given position method to the TOP method
+		 *  
+		 * @param positionShift    distance via <code>positionmethod</code> to move
+		 * @param positionMethod  how to interpret the <code>positionShift</code> parameter
+		 * @param outerLength   length of outer component
+		 * @param innerLength   length of inner component
+		 * @return the distance from the front of the 'outer' component to the top of the 'inner' component 
+		 */
+		public static double getAsTop( final double positionShift, final Position positionMethod, final double outerLength, final double innerLength ){
+			switch ( positionMethod ) {
+			case TOP:
+				return positionShift;
+			case MIDDLE:
+				return (positionShift - innerLength / 2 + outerLength / 2);
+			case BOTTOM:
+				return (positionShift - innerLength + outerLength);
+			default:
+				throw new IllegalArgumentException("position=" + positionMethod );
+			}	
+		}
+		
+		/** 
+		 * used for translating a 'top' distance to a given positioning method
+		 *  
+		 * @param positionShift    distance via <code>Position.TOP</code> to start with
+		 * @param positionMethod  positioning method for calculating the return value
+		 * @param outerLength   length of outer component
+		 * @param innerLength   length of inner component
+		 * @return the distance from the 'outer' component to 'inner' component via the passed <code>newMethod</code> 
+		 */
+		public static double shiftViaMethod( final double topShift, final Position newMethod, final double outerLength, final double innerLength ){ 
+			switch ( newMethod ) {
+			case TOP:
+				return topShift;
+			case MIDDLE:
+				return (topShift + innerLength / 2 - outerLength / 2);
+			case BOTTOM:
+				return (topShift + innerLength - outerLength);
+			default:
+				throw new IllegalArgumentException("position=" + newMethod);
+			}
+		}
+
+		
 	}
 	
 	/**

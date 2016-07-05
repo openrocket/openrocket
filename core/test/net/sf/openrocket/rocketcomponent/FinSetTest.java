@@ -97,8 +97,8 @@ public class FinSetTest extends BaseTestCase {
          BodyTube body = new BodyTube(0.2, 0.001);
          stg.addChild(body);
          
-         // Fin length = 1
-         // Tab Length = 2
+         // Fin length = 0.025
+         // Tab Length = 0.01
          //          +--+
          //         /   |
          //        /    |
@@ -116,23 +116,84 @@ public class FinSetTest extends BaseTestCase {
          for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
      	 	fins.setTabRelativePosition( pos[caseIndex]);
      	 	fins.setTabShift( expShift[caseIndex]);
-             
-    	 	double actFront= fins.getTabFrontEdge();
+            double actFront= fins.getTabFrontEdge();
+    	 	double actShift = fins.getTabShift();
+    	 	
     	 	assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
            		 	expFront[caseIndex], actFront, EPSILON);
-            double actShift = fins.getTabShift();
+            
             assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
             		expShift[caseIndex], actShift, EPSILON);
             
             fins.setTabRelativePosition( Position.TOP);
             actShift = fins.getTabShift();
             actFront = fins.getTabFrontEdge();
+            
             assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
                  expFront[caseIndex], actFront, EPSILON);
             assertEquals(String.format(" Relative Positioning doesn't match when reshift to top, from "+pos[caseIndex].name()),
-           		 expFront[caseIndex], actShift, EPSILON);
-           
+           		 expFront[caseIndex], actShift, EPSILON); 
          }
     }
+    
+    
+    @Test 
+    public void testGetTabShiftAs() {
+        final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+        final double[] expTop = {0.1, 0.04, 0.07, 0.06};
+        final double[] expShift = {0.1, 0.0, 0.03, -0.02};
+        final double finLength = 0.10;
+        final double tabLength = 0.02;
+        
+        for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+        	double actShift = Position.shiftViaMethod( expTop[caseIndex], pos[caseIndex], finLength, tabLength);
+        	assertEquals(String.format("Returned shift doesn't match for: (%6.2g via:%s)\n", expTop[caseIndex], pos[caseIndex].name()),
+          		 	expShift[caseIndex], actShift, EPSILON);
+        	
+        	
+        	double actTop = Position.getAsTop( expShift[caseIndex], pos[caseIndex], finLength, tabLength );
+        	assertEquals(String.format("Returned front doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+          		 	expTop[caseIndex], actTop, EPSILON);
+        }
+    }
+    
+
+    @Test
+    public void testTabLocationUpdate() throws IllegalFinPointException {
+    	 final Rocket rkt = new Rocket();
+         final AxialStage stg = new AxialStage();
+         rkt.addChild(stg);
+         BodyTube body = new BodyTube(0.2, 0.001);
+         stg.addChild(body);
+         
+         // Fin length = 0.025
+         // Tab Length = 0.01
+         //          +--+
+         //         /   |
+         //        /    |
+         //   +---+-----+---+
+         //
+         TrapezoidFinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
+         fins.setAxialOffset( Position.MIDDLE, 0.0);
+         body.addChild(fins);
+         // fins.length = 0.05;
+         fins.setTabLength(0.01);
+
+         
+     	fins.setTabRelativePosition( Position.MIDDLE);
+ 	 	fins.setTabShift( 0.0 );
+     
+ 	 	final double expFrontFirst = 0.02;
+ 	 	final double actFrontFirst = fins.getTabFrontEdge();
+	 	assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", fins.getTabFrontEdge(), Position.MIDDLE.name()),
+       		 	expFrontFirst, actFrontFirst, EPSILON);
+    
+     	fins.setRootChord(0.08);
+     	
+	 	final double expFrontSecond = 0.035;
+ 	 	final double actFrontSecond = fins.getTabFrontEdge();
+	 	assertEquals(" Front edge doesn't match after adjusting root chord...",expFrontSecond, actFrontSecond, EPSILON);
+    }
+    
     
 }

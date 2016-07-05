@@ -36,19 +36,6 @@ public class FreeformFinSet extends FinSet {
 		setPoints(finpoints);
 	}
 	
-	/*
-	public FreeformFinSet(FinSet finset) {
-		Coordinate[] finpoints = finset.getFinPoints();
-		this.copyFrom(finset);
-
-		points.clear();
-		for (Coordinate c: finpoints) {
-			points.add(c);
-		}
-		this.length = points.get(points.size()-1).x - points.get(0).x;
-	}
-	*/
-	
 	/**
 	 * Convert an existing fin set into a freeform fin set.  The specified
 	 * fin set is taken out of the rocket tree (if any) and the new component
@@ -256,7 +243,7 @@ public class FreeformFinSet extends FinSet {
 		// x,y start out in parent-space; so first, translate (x,y) into fin-space
 		final SymmetricComponent sym = (Transition)getParent();
 		
-		final double x_finStart_body = asPositionValue(Position.TOP); // x @ fin start, body frame
+		final double x_finStart_body = getTabFrontEdge(); // x @ fin start, body frame
 		final double y_finStart_body = y_body( x_finStart_body );
 		
 		
@@ -316,14 +303,18 @@ public class FreeformFinSet extends FinSet {
 			// if we translate the points, correct the final point, because it's probably invalid
 			{	
 				// clamp the final x coord to the end of the parent body.
-				final double x_last_body = Math.min( x_finStart_body+ (points.get( lastPointIndex ).x), sym.getLength());
+				final double x_last_body = Math.min( x_finStart_body + points.get( lastPointIndex ).x, sym.getLength());
 				final double y_last_body = y_body( x_last_body);
 				
-				final Coordinate lastPointToSet_finFrame = new Coordinate(x_last_body - x_finStart_body, y_last_body - y_finStart_body);
+				final Coordinate lastPointToSet_finFrame = new Coordinate(points.get(lastPointIndex).x, y_last_body - y_finStart_body);
 				points.set( lastPointIndex, lastPointToSet_finFrame );	
 			}
+			
+			x_agreed_body = x_finStart_body;
+			y_agreed_body = y_finStart_body;
 		}
 
+		// this maps the last index and the next-to-last-index to the same 'testIndex'
 		int testIndex = Math.min( index, (points.size() - 2));
 		if( intersects( testIndex)){
 			// intersection found!  log error and abort! 
