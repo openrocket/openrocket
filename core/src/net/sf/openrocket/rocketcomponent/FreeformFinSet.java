@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +60,6 @@ public class FreeformFinSet extends FinSet {
 	 * @return			the new freeform fin set.
 	 */
 	public static FreeformFinSet convertFinSet(FinSet finset) {
-		log.info("Converting " + finset.getComponentName() + " into freeform fin set");
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
 		List<RocketComponent> toInvalidate = Collections.emptyList();
@@ -204,11 +205,14 @@ public class FreeformFinSet extends FinSet {
 	 */
 	// WARNING:  this is the Openrocket custom ArrayList instance.   not the standard one... 
 	public void setPoints( ArrayList<Coordinate> newPoints) throws IllegalFinPointException {
+		
+		// copy the old points, in case validation fails
 		@SuppressWarnings("unchecked")
 		ArrayList<Coordinate> copy = (ArrayList<Coordinate>)this.points.clone();
 		
 		this.points = newPoints;
 		if( ! validate()){
+			// on error, reset to the old points
 			this.points = copy;
 		}
 		
@@ -216,6 +220,11 @@ public class FreeformFinSet extends FinSet {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
+	
+	private double y_body( final double x_body ){
+		final SymmetricComponent sym = (Transition)getParent();
+		return ( sym.getRadius(x_body) - sym.getForeRadius());
+	}
 	
 	/**
 	 * Set the point at position <code>i</code> to coordinates (x,y).
@@ -234,109 +243,95 @@ public class FreeformFinSet extends FinSet {
 	 * @throws IllegalFinPointException	if the specified fin point would cause intersecting
 	 * 									segments
 	 */
-	public void setPoint( final int index, double x, double y) throws IllegalFinPointException {
+	public void setPoint( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
+		final int lastPointIndex = this.points.size() - 1;
+		
 		// x,y start out in parent-space; so first, translate (x,y) into fin-space
-		
 		final SymmetricComponent sym = (Transition)getParent();
-		final double x_fin = asPositionValue(Position.TOP); // x @ fin start, parent frame
-		final double r_fin = sym.getRadius(x_fin); // radius of body @ fin start
-		final double r_ref = sym.getForeRadius(); // reference radius of body (front)
-		final double r_new = sym.getRadius(x); // radius of body @ point
-		final double y_fin = r_fin - r_ref;  // y @ fin start, parent frame
+		
+		final double x_finStart_body = asPositionValue(Position.TOP); // x @ fin start, body frame
+		final double y_finStart_body = y_body( x_finStart_body );
 		
 		
-		// ^^^^ parent-body-space corodinates ^^^^
-		x -= x_fin;
-		y -= y_fin;
-		// vvvv we are now in fin-space coordinates vvvv
-
-		final double y_body = r_new - r_fin;		
-		if (y < y_body){
-			y = y_body;
+		// initial guess at these values.  Further checks take place below....
+		double x_agreed_body = x_request_body;
+		double y_agreed_body = y_request_body;
+		
+		// clamp the agreed-upon-x-coordinate to be within bounds, and consistent with the rest of the fin (at this time).
+		if(  0 == index ) {
+			// restrict the first point to be between the parent's start, and the last fin point
+			final double x_finEnd_body = x_finStart_body + points.get(lastPointIndex).x;
+			x_agreed_body = Math.max( 0, Math.min( x_agreed_body, x_finEnd_body ));
+		}else if( lastPointIndex == index ){
+			// restrict the last point to be between the first fin point, and the parent's end length.
+			x_agreed_body = Math.max( x_finStart_body, Math.min( x_agreed_body, sym.getLength()));
 		}
 		
-		double x0, y0, x1, y1;
-		
-		System.err.println("  attempting to set last fin point to: "+x+", "+y);
-		if (index == 0) {
-			// Restrict first point to be in front of last point.
-			x = Math.min(x, points.get(points.size() - 1).x);
-			
-			x0 = Double.NaN;
-			y0 = Double.NaN;
-			x1 = points.get(1).x;
-			y1 = points.get(1).y;
-		} else if (index == points.size() - 1) {
-			// Restrict last point to be behind first point
-			x = Math.max(points.get(0).x, x);
-			
-			// constrain x to connect back to the body before it ends
-			x = Math.min(x, (sym.length - x_fin));
-			y = sym.getRadius(x + x_fin) - r_fin; 
-
-			x0 = points.get(index - 1).x;
-			y0 = points.get(index - 1).y;
-			x1 = Double.NaN;
-			y1 = Double.NaN;
-		} else {
-			x0 = points.get(index - 1).x;
-			y0 = points.get(index - 1).y;
-			x1 = points.get(index + 1).x;
-			y1 = points.get(index + 1).y;
-		}
-		
-		// Check for intersecting
-		double px0, py0, px1, py1;
-		px0 = 0;
-		py0 = 0;
-		for (int i = 1; i < points.size(); i++) {
-			px1 = points.get(i).x;
-			py1 = points.get(i).y;
-			
-			if (i != index - 1 && i != index && i != index + 1) {
-				if (intersects(x0, y0, x, y, px0, py0, px1, py1)) {
-					throw new IllegalFinPointException("segments intersect");
-				}
+		// adjust y-value to be consistent with body
+		final double y_body_body = y_body( x_agreed_body);
+		if (index == 0 || index == lastPointIndex) {
+			// for the first and last points: set y-value to *exactly* match parent body:
+			y_agreed_body = y_body_body;
+		}else{
+			// for all other points, merely insist that the point is outside the body...
+			if( y_agreed_body < y_body_body ){
+				y_agreed_body = y_body_body;
 			}
-			if (i != index && i != index + 1 && i != index + 2) {
-				if (intersects(x, y, x1, y1, px0, py0, px1, py1)) {
-					throw new IllegalFinPointException("segments intersect");
-				}
-			}
-			
-			px0 = px1;
-			py0 = py1;
 		}
+		
+		log.error(String.format(">> Request: set fin point #%d to [%6.4g, %6.4g] <body frame>", index, x_request_body, y_request_body));
+		log.error(String.format("        Agreed Coords:           [%6.4g, %6.4g] <body frame>", x_agreed_body, y_agreed_body));
+		final double x_finEnd_body = x_finStart_body + points.get(lastPointIndex).x;
+		log.error(String.format("        Fin Bounds:              [%6.4g - %6.4g] <body frame>", x_finStart_body, x_finEnd_body )); 
+		log.error(String.format("        Parent Bounds:           [ 0.0 - %6.4g] <body frame>", sym.getLength() ));
 		
 		// if moving first point, translate entire fin to match
 		if ( 0 == index ) {
-			//System.out.println("Set point zero to x:" + x);
+			//log.error(String.format("        @ fin start = : [ %6.4g, %6.4g %6.4g ] (via: %s)", 
+			//			this.x_offset, this.getAxialOffset(), this.asPositionValue(Position.TOP), this.relativePosition.name() ));
+			
+			// calculate delta to translate points, relative to the fin-start-point. 
+			final double x_delta_points = (x_finStart_body - x_agreed_body);
+			
+//			log.error(String.format("        Moving fin points by: %8.4g (from: ( %6.4g - %6.4g ))", 
+//					x_delta_points, x_finStart_body, x_agreed_body));
+//
+//			log.error(String.format("       x_delta:   %6.4g", x_delta_points));	
+			
+			setAxialOffset(Position.TOP, x_agreed_body );
+			
+			// move the remainder of the points:
 			for (int i = 1; i < points.size(); i++) {
 				Coordinate c = points.get(i);
-				points.set(i, c.setX(c.x - x));
+				points.set(i, c.setX(c.x + x_delta_points));
 			}
-		} else {
-			points.set(index, new Coordinate(x, y));
+				
+			// if we translate the points, correct the final point, because it's probably invalid
+			{	
+				// clamp the final x coord to the end of the parent body.
+				final double x_last_body = Math.min( x_finStart_body+ (points.get( lastPointIndex ).x), sym.getLength());
+				final double y_last_body = y_body( x_last_body);
+				
+				final Coordinate lastPointToSet_finFrame = new Coordinate(x_last_body - x_finStart_body, y_last_body - y_finStart_body);
+				points.set( lastPointIndex, lastPointToSet_finFrame );	
+			}
 		}
+
+		int testIndex = Math.min( index, (points.size() - 2));
+		if( intersects( testIndex)){
+			// intersection found!  log error and abort! 
+			log.error(String.format("ERROR: found an intersection while setting fin point #%d to [%6.4g, %6.4g] <body frame>", index, x_request_body, y_request_body));
+			return;
+		}
+		
+		final Coordinate pointToSet_finFrame = new Coordinate(x_agreed_body - x_finStart_body, y_agreed_body - y_finStart_body );
+		points.set(index, pointToSet_finFrame );
 		
 		// set fin length
-		if (index == 0 || index == points.size() - 1) {
-			this.length = points.get(points.size() - 1).x;
+		if (index == 0 || index == lastPointIndex) {
+			this.length = points.get(lastPointIndex).x;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
-	
-	private boolean intersects(double ax0, double ay0, double ax1, double ay1,
-			double bx0, double by0, double bx1, double by1) {
-		
-		double d = ((by1 - by0) * (ax1 - ax0) - (bx1 - bx0) * (ay1 - ay0));
-		
-		double ua = ((bx1 - bx0) * (ay0 - by0) - (by1 - by0) * (ax0 - bx0)) / d;
-		double ub = ((ax1 - ax0) * (ay0 - by0) - (ay1 - ay0) * (ax0 - bx0)) / d;
-		
-		return (ua >= 0) && (ua <= 1) && (ub >= 0) && (ub <= 1);
 	}
 	
 	@Override
@@ -373,11 +368,11 @@ public class FreeformFinSet extends FinSet {
 	private boolean validate() {
 		final Coordinate firstPoint = this.points.get(0);
 		if (firstPoint.x != 0 || firstPoint.y != 0 ){
-			log.error("Start point illegal --  not located at (0,0): "+firstPoint);
+			log.error("Start point illegal --  not located at (0,0): "+firstPoint+ " ("+ getName()+")");
 			return false;
 		}
 		final int lastIndex = this.points.size() - 1;
-		final Coordinate lastPoint = this.points.get(0);
+		final Coordinate lastPoint = this.points.get( points.size() -1);
 		if( lastPoint.x < 0){
 			log.error("End point illegal: end point starts in front of start point: "+lastPoint.x);
 			return false;
@@ -385,8 +380,7 @@ public class FreeformFinSet extends FinSet {
 		// the last point *is* restricted to be on the surface of its owning component:
 		SymmetricComponent symBody = (SymmetricComponent)this.getParent();
 		if( null != symBody ){
-			// ^^^  fin frame ^^^
-			// vvv body frame vvv 
+			
 			final double startOffset = this.asPositionValue( Position.TOP );
 			final Coordinate finStart = this.position.setY( symBody.getRadius(startOffset) );
 			
@@ -407,15 +401,13 @@ public class FreeformFinSet extends FinSet {
 			}
 		}
 
+		if( intersects()){
+			log.error("found intersection in finset points!");
+			return false;
+		}
+		
 		final ArrayList<Coordinate> pts = this.points;
 		for (int i = 0; i < lastIndex; i++) {
-			for (int j = i + 2; j < lastIndex; j++) {
-				if (intersects(pts.get(i).x, pts.get(i).y, pts.get(i + 1).x, pts.get(i + 1).y,
-						pts.get(j).x, pts.get(j).y, pts.get(j + 1).x, pts.get(j + 1).y)) {
-					log.error("segments intersect: indices: "+i+", "+j);
-					return false;
-				}
-			}
 			if (pts.get(i).z != 0) {
 				log.error("z-coordinate not zero");
 				return false;
@@ -424,6 +416,55 @@ public class FreeformFinSet extends FinSet {
 		
 		return true;
 	}
+	
+	/** 
+	 * Check if *any* of the fin-point line segments intersects with another.
+	 * 
+	 * @return  true if an intersection is found
+	 */
+	public boolean intersects( ){
+		for( int index=0; index < (this.points.size()-1); ++index ){
+			if( intersects( index )){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/** 
+	 * Check if the line segment from targetIndex to targetIndex+1 intersects with any other part of the fin.
+	 * 
+	 * 
+	 * 
+	 * @return  true if an intersection was found
+	 */
+	private boolean intersects( final int targetIndex){
+		if( (points.size()-2) < targetIndex ){
+			throw new IndexOutOfBoundsException("request validate of non-existent fin edge segment: "+ targetIndex + "/"+points.size());
+		}
+		
+		// (pre-check the indices above.)
+		Point2D.Double p1 = new Point2D.Double( points.get(targetIndex).x, points.get(targetIndex).y);
+		Point2D.Double p2 = new Point2D.Double( points.get(targetIndex+1).x, points.get(targetIndex+1).y);
+		Line2D.Double targetLine = new Line2D.Double( p1, p2);
+		
+		for (int comparisonIndex = 0; comparisonIndex < (points.size()-1); ++comparisonIndex ) {
+			if( 2 > Math.abs( targetIndex - comparisonIndex) ){
+				// a line segment will trivially not intersect with itself
+				// nor can adjacent line segments intersect with each other, because they share a common endpoint.
+				continue; 
+			}
+			
+			Line2D.Double comparisonLine = new Line2D.Double( points.get(comparisonIndex).x, points.get(comparisonIndex).y, // p1 
+															  points.get(comparisonIndex+1).x, points.get(comparisonIndex+1).y); // p2
+			
+			if ( targetLine.intersectsLine( comparisonLine ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	
 	@Override
 	public StringBuilder toDebugDetail(){

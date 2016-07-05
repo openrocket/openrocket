@@ -422,20 +422,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private enum Columns {
-		//		NUMBER {
-		//			@Override
-		//			public String toString() {
-		//				return "#";
-		//			}
-		//			@Override
-		//			public String getValue(FreeformFinSet finset, int row) {
-		//				return "" + (row+1) + ".";
-		//			}
-		//			@Override
-		//			public int getWidth() {
-		//				return 10;
-		//			}
-		//		}, 
 		X {
 			@Override
 			public String toString() {

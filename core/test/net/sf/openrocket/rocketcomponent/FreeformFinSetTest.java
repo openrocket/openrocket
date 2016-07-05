@@ -1,7 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -98,6 +100,55 @@ public class FreeformFinSetTest extends BaseTestCase {
 	
     @Test
     public void testTranslatePoints() throws IllegalFinPointException {
+    	final Rocket rkt = new Rocket();
+        final AxialStage stg = new AxialStage();
+	    rkt.addChild(stg);
+	    BodyTube body = new BodyTube(2.0, 0.01);
+	    stg.addChild(body);
+	   
+	    // Fin length = 1
+	    // Body Length = 2
+	    //          +--+
+	    //         /   |
+	    //        /    |
+	    //   +---+-----+---+
+	    //
+	    FreeformFinSet fins = new FreeformFinSet();
+	    fins.setFinCount(1);
+	    Coordinate[] initPoints = new Coordinate[] {
+	                   new Coordinate(0, 0),
+	                   new Coordinate(0.5, 1),
+	                   new Coordinate(1, 1),
+	                   new Coordinate(1, 0)
+	    };
+	    fins.setPoints(initPoints);
+	    body.addChild(fins);
+	    
+	    final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+	    final double[] offs = {1.0, 0.0, 0.4, -0.2};
+	    final double[] expOffs = {1.0, 0.5, 0.9, 0.8};
+	    for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+	    	fins.setAxialOffset( pos[caseIndex], offs[caseIndex]);
+	    	final double x_delta = fins.asPositionValue(Position.TOP);
+	           
+	    	Coordinate actualPoints[] = fins.getFinPoints();
+	                   
+	    	final String rawPointDescr = "\n"+fins.toDebugDetail().toString()+"\n>> axial offset: "+x_delta;
+	       
+	    	Coordinate[] displayPoints = FinSet.translatePoints( actualPoints, x_delta, 0);	    
+	    	for( int index=0; index < displayPoints.length; ++index){
+	    		assertEquals(String.format("Bad Fin Position.x (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr),
+	    				(initPoints[index].x + expOffs[caseIndex]), displayPoints[index].x, EPSILON);
+	    		assertEquals(String.format("Bad Fin Position.y (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr),
+	    				initPoints[index].y, displayPoints[index].y, EPSILON);
+       		}
+    	}
+	                   
+	}
+
+	
+    @Test
+    public void testForNegativeIntersection() throws IllegalFinPointException {
                final Rocket rkt = new Rocket();
                final AxialStage stg = new AxialStage();
                rkt.addChild(stg);
@@ -121,29 +172,42 @@ public class FreeformFinSetTest extends BaseTestCase {
                };
                fins.setPoints(initPoints);
                body.addChild(fins);
-
-               final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
-               final double[] offs = {1.0, 0.0, 0.4, -0.2};
-               final double[] expOffs = {1.0, 0.5, 0.9, 0.8};
-               for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
-                       fins.setAxialOffset( pos[caseIndex], offs[caseIndex]);
-                       final double x_delta = fins.asPositionValue(Position.TOP);
-                       
-                       Coordinate actualPoints[] = fins.getFinPoints();
-                               
-                       final String rawPointDescr = "\n"+fins.toDebugDetail().toString()+"\n>> axial offset: "+x_delta;
-                       
-                       Coordinate[] displayPoints = FinSet.translatePoints( actualPoints, x_delta, 0);
-
-                       for( int index=0; index < displayPoints.length; ++index){
-                               assertEquals(String.format("Bad Fin Position.x (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr),
-                            		   (initPoints[index].x + expOffs[caseIndex]), displayPoints[index].x, EPSILON);
-                               assertEquals(String.format("Bad Fin Position.y (%6.2g via:%s at point: %d) %s\n",offs[caseIndex], pos[caseIndex].name(), index, rawPointDescr),
-                            		   initPoints[index].y, displayPoints[index].y, EPSILON);
-                       }
-               }
+               
+               assertFalse( " Fin detects false positive intersection in fin points: ", fins.intersects());
        }
-
+    
+    @Test
+    public void testForPositiveIntersection() throws IllegalFinPointException {
+    	final Rocket rkt = new Rocket();
+    	final AxialStage stg = new AxialStage();
+    	rkt.addChild(stg);
+    	BodyTube body = new BodyTube(2.0, 0.01);
+    	stg.addChild(body);
+	   
+    	// An obviously intersecting fin:
+    	//        +---+
+    	//         \ /   
+    	//         / \   
+    	//   +----+---+---+
+    	//
+    	FreeformFinSet fins = new FreeformFinSet();
+    	fins.setFinCount(1);
+    	Coordinate[] initPoints = new Coordinate[] {
+	                   new Coordinate(0, 0),
+	                   new Coordinate(1, 1),
+	                   new Coordinate(0, 1),
+	                   new Coordinate(1, 0)
+    	};
+    	// this line throws an exception? 
+    	fins.setPoints(initPoints);
+    	body.addChild(fins);
+	   
+    	// this *already* has detected the intersection, and aborted...
+    	Coordinate p1 = fins.getFinPoints()[1];
+    	// ... which makes a rather hard-to-test functionality...
+    	assertThat( "Fin Set failed to detect an intersection! ", p1.x, not(equalTo(initPoints[1].x)));
+    	assertThat( "Fin Set failed to detect an intersection! ", p1.y, not(equalTo(initPoints[1].y)));
+    }
 	
 	@Test
 	public void testWildmanVindicatorShape() throws Exception {
