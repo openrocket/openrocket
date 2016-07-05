@@ -334,7 +334,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(index);
 				try {
-					finset.setPoint(index, point.x, point.y);
+					finset.setPointRelToParent(index, point.x, point.y);
 				} catch (IllegalFinPointException ignore) {
 				}
 				dragIndex = index;
@@ -357,7 +357,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			Point2D.Double point = getCoordinates(event);
 			
 			try {
-				finset.setPoint(dragIndex, point.x, point.y);
+				finset.setPointRelToParent(dragIndex, point.x, point.y);
 			} catch (IllegalFinPointException ignore) {
 				log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
 			}
@@ -506,7 +506,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				else
 					c = c.setY(value);
 				
-				finset.setPoint(rowIndex, c.x, c.y);
+				finset.setPointRelToFin(rowIndex, c.x, c.y);
 				
 			} catch (NumberFormatException ignore) {
 			} catch (IllegalFinPointException ignore) {

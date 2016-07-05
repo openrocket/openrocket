@@ -226,6 +226,13 @@ public class FreeformFinSet extends FinSet {
 		return ( sym.getRadius(x_body) - sym.getForeRadius());
 	}
 	
+	public void setPointRelToFin( final int index, final double x_request_fin, final double y_request_fin) throws IllegalFinPointException {
+		final double x_finStart_body = asPositionValue(Position.TOP); // x @ fin start, body frame
+		final double y_finStart_body = y_body( x_finStart_body );
+		
+		setPointRelToParent( index, x_request_fin + x_finStart_body , y_request_fin + y_finStart_body);
+	}
+	
 	/**
 	 * Set the point at position <code>i</code> to coordinates (x,y).
 	 * <p>
@@ -243,7 +250,7 @@ public class FreeformFinSet extends FinSet {
 	 * @throws IllegalFinPointException	if the specified fin point would cause intersecting
 	 * 									segments
 	 */
-	public void setPoint( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
+	public void setPointRelToParent( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
 		final int lastPointIndex = this.points.size() - 1;
 		
 		// x,y start out in parent-space; so first, translate (x,y) into fin-space
