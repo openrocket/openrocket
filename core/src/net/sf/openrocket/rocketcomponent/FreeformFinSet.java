@@ -207,15 +207,18 @@ public class FreeformFinSet extends FinSet {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
+	private double y_body( final double x){
+		return y_body( x, 0.0 );
+	}
 	
-	private double y_body( final double x_body ){
+	private double y_body( final double x_target, final double x_ref){
 		final SymmetricComponent sym = (Transition)getParent();
-		return ( sym.getRadius(x_body) - sym.getForeRadius());
+		return ( sym.getRadius(x_target) - sym.getRadius( x_ref));
 	}
 	
 	public void setPointRelToFin( final int index, final double x_request_fin, final double y_request_fin) throws IllegalFinPointException {
 		final double x_finStart_body = asPositionValue(Position.TOP); // x @ fin start, body frame
-		final double y_finStart_body = y_body( x_finStart_body );
+		final double y_finStart_body = y_body( x_finStart_body);
 		
 		setPointRelToParent( index, x_request_fin + x_finStart_body , y_request_fin + y_finStart_body);
 	}
@@ -239,12 +242,10 @@ public class FreeformFinSet extends FinSet {
 	 */
 	public void setPointRelToParent( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
 		final int lastPointIndex = this.points.size() - 1;
-		
-		// x,y start out in parent-space; so first, translate (x,y) into fin-space
 		final SymmetricComponent sym = (Transition)getParent();
 		
-		final double x_finStart_body = getTabFrontEdge(); // x @ fin start, body frame
-		final double y_finStart_body = y_body( x_finStart_body );
+		final double x_finStart_body = getFinFront(); // x @ fin start, body frame
+		final double y_finStart_body = y_body( x_finStart_body);
 		
 		
 		// initial guess at these values.  Further checks take place below....
@@ -273,11 +274,6 @@ public class FreeformFinSet extends FinSet {
 			}
 		}
 		
-		log.error(String.format(">> Request: set fin point #%d to [%6.4g, %6.4g] <body frame>", index, x_request_body, y_request_body));
-		log.error(String.format("        Agreed Coords:           [%6.4g, %6.4g] <body frame>", x_agreed_body, y_agreed_body));
-		final double x_finEnd_body = x_finStart_body + points.get(lastPointIndex).x;
-		log.error(String.format("        Fin Bounds:              [%6.4g - %6.4g] <body frame>", x_finStart_body, x_finEnd_body )); 
-		log.error(String.format("        Parent Bounds:           [ 0.0 - %6.4g] <body frame>", sym.getLength() ));
 		
 		// if moving first point, translate entire fin to match
 		if ( 0 == index ) {
@@ -301,14 +297,7 @@ public class FreeformFinSet extends FinSet {
 			}
 				
 			// if we translate the points, correct the final point, because it's probably invalid
-			{	
-				// clamp the final x coord to the end of the parent body.
-				final double x_last_body = Math.min( x_finStart_body + points.get( lastPointIndex ).x, sym.getLength());
-				final double y_last_body = y_body( x_last_body);
-				
-				final Coordinate lastPointToSet_finFrame = new Coordinate(points.get(lastPointIndex).x, y_last_body - y_finStart_body);
-				points.set( lastPointIndex, lastPointToSet_finFrame );	
-			}
+			clampLastPoint();
 			
 			x_agreed_body = x_finStart_body;
 			y_agreed_body = y_finStart_body;
@@ -362,6 +351,27 @@ public class FreeformFinSet extends FinSet {
 		
 		return c;
 	}
+	
+	@Override
+	public void update(){
+		clampLastPoint();
+	}
+	
+	
+	// if we translate the points, correct the final point, because it's probably invalid
+	public void clampLastPoint(){
+		final double x_fin = this.getFinFront(); // x @ fin start, body frame
+		
+		// clamp the final x coord to the end of the parent body.
+		final int lastPointIndex = points.size() - 1;
+		Coordinate lastPoint = points.get( lastPointIndex);
+		
+		final double x_last_fin = Math.min( lastPoint.x, parent.getLength() - x_fin);
+		final double y_last_fin = y_body( x_last_fin +x_fin, x_fin);
+		
+		points.set( lastPointIndex, new Coordinate( x_last_fin, y_last_fin, 0));	
+	}
+	
 	
 	private boolean validate() {
 		final Coordinate firstPoint = this.points.get(0);
