@@ -50,6 +50,8 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
@@ -333,8 +335,13 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (index >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(index);
-				try {
-					finset.setPointRelToParent(index, point.x, point.y);
+
+		        { // vv DEBUG
+		            System.err.println(String.format("<< pre-intersect-test:    point count: (%2d): ", finset.getPointCount() )); 
+		        } // ^^ DEBUG
+		        
+	            try {
+	                finset.setPoint(dragIndex, point.x, point.y );
 				} catch (IllegalFinPointException ignore) {
 				}
 				dragIndex = index;
@@ -355,9 +362,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				return;
 			}
 			Point2D.Double point = getCoordinates(event);
-			
+            
 			try {
-				finset.setPointRelToParent(dragIndex, point.x, point.y);
+				finset.setPoint(dragIndex, point.x, point.y );
 			} catch (IllegalFinPointException ignore) {
 				log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
 			}
@@ -501,12 +508,19 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				
 				double value = UnitGroup.UNITS_LENGTH.fromString(str);
 				Coordinate c = finset.getFinPoints()[rowIndex];
-				if (columnIndex == Columns.X.ordinal())
+				if (columnIndex == Columns.X.ordinal()){
 					c = c.setX(value);
-				else
+				}else{
 					c = c.setY(value);
+				}
 				
-				finset.setPointRelToFin(rowIndex, c.x, c.y);
+				// offset this coordinate from the fin start.
+		        final SymmetricComponent symParent = (SymmetricComponent)finset.getParent();
+		        final double xFinStart = finset.asPositionValue(Position.TOP); // x @ fin start, body frame
+		        final double yFinStart = symParent.getRadius( xFinStart) - symParent.getForeRadius();
+				c = c.add( xFinStart, yFinStart, 0);
+		        
+				finset.setPoint(rowIndex, c.x, c.y);
 				
 			} catch (NumberFormatException ignore) {
 			} catch (IllegalFinPointException ignore) {

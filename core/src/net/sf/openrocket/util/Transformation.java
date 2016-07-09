@@ -43,6 +43,19 @@ public class Transformation implements java.io.Serializable {
 		rotation[Z][Z]=1;
 	}
 	
+	
+	/**
+	 * scale each axis by the supplied number
+	 *  
+	 * @param scalar double to scale coordinates by
+	 */
+	public Transformation( final double newScale ) {
+		translate = new Coordinate(0,0,0);
+		rotation[X][X]=newScale;
+		rotation[Y][Y]=newScale;
+		rotation[Z][Z]=newScale;
+	}
+	
 	/**
 	 * Create transformation with only translation.
 	 * @param x Translation in x-axis.
@@ -226,8 +239,17 @@ public class Transformation implements java.io.Serializable {
 				{Math.sin(theta),Math.cos(theta),0},
 				{0,0,1}});
 	}
+
 	
-	
+	/**
+	 * scale each axis by the supplied number 
+	 * @param newScale the new factor to scale by
+	 * @return  The transformation.
+	 */
+	public static Transformation scale( final double newScale){
+		return new Transformation(newScale);
+	}
+
 	
 	public void print(String... str) {
 		for (String s: str) {

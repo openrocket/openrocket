@@ -20,7 +20,6 @@ public abstract class FinSet extends ExternalComponent {
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSet.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	
 	/**
 	 * Maximum allowed cant of fins.
 	 */
@@ -101,7 +100,7 @@ public abstract class FinSet extends ExternalComponent {
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
 	private double tabShift = 0;
-	private Position tabRelativePosition = Position.MIDDLE;
+	private Position tabRelativePosition = Position.TOP;
 	
 	/*
 	 * Fin fillet properties
@@ -639,16 +638,6 @@ public abstract class FinSet extends ExternalComponent {
 		return false;
 	}
 
-	final public static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
-		Coordinate[] returnPoints = new Coordinate[inp.length];
-		for( int index=0; index < inp.length; ++index){
-			final double new_x = inp[index].x + x_delta;
-			final double new_y = inp[index].y + y_delta;
-			returnPoints[index] = new Coordinate(new_x, new_y);
-		}
-		return returnPoints; 
-	}
-	
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin.  
 	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
@@ -658,6 +647,29 @@ public abstract class FinSet extends ExternalComponent {
 	 * @return  List of XY-coordinates.
 	 */
 	public abstract Coordinate[] getFinPoints();
+	
+	public boolean isRootStraight( ){
+        if( getParent() instanceof Transition){
+            if( ((Transition)getParent()).getType() == Transition.Shape.CONICAL ){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        
+        // by default, assume a flat base
+        return true;
+    }
+	
+	final public static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
+		Coordinate[] returnPoints = new Coordinate[inp.length];
+		for( int index=0; index < inp.length; ++index){
+			final double new_x = inp[index].x + x_delta;
+			final double new_y = inp[index].y + y_delta;
+			returnPoints[index] = new Coordinate(new_x, new_y);
+		}
+		return returnPoints; 
+	}
 	
 	
 	/**
@@ -679,8 +691,9 @@ public abstract class FinSet extends ExternalComponent {
 		
 		final int pointCount = 4;
 		Coordinate[] points = new Coordinate[pointCount];
-		final double xFinFront = this.getFinFront();
+		
 		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+		final double xFinFront = asPositionValue(Position.TOP);
 		final double yFinFront = symmetricParent.getRadius( xFinFront );
 		
 		final double xTabFront = getTabFrontEdge();
@@ -697,13 +710,16 @@ public abstract class FinSet extends ExternalComponent {
 		return points;
 	}
 	
-	protected double getFinFront() {
-		return this.asPositionValue(Position.TOP);
-	}
+//	public Coordinate getFrontX() {
+//		final double xFinFront = asPositionValue(Position.TOP);
+//		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+//		final double yFinFront = symmetricParent.getRadius( xFinFront );
+//		return new Coordinate(xFinFront, yFinFront);
+//	}
 
 	/* 
-	 * yes, this may overcount points between the fin, and the fin tabs, but this "should" not cause any glitches.
-	 * Therefore, the very minor performance hit is not worth the code complexity of dealing with.
+	 * yes, this may over-count points between the fin and fin tabs, 
+	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
 		final Coordinate[] finPoints = getFinPoints();
@@ -774,5 +790,46 @@ public abstract class FinSet extends ExternalComponent {
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
+
+	public Coordinate[] getRootPoints() {
+		SymmetricComponent parentComp = (SymmetricComponent)getParent();
+		if( null == parentComp){
+			return null;
+		}
+		final double xFinFront = asPositionValue(Position.TOP);
+		final double yFinFront = parentComp.getRadius( xFinFront );
+				
+		if( parentComp instanceof BodyTube){
+			// flat, level base 
+			final Coordinate finFront = new Coordinate( xFinFront, yFinFront);
+			final Coordinate finBack = new Coordinate( xFinFront+getLength(), yFinFront );
+			return new Coordinate[]{finFront, finBack};
+		}else if( (parentComp instanceof Transition) 
+				&& ( ((Transition) parentComp).getType() == Transition.Shape.CONICAL )){
+			
+			// straight line, but y may vary
+			final Coordinate finFront = new Coordinate( xFinFront, yFinFront);
+			final double xFinBack = xFinFront+getLength();
+			final double yFinBack = parentComp.getRadius( xFinBack );
+			
+			final Coordinate finBack = new Coordinate( xFinBack, yFinBack );
+			
+			return new Coordinate[]{finFront, finBack};
+		}else{
+			// most complex case: curved, and may shrink/grow 
+			final int intervalCount = 5;
+			final int pointCount = intervalCount+1;
+			final Coordinate[] points = new Coordinate[pointCount];
+			final double x_delta = (getLength()) / intervalCount;
+			double x_cur=0.0;
+			for( int index=0; index < points.length; ++index){
+				double x_ref = xFinFront + x_cur;
+				points[index] = new Coordinate( x_cur, parentComp.getRadius(x_ref)-yFinFront);
+				x_cur += x_delta;
+			}
+			return points;
+		}
+	}
+
 
 }

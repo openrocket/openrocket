@@ -450,22 +450,24 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	
 	
 	private void calculateDimensions() {
-		// update subject bounds
+        // update subject bounds
 		subjectBounds_m.reset();
 		
         SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
-
-        final double x_fin = finset.asPositionValue(Position.TOP); // x @ fin start, body frame
-        final double y_fin = ( parent.getRadius(x_fin) - parent.getForeRadius());
+        
+        final double xFinFront = finset.asPositionValue(Position.TOP); // x @ fin start, body frame
+        final double yFinBack = ( parent.getRadius(xFinFront) - parent.getForeRadius());
         
 		for (Coordinate c : finset.getFinPoints()) {
 			// ignore the z coordinates; they point into the figure and provide no useful information.
-			subjectBounds_m.update( c.x+x_fin, c.y+y_fin);
+			subjectBounds_m.update( c.x + xFinFront, c.y + yFinBack);
 		}
-		
+
+		//this.dumpState("calculateDimensions");
 		
 		subjectBounds_m.getX().inflate( 0, Math.max( parent.getLength(), MINIMUM_CANVAS_SIZE_METERS));
 		subjectBounds_m.getY().inflate( -parent.getForeRadius(), Math.max( parent.getAftRadius(), MINIMUM_CANVAS_SIZE_METERS));
+		
 	}
 	
 	private void calculateFigureSize(){

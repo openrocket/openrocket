@@ -215,14 +215,7 @@ public class FreeformFinSet extends FinSet {
 		final SymmetricComponent sym = (Transition)getParent();
 		return ( sym.getRadius(x_target) - sym.getRadius( x_ref));
 	}
-	
-	public void setPointRelToFin( final int index, final double x_request_fin, final double y_request_fin) throws IllegalFinPointException {
-		final double x_finStart_body = asPositionValue(Position.TOP); // x @ fin start, body frame
-		final double y_finStart_body = y_body( x_finStart_body);
-		
-		setPointRelToParent( index, x_request_fin + x_finStart_body , y_request_fin + y_finStart_body);
-	}
-	
+
 	/**
 	 * Set the point at position <code>i</code> to coordinates (x,y).
 	 * <p>
@@ -240,39 +233,45 @@ public class FreeformFinSet extends FinSet {
 	 * @throws IllegalFinPointException	if the specified fin point would cause intersecting
 	 * 									segments
 	 */
-	public void setPointRelToParent( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
+	public void setPoint( final int index, final double x_request_body, final double y_request_body) throws IllegalFinPointException {
 		final int lastPointIndex = this.points.size() - 1;
-		final SymmetricComponent sym = (Transition)getParent();
+		final SymmetricComponent symParent = (SymmetricComponent)getParent();
 		
-		final double x_finStart_body = getFinFront(); // x @ fin start, body frame
-		final double y_finStart_body = y_body( x_finStart_body);
-		
-		
+		final double xFinStart = asPositionValue(Position.TOP); // x @ fin start, body frame
+		final double yFinStart = y_body( xFinStart);
+
 		// initial guess at these values.  Further checks take place below....
-		double x_agreed_body = x_request_body;
-		double y_agreed_body = y_request_body;
-		
+		double xAgreed = x_request_body;
+		double yAgreed = y_request_body;
+
 		// clamp the agreed-upon-x-coordinate to be within bounds, and consistent with the rest of the fin (at this time).
 		if(  0 == index ) {
 			// restrict the first point to be between the parent's start, and the last fin point
-			final double x_finEnd_body = x_finStart_body + points.get(lastPointIndex).x;
-			x_agreed_body = Math.max( 0, Math.min( x_agreed_body, x_finEnd_body ));
+			final double x_finEnd_body = xFinStart + points.get(lastPointIndex).x;
+			xAgreed = Math.max( 0, Math.min( xAgreed, x_finEnd_body ));
 		}else if( lastPointIndex == index ){
 			// restrict the last point to be between the first fin point, and the parent's end length.
-			x_agreed_body = Math.max( x_finStart_body, Math.min( x_agreed_body, sym.getLength()));
+			xAgreed = Math.max( xFinStart, Math.min( xAgreed, symParent.getLength()));
 		}
 		
 		// adjust y-value to be consistent with body
-		final double y_body_body = y_body( x_agreed_body);
+		final double y_body_body = y_body( xAgreed);
 		if (index == 0 || index == lastPointIndex) {
 			// for the first and last points: set y-value to *exactly* match parent body:
-			y_agreed_body = y_body_body;
+			yAgreed = y_body_body;
 		}else{
 			// for all other points, merely insist that the point is outside the body...
-			if( y_agreed_body < y_body_body ){
-				y_agreed_body = y_body_body;
+			if( yAgreed < y_body_body ){
+				yAgreed = y_body_body;
 			}
 		}
+		
+
+		{ // vv DEBUG
+			System.err.println(String.format(">>setPoint( %2d, %6.4g, %6.4g)", index, x_request_body, y_request_body));
+			System.err.println(String.format("          :fin front:    ( %6.4g, %6.4g)", xFinStart, yFinStart ));
+			System.err.println(String.format(" 			:agreed(1):    ( %6.4g, %6.4g)", xAgreed, yAgreed));
+		} // ^^ DEBUG
 		
 		
 		// if moving first point, translate entire fin to match
@@ -281,14 +280,14 @@ public class FreeformFinSet extends FinSet {
 			//			this.x_offset, this.getAxialOffset(), this.asPositionValue(Position.TOP), this.relativePosition.name() ));
 			
 			// calculate delta to translate points, relative to the fin-start-point. 
-			final double x_delta_points = (x_finStart_body - x_agreed_body);
+			final double x_delta_points = (xFinStart - xAgreed);
 			
 //			log.error(String.format("        Moving fin points by: %8.4g (from: ( %6.4g - %6.4g ))", 
 //					x_delta_points, x_finStart_body, x_agreed_body));
 //
 //			log.error(String.format("       x_delta:   %6.4g", x_delta_points));	
 			
-			setAxialOffset(Position.TOP, x_agreed_body );
+			setAxialOffset(Position.TOP, xAgreed );
 			
 			// move the remainder of the points:
 			for (int i = 1; i < points.size(); i++) {
@@ -299,9 +298,14 @@ public class FreeformFinSet extends FinSet {
 			// if we translate the points, correct the final point, because it's probably invalid
 			clampLastPoint();
 			
-			x_agreed_body = x_finStart_body;
-			y_agreed_body = y_finStart_body;
+			xAgreed = xFinStart;
+			yAgreed = yFinStart;
 		}
+		
+
+		{ // vv DEBUG
+			System.err.println(String.format(" 			:pre-intersect-test:    point count: (%2d): ", points.size() ));
+		} // ^^ DEBUG
 
 		// this maps the last index and the next-to-last-index to the same 'testIndex'
 		int testIndex = Math.min( index, (points.size() - 2));
@@ -310,8 +314,8 @@ public class FreeformFinSet extends FinSet {
 			log.error(String.format("ERROR: found an intersection while setting fin point #%d to [%6.4g, %6.4g] <body frame>", index, x_request_body, y_request_body));
 			return;
 		}
-		
-		final Coordinate pointToSet_finFrame = new Coordinate(x_agreed_body - x_finStart_body, y_agreed_body - y_finStart_body );
+
+		final Coordinate pointToSet_finFrame = new Coordinate(xAgreed - xFinStart, yAgreed - yFinStart );		
 		points.set(index, pointToSet_finFrame );
 		
 		// set fin length
@@ -360,14 +364,14 @@ public class FreeformFinSet extends FinSet {
 	
 	// if we translate the points, correct the final point, because it's probably invalid
 	public void clampLastPoint(){
-		final double x_fin = this.getFinFront(); // x @ fin start, body frame
+		final double xFinStart = asPositionValue(Position.TOP); // x @ fin start, body frame
 		
 		// clamp the final x coord to the end of the parent body.
 		final int lastPointIndex = points.size() - 1;
 		Coordinate lastPoint = points.get( lastPointIndex);
 		
-		final double x_last_fin = Math.min( lastPoint.x, parent.getLength() - x_fin);
-		final double y_last_fin = y_body( x_last_fin +x_fin, x_fin);
+		final double x_last_fin = Math.min( lastPoint.x, parent.getLength() - xFinStart);
+		final double y_last_fin = y_body( x_last_fin +xFinStart, xFinStart);
 		
 		points.set( lastPointIndex, new Coordinate( x_last_fin, y_last_fin, 0));	
 	}
