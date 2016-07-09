@@ -336,15 +336,12 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(index);
 
-		        { // vv DEBUG
-		            System.err.println(String.format("<< pre-intersect-test:    point count: (%2d): ", finset.getPointCount() )); 
-		        } // ^^ DEBUG
-		        
+				dragIndex = index;
+                
 	            try {
 	                finset.setPoint(dragIndex, point.x, point.y );
 				} catch (IllegalFinPointException ignore) {
 				}
-				dragIndex = index;
 				
 				return;
 			}

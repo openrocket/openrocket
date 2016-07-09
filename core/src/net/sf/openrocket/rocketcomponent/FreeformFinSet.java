@@ -266,14 +266,6 @@ public class FreeformFinSet extends FinSet {
 			}
 		}
 		
-
-		{ // vv DEBUG
-			System.err.println(String.format(">>setPoint( %2d, %6.4g, %6.4g)", index, x_request_body, y_request_body));
-			System.err.println(String.format("          :fin front:    ( %6.4g, %6.4g)", xFinStart, yFinStart ));
-			System.err.println(String.format(" 			:agreed(1):    ( %6.4g, %6.4g)", xAgreed, yAgreed));
-		} // ^^ DEBUG
-		
-		
 		// if moving first point, translate entire fin to match
 		if ( 0 == index ) {
 			//log.error(String.format("        @ fin start = : [ %6.4g, %6.4g %6.4g ] (via: %s)", 
@@ -301,11 +293,6 @@ public class FreeformFinSet extends FinSet {
 			xAgreed = xFinStart;
 			yAgreed = yFinStart;
 		}
-		
-
-		{ // vv DEBUG
-			System.err.println(String.format(" 			:pre-intersect-test:    point count: (%2d): ", points.size() ));
-		} // ^^ DEBUG
 
 		// this maps the last index and the next-to-last-index to the same 'testIndex'
 		int testIndex = Math.min( index, (points.size() - 2));
