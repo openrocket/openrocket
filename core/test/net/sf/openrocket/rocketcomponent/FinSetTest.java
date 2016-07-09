@@ -71,19 +71,28 @@ public class FinSetTest extends BaseTestCase {
          fins.setPoints(initPoints);
          body.addChild(fins);
 
+         assertEquals( "fin body length doesn't match: ", body.getLength(), 2.0, EPSILON);
+         assertEquals( "fin length doesn't match: ", fins.getLength(), 1.0, EPSILON);
+        
          final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
          final double[] expOffs = {1.0, 0.0, 0.4, -0.2};
          final double[] expPos = {1.0, 0.5, 0.9, 0.8};
          for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
              fins.setAxialOffset( pos[caseIndex], expOffs[caseIndex]);
              
+             
              final double actOffset = fins.getAxialOffset();
              assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
             		 expOffs[caseIndex], actOffset, EPSILON);
+
+             final double actXLoc = fins.getLocations()[0].x;
+             assertEquals(String.format(" Top Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+            		 expPos[caseIndex], actXLoc, EPSILON);
              
-             final double actPos = fins.getLocations()[0].x;
-             assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
-            		 expPos[caseIndex], actPos, EPSILON);
+
+             final double actTop = fins.asPositionValue(Position.TOP);
+             assertEquals(String.format(" Top Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+            		 expPos[caseIndex], actTop, EPSILON);
          }
     }
     
@@ -157,20 +166,20 @@ public class FinSetTest extends BaseTestCase {
     
     @Test 
     public void testGetTabShiftAs() {
-        final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+        final Position[] method={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
         final double[] expTop = {0.1, 0.04, 0.07, 0.06};
         final double[] expShift = {0.1, 0.0, 0.03, -0.02};
         final double finLength = 0.10;
         final double tabLength = 0.02;
         
-        for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
-        	double actShift = Position.shiftViaMethod( expTop[caseIndex], pos[caseIndex], finLength, tabLength);
-        	assertEquals(String.format("Returned shift doesn't match for: (%6.2g via:%s)\n", expTop[caseIndex], pos[caseIndex].name()),
+        for( int caseIndex=0; caseIndex < method.length; ++caseIndex ){
+        	double actShift = Position.getShift( method[caseIndex], expTop[caseIndex], finLength, tabLength);
+        	assertEquals(String.format("Returned shift doesn't match for: (%6.2g via:%s)\n", expTop[caseIndex], method[caseIndex].name()),
           		 	expShift[caseIndex], actShift, EPSILON);
         	
         	
-        	double actTop = Position.getAsTop( expShift[caseIndex], pos[caseIndex], finLength, tabLength );
-        	assertEquals(String.format("Returned front doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+        	double actTop = Position.getTop( expShift[caseIndex], method[caseIndex], finLength, tabLength );
+        	assertEquals(String.format("Returned front doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], method[caseIndex].name()),
           		 	expTop[caseIndex], actTop, EPSILON);
         }
     }

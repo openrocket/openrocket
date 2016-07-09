@@ -81,7 +81,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		 * @param innerLength   length of inner component
 		 * @return the distance from the front of the 'outer' component to the top of the 'inner' component 
 		 */
-		public static double getAsTop( final double positionShift, final Position positionMethod, final double outerLength, final double innerLength ){
+		public static double getTop( final double positionShift, final Position positionMethod, final double outerLength, final double innerLength ){
 			switch ( positionMethod ) {
 			case TOP:
 				return positionShift;
@@ -90,7 +90,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			case BOTTOM:
 				return (positionShift - innerLength + outerLength);
 			default:
-				throw new IllegalArgumentException("position=" + positionMethod );
+				throw new IllegalArgumentException("unknown position type=" + positionMethod );
 			}	
 		}
 		
@@ -103,7 +103,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		 * @param innerLength   length of inner component
 		 * @return the distance from the 'outer' component to 'inner' component via the passed <code>newMethod</code> 
 		 */
-		public static double shiftViaMethod( final double topShift, final Position newMethod, final double outerLength, final double innerLength ){ 
+		public static double getShift( final Position newMethod, final double topShift, final double outerLength, final double innerLength ){ 
 			switch ( newMethod ) {
 			case TOP:
 				return topShift;
@@ -112,11 +112,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			case BOTTOM:
 				return (topShift + innerLength - outerLength);
 			default:
-				throw new IllegalArgumentException("position=" + newMethod);
+				throw new IllegalArgumentException("unknown position type=" + newMethod);
 			}
 		}
 
-		
 	}
 	
 	/**
@@ -988,48 +987,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			result = insts[0].x;
 			break;
 		default:
-			result = RocketComponent.getRelativeOffset( thePosition, thisX, this.getLength(), parentLength);
+			result = Position.getShift( thePosition, thisX, parentLength, this.getLength());
 			break;
 		}
 		
 		return result;
 	}
 	
-	// intended for relative positioning of all components
-	protected final static double getRelativeOffset( final Position positionMethod, double fromFront, 
-											final double subjectLength, final double referenceLength){
-		switch ( positionMethod ) {
-		case TOP:
-			return fromFront;
-		case MIDDLE:
-			return (fromFront + subjectLength/2 - referenceLength/2);
-		case BOTTOM:
-			return (fromFront + subjectLength - referenceLength);
-		default:
-			throw new IllegalArgumentException("unknown position type=" + positionMethod);
-		}
-	}
 
-	protected final static double getFrontDistance( double newOffset, final Position positionMethod,
-							final double subjectLength, final double referenceLength){
-		
-		double newFront = Double.NaN;
-		switch ( positionMethod ) {		
-		case TOP:
-			newFront = newOffset;
-			break;
-		case MIDDLE:
-			newFront = newOffset - subjectLength / 2 + referenceLength / 2;
-			break;
-		case BOTTOM:
-			newFront = newOffset - subjectLength + referenceLength;
-			break;
-		default:
-			throw new IllegalArgumentException("position=" + positionMethod);
-		}
-		
-		return newFront;
-	}
 
 	/**
 	 * Get the position value of the component.  The exact meaning of the value is
@@ -1120,7 +1085,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		}
 
-		final double EPSILON = 0.000001;
+		final double EPSILON = 0.0001;   // == 0.1 mm
 		double newAxialPosition = Double.NaN;
 		final double refLength = this.parent.getLength();
 		switch (this.relativePosition) {
@@ -1129,10 +1094,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			break;
 		case AFTER:
 			// no-op 
-			// this.setAfter(this.previousComponent);
+			// this.setAfter(this.previousComponent); 
 			return;
 		default:
-			newAxialPosition = RocketComponent.getFrontDistance(newOffset, this.relativePosition, this.length, refLength);			
+			
+			newAxialPosition = Position.getTop(newOffset, relativePosition, refLength, length);
+			System.err.println(String.format("[DB]: oldOffset: %6.4g  relPos: %s  ==>> newTop: %6.4g ", newOffset, relativePosition.name(), newAxialPosition ));
 		}
 		
 		// snap to zero if less than the threshold 'EPSILON'

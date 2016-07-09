@@ -5,9 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
@@ -17,7 +14,6 @@ import net.sf.openrocket.util.Transformation;
 
 
 public abstract class FinSet extends ExternalComponent {
-	private static final Logger log = LoggerFactory.getLogger(FreeformFinSet.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	/**
@@ -295,7 +291,7 @@ public abstract class FinSet extends ExternalComponent {
 		final double oldFront = getTabFrontEdge();
 		
 		this.tabRelativePosition = newPositionMethod;
-		this.tabShift = Position.shiftViaMethod( oldFront, newPositionMethod, this.length, this.tabLength);
+		this.tabShift = Position.getShift( newPositionMethod, oldFront, this.length, this.tabLength);
 		
 		fireComponentChangeEvent( ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -304,7 +300,7 @@ public abstract class FinSet extends ExternalComponent {
 	 * Return the tab front edge position from the front of the fin.
 	 */
 	public double getTabFrontEdge() {
-		return Position.getAsTop( this.tabShift, this.tabRelativePosition, this.length, this.tabLength );
+		return Position.getTop( this.tabShift, this.tabRelativePosition, this.length, this.tabLength );
 	}
 	
 	/**
