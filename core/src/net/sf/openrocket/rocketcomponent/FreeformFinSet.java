@@ -212,7 +212,7 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	private double y_body( final double x_target, final double x_ref){
-		final SymmetricComponent sym = (Transition)getParent();
+		final SymmetricComponent sym = (SymmetricComponent)getParent();
 		return ( sym.getRadius(x_target) - sym.getRadius( x_ref));
 	}
 

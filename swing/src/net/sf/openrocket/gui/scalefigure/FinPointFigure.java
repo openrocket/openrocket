@@ -424,30 +424,11 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 	public Dimension getOrigin() {
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
+			updateTransform();
 		}
 		
 		return new Dimension(originLocation_px.width, originLocation_px.height);
 	}
-	
-//	public double getFigureWidth() {
-//		if (modID != finset.getRocket().getAerodynamicModID()) {
-//			modID = finset.getRocket().getAerodynamicModID();
-//			calculateDimensions();
-//		}
-//		// TODO: this doesn't make sense, but preserves existing behavior
-//		return subjectBounds_m.getX().span();
-//	}
-//	
-//	public double getFigureHeight() {
-//		if (modID != finset.getRocket().getAerodynamicModID()) {
-//			modID = finset.getRocket().getAerodynamicModID();
-//			calculateDimensions();
-//		}
-//		// TODO: this doesn't make sense, but preserves existing behavior
-//		return subjectBounds_m.getX().span();
-//	}
-	
 	
 	private void calculateDimensions() {
         // update subject bounds
@@ -499,6 +480,8 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 				borderThickness_px + (subjectBounds_m.getY().max*scale*zoom));
 		this.originLocation_px.width = (int)(newTranslation.x);
 		this.originLocation_px.height = (int)(newTranslation.y);
+		
+		System.err.println("setting origin of FPF: "+originLocation_px.width+", "+originLocation_px.height);
 		
 		// Calculate and store the transformation used
 		transform = new AffineTransform();

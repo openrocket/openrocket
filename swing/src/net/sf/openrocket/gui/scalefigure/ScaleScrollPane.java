@@ -214,6 +214,9 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
     
     @Override
     public void revalidate(){
+        // for debugging:
+        System.err.println("    revalidating the scale scroll pane...");
+        
         if( null != component ){
             component.revalidate();
         }
@@ -306,31 +309,36 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			} else {
 				setPreferredSize(new Dimension(RULER_SIZE, d.height + 10));
 			}
+
+			// for debugging:
+            if( VERTICAL == this.orientation ){  
+                System.err.println(String.format("updating size for vrule: "+component.getName()));
+            }
 			revalidate();
 			repaint();
 		}
 		
-		private double fromPx(int px) {
+		
+		// translates location on screen to location in design space
+		private double fromPx( final int px) {
 			Dimension origin = figure.getOrigin();
+			double realValue = Double.NaN;
 			if (orientation == HORIZONTAL) {
-				px -= origin.width;
+				realValue = px - origin.width;
 			} else {
-				//				px = -(px - origin.height);
-				px -= origin.height;
+			    realValue = origin.height - px;
 			}
-			return px / figure.getAbsoluteScale();
+		    return realValue / figure.getAbsoluteScale();
 		}
 		
-		private int toPx(double l) {
+		private int toPx( final double value) {
 			Dimension origin = figure.getOrigin();
-			int px = (int) (l * figure.getAbsoluteScale() + 0.5);
+			int px = (int) (value * figure.getAbsoluteScale() + 0.5);
 			if (orientation == HORIZONTAL) {
-				px += origin.width;
+			    return (px + origin.width);
 			} else {
-				px = px + origin.height;
-				//				px += origin.height;
+			    return (origin.height - px);
 			}
-			return px;
 		}
 		
 		
@@ -340,7 +348,12 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			Graphics2D g2 = (Graphics2D) g;
 			
 			Rectangle area = g2.getClipBounds();
-			
+
+            // for debugging:
+			if( VERTICAL == this.orientation ){  
+	            System.err.println(String.format("repainting rulers. graphics.bounds: from: %d, %d    Area= %d, %d ;", area.x, area.y, area.width, area.height));
+	        }
+	        	        
 			// Fill area with background color
 			g2.setColor(getBackground());
 			g2.fillRect(area.x, area.y, area.width, area.height + 100);
@@ -359,12 +372,20 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			double start, end, minor, major;
 			start = fromPx(startpx);
 			end = fromPx(endpx);
-			minor = MINOR_TICKS / figure.getAbsoluteScale();
-			major = MAJOR_TICKS / figure.getAbsoluteScale();
+
+            minor = MINOR_TICKS / figure.getAbsoluteScale();
+            major = MAJOR_TICKS / figure.getAbsoluteScale();
 			
-			Tick[] ticks = unit.getTicks(start, end, minor, major);
-			
-			
+            Tick[] ticks = null;
+            if( VERTICAL == orientation ){
+                // the parameters are *intended* to be backwards, because 'getTicks(...)' can only create
+                // increasing arrays (where the start < end)
+                ticks = unit.getTicks(end, start, minor, major);
+            }else if(HORIZONTAL == orientation ){
+                // normal parameter order
+                ticks = unit.getTicks(start, end, minor, major);
+            }
+            
 			// Set color & hints
 			g2.setColor(Color.BLACK);
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
@@ -373,11 +394,12 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 					RenderingHints.VALUE_RENDER_QUALITY);
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			
-			for (Tick t : ticks) {
+	         
+            
+            for (Tick t : ticks) {
 				int position = toPx(t.value);
 				drawTick(g2, position, t);
-			}
+            }
 		}
 		
 		private void drawTick(Graphics g, int position, Tick t) {
