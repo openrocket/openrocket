@@ -310,10 +310,10 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 				setPreferredSize(new Dimension(RULER_SIZE, d.height + 10));
 			}
 
-			// for debugging:
-            if( VERTICAL == this.orientation ){  
-                System.err.println(String.format("updating size for vrule: "+component.getName()));
-            }
+//			// for debugging:
+//            if( VERTICAL == this.orientation ){  
+//                System.err.println(String.format("updating size for vrule: "+component.getName()));
+//            }
 			revalidate();
 			repaint();
 		}
@@ -349,10 +349,10 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			
 			Rectangle area = g2.getClipBounds();
 
-            // for debugging:
-			if( VERTICAL == this.orientation ){  
-	            System.err.println(String.format("repainting rulers. graphics.bounds: from: %d, %d    Area= %d, %d ;", area.x, area.y, area.width, area.height));
-	        }
+//            // for debugging:
+//			if( VERTICAL == this.orientation ){  
+//	            System.err.println(String.format("repainting rulers. graphics.bounds: from: %d, %d    Area= %d, %d ;", area.x, area.y, area.width, area.height));
+//	        }
 	        	        
 			// Fill area with background color
 			g2.setColor(getBackground());

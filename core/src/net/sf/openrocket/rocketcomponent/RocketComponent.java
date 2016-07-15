@@ -1097,9 +1097,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// this.setAfter(this.previousComponent); 
 			return;
 		default:
-			
 			newAxialPosition = Position.getTop(newOffset, relativePosition, refLength, length);
-			System.err.println(String.format("[DB]: oldOffset: %6.4g  relPos: %s  ==>> newTop: %6.4g ", newOffset, relativePosition.name(), newAxialPosition ));
 		}
 		
 		// snap to zero if less than the threshold 'EPSILON'
