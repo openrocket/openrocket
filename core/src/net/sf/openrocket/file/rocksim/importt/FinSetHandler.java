@@ -23,7 +23,6 @@ import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
@@ -301,11 +300,8 @@ class FinSetHandler extends AbstractElementHandler {
 		else if (shapeCode == 2) {
 			
 			result = new FreeformFinSet();
-			try {
-				((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
-			} catch (IllegalFinPointException e) {
-				warnings.add("Illegal fin point set. " + e.getMessage() + " Ignoring.");
-			}
+			((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
+			
 		}
 		else {
 			return null;

@@ -31,7 +31,6 @@ import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -786,17 +785,13 @@ public class TestRockets {
 		bodytube = new BodyTube(0.69, 0.033, 0.001);
 		
 		finset = new FreeformFinSet();
-		try {
-			finset.setPoints(new Coordinate[] {
+		finset.setPoints(new Coordinate[] {
 					new Coordinate(0, 0),
 					new Coordinate(0.115, 0.072),
 					new Coordinate(0.255, 0.072),
 					new Coordinate(0.255, 0.037),
-					new Coordinate(0.150, 0)
-			});
-		} catch (IllegalFinPointException e) {
-			e.printStackTrace();
-		}
+					new Coordinate(0.150, 0)	});
+		
 		finset.setThickness(0.003);
 		finset.setFinCount(4);
 		
@@ -1251,12 +1246,8 @@ public class TestRockets {
   						, new Coordinate( 0.1565, 0.0082)
   						, new Coordinate( 0.1388, 0.0)
   				};
-  				try{ 
-  					fins.setPoints( points);
-  				}catch( IllegalFinPointException fpe ){
-  					System.err.println("Error building built-in rocket: V2 from TestRockets factory. Aborting and exiting.");
-  					System.exit(-1);
-  				}
+  				fins.setPoints( points);
+  				
   				fins.setRelativePosition( Position.TOP );
   				fins.setAxialOffset(0);
   				fins.setThickness(0.0024);

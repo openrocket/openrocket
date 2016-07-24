@@ -50,8 +50,6 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
@@ -276,10 +274,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
 				finset.setPoints( points);
-			} catch (IllegalFinPointException e) {
-				log.warn("Error storing fin points", e);
-				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
-						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
+//          // this is the only place the exception is caught.... is this useful? 
+//			} catch (IllegalFinPointException e) {
+//				log.warn("Error storing fin points", e);
+//				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
+//						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
 			} catch (IOException e) {
 				log.warn("Error loading file", e);
 				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
@@ -338,10 +337,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 				dragIndex = index;
                 
-	            try {
-	                finset.setPoint(dragIndex, point.x, point.y );
-				} catch (IllegalFinPointException ignore) {
-				}
+	            finset.setPoint(dragIndex, point.x, point.y );
 				
 				return;
 			}
@@ -360,11 +356,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 			Point2D.Double point = getCoordinates(event);
             
-			try {
-				finset.setPoint(dragIndex, point.x, point.y );
-			} catch (IllegalFinPointException ignore) {
-				log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
-			}
+			finset.setPoint(dragIndex, point.x, point.y );
 		}
 		
 		
@@ -511,16 +503,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 					c = c.setY(value);
 				}
 				
-				// offset this coordinate from the fin start.
-		        final SymmetricComponent symParent = (SymmetricComponent)finset.getParent();
-		        final double xFinStart = finset.asPositionValue(Position.TOP); // x @ fin start, body frame
-		        final double yFinStart = symParent.getRadius( xFinStart) - symParent.getForeRadius();
-				c = c.add( xFinStart, yFinStart, 0);
-		        
 				finset.setPoint(rowIndex, c.x, c.y);
 				
 			} catch (NumberFormatException ignore) {
-			} catch (IllegalFinPointException ignore) {
+			    log.warn("ignoring NumberFormatException while configuring a Freeform Fin");
 			}
 		}
 	}
