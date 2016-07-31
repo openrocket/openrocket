@@ -1053,9 +1053,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Set the position value of the component.  The exact meaning of the value
 	 * depends on the current relative positioning.
 	 * <p>
-	 * Since many components do not support setting the relative position.  A component that does support
-	 * it should override this with a public method that simply calls this
-	 * supermethod AND fire a suitable ComponentChangeEvent.
 	 * 
 	 * @param value		the desired offset of this component, relative to its parent
 	 */
@@ -1067,7 +1064,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected void setAxialOffset(final Position positionMethod, final double newOffset) {
 		checkState();
 		if ( this.isAfter()){
-			relativePosition = Position.AFTER;
+			this.relativePosition = Position.AFTER;
 		}else{
 			this.relativePosition = positionMethod;
 		}

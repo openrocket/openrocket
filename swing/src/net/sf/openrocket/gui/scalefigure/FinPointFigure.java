@@ -474,6 +474,7 @@ public class FinPointFigure extends JPanel implements ScaleFigure {
 			setPreferredSize( preferredFigureSize_px);
 			revalidate();
 		}
+		
 	}
 	
 	private void updateTransform(){

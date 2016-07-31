@@ -1235,6 +1235,7 @@ public class TestRockets {
   		    
   		    { // freeform fins -- on boattail
   				FreeformFinSet fins = new FreeformFinSet();
+  				boattail.addChild( fins);
   				fins.setName("fins");
   				fins.setFinCount(4);
   				Coordinate[] points = new Coordinate[] { 
@@ -1257,7 +1258,7 @@ public class TestRockets {
   	            fins.setTabLength( 0.12 );
   	            fins.setTabRelativePosition( RocketComponent.Position.TOP );
   	            fins.setTabShift( 0.02 );
-  	            boattail.addChild( fins);
+  	            
   		    }
 		}
           

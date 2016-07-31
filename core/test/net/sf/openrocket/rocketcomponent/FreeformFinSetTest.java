@@ -67,16 +67,19 @@ public class FreeformFinSetTest extends BaseTestCase {
 	    body.setLength(1.0);
 	    body.setAftRadius(0.5);
 	    // slope = .5/1.0 = 0.5
+	    body.setName("Transition Body");
 	    stg.addChild(body);
 	   
-	    // Fin length = 1
-	    // Body Length = 2
+	    // Fin length = 0.4
+	    // Body Length = 1.0
 	    //          +--+
 	    //         /   |
 	    //        /    |
 	    //   +---+-----+---+
 	    //
 	    FreeformFinSet fins = new FreeformFinSet();
+	    body.addChild(fins);
+	    fins.setName("test-freeform-finset");
 	    fins.setFinCount(1);
 	    fins.setAxialOffset( Position.TOP, 0.4);
 	    Coordinate[] initPoints = new Coordinate[] {
@@ -86,8 +89,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 	                   new Coordinate( 0.4,-0.2)
 	    };
 	    fins.setPoints(initPoints);
-	    body.addChild(fins);
 	    fins.setAxialOffset( Position.TOP, 0.4);
+	    
 	    
 	    return rkt;
     }
@@ -95,53 +98,96 @@ public class FreeformFinSetTest extends BaseTestCase {
     
     
     @Test
-    public void testSetPoint_firstPoint() {
-    	// combine the simple case with the complicated to ensure that the simple case is flagged, tested, and debugged before running the more complicated case...
-    	{ // setting points on a Tube Body is the simpler case. Test this first:
-	    	Rocket rkt = createFinsOnTube();
-	    	FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0); 
-	    	
-	    	Coordinate act_p_0;
-	    	// first point x is restricted to the front of the parent body:
-	    	fins.setPoint(0, -1, 0);
+    public void testSetPoint_firstPoint_boundsCheck() {
+    	// more transitions trigger more complicated positioning math:  
+		Rocket rkt = createFinsOnTransition();
+		FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0);
+		assertEquals( 1, fins.getFinCount());
+		final int startIndex = 0;
+		final int lastIndex = fins.getPointCount()-1;
+		assertEquals( 3, lastIndex);
+
+    	Coordinate act_p_0;
+    	{ // first point x is restricted to the front of the parent body:
+		    fins.setPoint( startIndex, -1, 0);
 		    act_p_0 = fins.getFinPoints()[0];
 		    assertEquals( 0.0, act_p_0.x, EPSILON);
 		    assertEquals( 0.0, fins.getAxialOffset(), EPSILON);
-			
-	        // first point y is restricted to the body
-		    fins.setPoint(0, 0, -1);
+    	}
+    	
+    	{// first point y is restricted to the body
+		    fins.setPoint( startIndex, 0, -1);
 		    act_p_0 = fins.getFinPoints()[0];
 			assertEquals( 0.0, act_p_0.y, EPSILON);
-			
-			// moving the first point relocates the rest of the points:
-			// i.e. the points don't move relative to p0
-			Coordinate exp_p_1 = fins.getFinPoints()[1].add( -0.2, 0, 0);
-			fins.setPoint(0,  0.2, 0);
-			Coordinate act_p_1 = fins.getFinPoints()[1];
-			assertEquals("moving fin start point doesn't move other fin point: x: ", exp_p_1.x, act_p_1.x, EPSILON);
-			assertEquals("moving fin start point doesn't move other fin point: y: ", exp_p_1.y, act_p_1.y, EPSILON);
-		}
-		{ // more transitions trigger more complicated positioning math:  
-			Rocket rkt = createFinsOnTransition();
-			FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0);
-			
-	    	Coordinate act_p_0;
-	    	// first point x is restricted to the front of the parent body:
-		    fins.setPoint(0, -1, 0);
-		    act_p_0 = fins.getFinPoints()[0];
-		    assertEquals( 0.0, act_p_0.x, EPSILON);
-		    assertEquals( 0.0, fins.getAxialOffset(), EPSILON);
-			
-	        // first point y is restricted to the body
-		    fins.setPoint(0, 0, -1);
-		    act_p_0 = fins.getFinPoints()[0];
-			assertEquals( 0.0, act_p_0.y, EPSILON);
-		}
+    	}
     }
     
-    
     @Test
-    public void testSetPoint_lastPoint_TubeBody() {
+    public void testSetPoint_firstPoint_normal() {
+    	// more transitions trigger more complicated positioning math:  
+		Rocket rkt = createFinsOnTransition();
+		FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0);
+		assertEquals( 1, fins.getFinCount());
+		final int startIndex = 0;
+		final int lastIndex = fins.getPointCount()-1;
+		assertEquals( 3, lastIndex);
+		final double initXOffset = fins.getAxialOffset();
+		assertEquals( 0.4, initXOffset, EPSILON); // pre-condition
+		
+		final double xDelta = 0.2;
+		final double expXDelta = xDelta;
+		Coordinate expectedLastPoint = fins.getFinPoints()[ lastIndex].add( -0.2, 0.1, 0);
+		fins.setPoint( startIndex, xDelta, 0);
+    	
+	    // setting the first point actually offsets the whole fin by that amount:
+		Coordinate act_p_0 = fins.getFinPoints()[ startIndex];
+		assertEquals( 0.0, act_p_0.x, EPSILON);
+		assertEquals( 0.0, act_p_0.y, EPSILON);
+	    final double expFinOffset = initXOffset + expXDelta;
+	    assertEquals( expFinOffset, fins.getAxialOffset(), EPSILON);
+	    
+	    // SHOULD NOT CHANGE (in this case):
+	    Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
+		assertEquals( expectedLastPoint.x, actualLastPoint.x, EPSILON);
+		assertEquals( expectedLastPoint.y, actualLastPoint.y, EPSILON); // magic number
+		assertEquals("New fin length is wrong: ", 0.2, fins.getLength(), EPSILON);
+    }
+
+    @Test
+    public void testSetFirstPoint_testNonIntersection() {
+    	// more transitions trigger more complicated positioning math:  
+		Rocket rkt = createFinsOnTransition();
+		FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0);
+		assertEquals( 1, fins.getFinCount());
+		final int startIndex = 0;
+		final int lastIndex = fins.getPointCount()-1;
+		assertEquals( 3, lastIndex);
+		final double initXOffset = fins.getAxialOffset();
+		assertEquals( 0.4, initXOffset, EPSILON); // pre-condition
+		
+		final double attemptedDelta = 0.6;
+		fins.setPoint( startIndex, attemptedDelta, 0);
+		// fin offset: 0.4 -> 0.59  (just short of prev fin end)
+		// fin end:    0.4 ~> min root chord  
+    
+		Coordinate act_p_0 = fins.getFinPoints()[ startIndex];
+		assertEquals( 0.0, act_p_0.x, EPSILON);
+		assertEquals( 0.0, act_p_0.y, EPSILON);
+		
+	    // setting the first point actually offsets the whole fin by that amount:
+		final double expFinOffset = 0.79;
+	    assertEquals("Resultant fin offset does not match!", expFinOffset, fins.getAxialOffset(), EPSILON);
+	    
+	    // SHOULD NOT CHANGE (in this case):
+	    Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
+		assertEquals("last point did not adjust correctly: ", FreeformFinSet.MIN_ROOT_CHORD, actualLastPoint.x, EPSILON);
+		assertEquals("last point did not adjust correctly: ", -0.005, actualLastPoint.y, EPSILON); // magic number
+		assertEquals("New fin length is wrong: ", FreeformFinSet.MIN_ROOT_CHORD, fins.getLength(), EPSILON);
+    }
+    
+
+    @Test
+    public void testSetLastPoint_TubeBody() {
     	// combine the simple case with the complicated to ensure that the simple case is flagged, tested, and debugged before running the more complicated case...
     	{ // setting points on a Tube Body is the simpler case. Test this first:
     		Rocket rkt = createFinsOnTube();
@@ -166,20 +212,21 @@ public class FreeformFinSetTest extends BaseTestCase {
     	
 	    	Coordinate act_p_l;
 	    	Coordinate exp_p_l;
-	    	
 	    	{ // this is where the point starts off at: 
 	    		act_p_l = fins.getFinPoints()[lastIndex];
 	    		assertEquals( 0.4, act_p_l.x, EPSILON);
 	    		assertEquals( -0.2, act_p_l.y, EPSILON);
 	    	}
 	    	
-    		// move last point, and verify that its y-value is still clamped to the body ( at the new location) 
-    		exp_p_l = new Coordinate( 0.6, -0.3, 0.0);
-    		fins.setPoint(lastIndex, 0.6, 0.0); // w/ incorrect y-val.  The function should correct the y-value as above. 
-    		
-    		act_p_l = fins.getFinPoints()[lastIndex];
-    		assertEquals( exp_p_l.x, act_p_l.x, EPSILON);
-    		assertEquals( exp_p_l.y, act_p_l.y, EPSILON);
+	    	{ // (1):  move point within bounds
+	    		// move last point, and verify that its y-value is still clamped to the body ( at the new location) 
+	    		exp_p_l = new Coordinate( 0.6, -0.3, 0.0);
+	    		fins.setPoint(lastIndex, 0.6, 0.0); // w/ incorrect y-val.  The function should correct the y-value as above. 
+	    		
+	    		act_p_l = fins.getFinPoints()[lastIndex];
+	    		assertEquals( exp_p_l.x, act_p_l.x, EPSILON);
+	    		assertEquals( exp_p_l.y, act_p_l.y, EPSILON);
+	    	}
 		}
 	}
     
@@ -216,7 +263,33 @@ public class FreeformFinSetTest extends BaseTestCase {
     		assertEquals( exp_p_l.y, act_p_l.y, EPSILON);
     	}
     }
-    
+
+    @Test
+    public void testSetOffset_triggerClampCorrection() {
+		// test correction of last point due to moving entire fin:
+		Rocket rkt = createFinsOnTransition();
+		Transition body = (Transition) rkt.getChild(0).getChild(0);
+		FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(0).getChild(0);
+		assertEquals( 1, fins.getFinCount());
+		final int lastIndex = fins.getPointCount()-1;
+		assertEquals( 3, lastIndex);
+		
+		final double initXOffset = fins.getAxialOffset();
+		assertEquals( 0.4, initXOffset, EPSILON); // pre-condition
+		final double newXTop = 0.85;
+		final double expFinOffset = 0.6;
+		final double expLength = body.getLength() - expFinOffset;
+		fins.setAxialOffset( Position.TOP, newXTop);
+		// fin start: 0.4 => 0.8  [body]
+		// fin end:   0.8 => 0.99 [body]  
+	    assertEquals( expFinOffset, fins.getAxialOffset(), EPSILON);
+	    assertEquals( expLength, fins.getLength(), EPSILON);
+	    
+	    // SHOULD DEFINITELY CHANGE
+	    Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
+		assertEquals( 0.4, actualLastPoint.x, EPSILON);
+		assertEquals( -0.2, actualLastPoint.y, EPSILON);
+    }
     
 	@Test
 	public void testComputeCM_ZeroSweepSimpleTrapezoid() throws Exception {
