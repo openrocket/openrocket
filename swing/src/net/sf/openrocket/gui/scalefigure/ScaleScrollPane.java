@@ -214,8 +214,6 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
     
     @Override
     public void revalidate(){
-        // for debugging:
-        System.err.println("    revalidating the scale scroll pane...");
         
         if( null != component ){
             component.revalidate();
@@ -223,9 +221,11 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
         
         if( null != horizontalRuler){
             horizontalRuler.revalidate();
+            horizontalRuler.repaint();
         }
         if( null != verticalRuler ){
             verticalRuler.revalidate();
+            verticalRuler.repaint();
         }
         
         super.revalidate();
@@ -310,10 +310,6 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 				setPreferredSize(new Dimension(RULER_SIZE, d.height + 10));
 			}
 
-//			// for debugging:
-//            if( VERTICAL == this.orientation ){  
-//                System.err.println(String.format("updating size for vrule: "+component.getName()));
-//            }
 			revalidate();
 			repaint();
 		}
@@ -349,10 +345,6 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			
 			Rectangle area = g2.getClipBounds();
 
-//            // for debugging:
-//			if( VERTICAL == this.orientation ){  
-//	            System.err.println(String.format("repainting rulers. graphics.bounds: from: %d, %d    Area= %d, %d ;", area.x, area.y, area.width, area.height));
-//	        }
 	        	        
 			// Fill area with background color
 			g2.setColor(getBackground());
@@ -378,8 +370,8 @@ public class ScaleScrollPane extends JScrollPane implements MouseListener, Mouse
 			
             Tick[] ticks = null;
             if( VERTICAL == orientation ){
-                // the parameters are *intended* to be backwards, because 'getTicks(...)' can only create
-                // increasing arrays (where the start < end)
+                // the parameters are *intended* to be backwards: because 'getTicks(...)' can only 
+                // create increasing arrays (where the start < end)
                 ticks = unit.getTicks(end, start, minor, major);
             }else if(HORIZONTAL == orientation ){
                 // normal parameter order
