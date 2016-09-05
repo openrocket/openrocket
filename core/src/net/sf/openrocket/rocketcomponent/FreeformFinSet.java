@@ -161,7 +161,7 @@ public class FreeformFinSet extends FinSet {
 			this.points = copy;
 		}
 		
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERO_MASS_CHANGE);
 	}
 	
 	
@@ -205,7 +205,7 @@ public class FreeformFinSet extends FinSet {
 		}
 		
 		this.length = points.get(points.size() - 1).x;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERO_MASS_CHANGE);
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class FreeformFinSet extends FinSet {
 		if (index == 0 || index == lastPointIndex) {
 			this.length = points.get(lastPointIndex).x;
 		}
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERO_MASS_CHANGE);
 	}
 	
 	@Override
@@ -390,7 +390,7 @@ public class FreeformFinSet extends FinSet {
 		if( null != symBody ){
 			
 			final double startOffset = this.asPositionValue( Position.TOP );
-			final Coordinate finStart = this.position.setY( symBody.getRadius(startOffset) );
+			final Coordinate finStart = new Coordinate( startOffset, symBody.getRadius(startOffset) );
 			
 			// campare x-values 
 			final Coordinate finAtLast = lastPoint.add(finStart); 
@@ -403,8 +403,9 @@ public class FreeformFinSet extends FinSet {
 			// compare the y-values
 			final Coordinate bodyAtLast = finAtLast.setY( symBody.getRadius( finAtLast.x ) ); 
 			if( 0.0001 < Math.abs( finAtLast.y - bodyAtLast.y) ){
-				log.error("End point does not touch its parent body ["+symBody.getName()+"].  exception: ", new IllegalFinPointException("End point does not touch its parent body. illegal.")); 
-				log.error(String.format("    ..fin end@         (%6.2g,%6.2g)", finAtLast.x, finAtLast.y));
+				String numbers = String.format( "finStart=(%6.2g,%6.2g) // fin_end=(%6.2g,%6.2g) // body=(%6.2g,%6.2g)", finStart.x, finStart.y, finAtLast.x, finAtLast.y, bodyAtLast.x, bodyAtLast.y );
+				log.error("End point does not touch its parent body ["+symBody.getName()+"].  exception: ", new IllegalFinPointException("End point does not touch its parent body! Expected: "+numbers));
+				log.error("    .."+numbers);
 				return false;
 			}
 		}

@@ -36,7 +36,7 @@ public class FinSetShapes extends RocketComponentShape {
 		                                        
 
 		Coordinate finSetFront = componentAbsoluteLocation;
-		Coordinate finPoints[] = finset.getFinPoints();
+		Coordinate finPoints[] = finset.getFinPoints_fromFin();
         Coordinate tabPoints[] = finset.getTabPoints();
         Coordinate basePoints[] = finset.getRootPoints();
 		

@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.WeightVector;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
@@ -13,34 +14,65 @@ public class FinSetTest extends BaseTestCase {
 	
 	@Test
 	public void testTrapezoidCGComputation() {
-		
+		final Rocket rkt = new Rocket();
+        final AxialStage stg = new AxialStage();
+        rkt.addChild(stg);
+        BodyTube body = new BodyTube(0.5, 0.1);
+        stg.addChild(body);
+        rkt.enableEvents();
+        
 		{
 			// This is a simple square fin with sides of 1.0.
 			TrapezoidFinSet fins = new TrapezoidFinSet();
-			fins.setFinCount(1);
-			fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+			fins.setFinCount(1); // verify that this method return numbers for a single fin w/in a multi-fin set. 
+			fins.setFinShape(0.1, 0.1, 0.0, 0.1, .0005);
+			body.addChild(fins);
 			
+			assertEquals(0.01, fins.getFinWettedArea(), 0.00001);
 			Coordinate coords = fins.getCG();
-			assertEquals(1.0, fins.getFinArea(), 0.001);
-			assertEquals(0.5, coords.x, 0.001);
-			assertEquals(0.5, coords.y, 0.001);
+			assertEquals("Centroid x coordinate is wrong! ", 0.05, coords.x, EPSILON);
+			assertEquals("Centroid y coordinate is wrong! ", 0.15, coords.y, EPSILON);
+			
+			{
+				fins.setFinCount(2); 
+				// this should also promp a recalculation
+				
+				// should still return a single-fin-wetted area
+				assertEquals(0.01, fins.getFinWettedArea(), 0.00001);
+				
+				Coordinate newCG = fins.getCG();
+				assertEquals(0.05, newCG.x, EPSILON);
+				assertEquals(0.0, newCG.y, EPSILON);
+			}
 		}
+			
 		
 		{
 			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
 			// It can be decomposed into a rectangle followed by a triangle
-			//  +---+
-			//  |    \
+			//  +----+
 			//  |     \
-			//  +------+
+			//  |       \
+			//  +--------+
+			//    |  |
+			//    +--+
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
-			fins.setFinShape(1.0, 0.5, 0.0, 1.0, .005);
+			fins.setFinShape(0.1, 0.05, 0.0, 0.1, .005);
+			body.addChild( fins);
+			
+			// set up tabs:
+			fins.setTabHeight(0.05);
+			fins.setTabLength(0.05);
+			fins.setTabRelativePosition(Position.TOP);
+			fins.setTabShift(0.01);
+			
+			assertEquals(0.0075, fins.getFinWettedArea(), 0.001);
+			assertEquals(0.0100, fins.getFinTotalArea(), 0.001);
 			
 			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
+			assertEquals("fin cg.x is wrong!", 0.03791666662875, coords.x, EPSILON);
+			assertEquals("fin cg.y is wrong!", 0.12708333328125, coords.y, EPSILON);
 		}
 		
 	}
@@ -112,7 +144,7 @@ public class FinSetTest extends BaseTestCase {
          //         /   |
          //        /    |
          //   +---+-----+---+
-         //
+         //   
          FinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
          fins.setName("test fins");
          fins.setAxialOffset( Position.MIDDLE, 0.0);
@@ -187,26 +219,25 @@ public class FinSetTest extends BaseTestCase {
 
     @Test
     public void testTabLocationUpdate() throws IllegalFinPointException {
-    	 final Rocket rkt = new Rocket();
-         final AxialStage stg = new AxialStage();
-         rkt.addChild(stg);
-         BodyTube body = new BodyTube(0.2, 0.001);
-         stg.addChild(body);
-         
-         // Fin length = 0.025
-         // Tab Length = 0.01
-         //          +--+
-         //         /   |
-         //        /    |
-         //   +---+-----+---+
-         //
-         TrapezoidFinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
-         fins.setAxialOffset( Position.MIDDLE, 0.0);
-         body.addChild(fins);
-         // fins.length = 0.05;
-         fins.setTabLength(0.01);
+    	final Rocket rkt = new Rocket();
+    	final AxialStage stg = new AxialStage();
+    	rkt.addChild(stg);
+    	BodyTube body = new BodyTube(0.2, 0.001);
+    	stg.addChild(body);
+    	
+    	// Fin length = 0.025
+    	// Tab Length = 0.01
+    	//          +--+
+    	//         /   |
+    	//        /    |
+    	//   +---+-----+---+
+    	//
+    	TrapezoidFinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
+    	fins.setAxialOffset( Position.MIDDLE, 0.0);
+    	body.addChild(fins);
+    	// fins.length = 0.05;
+    	fins.setTabLength(0.01);
 
-         
      	fins.setTabRelativePosition( Position.MIDDLE);
  	 	fins.setTabShift( 0.0 );
      
@@ -220,6 +251,37 @@ public class FinSetTest extends BaseTestCase {
 	 	final double expFrontSecond = 0.035;
  	 	final double actFrontSecond = fins.getTabFrontEdge();
 	 	assertEquals(" Front edge doesn't match after adjusting root chord...",expFrontSecond, actFrontSecond, EPSILON);
+    }
+    
+    @Test
+    public void testAreaCalculations() {
+    	final Rocket rkt = new Rocket();
+    	final AxialStage stg = new AxialStage();
+    	rkt.addChild(stg);
+    	BodyTube body = new BodyTube(0.2, 0.001);
+    	stg.addChild(body);
+    	TrapezoidFinSet fins = new TrapezoidFinSet( 1, 0.06, 0.02, 0.02, 0.05);
+    	fins.setAxialOffset( Position.MIDDLE, 0.0);
+    	body.addChild(fins);
+    	
+    	fins.setTabLength(0.01);
+     	fins.setTabRelativePosition( Position.MIDDLE);
+ 	 	fins.setTabShift( 0.0 );
+ 	 	
+         // Fin length = 0.05
+         // Tab Length = 0.01
+         //          +--+
+         //         /    \
+         //        /      \
+         //   +---+--------+---+
+         //
+ 	 	Coordinate[] basicPoints = fins.getFinPoints();
+ 	 	
+ 	 	final double expArea = 0.04*0.05; 
+ 	 	final WeightVector actCentroid= FinSet.calculateCurveIntegral( basicPoints);
+ 	 	assertEquals(" basic area doesn't match...", expArea, actCentroid.w, EPSILON);
+ 	 	assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
+ 	 	assertEquals(" basic centroid y doesn't match: ", 0.02083, actCentroid.y, EPSILON);
     }
     
     

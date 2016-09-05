@@ -7,14 +7,18 @@ import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
+import net.sf.openrocket.util.WeightVector;
 
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
+	//private static final Logger log = LoggerFactory.getLogger(FinSet.class);
+	
 	
 	/**
 	 * Maximum allowed cant of fins.
@@ -51,12 +55,12 @@ public abstract class FinSet extends ExternalComponent {
 	/**
 	 * Number of fins.
 	 */
-	protected int fins = 3;
+	protected int finCount = 3;
 	
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
-	protected Transformation finRotation = Transformation.rotate_x(2 * Math.PI / fins);
+	protected Transformation finRotation = Transformation.rotate_x(2 * Math.PI / finCount);
 	
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
@@ -82,6 +86,7 @@ public abstract class FinSet extends ExternalComponent {
 	 * Thickness of the fins.
 	 */
 	protected double thickness = 0.003;
+
 	
 	
 	/**
@@ -93,6 +98,7 @@ public abstract class FinSet extends ExternalComponent {
 	/*
 	 * Fin tab properties.
 	 */
+	private static final double minimumTabArea = 0.001;
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
 	private double tabShift = 0;
@@ -101,17 +107,17 @@ public abstract class FinSet extends ExternalComponent {
 	/*
 	 * Fin fillet properties
 	 */
-	
 	protected Material filletMaterial = null;
 	protected double filletRadius = 0;
 	protected double filletCenterY = 0;
 	
-	// Cached fin area & CG.  Validity of both must be checked using finArea!
-	// Fin area does not include fin tabs, CG does.
-	private double finArea = -1;
-	private double finCGx = -1;
-	private double finCGy = -1;
-	
+	public boolean debug;
+	// wetted area 
+	private double wettedArea=Double.NaN;
+	// these coordinates are weighted by AREA: simple component-total area (incl. tabs)
+	private WeightVector centroid = new WeightVector();
+	// cache some sort of measure of restoring moment? especially for fins? 
+	private double restoringMoment=Double.NaN;
 	
 	/**
 	 * New FinSet with given number of fins and given base rotation angle.
@@ -133,7 +139,7 @@ public abstract class FinSet extends ExternalComponent {
 	 * @return The number of fins.
 	 */
 	public int getFinCount() {
-		return fins;
+		return finCount;
 	}
 	
 	/**
@@ -141,14 +147,14 @@ public abstract class FinSet extends ExternalComponent {
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
-		if (fins == n)
+		if (finCount == n)
 			return;
 		if (n < 1)
 			n = 1;
 		if (n > 8)
 			n = 8;
-		fins = n;
-		finRotation = Transformation.rotate_x(2 * Math.PI / fins);
+		finCount = n;
+		finRotation = Transformation.rotate_x(2 * Math.PI / finCount);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -181,8 +187,6 @@ public abstract class FinSet extends ExternalComponent {
 		return baseRotation;
 	}
 	
-	
-	
 	public double getCantAngle() {
 		return cantAngle;
 	}
@@ -209,8 +213,6 @@ public abstract class FinSet extends ExternalComponent {
 		}
 		return cantRotation;
 	}
-	
-	
 	
 	public double getThickness() {
 		return thickness;
@@ -246,6 +248,13 @@ public abstract class FinSet extends ExternalComponent {
 		return tabHeight;
 	}
 	
+	/**
+	 * Set the height from the fin's base at the point where the tab is located from -- if the tab is located via Position.BOTTOM, then the back edge will be 
+	 * <code>height</code> deep, and the bottom edge of the tab will be parallel to the stage centerline.
+	 *  
+	 * @param height how deep the fin tab should project from the fin root.
+	 * 
+	 */
 	public void setTabHeight(double height) {
 		height = MathUtil.max(height, 0);
 		if (MathUtil.equals(this.tabHeight, height))
@@ -311,75 +320,81 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-	///////////  Calculation methods  ///////////
-	
+	///////////  Calculation methods  //////////
 	/**
-	 * Return the area of one side of one fin.  This does NOT include the area of
-	 * the fin tab.
+	 * Return the area of a *single* fin exposed to the airflow (i.e. external area) 
+	 * N.B. counts only one side of each fin,  
+	 * https://en.wikipedia.org/wiki/Wetted_area
 	 * 
-	 * @return   the area of one side of one fin.
+	 * @return returns the one-sided air-exposed area of a single fin  
 	 */
-	public double getFinArea() {
-		if (finArea < 0)
-			calculateAreaCG();
-		
-		return finArea;
+	public double getFinWettedArea() {
+		if( Double.isNaN( this.wettedArea)){
+			updatePhysicalProperties();
+		}
+		return wettedArea;
 	}
 	
+	public double getFinTotalArea() {
+		if( this.centroid.isNaN() ){
+			updatePhysicalProperties();
+		}
+		return centroid.w;
+	}
+	
+	@Override
+	public double getComponentMass() {
+		return getComponentVolume()*material.getDensity();
+	}
+	
+//	public double getSingleFinMass() {
+//		return getComponentVolume() * material.getDensity();
+//	}
+	
+	public double getFilletMass() {
+		return getFilletVolume() * filletMaterial.getDensity();
+	}
+	
+	@Override
+	public double getComponentVolume() {
+		if( this.centroid.isNaN() ){
+			this.updatePhysicalProperties();
+		}
+		// this is for the fins alone, fillets are taken care of separately.
+		return finCount * (this.centroid.w) * thickness *
+				crossSection.getRelativeVolume();
+	}
 	
 	/**
 	 * Return the unweighted CG of a single fin.  The X-coordinate is relative to
 	 * the root chord leading edge and the Y-coordinate to the fin root chord.
 	 * 
 	 * @return  the unweighted CG coordinate of a single fin. 
-	 */
-	public Coordinate getFinCG() {
-		if (finArea < 0)
-			calculateAreaCG();
-		
-		return new Coordinate(finCGx, finCGy, 0 );
-	}
-	
-	
-	@Override
-	public double getComponentMass() {
-		return getFilletMass() + getFinMass();
-	}
-	
-	public double getFinMass() {
-		return getComponentVolume() * material.getDensity();
-	}
-	
-	public double getFilletMass() {
-		return getFilletVolume() * filletMaterial.getDensity();
-	}
-	
-	
-	@Override
-	public double getComponentVolume() {
-		// this is for the fins alone, fillets are taken care of separately.
-		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
-				crossSection.getRelativeVolume();
-	}
-	
-	
-	
+	 */	
 	@Override
 	public Coordinate getComponentCG() {
-		if (finArea < 0)
-			calculateAreaCG();
+		if( this.centroid.isNaN() ){
+			//?? not sure how to organize these..sure.
+			//calculateWettedAread
+			updatePhysicalProperties();
+		}
 		
-		double mass = getFinMass();
+		double mass = getComponentMass();
+		
+		//Coordinate[] rootPoints = getRootPoints();
+		// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework to calculate the CoM of a line
+		// >> piecewise segment average (?)
 		double filletMass = getFilletMass();
 		double filletCenter = length / 2;
 		
-		double newFinCMx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
+		// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework.
+		double newFinCMx = (filletCenter * filletMass + this.centroid.x * mass) / (filletMass + mass);
 		
 		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
 		// is.  Finding the actual position is very involved and won't make a huge difference.
-		double newFinCMy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
+		double newFinCMy = (filletRadius / 5 * filletMass + this.centroid.y * mass) / (filletMass + mass);
 		
-		if (fins == 1) {
+		if (finCount == 1) {
 			return baseRotation.transform(
 					new Coordinate(newFinCMx, newFinCMy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
@@ -418,54 +433,148 @@ public abstract class FinSet extends ExternalComponent {
 		return 2 * filletVolume;
 	}
 	
-	private void calculateAreaCG() {
-		Coordinate[] points = this.getFinPoints();
-		finArea = 0;
-		finCGx = 0;
-		finCGy = 0;
+	public void updatePhysicalProperties(){
+		WeightVector wettedCentroid = calculateWettedAreaCentroid();
+		WeightVector tabCentroid = calculateTabCentroid();
 		
-		for (int i = 0; i < points.length - 1; i++) {
-			final double x0 = points[i].x;
-			final double x1 = points[i + 1].x;
-			final double y0 = points[i].y;
-			final double y1 = points[i + 1].y;
+		this.wettedArea = wettedCentroid.w;
+
+		this.centroid = wettedCentroid.add( tabCentroid);
+//		if(debug){
+//			System.err.println(String.format( "    >> wetted: (%6.4g, %6.4g, %6.4g // %6.4g )", wettedCentroid.x, wettedCentroid.y, wettedCentroid.z, wettedCentroid.w ));
+//			System.err.println(String.format( "    >> tab: (%6.4g, %6.4g, %6.4g // %6.4g )", tabCentroid.x, tabCentroid.y, tabCentroid.z, tabCentroid.w ));
+//			System.err.println(String.format( "    << finTotal: (%6.4g, %6.4g, %6.4g // %6.4g )", centroid.x, centroid.y, centroid.z, centroid.w ));
+//			System.err.println( "");
+//		}
 		
-			double da = (y0 + y1) * (x1 - x0) / 2;
-			finArea += da;
-			if (Math.abs(y0 + y1) < 0.00001) {
-				finCGx += (x0 + x1) / 2 * da;
-				finCGy += y0 / 2 * da;
-			} else {
-				finCGx += (x0 * (2 * y0 + y1) + x1 * (y0 + 2 * y1)) / (3 * (y0 + y1)) * da;
-				finCGy += (y1 + y0 * y0 / (y0 + y1)) / 3 * da;
-			}
+		// this.restoringMoment
+ 	}
+	
+	/**
+	 * \brief  calculate the area between the points and the x-axis, and returns the centroid + area. 
+	 *  
+	 * @param points define a piece-wise line bounding the area.    
+	 * @return  centroid of the area, additionaly the area is stored as the weight
+	 */
+	public static WeightVector calculateCurveIntegral( Coordinate[] points ){
+		WeightVector centroidSum = new WeightVector(0);
+		
+		Coordinate prev= points[0];
+		for( int index = 1; index < points.length; index++){
+			Coordinate cur = points[index];
+			final double delta_x = (cur.x - prev.x);
+			final double y_avg = (cur.y + prev.y)/2;
+			
+			// calculate marginal area
+			double area_increment = delta_x*y_avg;
+					
+			// calculate centroid increment 
+			double common = (0.333333333/(cur.y+prev.y));
+			double x_ctr = common*(prev.x*(2*prev.y+cur.y) + cur.x*(2*cur.y+prev.y));
+			double y_ctr =  common*( cur.y*prev.y + Math.pow( cur.y, 2) + Math.pow( prev.y, 2));
+			
+			WeightVector centroid_increment = new WeightVector( x_ctr, y_ctr, 0, area_increment);
+			centroidSum = centroidSum.add( centroid_increment );
+			
+//			{
+//				System.err.println(String.format("       for increment: from:[%2d](%4.2g, %4.2g)   to:[%2d](%4.2g, %4.2g)", index-1, prev.x, prev.y, index, cur.x, cur.y));
+//				System.err.println(String.format("  	    	    delta_x= %6.4g  y_avg=%6.4g  A_incr=%6.4g     x= %6.4g y=%6.4g, A=%6.4g", 
+//											     delta_x, y_avg, area_increment, centroid_increment.x, centroid_increment.y, centroid_increment.w));
+//				System.err.println(String.format( "                 sum = (%6.4g, %6.4g, %6.4g // %6.4g )", centroidSum.x, centroidSum.y, centroidSum.z, centroidSum.w ));
+//			}
+			
+			prev=cur;
 		}
 		
-		if (finArea < 0)
-			finArea = 0;
+		return centroidSum;
+	}
+	
+	public static WeightVector calculateCurveCoM( Coordinate[] points){
+		// NYI! 
 		
-		// Add effect of fin tabs to CG
-		double tabArea = tabLength * tabHeight;
-		if (!MathUtil.equals(tabArea, 0)) {
+		//	Coordinate[] rootPoints = getRootPoints();
+			// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework to calculate the CoM of a line
+			// >> piecewise segment average (?)
+	
+		return null;
+	}
 			
-			double x = (getTabFrontEdge() + getTabTrailingEdge()) / 2;
-			double y = -this.tabHeight / 2;
+	
+	/* 
+	 * The coordinate contains an x,y coordinate of the centroid, and the raw alread is stored in the weight field.
+	 */
+	
+	private WeightVector calculateWettedAreaCentroid(){
+		if(( null == getParent()) || ( getParent() instanceof BodyTube )){
+			// optimization: this is the quickest for most common fins: 
+			return calculateCurveIntegral( getFinPoints_fromFin() );
+		}else {
+			final double yFinFront = getBodyRadius();
 			
-			finCGx += x * tabArea;
-			finCGy += y * tabArea;
+			// ---------
+			final Coordinate[] finPoints = translatePoints( getFinPoints(), 0.0, yFinFront );
+			Coordinate[] upperCurve = finPoints;
+			final WeightVector upperCentroid = calculateCurveIntegral( upperCurve );
+
+			Coordinate[] bodyCurve = getBodyPoints();
+			Coordinate[] lowerCurve = bodyCurve;
+			final WeightVector lowerCentroid = calculateCurveIntegral( lowerCurve );
 			
-		}
-		
-		if ((finArea + tabArea) > 0) {
-			finCGx /= (finArea + tabArea);
-			finCGy /= (finArea + tabArea);
-		} else {
-			finCGx = (points[0].x + points[points.length - 1].x) / 2;
-			finCGy = 0;
+			WeightVector totalCentroid = upperCentroid.subtract( lowerCentroid );
+			
+			// move centroid to be relative to fin start.
+			totalCentroid = totalCentroid.move( 0.0, yFinFront, 0);
+			
+			return totalCentroid;
 		}
 	}
 	
+	private WeightVector calculateTabCentroid(){
+		RocketComponent comp = getParent();
+		if( (null == comp) 
+				|| (!( comp instanceof SymmetricComponent))
+				|| isTabTrivial() ){
+
+			// if null or invalid type:
+			return new WeightVector(0);
+		}
+
+		// relto: fin
+		final double xTabFront_fin = getTabFrontEdge();
+		final double xTabBack_fin = getTabTrailingEdge();
+		
+		// cast AND assert:
+		SymmetricComponent body = (SymmetricComponent)parent;
+		final double xFinFront_body = getTop();
+		final double yFinFront = getBodyRadius();
+		final double xTabFront_body = xFinFront_body + xTabFront_fin;
+		final double xTabBack_body = xFinFront_body + xTabBack_fin;
+				
+		// always returns x coordinates relTo fin front:
+		Coordinate[] upperCurve = getBodyPoints( xTabFront_body, xTabBack_body );
+		// subtract off tab location
+		upperCurve = translatePoints( upperCurve, -xFinFront_body, 0.0);
+		
+		double rTabInner = getTabReferenceRadius() - tabHeight; 
+		Coordinate[] lowerCurve = new Coordinate[]{ new Coordinate( xTabFront_fin, rTabInner),
+													new Coordinate( xTabBack_fin, rTabInner)};
+
+		WeightVector upperCentroid = calculateCurveIntegral( upperCurve );
+		WeightVector lowerCentroid = calculateCurveIntegral( lowerCurve );
+		
+		WeightVector tabCentroid = upperCentroid.subtract( lowerCentroid );
+
+		// move centroid to be relative to fin start.
+		tabCentroid = tabCentroid.move( 0.0, yFinFront, 0);
+		return tabCentroid;
+	}	
 	
+	private double getTabReferenceRadius() {
+		double xTabOffset = Position.getTop( tabShift, tabRelativePosition, length, tabLength );
+		double xTabReference = getTop() + xTabOffset; 
+		return ((SymmetricComponent) getParent()).getRadius( xTabReference ); 
+	}
+
 	/*
 	 * Return an approximation of the longitudinal unitary inertia of the fin set.
 	 * The process is the following:
@@ -481,7 +590,7 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	@Override
 	public double getLongitudinalUnitInertia() {
-		double area = getFinArea();
+		double area = getFinWettedArea();
 		if (MathUtil.equals(area, 0))
 			return 0;
 		
@@ -501,12 +610,12 @@ public abstract class FinSet extends ExternalComponent {
 		
 		double inertia = (h2 + 2 * w2) / 24;
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return inertia;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
+		return finCount * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
 	}
 	
 	
@@ -522,7 +631,7 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	@Override
 	public double getRotationalUnitInertia() {
-		double area = getFinArea();
+		double area = getFinWettedArea();
 		if (MathUtil.equals(area, 0))
 			return 0;
 		
@@ -536,12 +645,12 @@ public abstract class FinSet extends ExternalComponent {
 			h = MathUtil.safeSqrt(h * area / w);
 		}
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return h * h / 12;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
+		return finCount * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
 	}
 	
 	
@@ -590,8 +699,11 @@ public abstract class FinSet extends ExternalComponent {
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		if (e.isAerodynamicChange()) {
-			finArea = -1;
+		if (e.isAerodynamicChange()
+			|| e.isMassChange()) {
+			this.wettedArea=Double.NaN;
+			this.centroid.reset(Double.NaN);
+			this.restoringMoment = Double.NaN;
 			cantRotation = null;
 		}
 		super.componentChanged(e);
@@ -611,8 +723,8 @@ public abstract class FinSet extends ExternalComponent {
 		s = this.getParent();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
-				double x = this.toRelative(new Coordinate(0, 0, 0), s)[0].x;
-				return ((SymmetricComponent) s).getRadius(x);
+				double xFinFront = getTop();
+				return ((SymmetricComponent) s).getRadius(xFinFront);
 			}
 			s = s.getParent();
 		}
@@ -638,12 +750,21 @@ public abstract class FinSet extends ExternalComponent {
 	 * Return a list of coordinates defining the geometry of a single fin.  
 	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
 	 * where the origin is the leading root edge.  Therefore, the first point must be (0,0,0).
-	 * All Z-coordinates must be zero, and the last coordinate must have Y=0.
+	 * All Z-coordinates must be zero.
 	 * 
 	 * @return  List of XY-coordinates.
 	 */
 	public abstract Coordinate[] getFinPoints();
 	
+	
+	public Coordinate[] getFinPoints_fromFin(){
+		return getFinPoints();
+	}
+	
+	public boolean isTabTrivial(){
+		return ( FinSet.minimumTabArea > (getTabLength()*getTabHeight()));
+	}
+		
 	public boolean isRootStraight( ){
         if( getParent() instanceof Transition){
             if( ((Transition)getParent()).getType() == Transition.Shape.CONICAL ){
@@ -705,13 +826,6 @@ public abstract class FinSet extends ExternalComponent {
 		
 		return points;
 	}
-	
-//	public Coordinate getFrontX() {
-//		final double xFinFront = asPositionValue(Position.TOP);
-//		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
-//		final double yFinFront = symmetricParent.getRadius( xFinFront );
-//		return new Coordinate(xFinFront, yFinFront);
-//	}
 
 	/* 
 	 * yes, this may over-count points between the fin and fin tabs, 
@@ -727,7 +841,6 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 
-	
 	/**
 	 * Get the span of a single fin.  That is, the length from the root to the tip of the fin.
 	 * @return  Span of a single fin.
@@ -738,7 +851,7 @@ public abstract class FinSet extends ExternalComponent {
 	@Override
 	protected List<RocketComponent> copyFrom(RocketComponent c) {
 		FinSet src = (FinSet) c;
-		this.fins = src.fins;
+		this.finCount = src.finCount;
 		this.finRotation = src.finRotation;
 		this.rotation = src.rotation;
 		this.baseRotation = src.baseRotation;
@@ -757,7 +870,6 @@ public abstract class FinSet extends ExternalComponent {
 	/*
 	 * Handle fin fillet mass properties	
 	 */
-	
 	public Material getFilletMaterial() {
 		return filletMaterial;
 	}
@@ -787,45 +899,85 @@ public abstract class FinSet extends ExternalComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	public Coordinate[] getRootPoints() {
-		SymmetricComponent parentComp = (SymmetricComponent)getParent();
-		if( null == parentComp){
-			return null;
-		}
-		final double xFinFront = asPositionValue(Position.TOP);
-		final double yFinFront = parentComp.getRadius( xFinFront );
-				
-		if( parentComp instanceof BodyTube){
-			// flat, level base 
-			final Coordinate finFront = new Coordinate( xFinFront, yFinFront);
-			final Coordinate finBack = new Coordinate( xFinFront+getLength(), yFinFront );
-			return new Coordinate[]{finFront, finBack};
-		}else if( (parentComp instanceof Transition) 
-				&& ( ((Transition) parentComp).getType() == Transition.Shape.CONICAL )){
-			
-			// straight line, but y may vary
-			final Coordinate finFront = new Coordinate( xFinFront, yFinFront);
-			final double xFinBack = xFinFront+getLength();
-			final double yFinBack = parentComp.getRadius( xFinBack );
-			
-			final Coordinate finBack = new Coordinate( xFinBack, yFinBack );
-			
-			return new Coordinate[]{finFront, finBack};
-		}else{
-			// most complex case: curved, and may shrink/grow 
-			final int intervalCount = 5;
-			final int pointCount = intervalCount+1;
-			final Coordinate[] points = new Coordinate[pointCount];
-			final double x_delta = (getLength()) / intervalCount;
-			double x_cur=0.0;
-			for( int index=0; index < points.length; ++index){
-				double x_ref = xFinFront + x_cur;
-				points[index] = new Coordinate( x_cur, parentComp.getRadius(x_ref)-yFinFront);
-				x_cur += x_delta;
-			}
-			return points;
-		}
+	/**
+	 * use this for calculating physical properties, and routine drawing
+	 * 
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
+	 */
+	public Coordinate[] getBodyPoints() {
+		final double xFinStart = getTop();
+		final double xFinEnd = xFinStart+getLength();
+		final double xOffset = -xFinStart;
+		final double yOffset = 0.0d;
+		
+		return translatePoints( getBodyPoints( xFinStart, xFinEnd), xOffset, yOffset);
 	}
 
+	/**
+	 * used to get body points for the profile design view
+	 * 
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: fin-root-radius ) 
+	 */
+	public Coordinate[] getRootPoints(){
+		final double xFinStart = getTop();
+		final double xFinEnd = xFinStart+getLength();
+		final double xOffset = -xFinStart;
+		final double yOffset = -getBodyRadius();
+		
+		return translatePoints( getBodyPoints( xFinStart, xFinEnd), xOffset, yOffset);
+	}
+
+	public Coordinate[] getBodyPoints( final double xStart, final double xEnd ) {
+		if( null == parent){
+			return null;
+		}
+		
+		// for a simple bodies, one increment is perfectly accurate.
+		int divisionCount = 1;
+		// cast-assert
+		final SymmetricComponent body = (SymmetricComponent) getParent();
+
+		// for anything more complicated, increase the count: 
+		if( ( body instanceof Transition) && ( ((Transition)body).getType() != Shape.CONICAL )){
+			
+			// the maximum precision to enforce when calculating the areas of fins ( especially on curved parent bodies)
+			final double calculationPrecision = 0.005;
+			divisionCount = (int)Math.ceil(  (xEnd - xStart) / calculationPrecision);
+			
+			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
+			final int maximumBodyDivisionCount = 100;
+			divisionCount = Math.min( maximumBodyDivisionCount, divisionCount);
+		}
+		
+		final double intervalLength = xEnd - xStart;
+		double increment = (intervalLength)/divisionCount;
+		
+				
+		double xCur = xStart;
+		Coordinate[] points = new Coordinate[divisionCount+1];
+		for( int index = 0; index < points.length; index++){
+			double yCur = body.getRadius( xCur );
+			points[index]=new Coordinate( xCur, yCur);
+			
+			xCur += increment;
+		}
+		return points;
+	}
+
+	// for debugging.  You can safely delete this method (+ overload)
+	public static String getPointDescr( final Coordinate[] points, final String name){
+		return getPointDescr( points, name, "");
+	}
+	public static String getPointDescr( final Coordinate[] points, final String name, final String indent){
+		StringBuilder buf = new StringBuilder(); 
+		
+		buf.append( (indent+"    >> "+name+": length: "+points.length+"\n"));
+		int index =0;
+		for( Coordinate c : points ){
+			buf.append( String.format( indent+"      ....[%2d] (%6.4g, %6.4g)\n", index, c.x, c.y));
+			index++;
+		}
+		return buf.toString();
+	}
 
 }

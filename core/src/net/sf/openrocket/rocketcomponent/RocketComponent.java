@@ -91,7 +91,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				return (positionShift - innerLength + outerLength);
 			default:
 				throw new IllegalArgumentException("unknown position type=" + positionMethod );
-			}	
+			}
 		}
 		
 		/** 
@@ -255,7 +255,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public abstract double getRotationalUnitInertia();
 	
+
+	/**
+	 * 
+	 * @return offset from the top of the parent component ot the top of this component.  Convenience overload.
+	 */
+	public double getTop() {
+		return this.asPositionValue(Position.TOP);
+	}
 	
+
 	/**
 	 * Test whether this component allows any children components.  This method must
 	 * return true if and only if {@link #isCompatible(Class)} returns true for any
@@ -1553,8 +1562,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final RocketComponent getRoot() {
 		checkState();
 		RocketComponent gp = this;
-		while (gp.parent != null)
+		while (gp.parent != null){
 			gp = gp.parent;
+		}
 		return gp;
 	}
 	

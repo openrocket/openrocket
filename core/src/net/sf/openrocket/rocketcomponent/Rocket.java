@@ -830,7 +830,7 @@ public class Rocket extends RocketComponent {
 			return;
 		}else if( _enable ){
 			this.eventsEnabled = true;
-			this.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
+			this.fireComponentChangeEvent(ComponentChangeEvent.AERO_MASS_CHANGE);
 		}else{
 			this.eventsEnabled = false;
 		}
