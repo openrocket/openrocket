@@ -336,14 +336,24 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	@Override
-	public void setAxialOffset( final Position newPositionMethod, final double newOffset){		
-		super.setAxialOffset( newPositionMethod, newOffset); // normal move
+	public void setAxialOffset( final Position newPositionMethod, final double newOffsetRequest){
+		super.setAxialOffset( newPositionMethod, newOffsetRequest);
+
+		double newOffset = newOffsetRequest;
 		
-		// if the new position would cause fin overhang, clamp the fin to the botton of its parent's body
-		// N.B. if you want a fin to overhang, adjust it's component points.
+		// if the new position would cause fin overhang, only allow movement up to the end of the parent component.
+		// N.B. if you want a fin to overhang, add & adjust interior points.
 		final double backOverhang = asPositionValue(Position.BOTTOM);
 		if( 0 <  backOverhang ){
-			super.setAxialOffset( newPositionMethod, newOffset - backOverhang);
+			
+			newOffset -= backOverhang;
+			super.setAxialOffset( newPositionMethod, newOffset );
+		}
+		final double frontOverhang = asPositionValue(Position.TOP);
+		if( 0 > frontOverhang){
+			
+			newOffset -= frontOverhang;
+			super.setAxialOffset( newPositionMethod, newOffset );
 		}
 	}
 	
