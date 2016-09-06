@@ -215,8 +215,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label, "right, gapright unrel");
 		
 		final EnumModel<RocketComponent.Position> em =
-				new EnumModel<RocketComponent.Position>(component, "TabRelativePosition");
+				new EnumModel<RocketComponent.Position>(component, "TabPositionMethod");
 		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
+		
 //=======
 //		JComboBox<RocketComponent.Position>  posBox = new JComboBox<>(em);
 //		posBox.addItemListener(new ItemListener(){

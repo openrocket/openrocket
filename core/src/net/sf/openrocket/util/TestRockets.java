@@ -1256,7 +1256,7 @@ public class TestRockets {
   	                
   				fins.setTabHeight( 0.020);
   	            fins.setTabLength( 0.12 );
-  	            fins.setTabRelativePosition( RocketComponent.Position.TOP );
+  	            fins.setTabPositionMethod( RocketComponent.Position.TOP );
   	            fins.setTabShift( 0.02 );
   	            
   		    }

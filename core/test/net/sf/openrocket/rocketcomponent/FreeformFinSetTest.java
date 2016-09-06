@@ -703,7 +703,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		{
 			fins.setTabHeight(0.1);
 			fins.setTabLength(0.1);
-			fins.setTabRelativePosition(Position.TOP);
+			fins.setTabPositionMethod(Position.TOP);
 			fins.setTabShift(0.2);
 			
 			// fin is a simple trapezoid against a linearly changing body...
@@ -828,7 +828,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		
 		sourceSet.setTabHeight(0.01);
 		sourceSet.setTabLength(0.02);
-		sourceSet.setTabRelativePosition( Position.BOTTOM);
+		sourceSet.setTabPositionMethod( Position.BOTTOM);
 		sourceSet.setTabShift(0.015);
 		sourceSet.setThickness(0.005);
 		
@@ -866,7 +866,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		
 		sourceSet.setTabHeight(0.01);
 		sourceSet.setTabLength(0.02);
-		sourceSet.setTabRelativePosition( Position.BOTTOM);
+		sourceSet.setTabPositionMethod( Position.BOTTOM);
 		sourceSet.setTabShift(0.015);
 		sourceSet.setThickness(0.005);
 		

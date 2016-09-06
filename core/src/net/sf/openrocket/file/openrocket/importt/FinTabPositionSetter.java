@@ -42,7 +42,7 @@ class FinTabPositionSetter extends DoubleSetter {
 			if( null == position ){
 				warnings.add("Illegal attribute value '" + relative + "' encountered.");
 			}else{
-				((FinSet) c).setTabRelativePosition(position);
+				((FinSet) c).setTabPositionMethod(position);
 				super.set(c, s, attributes, warnings);
 			}
 		

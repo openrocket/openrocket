@@ -64,7 +64,7 @@ public class FinSetTest extends BaseTestCase {
 			// set up tabs:
 			fins.setTabHeight(0.05);
 			fins.setTabLength(0.05);
-			fins.setTabRelativePosition(Position.TOP);
+			fins.setTabPositionMethod(Position.TOP);
 			fins.setTabShift(0.01);
 			
 			assertEquals(0.0075, fins.getFinWettedArea(), 0.001);
@@ -160,7 +160,7 @@ public class FinSetTest extends BaseTestCase {
          final double[] expMiddle = {-0.01,  0.0, 0.01, 0.0};
          final double[] expBottom = {-0.03,  -0.02, -0.01, -0.02};
          for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
-     	 	fins.setTabRelativePosition( pos[caseIndex]);
+     	 	fins.setTabPositionMethod( pos[caseIndex]);
      	 	fins.setTabShift( expShift[caseIndex]);
             double actFront= fins.getTabFrontEdge();
     	 	double actShift = fins.getTabShift();
@@ -171,7 +171,7 @@ public class FinSetTest extends BaseTestCase {
             assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
             		expShift[caseIndex], actShift, EPSILON);
             
-            fins.setTabRelativePosition( Position.TOP);
+            fins.setTabPositionMethod( Position.TOP);
             actFront = fins.getTabFrontEdge();
             
             assertEquals(String.format( " Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
@@ -179,14 +179,14 @@ public class FinSetTest extends BaseTestCase {
             assertEquals(String.format( " Relative Positioning doesn't match when reshift to top, from "+pos[caseIndex].name()),
             							expFront[caseIndex], fins.getTabShift(), EPSILON);
 
-            fins.setTabRelativePosition( Position.MIDDLE);
+            fins.setTabPositionMethod( Position.MIDDLE);
             actShift = fins.getTabShift();
             assertEquals(String.format( " Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
             							expFront[caseIndex], actFront, EPSILON);
             assertEquals(String.format( " Relative Positioning doesn't match when reshift to middle, from "+pos[caseIndex].name()),
            		                        expMiddle[caseIndex], fins.getTabShift(), EPSILON);
             
-            fins.setTabRelativePosition( Position.BOTTOM);
+            fins.setTabPositionMethod( Position.BOTTOM);
             actShift = fins.getTabShift();
             assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
                  expFront[caseIndex], actFront, EPSILON);
@@ -238,7 +238,7 @@ public class FinSetTest extends BaseTestCase {
     	// fins.length = 0.05;
     	fins.setTabLength(0.01);
 
-     	fins.setTabRelativePosition( Position.MIDDLE);
+     	fins.setTabPositionMethod( Position.MIDDLE);
  	 	fins.setTabShift( 0.0 );
      
  	 	final double expFrontFirst = 0.02;
@@ -265,7 +265,7 @@ public class FinSetTest extends BaseTestCase {
     	body.addChild(fins);
     	
     	fins.setTabLength(0.01);
-     	fins.setTabRelativePosition( Position.MIDDLE);
+     	fins.setTabPositionMethod( Position.MIDDLE);
  	 	fins.setTabShift( 0.0 );
  	 	
          // Fin length = 0.05

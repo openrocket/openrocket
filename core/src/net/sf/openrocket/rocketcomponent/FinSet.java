@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
@@ -17,7 +20,7 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
-	//private static final Logger log = LoggerFactory.getLogger(FinSet.class);
+	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
 	
 	
 	/**
@@ -125,7 +128,7 @@ public abstract class FinSet extends ExternalComponent {
 	 * i.e. fins are positioned at the bottom of the parent component.
 	 */
 	public FinSet() {
-		super(RocketComponent.Position.BOTTOM);
+		super( Position.BOTTOM);
 		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
@@ -239,7 +242,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
+	public void setRelativePosition( Position position) {
 		super.setRelativePosition(position);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -288,15 +291,15 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public void setTabShift( final double newShift) {
 		this.tabShift = newShift;
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
-	
-	public Position getTabRelativePosition() {
+	public Position getTabPositionMethod() {
 		return tabRelativePosition;
 	}
 	
-	public void setTabRelativePosition( final Position newPositionMethod) {
+	public void setTabPositionMethod( final Position newPositionMethod) {
 		final double oldFront = getTabFrontEdge();
 		
 		this.tabRelativePosition = newPositionMethod;
