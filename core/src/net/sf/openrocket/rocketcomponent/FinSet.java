@@ -10,9 +10,9 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Mass;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
-import net.sf.openrocket.util.WeightVector;
 
 
 public abstract class FinSet extends ExternalComponent {
@@ -115,7 +115,7 @@ public abstract class FinSet extends ExternalComponent {
 	// wetted area 
 	private double wettedArea=Double.NaN;
 	// these coordinates are weighted by AREA: simple component-total area (incl. tabs)
-	private WeightVector centroid = new WeightVector();
+	private Mass centroid = new Mass();
 	// cache some sort of measure of restoring moment? especially for fins? 
 	private double restoringMoment=Double.NaN;
 	
@@ -434,8 +434,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	public void updatePhysicalProperties(){
-		WeightVector wettedCentroid = calculateWettedAreaCentroid();
-		WeightVector tabCentroid = calculateTabCentroid();
+		Mass wettedCentroid = calculateWettedAreaCentroid();
+		Mass tabCentroid = calculateTabCentroid();
 		
 		this.wettedArea = wettedCentroid.w;
 
@@ -456,8 +456,8 @@ public abstract class FinSet extends ExternalComponent {
 	 * @param points define a piece-wise line bounding the area.    
 	 * @return  centroid of the area, additionaly the area is stored as the weight
 	 */
-	public static WeightVector calculateCurveIntegral( Coordinate[] points ){
-		WeightVector centroidSum = new WeightVector(0);
+	public static Mass calculateCurveIntegral( Coordinate[] points ){
+		Mass centroidSum = new Mass(0);
 		
 		Coordinate prev= points[0];
 		for( int index = 1; index < points.length; index++){
@@ -473,7 +473,7 @@ public abstract class FinSet extends ExternalComponent {
 			double x_ctr = common*(prev.x*(2*prev.y+cur.y) + cur.x*(2*cur.y+prev.y));
 			double y_ctr =  common*( cur.y*prev.y + Math.pow( cur.y, 2) + Math.pow( prev.y, 2));
 			
-			WeightVector centroid_increment = new WeightVector( x_ctr, y_ctr, 0, area_increment);
+			Mass centroid_increment = new Mass( x_ctr, y_ctr, 0, area_increment);
 			centroidSum = centroidSum.add( centroid_increment );
 			
 //			{
@@ -489,7 +489,7 @@ public abstract class FinSet extends ExternalComponent {
 		return centroidSum;
 	}
 	
-	public static WeightVector calculateCurveCoM( Coordinate[] points){
+	public static Mass calculateCurveCoM( Coordinate[] points){
 		// NYI! 
 		
 		//	Coordinate[] rootPoints = getRootPoints();
@@ -504,23 +504,22 @@ public abstract class FinSet extends ExternalComponent {
 	 * The coordinate contains an x,y coordinate of the centroid, and the raw alread is stored in the weight field.
 	 */
 	
-	private WeightVector calculateWettedAreaCentroid(){
+	private Mass calculateWettedAreaCentroid(){
 		if(( null == getParent()) || ( getParent() instanceof BodyTube )){
 			// optimization: this is the quickest for most common fins: 
 			return calculateCurveIntegral( getFinPoints_fromFin() );
 		}else {
 			final double yFinFront = getBodyRadius();
 			
-			// ---------
 			final Coordinate[] finPoints = translatePoints( getFinPoints(), 0.0, yFinFront );
 			Coordinate[] upperCurve = finPoints;
-			final WeightVector upperCentroid = calculateCurveIntegral( upperCurve );
+			final Mass upperCentroid = calculateCurveIntegral( upperCurve );
 
 			Coordinate[] bodyCurve = getBodyPoints();
 			Coordinate[] lowerCurve = bodyCurve;
-			final WeightVector lowerCentroid = calculateCurveIntegral( lowerCurve );
+			final Mass lowerCentroid = calculateCurveIntegral( lowerCurve );
 			
-			WeightVector totalCentroid = upperCentroid.subtract( lowerCentroid );
+			Mass totalCentroid = upperCentroid.subtract( lowerCentroid );
 			
 			// move centroid to be relative to fin start.
 			totalCentroid = totalCentroid.move( 0.0, yFinFront, 0);
@@ -529,22 +528,20 @@ public abstract class FinSet extends ExternalComponent {
 		}
 	}
 	
-	private WeightVector calculateTabCentroid(){
+	private Mass calculateTabCentroid(){
 		RocketComponent comp = getParent();
 		if( (null == comp) 
 				|| (!( comp instanceof SymmetricComponent))
 				|| isTabTrivial() ){
 
 			// if null or invalid type:
-			return new WeightVector(0);
+			return new Mass(0);
 		}
 
 		// relto: fin
 		final double xTabFront_fin = getTabFrontEdge();
 		final double xTabBack_fin = getTabTrailingEdge();
 		
-		// cast AND assert:
-		SymmetricComponent body = (SymmetricComponent)parent;
 		final double xFinFront_body = getTop();
 		final double yFinFront = getBodyRadius();
 		final double xTabFront_body = xFinFront_body + xTabFront_fin;
@@ -559,10 +556,10 @@ public abstract class FinSet extends ExternalComponent {
 		Coordinate[] lowerCurve = new Coordinate[]{ new Coordinate( xTabFront_fin, rTabInner),
 													new Coordinate( xTabBack_fin, rTabInner)};
 
-		WeightVector upperCentroid = calculateCurveIntegral( upperCurve );
-		WeightVector lowerCentroid = calculateCurveIntegral( lowerCurve );
+		Mass upperCentroid = calculateCurveIntegral( upperCurve );
+		Mass lowerCentroid = calculateCurveIntegral( lowerCurve );
 		
-		WeightVector tabCentroid = upperCentroid.subtract( lowerCentroid );
+		Mass tabCentroid = upperCentroid.subtract( lowerCentroid );
 
 		// move centroid to be relative to fin start.
 		tabCentroid = tabCentroid.move( 0.0, yFinFront, 0);

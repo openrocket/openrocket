@@ -1,20 +1,23 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.masscalc;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class ParticleTest {
+import net.sf.openrocket.util.Mass;
+import net.sf.openrocket.util.MathUtil;
+
+public class MassTest {
 	
 	private static final double EPSILON = MathUtil.EPSILON;
 
 	@Test
 	public void testAdd() {
 
-		WeightVector x = new WeightVector(1,2,1,1);
-		WeightVector y = new WeightVector(2,1,1,2);
+		Mass x = new Mass(1,2,1,1);
+		Mass y = new Mass(2,1,1,2);
 		
-		WeightVector sum = x.add(y);
+		Mass sum = x.add(y);
 		
 		assertEquals( 3.0, sum.w, EPSILON);
 		assertEquals( 1.66666667, sum.x, EPSILON);
@@ -25,10 +28,10 @@ public class ParticleTest {
 	@Test
 	public void testAverage() {
 
-		WeightVector x = new WeightVector(1,2,1,1);
-		WeightVector y = new WeightVector(2,1,1,2);
+		Mass x = new Mass(1,2,1,1);
+		Mass y = new Mass(2,1,1,2);
 		
-		WeightVector sum = x.average(y);
+		Mass sum = x.average(y);
 		
 		assertEquals( 1.5, sum.w, EPSILON);
 		assertEquals( 1.66666667, sum.x, EPSILON);
@@ -38,12 +41,12 @@ public class ParticleTest {
 
 	@Test
 	public void testSubtract() {
-		WeightVector p1 = new WeightVector(1,2,1,1);
-		WeightVector p2 = new WeightVector(2,1,1,2);
+		Mass p1 = new Mass(1,2,1,1);
+		Mass p2 = new Mass(2,1,1,2);
 		
-		final WeightVector sum = p1.add(p2);
+		final Mass sum = p1.add(p2);
 		
-		final WeightVector result = sum.subtract( p2); 
+		final Mass result = sum.subtract( p2); 
 		
 		assertEquals( p1.w, result.w, EPSILON);
 		assertEquals( p1.x, result.x, EPSILON);

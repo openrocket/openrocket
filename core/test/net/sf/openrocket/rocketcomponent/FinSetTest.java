@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.WeightVector;
+import net.sf.openrocket.util.Mass;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
@@ -278,7 +278,7 @@ public class FinSetTest extends BaseTestCase {
  	 	Coordinate[] basicPoints = fins.getFinPoints();
  	 	
  	 	final double expArea = 0.04*0.05; 
- 	 	final WeightVector actCentroid= FinSet.calculateCurveIntegral( basicPoints);
+ 	 	final Mass actCentroid= FinSet.calculateCurveIntegral( basicPoints);
  	 	assertEquals(" basic area doesn't match...", expArea, actCentroid.w, EPSILON);
  	 	assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
  	 	assertEquals(" basic centroid y doesn't match: ", 0.02083, actCentroid.y, EPSILON);

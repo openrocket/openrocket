@@ -22,7 +22,7 @@ import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
-import net.sf.openrocket.util.WeightVector;
+import net.sf.openrocket.util.Mass;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FreeformFinSetTest extends BaseTestCase {
@@ -364,7 +364,7 @@ public class FreeformFinSetTest extends BaseTestCase {
  	 	//
  	 	
  	 	final double expArea = 0.04*0.05; 
- 	 	final WeightVector actCentroid= FinSet.calculateCurveIntegral( basicPoints);
+ 	 	final Mass actCentroid= FinSet.calculateCurveIntegral( basicPoints);
  	 	assertEquals(" basic area doesn't match...", expArea, actCentroid.w, EPSILON);
  	 	assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
  	 	assertEquals(" basic centroid y doesn't match: ", 0.12083, actCentroid.y, EPSILON);
