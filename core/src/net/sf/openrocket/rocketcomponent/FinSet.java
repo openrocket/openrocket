@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,7 +102,7 @@ public abstract class FinSet extends ExternalComponent {
 	/*
 	 * Fin tab properties.
 	 */
-	private static final double minimumTabArea = 0.001;
+	private static final double minimumTabArea = 1e-8;
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
 	private double tabShift = 0;
@@ -114,13 +115,13 @@ public abstract class FinSet extends ExternalComponent {
 	protected double filletRadius = 0;
 	protected double filletCenterY = 0;
 	
-	public boolean debug;
 	// wetted area 
-	private double wettedArea=Double.NaN;
+	private Mass wettedArea = Mass.nan();
 	// these coordinates are weighted by AREA: simple component-total area (incl. tabs)
-	private Mass centroid = new Mass();
+	private double volume = Double.NaN;
+	private Mass mass = Mass.nan(); 
 	// cache some sort of measure of restoring moment? especially for fins? 
-	private double restoringMoment=Double.NaN;
+	private double restoringMoment = Double.NaN;
 	
 	/**
 	 * New FinSet with given number of fins and given base rotation angle.
@@ -240,7 +241,6 @@ public abstract class FinSet extends ExternalComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
 	@Override
 	public void setRelativePosition( Position position) {
 		super.setRelativePosition(position);
@@ -263,6 +263,7 @@ public abstract class FinSet extends ExternalComponent {
 		if (MathUtil.equals(this.tabHeight, height))
 			return;
 		this.tabHeight = height;
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -332,17 +333,10 @@ public abstract class FinSet extends ExternalComponent {
 	 * @return returns the one-sided air-exposed area of a single fin  
 	 */
 	public double getFinWettedArea() {
-		if( Double.isNaN( this.wettedArea)){
+		if( wettedArea.isNaN()){
 			updatePhysicalProperties();
 		}
-		return wettedArea;
-	}
-	
-	public double getFinTotalArea() {
-		if( this.centroid.isNaN() ){
-			updatePhysicalProperties();
-		}
-		return centroid.w;
+		return wettedArea.w;
 	}
 	
 	@Override
@@ -350,22 +344,13 @@ public abstract class FinSet extends ExternalComponent {
 		return getComponentVolume()*material.getDensity();
 	}
 	
-//	public double getSingleFinMass() {
-//		return getComponentVolume() * material.getDensity();
-//	}
-	
-	public double getFilletMass() {
-		return getFilletVolume() * filletMaterial.getDensity();
-	}
-	
 	@Override
 	public double getComponentVolume() {
-		if( this.centroid.isNaN() ){
+		if( Double.isNaN( this.volume)){
 			this.updatePhysicalProperties();
 		}
-		// this is for the fins alone, fillets are taken care of separately.
-		return finCount * (this.centroid.w) * thickness *
-				crossSection.getRelativeVolume();
+	
+		return finCount * this.volume;
 	}
 	
 	/**
@@ -376,36 +361,94 @@ public abstract class FinSet extends ExternalComponent {
 	 */	
 	@Override
 	public Coordinate getComponentCG() {
-		if( this.centroid.isNaN() ){
-			//?? not sure how to organize these..sure.
-			//calculateWettedAread
+		if( this.mass.isNaN() ){
 			updatePhysicalProperties();
 		}
 		
-		double mass = getComponentMass();
-		
-		//Coordinate[] rootPoints = getRootPoints();
-		// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework to calculate the CoM of a line
-		// >> piecewise segment average (?)
-		double filletMass = getFilletMass();
-		double filletCenter = length / 2;
-		
-		// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework.
-		double newFinCMx = (filletCenter * filletMass + this.centroid.x * mass) / (filletMass + mass);
-		
-		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
-		// is.  Finding the actual position is very involved and won't make a huge difference.
-		double newFinCMy = (filletRadius / 5 * filletMass + this.centroid.y * mass) / (filletMass + mass);
-		
-		if (finCount == 1) {
-			return baseRotation.transform(
-					new Coordinate(newFinCMx, newFinCMy + getBodyRadius(), 0, (filletMass + mass)));
-		} else {
-			return new Coordinate(newFinCMx, 0, 0, (filletMass + mass));
-		}
+		return this.mass.toCoordinate();
 	}
 	
-	public double getFilletVolume() {
+	public void updatePhysicalProperties(){
+		this.wettedArea = calculateWettedAreaCentroid();
+		
+		Mass tabArea = calculateTabCentroid();
+		
+		Mass wettedVolume = wettedArea.copy().scaleWeight( thickness * crossSection.getRelativeVolume());
+		Mass tabVolume = tabArea.copy().scaleWeight( thickness);
+		Mass bulkVolume = wettedVolume.add( tabVolume );
+		this.volume = bulkVolume.w;
+		
+		Mass finMaterialMass = bulkVolume.copy().scaleWeight( material.getDensity());
+		
+		Mass filletVolume = calculateFilletVolumeCentroid();
+		Mass filletMass = filletVolume.copy().scaleWeight( filletMaterial.getDensity());
+
+		this.mass = finMaterialMass.add( filletMass );
+		
+		// set y coordinate: rotate around parent, if single fin; otherwise multiple fins will average out to zero
+		if (finCount == 1) {
+			this.mass.y = baseRotation.transform( new Coordinate( mass.x, mass.y, 0, 0)).y;
+		} else {
+			this.mass.y = 0;
+		}
+//		
+//		if(debug){
+//			System.err.println("==== UpdatePhysicalProperties() ====");
+//			System.err.println(String.format( "    >> wetted area:     (%6.4g, %10.8g, %6.4g // %10.8f )", wettedArea.x, wettedArea.y, wettedArea.z, wettedArea.w ));
+//			System.err.println(String.format( "    >> tab area:        (%6.4g, %10.8g, %6.4g // %10.8f )", tabArea.x, tabArea.y, tabArea.z, tabArea.w ));
+//			System.err.println("    ====");
+//			System.err.println(String.format( "    >> wetted vol:      (%6.4g, %10.8g, %6.4g // %10.8f)", wettedVolume.x, wettedVolume.y, wettedVolume.z, wettedVolume.w ));
+//			System.err.println(String.format( "    >> tab vol:         (%6.4g, %10.8g, %6.4g // %10.8f )", tabVolume.x, tabVolume.y, tabVolume.z, tabVolume.w ));
+//			System.err.println(String.format( "    >> bulk vol:        (%6.4g, %10.8g, %6.4g // %10.8f )", bulkVolume.x, bulkVolume.y, bulkVolume.z, bulkVolume.w ));
+//			System.err.println(String.format( "    >> fillet volume:   (%6.4g, %10.8g, %6.4g // %10.8f )", filletVolume.x, filletVolume.y, filletVolume.z, filletVolume.w ));
+//			System.err.println("    ====");
+//			System.err.println(String.format( "    << fin mass:        (%6.4g, %10.8g, %6.4g // %12.10f)", finMaterialMass.x, finMaterialMass.y, finMaterialMass.z, finMaterialMass.w ));
+//			System.err.println(String.format( "    << fillet mass:     (%6.4g, %10.8g, %6.4g // %12.10f )", filletMass.x, filletMass.y, filletMass.z, filletMass.w ));
+//			System.err.println(String.format( "    << finTotal mass:   (%6.4g, %10.8g, %6.4g // %12.10f )", mass.x, mass.y, mass.z, mass.w ));
+//			System.err.println("    ====");
+//		}
+		
+		// this.restoringMoment
+		
+ 	}
+	
+	public Mass calculateFilletVolumeCentroid(){
+		Mass filletVolume = Mass.empty();
+		Coordinate[] bodyPoints = this.getBodyPoints();
+		if( 0 == bodyPoints.length ){
+			return filletVolume;
+		}
+		if ( ! SymmetricComponent.class.isInstance( this.parent )) {
+			return filletVolume;
+		}
+		
+		
+		Coordinate prev = bodyPoints[0]; 
+		for( int index = 1; index < bodyPoints.length; index++){
+			Coordinate cur = bodyPoints[index];
+			
+			final double xAvg= (prev.x + cur.x)/2;
+			final double yAvg = (prev.y + cur.y)/2;
+			
+			// cross section at mid-segment
+			final Mass segmentCrossSection = calculateFilletCrossSection( yAvg, this.filletRadius);
+			
+			final double xCentroid= xAvg;
+			final double yCentroid = segmentCrossSection.y; ///< heuristic, not exact
+			final double segmentLength = Point2D.Double.distance(prev.x, prev.y, cur.x, cur.y);
+			final double segmentVolume = segmentLength * segmentCrossSection.w;
+			
+			Mass segmentCentroid = new Mass( xCentroid, yCentroid, 0, segmentVolume);
+			filletVolume = filletVolume.add( segmentCentroid );
+			
+			prev=cur;
+		}
+		
+		return filletVolume;
+	}
+	
+	
+	public static Mass calculateFilletCrossSection( final double bodyRadius, final double filletRadius ){
 		/*
 		 * Here is how the volume of the fillet is found.  It assumes a circular concave 
 		 * fillet tangent to the fin and the body tube. 
@@ -418,53 +461,48 @@ public abstract class FinSet extends ExternalComponent {
 		 *    fillet that is in that triangle. (angle/2PI * pi*r^2= angle/2 * r^2)
 		 * 4. Multiply the remaining area by the length.
 		 * 5. Return twice that since there is a fillet on each side of the fin.
-		 * 
 		 */
-		double btRadius = 1000.0; // assume a really big body tube if we can't get the radius,
-		RocketComponent c = this.getParent();
-		if (BodyTube.class.isInstance(c)) {
-			btRadius = ((BodyTube) c).getOuterRadius();
-		}
-		double totalRad = filletRadius + btRadius;
-		double innerAngle = Math.asin(filletRadius / totalRad);
-		double outerAngle = Math.acos(filletRadius / totalRad);
+		double hypotenuse = filletRadius + bodyRadius;
+		double innerArcAngle = Math.asin(filletRadius / hypotenuse);
+		double outerArcAngle = Math.acos(filletRadius / hypotenuse);
 		
-		double outerArea = Math.tan(outerAngle) * filletRadius * filletRadius / 2;
-		double filletVolume = length * (outerArea
-				- outerAngle * filletRadius * filletRadius / 2
-				- innerAngle * btRadius * btRadius / 2);
-		return 2 * filletVolume;
+		double triangleArea = Math.tan(outerArcAngle) * filletRadius * filletRadius / 2;
+		double crossSectionArea = (triangleArea 
+									- outerArcAngle * filletRadius * filletRadius / 2
+									- innerArcAngle * bodyRadius * bodyRadius / 2);
+		
+		// each fin has a fillet on each side
+		crossSectionArea *= 2;
+		
+		// heuristic, relTo the body center
+		double yCentroid = bodyRadius + filletRadius /5;
+
+		return new Mass( 0, yCentroid, 0, crossSectionArea);
 	}
 	
-	public void updatePhysicalProperties(){
-		Mass wettedCentroid = calculateWettedAreaCentroid();
-		Mass tabCentroid = calculateTabCentroid();
-		
-		this.wettedArea = wettedCentroid.w;
-
-		this.centroid = wettedCentroid.add( tabCentroid);
-//		if(debug){
-//			System.err.println(String.format( "    >> wetted: (%6.4g, %6.4g, %6.4g // %6.4g )", wettedCentroid.x, wettedCentroid.y, wettedCentroid.z, wettedCentroid.w ));
-//			System.err.println(String.format( "    >> tab: (%6.4g, %6.4g, %6.4g // %6.4g )", tabCentroid.x, tabCentroid.y, tabCentroid.z, tabCentroid.w ));
-//			System.err.println(String.format( "    << finTotal: (%6.4g, %6.4g, %6.4g // %6.4g )", centroid.x, centroid.y, centroid.z, centroid.w ));
-//			System.err.println( "");
-//		}
-		
-		// this.restoringMoment
- 	}
-	
 	/**
-	 * \brief  calculate the area between the points and the x-axis, and returns the centroid + area. 
+	 * \brief  calculate the area-under-the-curve (i.e. the integral) in the form of a centroid + area 
 	 *  
 	 * @param points define a piece-wise line bounding the area.    
 	 * @return  centroid of the area, additionaly the area is stored as the weight
 	 */
-	public static Mass calculateCurveIntegral( Coordinate[] points ){
+	public static Mass calculateCurveIntegral( final Coordinate[] points ){
 		Mass centroidSum = new Mass(0);
+
+		if( 0 == points.length ){
+			return centroidSum;
+		}
+
 		
 		Coordinate prev= points[0];
 		for( int index = 1; index < points.length; index++){
 			Coordinate cur = points[index];
+			if( MathUtil.equals( prev.x, cur.x)){
+				prev = cur;
+				// zero area slice: ignore and continue;
+				continue;   
+			}
+			
 			final double delta_x = (cur.x - prev.x);
 			final double y_avg = (cur.y + prev.y)/2;
 			
@@ -479,64 +517,72 @@ public abstract class FinSet extends ExternalComponent {
 			Mass centroid_increment = new Mass( x_ctr, y_ctr, 0, area_increment);
 			centroidSum = centroidSum.add( centroid_increment );
 			
-//			{
-//				System.err.println(String.format("       for increment: from:[%2d](%4.2g, %4.2g)   to:[%2d](%4.2g, %4.2g)", index-1, prev.x, prev.y, index, cur.x, cur.y));
-//				System.err.println(String.format("  	    	    delta_x= %6.4g  y_avg=%6.4g  A_incr=%6.4g     x= %6.4g y=%6.4g, A=%6.4g", 
-//											     delta_x, y_avg, area_increment, centroid_increment.x, centroid_increment.y, centroid_increment.w));
-//				System.err.println(String.format( "                 sum = (%6.4g, %6.4g, %6.4g // %6.4g )", centroidSum.x, centroidSum.y, centroidSum.z, centroidSum.w ));
-//			}
-			
 			prev=cur;
 		}
 		
 		return centroidSum;
 	}
 	
-	public static Mass calculateCurveCoM( Coordinate[] points){
-		// NYI! 
-		
-		//	Coordinate[] rootPoints = getRootPoints();
-			// TODO: this are probably inaccurate on anything but <code>BodyTube</code> fin bases.  rework to calculate the CoM of a line
-			// >> piecewise segment average (?)
-	
-		return null;
-	}
-			
-	
 	/* 
 	 * The coordinate contains an x,y coordinate of the centroid, and the raw alread is stored in the weight field.
 	 */
-	
 	private Mass calculateWettedAreaCentroid(){
-		if(( null == getParent()) || ( getParent() instanceof BodyTube )){
-			// optimization: this is the quickest for most common fins: 
-			return calculateCurveIntegral( getFinPoints_fromFin() );
-		}else {
-			final double yFinFront = getBodyRadius();
-			
-			final Coordinate[] finPoints = translatePoints( getFinPoints(), 0.0, yFinFront );
-			Coordinate[] upperCurve = finPoints;
-			final Mass upperCentroid = calculateCurveIntegral( upperCurve );
 
-			Coordinate[] bodyCurve = getBodyPoints();
-			Coordinate[] lowerCurve = bodyCurve;
-			final Mass lowerCentroid = calculateCurveIntegral( lowerCurve );
+		final double yFinFront = getBodyRadius();
+		
+		final Coordinate[] upperCurve = translatePoints( getFinPoints(), 0.0, yFinFront ); 
+		final Coordinate[] lowerCurve = getBodyPoints();
+		final Coordinate[] totalCurve = combineCurves( upperCurve, lowerCurve); 
+		
+		final Mass totalCentroid = calculateCurveIntegral( totalCurve );
+		
+		return totalCentroid;
+	}
+
+	/** 
+	 * copies the supplied areas into a third array, such that the first curve is copied forward, and the second is copied in reverse.
+	 * 
+	 *   The motivation is to use the two sets of forward points to produce a single close curve, suitable for an integration operation 
+	 * 
+	 * @param c1 forward curve
+	 * @param c2  backward curve
+	 * @return combined curve
+	 */
+	public Coordinate[] combineCurves( final Coordinate[] c1, final Coordinate[] c2){
+		Coordinate[] returnCurve = new Coordinate[ c1.length + c2.length ];
+		
+		// copy the first array to the start of the return array...
+		System.arraycopy(c1, 0, returnCurve, 0, c1.length);
+
+		Coordinate[] revCurve = reverse( c2);
+		int readIndex = 0; // to eliminate duplicate points
+		int writeIndex = c1.length; // start directly after previous array
+		int writeCount = revCurve.length; // write all-but-first
+		System.arraycopy(revCurve, readIndex, returnCurve, writeIndex, writeCount);
 			
-			Mass totalCentroid = upperCentroid.subtract( lowerCentroid );
-			
-			// move centroid to be relative to fin start.
-			totalCentroid = totalCentroid.move( 0.0, yFinFront, 0);
-			
-			return totalCentroid;
-		}
+		return returnCurve;
+	}
+	
+	// simply return a reversed copy of the source array
+	public Coordinate[] reverse( Coordinate[] source){
+		Coordinate[] reverse = new Coordinate[ source.length ];
+		
+		int readIndex = 0;
+		int writeIndex = source.length-1;
+		while( readIndex < source.length ){
+			reverse[writeIndex] = source[readIndex];
+			++readIndex;
+			--writeIndex;
+		}	
+		return reverse;
 	}
 	
 	private Mass calculateTabCentroid(){
 		RocketComponent comp = getParent();
+
 		if( (null == comp) 
 				|| (!( comp instanceof SymmetricComponent))
 				|| isTabTrivial() ){
-
 			// if null or invalid type:
 			return new Mass(0);
 		}
@@ -546,7 +592,7 @@ public abstract class FinSet extends ExternalComponent {
 		final double xTabBack_fin = getTabTrailingEdge();
 		
 		final double xFinFront_body = getTop();
-		final double yFinFront = getBodyRadius();
+		
 		final double xTabFront_body = xFinFront_body + xTabFront_fin;
 		final double xTabBack_body = xFinFront_body + xTabBack_fin;
 				
@@ -556,16 +602,14 @@ public abstract class FinSet extends ExternalComponent {
 		upperCurve = translatePoints( upperCurve, -xFinFront_body, 0.0);
 		
 		double rTabInner = getTabReferenceRadius() - tabHeight; 
+		
 		Coordinate[] lowerCurve = new Coordinate[]{ new Coordinate( xTabFront_fin, rTabInner),
 													new Coordinate( xTabBack_fin, rTabInner)};
 
-		Mass upperCentroid = calculateCurveIntegral( upperCurve );
-		Mass lowerCentroid = calculateCurveIntegral( lowerCurve );
+		final Coordinate[] totalCurve = combineCurves( upperCurve, lowerCurve ); 
 		
-		Mass tabCentroid = upperCentroid.subtract( lowerCentroid );
-
-		// move centroid to be relative to fin start.
-		tabCentroid = tabCentroid.move( 0.0, yFinFront, 0);
+		final Mass tabCentroid = calculateCurveIntegral( totalCurve );
+			
 		return tabCentroid;
 	}	
 	
@@ -701,8 +745,9 @@ public abstract class FinSet extends ExternalComponent {
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isAerodynamicChange()
 			|| e.isMassChange()) {
-			this.wettedArea=Double.NaN;
-			this.centroid.reset(Double.NaN);
+			this.wettedArea.reset( Double.NaN);
+			this.volume = Double.NaN;
+			this.mass.reset(Double.NaN);
 			this.restoringMoment = Double.NaN;
 			cantRotation = null;
 		}
@@ -929,7 +974,7 @@ public abstract class FinSet extends ExternalComponent {
 
 	public Coordinate[] getBodyPoints( final double xStart, final double xEnd ) {
 		if( null == parent){
-			return null;
+			return new Coordinate[]{};
 		}
 		
 		// for a simple bodies, one increment is perfectly accurate.
@@ -964,14 +1009,11 @@ public abstract class FinSet extends ExternalComponent {
 		return points;
 	}
 
-	// for debugging.  You can safely delete this method (+ overload)
-	public static String getPointDescr( final Coordinate[] points, final String name){
-		return getPointDescr( points, name, "");
-	}
+	// for debugging.  You can safely delete this method
 	public static String getPointDescr( final Coordinate[] points, final String name, final String indent){
 		StringBuilder buf = new StringBuilder(); 
 		
-		buf.append( (indent+"    >> "+name+": length: "+points.length+"\n"));
+		buf.append( (indent+"    >> "+name+": "+points.length+" points\n"));
 		int index =0;
 		for( Coordinate c : points ){
 			buf.append( String.format( indent+"      ....[%2d] (%6.4g, %6.4g)\n", index, c.x, c.y));

@@ -23,7 +23,7 @@ public class Mass{
 	public Mass( final double _value ){
 		this( _value, _value, _value, _value);
 	}
-	
+
 	public Mass( final Coordinate source){
 		this( source.x, source.y, source.z, source.weight);
 	}
@@ -106,10 +106,11 @@ public class Mass{
 	}
 	
 
-	public Mass move( final double _x, final double _y, final double _z){
-		this.x -= _x; 
-		this.y -= _y;
-		this.z -= _z;
+	// move by the supplied deltas
+	public Mass move( final double x_delta, final double y_delta, final double z_delta){
+		this.x += x_delta; 
+		this.y += y_delta;
+		this.z += z_delta;
 		//this.w;  // do not change the weight
 		
 		return this;
@@ -145,6 +146,11 @@ public class Mass{
 		return this;
 	}
 	
+	public Mass scaleWeight( final double scaleFactor ){
+		this.w *= scaleFactor;
+		return this;
+	}
+	
 	public Coordinate toCoordinate(){
 		return new Coordinate( x,y,z,w);
 	}
@@ -153,4 +159,18 @@ public class Mass{
 	public String toString() {
 		return String.format("(%.3f,%.3f,%.3f,w=%.3f)", x, y, z, w);
 	}
+
+	public static Mass empty() {
+		return new Mass(0.0);
+	}
+	
+	public static Mass nan() {
+		return new Mass( Double.NaN);
+	}
+
+	public Mass copy() {
+		return new Mass( x, y, z, w);
+	}
+	
+	
 }

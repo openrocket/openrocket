@@ -22,7 +22,6 @@ import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
-import net.sf.openrocket.util.Mass;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FreeformFinSetTest extends BaseTestCase {
@@ -346,30 +345,6 @@ public class FreeformFinSetTest extends BaseTestCase {
 			assertEquals(0.4444, coords.y, 0.001);
 	}
 	
-
-
-    @Test
-    public void testComputeCM_devel() {
- 	 	Coordinate[] basicPoints = {new Coordinate(0.00, 0.1),
-					 	 			new Coordinate(0.02, 0.15),
-					 	 			new Coordinate(0.04, 0.15),
-					 	 			new Coordinate(0.06, 0.1),
-					 	 			new Coordinate(0.00, 0.1)};
-        //
-        //      [1] +--+ [2]
-        //         /    \
-        //        /      \
-        //   [0] +--------+ [3]
-        //       [4]
- 	 	//
- 	 	
- 	 	final double expArea = 0.04*0.05; 
- 	 	final Mass actCentroid= FinSet.calculateCurveIntegral( basicPoints);
- 	 	assertEquals(" basic area doesn't match...", expArea, actCentroid.w, EPSILON);
- 	 	assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
- 	 	assertEquals(" basic centroid y doesn't match: ", 0.12083, actCentroid.y, EPSILON);
-    }
-    
 
 	@Test
 	public void testComputeCM_ZeroSweepComplicatedTrapezoid() throws Exception {
@@ -709,10 +684,11 @@ public class FreeformFinSetTest extends BaseTestCase {
 			// fin is a simple trapezoid against a linearly changing body...
 			// height is set s.t. the tab trailing edge height == 0 
 			final double expectedTabArea = (fins.getTabHeight())*3/4 * fins.getTabLength();
-			final double expectedTotalArea = expectedWettedArea + expectedTabArea;
-			final double actualTotalArea = fins.getFinTotalArea();
-			Coordinate tcg = fins.getCG(); // relative to parent.  also includes fin tab CG.
+			final double expectedTotalArea = (expectedWettedArea + expectedTabArea)*fins.getThickness();
+			final double actualTotalArea = fins.getComponentVolume();
 			assertEquals("Calculated fin area is wrong: ", expectedTotalArea, actualTotalArea, EPSILON);
+			
+			Coordinate tcg = fins.getCG(); // relative to parent.  also includes fin tab CG.
 			assertEquals("Calculated fin centroid is wrong! ", 0.32121212, tcg.x, EPSILON);
 			assertEquals("Calculated fin centroid is wrong! ", 0.820303, tcg.y, EPSILON);
 		}
