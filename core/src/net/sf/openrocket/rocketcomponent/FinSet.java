@@ -21,6 +21,8 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
+	
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
 	
 	
@@ -252,18 +254,30 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	/**
-	 * Set the height from the fin's base at the point where the tab is located from -- if the tab is located via Position.BOTTOM, then the back edge will be 
-	 * <code>height</code> deep, and the bottom edge of the tab will be parallel to the stage centerline.
+	 * Set the height from the fin's base at the reference point -- i.e. where the tab is located from.  If the tab is located via BOTTOM, then the back edge will be 
+	 * <code>height</code> deep, and the bottom edge of the tab will be parallel to the stage centerline.  If the tab is located via TOP, the the front edge will have corresponding height/depth. 
+	 * If the tab is located via MIDDLE, the tab's midpoint is used.
+	 * 
+	 * Note this function also does bounds checking, and will not set a tab height that passes through it's parent's midpoint.  
 	 *  
-	 * @param height how deep the fin tab should project from the fin root.
+	 * @param newHeightRequest how deep the fin tab should project from the fin root, at the reference point 
 	 * 
 	 */
-	public void setTabHeight(double height) {
-		height = MathUtil.max(height, 0);
-		if (MathUtil.equals(this.tabHeight, height))
+	public void setTabHeight(double newHeightRequest) {
+		newHeightRequest = MathUtil.max(newHeightRequest, 0);
+		if (MathUtil.equals(this.tabHeight, newHeightRequest)){
 			return;
-		this.tabHeight = height;
+		}
+		
+		if(  null != getParent() ){
+			// pulls the parent-body radius at the fin-tab reference point.
+			final double bodyRadius = this.getBodyRadius();
+			
+			// limit the new heights to be no greater than the current body radius.
+			newHeightRequest = Math.min( newHeightRequest,  bodyRadius );
+		}
 
+		this.tabHeight = newHeightRequest;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -614,9 +628,13 @@ public abstract class FinSet extends ExternalComponent {
 	}	
 	
 	private double getTabReferenceRadius() {
+		SymmetricComponent body = (SymmetricComponent) getParent();
+		if( null == body ){
+			return 0.0;
+		}
 		double xTabOffset = Position.getTop( tabShift, tabRelativePosition, length, tabLength );
 		double xTabReference = getTop() + xTabOffset; 
-		return ((SymmetricComponent) getParent()).getRadius( xTabReference ); 
+		return body.getRadius( xTabReference ); 
 	}
 
 	/*
