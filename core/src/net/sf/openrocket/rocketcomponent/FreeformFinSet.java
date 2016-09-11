@@ -197,8 +197,10 @@ public class FreeformFinSet extends FinSet {
 		// copy the old points, in case validation fails
 		@SuppressWarnings("unchecked")
 		ArrayList<Coordinate> copy = (ArrayList<Coordinate>)this.points.clone();
-		
+
 		this.points = newPoints;
+		update();
+		
 		if( ! validate()){
 			// on error, reset to the old points
 			this.points = copy;
@@ -359,6 +361,11 @@ public class FreeformFinSet extends FinSet {
 	
 	@Override
 	public void update(){
+		final int lastPointIndex = this.points.size() - 1;
+		this.length = points.get(lastPointIndex).x;
+		
+		this.setAxialOffset( this.relativePosition, this.x_offset);
+		
 		clampLastPoint();
 	}
 		
@@ -395,18 +402,20 @@ public class FreeformFinSet extends FinSet {
 			log.error("End point illegal: end point starts in front of start point: "+lastPoint.x);
 			return false;
 		}
+		
 		// the last point *is* restricted to be on the surface of its owning component:
 		SymmetricComponent symBody = (SymmetricComponent)this.getParent();
 		if( null != symBody ){
-			
-			final double startOffset = this.asPositionValue( Position.TOP );
+			final double startOffset = getTop();
 			final Coordinate finStart = new Coordinate( startOffset, symBody.getRadius(startOffset) );
 			
 			// campare x-values 
 			final Coordinate finAtLast = lastPoint.add(finStart); 
 			if( symBody.getLength() < finAtLast.x ){
 				log.error("End point falls after parent body ends: ["+symBody.getName()+"].  Exception: ", new IllegalFinPointException("Fin ends after its parent body \""+symBody.getName()+"\". Ignoring."));
-				log.error(String.format("    ..fin end@         (%6.2g,%6.2g)", finAtLast.x, finAtLast.y));
+				log.error(String.format("    ..fin position:    (x: %12.10f   via: %s)", this.x_offset, this.relativePosition.name()));
+				log.error(String.format("    ..Body Length: %12.10f  finLength: %12.10f", symBody.getLength(), this.getLength()));
+				log.error(String.format("    ..fin endpoint:    (x: %12.10f, y: %12.10f)", finAtLast.x, finAtLast.y));
 				return false;
 			}
 			
