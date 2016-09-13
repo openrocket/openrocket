@@ -5,6 +5,8 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -17,8 +19,6 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-
-import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for centering rings, tube couplers, and bulkheads.
@@ -174,7 +174,7 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
 		result.setName(ring.getName());
 		setOverride(result, ring.isOverrideSubcomponentsEnabled(), ring.getOverrideMass(), ring.getOverrideCGX());
 		result.setRelativePosition(ring.getRelativePosition());
-		result.setPositionValue(ring.getPositionValue());
+		result.setAxialOffset(ring.getAxialOffset());
 		result.setMaterial(ring.getMaterial());
 		result.setThickness(result.getThickness());
 	}

@@ -97,7 +97,7 @@ public class DampingMoment extends AbstractSimulationListener {
 			
 			double CNa = entry.getValue().getCNa(); //?
 			double Cp = entry.getValue().getCP().length();
-			double z = comp.getPositionValue(); //?
+			double z = comp.getAxialOffset();
 			
 			aerodynamicPart += CNa * Math.pow(z - Cp, 2);
 		}

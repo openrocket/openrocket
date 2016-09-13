@@ -958,16 +958,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return result;
 	}
 	
-	/**
-	 * Get the position value of the component.  The exact meaning of the value is
-	 * dependent on the current relative positioning.
-	 *
-	 * @return  the positional value.
-	 */
-	public double getPositionValue() {
-		return this.getAxialOffset();
-	}
-	
 	public double getAxialOffset() {
 		mutex.verify();
 		return this.asPositionValue(this.relativePosition);
@@ -982,26 +972,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			curComp = curComp.parent;
 		}
 		return false;
-	}
-	
-	/**
-	 * Set the position value of the component.  The exact meaning of the value
-	 * depends on the current relative positioning.
-	 * <p>
-	 * Mince many components do not support setting the relative position.  A component that does support
-	 * it should override this with a public method that simply calls this
-	 * supermethod AND fire a suitable ComponentChangeEvent.
-	 * 
-	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setAxialOffset' instead.
-	 * @param value		the position value of the component.
-	 */
-	@Deprecated
-	public void setPositionValue(double value) {
-		//		if (MathUtil.equals(this.position.x, value))
-		//			return;
-		//		//		checkState();
-		//		//		this.position = new Coordinate(value, 0, 0);
-		setAxialOffset(value);
 	}
 	
 	
@@ -1031,10 +1001,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
 	}
 	
+	/**
+	 * Set the position value of the component.  The exact meaning of the value
+	 * depends on the current relative positioning.
+	 * <p>
+	 * Mince many components do not support setting the relative position.  A component that does support
+	 * it should override this with a public method that simply calls this
+	 * supermethod AND fire a suitable ComponentChangeEvent.
+	 * 
+	 * @param value		the position value of the component.
+	 */
 	public void setAxialOffset(double _value) {
 		this.setAxialOffset(this.relativePosition, _value);
 		this.fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
+	
 	
 	protected void setAxialOffset(final Position positionMethod, final double newOffset) {
 		checkState();

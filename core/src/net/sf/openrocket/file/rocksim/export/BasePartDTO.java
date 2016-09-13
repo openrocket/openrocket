@@ -1,5 +1,10 @@
 package net.sf.openrocket.file.rocksim.export;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
@@ -11,11 +16,6 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * The base class for all OpenRocket to Rocksim conversions.
@@ -88,17 +88,17 @@ public abstract class BasePartDTO {
         setUseKnownCG(ec.isCGOverridden() || ec.isMassOverridden() ? 1 : 0);
         setName(ec.getName());
 
-        setXb(ec.getPositionValue() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setXb(ec.getAxialOffset() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         //When the relative position is BOTTOM, the position location of the bottom edge of the component is +
         //to the right of the bottom of the parent, and - to the left.
         //But in Rocksim, it's + to the left and - to the right
         if (ec.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
-            setXb((-1 * ec.getPositionValue()) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setXb((-1 * ec.getAxialOffset()) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         else if (ec.getRelativePosition().equals(RocketComponent.Position.MIDDLE)) {
             //Mapped to TOP, so adjust accordingly
-            setXb((ec.getPositionValue() + (ec.getParent().getLength() - ec.getLength()) /2)* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setXb((ec.getAxialOffset() + (ec.getParent().getLength() - ec.getLength()) /2)* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
 
         if (ec instanceof ExternalComponent) {

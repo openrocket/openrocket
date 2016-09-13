@@ -131,13 +131,6 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		return false;
 	}
 	
-	@Override
-	public double getPositionValue() {
-		mutex.verify();
-		
-		return this.getAxialOffset();
-	}
-	
 	/** 
 	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 
 	 * against which this stage is positioned.

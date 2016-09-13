@@ -234,7 +234,7 @@ public class FinSetTest extends BaseTestCase {
 		fin.setOverrideCGX(0.012);
 		fin.setOverrideMass(0.0123);
 		fin.setOverrideSubcomponents(true);
-		fin.setPositionValue(0.1);
+		fin.setAxialOffset(0.1);
 		fin.setRelativePosition(Position.ABSOLUTE);
 		fin.setTabHeight(0.01);
 		fin.setTabLength(0.02);
