@@ -63,8 +63,13 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		final BasicSlider orSlider = new BasicSlider(outerRadiusModel.getSliderModel(0, 0.04, 0.2));
 		panel.add( orSlider, "w 100lp, wrap 0px");
 
-		final JCheckBox check = new JCheckBox(outerRadiusModel.getAutomaticAction());
-		//// Automatic ?
+        //// Automatic ?
+		final BooleanModel autoRadius = outerRadiusModel.getAutomaticAction();
+		autoRadius.addEnableComponent( orSpinner, false);
+		autoRadius.addEnableComponent( orUnits, false);
+		autoRadius.addEnableComponent( orSlider, false);
+		
+		final JCheckBox check = new JCheckBox( autoRadius);
 		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
 		panel.add( check, "skip, span 2, wrap");
 	
@@ -129,11 +134,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 
 
-	}
-
-	@Override
-	public void updateFields() {
-		super.updateFields();
 	}
 
 }

@@ -1,15 +1,11 @@
 package net.sf.openrocket.gui.adaptors;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractSpinnerModel;
 import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
@@ -68,6 +64,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public class ValueSpinnerModel extends AbstractSpinnerModel implements Invalidatable {
 		
 		private ExpressionParser parser = new ExpressionParser();
+		
 		
 		@Override
 		public Object getValue() {
@@ -411,6 +408,9 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 				mid.setValue(midValue);
 				updateExponentialParameters();
 			}
+			
+			DoubleModel.this.update();
+			
 			// Fire if not already firing
 			if (firing == 0)
 				fireStateChanged();
@@ -445,14 +445,16 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	////////////  Action model  ////////////
 	
 	@SuppressWarnings("serial")
-	private class AutomaticActionModel extends AbstractAction implements StateChangeListener, Invalidatable {
-		private boolean oldValue = false;
+	private class AutoActionModel extends BooleanModel implements StateChangeListener, Invalidatable {
 		
-		public AutomaticActionModel() {
-			oldValue = isAutomatic();
-			addChangeListener(this);
+		public AutoActionModel() {
+		    super( isAutomatic());
 		}
 		
+		public AutoActionModel( ChangeSource source, String valueName) {
+	        super( source, valueName);
+	        this.setValue( isAutomatic() );
+		}	        
 		
 		@Override
 		public boolean isEnabled() {
@@ -462,70 +464,43 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public Object getValue(String key) {
 			if (key.equals(Action.SELECTED_KEY)) {
-				oldValue = isAutomatic();
-				return oldValue;
+				return super.getValue();
 			}
 			return super.getValue(key);
 		}
 		
 		@Override
 		public void putValue(String key, Object value) {
-			if (firing > 0) {
-				log.trace("Ignoring call to ActionModel putValue for " + DoubleModel.this.toString() +
+		    if (firing > 0) {
+				log.trace("Ignoring call to AutoActionModel putValue for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value + ", currently firing events");
 				return;
 			}
+			
 			if (key.equals(Action.SELECTED_KEY) && (value instanceof Boolean)) {
-				log.info(Markers.USER_MARKER, "ActionModel putValue called for " + DoubleModel.this.toString() +
+				log.info(Markers.USER_MARKER, "AutoActionModel putValue called for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value);
-				oldValue = (Boolean) value;
-				setAutomatic((Boolean) value);
+				// calls the backing BooleanModel, which is also tied to DoubleModel.this
+				super.setValue( (Boolean) value );
 			} else {
-				log.debug("Passing ActionModel putValue call to supermethod for " + DoubleModel.this.toString() +
+				log.debug("Passing AutoActionModel putValue call to supermethod for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value);
 				super.putValue(key, value);
 			}
 		}
 		
-		// Implement a wrapper to the ChangeListeners
-		ArrayList<PropertyChangeListener> propertyChangeListeners =
-				new ArrayList<PropertyChangeListener>();
-		
-		@Override
-		public void addPropertyChangeListener(PropertyChangeListener listener) {
-			propertyChangeListeners.add(listener);
-			DoubleModel.this.addChangeListener(this);
-		}
-		
-		@Override
-		public void removePropertyChangeListener(PropertyChangeListener listener) {
-			propertyChangeListeners.remove(listener);
-			if (propertyChangeListeners.isEmpty())
-				DoubleModel.this.removeChangeListener(this);
-		}
-		
 		// If the value has changed, generate an event to the listeners
 		@Override
-		public void stateChanged(EventObject e) {
-			boolean newValue = isAutomatic();
-			if (oldValue == newValue)
-				return;
-			PropertyChangeEvent event = new PropertyChangeEvent(this, Action.SELECTED_KEY,
-					oldValue, newValue);
-			oldValue = newValue;
-			Object[] l = propertyChangeListeners.toArray();
-			for (int i = 0; i < l.length; i++) {
-				((PropertyChangeListener) l[i]).propertyChange(event);
-			}
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// Setting performed in putValue
+		public void stateChanged(EventObject eo) {
+		    DoubleModel.this.update();
+			// necessary to change enabled components
+		    super.stateChanged(eo);
+		    
 		}
 		
 		@Override
 		public void invalidate() {
+		    super.invalidate();
 			DoubleModel.this.invalidate();
 		}
 	}
@@ -536,11 +511,9 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * 
 	 * @return  A compatibility layer for an Action.
 	 */
-	public Action getAutomaticAction() {
-		return new AutomaticActionModel();
+	public AutoActionModel getAutomaticAction() {
+	    return new AutoActionModel( DoubleModel.this, "Automatic");
 	}
-	
-	
 	
 	
 	
@@ -972,15 +945,26 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	@Override
 	public void stateChanged(EventObject e) {
+    	update();    
+	}
+	
+    /**
+     * Called when the component changes.  Checks whether the modeled value has changed, and if
+     * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
+     * 
+     * @return  returns whether this object changed or not.
+     */	
+	public boolean update(){
 		checkState(true);
 		
 		double v = getValue();
 		boolean b = isAutomatic();
 		if (lastValue == v && lastAutomatic == b)
-			return;
+			return false;
 		lastValue = v;
 		lastAutomatic = b;
 		fireStateChanged();
+		return true;
 	}
 	
 	
