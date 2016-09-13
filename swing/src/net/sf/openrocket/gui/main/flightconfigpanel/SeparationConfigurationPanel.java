@@ -23,9 +23,11 @@ import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialStage> {
-	private static final long serialVersionUID = -1556652925279847316L;
 	static final Translator trans = Application.getTranslator();
+	
+	@SuppressWarnings("unused")
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	private FlightConfigurableTableModel<AxialStage> separationTableModel;

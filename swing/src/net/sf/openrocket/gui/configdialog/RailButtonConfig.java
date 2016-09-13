@@ -22,21 +22,14 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class RailButtonConfig extends RocketComponentConfig {
 	
-	private MotorConfig motorConfigPane = null;
 	private static final Translator trans = Application.getTranslator();
 	
 	public RailButtonConfig( OpenRocketDocument document, RocketComponent component) {
 		super(document, component);
 	
-		// For DEBUG purposes
-//		if( component instanceof AxialStage ){
-//			System.err.println(" Dumping AxialStage tree info for devel / debugging.");
-//			System.err.println(component.toDebugTree());
-//		}
-				
-
 		//// General and General properties
 		tabbedPane.insertTab( trans.get("RailBtnCfg.tab.General"), null, buttonTab( (RailButton)component ), trans.get("RailBtnCfg.tab.GeneralProp"), 0);
 		tabbedPane.setSelectedIndex(0);
@@ -78,7 +71,6 @@ public class RailButtonConfig extends RocketComponentConfig {
 		
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
-			@SuppressWarnings("unchecked")
 			JComboBox<RocketComponent.Position> relToCombo = new JComboBox<RocketComponent.Position>(
 					(ComboBoxModel<RocketComponent.Position>) new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 							new RocketComponent.Position[] {
@@ -93,7 +85,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// plus
 			final double parentLength = ((BodyTube)rbc.getParent()).getLength();
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Plus")), "right");
-			DoubleModel offsetModel = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+			DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
 			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
 			panel.add(offsetSpinner, "growx");

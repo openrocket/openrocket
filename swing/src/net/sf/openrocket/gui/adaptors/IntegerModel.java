@@ -23,6 +23,7 @@ import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
 
 
+@SuppressWarnings("serial")
 public class IntegerModel implements StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(IntegerModel.class);
 	

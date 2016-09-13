@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,6 +23,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -37,7 +39,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.scalefigure.FinPointFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
-import net.sf.openrocket.gui.scalefigure.ScaleSelector;
+import net.sf.openrocket.gui.scalefigure.ZoomSelector;
 import net.sf.openrocket.gui.util.CustomFinImporter;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -50,13 +52,12 @@ import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@SuppressWarnings("serial")
 public class FreeformFinSetConfig extends FinSetConfig {
-	private static final long serialVersionUID = 2504130276828826021L;
+
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -145,7 +146,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//// plus
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -153,17 +154,12 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
 		
-		
-		
-		
-		
+	
 		mainPanel.add(panel, "aligny 20%");
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, height 150lp");
 		
 		
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-		
 		
 		
 		////  Cross section
@@ -205,9 +201,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		// Create the figure
 		figure = new FinPointFigure(finset);
-		ScaleScrollPane figurePane = new FinPointScrollPane();
-		figurePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		figurePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		ScaleScrollPane figurePane = new FinPointScrollPane( figure);
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
@@ -232,7 +226,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
-		
 		panel.add(tablePane, "growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane, "gap unrel, spanx, spany 3, growx, growy 1000, height 100lp:250lp:, wrap");
 		
@@ -240,7 +233,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
 		
 		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
-		panel.add(new ScaleSelector(figurePane), "spany 2, aligny 50%");
+		ZoomSelector selector = new ZoomSelector(figurePane);
+		panel.add( selector, "spany 2, aligny 50%");
 		
 		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
 		importButton.addActionListener(new ActionListener() {
@@ -277,13 +271,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
 				CustomFinImporter importer = new CustomFinImporter();
-				List<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
+				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
-				finset.setPoints(points);
-			} catch (IllegalFinPointException e) {
-				log.warn("Error storing fin points", e);
-				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
-						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
+				finset.setPoints( points);
+//          // this is the only place the exception is caught.... is this useful? 
+//			} catch (IllegalFinPointException e) {
+//				log.warn("Error storing fin points", e);
+//				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
+//						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
 			} catch (IOException e) {
 				log.warn("Error loading file", e);
 				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
@@ -305,21 +300,20 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		}
 		if (figure != null) {
 			figure.updateFigure();
+			figure.repaint();
 		}
 	}
 	
 	
 	
-	
 	private class FinPointScrollPane extends ScaleScrollPane {
-		private static final long serialVersionUID = 2232218393756983666L;
 
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
 		
 		private int dragIndex = -1;
 		
-		public FinPointScrollPane() {
-			super(figure, false); // Disallow fitting as it's buggy
+		public FinPointScrollPane( final FinPointFigure _figure) {
+			super( _figure, true);
 		}
 		
 		@Override
@@ -340,11 +334,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (index >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(index);
-				try {
-					finset.setPoint(index, point.x, point.y);
-				} catch (IllegalFinPointException ignore) {
-				}
+
 				dragIndex = index;
+                
+	            finset.setPoint(dragIndex, point.x, point.y );
 				
 				return;
 			}
@@ -362,12 +355,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				return;
 			}
 			Point2D.Double point = getCoordinates(event);
-			
-			try {
-				finset.setPoint(dragIndex, point.x, point.y);
-			} catch (IllegalFinPointException ignore) {
-				log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
-			}
+            
+			finset.setPoint(dragIndex, point.x, point.y );
 		}
 		
 		
@@ -425,28 +414,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			return figure.convertPoint(x, y);
 		}
 		
-		
 	}
 	
 	
-	
-	
-	
 	private enum Columns {
-		//		NUMBER {
-		//			@Override
-		//			public String toString() {
-		//				return "#";
-		//			}
-		//			@Override
-		//			public String getValue(FreeformFinSet finset, int row) {
-		//				return "" + (row+1) + ".";
-		//			}
-		//			@Override
-		//			public int getWidth() {
-		//				return 10;
-		//			}
-		//		}, 
 		X {
 			@Override
 			public String toString() {
@@ -481,11 +452,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 	
 	private class FinPointTableModel extends AbstractTableModel {
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4803736958177227852L;
 
 		@Override
 		public int getColumnCount() {
@@ -521,6 +487,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (!(o instanceof String))
 				return;
 			
+			// bounds check that indices are valid
 			if (rowIndex < 0 || rowIndex >= finset.getFinPoints().length || columnIndex < 0 || columnIndex >= Columns.values().length) {
 				throw new IllegalArgumentException("Index out of bounds, row=" + rowIndex + " column=" + columnIndex + " fin point count=" + finset.getFinPoints().length);
 			}
@@ -530,15 +497,16 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				
 				double value = UnitGroup.UNITS_LENGTH.fromString(str);
 				Coordinate c = finset.getFinPoints()[rowIndex];
-				if (columnIndex == Columns.X.ordinal())
+				if (columnIndex == Columns.X.ordinal()){
 					c = c.setX(value);
-				else
+				}else{
 					c = c.setY(value);
+				}
 				
 				finset.setPoint(rowIndex, c.x, c.y);
 				
 			} catch (NumberFormatException ignore) {
-			} catch (IllegalFinPointException ignore) {
+			    log.warn("ignoring NumberFormatException while configuring a Freeform Fin");
 			}
 		}
 	}

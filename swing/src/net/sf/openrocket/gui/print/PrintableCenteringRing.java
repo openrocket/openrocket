@@ -20,6 +20,7 @@ import java.util.Set;
  * This class creates a renderable centering ring.  It depends only on AWT/Swing and can be called from other actors
  * (like iText handlers) to render the centering ring on different graphics contexts.
  */
+@SuppressWarnings("serial")
 public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
     /**
      * If the component to be drawn is a centering ring, save a reference to it.

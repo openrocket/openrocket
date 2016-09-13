@@ -326,6 +326,15 @@ public class RocketInfo implements FigureElement {
         return flightData;
     }
     
+    /**
+     * Return the reference Mach number
+     * 
+     * @return Mach number
+     */
+	public double getMach() {
+		return this.mach;
+	}
+    
     private void drawWarnings() {
 		if (warnings == null || warnings.isEmpty())
 			return;

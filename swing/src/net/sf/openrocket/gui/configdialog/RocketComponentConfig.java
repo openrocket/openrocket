@@ -98,7 +98,7 @@ public class RocketComponentConfig extends JPanel {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
 			((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
-			presetComboBox = new JComboBox(presetModel);
+			presetComboBox = new JComboBox<ComponentPreset>(presetModel);
 			presetComboBox.setEditable(false);
 			this.add(presetComboBox, "");
 		}

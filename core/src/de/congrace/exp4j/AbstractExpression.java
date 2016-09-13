@@ -26,7 +26,7 @@ import java.text.NumberFormat;
 abstract class AbstractExpression {
 	private final String expression;
 	private final Token[] tokens;
-	private final String[] variableStrings;
+	protected final String[] variableStrings;
 	private final NumberFormat numberFormat = NumberFormat.getInstance();
 
 	/**

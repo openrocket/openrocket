@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -21,12 +23,9 @@ import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
-
-import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim fin sets.  Because the type of fin may not be known first (in Rocksim file format, the fin
@@ -71,6 +70,7 @@ class FinSetHandler extends AbstractElementHandler {
 	/**
 	 * The length of the mid-chord (aka height).
 	 */
+	@SuppressWarnings("unused")  // stored from file, but not used.
 	private double midChordLen = 0.0d;
 	/**
 	 * The distance of the leading edge from root to top.
@@ -300,11 +300,8 @@ class FinSetHandler extends AbstractElementHandler {
 		else if (shapeCode == 2) {
 			
 			result = new FreeformFinSet();
-			try {
-				((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
-			} catch (IllegalFinPointException e) {
-				warnings.add("Illegal fin point set. " + e.getMessage() + " Ignoring.");
-			}
+			((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
+			
 		}
 		else {
 			return null;
@@ -314,7 +311,7 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setFinCount(finCount);
 		result.setFinish(finish);
 		//All TTW tabs in Rocksim are relative to the front of the fin.
-		result.setTabRelativePosition(FinSet.TabRelativePosition.FRONT);
+		result.setTabPositionMethod( RocketComponent.Position.TOP);
 		result.setTabHeight(tabDepth);
 		result.setTabLength(tabLength);
 		result.setTabShift(taboffset);
@@ -329,16 +326,16 @@ class FinSetHandler extends AbstractElementHandler {
 	/**
 	 * Convert a Rocksim string that represents fin plan points into an array of OpenRocket coordinates.
 	 *
-	 * @param pointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
+	 * @param pointText a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
 	 *                  <pre>x0,y0|x1,y1|x2,y2|... </pre>
 	 * @param warnings  the warning set to convey incompatibilities to the user
 	 *
 	 * @return an array of OpenRocket Coordinates
 	 */
-	private Coordinate[] toCoordinates(String pointList, WarningSet warnings) {
+	private Coordinate[] toCoordinates(String pointText, WarningSet warnings) {
 		List<Coordinate> result = new ArrayList<Coordinate>();
-		if (pointList != null && pointList.length() > 0) {
-			String[] points = pointList.split("\\Q|\\E");
+		if (pointText != null && pointText.length() > 0) {
+			String[] points = pointText.split("\\Q|\\E");
 			for (String point : points) {
 				String[] aPoint = point.split(",");
 				try {

@@ -23,10 +23,8 @@ public abstract class InternalComponent extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	
-	@Override
 	public final void setPositionValue(double value) {
-		super.setPositionValue(value);
+		super.setAxialOffset(value);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	

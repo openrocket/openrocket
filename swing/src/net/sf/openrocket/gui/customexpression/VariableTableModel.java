@@ -15,6 +15,7 @@ import net.sf.openrocket.startup.Application;
  * @author Richard Graham
  *
  */
+@SuppressWarnings("serial")
 public class VariableTableModel extends AbstractTableModel {
 
 	private static final Translator trans = Application.getTranslator();

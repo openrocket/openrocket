@@ -38,9 +38,9 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
@@ -121,7 +121,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private TreeSelectionModel selectionModel = null;
 
 	private BasicSlider rotationSlider;
-	private ScaleSelector scaleSelector;
+	private ZoomSelector scaleSelector;
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
@@ -189,7 +189,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder = new JPanel(new BorderLayout());
 
 		scrollPane = new ScaleScrollPane(figure) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -306,7 +305,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(new JComboBox<VIEW_TYPE>(cm));
 
 		// Zoom level selector
-		scaleSelector = new ScaleSelector(scrollPane);
+		scaleSelector = new ZoomSelector(scrollPane);
 		add(scaleSelector);
 
 		// Stage selector

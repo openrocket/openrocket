@@ -18,9 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
@@ -33,7 +30,6 @@ import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -51,8 +47,6 @@ import net.sf.openrocket.util.Transformation;
  */
 @SuppressWarnings("serial")
 public class RocketFigure extends AbstractScaleFigure {
-	
-	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";

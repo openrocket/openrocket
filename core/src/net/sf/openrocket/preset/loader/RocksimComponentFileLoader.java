@@ -131,6 +131,7 @@ public abstract class RocksimComponentFileLoader {
 				}
 				parseData(data);
 			}
+			
 			//Read the rest of the file as data rows.
 			return;
 		} catch (IOException e) {

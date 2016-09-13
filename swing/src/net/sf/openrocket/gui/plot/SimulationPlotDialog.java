@@ -31,6 +31,7 @@ import org.jfree.chart.ChartPanel;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class SimulationPlotDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
@@ -113,7 +114,7 @@ public class SimulationPlotDialog extends JDialog {
 		stages.add("All");
 		stages.addAll(Util.generateSeriesLabels(simulation));
 		
-		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
+		final JComboBox<String> stageSelection = new JComboBox<String>(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {
 			
 			@Override

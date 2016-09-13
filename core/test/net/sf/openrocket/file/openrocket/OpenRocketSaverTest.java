@@ -187,6 +187,7 @@ public class OpenRocketSaverTest {
 		StorageOptions options = new StorageOptions();
 		options.setSimulationTimeSkip(0.05);
 		
+		@SuppressWarnings("unused")
 		long estimatedSize = saver.estimateFileSize(rocketDoc, options);
 		
 		// TODO: fix estimateFileSize so that it's a lot more accurate

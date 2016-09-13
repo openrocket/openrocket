@@ -44,7 +44,7 @@ public class RocksimDocumentDTOTest extends RocksimTestBase {
 		StringWriter stringWriter = new StringWriter();
 		marshaller.marshal(message, stringWriter);
 		
-		String response = stringWriter.toString();
+		//String response = stringWriter.toString();
 		
 		// TODO need checks here to validation that correct things were done
 		//System.err.println(response);

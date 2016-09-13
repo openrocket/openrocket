@@ -13,8 +13,8 @@ public class BasicTumbleStatus extends SimulationStatus {
 	// Magic constants from techdoc.pdf
 	private final static double cDFin = 1.42;
 	private final static double cDBt = 0.56;
-	// Fin efficiency.  Index is number of fins.  The 0th entry is arbitrary and used to
-	// offset the indexes so finEff[1] is the coefficient for one fin from the table in techdoc.pdf
+	// Fin efficiency.  Index is number of fins.  The 0th value is unused, but offsets the remaining indexes
+	// such that: finEff[1] is the coefficient for one fin from the table in techdoc.pdf
 	private final static double[] finEff = { 0.0, 0.5, 1.0, 1.41, 1.81, 1.73, 1.90, 1.85 };
 	
 	private final double drag;
@@ -55,7 +55,7 @@ public class BasicTumbleStatus extends SimulationStatus {
 			}
 			if (component instanceof FinSet) {
 				
-				double finComponent = ((FinSet) component).getFinArea();
+				double finComponent = ((FinSet) component).getFinWettedArea();
 				int finCount = ((FinSet) component).getFinCount();
 				// check bounds on finCount.
 				if (finCount >= finEff.length) {

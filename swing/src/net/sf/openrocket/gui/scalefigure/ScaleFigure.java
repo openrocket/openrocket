@@ -16,29 +16,30 @@ public interface ScaleFigure extends ChangeSource {
 	 * in the figures must be multiplied by this factor.
 	 */
 	public static final double EXTRA_SCALE = 1000;
+
+	public static final double INCHES_PER_METER = 39.3701;
+	public static final double METERS_PER_INCH = 0.0254;
+
+	public static final double MINIMUM_ZOOM = 0.01; // ==        1 %
+	public static final double MAXIMUM_ZOOM = 1000;  // == 100,000 %
 	
-	/**
-	 * Shorthand for {@link #EXTRA_SCALE}.
-	 */
-	public static final double S = EXTRA_SCALE;
 	
 	
 	/**
 	 * Set the scale level of the figure.  A scale value of 1.0 indicates an original
 	 * size when using the current DPI level.
 	 * 
-	 * @param scale   the scale level.
+	 * @param newZoom the zoom level.
 	 */
-	public void setScaling(double scale);
+	public void setZoom( final double newZoom );
 	
 	
 	/**
-	 * Set the scale level so that the figure fits into the given bounds.
+	 * Set the zoom level so that the figure fits into the given bounds.
 	 * 
-	 * @param bounds  the bounds of the figure.
+	 * @param bounds the dimension 
 	 */
-	public void setScaling(Dimension bounds);
-	
+	public void zoomToSize( final Dimension bounds );
 	
 	/**
 	 * Return the scale level of the figure.  A scale value of 1.0 indicates an original
@@ -46,7 +47,7 @@ public interface ScaleFigure extends ChangeSource {
 	 * 
 	 * @return   the current scale level.
 	 */
-	public double getScaling();
+	public double getZoom();
 	
 	
 	/**
@@ -64,7 +65,6 @@ public interface ScaleFigure extends ChangeSource {
 	 */
 	public Dimension getOrigin();
 	
-	
 	/**
 	 * Get the amount of blank space left around the figure.
 	 * 
@@ -78,5 +78,5 @@ public interface ScaleFigure extends ChangeSource {
 	 * @param width		the amount of horizontal space left on both sides of the figure.
 	 * @param height	the amount of vertical space left on both sides of the figure.
 	 */
-	public void setBorderPixels(int width, int height);
+	public void setBorderPixels( final int width, final int height);
 }

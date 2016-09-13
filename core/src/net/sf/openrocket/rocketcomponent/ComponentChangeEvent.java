@@ -39,8 +39,8 @@ public class ComponentChangeEvent extends EventObject {
 	/** A change that affects the aerodynamic properties of the rocket */
 	public static final int AERODYNAMIC_CHANGE = TYPE.AERODYNAMIC.value;
 	/** A change that affects the mass and aerodynamic properties of the rocket */
-	public static final int AEROMASS_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value );
-	public static final int BOTH_CHANGE = AEROMASS_CHANGE;  // syntactic sugar / backward compatibility
+	public static final int AERO_MASS_CHANGE = (TYPE.MASS.value | TYPE.AERODYNAMIC.value );
+	public static final int BOTH_CHANGE = AERO_MASS_CHANGE;  // syntactic sugar / backward compatibility
 
 	
 	/** A change that affects the rocket tree structure */

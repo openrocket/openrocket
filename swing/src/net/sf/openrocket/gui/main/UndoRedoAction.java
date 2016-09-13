@@ -18,6 +18,7 @@ import net.sf.openrocket.util.BugException;
 /**
  * Inner class to implement undo/redo actions.
  */
+@SuppressWarnings("serial")
 public class UndoRedoAction extends AbstractAction implements UndoRedoListener {
 	
 	// Use Factory mechanism because we want to register the new instance as an

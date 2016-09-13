@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Mass;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
@@ -19,26 +20,27 @@ public class MassDataTest extends BaseTestCase {
 	@Test
 	public void testTwoPointInline() {
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, 0, m1);
+		Mass r1 = new Mass(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		MassData body1 = new MassData( r1, I1ax, I1t, I1t);
 		
 		double m2 = 5.7;
-		Coordinate r2 = new Coordinate(0, 32, 0, m2);
+		Mass r2 = new Mass(0, 32, 0, m2);
 		double I2ax=20;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		MassData body2 = new MassData( r2, I2ax, I2t, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
 		
-		Coordinate cm3_expected = r1.average(r2);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
+		Mass cm3_actual = new Mass( asbly3.getCM());
+		Mass cm3_expected = r1.add(r2);
+		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, cm3_actual );
 				
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub( r1);
-		Coordinate delta23 = asbly3.getCM().sub( r2);
+		Coordinate delta13 = asbly3.getCM().sub( r1.toCoordinate());
+		Coordinate delta23 = asbly3.getCM().sub( r2.toCoordinate());
 		
 		double y13 = delta13.y;
 		double dy_13_2 = MathUtil.pow2( y13); // hack
@@ -66,26 +68,27 @@ public class MassDataTest extends BaseTestCase {
 	public void testTwoPointGeneral() {
 		boolean debug=false;
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, -10, m1);
+		Mass r1 = new Mass(0,-40, -10, m1);
 		double I1xx=28.7;
 		double I1t = I1xx/2;
-		MassData body1 = new MassData(r1, I1xx, I1t);
+		MassData body1 = new MassData(r1, I1xx, I1t, I1t);
 		
 		double m2 = 5.7;
-		Coordinate r2 = new Coordinate(0, 32, 15, m2);
+		Mass r2 = new Mass(0, 32, 15, m2);
 		double I2xx=20;
 		double I2t = I2xx/2;
-		MassData body2 = new MassData(r2, I2xx, I2t);
+		MassData body2 = new MassData(r2, I2xx, I2t, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
-		
-		Coordinate cm3_expected = r1.average(r2);
+
+		Mass cm3_actual = new Mass( asbly3.getCM());
+		Mass cm3_expected = r1.add(r2);
 //		System.err.println("     @(1):     "+ body1.toDebug());
 //		System.err.println("     @(2):     "+ body2.toDebug());
 //		System.err.println("     @(3):     "+ asbly3.toDebug());
 //		System.err.println(" Center of Mass: (3) expected:  "+ cm3_expected);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
+		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, cm3_actual );
 		
 		
 		if(debug){
@@ -96,8 +99,8 @@ public class MassDataTest extends BaseTestCase {
 
 		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub( r1);
-		Coordinate delta23 = asbly3.getCM().sub( r2);
+		Coordinate delta13 = asbly3.getCM().sub( r1.toCoordinate());
+		Coordinate delta23 = asbly3.getCM().sub( r2.toCoordinate());
 		double x2, y2, z2;
 		
 		x2 = MathUtil.pow2( delta13.x);
@@ -128,35 +131,36 @@ public class MassDataTest extends BaseTestCase {
 	@Test
 	public void testMassDataCompoundCalculations() {
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, 0, m1);
+		Mass r1 = new Mass(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		MassData body1 = new MassData(r1, I1ax, I1t, I1t);
 		
 		double m2 = m1;
-		Coordinate r2 = new Coordinate(0, -2, 0, m2);
+		Mass r2 = new Mass(0, -2, 0, m2);
 		double I2ax=28.7;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		MassData body2 = new MassData(r2, I2ax, I2t, I2t);
 		
 		double m5 = 5.7;
-		Coordinate r5 = new Coordinate(0, 32, 0, m5);
+		Mass r5 = new Mass(0, 32, 0, m5);
 		double I5ax=20;
 		double I5t = I5ax/2;
-		MassData body5 = new MassData(r5, I5ax, I5t);
+		MassData body5 = new MassData(r5, I5ax, I5t, I5t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
 		
 		// point 4 is defined as the CM of bodies 1, 2 and 5 combined.
 		MassData asbly4_indirect = asbly3.add(body5);
-		Coordinate cm4_expected = r1.average(r2).average(r5);
+		Mass cm4_expected = r1.add(r2).add(r5);
+		Mass cm4_actual = new Mass( 0, 7.233644859813085, 0, m1+m2+m5 );
 		
 		//System.err.println(" Center of Mass: (3):     "+ asbly3.toCMDebug() );
 		//System.err.println("           MOI:  (3):     "+ asbly3.toIMDebug() );
 		//System.err.println(" Center of Mass: indirect:"+ asbly4_indirect.getCM() );
 		//System.err.println(" Center of Mass: (4) direct:  "+ cm4_expected);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, new Coordinate( 0, 7.233644859813085, 0, m1+m2+m5 ) );
+		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, cm4_actual);
 		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
 		double y4 = cm4_expected.y;

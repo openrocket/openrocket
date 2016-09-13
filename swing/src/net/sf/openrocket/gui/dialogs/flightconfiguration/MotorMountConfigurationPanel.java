@@ -14,15 +14,9 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 
 @SuppressWarnings("serial")
 public abstract class MotorMountConfigurationPanel extends JPanel {
-
-	private final Rocket rocket;
-	private final Component parent;
 	
 	public MotorMountConfigurationPanel( Component parent, Rocket rocket ) {
 		super(new MigLayout("") );
-		
-		this.parent = parent;
-		this.rocket = rocket;
 		
 		//// Motor Mount selection 
 		JTable table = new JTable(new MotorMountTableModel(this, rocket));

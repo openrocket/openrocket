@@ -15,10 +15,9 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class SaveAsFileChooser extends JFileChooser {
 
-	private final FileType type;
-	private final OpenRocketDocument document;
 	private final StorageOptionChooser storageChooser;
 
 	private static final Translator trans = Application.getTranslator();
@@ -28,8 +27,6 @@ public class SaveAsFileChooser extends JFileChooser {
 	}
 
 	private SaveAsFileChooser( OpenRocketDocument document, FileType type ) {
-		this.document = document;
-		this.type = type;
 
 		this.setAcceptAllFileFilterUsed(true);
 

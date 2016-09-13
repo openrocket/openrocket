@@ -17,13 +17,8 @@ import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class FinSetCalc extends RocketComponentCalc {
-	
-	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	
@@ -70,7 +65,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		baseRotation = fin.getBaseRotation();
 		cantAngle = fin.getCantAngle();
 		span = fin.getSpan();
-		finArea = fin.getFinArea();
+		finArea = fin.getFinWettedArea();
 		crossSection = fin.getCrossSection();
 		
 		calculateFinGeometry(fin);
@@ -248,7 +243,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected void calculateFinGeometry(FinSet component) {
 		
 		span = component.getSpan();
-		finArea = component.getFinArea();
+		finArea = component.getFinWettedArea();
 		ar = 2 * pow2(span) / finArea;
 		
 		Coordinate[] points = component.getFinPoints();

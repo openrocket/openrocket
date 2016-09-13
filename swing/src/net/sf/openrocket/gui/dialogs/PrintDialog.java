@@ -48,6 +48,7 @@ import net.sf.openrocket.startup.Application;
 /**
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
  */
+@SuppressWarnings("serial")
 public class PrintDialog extends JDialog implements TreeSelectionListener {
 	
 	private static final Logger log = LoggerFactory.getLogger(PrintDialog.class);

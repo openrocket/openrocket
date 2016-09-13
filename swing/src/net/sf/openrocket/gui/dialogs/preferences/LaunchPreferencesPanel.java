@@ -22,6 +22,7 @@ import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
+@SuppressWarnings("serial")
 public class LaunchPreferencesPanel extends PreferencesPanel {
 
 	public LaunchPreferencesPanel(JDialog parent, LayoutManager layout) {

@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
  * This class creates a Swing ruler.  The ruler has both vertical and horizontal rules, as well as divisions for both
  * inches and centimeters.
  */
+@SuppressWarnings("serial")
 public class Rule extends PrintableComponent {
 
     public static enum Orientation {

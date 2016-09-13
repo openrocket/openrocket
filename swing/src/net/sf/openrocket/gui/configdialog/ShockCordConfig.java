@@ -19,6 +19,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class ShockCordConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -62,7 +63,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Posrelativeto")));
 		
-		JComboBox combo = new JComboBox(
+		JComboBox<RocketComponent.Position> combo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
@@ -75,7 +76,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//// plus
 		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel2.add(spin, "growx");

@@ -18,6 +18,7 @@ import java.awt.geom.Point2D;
  * Note: Currently nose cones are only supported by drawing the 2D projection of the profile.  A more useful approach
  * may be to draw a myriahedral projection that can be cut out and bent to form the shape.
  */
+@SuppressWarnings("serial")
 public class PrintableTransition extends AbstractPrintable<Transition> {
 
 	/**

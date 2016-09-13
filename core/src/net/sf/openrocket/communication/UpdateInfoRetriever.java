@@ -80,11 +80,14 @@ public class UpdateInfoRetriever {
 	 * @throws IOException	if an I/O exception occurs.
 	 */
 	/* package-private */
-	static UpdateInfo parseUpdateInput(Reader r) throws IOException {
+	static UpdateInfo parseUpdateInput(final Reader r) throws IOException {
 		BufferedReader reader;
 		if (r instanceof BufferedReader) {
 			reader = (BufferedReader) r;
 		} else {
+			// this is a bad idea... 
+			// creating readers which may or may not need to be closed within 
+			// this method is ambiguous
 			reader = new BufferedReader(r);
 		}
 		
@@ -226,7 +229,7 @@ public class UpdateInfoRetriever {
 					log.warn("Invalid version received, ignoring.");
 					return;
 				}
-				
+				reader.close(); 
 				
 				info = new UpdateInfo(version, updates);
 				log.info("Found update: " + info);

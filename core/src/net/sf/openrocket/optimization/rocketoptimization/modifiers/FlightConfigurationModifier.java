@@ -70,6 +70,7 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 					+ " with correct ID");
 		}
 		
+		@SuppressWarnings("unchecked")
 		FlightConfigurableParameterSet<E> configs = (FlightConfigurableParameterSet<E>) configGetter.invoke(c);
 		return configs.get(simulation.getRocket().getSelectedConfiguration().getFlightConfigurationID());
 	}
