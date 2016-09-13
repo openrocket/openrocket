@@ -214,21 +214,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
-		final EnumModel<RocketComponent.Position> em =
-				new EnumModel<RocketComponent.Position>(component, "TabPositionMethod");
+		final EnumModel<RocketComponent.Position> em = new EnumModel<RocketComponent.Position>(component, "TabPositionMethod",
+                                                                new RocketComponent.Position[] {
+                                                                        RocketComponent.Position.TOP,
+                                                                        RocketComponent.Position.MIDDLE,
+                                                                        RocketComponent.Position.BOTTOM
+                                                                });
 		panel.add(new JComboBox<RocketComponent.Position>(em), "spanx 3, growx, wrap para");
-		
-//=======
-//		JComboBox<RocketComponent.Position>  posBox = new JComboBox<>(em);
-//		posBox.addItemListener(new ItemListener(){
-//            @Override
-//            public void itemStateChanged(ItemEvent arg0) {
-//                mts.stateChanged(new EventObject(this));
-//            }
-//		});
-//		panel.add( posBox);
-//>>>>>>> teyrana/fins
-		
+    	
+
 
 		// Calculate fin tab height, length, and position
 		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
