@@ -1,12 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A set of trapezoidal fins.  The root and tip chords are perpendicular to the rocket
@@ -65,6 +65,7 @@ public class TrapezoidFinSet extends FinSet {
 		this.sweep = sweep;
 		this.height = height;
 		this.thickness = thickness;
+		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -76,6 +77,7 @@ public class TrapezoidFinSet extends FinSet {
 		if (length == r)
 			return;
 		length = Math.max(r, 0);
+		validateFinTab();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

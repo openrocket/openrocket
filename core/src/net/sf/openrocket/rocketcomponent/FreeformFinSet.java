@@ -303,6 +303,9 @@ public class FreeformFinSet extends FinSet {
 		if (index == 0 || index == lastPointIndex) {
 			this.length = points.get(lastPointIndex).x;
 		}
+		
+		validateFinTab();
+		
 		fireComponentChangeEvent(ComponentChangeEvent.AERO_MASS_CHANGE);
 	}
 	

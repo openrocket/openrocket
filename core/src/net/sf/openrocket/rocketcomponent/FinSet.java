@@ -290,7 +290,8 @@ public abstract class FinSet extends ExternalComponent {
 		length = MathUtil.max(length, 0);
 		if (MathUtil.equals(this.tabLength, length))
 			return;
-		this.tabLength = length;
+		this.tabLength = length;		
+		validateFinTab();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -307,6 +308,7 @@ public abstract class FinSet extends ExternalComponent {
 	public void setTabShift( final double newShift) {
 		this.tabShift = newShift;
 		
+		validateFinTab();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -337,6 +339,24 @@ public abstract class FinSet extends ExternalComponent {
 		return (getTabFrontEdge() + tabLength);
 	}
 	
+	public void validateFinTab(){
+		// check tab length 
+		if( this.tabLength > this.length ){
+			this.tabLength = this.length;
+		}
+		
+		//check front bounds:
+	    final double xTabFront = getTabFrontEdge();
+		if( 0 > xTabFront){
+			this.tabShift -= xTabFront;
+	    }
+		
+		//check tail bounds:
+	    final double xTabBack = getTabTrailingEdge();
+		if( this.length < xTabBack ){
+	        this.tabShift -= (xTabBack - this.length);
+		}
+	}
 	
 	///////////  Calculation methods  //////////
 	/**
