@@ -35,7 +35,8 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
 		double dragForce = tumbleDrag * dynP;
-		MassData massData = calculateMassData(status);
+		// n.b. this is consntant, and could be calculated once at the beginning of this simulation branch...
+		MassData massData = calculateDryMassData(status);
 		double mass = massData.getCG().weight;
 		
 

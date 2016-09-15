@@ -94,8 +94,8 @@ public class RocksimSaver extends RocketSaver {
 		
 		MassCalculator massCalc = new MassCalculator();
 		
-		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
-		final double cg = massCalc.getCG(configuration, MassCalculator.MassCalcType.NO_MOTORS).x *
+		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
+		final double cg = massCalc.getRocketSpentMassData(configuration).getCM().x *
 				RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
 		int stageCount = rocket.getStageCount();

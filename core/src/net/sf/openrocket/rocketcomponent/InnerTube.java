@@ -406,42 +406,5 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public String toMotorDebug( ){
 		return this.motors.toDebug();
 	}
-
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, this.getName(), this.getPatternName()));
-		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
-		
-		Coordinate[] relCoords = this.getInstanceOffsets();
-		Coordinate[] absCoords = this.getLocations();
-		FlightConfigurationId curId = this.getRocket().getSelectedConfiguration().getFlightConfigurationID();
-		final int intanceCount = this.getInstanceCount();
-		MotorConfiguration curInstance = this.motors.get(curId);
-		if( curInstance.isEmpty() ){
-			// print just the tube locations
-			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
-			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
-				Coordinate tubeRelativePosition = relCoords[instanceNumber];
-				Coordinate tubeAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
-						tubeRelativePosition, tubeAbsolutePosition));
-			}
-		}else{
-			// curInstance has a motor ... 
-			Motor curMotor = curInstance.getMotor();
-			final double motorOffset = this.getLength() - curMotor.getLength();
-			
-			buffer.append(String.format("%s    %-24s Thrust: %f N;   (Length: %f); \n", 
-					prefix, curMotor.getDesignation(), curMotor.getMaxThrustEstimate(), curMotor.getLength() ));
-			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
-				Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
-				Coordinate tubeAbs = absCoords[instanceNumber];
-				Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
-				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
-						motorRelativePosition, motorAbsolutePosition));
-			}
-		
-		}
-	}
 	
 }

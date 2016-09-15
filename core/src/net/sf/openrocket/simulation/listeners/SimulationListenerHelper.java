@@ -526,7 +526,7 @@ public class SimulationListenerHelper {
 	/**
 	 * Fire postMassCalculation event.
 	 * 
-	 * @return	the aerodynamic forces to use.
+	 * @return	the resultant mass data
 	 */
 	public static MassData firePostMassCalculation(SimulationStatus status, MassData mass) throws SimulationException {
 		MassData m;

@@ -415,7 +415,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * Clear the undo history.
 	 */
 	public void clearUndo() {
-		log.info("Clearing undo history of " + this);
+		//log.info("Clearing undo history of " + this);
 		undoHistory.clear();
 		undoDescription.clear();
 		

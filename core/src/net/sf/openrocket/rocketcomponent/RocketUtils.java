@@ -2,8 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collection;
 
-import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.util.Coordinate;
 
 public abstract class RocketUtils {
@@ -24,11 +22,5 @@ public abstract class RocketUtils {
 		return length;
 	}
 	
-	// get rid of this method.... we can sure come up with a better way to do this....
-	public static Coordinate getCG(Rocket rocket, MassCalcType calcType) {
-		MassCalculator massCalculator = new MassCalculator();
-		Coordinate cg = massCalculator.getCG(rocket.getSelectedConfiguration(), calcType);
-		return cg;
-	}
 	
 }

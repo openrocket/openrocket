@@ -55,7 +55,6 @@ import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -540,7 +539,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		Map<RocketComponent, AerodynamicForces> aeroData =
 				aerodynamicCalculator.getForceAnalysis(configuration, conditions, set);
 		Map<RocketComponent, Coordinate> massData =
-				massCalculator.getCGAnalysis(configuration, MassCalcType.LAUNCH_MASS);
+				massCalculator.getCGAnalysis(configuration);
 
 
 		cgData.clear();
@@ -579,7 +578,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			cgData.add(data);
 			
 			data[0] = motorConfig.getMotor().getDesignation();
-			data[1] = MassCalcType.LAUNCH_MASS.getCG(motorConfig);
+			data[1] = motorConfig.getMotor().getLaunchMass(); 
 		}
 		
 		forces = aeroData.get(rkt);

@@ -192,12 +192,10 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 		return emptyMass;
 	}
 
-
 	@Override
-	public double getThrustAtMotorTime(double pseudoIndex) {
+	public double getThrust(double pseudoIndex) {
 		return 0;
 	}
-
 
 	@Override
 	public double getAverageThrust(double startTime, double endTime) {
@@ -205,13 +203,37 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 
 	@Override
-	public double getMassAtMotorTime(final double motorTime) {
+	public double getTotalMass(final double motorTime) {
 		return 0;
+	}
+	
+	@Override
+	public double getPropellantMass( final Double motorTime){
+		return 0.;
+	}
+	
+	@Override
+	public double getCMx(double pseudoIndex) {
+		return 0;
+	}
+	
+	@Override
+	public double getBurnTime() { 
+		return 0; 
+	}
+	
+	@Override
+	public double getUnitIxx() {
+		return 0.; 
+	}
+	
+	@Override
+	public double getUnitIyy() {
+		return 0.;
 	}
 
 	@Override
-	public double getBurnTime() {
-		return 0;
+	public double getUnitIzz(){
+		return 0.;
 	}
-
 }

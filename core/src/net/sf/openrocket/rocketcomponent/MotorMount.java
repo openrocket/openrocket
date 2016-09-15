@@ -54,6 +54,13 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 */
 	public int getInstanceCount();
 
+
+	/**
+	 * Get the current cluster configuration.
+	 * @return  The current cluster configuration.
+	 */ 
+	public ClusterConfiguration getClusterConfiguration();
+	
 	/** 
 	 * Get the length of this motor mount.  Synonymous with the RocketComponent method. 
 	 * 
@@ -63,10 +70,15 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 
 	// duplicate of RocketComponent
 	public String getID();
+
+	// duplicate of RocketComponent 
 	public String getDebugName();
 	
 	// duplicate of RocketComponent 
 	public AxialStage getStage();
+	
+	// duplicate of RocketComponent 
+	public Coordinate[] getLocations();
 	
 	/**
 	 * 

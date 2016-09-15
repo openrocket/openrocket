@@ -188,7 +188,6 @@ public class TestRockets {
 		NoseCone nosecone;
 		BodyTube bodytube;
 		
-		
 		rocket = new Rocket();
 		stage = new AxialStage();
 		stage.setName("Stage1");
@@ -371,23 +370,25 @@ public class TestRockets {
 		return values[rnd.nextInt(values.length)];
 	}
 	
+	public final static String ESTES_ALPHA_III_FCID_1="test_config #1: A8-0";
+	public final static String ESTES_ALPHA_III_FCID_2="test_config #2: B4-3";
+	public final static String ESTES_ALPHA_III_FCID_3="test_config #3: C6-3";
+	public final static String ESTES_ALPHA_III_FCID_4="test_config #4: C6-5";
+	public final static String ESTES_ALPHA_III_FCID_5="test_config #5: C6-7";
+	
 	// This is a Estes Alpha III 
 	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
 	// It is picked as a standard, simple, validation rocket. 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static final Rocket makeEstesAlphaIII(){
 		Rocket rocket = new Rocket();
-		FlightConfigurationId fcid[] = new FlightConfigurationId[5]; 
-		fcid[0] = new FlightConfigurationId();
-		rocket.createFlightConfiguration(fcid[0]);
-		fcid[1] = new FlightConfigurationId();
-		rocket.createFlightConfiguration(fcid[1]);
-		fcid[2] = new FlightConfigurationId();
-		rocket.createFlightConfiguration(fcid[2]);
-		fcid[3] = new FlightConfigurationId();
-		rocket.createFlightConfiguration(fcid[3]);
-		fcid[4] = new FlightConfigurationId();
-		rocket.createFlightConfiguration(fcid[4]);
+		FlightConfigurationId fcid[] = new FlightConfigurationId[5];
+		fcid[0] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_1 ));
+		fcid[1] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_2 ));
+		fcid[2] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_3 ));
+		fcid[3] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_4 ));
+		fcid[4] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_5 ));
+		
 		
 		rocket.setName("Estes Alpha III / Code Verification Rocket");
 		AxialStage stage = new AxialStage();
@@ -515,8 +516,9 @@ public class TestRockets {
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
 		
-		rocket.setSelectedConfiguration( fcid[0] );
-		rocket.getSelectedConfiguration().setAllStages();
+		
+		// preserve default default configuration of rocket -- to test what the default is set to upon initialization.
+		
 		rocket.enableEvents();
 		return rocket;
 	}
@@ -1018,13 +1020,15 @@ public class TestRockets {
 		return rocket;
 	}
 	
+	public final static String FALCON_9_FCID_1="test_config #1: [ M1350, G77]";
+	
+	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static Rocket makeFalcon9Heavy() {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
 
-        FlightConfiguration selConfig = rocket.createFlightConfiguration(null);
-        FlightConfigurationId selFCID = selConfig.getFlightConfigurationID();
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9_FCID_1 ));
         rocket.setSelectedConfiguration(selFCID);
 
 		// ====== Payload Stage ======
@@ -1104,7 +1108,7 @@ public class TestRockets {
 				Motor mtr = TestRockets.generateMotor_M1350_75mm();
 				motorConfig.setMotor( mtr);
 				coreBody.setMotorMount( true);
-				FlightConfigurationId motorConfigId = selConfig.getFlightConfigurationID();
+				FlightConfigurationId motorConfigId = selFCID;
 				coreBody.setMotorConfig( motorConfig, motorConfigId);	 
 			}
 			
@@ -1162,7 +1166,7 @@ public class TestRockets {
 					boosterMotorTubes.setClusterScale(1.0);
 					boosterBody.addChild( boosterMotorTubes);
 					
-					FlightConfigurationId motorConfigId = selConfig.getFlightConfigurationID();
+					FlightConfigurationId motorConfigId = selFCID;
 					MotorConfiguration motorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);
 					Motor mtr = TestRockets.generateMotor_G77_29mm();
 					motorConfig.setMotor(mtr);
@@ -1174,7 +1178,7 @@ public class TestRockets {
 		
 		rocket.enableEvents();
 		rocket.setSelectedConfiguration( selFCID);
-		selConfig.setAllStages();
+		rocket.getFlightConfiguration( selFCID).setAllStages();
 		
 		return rocket;
 	}
