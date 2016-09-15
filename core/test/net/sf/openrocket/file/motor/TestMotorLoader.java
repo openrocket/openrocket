@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 
 import org.junit.Test;
 
@@ -63,7 +62,7 @@ public class TestMotorLoader {
 		
 		String[] d = new String[digests.length];
 		for (int i = 0; i < motors.size(); i++) {
-			d[i] = ((ThrustCurveMotor) motors.get(i)).getDigest();
+			d[i] = ((Motor) motors.get(i)).getDigest();
 		}
 		
 		Arrays.sort(digests);

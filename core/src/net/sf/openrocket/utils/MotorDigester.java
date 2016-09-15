@@ -46,7 +46,7 @@ public class MotorDigester {
 					continue;
 				}
 				
-				String digest = ((ThrustCurveMotor) m).getDigest();
+				String digest = ((Motor) m).getDigest();
 				if (printFileNames) {
 					System.out.print(file + ": ");
 				}

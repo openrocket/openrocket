@@ -128,7 +128,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
 		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);  
 		mass = new MassData(cg, rotationalInertia, longitudinalInertia);
-		propellantMass = calc.getPropellantMass(status.getConfiguration(),  MassCalcType.LAUNCH_MASS);
+		propellantMass = calc.getPropellantMass(status);
 		mass.setPropellantMass( propellantMass ); 
 				
 		// Call post-listener
@@ -172,7 +172,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		final double currentTime = status.getSimulationTime() + timestep;
 		Collection<MotorClusterState> activeMotorList = status.getMotors();
 		for (MotorClusterState currentMotorState : activeMotorList ) {
-			thrust += currentMotorState.getThrust( currentTime, atmosphericConditions );
+			thrust += currentMotorState.getAverageThrust( status.getSimulationTime(), currentTime );
 		}
 		
 		// Post-listeners

@@ -121,6 +121,8 @@ public interface Motor extends Cloneable {
 	// there's a second (non-trivial) type of motor to support...
 	public double getThrustAtMotorTime( final double motorTimeDelta );
 		
+	public double getAverageThrust( final double startTime, final double endTime );
+
 	public double getLaunchCGx();
 	
 	public double getBurnoutCGx();
@@ -148,5 +150,11 @@ public interface Motor extends Cloneable {
 	 * Return an estimate of the total impulse of this motor, or NaN if an estimate is unavailable.
 	 */
 	public double getTotalImpulseEstimate();
-	
+
+
+	double getMassAtMotorTime(final double motorTime);
+
+
+	double getBurnTime();
+
 }

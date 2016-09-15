@@ -9,7 +9,6 @@ import java.util.List;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 
@@ -116,7 +115,7 @@ public class MotorCorrelation {
 		// Output motor digests
 		final int count = motors.size();
 		for (int i = 0; i < count; i++) {
-			System.out.println(files.get(i) + ": " + ((ThrustCurveMotor) motors.get(i)).getDigest());
+			System.out.println(files.get(i) + ": " + ((Motor) motors.get(i)).getDigest());
 		}
 		
 		// Cross-correlate every pair

@@ -1,6 +1,5 @@
 package net.sf.openrocket.simulation;
 
-import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -52,12 +51,15 @@ public class MotorClusterState {
 
 	public void burnOut( final double _burnOutTime ){
 		if( ThrustState.THRUSTING == currentState ){
-			this.ignitionTime = _burnOutTime;
+			this.cutoffTime = _burnOutTime;
 			this.currentState = this.currentState.getNext();
 //		}else{
 //			System.err.println("!! Attempted to turn off motor state "+toDescription()+" with current status="
 //								+this.currentState.getName()+" ... Ignoring.");
-		}		
+		}
+		if( !this.hasEjectionCharge() ) {
+			this.currentState = ThrustState.SPENT;
+		}
 	}
 	
 	public void expend( final double _ejectionTime ){
@@ -70,6 +72,9 @@ public class MotorClusterState {
 		}		
 	}
 
+	public double getBurnTime( ) {
+		return motor.getBurnTime();
+	}
 	/**
 	 * Alias for "burnOut(double)"
 	 */
@@ -105,10 +110,18 @@ public class MotorClusterState {
 		return _simulationTime - this.getIgnitionTime();
 	}
 	
-	public double getThrust( final double simulationTime, final AtmosphericConditions cond){
-		if( this.currentState.isThrusting() ){
-			double motorTime = this.getMotorTime( simulationTime);
-			return this.motorCount * motor.getThrustAtMotorTime( motorTime );
+	/**
+	 * Compute the average thrust over an interval.
+	 * 
+	 * @param simulationTime
+	 * @param cond
+	 * @return
+	 */
+	public double getAverageThrust( final double startTime, final double endTime) {
+		if( this.currentState.isThrusting() ) {
+			double motorStartTime = this.getMotorTime( startTime );
+			double motorEndTime = this.getMotorTime(endTime);
+			return this.motorCount * motor.getAverageThrust( motorStartTime, motorEndTime );
 		}else{
 			return 0.0;
 		}
