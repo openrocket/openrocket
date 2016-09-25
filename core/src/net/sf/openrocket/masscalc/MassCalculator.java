@@ -14,6 +14,7 @@ import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.simulation.SimulationStatus;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
@@ -368,6 +369,15 @@ public class MassCalculator implements Monitorable {
 		Coordinate compCM = component.getComponentCG();
 		double compIx = component.getRotationalUnitInertia() * compCM.weight;
 		double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+		if( 0 > compCM.weight ){
+			throw new BugException("  computed a negative rotational inertia value.");
+		}
+		if( 0 > compIx ){
+			throw new BugException("  computed a negative rotational inertia value.");
+		}
+		if( 0 > compIt ){
+			throw new BugException("  computed a negative longitudinal inertia value.");
+		}
 		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
