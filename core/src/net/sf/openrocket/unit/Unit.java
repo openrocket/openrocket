@@ -1,6 +1,7 @@
 package net.sf.openrocket.unit;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import net.sf.openrocket.util.Chars;
 
@@ -77,9 +78,18 @@ public abstract class Unit {
 	
 	// TODO: Should this use grouping separator ("#,##0.##")?
 	
-	private static final DecimalFormat intFormat = new DecimalFormat("#");
-	private static final DecimalFormat decFormat = new DecimalFormat("0.0##");
-	private static final DecimalFormat expFormat = new DecimalFormat("0.00E0");
+	private static final DecimalFormat intFormat;
+	private static final DecimalFormat decFormat;
+	private static final DecimalFormat expFormat;
+	
+	static {
+		DecimalFormatSymbols dotDecimalSymbols = new DecimalFormatSymbols();
+		dotDecimalSymbols.setDecimalSeparator('.');
+		dotDecimalSymbols.setGroupingSeparator(',');
+		intFormat = new DecimalFormat("#", dotDecimalSymbols);
+		decFormat = new DecimalFormat("0.0##", dotDecimalSymbols);
+		expFormat = new DecimalFormat("0.00E0", dotDecimalSymbols);
+	}
 	
 	/**
 	 * Format the given value (in SI units) to a string representation of the value in this
