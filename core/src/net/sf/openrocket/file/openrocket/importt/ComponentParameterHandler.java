@@ -13,7 +13,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 
 /**
  * A handler that populates the parameters of a previously constructed rocket component.
@@ -61,6 +61,13 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new MotorConfigurationHandler((Rocket) component, context);
 		}
+		if (element.equals("flightconfiguration")) {
+			if (!(component instanceof Rocket)) {
+				warnings.add(Warning.fromString("Illegal component defined for flight configuration."));
+				return null;
+			}
+			return new MotorConfigurationHandler((Rocket) component, context);
+		}
 		if ( element.equals("deploymentconfiguration")) {
 			if ( !(component instanceof RecoveryDevice) ) {
 				warnings.add(Warning.fromString("Illegal component defined as recovery device."));
@@ -69,11 +76,11 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			return new DeploymentConfigurationHandler( (RecoveryDevice) component, context );
 		}
 		if ( element.equals("separationconfiguration")) {
-			if ( !(component instanceof Stage) ) {
+			if ( !(component instanceof AxialStage) ) {
 				warnings.add(Warning.fromString("Illegal component defined as stage."));
 				return null;
 			}
-			return new StageSeparationConfigurationHandler( (Stage) component, context );
+			return new StageSeparationConfigurationHandler( (AxialStage) component, context );
 		}
 		
 		return PlainTextHandler.INSTANCE;

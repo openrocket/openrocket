@@ -26,11 +26,13 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class DeploymentSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
@@ -47,9 +49,9 @@ public class DeploymentSelectionDialog extends JDialog {
 	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		
-		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		
-		newConfiguration = component.getDeploymentConfiguration().get(id).clone();
+		newConfiguration = component.getDeploymentConfigurations().get(id).clone();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
@@ -67,7 +69,7 @@ public class DeploymentSelectionDialog extends JDialog {
 		
 		// Select the button based on current configuration.  If the configuration is overridden
 		// The the overrideButton is selected.
-		boolean isOverridden = !component.getDeploymentConfiguration().isDefault(id);
+		boolean isOverridden = !component.getDeploymentConfigurations().isDefault(id);
 		if (isOverridden) {
 			overrideButton.setSelected(true);
 		}
@@ -124,9 +126,9 @@ public class DeploymentSelectionDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (defaultButton.isSelected()) {
-					component.getDeploymentConfiguration().setDefault(newConfiguration);
+					component.getDeploymentConfigurations().setDefault(newConfiguration);
 				} else {
-					component.getDeploymentConfiguration().set(id, newConfiguration);
+					component.getDeploymentConfigurations().set(id, newConfiguration);
 				}
 				DeploymentSelectionDialog.this.setVisible(false);
 			}

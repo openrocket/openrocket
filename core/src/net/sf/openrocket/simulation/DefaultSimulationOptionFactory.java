@@ -33,7 +33,7 @@ public class DefaultSimulationOptionFactory {
 	}
 	
 	public SimulationOptions getDefault() {
-		SimulationOptions defaults = new SimulationOptions(null);
+		SimulationOptions defaults = new SimulationOptions();
 		if (prefs != null) {
 			
 			defaults.setWindSpeedAverage(prefs.getDouble(SIMCONDITION_WIND_SPEED, defaults.getWindSpeedAverage()));

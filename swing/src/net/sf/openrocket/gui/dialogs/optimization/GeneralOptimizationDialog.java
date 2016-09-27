@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -54,6 +54,8 @@ import javax.swing.tree.TreePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.itextpdf.text.Font;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -86,6 +88,7 @@ import net.sf.openrocket.optimization.rocketoptimization.goals.MaximizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.MinimizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.ValueSeekGoal;
 import net.sf.openrocket.optimization.services.OptimizationServiceHelper;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -98,19 +101,16 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.TextUtil;
 
-import com.itextpdf.text.Font;
-
 /**
  * General rocket optimization dialog. 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class GeneralOptimizationDialog extends JDialog {
+	private static final long serialVersionUID = -355058777898063291L;
 	private static final Logger log = LoggerFactory.getLogger(GeneralOptimizationDialog.class);
 	private static final Translator trans = Application.getTranslator();
-	
-	private static final Collator collator = Collator.getInstance();
-	
+		
 	private static final String GOAL_MAXIMIZE = trans.get("goal.maximize");
 	private static final String GOAL_MINIMIZE = trans.get("goal.minimize");
 	private static final String GOAL_SEEK = trans.get("goal.seek");
@@ -138,10 +138,10 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final DescriptionArea selectedModifierDescription;
 	private final SimulationModifierTree availableModifierTree;
 	
-	private final JComboBox simulationSelectionCombo;
-	private final JComboBox optimizationParameterCombo;
+	private final JComboBox<String> simulationSelectionCombo;
+	private final JComboBox<Named<OptimizableParameter>> optimizationParameterCombo;
 	
-	private final JComboBox optimizationGoalCombo;
+	private final JComboBox<?> optimizationGoalCombo;
 	private final JSpinner optimizationGoalSpinner;
 	private final UnitSelector optimizationGoalUnitSelector;
 	private final DoubleModel optimizationSeekValue;
@@ -239,6 +239,11 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		selectedModifierTable.setDefaultEditor(Double.class, new DoubleCellEditor());
 		selectedModifierTable.setDefaultEditor(Unit.class, new UnitCellEditor() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2316208862654205128L;
+
 			@Override
 			protected UnitGroup getUnitGroup(Unit value, int row, int column) {
 				return selectedModifiers.get(row).getUnitGroup();
@@ -373,7 +378,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		simulationSelectionCombo = new JComboBox();
+		simulationSelectionCombo = new JComboBox<String>();
 		simulationSelectionCombo.setToolTipText(tip);
 		populateSimulations();
 		simulationSelectionCombo.addActionListener(clearHistoryActionListener);
@@ -387,7 +392,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationParameterCombo = new JComboBox();
+		optimizationParameterCombo = new JComboBox<Named<OptimizableParameter>>();
 		optimizationParameterCombo.setToolTipText(tip);
 		populateParameters();
 		optimizationParameterCombo.addActionListener(clearHistoryActionListener);
@@ -401,7 +406,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationGoalCombo = new JComboBox(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
+		optimizationGoalCombo = new JComboBox<String>(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
 		optimizationGoalCombo.setToolTipText(tip);
 		optimizationGoalCombo.setEditable(false);
 		optimizationGoalCombo.addActionListener(clearHistoryActionListener);
@@ -500,7 +505,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "span 2, grow, wrap para*2");
 		
 		// // Rocket figure
-		figure = new RocketFigure(getSelectedSimulation().getConfiguration());
+		figure = new RocketFigure( getSelectedSimulation().getRocket() );
 		figure.setBorderPixels(1, 1);
 		ScaleScrollPane figureScrollPane = new ScaleScrollPane(figure);
 		figureScrollPane.setFitting(true);
@@ -951,28 +956,30 @@ public class GeneralOptimizationDialog extends JDialog {
 		Rocket rocket = documentCopy.getRocket();
 		
 		for (Simulation s : documentCopy.getSimulations()) {
-			String id = s.getConfiguration().getFlightConfigurationID();
+			//FlightConfigurationID id = s.getConfiguration().getFlightConfigurationID();
+			FlightConfigurationId id = new FlightConfigurationId( "stub id value - General Optimizer");
+			
 			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
-		for (String id : rocket.getFlightConfigurationIDs()) {
-			if (id == null) {
-				continue;
+		for (FlightConfigurationId curId: rocket.getIds() ){
+			if ( curId== null) {
+				// this is now *extremely* unlikely
+				throw new NullPointerException(" flightconfiguration has a null id... bug.");
 			}
+			
 			Simulation sim = new Simulation(rocket);
-			sim.getConfiguration().setFlightConfigurationID(id);
-			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, id));
+			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, curId));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
 		Simulation sim = new Simulation(rocket);
-		sim.getConfiguration().setFlightConfigurationID(null);
 		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
 		simulations.add(new Named<Simulation>(sim, name));
 		
 		
-		simulationSelectionCombo.setModel(new DefaultComboBoxModel(simulations.toArray()));
+		simulationSelectionCombo.setModel(new DefaultComboBoxModel<String>((String[])simulations.toArray()));
 		simulationSelectionCombo.setSelectedIndex(0);
 		if (current != null) {
 			for (int i = 0; i < simulations.size(); i++) {
@@ -994,12 +1001,12 @@ public class GeneralOptimizationDialog extends JDialog {
 			current = trans.get("MaximumAltitudeParameter.name");
 		}
 		
-		List<Named<OptimizableParameter>> parameters = new ArrayList<Named<OptimizableParameter>>();
+		Vector<Named<OptimizableParameter>> parameters = new Vector<Named<OptimizableParameter>>();
 		for (OptimizableParameter p : optimizationParameters) {
 			parameters.add(new Named<OptimizableParameter>(p, p.getName()));
 		}
 		
-		optimizationParameterCombo.setModel(new DefaultComboBoxModel(parameters.toArray()));
+		optimizationParameterCombo.setModel(new DefaultComboBoxModel<Named<OptimizableParameter>>( parameters ));
 		
 		for (int i = 0; i < parameters.size(); i++) {
 			if (parameters.get(i).toString().equals(current)) {
@@ -1159,8 +1166,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			selectedModifierDescription.setText("");
 		}
 		
-		// Update the figure
-		figure.setConfiguration(getSelectedSimulation().getConfiguration());
+		// Update the active configuration
+		FlightConfigurationId fcid = getSelectedSimulation().getId();
+		getSelectedSimulation().getRocket().setDefaultConfiguration(fcid);
 		
 		updating = false;
 	}
@@ -1335,6 +1343,10 @@ public class GeneralOptimizationDialog extends JDialog {
 	 */
 	private class ParameterSelectionTableModel extends AbstractTableModel {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8724716503904686656L;
 		private static final int PARAMETER = 0;
 		private static final int CURRENT = 1;
 		private static final int MIN = 2;
@@ -1462,6 +1474,8 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	private class DoubleCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 448529130732718803L;
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 				boolean hasFocus, int row, int column) {
@@ -1479,51 +1493,51 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	
-	private static class SimulationModifierComparator implements Comparator<SimulationModifier> {
-		
-		@Override
-		public int compare(SimulationModifier mod1, SimulationModifier mod2) {
-			Object rel1 = mod1.getRelatedObject();
-			Object rel2 = mod2.getRelatedObject();
-			
-			/*
-			 * Primarily order by related object:
-			 * 
-			 * - RocketComponents first
-			 * - Two RocketComponents are ordered based on their position in the rocket
-			 */
-			if (!rel1.equals(rel2)) {
-				
-				if (rel1 instanceof RocketComponent) {
-					if (rel2 instanceof RocketComponent) {
-						
-						RocketComponent root = ((RocketComponent) rel1).getRoot();
-						for (RocketComponent c : root) {
-							if (c.equals(rel1)) {
-								return -1;
-							}
-							if (c.equals(rel2)) {
-								return 1;
-							}
-						}
-						
-						throw new BugException("Error sorting modifiers, mod1=" + mod1 + " rel1=" + rel1 +
-								" mod2=" + mod2 + " rel2=" + rel2);
-						
-					} else {
-						return -1;
-					}
-				} else {
-					if (rel2 instanceof RocketComponent) {
-						return 1;
-					}
-				}
-				
-			}
-			
-			// Secondarily sort by name
-			return collator.compare(mod1.getName(), mod2.getName());
-		}
-	}
+//	private static class SimulationModifierComparator implements Comparator<SimulationModifier> {
+//		
+//		@Override
+//		public int compare(SimulationModifier mod1, SimulationModifier mod2) {
+//			Object rel1 = mod1.getRelatedObject();
+//			Object rel2 = mod2.getRelatedObject();
+//			
+//			/*
+//			 * Primarily order by related object:
+//			 * 
+//			 * - RocketComponents first
+//			 * - Two RocketComponents are ordered based on their position in the rocket
+//			 */
+//			if (!rel1.equals(rel2)) {
+//				
+//				if (rel1 instanceof RocketComponent) {
+//					if (rel2 instanceof RocketComponent) {
+//						
+//						RocketComponent root = ((RocketComponent) rel1).getRoot();
+//						for (RocketComponent c : root) {
+//							if (c.equals(rel1)) {
+//								return -1;
+//							}
+//							if (c.equals(rel2)) {
+//								return 1;
+//							}
+//						}
+//						
+//						throw new BugException("Error sorting modifiers, mod1=" + mod1 + " rel1=" + rel1 +
+//								" mod2=" + mod2 + " rel2=" + rel2);
+//						
+//					} else {
+//						return -1;
+//					}
+//				} else {
+//					if (rel2 instanceof RocketComponent) {
+//						return 1;
+//					}
+//				}
+//				
+//			}
+//			
+//			// Secondarily sort by name
+//			return collator.compare(mod1.getName(), mod2.getName());
+//		}
+//	}
 	
 }

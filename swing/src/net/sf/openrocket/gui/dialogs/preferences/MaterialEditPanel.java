@@ -34,6 +34,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 
+@SuppressWarnings("serial")
 public class MaterialEditPanel extends JPanel {
 	
 	private final JTable table;

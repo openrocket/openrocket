@@ -14,6 +14,6 @@ public interface FlightConfigurableComponent {
 	 * @param oldConfigId	the old configuration ID
 	 * @param newConfigId	the new configuration ID
 	 */
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId);
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId);
 	
 }

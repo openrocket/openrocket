@@ -7,7 +7,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 
-public class CenteringRing extends RadiusRingComponent {
+public class CenteringRing extends RadiusRingComponent implements LineInstanceable {
 
 	public CenteringRing() {
 		setOuterRadiusAutomatic(true);
@@ -17,7 +17,11 @@ public class CenteringRing extends RadiusRingComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 
-
+	protected int instanceCount = 1;
+	// front-front along the positive rocket axis. i.e. [1,0,0];
+	protected double instanceSeparation = 0; 
+   
+	
 	@Override
 	public double getInnerRadius() {
 		// Implement sibling inner radius automation
@@ -77,5 +81,43 @@ public class CenteringRing extends RadiusRingComponent {
 	public Type getPresetType() {
 		return ComponentPreset.Type.CENTERING_RING;
 	}
-
+	
+	@Override
+	public double getInstanceSeparation(){
+		return this.instanceSeparation;
+	}
+	
+	@Override
+	public void setInstanceSeparation(final double _separation){
+		this.instanceSeparation = _separation;
+	}
+	
+	@Override
+	public void setInstanceCount( final int newCount ){
+		if( 0 < newCount ){
+			this.instanceCount = newCount;
+		}
+	}
+	
+	@Override
+	public Coordinate[] getInstanceOffsets(){
+		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
+		for ( int index=0 ; index < this.getInstanceCount(); index++){
+			toReturn[index] = this.position.setX( this.position.x + index*this.instanceSeparation );
+		}
+		
+		return toReturn;
+	}
+	
+	
+	@Override
+	public int getInstanceCount(){
+		return this.instanceCount;
+	}
+	
+	@Override	
+	public String getPatternName(){
+		return (this.getInstanceCount() + "-Line");
+	}
+	
 }

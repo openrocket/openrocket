@@ -16,16 +16,24 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.figureelements.FigureElement;
+import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -42,23 +50,28 @@ import net.sf.openrocket.util.Transformation;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class RocketFigure extends AbstractScaleFigure {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 45884403769043138L;
+
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
 	
-	public static final int TYPE_SIDE = 1;
-	public static final int TYPE_BACK = 2;
+	public static final int VIEW_SIDE=0;
+	public static final int VIEW_BACK=1;
 	
 	// Width for drawing normal and selected components
 	public static final double NORMAL_WIDTH = 1.0;
 	public static final double SELECTED_WIDTH = 2.0;
 	
 
-	private Configuration configuration;
-	private RocketComponent[] selection = new RocketComponent[0];
+	private Rocket rocket;
 	
-	private int type = TYPE_SIDE;
+	private RocketComponent[] selection = new RocketComponent[0];
+	private double figureWidth = 0, figureHeight = 0;
+	protected int figureWidthPx = 0, figureHeightPx = 0;
+	
+	private RocketPanel.VIEW_TYPE currentViewType = RocketPanel.VIEW_TYPE.SideView;
 	
 	private double rotation;
 	private Transformation transformation;
@@ -70,14 +83,11 @@ public class RocketFigure extends AbstractScaleFigure {
 	/*
 	 * figureComponents contains the corresponding RocketComponents of the figureShapes
 	 */
-	private final ArrayList<Shape> figureShapes = new ArrayList<Shape>();
-	private final ArrayList<RocketComponent> figureComponents =
-			new ArrayList<RocketComponent>();
+	private final ArrayList<RocketComponentShape> figureShapes = new ArrayList<RocketComponentShape>();
+
 	
 	private double minX = 0, maxX = 0, maxR = 0;
 	// Figure width and height in SI-units and pixels
-	private double figureWidth = 0, figureHeight = 0;
-	protected int figureWidthPx = 0, figureHeightPx = 0;
 	
 	private AffineTransform g2transformation = null;
 	
@@ -88,10 +98,9 @@ public class RocketFigure extends AbstractScaleFigure {
 	/**
 	 * Creates a new rocket figure.
 	 */
-	public RocketFigure(Configuration configuration) {
+	public RocketFigure(Rocket _rkt) {
 		super();
-		
-		this.configuration = configuration;
+		this.rocket = _rkt;
 		
 		this.rotation = 0.0;
 		this.transformation = Transformation.rotate_x(0.0);
@@ -99,15 +108,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		updateFigure();
 	}
 	
-	
-	/**
-	 * Set the configuration displayed by the figure.  It may use the same or different rocket.
-	 * 
-	 * @param configuration		the configuration to display.
-	 */
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-		updateFigure();
+	public FlightConfiguration getConfiguration() {
+		return this.rocket.getSelectedConfiguration();
 	}
 	
 	
@@ -158,42 +160,31 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	
-	public int getType() {
-		return type;
+	public RocketPanel.VIEW_TYPE  getType() {
+		return currentViewType;
 	}
 	
-	public void setType(int type) {
-		if (type != TYPE_BACK && type != TYPE_SIDE) {
+	public void setType(final RocketPanel.VIEW_TYPE type) {
+		if (type != RocketPanel.VIEW_TYPE.BackView && type != RocketPanel.VIEW_TYPE.SideView) {
 			throw new IllegalArgumentException("Illegal type: " + type);
 		}
-		if (this.type == type)
+		if (this.currentViewType == type)
 			return;
-		this.type = type;
+		this.currentViewType = type;
 		updateFigure();
 	}
+		
 	
-	
-
-
-
 	/**
 	 * Updates the figure shapes and figure size.
 	 */
 	@Override
 	public void updateFigure() {
 		figureShapes.clear();
-		figureComponents.clear();
 		
 		calculateSize();
-		
-		// Get shapes for all active components
-		for (RocketComponent c : configuration) {
-			Shape[] s = getShapes(c);
-			for (int i = 0; i < s.length; i++) {
-				figureShapes.add(s[i]);
-				figureComponents.add(c);
-			}
-		}
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		getShapes( figureShapes, config);
 		
 		repaint();
 		fireChangeEvent();
@@ -238,32 +229,31 @@ public class RocketFigure extends AbstractScaleFigure {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		
-
 		AffineTransform baseTransform = g2.getTransform();
 		
 		// Update figure shapes if necessary
 		if (figureShapes == null)
 			updateFigure();
-		
+
 
 		double tx, ty;
 		// Calculate translation for figure centering
 		if (figureWidthPx + 2 * borderPixelsWidth < getWidth()) {
 			
 			// Figure fits in the viewport
-			if (type == TYPE_BACK)
+			if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 				tx = getWidth() / 2;
-			else
+			}else{
 				tx = (getWidth() - figureWidthPx) / 2 - minX * scale;
-			
+			}
 		} else {
 			
 			// Figure does not fit in viewport
-			if (type == TYPE_BACK)
+			if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 				tx = borderPixelsWidth + figureWidthPx / 2;
-			else
+			}else{
 				tx = borderPixelsWidth - minX * scale;
-			
+			}
 		}
 		
 		ty = computeTy(figureHeightPx);
@@ -293,12 +283,11 @@ public class RocketFigure extends AbstractScaleFigure {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-
+		int shapeCount = figureShapes.size();
 		// Draw all shapes
-		
-		for (int i = 0; i < figureShapes.size(); i++) {
-			RocketComponent c = figureComponents.get(i);
-			Shape s = figureShapes.get(i);
+		for (int i = 0; i < shapeCount; i++) {
+			RocketComponentShape rcs = figureShapes.get(i);
+			RocketComponent c = rcs.getComponent(); 
 			boolean selected = false;
 			
 			// Check if component is in the selection
@@ -310,13 +299,13 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 			
 			// Set component color and line style
-			net.sf.openrocket.util.Color color = c.getColor();
+			net.sf.openrocket.util.Color color = rcs.color;
 			if (color == null) {
 				color = Application.getPreferences().getDefaultColor(c.getClass());
 			}
 			g2.setColor(ColorConversion.toAwtColor(color));
 			
-			LineStyle style = c.getLineStyle();
+			LineStyle style = rcs.lineStyle;
 			if (style == null)
 				style = Application.getPreferences().getDefaultLineStyle(c.getClass());
 			
@@ -336,54 +325,55 @@ public class RocketFigure extends AbstractScaleFigure {
 				g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 						RenderingHints.VALUE_STROKE_NORMALIZE);
 			}
-			g2.draw(s);
-			
+			g2.draw(rcs.shape);
 		}
 		
 		g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH * EXTRA_SCALE / scale),
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 				RenderingHints.VALUE_STROKE_NORMALIZE);
-		
-
+	
 		// Draw motors
-		String motorID = configuration.getFlightConfigurationID();
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
-		Iterator<MotorMount> iterator = configuration.motorIterator();
-		while (iterator.hasNext()) {
-			MotorMount mount = iterator.next();
-			Motor motor = mount.getMotor(motorID);
-			double length = motor.getLength();
-			double radius = motor.getDiameter() / 2;
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		for( MotorConfiguration curInstance : config.getActiveMotors()){
+			MotorMount mount = curInstance.getMount();
+			Motor motor = curInstance.getMotor();
+			double motorLength = motor.getLength();
+			double motorRadius = motor.getDiameter() / 2;
+			RocketComponent mountComponent = ((RocketComponent) mount);
 			
-			Coordinate[] position = ((RocketComponent) mount).toAbsolute(
-					new Coordinate(((RocketComponent) mount).getLength() +
-							mount.getMotorOverhang() - length));
+			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
+			// so, just draw a motor once for each Coordinate returned... 
+			Coordinate[] mountLocations = mountComponent.getLocations();
 			
-			for (int i = 0; i < position.length; i++) {
-				position[i] = transformation.transform(position[i]);
-			}
-			
-			for (Coordinate coord : position) {
-				Shape s;
-				if (type == TYPE_SIDE) {
-					s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
-							EXTRA_SCALE * (coord.y - radius), EXTRA_SCALE * length,
-							EXTRA_SCALE * 2 * radius);
-				} else {
-					s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - radius),
-							EXTRA_SCALE * (coord.y - radius), EXTRA_SCALE * 2 * radius,
-							EXTRA_SCALE * 2 * radius);
+			double mountLength = mountComponent.getLength();
+			//System.err.println("Drawing motor from here. Motor: "+motor.getDesignation()+" of length: "+motor.getLength());
+			for ( Coordinate curMountLocation : mountLocations ){
+				Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
+				
+				Coordinate coord = curMotorLocation;
+				{
+					Shape s;
+					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
+						s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
+								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * motorLength,
+								EXTRA_SCALE * 2 * motorRadius);
+					} else {
+						s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - motorRadius),
+								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
+								EXTRA_SCALE * 2 * motorRadius);
+					}
+					g2.setColor(fillColor);
+					g2.fill(s);
+					g2.setColor(borderColor);
+					g2.draw(s);
 				}
-				g2.setColor(fillColor);
-				g2.fill(s);
-				g2.setColor(borderColor);
-				g2.draw(s);
 			}
 		}
 		
-
 
 		// Draw relative extras
 		for (FigureElement e : relativeExtra) {
@@ -423,47 +413,98 @@ public class RocketFigure extends AbstractScaleFigure {
 		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
 		
 		for (int i = 0; i < figureShapes.size(); i++) {
-			if (figureShapes.get(i).contains(p))
-				l.add(figureComponents.get(i));
+			RocketComponentShape rcs = this.figureShapes.get(i);
+			if (rcs.shape.contains(p))
+				l.add(rcs.component);
 		}
 		return l.toArray(new RocketComponent[0]);
 	}
 	
+	// facade for the recursive function below
+	private void getShapes(ArrayList<RocketComponentShape> allShapes, FlightConfiguration configuration){
+		for( AxialStage stage : configuration.getActiveStages()){
+			getShapeTree( allShapes, stage, Coordinate.ZERO);
+		}
+	}
 	
+    // NOTE:  Recursive function
+    private void getShapeTree(
+    		ArrayList<RocketComponentShape> allShapes,  // output parameter 
+    		final RocketComponent comp, 
+    		final Coordinate parentLocation){
+   
+    	RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
+    	Transformation viewTransform = this.transformation;
+    	Coordinate[] locs = comp.getLocations();
+    	
+        // generate shapes
+    	for( Coordinate curLocation : locs){
+    		allShapes = addThisShape( allShapes, viewType, comp, curLocation, viewTransform);
+    	}
+
+		// recurse into component's children
+    	for( RocketComponent child: comp.getChildren() ){
+    		if( child instanceof AxialStage ){
+    			// recursing into BoosterSet here would double count its tree
+    			continue;
+    		}
+    		
+    		for( Coordinate curLocation : locs){
+    			getShapeTree( allShapes, child, curLocation);
+    		}
+    	}
+        
+	    return;
+	}
 
 	/**
 	 * Gets the shapes required to draw the component.
 	 * 
 	 * @param component
 	 * @param params
-	 * @return
+	 * @return the <code>ArrayList</code> containing all the shapes to draw.
 	 */
-	private Shape[] getShapes(RocketComponent component) {
+	private static ArrayList<RocketComponentShape> addThisShape(
+			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter
+			final RocketPanel.VIEW_TYPE viewType, 
+			final RocketComponent component, 
+			final Coordinate instanceOffset, 
+			final Transformation transformation) {
 		Reflection.Method m;
 		
+		if(( component instanceof Rocket)||( component instanceof ComponentAssembly )){
+			// no-op; no shapes here, either.
+			return allShapes;
+		}
+		
 		// Find the appropriate method
-		switch (type) {
-		case TYPE_SIDE:
+		switch (viewType) {
+		case SideView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesSide",
-					RocketComponent.class, Transformation.class);
+					RocketComponent.class, Transformation.class, Coordinate.class);
 			break;
 		
-		case TYPE_BACK:
+		case BackView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesBack",
-					RocketComponent.class, Transformation.class);
+					RocketComponent.class, Transformation.class, Coordinate.class);
 			break;
 		
 		default:
-			throw new BugException("Unknown figure type = " + type);
+			throw new BugException("Unknown figure type = " + viewType);
 		}
 		
 		if (m == null) {
 			Application.getExceptionHandler().handleErrorCondition("ERROR: Rocket figure paint method not found for "
 					+ component);
-			return new Shape[0];
+			return allShapes;
 		}
 		
-		return (Shape[]) m.invokeStatic(component, transformation);
+	
+		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation, instanceOffset);
+		for ( RocketComponentShape curShape : returnValue ){
+			allShapes.add( curShape );
+		}
+		return allShapes;
 	}
 	
 	
@@ -473,7 +514,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * The bounds are stored in the variables minX, maxX and maxR.
 	 */
 	private void calculateFigureBounds() {
-		Collection<Coordinate> bounds = configuration.getBounds();
+		Collection<Coordinate> bounds = rocket.getSelectedConfiguration().getBounds();
 		
 		if (bounds.isEmpty()) {
 			minX = 0;
@@ -496,16 +537,15 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 	}
 	
-	
-	public double getBestZoom(Rectangle2D bounds) {
-		double zh = 1, zv = 1;
-		if (bounds.getWidth() > 0.0001)
-			zh = (getWidth() - 2 * borderPixelsWidth) / bounds.getWidth();
-		if (bounds.getHeight() > 0.0001)
-			zv = (getHeight() - 2 * borderPixelsHeight) / bounds.getHeight();
-		return Math.min(zh, zv);
-	}
-	
+//	public double getBestZoom(Rectangle2D bounds) {
+//		double zh = 1, zv = 1;
+//		if (bounds.getWidth() > 0.0001)
+//			zh = (getWidth() - 2 * borderPixelsWidth) / bounds.getWidth();
+//		if (bounds.getHeight() > 0.0001)
+//			zv = (getHeight() - 2 * borderPixelsHeight) / bounds.getHeight();
+//		return Math.min(zh, zv);
+//	}
+//	
 	
 
 	/**
@@ -513,48 +553,37 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * property accordingly.
 	 */
 	private void calculateSize() {
-		calculateFigureBounds();
+		Rectangle2D dimensions = this.getDimensions();
 		
-		switch (type) {
-		case TYPE_SIDE:
-			figureWidth = maxX - minX;
-			figureHeight = 2 * maxR;
-			break;
-		
-		case TYPE_BACK:
-			figureWidth = 2 * maxR;
-			figureHeight = 2 * maxR;
-			break;
-		
-		default:
-			assert (false) : "Should not occur, type=" + type;
-			figureWidth = 0;
-			figureHeight = 0;
-		}
-		
+		figureHeight = dimensions.getHeight(); 
+		figureWidth = dimensions.getWidth();
+			
 		figureWidthPx = (int) (figureWidth * scale);
 		figureHeightPx = (int) (figureHeight * scale);
 		
-		Dimension d = new Dimension(figureWidthPx + 2 * borderPixelsWidth,
+		Dimension dpx = new Dimension(
+				figureWidthPx + 2 * borderPixelsWidth,
 				figureHeightPx + 2 * borderPixelsHeight);
 		
-		if (!d.equals(getPreferredSize()) || !d.equals(getMinimumSize())) {
-			setPreferredSize(d);
-			setMinimumSize(d);
+		if (!dpx.equals(getPreferredSize()) || !dpx.equals(getMinimumSize())) {
+			setPreferredSize(dpx);
+			setMinimumSize(dpx);
 			revalidate();
 		}
 	}
 	
 	public Rectangle2D getDimensions() {
-		switch (type) {
-		case TYPE_SIDE:
+		calculateFigureBounds();
+		
+		switch (currentViewType) {
+		case SideView:
 			return new Rectangle2D.Double(minX, -maxR, maxX - minX, 2 * maxR);
 			
-		case TYPE_BACK:
+		case BackView:
 			return new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
 			
 		default:
-			throw new BugException("Illegal figure type = " + type);
+			throw new BugException("Illegal figure type = " + currentViewType);
 		}
 	}
 	

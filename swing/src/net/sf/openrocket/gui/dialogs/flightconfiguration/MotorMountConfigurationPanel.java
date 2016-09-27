@@ -12,9 +12,9 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
+@SuppressWarnings("serial")
 public abstract class MotorMountConfigurationPanel extends JPanel {
 
-	
 	private final Rocket rocket;
 	private final Component parent;
 	

@@ -1,14 +1,16 @@
 package net.sf.openrocket.gui.print;
 
 import net.sf.openrocket.gui.print.visitor.PageFitPrintStrategy;
+import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.rocketfigure.TransitionShapes;
 import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 
+@SuppressWarnings("serial")
 public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
 
     /**
@@ -56,14 +58,14 @@ public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
      */
     @Override
     protected void draw(Graphics2D g2) {
-        Shape[] shapes = TransitionShapes.getShapesSide(target, Transformation.rotate_x(0d), PrintUnit.METERS.toPoints(1));
+        RocketComponentShape[] compShapes = TransitionShapes.getShapesSide(target, Transformation.rotate_x(0d), new Coordinate(0,0,0), PrintUnit.METERS.toPoints(1));
 
-        if (shapes != null && shapes.length > 0) {
-            Rectangle r = shapes[0].getBounds();
+        if (compShapes != null && compShapes.length > 0) {
+            Rectangle r = compShapes[0].shape.getBounds();
             g2.translate(r.getHeight() / 2, 0);
             g2.rotate(Math.PI / 2);
-            for (Shape shape : shapes) {
-                g2.draw(shape);
+            for (RocketComponentShape shape : compShapes) {
+                g2.draw(shape.shape);
             }
             g2.rotate(-Math.PI / 2);
         }

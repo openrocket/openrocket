@@ -74,8 +74,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			type = motor.getMotorType();
 			// Add "Plugged" option if hybrid
 			if (type == Motor.Type.HYBRID) {
-				if (!delays.contains(Motor.PLUGGED)) {
-					delays.add(Motor.PLUGGED);
+				if (!delays.contains(Motor.PLUGGED_DELAY)) {
+					delays.add(Motor.PLUGGED_DELAY);
 				}
 			}
 		}

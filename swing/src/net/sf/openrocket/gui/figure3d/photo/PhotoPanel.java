@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import javax.media.opengl.DebugGL2;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -32,6 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
@@ -41,21 +45,17 @@ import net.sf.openrocket.gui.figure3d.TextureCache;
 import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 
 public class PhotoPanel extends JPanel implements GLEventListener {
 	private static final long serialVersionUID = 1L;
@@ -67,7 +67,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 	}
 
-	private Configuration configuration;
+	private FlightConfiguration configuration;
 	private Component canvas;
 	private TextureCache textureCache = new TextureCache();
 	private double ratio;
@@ -95,16 +95,6 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				cachedBounds = null;
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);
-
-				doc.getDefaultConfiguration().addChangeListener(
-						new StateChangeListener() {
-							@Override
-							public void stateChanged(EventObject e) {
-								log.debug("Repainting on config state change");
-								needUpdate = true;
-								PhotoPanel.this.repaint();
-							}
-						});
 
 				doc.addDocumentChangeListener(new DocumentChangeListener() {
 					@Override
@@ -416,27 +406,28 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		rr.render(drawable, configuration, new HashSet<RocketComponent>());
 		
 		//Figure out the lowest stage shown
-		final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
-		final Stage currentStage = (Stage)configuration.getRocket().getChild(currentStageNumber);
+		final int bottomStageNumber = configuration.getBottomStage().getStageNumber();
+		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
+		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
 		
-		final String motorID = configuration.getFlightConfigurationID();
-		final Iterator<MotorMount> iterator = configuration.motorIterator();
-		motor: while (iterator.hasNext()) {
-			final MotorMount mount = iterator.next();
+		final FlightConfigurationId motorID = configuration.getFlightConfigurationID();
+		
+		
+		
+		final Iterator<MotorConfiguration> iter = configuration.getActiveMotors().iterator();
+		while( iter.hasNext()){
+			MotorConfiguration curConfig = iter.next();
+			final MotorMount mount = curConfig.getMount();
+			int curStageNumber = ((RocketComponent)mount).getStageNumber();
 			
 			//If this mount is not in currentStage continue on to the next one.
-			RocketComponent parent = ((RocketComponent)mount);
-			while ( null != (parent = parent.getParent()) ){
-				if ( parent instanceof Stage ){
-					if ( parent != currentStage )
-						continue motor;
-					break;
-				}
+			if( curStageNumber != bottomStageNumber ){
+				continue;
 			}
 			
-			final Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
+			final Motor motor = mount.getMotorConfig(motorID).getMotor();
 			final double length = motor.getLength();
-
+	
 			Coordinate[] position = ((RocketComponent) mount)
 					.toAbsolute(new Coordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));

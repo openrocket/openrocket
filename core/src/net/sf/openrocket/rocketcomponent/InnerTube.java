@@ -1,10 +1,16 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -20,16 +26,15 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
 	
-	private boolean motorMount = false;
 	private double overhang = 0;
-	
-	private FlightConfigurationImpl<MotorConfiguration> motorConfigurations;
-	private FlightConfigurationImpl<IgnitionConfiguration> ignitionConfigurations;
+	private boolean isActingMount;
+	private MotorConfigurationSet motors;
 	
 	/**
 	 * Main constructor.
@@ -40,8 +45,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 		
-		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
-		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
+		motors = new MotorConfigurationSet(this);
 	}
 	
 	
@@ -63,6 +67,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return trans.get("InnerTube.InnerTube");
 	}
 	
+	@Override
+	public String getPatternName() {
+		return this.cluster.getXMLName();
+	}
+	
+
 	@Override
 	public boolean allowsChildren() {
 		return true;
@@ -114,9 +124,14 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	 * @param cluster  The cluster configuration.
 	 */
 	@Override
-	public void setClusterConfiguration(ClusterConfiguration cluster) {
-		this.cluster = cluster;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	public void setClusterConfiguration( final ClusterConfiguration cluster) {
+		if( cluster == this.cluster){
+			// no change
+			return;
+		}else{
+			this.cluster = cluster;
+			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		}
 	}
 	
 	/**
@@ -128,6 +143,18 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return cluster.getClusterCount();
 	}
 	
+	@Override
+	public int getInstanceCount() {
+		return this.getLocations().length;
+	}
+	
+	@Override
+	public void setInstanceCount( final int newCount ){
+		log.error("Programmer Error:  cannot set the instance count of an InnerTube directly."+
+				"  Please set setClusterConfiguration(ClusterConfiguration) instead.",
+				new UnsupportedOperationException("InnerTube.setInstanceCount(..) on an"+this.getClass().getSimpleName()));
+	}
+	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
 	 * touching each other, larger values separate the tubes and smaller values
@@ -135,6 +162,11 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	 */
 	public double getClusterScale() {
 		return clusterScale;
+	}
+	
+	@Override
+	public boolean isAfter(){ 
+		return false;
 	}
 	
 	/**
@@ -191,92 +223,120 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return list;
 	}
 	
-	
 	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
-		array = super.shiftCoordinates(array);
+	public Coordinate[] getInstanceOffsets(){
 		
-		int count = getClusterCount();
-		if (count == 1)
-			return array;
+		int instanceCount = getClusterCount();
+		if (instanceCount == 1)
+			return super.getInstanceOffsets();
 		
 		List<Coordinate> points = getClusterPoints();
-		if (points.size() != count) {
-			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
-					" point count=" + points.size());
+		if (points.size() != instanceCount) {
+			throw new BugException("Inconsistent cluster configuration, cluster count(" + instanceCount +
+					") != point count(" + points.size()+")");
 		}
-		Coordinate[] newArray = new Coordinate[array.length * count];
-		for (int i = 0; i < array.length; i++) {
-			for (int j = 0; j < count; j++) {
-				newArray[i * count + j] = array[i].add(points.get(j));
-			}
+		
+		 
+		Coordinate[] newArray = new Coordinate[ instanceCount];
+		for (int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++) {
+			newArray[ instanceNumber] = this.position.add( points.get(instanceNumber));
 		}
 		
 		return newArray;
 	}
 	
+//	@Override
+//	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
+//		array = super.shiftCoordinates(array);
+//		
+//		int count = getClusterCount();
+//		if (count == 1)
+//			return array;
+//		
+//		List<Coordinate> points = getClusterPoints();
+//		if (points.size() != count) {
+//			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
+//					" point count=" + points.size());
+//		}
+//		Coordinate[] newArray = new Coordinate[array.length * count];
+//		for (int i = 0; i < array.length; i++) {
+//			for (int j = 0; j < count; j++) {
+//				newArray[i * count + j] = array[i].add(points.get(j));
+//			}
+//		}
+//		
+//		return newArray;
+//	}
+	
 	////////////////  Motor mount  /////////////////
-	
+
+	@Override
+	public MotorConfiguration getDefaultMotorConfig(){
+		return this.motors.getDefault();
+	}
+		
+	@Override
+	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid){
+		return this.motors.get(fcid);
+	}
+
+	@Override 
+	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
+		if((null == newMotorConfig)){
+			this.motors.set( fcid, null);
+		}else{
+			if( this != newMotorConfig.getMount() ){
+				throw new BugException(" attempt to add a MotorConfig to a second mount!");
+			}
+			
+			this.motors.set(fcid, newMotorConfig);
+		}
+
+		this.isActingMount = true;
+
+		// this is done automatically in the motorSet
+		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+	}
 	
 	@Override
-	public FlightConfiguration<MotorConfiguration> getMotorConfiguration() {
-		return motorConfigurations;
+	public Iterator<MotorConfiguration> getMotorIterator(){
+		return this.motors.iterator();
+	}
+	
+	@Override
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
 	
 	@Override
-	public FlightConfiguration<IgnitionConfiguration> getIgnitionConfiguration() {
-		return ignitionConfigurations;
+    public void setMotorMount(boolean _active){
+    	if (this.isActingMount == _active)
+    		return;
+    	this.isActingMount = _active;
+    }
+
+	@Override
+	public boolean isMotorMount(){
+		return this.isActingMount;
 	}
-	
 	
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
-		motorConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
-		ignitionConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public boolean hasMotor() {
+		// the default MotorInstance is the EMPTY_INSTANCE.  If we have more than that, then the other instance will have a motor.
+		return ( 1 < this.motors.size());
 	}
-	
-	
-	@Override
-	public boolean isMotorMount() {
-		return motorMount;
-	}
-	
-	
-	@Override
-	public void setMotorMount(boolean mount) {
-		if (motorMount == mount)
-			return;
-		motorMount = mount;
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
 	
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Deprecated
 	@Override
 	public int getMotorCount() {
-		return getClusterCount();
+		return this.motors.size();
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public Motor getMotor(String id) {
-		return this.motorConfigurations.get(id).getMotor();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public double getMotorDelay(String id) {
-		return this.motorConfigurations.get(id).getEjectionDelay();
-	}
 	
 	@Override
 	public double getMotorOverhang() {
@@ -292,8 +352,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	}
 	
 	@Override
-	public Coordinate getMotorPosition(String id) {
-		Motor motor = getMotor(id);
+	public Coordinate getMotorPosition(FlightConfigurationId id) {
+		Motor motor = motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
@@ -304,10 +364,18 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
-		copy.motorConfigurations = new FlightConfigurationImpl<MotorConfiguration>(motorConfigurations, copy, ComponentChangeEvent.MOTOR_CHANGE);
-		copy.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(ignitionConfigurations, copy, ComponentChangeEvent.EVENT_CHANGE);
+		if( copy == this ){
+			new IllegalArgumentException(" copyWithOriginalID should return a different instance! ");
+		}
+		if( copy.motors == this.motors ){
+			new IllegalArgumentException(" copyWithOriginalID should produce different motorSet instances! ");
+		}
+		
+		copy.motors = new MotorConfigurationSet( this.motors, copy );
+		
 		return copy;
 	}
+
 	
 	/**
 	 * For a given coordinate that represents one tube in a cluster, create an instance of that tube.  Must be called
@@ -328,6 +396,48 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		copy.setRadialShift(coord.y, coord.z);
 		copy.setName(splitName);
 		return copy;
+	}
+	
+	@Override
+	public String toMotorDebug( ){
+		return this.motors.toDebug();
+	}
+
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		buffer.append(String.format("%s    %-24s (cluster: %s)", prefix, this.getName(), this.getPatternName()));
+		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+		
+		Coordinate[] relCoords = this.getInstanceOffsets();
+		Coordinate[] absCoords = this.getLocations();
+		FlightConfigurationId curId = this.getRocket().getSelectedConfiguration().getFlightConfigurationID();
+		final int intanceCount = this.getInstanceCount();
+		MotorConfiguration curInstance = this.motors.get(curId);
+		if( curInstance.isEmpty() ){
+			// print just the tube locations
+			buffer.append(prefix+"        [X] This Instance doesn't have any motors... showing mount tubes only\n");
+			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
+				Coordinate tubeRelativePosition = relCoords[instanceNumber];
+				Coordinate tubeAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
+						tubeRelativePosition, tubeAbsolutePosition));
+			}
+		}else{
+			// curInstance has a motor ... 
+			Motor curMotor = curInstance.getMotor();
+			final double motorOffset = this.getLength() - curMotor.getLength();
+			
+			buffer.append(String.format("%s    %-24s Thrust: %f N;   (Length: %f); \n", 
+					prefix, curMotor.getDesignation(), curMotor.getMaxThrustEstimate(), curMotor.getLength() ));
+			for (int instanceNumber = 0; instanceNumber < intanceCount; instanceNumber++) {
+				Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
+				Coordinate tubeAbs = absCoords[instanceNumber];
+				Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
+				buffer.append(String.format("%s        [%2d/%2d];  %28s;  %28s;\n", prefix, instanceNumber+1, intanceCount,
+						motorRelativePosition, motorAbsolutePosition));
+			}
+		
+		}
 	}
 	
 }

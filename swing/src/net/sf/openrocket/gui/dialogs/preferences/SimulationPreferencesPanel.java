@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,29 +8,26 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.ListCellRenderer;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
-import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 
 public class SimulationPreferencesPanel extends PreferencesPanel {
-
+	private static final long serialVersionUID = 7983195730016979888L;
+	
 	/*
 	 * private GeodeticComputationStrategy geodeticComputation =
 	 * GeodeticComputationStrategy.SPHERICAL;
 	 */
+
 
 	public SimulationPreferencesPanel() {
 		super(new MigLayout("fill"));
@@ -62,7 +58,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
 
-		GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
+		//GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 
 		JPanel sub, subsub;
 		String tip;
@@ -112,7 +108,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
 				preferences, "GeodeticComputation");
-		final JComboBox gcsCombo = new JComboBox(gcsModel);
+		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<GeodeticComputationStrategy>(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -233,47 +229,47 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		 */
 	}
 
-	private class ListenerCellRenderer extends JLabel implements
-			ListCellRenderer {
-
-		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
-			String s = value.toString();
-			setText(s);
-
-			// Attempt instantiating, catch any exceptions
-			Exception ex = null;
-			try {
-				Class<?> c = Class.forName(s);
-				@SuppressWarnings("unused")
-				SimulationListener l = (SimulationListener) c.newInstance();
-			} catch (Exception e) {
-				ex = e;
-			}
-
-			if (ex == null) {
-				setIcon(Icons.SIMULATION_LISTENER_OK);
-				// // Listener instantiated successfully.
-				setToolTipText("Listener instantiated successfully.");
-			} else {
-				setIcon(Icons.SIMULATION_LISTENER_ERROR);
-				// // <html>Unable to instantiate listener due to exception:<br>
-				setToolTipText("<html>Unable to instantiate listener due to exception:<br>"
-						+ ex.toString());
-			}
-
-			if (isSelected) {
-				setBackground(list.getSelectionBackground());
-				setForeground(list.getSelectionForeground());
-			} else {
-				setBackground(list.getBackground());
-				setForeground(list.getForeground());
-			}
-			setOpaque(true);
-			return this;
-		}
-	}
+//	private class ListenerCellRenderer extends JLabel implements
+//			ListCellRenderer {
+//
+//		@Override
+//		public Component getListCellRendererComponent(JList list, Object value,
+//				int index, boolean isSelected, boolean cellHasFocus) {
+//			String s = value.toString();
+//			setText(s);
+//
+//			// Attempt instantiating, catch any exceptions
+//			Exception ex = null;
+//			try {
+//				Class<?> c = Class.forName(s);
+//				@SuppressWarnings("unused")
+//				SimulationListener l = (SimulationListener) c.newInstance();
+//			} catch (Exception e) {
+//				ex = e;
+//			}
+//
+//			if (ex == null) {
+//				setIcon(Icons.SIMULATION_LISTENER_OK);
+//				// // Listener instantiated successfully.
+//				setToolTipText("Listener instantiated successfully.");
+//			} else {
+//				setIcon(Icons.SIMULATION_LISTENER_ERROR);
+//				// // <html>Unable to instantiate listener due to exception:<br>
+//				setToolTipText("<html>Unable to instantiate listener due to exception:<br>"
+//						+ ex.toString());
+//			}
+//
+//			if (isSelected) {
+//				setBackground(list.getSelectionBackground());
+//				setForeground(list.getSelectionForeground());
+//			} else {
+//				setBackground(list.getBackground());
+//				setForeground(list.getForeground());
+//			}
+//			setOpaque(true);
+//			return this;
+//		}
+//	}
 
 	/*
 	 * private class ListenerListModel extends AbstractListModel {

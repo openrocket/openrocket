@@ -22,12 +22,11 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	protected boolean innerRadiusAutomatic = false;
 	
 
-	private double radialDirection = 0;
-	private double radialPosition = 0;
+	protected double radialDirection = 0;
+	protected double radialPosition = 0;
 	
 	private double shiftY = 0;
 	private double shiftZ = 0;
-	
 	
 
 	@Override
@@ -172,20 +171,7 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 			return ((Clusterable) this).getClusterConfiguration().getClusterCount();
 		return 1;
 	}
-	
-	
-	/**
-	 * Shift the coordinates according to the radial position and direction.
-	 */
-	@Override
-	public Coordinate[] shiftCoordinates(Coordinate[] array) {
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i].add(0, shiftY, shiftZ);
-		}
-		return array;
-	}
-	
-	
+
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> bounds = new ArrayList<Coordinate>();

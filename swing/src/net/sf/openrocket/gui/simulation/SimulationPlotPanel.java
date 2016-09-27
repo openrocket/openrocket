@@ -43,6 +43,8 @@ import net.sf.openrocket.util.Utils;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotPanel extends JPanel {
+	private static final long serialVersionUID = -2227129713185477998L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	// TODO: LOW: Should these be somewhere else?
@@ -86,9 +88,9 @@ public class SimulationPlotPanel extends JPanel {
 	private PlotConfiguration configuration;
 	
 	
-	private JComboBox configurationSelector;
+	private JComboBox<PlotConfiguration> configurationSelector;
 	
-	private JComboBox domainTypeSelector;
+	private JComboBox<FlightDataType> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
 	
 	private JPanel typeSelectorPanel;
@@ -114,7 +116,7 @@ public class SimulationPlotPanel extends JPanel {
 		////  Configuration selector
 		
 		// Setup the combo box
-		configurationSelector = new JComboBox(PRESET_ARRAY);
+		configurationSelector = new JComboBox<PlotConfiguration>(PRESET_ARRAY);
 		for (PlotConfiguration config : PRESET_ARRAY) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
@@ -153,7 +155,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = new JComboBox(types);
+		domainTypeSelector = new JComboBox<FlightDataType>(types);
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
@@ -393,12 +395,14 @@ public class SimulationPlotPanel extends JPanel {
 	 * A JPanel which configures a single plot of a PlotConfiguration.
 	 */
 	private class PlotTypeSelector extends JPanel {
+		private static final long serialVersionUID = 9056324972817542570L;
+
 		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
 		
 		private final int index;
-		private JComboBox typeSelector;
+		private JComboBox<FlightDataType> typeSelector;
 		private UnitSelector unitSelector;
-		private JComboBox axisSelector;
+		private JComboBox<String> axisSelector;
 		
 		
 		public PlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position) {
@@ -406,7 +410,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = new JComboBox(types);
+			typeSelector = new JComboBox<FlightDataType>(types);
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override
@@ -440,7 +444,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			//// Axis:
 			this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")));
-			axisSelector = new JComboBox(POSITIONS);
+			axisSelector = new JComboBox<String>(POSITIONS);
 			if (position == LEFT)
 				axisSelector.setSelectedIndex(1);
 			else if (position == RIGHT)
@@ -478,6 +482,7 @@ public class SimulationPlotPanel extends JPanel {
 	
 	
 	private class FlightEventTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = -1108240805614567627L;
 		private final FlightEvent.Type[] eventTypes;
 		
 		public FlightEventTableModel() {

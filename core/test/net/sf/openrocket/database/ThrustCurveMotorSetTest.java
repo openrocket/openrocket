@@ -34,7 +34,7 @@ public class ThrustCurveMotorSetTest {
 	
 	private static final ThrustCurveMotor motor3 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
-			"F12", "Desc", Motor.Type.UNKNOWN, new double[] { 0, Motor.PLUGGED },
+			"F12", "Desc", Motor.Type.UNKNOWN, new double[] { 0, Motor.PLUGGED_DELAY },
 			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 2, 0 },
 			new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestC");
 	
@@ -114,7 +114,7 @@ public class ThrustCurveMotorSetTest {
 		assertEquals(motor3, set.getMotors().get(0));
 		assertEquals(motor2, set.getMotors().get(1));
 		assertEquals(motor1, set.getMotors().get(2));
-		assertEquals(Arrays.asList(0.0, 5.0, Motor.PLUGGED), set.getDelays());
+		assertEquals(Arrays.asList(0.0, 5.0, Motor.PLUGGED_DELAY), set.getDelays());
 		
 		// Test that adding motor4 fails
 		assertFalse(set.matches(motor4));

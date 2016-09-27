@@ -42,6 +42,7 @@ import net.sf.openrocket.util.JarUtil;
 
 import com.jogamp.opengl.JoglVersion;
 
+@SuppressWarnings("serial")
 public class BugReportDialog extends JDialog {
 	
 	private static final String REPORT_EMAIL = "openrocket-bugs@lists.sourceforge.net";

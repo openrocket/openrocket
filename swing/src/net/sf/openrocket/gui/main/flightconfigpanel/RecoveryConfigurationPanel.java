@@ -18,6 +18,7 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDial
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -101,8 +102,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		if (c == null) {
 			return;
 		}
-		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		c.getDeploymentConfiguration().resetDefault(id);
+		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		c.getDeploymentConfigurations().reset(id);
 		fireTableDataChanged();
 	}
 
@@ -115,11 +116,11 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	class RecoveryTableCellRenderer extends FlightConfigurablePanel<RecoveryDevice>.FlightConfigurableCellRenderer {
 
 		@Override
-		protected JLabel format(RecoveryDevice recovery, String configId, JLabel label) {
-			DeploymentConfiguration deployConfig = recovery.getDeploymentConfiguration().get(configId);
+		protected JLabel format(RecoveryDevice recovery, FlightConfigurationId configId, JLabel label) {
+			DeploymentConfiguration deployConfig = recovery.getDeploymentConfigurations().get(configId);
 			String spec = getDeploymentSpecification(deployConfig);
 			label.setText(spec);
-			if (recovery.getDeploymentConfiguration().isDefault(configId)) {
+			if (recovery.getDeploymentConfigurations().isDefault(configId)) {
 				shaded(label);
 			} else {
 				regular(label);

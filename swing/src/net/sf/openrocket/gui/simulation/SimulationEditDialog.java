@@ -21,22 +21,19 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.simulation.SimulationOptions;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 
 
 public class SimulationEditDialog extends JDialog {
-	
+	private static final long serialVersionUID = -4468157685542912715L;
 	private final Window parentWindow;
-	private final Simulation[] simulation;
+	private final Simulation[] simulationList;
 	private final OpenRocketDocument document;
-	private final SimulationOptions conditions;
-	private final Configuration configuration;
 	private static final Translator trans = Application.getTranslator();
 	
 	JPanel cards;
@@ -48,9 +45,7 @@ public class SimulationEditDialog extends JDialog {
 		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
 		this.document = document;
 		this.parentWindow = parent;
-		this.simulation = sims;
-		this.conditions = simulation[0].getOptions();
-		configuration = simulation[0].getConfiguration();
+		this.simulationList = sims;
 		
 		this.cards = new JPanel(new CardLayout());
 		this.add(cards);
@@ -66,11 +61,11 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	private boolean isSingleEdit() {
-		return simulation.length == 1;
+		return simulationList.length == 1;
 	}
 	
 	private boolean allowsPlotMode() {
-		return simulation.length == 1 && simulation[0].hasSimulationData();
+		return simulationList.length == 1 && simulationList[0].hasSimulationData();
 	}
 	
 	public void setEditMode() {
@@ -89,12 +84,12 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	private void copyChangesToAllSims() {
-		if (simulation.length > 1) {
-			for (int i = 1; i < simulation.length; i++) {
-				simulation[i].getOptions().copyConditionsFrom(simulation[0].getOptions());
-				simulation[i].getSimulationExtensions().clear();
-				for (SimulationExtension c : simulation[0].getSimulationExtensions()) {
-					simulation[i].getSimulationExtensions().add(c.clone());
+		if (simulationList.length > 1) {
+			for (int i = 1; i < simulationList.length; i++) {
+				simulationList[i].getOptions().copyConditionsFrom(simulationList[0].getOptions());
+				simulationList[i].getSimulationExtensions().clear();
+				for (SimulationExtension c : simulationList[0].getSimulationExtensions()) {
+					simulationList[i].getSimulationExtensions().add(c.clone());
 				}
 			}
 		}
@@ -115,7 +110,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			//// Simulation name:
 			panel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "growx 0, gapright para");
-			final JTextField field = new JTextField(simulation[0].getName());
+			final JTextField field = new JTextField(simulationList[0].getName());
 			field.getDocument().addDocumentListener(new DocumentListener() {
 				@Override
 				public void changedUpdate(DocumentEvent e) {
@@ -137,7 +132,7 @@ public class SimulationEditDialog extends JDialog {
 					if (name == null || name.equals(""))
 						return;
 					//System.out.println("Setting name:" + name);
-					simulation[0].setName(name);
+					simulationList[0].setName(name);
 					
 				}
 			});
@@ -150,16 +145,21 @@ public class SimulationEditDialog extends JDialog {
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 			panel.add(label, "growx 0, gapright para");
 			
-			JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
+			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<FlightConfiguration>( document.getRocket().toConfigArray());
+			configComboBox.setSelectedItem( document.getRocket().getSelectedConfiguration().getId() );
+			
 			//// Select the motor configuration to use.
-			combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
-			combo.addActionListener(new ActionListener() {
+			configComboBox.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
+			configComboBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
+					FlightConfiguration config = (FlightConfiguration)configComboBox.getSelectedItem();
+					FlightConfigurationId id = config.getId();
+					
+					simulationList[0].setFlightConfigurationId( id );
 				}
 			});
-			panel.add(combo, "span");
+			panel.add(configComboBox, "span");
 			
 			panel.add(new JPanel(), "growx, wrap");
 			
@@ -168,9 +168,9 @@ public class SimulationEditDialog extends JDialog {
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		//// Launch conditions
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), new SimulationConditionsPanel(simulation[0]));
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), new SimulationConditionsPanel(simulationList[0]));
 		//// Simulation options
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(document, simulation[0]));
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(document, simulationList[0]));
 		
 		tabbedPane.setSelectedIndex(0);
 		
@@ -203,7 +203,7 @@ public class SimulationEditDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				copyChangesToAllSims();
-				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
+				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulationList);
 				refreshView();
 				if (allowsPlotMode()) {
 					setPlotMode();
@@ -234,17 +234,17 @@ public class SimulationEditDialog extends JDialog {
 			
 			//// Simulation name:
 			plotExportPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "span, split 2, shrink");
-			final JTextField field = new JTextField(simulation[0].getName());
+			final JTextField field = new JTextField(simulationList[0].getName());
 			field.setEditable(false);
 			plotExportPanel.add(field, "shrinky, growx, wrap");
 			
 			final JTabbedPane tabbedPane = new JTabbedPane();
 			
 			//// Plot data
-			final SimulationPlotPanel plotTab = new SimulationPlotPanel(simulation[0]);
+			final SimulationPlotPanel plotTab = new SimulationPlotPanel(simulationList[0]);
 			tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab);
 			//// Export data
-			final SimulationExportPanel exportTab = new SimulationExportPanel(simulation[0]);
+			final SimulationExportPanel exportTab = new SimulationExportPanel(simulationList[0]);
 			tabbedPane.addTab(trans.get("simedtdlg.tab.Exportdata"), exportTab);
 			
 			plotExportPanel.add(tabbedPane, "grow, wrap");
@@ -284,8 +284,8 @@ public class SimulationEditDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// If the simulation is out of date, run the simulation.
-					if (simulation[0].getStatus() != Simulation.Status.UPTODATE) {
-						new SimulationRunDialog(SimulationEditDialog.this.parentWindow, document, simulation[0]).setVisible(true);
+					if (simulationList[0].getStatus() != Simulation.Status.UPTODATE) {
+						new SimulationRunDialog(SimulationEditDialog.this.parentWindow, document, simulationList[0]).setVisible(true);
 					}
 					
 					if (tabbedPane.getSelectedIndex() == 0) {

@@ -1,73 +1,93 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.motor.Motor;
+import java.util.Iterator;
+
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 
 public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	
+
 	/**
-	 * Is the component currently a motor mount.
+	 * Does this mount contain at least one motor?  
 	 * 
-	 * @return  whether the component holds a motor.
+	 * @return  whether the component holds a motor
+	 */
+	public boolean hasMotor();
+
+    /**
+     * Programmatically : implementing classes will always be <code>(x instanceof MotorMount)</code>
+     * The component may potentially act as a mount, or just a structural component.
+     * This flag indicates how the component behaves. 
+     * 
+     *  @param acting if the component should behave like a motor mount.  False if it's structural only. 
+     */
+    public void setMotorMount(boolean acting);
+    
+	/**
+     * Programmatically : implementing classes will always be <code>(x instanceof MotorMount)</code>
+     * This flag indicates whether the component is acting as a motor mount, or just a structural component
+     *  
+	 * @return true if the component is acting as a motor mount
 	 */
 	public boolean isMotorMount();
 	
 	/**
-	 * Set whether the component is currently a motor mount.
-	 */
-	public void setMotorMount(boolean mount);
-	
-	
-	/**
-	 * Return the motor configurations for this motor mount.
-	 */
-	public FlightConfiguration<MotorConfiguration> getMotorConfiguration();
-	
-	/**
-	 * Return the ignition configurations for this motor mount.
-	 */
-	public FlightConfiguration<IgnitionConfiguration> getIgnitionConfiguration();
-	
-	
-	/**
-	 * Return the motor for the motor configuration.  May return <code>null</code>
-	 * if no motor has been set.  This method must return <code>null</code> if ID
-	 * is <code>null</code> or if the ID is not valid for the current rocket
-	 * (or if the component is not part of any rocket).
+	 * Get all motors configured for this mount.
 	 * 
-	 * @param id	the motor configuration ID
-	 * @return  	the motor, or <code>null</code> if not set.
-	 * @deprecated	Use getMotorConfiguration().get(id).getMotor() instead.
+	 * @return an iterator to all motors configured for this component
 	 */
-	@Deprecated
-	public Motor getMotor(String id);
+	public Iterator<MotorConfiguration> getMotorIterator();
+
+	/**
+	 *   Returns the Default Motor Instance for this mount.
+	 *   
+	 *    @return The default MotorInstance
+	 */
+	public MotorConfiguration getDefaultMotorConfig();
+	
+	/** 
+	 * Default implementatino supplied by RocketComponent (returns 1);
+	 * 
+	 * @return number of times this component is instanced
+	 */
+	public int getInstanceCount();
+
+	/** 
+	 * Get the length of this motor mount.  Synonymous with the RocketComponent method. 
+	 * 
+	 * @return
+	 */
+	public double getLength();
+
+	// duplicate of RocketComponent
+	public String getID();
+	public String getDebugName();
+	
+	// duplicate of RocketComponent 
+	public AxialStage getStage();
 	
 	/**
-	 * Get the number of similar motors clustered.
 	 * 
-	 * TODO: HIGH: This should not be used, since the components themselves can be clustered
+	 * @param fcid  id for which to return the motor (null retrieves the default)
+	 * @return  requested motorInstance (which may also be the default motor instance)
+	 */
+	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid);
+
+	/**
+	 * 
+	 * @param fcid index the supplied motor against this flight configuration 
+	 * @param newMotorInstance  motor instance to store
+	 */
+	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid);
+	
+	/**
+	 * Get the number of motors available for all flight configurations
 	 * 
 	 * @return  the number of motors.
 	 */
-	@Deprecated
 	public int getMotorCount();
-	
-	
-	
-	/**
-	 * Return the ejection charge delay of given motor configuration.
-	 * A "plugged" motor without an ejection charge is given by
-	 * {@link Motor#PLUGGED} (<code>Double.POSITIVE_INFINITY</code>).
-	 * 
-	 * @param id	the motor configuration ID
-	 * @return  	the ejection charge delay.
-	 * @deprecated	Use getMotorConfiguration().get(id).getMotor() instead.
-	 */
-	@Deprecated
-	public double getMotorDelay(String id);
-	
-	
 	
 	/**
 	 * Return the distance that the motors hang outside this motor mount.
@@ -100,6 +120,12 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @return	the position of the motor relative to this component.
 	 * @throws  IllegalArgumentException if a motor with the specified ID does not exist.
 	 */
-	public Coordinate getMotorPosition(String id);
+	public Coordinate getMotorPosition(FlightConfigurationId id);
 	
+	/**
+	 * Development / Debug method.
+	 * 
+	 * @return table describing all the motors configured for this mount.
+	 */
+	public String toMotorDebug( );
 }

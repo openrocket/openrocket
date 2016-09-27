@@ -30,6 +30,7 @@ public class EditDecalHelper {
 	private SwingPreferences prefs;
 	
 	public static class EditDecalHelperException extends Exception {
+		private static final long serialVersionUID = 6434514222471759358L;
 		
 		private String extraMessage = "";
 		
@@ -138,7 +139,7 @@ public class EditDecalHelper {
 		try {
 			tmpFile = File.createTempFile("OR_graphics", extension);
 		} catch (IOException ioex) {
-			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), tmpFile.getAbsoluteFile());
+			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), "OR_graphics"+extension);
 			throw new EditDecalHelperException(message, ioex);
 		}
 		

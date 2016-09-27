@@ -46,7 +46,6 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -54,11 +53,12 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -69,49 +69,48 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
-	
+	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
 	private static final Translator trans = Application.getTranslator();
-	
-	
+
+
 	private final FlightConditions conditions;
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	private final DoubleModel theta, aoa, mach, roll;
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
-	private final MassCalculator massCalculator = new BasicMassCalculator();
-	
+	private final MassCalculator massCalculator = new MassCalculator();
+
 	private final ColumnTableModel cpTableModel;
 	private final ColumnTableModel dragTableModel;
 	private final ColumnTableModel rollTableModel;
-	
-	private final JList warningList;
-	
-	
-	private final List<AerodynamicForces> cpData = new ArrayList<AerodynamicForces>();
-	private final List<Coordinate> cgData = new ArrayList<Coordinate>();
+
+	private final JList<Object> warningList;
+
+
+	private final List<Object[]> cgData = new ArrayList<Object[]>();
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
 	private double totalCD = 0;
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
-	
-	
+
+
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
 		////Component analysis
 		super(SwingUtilities.getWindowAncestor(rocketPanel),
 				trans.get("componentanalysisdlg.componentanalysis"));
-		
+
 		JTable table;
-		
-		JPanel panel = new JPanel(new MigLayout("fill", "[][35lp::][fill][fill]"));
+
+		JPanel panel = new JPanel(new MigLayout("fill"));
 		add(panel);
-		
+
 		this.configuration = rocketPanel.getConfiguration();
 		this.aerodynamicCalculator = rocketPanel.getAerodynamicCalculator().newInstance();
-		
-		
+
+
 		conditions = new FlightConditions(configuration);
-		
+
 		rocketPanel.setCPAOA(0);
 		aoa = new DoubleModel(rocketPanel, "CPAOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
 		rocketPanel.setCPMach(Application.getPreferences().getDefaultMach());
@@ -120,7 +119,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		rocketPanel.setCPRoll(0);
 		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
-		
+
 		//// Wind direction:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 120lp!");
 		panel.add(new UnitSelector(theta, true), "width 50lp!");
@@ -143,58 +142,60 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 		});
 		panel.add(worstToggle, "");
-		
-		
-		warningList = new JList();
+
+
+		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, width 300lp!, growy 1, height :100lp:, wrap");
-		
+
 		////Angle of attack:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
 		panel.add(new UnitSelector(aoa, true), "width 50lp!");
 		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
-		
+
 		//// Mach number:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 120lp!");
 		panel.add(new UnitSelector(mach, true), "width 50lp!");
 		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
-		
+
 		//// Roll rate:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 120lp!");
 		panel.add(new UnitSelector(roll, true), "width 50lp!");
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
-				"growx, wrap paragraph");
-		
-		
+				"growx, wrap");
+
 		// Stage and motor selection:
 		//// Active stages:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.activestages")), "spanx, split, gapafter rel");
-		panel.add(new StageSelector(configuration), "gapafter paragraph");
-		
+		Rocket rkt = rocketPanel.getDocument().getRocket();
+		panel.add(new StageSelector( rkt), "gapafter paragraph");
+
 		//// Motor configuration:
 		JLabel label = new JLabel(trans.get("componentanalysisdlg.lbl.motorconf"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
-		panel.add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
-		
-		
-		
+
+		JComboBox<FlightConfiguration> combo = new JComboBox<FlightConfiguration>( configuration.getRocket().toConfigArray());
+
+		panel.add(combo, "wrap");
+
+
 		// Tabbed pane
-		
+
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "spanx, growx, growy");
-		
-		
+
+
 		// Create the CP data table
 		cpTableModel = new ColumnTableModel(
-				
+
 				//// Component
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.Component")) {
 					@Override
 					public Object getValueAt(int row) {
-						RocketComponent c = cpData.get(row).getComponent();
+						Object c = cgData.get(row)[0];
 						if (c instanceof Rocket) {
 							return trans.get("componentanalysisdlg.TOTAL");
 						}
@@ -211,7 +212,11 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(cgData.get(row).x);
+						Coordinate cg = (Coordinate) cgData.get(row)[1];
+						if ( cg == null ) {
+							return null;
+						}
+						return unit.toString(cg.x);
 					}
 				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.Mass") + " / " + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit()) {
@@ -219,7 +224,11 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(cgData.get(row).weight);
+						Coordinate cg = (Coordinate) cgData.get(row)[1];
+						if ( cg == null ) {
+							return null;
+						}
+						return unit.toString(cg.weight);
 					}
 				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.CP") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
@@ -227,42 +236,56 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(cpData.get(row).getCP().x);
+						AerodynamicForces forces = (AerodynamicForces) cgData.get(row)[2];
+						if ( forces == null ) {
+							return null;
+						}
+						return unit.toString(forces.getCP().x);
 					}
 				},
 				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
 					@Override
 					public Object getValueAt(int row) {
-						return NOUNIT.toString(cpData.get(row).getCP().weight);
+						AerodynamicForces forces = (AerodynamicForces) cgData.get(row)[2];
+						if ( forces == null ) {
+							return null;
+						}
+						return NOUNIT.toString(forces.getCP().weight);
 					}
 				}
-				
+	
 				) {
-					@Override
-					public int getRowCount() {
-						return cpData.size();
-					}
-				};
-		
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+
+			@Override
+			public int getRowCount() {
+				return cgData.size();
+			}
+		};
+
 		table = new ColumnTable(cpTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);
 		cpTableModel.setColumnWidths(table.getColumnModel());
-		
+
 		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
 		//		table.setShowHorizontalLines(false);
 		//		table.setShowVerticalLines(true);
-		
+
 		JScrollPane scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
-		
+
 		//// Stability and Stability information
 		tabbedPane.addTab(trans.get("componentanalysisdlg.TabStability"),
 				null, scrollpane, trans.get("componentanalysisdlg.TabStability.ttip"));
-		
-		
-		
+
+
+
 		// Create the drag data table
 		dragTableModel = new ColumnTableModel(
 				//// Component
@@ -275,7 +298,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 						}
 						return c.toString();
 					}
-					
+
 					@Override
 					public int getDefaultWidth() {
 						return 200;
@@ -310,33 +333,38 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					}
 				}
 				) {
-					@Override
-					public int getRowCount() {
-						return dragData.size();
-					}
-				};
-		
-		
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public int getRowCount() {
+				return dragData.size();
+			}
+		};
+
+
 		table = new JTable(dragTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);
 		dragTableModel.setColumnWidths(table.getColumnModel());
-		
+
 		table.setDefaultRenderer(Object.class, new DragCellRenderer(new Color(0.5f, 1.0f, 0.5f)));
 		//		table.setShowHorizontalLines(false);
 		//		table.setShowVerticalLines(true);
-		
+
 		scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
-		
+
 		//// Drag characteristics and Drag characteristics tooltip
 		tabbedPane.addTab(trans.get("componentanalysisdlg.dragTabchar"), null, scrollpane,
 				trans.get("componentanalysisdlg.dragTabchar.ttip"));
-		
-		
-		
-		
+
+
+
+
 		// Create the roll data table
 		rollTableModel = new ColumnTableModel(
 				//// Component
@@ -372,40 +400,44 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					}
 				}
 				) {
-					@Override
-					public int getRowCount() {
-						return rollData.size();
-					}
-				};
-		
-		
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public int getRowCount() {
+				return rollData.size();
+			}
+		};
+
+
 		table = new JTable(rollTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);
-		rollTableModel.setColumnWidths(table.getColumnModel());
-		
+		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
+
 		scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
-		
+
 		//// Roll dynamics and Roll dynamics tooltip
 		tabbedPane.addTab(trans.get("componentanalysisdlg.rollTableModel"), null, scrollpane,
 				trans.get("componentanalysisdlg.rollTableModel.ttip"));
-		
-		
-		
-		
-		
+
+
+
+
+
 		// Add the data updater to listen to changes in aoa and theta
 		mach.addChangeListener(this);
 		theta.addChangeListener(this);
 		aoa.addChangeListener(this);
 		roll.addChangeListener(this);
-		configuration.addChangeListener(this);
 		this.stateChanged(null);
-		
-		
-		
+
+
+
 		// Remove listeners when closing window
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -415,7 +447,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				aoa.removeChangeListener(ComponentAnalysisDialog.this);
 				mach.removeChangeListener(ComponentAnalysisDialog.this);
 				roll.removeChangeListener(ComponentAnalysisDialog.this);
-				configuration.removeChangeListener(ComponentAnalysisDialog.this);
 				//System.out.println("SETTING NAN VALUES");
 				rocketPanel.setCPAOA(Double.NaN);
 				rocketPanel.setCPTheta(Double.NaN);
@@ -424,7 +455,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				singletonDialog = null;
 			}
 		});
-		
+
 		//// Reference length:
 		panel.add(new StyledLabel(trans.get("componentanalysisdlg.lbl.reflenght"), -1),
 				"span, split, gapleft para, gapright rel");
@@ -432,19 +463,19 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		UnitSelector sel = new UnitSelector(dm, true);
 		sel.resizeFont(-1);
 		panel.add(sel, "gapright para");
-		
+
 		//// Reference area: 
 		panel.add(new StyledLabel(trans.get("componentanalysisdlg.lbl.refarea"), -1), "gapright rel");
 		dm = new DoubleModel(conditions, "RefArea", UnitGroup.UNITS_AREA);
 		sel = new UnitSelector(dm, true);
 		sel.resizeFont(-1);
 		panel.add(sel, "wrap");
-		
-		
-		
+
+
+
 		// Buttons
 		JButton button;
-		
+
 		// TODO: LOW: printing
 		//		button = new JButton("Print");
 		//		button.addActionListener(new ActionListener() {
@@ -459,7 +490,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//			}
 		//		});
 		//		panel.add(button,"tag ok");
-		
+
 		//button = new JButton("Close");
 		//Close button
 		button = new JButton(trans.get("dlg.but.close"));
@@ -469,18 +500,18 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				ComponentAnalysisDialog.this.dispose();
 			}
 		});
-		panel.add(button, "span, split, tag cancel");
-		
-		
+		panel.add(button, "span, tag cancel");
+
+
 		this.setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		pack();
-		
+
 		GUIUtil.setDisposableDialogOptions(this, null);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Updates the data in the table and fires a table data change event.
 	 */
@@ -493,7 +524,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		conditions.setMach(mach.getValue());
 		conditions.setRollRate(roll.getValue());
 		conditions.setReference(configuration);
-		
+
 		if (worstToggle.isSelected()) {
 			aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 			if (!MathUtil.equals(conditions.getTheta(), theta.getValue())) {
@@ -503,27 +534,35 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				return;
 			}
 		}
-		
+
 		Map<RocketComponent, AerodynamicForces> aeroData =
 				aerodynamicCalculator.getForceAnalysis(configuration, conditions, set);
 		Map<RocketComponent, Coordinate> massData =
 				massCalculator.getCGAnalysis(configuration, MassCalcType.LAUNCH_MASS);
-		
-		
-		cpData.clear();
+
+
 		cgData.clear();
 		dragData.clear();
 		rollData.clear();
-		for (RocketComponent c : configuration) {
-			forces = aeroData.get(c);
-			Coordinate cg = massData.get(c);
-			
-			if (forces == null)
+		for (RocketComponent c : configuration.getActiveComponents()) {
+			if ( c instanceof AxialStage ) {
 				continue;
-			if (forces.getCP() != null) {
-				cpData.add(forces);
-				cgData.add(cg);
 			}
+			Object[] data = new Object[3];
+			cgData.add(data);
+			data[0] = c;
+
+			Coordinate cg = massData.get(c);
+			data[1] = cg;
+			
+			forces = aeroData.get(c);
+			if (forces == null) {
+				continue;
+			}
+			if (forces.getCP() != null) {
+				data[2] = forces;
+			}
+			
 			if (!Double.isNaN(forces.getCD())) {
 				dragData.add(forces);
 			}
@@ -531,17 +570,30 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				rollData.add(forces);
 			}
 		}
+
+		for ( MotorConfiguration motorConfig : configuration.getActiveMotors()) {
+		
+			Object [] data = new Object[3];
+			cgData.add(data);
+			
+			data[0] = motorConfig.getMotor().getDesignation();
+			data[1] = MassCalcType.LAUNCH_MASS.getCG(motorConfig);
+		}
+		
 		forces = aeroData.get(configuration.getRocket());
 		if (forces != null) {
-			cpData.add(forces);
-			cgData.add(massData.get(configuration.getRocket()));
+			Object[] data = new Object[3];
+			cgData.add(data);
+			data[0] = configuration.getRocket();
+			data[1] = massData.get(configuration.getRocket());
+			data[2] = forces;
 			dragData.add(forces);
 			rollData.add(forces);
 			totalCD = forces.getCD();
 		} else {
 			totalCD = 0;
 		}
-		
+
 		// Set warnings
 		if (set.isEmpty()) {
 			warningList.setListData(new String[] {
@@ -550,33 +602,37 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		} else {
 			warningList.setListData(new Vector<Warning>(set));
 		}
-		
+
 		cpTableModel.fireTableDataChanged();
 		dragTableModel.fireTableDataChanged();
 		rollTableModel.fireTableDataChanged();
 	}
-	
-	
+
+
 	private class CustomCellRenderer extends JLabel implements TableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private final Font normalFont;
 		private final Font boldFont;
-		
+
 		public CustomCellRenderer() {
 			super();
 			normalFont = getFont();
 			boldFont = normalFont.deriveFont(Font.BOLD);
 		}
-		
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
-			
-			this.setText(value.toString());
-			
-			if ((row < 0) || (row >= cpData.size()))
+
+			this.setText(value == null ? null : value.toString());
+
+			if ((row < 0) || (row >= cgData.size()))
 				return this;
-			
-			if (cpData.get(row).getComponent() instanceof Rocket) {
+
+			if (cgData.get(row)[0] instanceof Rocket) {
 				this.setFont(boldFont);
 			} else {
 				this.setFont(normalFont);
@@ -584,52 +640,56 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			return this;
 		}
 	}
-	
-	
-	
+
+
+
 	private class DragCellRenderer extends JLabel implements TableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private final Font normalFont;
 		private final Font boldFont;
-		
-		
+
+
 		public DragCellRenderer(Color baseColor) {
 			super();
 			normalFont = getFont();
 			boldFont = normalFont.deriveFont(Font.BOLD);
 		}
-		
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
-			
+
 			if (value instanceof Double) {
-				
+
 				// A drag coefficient
 				double cd = (Double) value;
 				this.setText(String.format("%.2f (%.0f%%)", cd, 100 * cd / totalCD));
-				
+
 				float r = (float) (cd / 1.5);
-				
+
 				float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
 				float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
 				float val = 1.0f;
-				
+
 				this.setBackground(Color.getHSBColor(hue, sat, val));
 				this.setOpaque(true);
 				this.setHorizontalAlignment(SwingConstants.CENTER);
-				
+
 			} else {
-				
+
 				// Other
 				this.setText(value.toString());
 				this.setOpaque(false);
 				this.setHorizontalAlignment(SwingConstants.LEFT);
-				
+
 			}
-			
+
 			if ((row < 0) || (row >= dragData.size()))
 				return this;
-			
+
 			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 4)) {
 				this.setFont(boldFont);
 			} else {
@@ -638,20 +698,20 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			return this;
 		}
 	}
-	
-	
+
+
 	/////////  Singleton implementation
-	
+
 	public static void showDialog(RocketPanel rocketpanel) {
 		if (singletonDialog != null)
 			singletonDialog.dispose();
 		singletonDialog = new ComponentAnalysisDialog(rocketpanel);
 		singletonDialog.setVisible(true);
 	}
-	
+
 	public static void hideDialog() {
 		if (singletonDialog != null)
 			singletonDialog.dispose();
 	}
-	
+
 }

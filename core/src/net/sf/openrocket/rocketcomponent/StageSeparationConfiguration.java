@@ -1,14 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.EventObject;
-import java.util.List;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StateChangeListener;
 
 public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
 	
@@ -16,7 +11,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Upper stage motor ignition
 		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
 					return false;
 				
@@ -28,7 +23,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage motor ignition
 		IGNITION(trans.get("Stage.SeparationEvent.IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
 					return false;
 				
@@ -40,7 +35,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage motor burnout
 		BURNOUT(trans.get("Stage.SeparationEvent.BURNOUT")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.BURNOUT)
 					return false;
 				
@@ -52,7 +47,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage ejection charge
 		EJECTION(trans.get("Stage.SeparationEvent.EJECTION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
 					return false;
 				
@@ -64,14 +59,14 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Launch
 		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
 		//// Never
 		NEVER(trans.get("Stage.SeparationEvent.NEVER")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
+			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
 				return false;
 			}
 		},
@@ -87,7 +82,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		/**
 		 * Test whether a specific event is a stage separation event.
 		 */
-		public abstract boolean isSeparationEvent(FlightEvent e, Stage stage);
+		public abstract boolean isSeparationEvent(FlightEvent e, AxialStage stage);
 		
 		@Override
 		public String toString() {
@@ -98,12 +93,10 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
+	private SeparationEvent separationEvent = SeparationEvent.NEVER;
 	private double separationDelay = 0;
-	
-	
+		
 	public SeparationEvent getSeparationEvent() {
 		return separationEvent;
 	}
@@ -148,22 +141,14 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		return clone;
 	}
 	
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-		listeners.add(listener);
-	}
-	
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-		listeners.remove(listener);
-	}
 	
 	private void fireChangeEvent() {
-		EventObject event = new EventObject(this);
-		Object[] list = listeners.toArray();
-		for (Object l : list) {
-			((StateChangeListener) l).stateChanged(event);
-		}
+
+	}
+	
+
+	@Override
+	public void update(){
 	}
 	
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -40,22 +42,25 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		
 		// Motor configurations
-		String defId = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		for (String id : rocket.getFlightConfigurationIDs()) {
-			if (id == null)
+		for (FlightConfigurationId fcid : rocket.getIds()) {
+			FlightConfiguration flightConfig = rocket.getFlightConfiguration(fcid); 
+			if (fcid == null)
 				continue;
 			
-			String str = "<motorconfiguration configid=\"" + id + "\"";
-			if (id.equals(defId))
+			// these are actually FlightConfigurationIds, buuuuuuuuuut backwards-compatible tags.
+			String str = "<motorconfiguration configid=\"" + fcid.key + "\"";
+			// if the configuration is the default, add the tag
+			if ( rocket.getSelectedConfiguration().equals( flightConfig )){
 				str += " default=\"true\"";
-			
-			
-			if (rocket.getFlightConfigurationName(id).equals(Rocket.DEFAULT_NAME)) {
-				str += "/>";
-			} else {
-				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(rocket.getFlightConfigurationName(id))
-						+ "</name></motorconfiguration>";
 			}
+			
+			if (flightConfig.isNameOverridden()){
+				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(flightConfig.getName())
+						+ "</name></motorconfiguration>";
+			} else {
+				str += "/>";
+			}
+
 			elements.add(str);
 		}
 		

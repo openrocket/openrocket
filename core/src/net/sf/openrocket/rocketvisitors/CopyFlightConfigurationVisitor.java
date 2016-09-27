@@ -1,14 +1,15 @@
 package net.sf.openrocket.rocketvisitors;
 
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class CopyFlightConfigurationVisitor extends DepthFirstRecusiveVisitor<Void> {
 	
-	private final String oldConfigId;
-	private final String newConfigId;
+	private final FlightConfigurationId oldConfigId;
+	private final FlightConfigurationId newConfigId;
 	
-	public CopyFlightConfigurationVisitor(String oldConfigId, String newConfigId) {
+	public CopyFlightConfigurationVisitor(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		super();
 		this.oldConfigId = oldConfigId;
 		this.newConfigId = newConfigId;

@@ -2,15 +2,17 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
-
-import org.xml.sax.SAXException;
 
 class MotorConfigurationHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
@@ -47,23 +49,22 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		
-		String configid = attributes.remove("configid");
-		if (configid == null || configid.equals("")) {
+		FlightConfigurationId fcid = new FlightConfigurationId(attributes.remove("configid"));
+		if (!fcid.isValid()) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return;
 		}
 		
-		if (!rocket.addMotorConfigurationID(configid)) {
-			warnings.add("Duplicate motor configuration ID used.");
-			return;
-		}
+		rocket.createFlightConfiguration(fcid);
 		
 		if (name != null && name.trim().length() > 0) {
-			rocket.setFlightConfigurationName(configid, name);
+			rocket.getFlightConfiguration(fcid).setName(name);
 		}
 		
 		if ("true".equals(attributes.remove("default"))) {
-			rocket.getDefaultConfiguration().setFlightConfigurationID(configid);
+			// also associate this configuration with the default. 
+			FlightConfiguration fc = rocket.getFlightConfiguration(fcid);
+			rocket.setSelectedConfiguration( fc);
 		}
 		
 		super.closeElement(element, attributes, content, warnings);

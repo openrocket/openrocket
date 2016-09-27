@@ -2,11 +2,15 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -24,30 +28,23 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	private boolean autoRadius = false; // Radius chosen automatically based on parent component
 	
 	// When changing the inner radius, thickness is modified
-	
-	private boolean motorMount = false;
 	private double overhang = 0;
+	private boolean isActingMount = false;
 	
-	private FlightConfigurationImpl<MotorConfiguration> motorConfigurations;
-	private FlightConfigurationImpl<IgnitionConfiguration> ignitionConfigurations;
-	
+	private MotorConfigurationSet motors;
 	
 	public BodyTube() {
 		this(8 * DEFAULT_RADIUS, DEFAULT_RADIUS);
 		this.autoRadius = true;
-		
-		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
-		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
 	}
 	
+	// root ctor. Always called by other ctors
 	public BodyTube(double length, double radius) {
 		super();
 		this.outerRadius = Math.max(radius, 0);
 		this.length = Math.max(length, 0);
-		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
-		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
+		motors = new MotorConfigurationSet(this);
 	}
-	
 	
 	public BodyTube(double length, double radius, boolean filled) {
 		this(length, radius);
@@ -311,12 +308,39 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		double r = getOuterRadius();
-		addBound(bounds, 0, r);
-		addBound(bounds, length, r);
+		double x_min_shape = 0;
+		double x_max_shape = this.length;
+		double r_max_shape = getOuterRadius();
+		
+		Coordinate[] locs = this.getLocations();
+		// not strictly accurate, but this should provide an acceptable estimate for total vehicle size
+		double x_min_inst = Double.MAX_VALUE;
+		double x_max_inst = Double.MIN_VALUE;
+		double r_max_inst = 0.0;
+		
+		// refactor: get component inherent bounds
+		for (Coordinate cur : locs) {
+			double x_cur = cur.x;
+			double r_cur = MathUtil.hypot(cur.y, cur.z);
+			if (x_min_inst > x_cur) {
+				x_min_inst = x_cur;
+			}
+			if (x_max_inst < x_cur) {
+				x_max_inst = x_cur;
+			}
+			if (r_cur > r_max_inst) {
+				r_max_inst = r_cur;
+			}
+		}
+		
+		// combine the position bounds with the inherent shape bounds
+		double x_min = x_min_shape + x_min_inst;
+		double x_max = x_max_shape + x_max_inst;
+		double r_max = r_max_shape + r_max_inst;
+		
+		addBoundingBox(bounds, x_min, x_max, r_max);
 		return bounds;
 	}
-	
 	
 	
 	/**
@@ -338,65 +362,70 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	////////////////  Motor mount  /////////////////
 	
+	@Override
+	public MotorConfiguration getDefaultMotorConfig(){
+		return this.motors.getDefault();
+	}
 	
 	@Override
-	public FlightConfiguration<MotorConfiguration> getMotorConfiguration() {
-		return motorConfigurations;
+	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid){
+		return this.motors.get(fcid);
+	}
+
+	@Override 
+	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
+		if(null == newMotorConfig){
+			this.motors.set( fcid, null);
+		}else{
+			if( this != newMotorConfig.getMount() ){
+				throw new BugException(" attempt to add a MotorConfig to a second mount! ");
+			}
+			
+			this.motors.set(fcid,newMotorConfig);
+		}		
+
+		this.isActingMount=true;
+		
+		// this is done automatically in the motorSet
+		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
 	
 	@Override
-	public FlightConfiguration<IgnitionConfiguration> getIgnitionConfiguration() {
-		return ignitionConfigurations;
+	public Iterator<MotorConfiguration> getMotorIterator(){
+		return this.motors.iterator();
 	}
-	
-	
+
+	@Override
+	public void cloneFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		motors.cloneFlightConfiguration(oldConfigId, newConfigId);
+	}
 	
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
-		motorConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
-		ignitionConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+    public void setMotorMount(boolean _active){
+    	if (this.isActingMount == _active)
+    		return;
+    	this.isActingMount = _active;
+    	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+    }
+
+	@Override
+	public boolean isMotorMount(){
+		return this.isActingMount;
 	}
-	
 	
 	@Override
-	public boolean isMotorMount() {
-		return motorMount;
+	public boolean hasMotor() {
+		// the default MotorInstance is the EMPTY_INSTANCE.  
+		// If the class contains more instances, at least one will have motors.
+		return ( 1 < this.motors.size());
 	}
-	
-	
-	@Override
-	public void setMotorMount(boolean mount) {
-		if (motorMount == mount)
-			return;
-		motorMount = mount;
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
-	
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public Motor getMotor(String id) {
-		return this.motorConfigurations.get(id).getMotor();
-	}
-	
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public double getMotorDelay(String id) {
-		return this.motorConfigurations.get(id).getEjectionDelay();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
+		
 	@Override
 	public int getMotorCount() {
-		return 1;
+		return this.motors.size();
 	}
-	
+		
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
@@ -418,22 +447,25 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	
 	@Override
-	public Coordinate getMotorPosition(String id) {
-		Motor motor = getMotor(id);
+	public Coordinate getMotorPosition(FlightConfigurationId id) {
+		Motor motor = this.motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
 		
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
-	
-	
+
+	@Override
+	public String toMotorDebug(){
+		return this.motors.toDebug();
+	}
 	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		BodyTube copy = (BodyTube) super.copyWithOriginalID();
-		copy.motorConfigurations = new FlightConfigurationImpl<MotorConfiguration>(motorConfigurations, copy, ComponentChangeEvent.MOTOR_CHANGE);
-		copy.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(ignitionConfigurations, copy, ComponentChangeEvent.EVENT_CHANGE);
+		
+		copy.motors = new MotorConfigurationSet( this.motors, copy );
 		return copy;
 	}
 }

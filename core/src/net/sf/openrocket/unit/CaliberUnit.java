@@ -2,7 +2,7 @@ package net.sf.openrocket.unit;
 
 import java.util.Iterator;
 
-import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -14,7 +14,7 @@ public class CaliberUnit extends GeneralUnit {
 	
 	public static final double DEFAULT_CALIBER = 0.01;
 	
-	private final Configuration configuration;
+	private final FlightConfiguration configuration;
 	private final Rocket rocket;
 	
 	private int rocketModId = -1;
@@ -23,9 +23,9 @@ public class CaliberUnit extends GeneralUnit {
 	private double caliber = -1;
 	
 	
-
-
-	public CaliberUnit(Configuration configuration) {
+	
+	
+	public CaliberUnit(FlightConfiguration configuration) {
 		super(1.0, "cal");
 		this.configuration = configuration;
 		
@@ -69,7 +69,7 @@ public class CaliberUnit extends GeneralUnit {
 	}
 	
 	
-
+	
 	private void checkCaliber() {
 		if (configuration != null && configuration.getModID() != configurationModId) {
 			caliber = -1;
@@ -97,8 +97,8 @@ public class CaliberUnit extends GeneralUnit {
 	 * @param config	the rocket configuration
 	 * @return			the caliber of the rocket, or the default caliber.
 	 */
-	public static double calculateCaliber(Configuration config) {
-		return calculateCaliber(config.iterator());
+	public static double calculateCaliber(FlightConfiguration config) {
+		return calculateCaliber(config.getActiveComponents().iterator());
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class CaliberUnit extends GeneralUnit {
 	}
 	
 	
-
+	
 	private static double calculateCaliber(Iterator<RocketComponent> iterator) {
 		double cal = 0;
 		

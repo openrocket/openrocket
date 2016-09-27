@@ -40,6 +40,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class BooleanModel extends AbstractAction implements StateChangeListener, Invalidatable {
+	private static final long serialVersionUID = -7299680391506320196L;
 	private static final Logger log = LoggerFactory.getLogger(BooleanModel.class);
 	
 	private final ChangeSource source;
