@@ -1,6 +1,7 @@
 package net.sf.openrocket.unit;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
@@ -69,8 +70,7 @@ public class FractionalUnit extends Unit {
 	}
 	
 	private double roundTo(double value, double fraction) {
-		double remainder = Math.IEEEremainder(value, fraction);
-		return value - remainder;
+		return value - Math.IEEEremainder(value, fraction);
 	}
 	
 	@Override
@@ -171,9 +171,11 @@ public class FractionalUnit extends Unit {
 		double correctVal = toUnit(value);
 		double val = round(correctVal);
 		
-		
+		DecimalFormatSymbols dotDecimalSymbols = new DecimalFormatSymbols();
+		dotDecimalSymbols.setDecimalSeparator('.');
+		dotDecimalSymbols.setGroupingSeparator(',');
 		if (Math.abs(val - correctVal) > epsilon) {
-			NumberFormat decFormat = new DecimalFormat("#.###");
+			NumberFormat decFormat = new DecimalFormat("#.###", dotDecimalSymbols);
 			return decFormat.format(correctVal);
 		}
 		

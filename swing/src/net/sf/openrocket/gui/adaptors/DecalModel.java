@@ -17,8 +17,16 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
-public class DecalModel extends AbstractListModel implements ComboBoxModel {
+/*
+ * TODO: change parameter from Object to a more specific Object?
+ */
+public class DecalModel extends AbstractListModel<Object> implements ComboBoxModel<Object> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3922419344990421156L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final String NONE_SELECTED = trans.get("lbl.select");
