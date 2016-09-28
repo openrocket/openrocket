@@ -136,23 +136,6 @@ public class MassData {
 		InertiaMatrix combinedMOI = I1_at_3.add(I2_at_3);
 		MassData sumData = new MassData( combinedCM, combinedMOI);
 		
-		{ // vvvv DEVEL vvvv
-//			System.err.println("    ?? body1:  "+  body1.toDebug() );
-//			System.err.println("       delta 1=>3:  "+  delta1);
-//			System.err.println(String.format("       >> 1@3: ==                                [ %g, %g, %g ]",
-//					I1_at_3.xx, I1_at_3.yy, I1_at_3.zz)); 
-//			
-//			System.err.println("    ?? body2:  "+  body2.toDebug() );
-//			System.err.println("       delta 2=>3:  "+  delta2);
-//			System.err.println(String.format("       >> 2@3:                                   [ %g, %g, %g ]",
-//					I2_at_3.xx, I2_at_3.yy, I2_at_3.zz)); 
-//			System.err.println("    ?? asbly3: "+sumData.toDebug()+"\n");
-			
-//			InertiaMatrix rev1 = It1.translateInertia(delta1.multiply(-1), body1.getMass());
-//			System.err.println(String.format("        !!XX orig: %s\n",  childDataChild.toDebug() ));
-//			System.err.println(String.format("%s!!XX revr: %s\n", indent, reverse.toDebug() ));
-		}
-		
 		return sumData;
 	}
 	
@@ -249,11 +232,6 @@ public class MassData {
 
 		MassData newData = new MassData( newCM, this.I_cm);
 		
-		{ // DEVEL-DEBUG
-//			System.err.println("    ?? body1:  "+  body1.toDebug() );
-//			System.err.println("       delta:  "+  delta);
-//			System.err.println("    ?? asbly3: "+newData.toDebug()+"\n");
-		}
 		return newData;
 	}
 

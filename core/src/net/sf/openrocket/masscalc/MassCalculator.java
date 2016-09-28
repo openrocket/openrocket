@@ -21,21 +21,7 @@ import net.sf.openrocket.util.Monitorable;
 
 public class MassCalculator implements Monitorable {
 
-//	public static enum MassCalcType {
-//		NO_MOTORS( Double.NaN),
-//		LAUNCH_MASS(0.), 
-//		BURNOUT_MASS(Double.MAX_VALUE);
-//		
-//		public final double motorTime;
-//		
-//		MassCalcType( final double _motorTime ){ 
-//			this.motorTime = _motorTime; } 
-//		
-//	};
-	
 	//private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
-	
-	public boolean debug=false;
 	
 	public static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	
@@ -91,15 +77,6 @@ public class MassCalculator implements Monitorable {
 	protected MassData calculatePropellantMassData( final FlightConfiguration config ){
 		MassData allPropellantData = MassData.ZERO_DATA;
 		
-		if(debug){// vvvv DEVEL vvvv
-			System.err.println("====== ====== calculatePropellantMassData( config: "+config.toDebug()+" ) ====== ====== ====== ====== ====== ======");
-			//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
-			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
-			String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
-			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
-		}// ^^^^ DEVEL ^^^^
-		
-
 		Collection<MotorConfiguration> activeMotorList = config.getActiveMotors();
 		for (MotorConfiguration mtrConfig : activeMotorList ) {
 			MassData curMotorConfigData = calculateClusterPropellantData( mtrConfig, Motor.PSEUDO_TIME_LAUNCH );
@@ -117,15 +94,6 @@ public class MassCalculator implements Monitorable {
 	 */
 	protected MassData calculatePropellantMassData( final SimulationStatus status ){
 		MassData allPropellantData = MassData.ZERO_DATA;
-
-		if(debug){// vvvv DEVEL vvvv
-			System.err.println("====== ====== calculatePropellantMassData( status.config: "+status.getConfiguration().toDebug()+" ) ====== ====== ====== ====== ====== ======");
-			//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
-			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
-			String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
-			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
-		}// ^^^^ DEVEL ^^^^
-		
 
 		Collection<MotorClusterState> motorStates = status.getActiveMotors();
 		for (MotorClusterState state: motorStates) {
@@ -159,11 +127,6 @@ public class MassCalculator implements Monitorable {
 		final double unitLongitudinalInertiaEach = mtrConfig.getUnitLongitudinalInertia();
 		double Ir=unitRotationalInertiaEach*instanceCount*propMassEach;
 		double It=unitLongitudinalInertiaEach*instanceCount*propMassEach;
-		
-		if(debug){
-			System.err.println(String.format("        Motor: %-16s ( %2dx):   m: %6.4f  l: %6.4f  od: %6.4f  I_xx_u: %6.4g  I_yy_u: %6.4g", 
-											mtr.getDesignation(), instanceCount, propMassEach, mtr.getLength(), mtr.getDiameter(), unitRotationalInertiaEach, unitLongitudinalInertiaEach));
-		}// ^^^^ DEVEL ^^^^
 
 		if( 1 < instanceCount ){
 			// if not on rocket centerline, then add an offset factor, according to the parallel axis theorem: 
@@ -172,10 +135,7 @@ public class MassCalculator implements Monitorable {
 				Ir += propMassEach*Math.pow( distance, 2);
 			}
 		}
-		if(debug){
-			System.err.println(String.format("             :cluster:  m: %6.4f Ixx: %6.4g  Iyy: %6.4g", curClusterCM.weight, Ir, It)); 
-		}
-
+		
 		return new MassData( curClusterCM, Ir, It);
 	}
 	
@@ -188,29 +148,10 @@ public class MassCalculator implements Monitorable {
 	 * @return					the CG of the configuration
 	 */
 	protected MassData calculateBurnoutMassData( final FlightConfiguration config) {
-		if(debug){// vvvv DEVEL vvvv
-			//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
-			String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
-			System.err.println("====== ====== getMotorMassData( config:"+config.toDebug()+" ) ====== ====== ====== ====== ====== ======");
-			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
-			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
-		}// ^^^^ DEVEL ^^^^
-		
 		MassData exceptMotorsMassData = calculateStageData( config);
 
-		if(debug){// vvvv DEVEL vvvv
-			System.err.println("      exc motors stage data: "+exceptMotorsMassData );
-			System.err.println("      ====== ====== ^^^^ stage data ^^^^ ====== ======\n");  
-			System.err.println("      ====== ====== vvvv motor spent mass data vvvv ====== ======\n");
-		}// ^^^^ DEVEL ^^^^
-		
 		MassData motorMassData = calculateMotorBurnoutMassData( config);
 			
-		if(debug){ // vvvv DEVEL vvvv
-			System.err.println("      exc motors stage data: "+motorMassData);
-			System.err.println("      ====== ====== ^^^^ motor spent mass data ^^^^ ====== ======\n\n");
-		} //          ^^^^ DEVEL ^^^^
-
 		return exceptMotorsMassData.add( motorMassData );
 	}
 
@@ -241,15 +182,6 @@ public class MassCalculator implements Monitorable {
 	 * @return					the MassData struct of the motors at burnout
 	 */
 	private MassData calculateMotorBurnoutMassData(FlightConfiguration config) {	
-		//		// vvvv DEVEL vvvv
-		//		//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
-		//		String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
-		//		if( debug){
-		//			System.err.println("====== ====== getMotorMassData( config:"+config.toDebug()+", type: "+type.name()+") ====== ====== ====== ====== ====== ======");
-		//			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
-		//			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
-		//		}
-		//		// ^^^^ DEVEL ^^^^
 		
 		MassData allMotorData = MassData.ZERO_DATA;
 		
@@ -274,31 +206,15 @@ public class MassCalculator implements Monitorable {
 			final double unitRotationalInertia = mtrConfig.getUnitRotationalInertia();
 			final double unitLongitudinalInertia = mtrConfig.getUnitLongitudinalInertia();
 
-			if(debug){// vv DEBUG
-				System.err.println(String.format("    Processing f/mount: %s [%8s] (ct: %d)(w/spent mass = %g)", mtrConfig.getMount(), mtr.getDesignation(), instanceCount, mtr.getBurnoutMass()));
-				double eachIxx = unitRotationalInertia*burnoutMassEach;
-				double eachIyy = unitLongitudinalInertia*burnoutMassEach;
-				System.err.println(String.format("(MOI: [%8g, %8g])", eachIxx, eachIyy));
-			} // ^^ DEBUG
-			
 			double Ir=(unitRotationalInertia*burnoutMassEach)*instanceCount;
 			double It=(unitLongitudinalInertia*burnoutMassEach)*instanceCount;
 			if( 1 < instanceCount ){
-				if(debug){// vv DEBUG
-					System.err.println(String.format("          Instanced. %d motors in a %s", instanceCount, mount.getClusterConfiguration().getXMLName()));
-					System.err.println(String.format("          I_long: %6g * %6g * %d = %6g ", unitLongitudinalInertia, burnoutMassEach, instanceCount, It));
-					System.err.println(String.format("          I_rot_base: %6g * %6g * %d = %6g ", unitRotationalInertia, burnoutMassEach, instanceCount, Ir));
-				} // ^^ DEBUG
-				
 				for( Coordinate coord : locations ){
 					double distance_squared = ((coord.y*coord.y) + (coord.z*coord.z));
 					double instance_correction = burnoutMassEach*distance_squared;
 					
 					Ir += instance_correction;
 				}
-				if(debug){// vv DEBUG
-					System.err.println(String.format("          I_rot: %6g ", Ir));
-				} // ^^ DEBUG
 			}
 			
 			MassData configData = new MassData( clusterCM, Ir, It);
@@ -389,15 +305,6 @@ public class MassCalculator implements Monitorable {
 		// default if not instanced (instance count == 1)
 		MassData assemblyData = new MassData( compCM, compIx, compIt);
 		
-		if( debug && ( MIN_MASS < compCM.weight)){
-			System.err.println(String.format("%-32s: %s ",indent+"ea["+ component.getName()+"]", compCM ));
-			if( component.isMassOverridden() && component.isMassOverridden() && component.getOverrideSubcomponents()){
-				System.err.println(indent+"   ?["+ component.isMassOverridden()+"]["+ 
-						component.isMassOverridden()+"]["+
-						component.getOverrideSubcomponents()+"]");
-			}
-		}
-		
 		MassData childrenData = MassData.ZERO_DATA;
 		// Combine data for subcomponents
 		for (RocketComponent child : component.getChildren()) {
@@ -415,10 +322,6 @@ public class MassCalculator implements Monitorable {
 		
 		// if instanced, adjust children's data too. 
 		if ( 1 < component.getInstanceCount() ){
-			if(debug){// vv DEBUG
-				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
-						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
-			}// ^^ DEBUG
 			
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
@@ -437,11 +340,6 @@ public class MassCalculator implements Monitorable {
 			}
 			
 			assemblyData = instAccumData;
-			
-			if( debug && (MIN_MASS < compCM.weight)){
-				System.err.println(String.format("%-32s: %s ", indent+"x"+component.getInstanceCount()+"["+component.getName()+"][asbly]", assemblyData.toDebug()));
-			}
-			
 		}
 		
 		
@@ -453,11 +351,7 @@ public class MassCalculator implements Monitorable {
 		}
 		
 		// Override total data
-		if (component.getOverrideSubcomponents()) {
-			if(debug){// vv DEBUG
-				System.err.println(String.format("%-32s: %s ", indent+"vv["+component.getName()+"][asbly]", assemblyData.toDebug()));
-			}// ^^ DEBUG
-				
+		if (component.getOverrideSubcomponents()) {				
 			if (component.isMassOverridden()) {
 				double oldMass = assemblyData.getMass();
 				double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
@@ -473,30 +367,19 @@ public class MassCalculator implements Monitorable {
 				double oldx = assemblyData.getCM().x;
 				double newx = component.getOverrideCGX();
 				Coordinate delta = new Coordinate(newx-oldx, 0, 0);
-				if(debug){// vv DEBUG
-					System.err.println(String.format("%-32s: x: %g => %g  (%g)", indent+"    88", oldx, newx, delta.x)); 
-				}// ^^ DEBUG
 				
 				assemblyData = assemblyData.move( delta );
 			}
 		}
 		
-		if(debug){// vv DEBUG
-			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", assemblyData.toDebug()));
-		}// ^^ DEBUG
-		
 		return assemblyData;
 	}
 	
 	
-	/// nooooot quite done, yet.
 	public void revalidateCache( final SimulationStatus status ){
-		//if(  ... check what? the config may not have changed, but if the time has, we want to recalculate the cache! 
-			rocketSpentMassCache = calculateBurnoutMassData( status.getConfiguration() );
+		rocketSpentMassCache = calculateBurnoutMassData( status.getConfiguration() );
 			
-			propellantMassCache = calculatePropellantMassData( status); 
-			
-		//}
+		propellantMassCache = calculatePropellantMassData( status); 		
 	}
 	
 	public void revalidateCache( final FlightConfiguration config ){
@@ -521,7 +404,6 @@ public class MassCalculator implements Monitorable {
 	 * @param	configuration	the configuration of the current call
 	 */
 	protected final boolean checkCache(FlightConfiguration configuration) {
-		//System.err.println("?? Checking the cache ... ");
 		if (rocketMassModID != configuration.getRocket().getMassModID() ||
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketMassModID = configuration.getRocket().getMassModID();

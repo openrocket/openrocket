@@ -47,9 +47,6 @@ public class MassCalculatorTest extends BaseTestCase {
 		config.setAllStages();
 		rkt.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
 		
-//		String treeDump = rkt.toDebugTree();
-//		System.err.println( treeDump);
-		
 		// Validate Boosters
 		MassCalculator mc = new MassCalculator();
 		//  any config will do, beceause the rocket literally has no defined motors.
