@@ -849,13 +849,4 @@ public class Rocket extends RocketComponent {
 		}
 		return buf.toString();
 	}
-
-	public void loadPotentialMounts(List<MotorMount> potentialMounts) {
-		potentialMounts.clear();
-		for (RocketComponent c : this) {
-			if (c instanceof MotorMount) {
-				potentialMounts.add((MotorMount) c);
-			}
-		}
-	}
 }

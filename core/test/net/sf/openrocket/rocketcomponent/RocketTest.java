@@ -151,17 +151,4 @@ public class RocketTest extends BaseTestCase {
 
 		}
 	}
-
-	@Test
-	public void testRocketFillsListOfPotentialMotorMounts()
-	{
-      final int expectedPotentialMounts = 2;
-
-		Rocket rkt1 = TestRockets.makeEstesAlphaIII();
-      List<MotorMount> potentialMounts = new ArrayList<>();
-
-      rkt1.loadPotentialMounts(potentialMounts);
-
-      assertEquals(expectedPotentialMounts, potentialMounts.size());
-	}
 }

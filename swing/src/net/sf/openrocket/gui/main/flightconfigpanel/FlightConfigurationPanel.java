@@ -25,12 +25,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
    private final OpenRocketDocument document;
    private final Rocket rocket;
 
-   private final JButton newConfButton, renameConfButton, removeConfButton, copyConfButton;
+   private JButton newConfButton, renameConfButton, removeConfButton, copyConfButton;
 
-   private final JTabbedPane tabs;
-   private final MotorConfigurationPanel motorConfigurationPanel;
-   private final RecoveryConfigurationPanel recoveryConfigurationPanel;
-   private final SeparationConfigurationPanel separationConfigurationPanel;
+   private JTabbedPane tabs;
+   private MotorConfigurationPanel motorConfigurationPanel;
+   private RecoveryConfigurationPanel recoveryConfigurationPanel;
+   private SeparationConfigurationPanel stagesConfigurationPanel;
 
    private final static int MOTOR_TAB_INDEX = 0;
    private final static int RECOVERY_TAB_INDEX = 1;
@@ -47,22 +47,55 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
       this.document = doc;
       this.rocket = doc.getRocket();
 
-      //JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
+      buildTabs();
+      buildNewConfigurationButton();
+      buildRenameConfigurationButton();
+      buildremoveConfigurationButton();
+      buildCopyConfigurationButton();
 
-      //// Tabs for advanced view.
-      tabs = new JTabbedPane();
+      updateButtonState();
+   }
 
-      //// Motor tabs
-      motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
-      tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
-      //// Recovery tab
-      recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, rocket);
-      tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel);
+   private void buildCopyConfigurationButton() {
+      copyConfButton = new JButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
+      copyConfButton.addActionListener(new ActionListener()
+      {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            copyConfiguration();
+            configurationChanged();
+         }
+      });
+      this.add(copyConfButton, "wrap");
+   }
 
-      //// Stage tab
-      separationConfigurationPanel = new SeparationConfigurationPanel(this, rocket);
-      tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
+   private void buildremoveConfigurationButton() {
+      removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+      removeConfButton.addActionListener(new ActionListener()
+      {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            removeConfiguration();
+            configurationChanged();
+         }
+      });
+      this.add(removeConfButton, "gapright para");
+   }
 
+   private void buildRenameConfigurationButton() {
+      renameConfButton = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
+      renameConfButton.addActionListener(new ActionListener()
+      {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            renameConfiguration();
+            configurationChanged();
+         }
+      });
+      this.add(renameConfButton, "gapright para");
+   }
+
+   private void buildNewConfigurationButton() {
       newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
       newConfButton.addActionListener(new ActionListener()
       {
@@ -75,41 +108,19 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
       });
 
       this.add(newConfButton, "skip 1,gapright para");
+   }
 
-      renameConfButton = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
-      renameConfButton.addActionListener(new ActionListener()
-      {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            renameConfiguration();
-            configurationChanged();
-         }
-      });
-      this.add(renameConfButton, "gapright para");
+   private void buildTabs() {
+      tabs = new JTabbedPane();
 
-      removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
-      removeConfButton.addActionListener(new ActionListener()
-      {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            removeConfiguration();
-            configurationChanged();
-         }
-      });
-      this.add(removeConfButton, "gapright para");
+      motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
+      tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
 
-      copyConfButton = new JButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
-      copyConfButton.addActionListener(new ActionListener()
-      {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            copyConfiguration();
-            configurationChanged();
-         }
-      });
-      this.add(copyConfButton, "wrap");
+      recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, rocket);
+      tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel);
 
-      updateButtonState();
+      stagesConfigurationPanel = new SeparationConfigurationPanel(this, rocket);
+      tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), stagesConfigurationPanel);
 
       this.add(tabs, "spanx, grow, wrap rel");
    }
@@ -120,7 +131,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
       rocket.setFlightConfiguration(newId, newConfig);
 
       // Create a new simulation for this configuration.
-      createSimulationForNewConfiguration(newId);
+      createSimulationForNewConfiguration();
 
       configurationChanged();
    }
@@ -141,7 +152,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 
       // Create a new simulation for this configuration.
-      createSimulationForNewConfiguration(newId);
+      createSimulationForNewConfiguration();
 
       configurationChanged();
    }
@@ -163,7 +174,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
    /**
     * prereq - assumes that the new configuration has been set as the default configuration.
     */
-   private void createSimulationForNewConfiguration(final FlightConfigurationId fcid) {
+   private void createSimulationForNewConfiguration() {
       Simulation newSim = new Simulation(rocket);
       OpenRocketDocument doc = BasicFrame.findDocument(rocket);
       if (doc != null) {
@@ -175,7 +186,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
    private void configurationChanged() {
       motorConfigurationPanel.fireTableDataChanged();
       recoveryConfigurationPanel.fireTableDataChanged();
-      separationConfigurationPanel.fireTableDataChanged();
+      stagesConfigurationPanel.fireTableDataChanged();
       updateButtonState();
    }
 
