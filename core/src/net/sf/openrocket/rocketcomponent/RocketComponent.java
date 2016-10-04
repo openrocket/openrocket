@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
@@ -2118,22 +2120,80 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public String toDebugTree() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
-		buffer.append("     [Name]                         [Length]          [Rel Pos]                [Abs Pos]  \n");
-		this.dumpTreeHelper(buffer, "");
+		buffer.append("     [Name]                               [Length]          [Rel Pos]                [Abs Pos]  \n");
+		this.toDebugTreeHelper(buffer, "");
 		return buffer.toString();
 	}
 	
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%-40s;  %5.3f; %24s; %24s;\n", prefix+"  "+this.getName(), 
-				this.getLength(), this.getOffset(), this.getLocations()[0]));
-	}
-	
-	public void dumpTreeHelper(StringBuilder buffer, final String prefix) {
-		this.toDebugTreeNode(buffer, prefix);
+
+	public void toDebugTreeHelper(StringBuilder buffer, final String indent) {
+		this.toDebugTreeNode(buffer, indent);
 		
 		Iterator<RocketComponent> iterator = this.children.iterator();
 		while (iterator.hasNext()) {
-			iterator.next().dumpTreeHelper(buffer, prefix + "....");
+			iterator.next().toDebugTreeHelper(buffer, indent + "....");
 		}
 	}
+	
+	
+	// this method is in need of some refactoring... 
+	//   eventually, combine the stage-instance debug code into here...
+	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
+		final String prefix = String.format("%s%s", indent, this.getName());
+		
+		// 1) instanced vs non-instanced
+		if( 1 == getInstanceCount() ){
+			// un-instanced RocketComponents (usual case)
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s; ", prefix, this.getLength(), this.getOffset(), this.getLocations()[0]));
+			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
+		}else if( this instanceof Clusterable ){
+			// instanced components -- think motor clusters or booster stage clusters
+			final String patternName = ((Clusterable)this).getPatternName();
+			buffer.append(String.format("%-40s (cluster: %s )", prefix, patternName));
+			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
+			
+			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
+				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount());
+				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(), getOffset(), getLocations()[0]));
+			}
+		}else{
+			throw new IllegalStateException("This is a developer error! If you implement an instanced class, please subclass the Clusterable interface.");
+		}
+		
+		// 2) if this is an ACTING motor mount:
+		if(( this instanceof MotorMount ) &&( ((MotorMount)this).isMotorMount())){ 
+			// because InnerTube and BodyTube don't really share a common ancestor besides RocketComponent
+			// ... and it's easier to have all this code in one place...
+			toDebugMountNode( buffer, indent);
+		}
+	}
+	
+	
+	public void toDebugMountNode(final StringBuilder buffer, final String indent) {		
+		MotorMount mnt = (MotorMount)this;
+
+		Coordinate[] relCoords = this.getInstanceOffsets();
+		Coordinate[] absCoords = this.getLocations();
+		FlightConfigurationId curId = this.getRocket().getSelectedConfiguration().getFlightConfigurationID();
+		final int intanceCount = this.getInstanceCount();
+		MotorConfiguration curInstance = mnt.getMotorConfig( curId);
+		if( curInstance.isEmpty() ){
+			// print just the tube locations
+			buffer.append(indent+"    [X] This Instance doesn't have any motors for the active configuration.\n");
+		}else{
+			// curInstance has a motor ... 
+			Motor curMotor = curInstance.getMotor();
+			final double motorOffset = this.getLength() - curMotor.getLength();
+			
+			buffer.append(String.format("%-40sThrust: %f N; \n", 
+					indent+"  Mounted: "+curMotor.getDesignation(), curMotor.getMaxThrustEstimate() ));
+			
+			Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
+			Coordinate tubeAbs = absCoords[0];
+			Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", indent, curMotor.getLength(), motorRelativePosition, motorAbsolutePosition));
+			
+		}
+	}
+	
 }

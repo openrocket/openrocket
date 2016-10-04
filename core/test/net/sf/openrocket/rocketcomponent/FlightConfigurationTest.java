@@ -142,6 +142,20 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config.setAllStages();
 		
 	}
+	
+	/**
+	 * Single stage rocket specific configuration tests
+	 */
+	@Test
+	public void testDefaultConfigurationIsEmpty() {
+		Rocket r1 = TestRockets.makeEstesAlphaIII();
+				
+		// don't change the configuration: 
+		FlightConfiguration defaultConfig = r1.getSelectedConfiguration();
+	
+		assertThat( "Empty configuration has motors! it should be empty!", r1.getEmptyConfiguration().getActiveMotors().size(), equalTo(0));
+		assertThat( "Default configuration is not the empty configuration. It should be!", defaultConfig.getActiveMotors().size(), equalTo(0)); 
+	}
 
     @Test
     public void testCreateConfigurationNullId() {
@@ -155,7 +169,7 @@ public class FlightConfigurationTest extends BaseTestCase {
         assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
 
         // create with
-        rkt.createFlightConfiguration(null);
+        rkt.createFlightConfiguration( (FlightConfigurationId)null);
         expectedConfigCount = 6;
         actualConfigCount = rkt.getConfigurationCount();
         assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount, equalTo(expectedConfigCount));

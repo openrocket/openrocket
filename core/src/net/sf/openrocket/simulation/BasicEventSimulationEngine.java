@@ -1,7 +1,6 @@
 package net.sf.openrocket.simulation;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -378,10 +376,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Add ejection charge event
 				MotorClusterState motorState = (MotorClusterState) event.getData();
 				motorState.burnOut( event.getTime() );
-
+				
 				AxialStage stage = motorState.getMount().getStage();
-				log.debug( " adding EJECTION_CHARGE event for stage "+stage.getStageNumber()+": "+stage.getName());
-				log.debug( "                         .... for motor "+motorState.getMotor().getDesignation());
+				//log.debug( " adding EJECTION_CHARGE event for motor "+motorState.getMotor().getDesignation()+" on stage "+stage.getStageNumber()+": "+stage.getName());
+				log.debug( " detected Motor Burnout for motor "+motorState.getMotor().getDesignation()+"@ "+event.getTime()+"  on stage "+stage.getStageNumber()+": "+stage.getName());
+				
 				
 				double delay = motorState.getEjectionDelay();
 				if ( motorState.hasEjectionCharge() ){

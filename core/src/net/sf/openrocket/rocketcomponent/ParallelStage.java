@@ -219,23 +219,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		this.angularPosition_rad = MathUtil.reduce180( angle_rad);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%s    %-24s (stage: %d)", prefix, this.getName(), this.getStageNumber()));
-		buffer.append(String.format("    (len: %5.3f  offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
 		
-		Coordinate[] relCoords = this.getInstanceOffsets();
-		Coordinate[] absCoords = this.getLocations();
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			Coordinate instanceRelativePosition = relCoords[instanceNumber];
-			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-			buffer.append(String.format("%s         [%2d/%2d];       %28s;  %28s;\n", prefix, instanceNumber+1, count,
-					instanceRelativePosition, instanceAbsolutePosition));
-		}
-		
-	}
-	
 	@Override
 	protected void update() {
 		super.update();

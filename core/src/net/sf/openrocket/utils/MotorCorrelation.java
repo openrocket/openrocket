@@ -64,8 +64,8 @@ public class MotorCorrelation {
 		double cross = 0;
 		for (t = 0; t < 1000; t += 0.01) {
 			
-			double thrust1 = motor1.getThrustAtMotorTime( t); 
-			double thrust2 = motor2.getThrustAtMotorTime( t);
+			double thrust1 = motor1.getThrust( t); 
+			double thrust2 = motor2.getThrust( t);
 			
 			if ( thrust1 < 0 || thrust2 < 0) {
 				throw new BugException("Negative thrust, t1=" + thrust1 + " t2=" + thrust2);

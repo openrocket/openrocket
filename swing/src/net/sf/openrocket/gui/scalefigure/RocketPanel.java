@@ -38,9 +38,9 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.components.ConfigurationModel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
@@ -52,7 +52,6 @@ import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -599,7 +598,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		extraText.setTheta(cpTheta);
 
-		cg = massCalculator.getCG(curConfig, MassCalcType.LAUNCH_MASS);
+		cg = massCalculator.getRocketLaunchMassData( curConfig).getCG();
 		
 
 		if (cp.weight > MassCalculator.MIN_MASS){
@@ -644,7 +643,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
 		extraText.setMass(cg.weight);
-		extraText.setMassWithoutMotors( massCalculator.getCG( getSelectedConfiguration(), MassCalcType.NO_MOTORS ).weight );
+		extraText.setMassWithoutMotors( massCalculator.getRocketSpentMassData( curConfig.getRocket().getEmptyConfiguration() ).getMass() );
 		extraText.setWarnings(warnings);
 
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {

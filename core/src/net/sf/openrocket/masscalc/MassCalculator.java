@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -23,68 +20,8 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
 
 public class MassCalculator implements Monitorable {
-	
-	public static enum MassCalcType {
-		NO_MOTORS {
-			@Override
-			public double getCGx(Motor motor) {
-				return 0;
-			}
-			@Override
-			public double getMass(Motor motor) {
-				return 0;
-			}
-		},
-		LAUNCH_MASS {
-			@Override
-			public double getCGx(Motor motor) {
-				return motor.getLaunchCGx();
-			}
-			@Override
-			public double getMass(Motor motor) {
-				return motor.getLaunchMass();
-			}
-		},
-		BURNOUT_MASS {
-			@Override
-			public double getCGx(Motor motor) {
-				return motor.getBurnoutCGx();
-			}
-			@Override
-			public double getMass(Motor motor) {
-				return motor.getBurnoutMass();
-			}
-		};
-		
-		public abstract double getMass(Motor motor);
-		public abstract double getCGx(Motor motor);
-		
-		/**
-		 * Compute the cg contribution of the motor relative to the rocket's coordinates
-		 * 
-		 * @param motorConfig
-		 * @return
-		 */
-		public Coordinate getCG(MotorConfiguration motorConfig) {
-			Motor mtr = motorConfig.getMotor();
-			double mass = getMass(mtr);
-			Coordinate cg = motorConfig.getPosition().add( getCGx(mtr), 0, 0, mass);
-			
-			RocketComponent motorMount = (RocketComponent) motorConfig.getMount();
-			Coordinate totalCM = new Coordinate();
-			for (Coordinate cord : motorMount.toAbsolute(cg) ) {
-				totalCM = totalCM.average(cord);
-			}
-			
-			return totalCM;
-		}
-		
-		public Coordinate getCM( Motor motor ){
-			return new Coordinate( getCGx(motor), 0, 0, getMass(motor));
-		}
-	}
-	
-	private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
+
+	//private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
 	
 	public static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	
@@ -96,14 +33,10 @@ public class MassCalculator implements Monitorable {
 	 * Cached data.  All CG data is in absolute coordinates.  All moments of inertia
 	 * are relative to their respective CG.
 	 */
-	private HashMap< Integer, MassData> cache = new HashMap<Integer, MassData >(); 
-	//	private MassData dryData = null;
-	//	private MassData launchData = null;
-	//	private Vector< MassData> motorData =  new Vector<MassData>(); 
+	private HashMap< Integer, MassData> stageMassCache = new HashMap<Integer, MassData >();
+	private MassData rocketSpentMassCache;
+	private MassData propellantMassCache;
 	
-	// this turns on copious amounts of debug.  Recommend leaving this false 
-	// until reaching code that causes troublesome conditions.
-	public boolean debug = false; 
 	
 	//////////////////  Constructors ///////////////////
 	public MassCalculator() {
@@ -111,228 +44,188 @@ public class MassCalculator implements Monitorable {
 	
 	//////////////////  Mass property calculations  ///////////////////
 	
-	
-	/**
-	 * Return the CG of the rocket with the specified motor status (no motors,
-	 * ignition, burnout).
-	 * 
-	 * @param configuration		the rocket configuration
-	 * @param type				the state of the motors (none, launch mass, burnout mass)
-	 * @return					the CG of the configuration
-	 */
-	public Coordinate getCG(FlightConfiguration configuration, MassCalcType type) {
-		return getCM( configuration, type);
+
+	public MassData getRocketSpentMassData( final FlightConfiguration config ){
+		revalidateCache( config);
+		return this.rocketSpentMassCache;
 	}
 	
-	public Coordinate getCM(FlightConfiguration config, MassCalcType type) {
-		checkCache(config);
-		calculateStageCache(config);
+
+	public MassData getRocketLaunchMassData( final FlightConfiguration config ){
+		revalidateCache( config);
+		return rocketSpentMassCache.add( propellantMassCache );
+	}
+    	
+	
+	/** calculates the massdata for all propellant in the rocket given the simulation status.
+	 * 
+	 * @param status  CurrentSimulation status to calculate data with
+	 * @return  combined mass data for all propellant
+	 */
+	public MassData getPropellantMassData( final SimulationStatus status ){
+		revalidateCache( status );
 		
-		// Stage contribution
-		Coordinate dryCM = Coordinate.ZERO;
-		for (AxialStage stage : config.getActiveStages()) {
-			Integer stageNumber = stage.getStageNumber();
-			MassData stageData = cache.get( stageNumber);
-			if( null == stageData ){
-				throw new BugException("method: calculateStageCache(...) is faulty-- returned null data for an active stage: "+stage.getName()+"("+stage.getStageNumber()+")");
-			}
-			dryCM = stageData.cm.average(dryCM);
+		return propellantMassCache;
+	}
+	
+	
+	/** calculates the massdata @ launch for all propellant in the rocket 
+	 * 
+	 * @param status  CurrentSimulation status to calculate data with
+	 * @return  combined mass data for all propellant
+	 */
+	protected MassData calculatePropellantMassData( final FlightConfiguration config ){
+		MassData allPropellantData = MassData.ZERO_DATA;
+		
+		Collection<MotorConfiguration> activeMotorList = config.getActiveMotors();
+		for (MotorConfiguration mtrConfig : activeMotorList ) {
+			MassData curMotorConfigData = calculateClusterPropellantData( mtrConfig, Motor.PSEUDO_TIME_LAUNCH );
 			
+			allPropellantData = allPropellantData.add( curMotorConfigData );
 		}
 		
+		return allPropellantData;
+	}
+	
+	/** calculates the massdata @ launch for all propellant in the rocket 
+	 * 
+	 * @param status  CurrentSimulation status to calculate data with
+	 * @return  combined mass data for all propellant
+	 */
+	protected MassData calculatePropellantMassData( final SimulationStatus status ){
+		MassData allPropellantData = MassData.ZERO_DATA;
+
+		Collection<MotorClusterState> motorStates = status.getActiveMotors();
+		for (MotorClusterState state: motorStates) {
+			final double motorTime = state.getMotorTime( status.getSimulationTime() );
+
+			MassData clusterPropData = calculateClusterPropellantData( state.getConfig(), motorTime );
+				
+			allPropellantData = allPropellantData.add( clusterPropData);
+		}
+
+		return allPropellantData;
+	}
+	
+	// helper method to calculate the propellant mass data for a given motor cluster( i.e. MotorConfiguration)
+	private MassData calculateClusterPropellantData( final MotorConfiguration mtrConfig, final double motorTime ){
+		final Motor mtr = mtrConfig.getMotor();
+		final MotorMount mnt = mtrConfig.getMount();
+		final int instanceCount = mnt.getInstanceCount();
 		
-		Coordinate totalCM=null;
-		if( MassCalcType.NO_MOTORS == type ){
-			totalCM = dryCM;
-		}else{
-			MassData motorData = getMotorMassData(config, type);
-			Coordinate motorCM = motorData.getCM();
-			totalCM = dryCM.average(motorCM);
+		// location of mount, w/in entire rocket
+		final Coordinate[] locations = mnt.getLocations();
+		final double motorXPosition = mtrConfig.getX();  // location of motor from mount
+		
+		final double propMassEach = mtr.getPropellantMass( motorTime );
+		final double propCMxEach = mtr.getCMx( motorTime); // CoM from beginning of motor
+
+		// coordinates in rocket frame; Ir, It about CoM.
+		final Coordinate curClusterCM = new Coordinate( locations[0].x + motorXPosition + propCMxEach, 0, 0, propMassEach*instanceCount);
+		
+		final double unitRotationalInertiaEach = mtrConfig.getUnitRotationalInertia();
+		final double unitLongitudinalInertiaEach = mtrConfig.getUnitLongitudinalInertia();
+		double Ir=unitRotationalInertiaEach*instanceCount*propMassEach;
+		double It=unitLongitudinalInertiaEach*instanceCount*propMassEach;
+
+		if( 1 < instanceCount ){
+			// if not on rocket centerline, then add an offset factor, according to the parallel axis theorem: 
+			for( Coordinate coord : locations ){
+				double distance = Math.hypot( coord.y, coord.z);
+				Ir += propMassEach*Math.pow( distance, 2);
+			}
 		}
 		
-		return totalCM;
+		return new MassData( curClusterCM, Ir, It);
 	}
 	
 	/**
-	 * Compute the CM of all motors, given a configuration and type
+	 * Calculates mass data of the rocket burnout mass
 	 * 
-	 * @param configuration		the rocket configuration
-	 * @param motors			the motor configuration
+	 * I.O.W., this mass data is invariant during thrust (see also: calculatePropellantMassData(...) )  
+	 * 
+	 * @param configuration		a given rocket configuration
 	 * @return					the CG of the configuration
 	 */
-	public MassData getMotorMassData(FlightConfiguration config, MassCalcType type) {
-		if( MassCalcType.NO_MOTORS == type ){
-			return MassData.ZERO_DATA;
-		}
-		
-		//		// vvvv DEVEL vvvv
-		//		//String massFormat = "    [%2s]: %-16s    %6s x %6s  =  %6s += %6s  @ (%s, %s, %s )";
-		//		String inertiaFormat = "    [%2s](%2s): %-16s    %6s  %6s";
-		//		if( debug){
-		//			System.err.println("====== ====== getMotorMassData( config:"+config.toDebug()+", type: "+type.name()+") ====== ====== ====== ====== ====== ======");
-		//			//System.err.println(String.format(massFormat, " #", "<Designation>","Mass","Count","Config","Sum", "x","y","z"));
-		//			System.err.println(String.format(inertiaFormat, " #","ct", "<Designation>","I_ax","I_tr"));
-		//		}
-		//		// ^^^^ DEVEL ^^^^
+	protected MassData calculateBurnoutMassData( final FlightConfiguration config) {
+		MassData exceptMotorsMassData = calculateStageData( config);
+
+		MassData motorMassData = calculateMotorBurnoutMassData( config);
+			
+		return exceptMotorsMassData.add( motorMassData );
+	}
+
+	private MassData calculateStageData( final FlightConfiguration config ){
+	    MassData componentData = MassData.ZERO_DATA;
+       
+        // Stages
+        for (AxialStage stage : config.getActiveStages()) {
+        	int stageNumber = stage.getStageNumber();
+               
+        	MassData stageData = this.calculateAssemblyMassData( stage );
+        	
+        	stageMassCache.put(stageNumber, stageData);
+        	
+        	componentData = componentData.add(stageData);
+        }
+       
+        return componentData;
+	}
+	
+
+	/**
+	 * Compute the burnout mass properties all motors, given a configuration
+	 * 
+	 * Will calculate data for:MassCalcType.BURNOUT_MASS
+	 *  
+	 * @param configuration		the rocket configuration
+	 * @return					the MassData struct of the motors at burnout
+	 */
+	private MassData calculateMotorBurnoutMassData(FlightConfiguration config) {	
 		
 		MassData allMotorData = MassData.ZERO_DATA;
+		
 		//int motorIndex = 0;
 		for (MotorConfiguration mtrConfig : config.getActiveMotors() ) {
 			Motor mtr = (Motor) mtrConfig.getMotor();
-			
 			MotorMount mount = mtrConfig.getMount();
-			RocketComponent mountComp = (RocketComponent)mount;
-			Coordinate[] locations = mountComp.getLocations(); // location of mount, w/in entire rocket
+			
+			// use 'mount.getLocations()' because:  
+			// 1) includes ALL clustering sources! 
+			// 2) location of mount, w/in entire rocket
+			// 3) Note: mount.getInstanceCount()  ONLY indicates instancing of the mount's cluster, not parent components (such as stages)
+			Coordinate[] locations = mount.getLocations();
 			int instanceCount = locations.length; 
 			double motorXPosition = mtrConfig.getX();  // location of motor from mount
 			
+			final double burnoutMassEach = mtr.getBurnoutMass();
+			final double burnoutCMx = mtr.getBurnoutCGx(); // CoM from beginning of motor
 			
-			Coordinate localCM = type.getCM( mtr );  // CoM from beginning of motor
-			localCM = localCM.setWeight( localCM.weight * instanceCount);
-			// a *bit* hacky :P
-			Coordinate curMotorCM = localCM.setX( localCM.x + locations[0].x + motorXPosition );
+			final Coordinate clusterCM = new Coordinate( locations[0].x + motorXPosition + burnoutCMx, 0, 0, burnoutMassEach*instanceCount);
 			
-			// alternate version: 
-			//			  			double Ir = inst.getRotationalInertia();
-			//			  			double It = inst.getLongitudinalInertia();
-			//			 +
-			//			 +			Coordinate curMotorCM = type.getCG(inst);
-			
-			double motorMass = curMotorCM.weight;
-			double Ir_single = mtrConfig.getUnitRotationalInertia()*motorMass;
-			double It_single = mtrConfig.getUnitLongitudinalInertia()*motorMass;
-			double Ir=0;
-			double It=0;
-			if( 1 == instanceCount ){
-				Ir=Ir_single;
-				It=It_single;	
-			}else{
-				It = It_single * instanceCount;
-				
-				Ir = Ir_single*instanceCount;
-				// these need more complex instancing code...
+			final double unitRotationalInertia = mtrConfig.getUnitRotationalInertia();
+			final double unitLongitudinalInertia = mtrConfig.getUnitLongitudinalInertia();
+
+			double Ir=(unitRotationalInertia*burnoutMassEach)*instanceCount;
+			double It=(unitLongitudinalInertia*burnoutMassEach)*instanceCount;
+			if( 1 < instanceCount ){
 				for( Coordinate coord : locations ){
-					double distance = Math.hypot( coord.y, coord.z);
-					Ir += motorMass*Math.pow( distance, 2);
+					double distance_squared = ((coord.y*coord.y) + (coord.z*coord.z));
+					double instance_correction = burnoutMassEach*distance_squared;
+					
+					Ir += instance_correction;
 				}
 			}
 			
-			MassData configData = new MassData( curMotorCM, Ir, It);
+			MassData configData = new MassData( clusterCM, Ir, It);
 			allMotorData = allMotorData.add( configData );
 			
-			// BEGIN DEVEL
-			//if( debug){
-			// // Inertia
-			// System.err.println(String.format( inertiaFormat, motorIndex, instanceCount, mtr.getDesignation(), Ir, It));
-			// // mass only
-			//double singleMass = type.getCG( mtr ).weight;
-			//System.err.println(String.format( massFormat, motorIndex, mtr.getDesignation(), 
-			//		singleMass, instanceCount, curMotorCM.weight, allMotorData.getMass(),curMotorCM.x, curMotorCM.y, curMotorCM.z ));
-			//}
-			//motorIndex++;
-			// END DEVEL	
 		}
 		
 		return allMotorData;
 	}
-	
-	/**
-	 * Return the longitudinal inertia of the rocket with the specified motor instance
-	 * configuration.
-	 * 
-	 * @param config		the current motor instance configuration
-	 * @param type 				the type of analysis to pull
-	 * @return					the longitudinal inertia of the rocket
-	 */
-	public double getLongitudinalInertia(FlightConfiguration config, MassCalcType type) {
-		checkCache(config);
-		calculateStageCache(config);
-		
-		MassData structureData = MassData.ZERO_DATA; 
-		
-		// Stages
-		for (AxialStage stage : config.getActiveStages()) {
-			int stageNumber = stage.getStageNumber();
-			
-			MassData stageData = cache.get(stageNumber);
-			structureData = structureData.add(stageData);
-		}
-		
-		MassData motorData = MassData.ZERO_DATA;
-		if( MassCalcType.NO_MOTORS != type ){
-			motorData = getMotorMassData(config, type);
-		}
-		
-		
-		MassData totalData = structureData.add( motorData);
-		if(debug){
-			System.err.println(String.format("  >> Structural MassData: %s", structureData.toDebug()));	
-			System.err.println(String.format("  >> Motor MassData:      %s", motorData.toDebug()));	
-			System.err.println(String.format("==>> Combined MassData:   %s", totalData.toDebug()));	
-		}
-		
-		return totalData.getLongitudinalInertia();
-	}
-	
-	
-	/**
-	 * Compute the rotational inertia of the provided configuration with specified motors.
-	 * 
-	 * @param config		the current motor instance configuration
-	 * @param type				the type of analysis to get
-	 * @return					the rotational inertia of the configuration
-	 */
-	public double getRotationalInertia(FlightConfiguration config, MassCalcType type) {
-		checkCache(config);
-		calculateStageCache(config);
-		
-		MassData structureData = MassData.ZERO_DATA;
-		
-		// Stages
-		for (AxialStage stage : config.getActiveStages()) {
-			int stageNumber = stage.getStageNumber();
-			
-			MassData stageData = cache.get(stageNumber);
-			structureData = structureData.add(stageData);
-		}
-		
-		MassData motorData = MassData.ZERO_DATA;
-		if( MassCalcType.NO_MOTORS != type ){
-			motorData = getMotorMassData(config, type);
-		}
-		
-		MassData totalData = structureData.add( motorData);
-		if(debug){
-			System.err.println(String.format("  >> Structural MassData: %s", structureData.toDebug()));	
-			System.err.println(String.format("  >> Motor MassData:      %s", motorData.toDebug()));	
-			System.err.println(String.format("==>> Combined MassData:   %s", totalData.toDebug()));	
-		}
-		
-		return totalData.getRotationalInertia();
-	}
-	
-	
-	/**
-	 * Return the total mass of the motors
-	 * 
-	 * @param motors			the motor configuration
-	 * @param configuration		the current motor instance configuration
-	 * @return					the total mass of all motors
-	 */
-	public double getPropellantMass(FlightConfiguration configuration, MassCalcType calcType ){
-		double mass = 0;
-		//throw new BugException("getPropellantMass is not yet implemented.... ");
-		// add up the masses of all motors in the rocket
-		if ( MassCalcType.NO_MOTORS != calcType ){
-			for (MotorConfiguration curConfig : configuration.getActiveMotors()) {
-				int instanceCount = curConfig.getMount().getInstanceCount();
-				mass = mass + curConfig.getPropellantMass()*instanceCount;
-			}
-		}
-		return mass;
-	}
 
-	
+
 	/**
 	 * Return the total mass of the motors
 	 * 
@@ -341,14 +234,7 @@ public class MassCalculator implements Monitorable {
 	 * @return					the total mass of all motors
 	 */
 	public double getPropellantMass(SimulationStatus status ){
-		double mass = 0;
-		Collection<MotorClusterState> activeMotorList = status.getMotors();
-		for (MotorClusterState curConfig : activeMotorList ) {
-			int instanceCount = curConfig.getMount().getInstanceCount();
-			double motorTime = curConfig.getMotorTime(status.getSimulationTime());
-			mass += (curConfig.getMotor().getMassAtMotorTime(motorTime) - curConfig.getMotor().getBurnoutMass())*instanceCount;
-		}
-		return mass;
+		return (getPropellantMassData( status )).getCM().weight;
 	}
 	
 	/**
@@ -362,41 +248,26 @@ public class MassCalculator implements Monitorable {
 	 * @param type				the state of the motors (none, launch mass, burnout mass)
 	 * @return					a map from each rocket component to its corresponding CG.
 	 */
-	public Map<RocketComponent, Coordinate> getCGAnalysis(FlightConfiguration configuration, MassCalcType type) {
-		checkCache(configuration);
-		calculateStageCache(configuration);
+	public Map<RocketComponent, Coordinate> getCGAnalysis(FlightConfiguration configuration) {
+		revalidateCache(configuration);
 		
 		Map<RocketComponent, Coordinate> map = new HashMap<RocketComponent, Coordinate>();
 		
+		Coordinate rocketCG = Coordinate.ZERO;
 		for (RocketComponent comp : configuration.getActiveComponents()) {
 			Coordinate[] cgs = comp.toAbsolute(comp.getCG());
-			Coordinate totalCG = Coordinate.NUL;
+			Coordinate stageCG = Coordinate.NUL;
 			for (Coordinate cg : cgs) {
-				totalCG = totalCG.average(cg);
+				stageCG = stageCG.average(cg);
 			}
-			map.put(comp, totalCG);
+			map.put(comp, stageCG);
+			
+			rocketCG.average( stageCG);
 		}
 		
-		map.put(configuration.getRocket(), getCG(configuration, type));
+		map.put(configuration.getRocket(), rocketCG );
 		
 		return map;
-	}
-	
-	////////  Cache computations  ////////
-	
-	private void calculateStageCache(FlightConfiguration config) {
-		int stageCount = config.getActiveStageCount();
-		if(debug){
-			System.err.println(">> Calculating massData cache for config: "+config.toDebug()+"  with "+stageCount+" stages");
-		}
-		if( 0 < stageCount ){ 
-			for( AxialStage curStage : config.getActiveStages()){
-				int index = curStage.getStageNumber();
-				MassData stageData = calculateAssemblyMassData( curStage);
-				cache.put(index, stageData);
-			}
-		}
-		
 	}
 	
 	
@@ -414,6 +285,15 @@ public class MassCalculator implements Monitorable {
 		Coordinate compCM = component.getComponentCG();
 		double compIx = component.getRotationalUnitInertia() * compCM.weight;
 		double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+		if( 0 > compCM.weight ){
+			throw new BugException("  computed a negative rotational inertia value.");
+		}
+		if( 0 > compIx ){
+			throw new BugException("  computed a negative rotational inertia value.");
+		}
+		if( 0 > compIt ){
+			throw new BugException("  computed a negative longitudinal inertia value.");
+		}
 		
 		if (!component.getOverrideSubcomponents()) {
 			if (component.isMassOverridden())
@@ -423,16 +303,7 @@ public class MassCalculator implements Monitorable {
 		}
 		
 		// default if not instanced (instance count == 1)
-		MassData resultantData = new MassData( compCM, compIx, compIt);
-		
-		if( debug && (MIN_MASS < compCM.weight)){
-			System.err.println(String.format("%-32s: %s ",indent+"ea["+ component.getName()+"]", compCM ));
-			if( component.isMassOverridden() && component.isMassOverridden() && component.getOverrideSubcomponents()){
-				System.err.println(indent+"   ?["+ component.isMassOverridden()+"]["+ 
-						component.isMassOverridden()+"]["+
-						component.getOverrideSubcomponents()+"]");
-			}
-		}
+		MassData assemblyData = new MassData( compCM, compIx, compIt);
 		
 		MassData childrenData = MassData.ZERO_DATA;
 		// Combine data for subcomponents
@@ -447,20 +318,16 @@ public class MassCalculator implements Monitorable {
 			
 			childrenData  = childrenData.add( childData );
 		}
-		resultantData = resultantData.add( childrenData);
+		assemblyData = assemblyData.add( childrenData);
 		
 		// if instanced, adjust children's data too. 
 		if ( 1 < component.getInstanceCount() ){
-			if( debug ){
-				System.err.println(String.format("%s  Found instanceable with %d children: %s (t= %s)", 
-						indent, component.getInstanceCount(), component.getName(), component.getClass().getSimpleName() ));
-			}
 			
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
 			final double curIzz = childrenData.getIzz(); // MOI about z axis
 			
-			Coordinate templateCM = resultantData.cm;
+			Coordinate templateCM = assemblyData.cm;
 			MassData instAccumData = new MassData();  // accumulator for instance MassData
 			Coordinate[] instanceLocations = ((Instanceable) component).getInstanceOffsets();
 			for( Coordinate curOffset : instanceLocations ){
@@ -472,55 +339,57 @@ public class MassCalculator implements Monitorable {
 				instAccumData = instAccumData.add( instanceData);
 			}
 			
-			resultantData = instAccumData;
-			
-			if( debug && (MIN_MASS < compCM.weight)){
-				System.err.println(String.format("%-32s: %s ", indent+"x"+component.getInstanceCount()+"["+component.getName()+"][asbly]", resultantData.toDebug()));
-			}
-			
+			assemblyData = instAccumData;
 		}
 		
 		
 		// move to parent's reference point
-		resultantData = resultantData.move( component.getOffset() );
+		assemblyData = assemblyData.move( component.getOffset() );
 		if( component instanceof ParallelStage ){
 			// hacky correction for the fact Booster Stages aren't direct subchildren to the rocket
-			resultantData = resultantData.move( component.getParent().getOffset() );
+			assemblyData = assemblyData.move( component.getParent().getOffset() );
 		}
 		
 		// Override total data
-		if (component.getOverrideSubcomponents()) {
-			if( debug){
-				System.err.println(String.format("%-32s: %s ", indent+"vv["+component.getName()+"][asbly]", resultantData.toDebug()));
-			}
+		if (component.getOverrideSubcomponents()) {				
 			if (component.isMassOverridden()) {
-				double oldMass = resultantData.getMass();
+				double oldMass = assemblyData.getMass();
 				double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
-				Coordinate newCM = resultantData.getCM().setWeight(newMass);
+				Coordinate newCM = assemblyData.getCM().setWeight(newMass);
 				
-				double newIxx = resultantData.getIxx() * newMass / oldMass;
-				double newIyy = resultantData.getIyy() * newMass / oldMass;
-				double newIzz = resultantData.getIzz() * newMass / oldMass;
+				double newIxx = assemblyData.getIxx() * newMass / oldMass;
+				double newIyy = assemblyData.getIyy() * newMass / oldMass;
+				double newIzz = assemblyData.getIzz() * newMass / oldMass;
 				
-				resultantData = new MassData( newCM, newIxx, newIyy, newIzz );
+				assemblyData = new MassData( newCM, newIxx, newIyy, newIzz );
 			}
 			if (component.isCGOverridden()) {
-				double oldx = resultantData.getCM().x;
+				double oldx = assemblyData.getCM().x;
 				double newx = component.getOverrideCGX();
 				Coordinate delta = new Coordinate(newx-oldx, 0, 0);
-				if(debug){
-					System.err.println(String.format("%-32s: x: %g => %g  (%g)", indent+"    88", oldx, newx, delta.x)); 
-				}
-				resultantData = resultantData.move( delta );
+				
+				assemblyData = assemblyData.move( delta );
 			}
 		}
 		
-		if( debug){
-			System.err.println(String.format("%-32s: %s ", indent+"<<["+component.getName()+"][asbly]", resultantData.toDebug()));
+		return assemblyData;
+	}
+	
+	
+	public void revalidateCache( final SimulationStatus status ){
+		rocketSpentMassCache = calculateBurnoutMassData( status.getConfiguration() );
+			
+		propellantMassCache = calculatePropellantMassData( status); 		
+	}
+	
+	public void revalidateCache( final FlightConfiguration config ){
+		checkCache( config);
+		if( null == rocketSpentMassCache ){
+			rocketSpentMassCache = calculateBurnoutMassData(config);
 		}
-		
-		
-		return resultantData;
+		if( null == propellantMassCache ){
+			propellantMassCache = calculatePropellantMassData( config);
+		}
 	}
 	
 	/**
@@ -534,14 +403,15 @@ public class MassCalculator implements Monitorable {
 	 * 
 	 * @param	configuration	the configuration of the current call
 	 */
-	protected final void checkCache(FlightConfiguration configuration) {
+	protected final boolean checkCache(FlightConfiguration configuration) {
 		if (rocketMassModID != configuration.getRocket().getMassModID() ||
 				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketMassModID = configuration.getRocket().getMassModID();
 			rocketTreeModID = configuration.getRocket().getTreeModID();
-			log.debug("Voiding the mass cache");
 			voidMassCache();
+			return false;
 		}
+		return true;
 	}
 	
 	/**
@@ -552,9 +422,10 @@ public class MassCalculator implements Monitorable {
 	 * its execution.
 	 */
 	protected void voidMassCache() {
-		this.cache.clear();
+		this.stageMassCache.clear();
+		this.rocketSpentMassCache=null;
+		this.propellantMassCache=null;
 	}
-	
 	
 	
 	@Override

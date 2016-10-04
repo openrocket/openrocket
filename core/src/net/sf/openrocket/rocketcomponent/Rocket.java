@@ -659,28 +659,27 @@ public class Rocket extends RocketComponent {
 		return false;
 	}
 
-
 	/**
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.
 	 *
 	 * @param fcid the flight configuration id
 	 * @return	FlightConfiguration instance
 	 */
-	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
+	public FlightConfigurationId createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
 
         if( null == fcid ){
-            // fall-through to the default case...
-            // creating a FlightConfiguration( null ) just allocates a fresh new FCID
+            // fall-through to the default case:
+            // ...creating a FlightConfiguration( null ) just allocates a fresh new FCID
 		}else if( fcid.hasError() ){
-			return configSet.getDefault();
+			return configSet.getDefault().getFlightConfigurationID();
 		}else if( configSet.containsId(fcid)){
-			return this.getFlightConfiguration(fcid);
+			return fcid;
 		}
         FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
         this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
-        return nextConfig;
+        return nextConfig.getFlightConfigurationID();
 	}
 
 
@@ -703,6 +702,7 @@ public class Rocket extends RocketComponent {
 	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.
 	 * If the default instance is allowed, the default will be at index 0.
 	 *
+	 * @param 	includeDefault 	Whether to allow returning the default instance
 	 * @param 	configIndex 	The flight configuration index number
 	 * @return	a 				FlightConfiguration instance
 	 */
@@ -824,7 +824,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * STUB.  would enable the monitoring, relay and production of events in this rocket instance.
 	 */
-	private void enableEvents(final boolean _enable) {
+	public void enableEvents( final boolean _enable ) {
 		if( this.eventsEnabled && _enable){
 			return;
 		}else if( _enable ){
@@ -849,4 +849,9 @@ public class Rocket extends RocketComponent {
 		}
 		return buf.toString();
 	}
+
+	public FlightConfiguration getEmptyConfiguration() {
+		return this.configSet.getDefault();
+	}
+
 }
