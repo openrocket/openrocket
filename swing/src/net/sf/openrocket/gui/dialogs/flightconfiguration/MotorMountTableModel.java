@@ -1,16 +1,12 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import net.sf.openrocket.rocketcomponent.*;
-import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.rocketvisitors.ListPotentialMotorMounts;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.table.AbstractTableModel;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -72,7 +68,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
       ensureValidRow(row, "MotorMountTableModel.setValueAt()");
       ensureValidColumn(column, "MotorMountTableModel.setValueAt()");
 
-      potentialMounts.get(row).setMotorMount((Boolean)boolValue);
+      potentialMounts.get(row).setMotorMount((Boolean) boolValue);
       loadListOfPotentialMounts();
    }
 

@@ -117,13 +117,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
       motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
       {
          //// Select motor mounts
-         JPanel subpanel = new JPanel(new MigLayout(""));
+         JPanel subPanel = new JPanel(new MigLayout(""));
          JLabel label = new StyledLabel(trans.get("lbl.motorMounts"), Style.BOLD);
-         subpanel.add(label, "wrap");
+         subPanel.add(label, "wrap");
 
          MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(rocket);
-         subpanel.add(mountConfigPanel, "grow");
-         this.add(subpanel, "split, w 300lp, growy");
+         subPanel.add(mountConfigPanel, "grow");
+         this.add(subPanel, "split, w 300lp, growy");
       }
    }
 
