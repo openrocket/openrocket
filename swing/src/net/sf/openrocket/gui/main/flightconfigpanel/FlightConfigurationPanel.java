@@ -185,14 +185,13 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
    }
 
    public void updateButtonState() {
-      ArrayList<FlightConfigurationId> selectedConfigurations = this.motorConfigurationPanel.getSelectedConfigurationIds();
-      int selectedConfigurationsCount = selectedConfigurations.size();
+      int selectedConfigurationsCount = this.motorConfigurationPanel.getSelectedConfigurationIds().size();
 
       int motorMountCount = rocket.accept(new ListMotorMounts()).size();
       int recoveryDeviceCount = rocket.accept(new ListComponents<>(RecoveryDevice.class)).size();
       int stageCount = rocket.getStageCount();
 
-      if (selectedConfigurationsCount == 0) {
+      if ((selectedConfigurationsCount == 0) || (motorMountCount == 0)) {
          newConfButton.setEnabled(motorMountCount > 0);
          removeConfButton.setEnabled(false);
          renameConfButton.setEnabled(false);
