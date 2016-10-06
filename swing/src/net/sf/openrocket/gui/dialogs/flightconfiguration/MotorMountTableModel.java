@@ -63,13 +63,9 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
       return ((column == 0) ? (Boolean) potentialMounts.get(row).isMotorMount() : potentialMounts.get(row).toString());
    }
 
-   @Override
-   public void setValueAt(Object boolValue, int row, int column) {
-      ensureValidRow(row, "MotorMountTableModel.setValueAt()");
-      ensureValidColumn(column, "MotorMountTableModel.setValueAt()");
-
-      potentialMounts.get(row).setMotorMount((Boolean) boolValue);
-      loadListOfPotentialMounts();
+   public void setMotorMount(boolean boolValue, int row) {
+      ensureValidRow(row, "MotorMountTableModel.setMotorMount()");
+      potentialMounts.get(row).setMotorMount(boolValue);
    }
 
    private void loadListOfPotentialMounts() {

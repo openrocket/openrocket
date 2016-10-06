@@ -4,8 +4,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
 import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -15,12 +15,15 @@ import java.awt.event.MouseEvent;
 public class MotorMountConfigurationPanel extends JPanel
 {
    public MotorMountConfigurationPanel(final Rocket rocket) {
-      super(new MigLayout());
+      super(new MigLayout("wrap 2", "[600:pref, fill, grow][20%]"));
 
       JTable table = buildMotorMountTable(rocket);
 
       JScrollPane scroll = new JScrollPane(table);
       this.add(scroll);
+
+      this.setSize(150, 490);
+      this.setPreferredSize(this.getSize());
    }
 
    private JTable buildMotorMountTable(Rocket rocket) {
@@ -30,12 +33,12 @@ public class MotorMountConfigurationPanel extends JPanel
       table.setShowHorizontalLines(true);
       table.setRowSelectionAllowed(false);
       table.setColumnSelectionAllowed(false);
-      table.getColumnModel().getColumn(0).setPreferredWidth(36);
+
+      resizeColumnWidth(table);
+
+      table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
       table.setRowMargin(4);
       table.setRowHeight(30);
-      TableColumnModel tcm = table.getColumnModel();
-      tcm.getColumn(0).setPreferredWidth(50);
-      tcm.getColumn(1).setPreferredWidth(350);
       table.setPreferredScrollableViewportSize(table.getPreferredSize());
       table.addMouseListener(new MouseAdapter()
       {
@@ -47,6 +50,25 @@ public class MotorMountConfigurationPanel extends JPanel
       });
 
       return table;
+   }
+
+   public void resizeColumnWidth(JTable table) {
+      final int minWidth = 35;
+      final int maxWidth = 150;
+
+      final TableColumnModel columnModel = table.getColumnModel();
+      for (int column = 0; column < table.getColumnCount(); column++) {
+         int width = minWidth;
+         for (int row = 0; row < table.getRowCount(); row++) {
+            TableCellRenderer renderer = table.getCellRenderer(row, column);
+            Component comp = table.prepareRenderer(renderer, row, column);
+            width = Math.max(comp.getPreferredSize().width + 1, width);
+         }
+         if (width > maxWidth) {
+            width = maxWidth;
+         }
+         columnModel.getColumn(column).setPreferredWidth(width);
+      }
    }
 
    private void onDataChanged(MouseEvent e) {
@@ -62,15 +84,12 @@ public class MotorMountConfigurationPanel extends JPanel
          int tableRow = table.convertRowIndexToModel(clickedRow);
          int tableCol = table.convertColumnIndexToModel(clickedCol);
          if (booleanColumn == tableCol) {
-            TableModel model = table.getModel();
+            MotorMountTableModel model = (MotorMountTableModel) table.getModel();
             Object value = model.getValueAt(tableRow, booleanColumn);
-            if (!(value instanceof Boolean)) {
-               throw new IllegalStateException("Table value at row=" + tableRow + " col=" +
-                                               booleanColumn + " is not a Boolean, value=" + value);
-            }
-            boolean newValue = !(Boolean) value;
-            model.setValueAt(newValue, tableRow, booleanColumn);
+            model.setMotorMount(!(Boolean) value, tableRow);
          }
+
+         resizeColumnWidth(table);
       }
    }
 }
