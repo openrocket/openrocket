@@ -201,7 +201,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
       } else if (selectedConfigurationsCount == 1) {
          FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
 
-         // Enable the remove/rename/copy buttons only when a configuration is selected.
          removeConfButton.setEnabled(currentId.isValid());
          renameConfButton.setEnabled(currentId.isValid());
          copyConfButton.setEnabled(currentId.isValid());
