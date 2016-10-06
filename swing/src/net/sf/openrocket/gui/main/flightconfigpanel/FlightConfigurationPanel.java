@@ -184,34 +184,51 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
       updateButtonState();
    }
 
-   private void updateButtonState() {
-      FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
-
-      // Enable the remove/rename/copy buttons only when a configuration is selected.
-      removeConfButton.setEnabled(currentId.isValid());
-      renameConfButton.setEnabled(currentId.isValid());
-      copyConfButton.setEnabled(currentId.isValid());
+   public void updateButtonState() {
+      ArrayList<FlightConfigurationId> selectedConfigurations = this.motorConfigurationPanel.getSelectedConfigurationIds();
+      int selectedConfigurationsCount = selectedConfigurations.size();
 
       int motorMountCount = rocket.accept(new ListMotorMounts()).size();
       int recoveryDeviceCount = rocket.accept(new ListComponents<>(RecoveryDevice.class)).size();
       int stageCount = rocket.getStageCount();
 
-      // Enable the new configuration button only when a motor mount is defined.
-      newConfButton.setEnabled(motorMountCount > 0);
+      if (selectedConfigurationsCount == 0) {
+         newConfButton.setEnabled(motorMountCount > 0);
+         removeConfButton.setEnabled(false);
+         renameConfButton.setEnabled(false);
+         copyConfButton.setEnabled(false);
 
-      // Only enable the recovery tab if there is a motor mount and there is a recovery device
-      tabs.setEnabledAt(RECOVERY_TAB_INDEX, motorMountCount > 0 && recoveryDeviceCount > 0);
+      } else if (selectedConfigurationsCount == 1) {
+         FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
 
-      // If the selected tab was the recovery tab, and there is no longer any recovery devices,
-      // switch to the motor tab.
-      if (recoveryDeviceCount == 0 && tabs.getSelectedIndex() == RECOVERY_TAB_INDEX) {
-         tabs.setSelectedIndex(MOTOR_TAB_INDEX);
-      }
+         // Enable the remove/rename/copy buttons only when a configuration is selected.
+         removeConfButton.setEnabled(currentId.isValid());
+         renameConfButton.setEnabled(currentId.isValid());
+         copyConfButton.setEnabled(currentId.isValid());
 
-      tabs.setEnabledAt(SEPARATION_TAB_INDEX, motorMountCount > 0 && stageCount > 1);
+         // Enable the new configuration button only when a motor mount is defined.
+         newConfButton.setEnabled(motorMountCount > 0);
 
-      if (stageCount == 1 && tabs.getSelectedIndex() == SEPARATION_TAB_INDEX) {
-         tabs.setSelectedIndex(MOTOR_TAB_INDEX);
+         // Only enable the recovery tab if there is a motor mount and there is a recovery device
+         tabs.setEnabledAt(RECOVERY_TAB_INDEX, motorMountCount > 0 && recoveryDeviceCount > 0);
+
+         // If the selected tab was the recovery tab, and there is no longer any recovery devices,
+         // switch to the motor tab.
+         if (recoveryDeviceCount == 0 && tabs.getSelectedIndex() == RECOVERY_TAB_INDEX) {
+            tabs.setSelectedIndex(MOTOR_TAB_INDEX);
+         }
+
+         tabs.setEnabledAt(SEPARATION_TAB_INDEX, motorMountCount > 0 && stageCount > 1);
+
+         if (stageCount == 1 && tabs.getSelectedIndex() == SEPARATION_TAB_INDEX) {
+            tabs.setSelectedIndex(MOTOR_TAB_INDEX);
+         }
+
+      } else {  // > 1
+         newConfButton.setEnabled(motorMountCount > 0);
+         removeConfButton.setEnabled(true);
+         renameConfButton.setEnabled(false);
+         copyConfButton.setEnabled(false);
       }
    }
 }

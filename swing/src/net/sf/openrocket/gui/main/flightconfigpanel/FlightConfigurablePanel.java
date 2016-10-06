@@ -29,7 +29,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
    private static final Logger LOGGER = LoggerFactory.getLogger(FlightConfigurablePanel.class);
 
    protected static final Translator trans = Application.getTranslator();
-   protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+   private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
    protected final FlightConfigurationPanel flightConfigurationPanel;
    protected final Rocket rocket;
@@ -106,24 +106,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
    private void installTableListener() {
       table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
       {
-
          @Override
-         public void valueChanged(ListSelectionEvent e) {
-            if (e.getValueIsAdjusting()) {
-               return;
-            }
-//				int firstrow = e.getFirstIndex();
-//				int lastrow = e.getLastIndex();
-//				ListSelectionModel model = (ListSelectionModel) e.getSource();
-//				for( int row = firstrow; row <= lastrow; row ++) {
-//					if ( model.isSelectedIndex(row) ) {
-//						FlightConfigurationID fcid = (FlightConfigurationID) table.getValueAt(row, table.convertColumnIndexToView(0));
-//						FlightConfiguration config = rocket.getConfigurationSet().get(fcid);
-//						return;
-//					}
-//				}
+         public void valueChanged(ListSelectionEvent event) {
+            flightConfigurationPanel.updateButtonState();
          }
-
       });
    }
 
