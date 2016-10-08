@@ -87,13 +87,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		copy.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(separations);
 		return copy;
 	}
-	
-	@Override
-	public double getPositionValue() {
-		mutex.verify();
-		
-		return this.getAxialOffset();
-	}
+
 	
 	/** 
 	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 

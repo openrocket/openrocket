@@ -93,7 +93,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// plus
 			final double parentLength = ((BodyTube)rbc.getParent()).getLength();
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Plus")), "right");
-			DoubleModel offsetModel = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+			DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
 			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
 			panel.add(offsetSpinner, "growx");

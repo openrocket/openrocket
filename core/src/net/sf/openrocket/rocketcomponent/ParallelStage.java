@@ -190,13 +190,6 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 	
 	@Override
-	public double getPositionValue() {
-		mutex.verify();
-		
-		return this.getAxialOffset();
-	}
-	
-	@Override
 	public boolean getAutoRadialOffset(){
 		return this.autoRadialPosition;
 	}

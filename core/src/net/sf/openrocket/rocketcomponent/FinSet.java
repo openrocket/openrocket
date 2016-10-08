@@ -257,24 +257,11 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-	
-	
-	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
-	@Override
-	public void setPositionValue(double value) {
-		super.setPositionValue(value);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
-	
 	
 	public double getTabHeight() {
 		return tabHeight;

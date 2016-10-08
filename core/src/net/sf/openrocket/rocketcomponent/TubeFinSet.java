@@ -227,13 +227,6 @@ public class TubeFinSet extends ExternalComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
-	@Override
-	public void setPositionValue(double value) {
-		super.setPositionValue(value);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
 	@Override
 	public double getComponentVolume() {
 		double or = getOuterRadius();

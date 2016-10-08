@@ -417,7 +417,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedX));
-		double resultantPositionValue = booster.getPositionValue();
+		double resultantPositionValue = booster.getAxialOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " PositionValue: ", resultantPositionValue, equalTo(targetX));
 		double resultantAxialPosition = booster.getAxialOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantAxialPosition, equalTo(targetX));
@@ -450,7 +450,7 @@ public class ParallelStageTest extends BaseTestCase {
 		Coordinate resultantRelativePosition = sustainer.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Sustainer Relative position: ", resultantRelativePosition.x, equalTo(expectedX));
 		double expectedPositionValue = 0;
-		double resultantPositionValue = sustainer.getPositionValue();
+		double resultantPositionValue = sustainer.getAxialOffset();
 		assertThat(" 'setPositionValue()' failed: \n" + treeDump + " Sustainer Position Value: ", resultantPositionValue, equalTo(expectedPositionValue));
 		
 		double expectedAxialOffset = 0;
@@ -486,7 +486,7 @@ public class ParallelStageTest extends BaseTestCase {
 		double resultantAxialOffset = booster.getAxialOffset();
 		assertThat(" 'getAxialPosition()' failed: \n" + treeDump + "  Axial Offset: ", resultantAxialOffset, equalTo(targetOffset));
 		
-		double resultantPositionValue = booster.getPositionValue();
+		double resultantPositionValue = booster.getAxialOffset();
 		assertThat(" 'setPositionValue()' failed: \n" + treeDump + " Position Value: ", resultantPositionValue, equalTo(targetOffset));
 	}
 	
@@ -513,7 +513,7 @@ public class ParallelStageTest extends BaseTestCase {
 		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
-		double resultantPositionValue = booster.getPositionValue();
+		double resultantPositionValue = booster.getAxialOffset();
 		assertThat(" 'setPositionValue()' failed: \n" + treeDump + " Position Value: ", resultantPositionValue, equalTo(targetOffset));
 		
 		double resultantAxialOffset = booster.getAxialOffset();
@@ -542,7 +542,7 @@ public class ParallelStageTest extends BaseTestCase {
 		Coordinate resultantAbsolutePosition = booster.getLocations()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
-		double resultantPositionValue = booster.getPositionValue();
+		double resultantPositionValue = booster.getAxialOffset();
 		assertThat(" 'setPositionValue()' failed: \n" + treeDump + " Position Value: ", resultantPositionValue, equalTo(targetOffset));
 		
 		double resultantAxialOffset = booster.getAxialOffset();

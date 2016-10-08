@@ -350,7 +350,7 @@ public class TestRockets {
 		if (c instanceof InternalComponent) {
 			InternalComponent i = (InternalComponent) c;
 			i.setRelativePosition((Position) randomEnum(Position.class));
-			i.setPositionValue(rnd(0.3));
+			i.setAxialOffset(rnd(0.3));
 		}
 	}
 	
@@ -672,7 +672,7 @@ public class TestRockets {
 			coupler.setThickness( bodyTubeThickness);
 			coupler.setLength(0.03);
 			coupler.setRelativePosition(Position.TOP);
-			coupler.setPositionValue(-1.5);
+			coupler.setAxialOffset(-1.5);
 			boosterTube.addChild(coupler);
 			
 			int finCount = 3;
@@ -683,14 +683,14 @@ public class TestRockets {
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 			finset.setThickness( 0.0032);
 			finset.setRelativePosition(Position.BOTTOM);
-			finset.setPositionValue(1);
+			finset.setAxialOffset(1);
 			finset.setName("Booster Fins");
 			boosterTube.addChild(finset);
 			
 			// Motor mount
 			InnerTube boosterMMT = new InnerTube();
 			boosterMMT.setName("Booster MMT");
-			boosterMMT.setPositionValue(0.005);
+			boosterMMT.setAxialOffset(0.005);
 			boosterMMT.setRelativePosition(Position.BOTTOM);
 			boosterMMT.setOuterRadius(0.019 / 2);
 			boosterMMT.setInnerRadius(0.018 / 2);
@@ -805,7 +805,7 @@ public class TestRockets {
 		
 		mcomp = new MassComponent(0.2, 0.03, 0.045 + 0.060);
 		mcomp.setRelativePosition(Position.TOP);
-		mcomp.setPositionValue(0);
+		mcomp.setAxialOffset(0);
 		
 		// Stage construction
 		rocket.addChild(stage);
@@ -886,25 +886,25 @@ public class TestRockets {
 		coupler.setMassOverridden(true);
 		coupler.setOverrideMass(0.360);
 		coupler.setRelativePosition(Position.BOTTOM);
-		coupler.setPositionValue(-0.14);
+		coupler.setAxialOffset(-0.14);
 		tube1.addChild(coupler);
 		
 		// Parachute
 		MassComponent mass = new MassComponent(0.05, 0.05, 0.280);
 		mass.setRelativePosition(Position.TOP);
-		mass.setPositionValue(0.2);
+		mass.setAxialOffset(0.2);
 		tube1.addChild(mass);
 		
 		// Cord
 		mass = new MassComponent(0.05, 0.05, 0.125);
 		mass.setRelativePosition(Position.TOP);
-		mass.setPositionValue(0.2);
+		mass.setAxialOffset(0.2);
 		tube1.addChild(mass);
 		
 		// Payload
 		mass = new MassComponent(0.40, R, 1.500);
 		mass.setRelativePosition(Position.TOP);
-		mass.setPositionValue(0.25);
+		mass.setAxialOffset(0.25);
 		tube1.addChild(mass);
 		
 		auxfinset = new TrapezoidFinSet();
@@ -917,7 +917,7 @@ public class TestRockets {
 		auxfinset.setThickness(0.008);
 		auxfinset.setCrossSection(CrossSection.AIRFOIL);
 		auxfinset.setRelativePosition(Position.TOP);
-		auxfinset.setPositionValue(0.28);
+		auxfinset.setAxialOffset(0.28);
 		auxfinset.setBaseRotation(Math.PI / 2);
 		tube1.addChild(auxfinset);
 		
@@ -925,7 +925,7 @@ public class TestRockets {
 		coupler.setOuterRadiusAutomatic(true);
 		coupler.setLength(0.28);
 		coupler.setRelativePosition(Position.TOP);
-		coupler.setPositionValue(0.47);
+		coupler.setAxialOffset(0.47);
 		coupler.setMassOverridden(true);
 		coupler.setOverrideMass(0.360);
 		tube2.addChild(coupler);
@@ -933,7 +933,7 @@ public class TestRockets {
 		// Parachute
 		mass = new MassComponent(0.1, 0.05, 0.028);
 		mass.setRelativePosition(Position.TOP);
-		mass.setPositionValue(0.14);
+		mass.setAxialOffset(0.14);
 		tube2.addChild(mass);
 		
 		Bulkhead bulk = new Bulkhead();
@@ -941,13 +941,13 @@ public class TestRockets {
 		bulk.setMassOverridden(true);
 		bulk.setOverrideMass(0.050);
 		bulk.setRelativePosition(Position.TOP);
-		bulk.setPositionValue(0.27);
+		bulk.setAxialOffset(0.27);
 		tube2.addChild(bulk);
 		
 		// Chord
 		mass = new MassComponent(0.1, 0.05, 0.125);
 		mass.setRelativePosition(Position.TOP);
-		mass.setPositionValue(0.19);
+		mass.setAxialOffset(0.19);
 		tube2.addChild(mass);
 		
 		InnerTube inner = new InnerTube();
@@ -965,7 +965,7 @@ public class TestRockets {
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
 		center.setRelativePosition(Position.BOTTOM);
-		center.setPositionValue(0);
+		center.setAxialOffset(0);
 		tube3.addChild(center);
 		
 		center = new CenteringRing();
@@ -975,7 +975,7 @@ public class TestRockets {
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
 		center.setRelativePosition(Position.TOP);
-		center.setPositionValue(0.28);
+		center.setAxialOffset(0.28);
 		tube3.addChild(center);
 		
 		center = new CenteringRing();
@@ -985,7 +985,7 @@ public class TestRockets {
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
 		center.setRelativePosition(Position.TOP);
-		center.setPositionValue(0.83);
+		center.setAxialOffset(0.83);
 		tube3.addChild(center);
 		
 		finset = new TrapezoidFinSet();
@@ -995,7 +995,7 @@ public class TestRockets {
 		finset.setThickness(0.005);
 		finset.setSweep(0.3);
 		finset.setRelativePosition(Position.BOTTOM);
-		finset.setPositionValue(-0.03);
+		finset.setAxialOffset(-0.03);
 		finset.setBaseRotation(Math.PI / 2);
 		tube3.addChild(finset);
 		
@@ -1071,7 +1071,7 @@ public class TestRockets {
 				Parachute upperChute= new Parachute();
 				upperChute.setName("Parachute");
 				upperChute.setRelativePosition(Position.MIDDLE);
-				upperChute.setPositionValue(0.0);
+				upperChute.setAxialOffset(0.0);
 				upperChute.setDiameter(0.3);
 				upperChute.setLineCount(6);
 				upperChute.setLineLength(0.3);
@@ -1081,7 +1081,7 @@ public class TestRockets {
 				ShockCord cord = new ShockCord();
 				cord.setName("Shock Cord");
 				cord.setRelativePosition(Position.BOTTOM);
-				cord.setPositionValue(0.0);
+				cord.setAxialOffset(0.0);
 				cord.setCordLength(0.4);
 		    	upperStageBody.addChild( cord);
 			}
@@ -1116,7 +1116,7 @@ public class TestRockets {
 			coreFins.setName("Core Fins");
 			coreFins.setFinCount(4);
 			coreFins.setRelativePosition(Position.BOTTOM);
-			coreFins.setPositionValue(0.0);
+			coreFins.setAxialOffset(0.0);
 			coreFins.setBaseRotation( Math.PI / 4);
 			coreFins.setThickness(0.003);
 			coreFins.setCrossSection(CrossSection.ROUNDED);

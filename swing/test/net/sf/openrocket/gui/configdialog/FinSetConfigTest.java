@@ -4,15 +4,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class FinSetConfigTest extends BaseTestCase {
 
@@ -56,11 +56,11 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
         ring1.setRelativePosition(RocketComponent.Position.TOP);
-        ring1.setPositionValue(0.43);
+        ring1.setAxialOffset(0.43);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
         ring2.setRelativePosition(RocketComponent.Position.TOP);
-        ring2.setPositionValue(0.45);
+        ring2.setAxialOffset(0.45);
         rings.add(ring1);
         rings.add(ring2);
         parent.addChild(ring1);
@@ -82,7 +82,7 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
         ring1.setRelativePosition(RocketComponent.Position.TOP);
-        ring1.setPositionValue(0.43);
+        ring1.setAxialOffset(0.43);
         rings.add(ring1);
 
         RocketComponent parent = new BodyTube();
@@ -103,11 +103,11 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.43);
+        ring1.setAxialOffset(0.43);
         CenteringRing ring2 = new CenteringRing();
         ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
-        ring2.setPositionValue(0.45);
+        ring2.setAxialOffset(0.45);
         rings.add(ring1);
         rings.add(ring2);
 
@@ -130,11 +130,11 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.43);
+        ring1.setAxialOffset(0.43);
         CenteringRing ring2 = new CenteringRing();
         ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
-        ring2.setPositionValue(0.48);
+        ring2.setAxialOffset(0.48);
         rings.add(ring1);
         rings.add(ring2);
 
@@ -155,11 +155,11 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.4701);
+        ring1.setAxialOffset(0.4701);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
         ring2.setRelativePosition(RocketComponent.Position.TOP);
-        ring2.setPositionValue(0.48);
+        ring2.setAxialOffset(0.48);
         rings.add(ring1);
         rings.add(ring2);
         RocketComponent parent = new BodyTube(1.0d, 0.1d);
@@ -181,12 +181,12 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.4701);
+        ring1.setAxialOffset(0.4701);
         parent.addChild(ring1);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
         ring2.setRelativePosition(RocketComponent.Position.TOP);
-        ring2.setPositionValue(0.4750);
+        ring2.setAxialOffset(0.4750);
         parent.addChild(ring2);
         rings.add(ring1);
         rings.add(ring2);
@@ -207,11 +207,11 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.48);
+        ring1.setAxialOffset(0.48);
         CenteringRing ring2 = new CenteringRing();
         ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
-        ring2.setPositionValue(0.49);
+        ring2.setAxialOffset(0.49);
         rings.add(ring1);
         rings.add(ring2);
         RocketComponent parent = new BodyTube(1.0d, 0.1d);
@@ -233,20 +233,20 @@ public class FinSetConfigTest extends BaseTestCase {
         CenteringRing ring1 = new CenteringRing();
         ring1.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring1.setLength(0.004);
-        ring1.setPositionValue(0.47);
+        ring1.setAxialOffset(0.47);
         CenteringRing ring2 = new CenteringRing();
         ring2.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring2.setLength(0.004);
-        ring2.setPositionValue(0.4702);
+        ring2.setAxialOffset(0.4702);
         CenteringRing ring3 = new CenteringRing();
         ring3.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring3.setLength(0.004);
-        ring3.setPositionValue(0.4770);
+        ring3.setAxialOffset(0.4770);
         rings.add(ring1);
         rings.add(ring2);
         rings.add(ring3);
         BodyTube parent = new BodyTube(1.0d, 0.1d);
-        parent.setPositionValue(0);
+        parent.setAxialOffset(0);
         parent.addChild(ring1);
         parent.addChild(ring2);
         parent.addChild(ring3);
