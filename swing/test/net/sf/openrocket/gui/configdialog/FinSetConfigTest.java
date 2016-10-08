@@ -1,5 +1,13 @@
 package net.sf.openrocket.gui.configdialog;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +76,7 @@ public class FinSetConfigTest extends BaseTestCase {
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
-        
+
     }
 
     /**
@@ -168,7 +176,7 @@ public class FinSetConfigTest extends BaseTestCase {
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.0059, result.doubleValue(), 0.0001);
     }
-    
+
     /**
      * Test both rings within the root chord.
      */

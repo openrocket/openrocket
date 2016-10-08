@@ -27,15 +27,15 @@ import net.sf.openrocket.util.MathUtil;
 public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
-	
+
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
-	
+
 	private double overhang = 0;
 	private boolean isActingMount;
 	private MotorConfigurationSet motors;
-	
+
 	/**
 	 * Main constructor.
 	 */
@@ -44,40 +44,40 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setOuterRadius(0.019 / 2);
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
-		
+
 		motors = new MotorConfigurationSet(this);
 	}
-	
-	
+
+
 	@Override
 	public double getInnerRadius(double x) {
 		return getInnerRadius();
 	}
-	
-	
+
+
 	@Override
 	public double getOuterRadius(double x) {
 		return getOuterRadius();
 	}
-	
-	
+
+
 	@Override
 	public String getComponentName() {
 		//// Inner Tube
 		return trans.get("InnerTube.InnerTube");
 	}
-	
+
 	@Override
 	public String getPatternName() {
 		return this.cluster.getXMLName();
 	}
-	
+
 
 	@Override
 	public boolean allowsChildren() {
 		return true;
 	}
-	
+
 	/**
 	 * Allow all InternalComponents to be added to this component.
 	 */
@@ -85,12 +85,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return InternalComponent.class.isAssignableFrom(type);
 	}
-	
+
 	@Override
 	public ComponentPreset.Type getPresetType() {
 		return ComponentPreset.Type.BODY_TUBE;
 	}
-	
+
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
@@ -101,15 +101,15 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 				this.thickness = (outerDiameter - innerDiameter) / 2.0;
 			}
 		}
-		
+
 		super.loadFromPreset(preset);
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+
 	/////////////  Cluster methods  //////////////
-	
+
 	/**
 	 * Get the current cluster configuration.
 	 * @return  The current cluster configuration.
@@ -118,22 +118,19 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public ClusterConfiguration getClusterConfiguration() {
 		return cluster;
 	}
-	
+
 	/**
 	 * Set the current cluster configuration.
 	 * @param cluster  The cluster configuration.
 	 */
 	@Override
 	public void setClusterConfiguration( final ClusterConfiguration cluster) {
-		if( cluster == this.cluster){
-			// no change
-			return;
-		}else{
+		if( cluster != this.cluster){
 			this.cluster = cluster;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		}
 	}
-	
+
 	/**
 	 * Return the number of tubes in the cluster.
 	 * @return Number of tubes in the current cluster.
@@ -142,19 +139,19 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public int getClusterCount() {
 		return cluster.getClusterCount();
 	}
-	
+
 	@Override
 	public int getInstanceCount() {
 		return this.getLocations().length;
 	}
-	
+
 	@Override
 	public void setInstanceCount( final int newCount ){
 		log.error("Programmer Error:  cannot set the instance count of an InnerTube directly."+
 				"  Please set setClusterConfiguration(ClusterConfiguration) instead.",
 				new UnsupportedOperationException("InnerTube.setInstanceCount(..) on an"+this.getClass().getSimpleName()));
 	}
-	
+
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
 	 * touching each other, larger values separate the tubes and smaller values
@@ -163,12 +160,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public double getClusterScale() {
 		return clusterScale;
 	}
-	
+
 	@Override
-	public boolean isAfter(){ 
+	public boolean isAfter(){
 		return false;
 	}
-	
+
 	/**
 	 * Set the cluster scaling.
 	 * @see #getClusterScale()
@@ -180,17 +177,17 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		clusterScale = scale;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 	}
-	
-	
-	
+
+
+
 	/**
 	 * @return the clusterRotation
 	 */
 	public double getClusterRotation() {
 		return clusterRotation;
 	}
-	
-	
+
+
 	/**
 	 * @param rotation the clusterRotation to set
 	 */
@@ -201,8 +198,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.clusterRotation = rotation;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	/**
 	 * Return the distance between the closest two cluster inner tube center points.
 	 * This is equivalent to the cluster scale multiplied by the tube diameter.
@@ -211,10 +208,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	public double getClusterSeparation() {
 		return 2 * getOuterRadius() * clusterScale;
 	}
-	
-	
+
+
 	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(getClusterCount());
+		List<Coordinate> list = new ArrayList<>(getClusterCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
 		for (int i = 0; i < points.size() / 2; i++) {
@@ -222,37 +219,37 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		}
 		return list;
 	}
-	
+
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		
+
 		int instanceCount = getClusterCount();
 		if (instanceCount == 1)
 			return super.getInstanceOffsets();
-		
+
 		List<Coordinate> points = getClusterPoints();
 		if (points.size() != instanceCount) {
 			throw new BugException("Inconsistent cluster configuration, cluster count(" + instanceCount +
 					") != point count(" + points.size()+")");
 		}
-		
-		 
+
+
 		Coordinate[] newArray = new Coordinate[ instanceCount];
 		for (int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++) {
 			newArray[ instanceNumber] = this.position.add( points.get(instanceNumber));
 		}
-		
+
 		return newArray;
 	}
-	
+
 //	@Override
 //	protected Coordinate[] shiftCoordinates(Coordinate[] array) {
 //		array = super.shiftCoordinates(array);
-//		
+//
 //		int count = getClusterCount();
 //		if (count == 1)
 //			return array;
-//		
+//
 //		List<Coordinate> points = getClusterPoints();
 //		if (points.size() != count) {
 //			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
@@ -264,23 +261,23 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 //				newArray[i * count + j] = array[i].add(points.get(j));
 //			}
 //		}
-//		
+//
 //		return newArray;
 //	}
-	
+
 	////////////////  Motor mount  /////////////////
 
 	@Override
 	public MotorConfiguration getDefaultMotorConfig(){
 		return this.motors.getDefault();
 	}
-		
+
 	@Override
 	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid){
 		return this.motors.get(fcid);
 	}
 
-	@Override 
+	@Override
 	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
 		if((null == newMotorConfig)){
 			this.motors.set( fcid, null);
@@ -288,7 +285,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 			if( this != newMotorConfig.getMount() ){
 				throw new BugException(" attempt to add a MotorConfig to a second mount!");
 			}
-			
+
 			this.motors.set(fcid, newMotorConfig);
 		}
 
@@ -297,56 +294,57 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		// this is done automatically in the motorSet
 		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-	
+
 	@Override
 	public Iterator<MotorConfiguration> getMotorIterator(){
 		return this.motors.iterator();
 	}
-	
+
 	@Override
 	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		motors.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
-	
+
 	@Override
 	public void reset( final FlightConfigurationId fcid){
 		this.motors.reset(fcid);
 	}
-	
+
 	@Override
     public void setMotorMount(boolean _active){
     	if (this.isActingMount == _active)
     		return;
     	this.isActingMount = _active;
+		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
 	public boolean isMotorMount(){
 		return this.isActingMount;
 	}
-	
+
 	@Override
 	public boolean hasMotor() {
 		// the default MotorInstance is the EMPTY_INSTANCE.  If we have more than that, then the other instance will have a motor.
 		return ( 1 < this.motors.size());
 	}
-	
+
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
-	
+
 	@Override
 	public int getMotorCount() {
 		return this.motors.size();
 	}
-	
-	
+
+
 	@Override
 	public double getMotorOverhang() {
 		return overhang;
 	}
-	
+
 	@Override
 	public void setMotorOverhang(double overhang) {
 		if (MathUtil.equals(this.overhang, overhang))
@@ -354,17 +352,17 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+
 	@Override
 	public Coordinate getMotorPosition(FlightConfigurationId id) {
 		Motor motor = motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
-		
+
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
-	
+
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
@@ -374,13 +372,13 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		if( copy.motors == this.motors ){
 			new IllegalArgumentException(" copyWithOriginalID should produce different motorSet instances! ");
 		}
-		
+
 		copy.motors = new MotorConfigurationSet( this.motors, copy );
-		
+
 		return copy;
 	}
 
-	
+
 	/**
 	 * For a given coordinate that represents one tube in a cluster, create an instance of that tube.  Must be called
 	 * once for each tube in the cluster.
@@ -401,10 +399,10 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		copy.setName(splitName);
 		return copy;
 	}
-	
+
 	@Override
 	public String toMotorDebug( ){
 		return this.motors.toDebug();
 	}
-	
+
 }
