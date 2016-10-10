@@ -6,6 +6,7 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+@SuppressWarnings("serial")
 public class XTableColumnModel extends DefaultTableColumnModel {
 	
 	/** Array of TableColumn objects in this model.

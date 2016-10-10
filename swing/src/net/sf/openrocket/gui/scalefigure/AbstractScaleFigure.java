@@ -10,21 +10,22 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
 @SuppressWarnings("serial")
-public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure {
+public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure /*, Scrollable */ {
 	
 	// Number of pixels to leave at edges when fitting figure
 	private static final int DEFAULT_BORDER_PIXELS_WIDTH = 30;
 	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
 	
 	
-	protected final double dpi;
+	protected final double base_scale;
 	
 	protected double scale = 1.0;
-	protected double scaling = 1.0;
+	protected double zoom = 1.0;
 	
 	protected int borderPixelsWidth = DEFAULT_BORDER_PIXELS_WIDTH;
 	protected int borderPixelsHeight = DEFAULT_BORDER_PIXELS_HEIGHT;
@@ -33,9 +34,10 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	
 	public AbstractScaleFigure() {
-		this.dpi = GUIUtil.getDPI();
-		this.scaling = 1.0;
-		this.scale = dpi / 0.0254 * scaling;
+		// this result in a dots-per-meter scale factor 
+		this.base_scale = GUIUtil.getDPI() * INCHES_PER_METER;
+		this.zoom = 1.0;
+		this.scale = base_scale * zoom;
 		
 		setBackground(Color.WHITE);
 		setOpaque(true);
@@ -49,10 +51,9 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	public abstract double getFigureHeight();
 	
-	
 	@Override
-	public double getScaling() {
-		return scaling;
+	public double getZoom() {
+		return zoom;
 	}
 	
 	@Override
@@ -61,22 +62,22 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	}
 	
 	@Override
-	public void setScaling(double scaling) {
-		if (Double.isInfinite(scaling) || Double.isNaN(scaling))
-			scaling = 1.0;
-		if (scaling < 0.001)
-			scaling = 0.001;
-		if (scaling > 1000)
-			scaling = 1000;
-		if (Math.abs(this.scaling - scaling) < 0.01)
-			return;
-		this.scaling = scaling;
-		this.scale = dpi / 0.0254 * scaling;
+	public void setZoom(double zoom) {
+		if (Double.isInfinite(zoom) || Double.isNaN(zoom)){
+			return;}
+		
+		zoom = MathUtil.clamp( zoom, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		
+		if (Math.abs(this.zoom - zoom) < 0.01){
+			return;}
+		
+		this.zoom = zoom;
+		this.scale = base_scale * zoom;
 		updateFigure();
 	}
 	
-	@Override
-	public void setScaling(Dimension bounds) {
+	@Override 
+	public void zoomToSize( Dimension bounds ){
 		double zh = 1, zv = 1;
 		int w = bounds.width - 2 * borderPixelsWidth - 20;
 		int h = bounds.height - 2 * borderPixelsHeight - 20;
@@ -89,17 +90,17 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		zh = (w) / getFigureWidth();
 		zv = (h) / getFigureHeight();
 		
-		double s = Math.min(zh, zv) / dpi * 0.0254 - 0.001;
+		double s = Math.min(zh, zv) / base_scale - 0.001;
 		
 		// Restrict to 100%
 		if (s > 1.0) {
 			s = 1.0;
 		}
 		
-		setScaling(s);
+		setZoom(s);
 	}
 	
-	
+
 	@Override
 	public Dimension getBorderPixels() {
 		return new Dimension(borderPixelsWidth, borderPixelsHeight);
@@ -136,4 +137,39 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		}
 	}
 	
+
+	
+	// ======  ====== 'Scrollable' interface methods ====== ====== 
+
+	
+//	// this is anti-climactic.  is it useful? does it drive any behavior we couldn't get before? 
+//	@Override
+//	public Dimension getPreferredScrollableViewportSize() {
+//		return getPreferredSize();
+//	}
+//
+//	@Override
+//	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+//		return 100;
+//	}
+//
+//
+//	@Override
+//	public boolean getScrollableTracksViewportHeight() {
+//		return false;
+//	}
+//
+//
+//	@Override
+//	public boolean getScrollableTracksViewportWidth() {
+//		return false;
+//	}
+//
+//
+//	@Override
+//	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+//		return 10;
+//	}
+	
+
 }

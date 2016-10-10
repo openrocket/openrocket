@@ -20,6 +20,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class LicenseDialog extends JDialog {
 	private static final String LICENSE_FILENAME = "LICENSE.TXT";
 	private static final Translator trans = Application.getTranslator();

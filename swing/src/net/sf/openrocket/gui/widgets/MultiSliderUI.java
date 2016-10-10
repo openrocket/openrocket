@@ -474,7 +474,7 @@ class MultiSliderUI extends BasicSliderUI {
 				if (bounded) {
 					int[] neighbours = new int[2];
 					int idx = -1;
-					int diff = e.getY() - firstXY[1];
+					//int diff = e.getY() - firstXY[1];
 					//System.out.println("diff = " + diff);
 					if (e.getY() - firstXY[1] > 0) {
 						idx = minmaxIndices[0];
@@ -566,6 +566,7 @@ class MultiSliderUI extends BasicSliderUI {
 	/***
 	 * A static version of the above.
 	 */
+	@SuppressWarnings("serial")
 	static class SharedActionScroller extends AbstractAction {
 		int _dir;
 		boolean _block;

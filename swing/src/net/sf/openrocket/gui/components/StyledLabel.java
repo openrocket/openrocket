@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
+@SuppressWarnings("serial")
 public class StyledLabel extends JLabel {
 	
 	public enum Style {

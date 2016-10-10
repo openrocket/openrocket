@@ -9,7 +9,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 
-
+@SuppressWarnings("serial")
 public class ThicknessRingComponentConfig extends RingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	

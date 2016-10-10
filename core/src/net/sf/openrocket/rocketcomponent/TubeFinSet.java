@@ -267,14 +267,9 @@ public class TubeFinSet extends ExternalComponent {
 		}
 		
 		// translate each to the center of mass.
-		final double hypot = getOuterRadius() + getBodyRadius();
-		final double finrotation = 2 * Math.PI / fins;
-		double angularoffset = 0.0;
 		double totalInertia = 0.0;
 		for (int i = 0; i < fins; i++) {
-			double offset = hypot * Math.cos(angularoffset);
-			totalInertia += inertia + MathUtil.pow2(offset);
-			angularoffset += finrotation;
+			totalInertia += inertia + MathUtil.pow2( this.x_offset);
 		}
 		return totalInertia;
 	}

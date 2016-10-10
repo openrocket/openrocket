@@ -24,7 +24,7 @@ import java.util.Enumeration;
 public class RotationLogger {
 	private static final boolean DEBUG = false;
 	
-	private static final int BYTES = 65536; 
+	private static final int BUFFER_SIZE = 65536; 
 	
 	
 	private final CommPortIdentifier portID;
@@ -80,7 +80,7 @@ public class RotationLogger {
 	public void readData() throws IOException, PortInUseException {
 		int c;
 		
-		int[] data = new int[BYTES];
+		int[] data = new int[BUFFER_SIZE];
 		
 		FileOutputStream rawdump = null;
 		
@@ -122,9 +122,9 @@ public class RotationLogger {
 
 			byte[] buffer = new byte[1024];
 			int printCount = 0;
-			for (int count=0; count < BYTES; ) {
-				if ((BYTES-count) < buffer.length) {
-					buffer = new byte[BYTES-count];
+			for (int count=0; count < BUFFER_SIZE; ) {
+				if ((BUFFER_SIZE-count) < buffer.length) {
+					buffer = new byte[BUFFER_SIZE-count];
 				}
 				
 				int n = is.read(buffer);
@@ -195,7 +195,7 @@ public class RotationLogger {
 			int n = (lastBuffer + i) % 4;
 			int bufNumber = 4-i;
 			
-			convertBuffer(data, n * (BYTES/4), bufNumber);
+			convertBuffer(data, n * (BUFFER_SIZE/4), bufNumber);
 		}
 		
 	}
@@ -297,32 +297,36 @@ public class RotationLogger {
 	
 	public static void main(String[] arg) throws Exception {
 		
+		
 		if (arg.length > 2) {
 			System.err.println("Illegal arguments.");
 			return;
 		}
 		if (arg.length == 1) {
 			FileInputStream is = new FileInputStream(arg[0]);
-			byte[] buffer = new byte[BYTES];
-			int n = is.read(buffer);
-			if (n != BYTES) {
-				System.err.println("Could read only "+n+" bytes");
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int bytesReadCount = is.read(buffer);
+			if (bytesReadCount != BUFFER_SIZE) {
+				System.err.println("Could read only "+bytesReadCount+" bytes");
+				is.close();
 				return;
 			}
 			
-			int[] data = new int[BYTES];
-			for (int i=0; i<BYTES; i++) {
+			int[] data = new int[BUFFER_SIZE];
+			for (int i=0; i<BUFFER_SIZE; i++) {
 				data[i] = unsign(buffer[i]);
 			}
 
 			int checksum=0;
-			for (int i=0; i<BYTES; i++) {
+			for (int i=0; i<BUFFER_SIZE; i++) {
 				checksum += data[i];
 			}
 			checksum = checksum%256;
 			System.err.println("Checksum: "+checksum);
 			
 			convertData(data);
+			
+			is.close();
 			return;			
 		}
 		
@@ -339,7 +343,7 @@ public class RotationLogger {
 			System.err.println("Device not found.");
 			return;
 		}
-		
+
 		
 		System.err.println("Selected device "+device);
 		

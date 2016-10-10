@@ -54,9 +54,11 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 		}
 		final String[] parts = s.split("\\|");
 		
+		@SuppressWarnings("unused")
 		boolean interpolate = false;
 		boolean flipr = false;
 		boolean flips = false;
+		@SuppressWarnings("unused")
 		boolean flipt = false;
 		
 		

@@ -20,6 +20,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class ImageDisplayComponent extends JPanel {
 	
 	private BufferedImage image;

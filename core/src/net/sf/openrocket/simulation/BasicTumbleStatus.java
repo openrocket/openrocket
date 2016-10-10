@@ -55,7 +55,7 @@ public class BasicTumbleStatus extends SimulationStatus {
 			}
 			if (component instanceof FinSet) {
 				
-				double finComponent = ((FinSet) component).getFinArea();
+				double finComponent = ((FinSet) component).getFinWettedArea();
 				int finCount = ((FinSet) component).getFinCount();
 				// check bounds on finCount.
 				if (finCount >= finEff.length) {

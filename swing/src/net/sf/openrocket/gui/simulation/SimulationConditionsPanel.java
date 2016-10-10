@@ -27,6 +27,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
+@SuppressWarnings("serial")
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 	

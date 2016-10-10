@@ -30,6 +30,11 @@ public abstract class ComponentAssembly extends RocketComponent {
 	public ComponentAssembly() {
 		super(RocketComponent.Position.AFTER);
 	}
+
+	@Override
+	public boolean allowsChildren() {
+		return true;
+	}
 	
 	@Override
 	public double getAxialOffset() {
@@ -49,7 +54,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	 */
 	@Override
 	public Coordinate getComponentCG() {
-		return Coordinate.NUL;
+		return Coordinate.ZERO;
 	}
 	
 	/**
@@ -122,10 +127,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	@Override
 	public void setAxialOffset(final double _pos) {
 		this.updateBounds();
-		//		System.err.println("updating axial position for boosters: " + this.getName() + " ( " + this.getComponentName() + ")");
-		//		System.err.println("       requesting offset: " + _pos + " via: " + this.relativePosition.name());
 		super.setAxialOffset(this.relativePosition, _pos);
-		//		System.err.println("       resultant offset: " + this.position.x + " via: " + this.relativePosition.name());
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

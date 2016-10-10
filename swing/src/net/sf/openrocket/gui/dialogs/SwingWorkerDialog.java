@@ -32,6 +32,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class SwingWorkerDialog extends JDialog implements PropertyChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(SwingWorkerDialog.class);
 	private static final Translator trans = Application.getTranslator();

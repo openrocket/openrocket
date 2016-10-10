@@ -36,6 +36,7 @@ public class AnnotationFinderImpl implements AnnotationFinder {
 				 * use the URLs from there, as java.class.path may not be up-to-date.
 				 */
 				
+				@SuppressWarnings("resource") // this method does not own resource
 				URLClassLoader urlClassLoader = (URLClassLoader) loader;
 				URL[] urls = urlClassLoader.getURLs();
 				

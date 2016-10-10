@@ -36,7 +36,7 @@ public class FinRenderer {
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
 		gl.glScaled(1 / (maxX - minX), 1 / (maxY - minY), 0);
-		gl.glTranslated(-minX, -minY - fs.getBodyRadius(), 0);
+		gl.glTranslated(-minX, -minY - fs.getBodyRadius(0), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 		gl.glRotated(fs.getBaseRotation() * (180.0 / Math.PI), 1, 0, 0);
@@ -77,7 +77,7 @@ public class FinRenderer {
 			gl.glNormal3f(0, 0, 1);
 			for (int i = finPoints.length - 1; i >= 0; i--) {
 				Coordinate c = finPoints[i];
-				double[] p = new double[] { c.x, c.y + fs.getBodyRadius(),
+				double[] p = new double[] { c.x, c.y + fs.getBodyRadius(0),
 						c.z + fs.getThickness() / 2.0 };
 				GLU.gluTessVertex(tobj, p, 0, p);
 				
@@ -90,7 +90,7 @@ public class FinRenderer {
 			gl.glNormal3f(0, 0, -1);
 			for (int i = 0; i < finPoints.length; i++) {
 				Coordinate c = finPoints[i];
-				double[] p = new double[] { c.x, c.y + fs.getBodyRadius(),
+				double[] p = new double[] { c.x, c.y + fs.getBodyRadius(0),
 						c.z - fs.getThickness() / 2.0 };
 				GLU.gluTessVertex(tobj, p, 0, p);
 				
@@ -109,10 +109,10 @@ public class FinRenderer {
 						% finPoints.length];
 				gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
 				// }
-				gl.glTexCoord2d(c.x, c.y + fs.getBodyRadius());
-				gl.glVertex3d(c.x, c.y + fs.getBodyRadius(),
+				gl.glTexCoord2d(c.x, c.y + fs.getBodyRadius(0));
+				gl.glVertex3d(c.x, c.y + fs.getBodyRadius(0),
 						c.z - fs.getThickness() / 2.0);
-				gl.glVertex3d(c.x, c.y + fs.getBodyRadius(),
+				gl.glVertex3d(c.x, c.y + fs.getBodyRadius(0),
 						c.z + fs.getThickness() / 2.0);
 			}
 			gl.glEnd();

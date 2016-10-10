@@ -274,7 +274,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
 				if( state.testForIgnition(event )){
-					final double simulationTime = currentStatus.getSimulationTime() ;
 					MotorClusterState sourceState = (MotorClusterState) event.getData();
 					double ignitionDelay = 0;
 					if(( event.getType() == FlightEvent.Type.BURNOUT)|| ( event.getType() == FlightEvent.Type.EJECTION_CHARGE)){

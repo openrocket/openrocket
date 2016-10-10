@@ -27,9 +27,10 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class NoseConeConfig extends RocketComponentConfig {
 	
-	private JComboBox typeBox;
+	private JComboBox<Transition.Shape> typeBox;
 	
 	private DescriptionArea description;
 	
@@ -54,7 +55,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 		Transition.Shape selected = ((NoseCone) component).getType();
 		Transition.Shape[] typeList = Transition.Shape.values();
 		
-		typeBox = new JComboBox(typeList);
+		typeBox = new JComboBox<Transition.Shape>(typeList);
 		typeBox.setEditable(false);
 		typeBox.setSelectedItem(selected);
 		typeBox.addActionListener(new ActionListener() {
