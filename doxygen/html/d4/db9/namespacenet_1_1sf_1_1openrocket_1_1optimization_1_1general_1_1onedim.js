@@ -1,0 +1,4 @@
+var namespacenet_1_1sf_1_1openrocket_1_1optimization_1_1general_1_1onedim =
+[
+    [ "GoldenSectionSearchOptimizer", "db/d87/classnet_1_1sf_1_1openrocket_1_1optimization_1_1general_1_1onedim_1_1_golden_section_search_optimizer.html", "db/d87/classnet_1_1sf_1_1openrocket_1_1optimization_1_1general_1_1onedim_1_1_golden_section_search_optimizer" ]
+];

@@ -1,0 +1,27 @@
+var classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter =
+[
+    [ "BaseMenuPresenter", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a3f6fd067e1647d30351639474787a6c5", null ],
+    [ "addItemView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a9020e35db9efcb03aff387fb3738168c", null ],
+    [ "bindItemView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#aed453c6c687191763b051da32063d078", null ],
+    [ "collapseItemActionView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a3697bdf71444fb2c651f003fce5160a8", null ],
+    [ "createItemView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a3131d78d48724405b114f923c5f34300", null ],
+    [ "expandItemActionView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a7aa4d06f532183d3b946f7c126b33e39", null ],
+    [ "filterLeftoverView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a4a142e1f526204c92cd05234c57532d0", null ],
+    [ "flagActionItems", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a353a20f4c1b0021c8a45ca61351d0ed2", null ],
+    [ "getId", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#ac7cc1e95e44989cf55cb55cc5132d671", null ],
+    [ "getItemView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#adc0372dd450631e3ee44001b92d3ff01", null ],
+    [ "getMenuView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#ac81f152d5afff81eba7189b15b3017b4", null ],
+    [ "initForMenu", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#abb3f7cd196e1122b54ab48eaf21492e4", null ],
+    [ "onCloseMenu", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a09b6e688318c8fb0f2048c5b660d0770", null ],
+    [ "onSubMenuSelected", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#ab59500b7dcb65f5d5b33219647673565", null ],
+    [ "setCallback", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a47106751ce021920714971907974a68e", null ],
+    [ "setId", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a288b37c791fd40df5e63e328ed605588", null ],
+    [ "shouldIncludeItem", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a45725ef4774c48ba329a2454936c2d3e", null ],
+    [ "updateMenuView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a4c6052f5b6e60526abe581dc1a9c31b6", null ],
+    [ "mContext", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a68209c272ada1662c5261289e9281007", null ],
+    [ "mInflater", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a564011c1af1d2e042ff921dd85eb28f3", null ],
+    [ "mMenu", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#ab7942eab2d9fdab6a806adc8cc05c03e", null ],
+    [ "mMenuView", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a288d6b2308c6dd22d4f7a9150ab543e1", null ],
+    [ "mSystemContext", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#ac80f573796d0505d604f69b06859427b", null ],
+    [ "mSystemInflater", "dc/d6d/classcom_1_1actionbarsherlock_1_1internal_1_1view_1_1menu_1_1_base_menu_presenter.html#a871f00ab09f9e5ecb965070102619c1f", null ]
+];

@@ -1,0 +1,27 @@
+var namespacenet_1_1sf_1_1openrocket_1_1file =
+[
+    [ "configuration", "d6/d55/namespacenet_1_1sf_1_1openrocket_1_1file_1_1configuration.html", "d6/d55/namespacenet_1_1sf_1_1openrocket_1_1file_1_1configuration" ],
+    [ "iterator", "d3/d4a/namespacenet_1_1sf_1_1openrocket_1_1file_1_1iterator.html", "d3/d4a/namespacenet_1_1sf_1_1openrocket_1_1file_1_1iterator" ],
+    [ "motor", "de/dc2/namespacenet_1_1sf_1_1openrocket_1_1file_1_1motor.html", "de/dc2/namespacenet_1_1sf_1_1openrocket_1_1file_1_1motor" ],
+    [ "openrocket", "dd/d3e/namespacenet_1_1sf_1_1openrocket_1_1file_1_1openrocket.html", "dd/d3e/namespacenet_1_1sf_1_1openrocket_1_1file_1_1openrocket" ],
+    [ "rocksim", "d1/dcb/namespacenet_1_1sf_1_1openrocket_1_1file_1_1rocksim.html", "d1/dcb/namespacenet_1_1sf_1_1openrocket_1_1file_1_1rocksim" ],
+    [ "simplesax", "dd/d52/namespacenet_1_1sf_1_1openrocket_1_1file_1_1simplesax.html", "dd/d52/namespacenet_1_1sf_1_1openrocket_1_1file_1_1simplesax" ],
+    [ "AbstractRocketLoader", "df/d69/classnet_1_1sf_1_1openrocket_1_1file_1_1_abstract_rocket_loader.html", "df/d69/classnet_1_1sf_1_1openrocket_1_1file_1_1_abstract_rocket_loader" ],
+    [ "AttachmentFactory", "d5/d3e/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_attachment_factory.html", "d5/d3e/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_attachment_factory" ],
+    [ "AttachmentUtils", "d5/d25/classnet_1_1sf_1_1openrocket_1_1file_1_1_attachment_utils.html", null ],
+    [ "CSVExport", "df/dbf/classnet_1_1sf_1_1openrocket_1_1file_1_1_c_s_v_export.html", null ],
+    [ "DatabaseMotorFinder", "d6/d4b/classnet_1_1sf_1_1openrocket_1_1file_1_1_database_motor_finder.html", "d6/d4b/classnet_1_1sf_1_1openrocket_1_1file_1_1_database_motor_finder" ],
+    [ "DatabaseMotorFinderWithMissingMotors", "da/dd2/classnet_1_1sf_1_1openrocket_1_1file_1_1_database_motor_finder_with_missing_motors.html", "da/dd2/classnet_1_1sf_1_1openrocket_1_1file_1_1_database_motor_finder_with_missing_motors" ],
+    [ "DocumentLoadingContext", "dd/d03/classnet_1_1sf_1_1openrocket_1_1file_1_1_document_loading_context.html", "dd/d03/classnet_1_1sf_1_1openrocket_1_1file_1_1_document_loading_context" ],
+    [ "FileSystemAttachmentFactory", "da/d34/classnet_1_1sf_1_1openrocket_1_1file_1_1_file_system_attachment_factory.html", "da/d34/classnet_1_1sf_1_1openrocket_1_1file_1_1_file_system_attachment_factory" ],
+    [ "GeneralRocketLoader", "de/dcd/classnet_1_1sf_1_1openrocket_1_1file_1_1_general_rocket_loader.html", "de/dcd/classnet_1_1sf_1_1openrocket_1_1file_1_1_general_rocket_loader" ],
+    [ "GeneralRocketSaver", "d0/d22/classnet_1_1sf_1_1openrocket_1_1file_1_1_general_rocket_saver.html", "d0/d22/classnet_1_1sf_1_1openrocket_1_1file_1_1_general_rocket_saver" ],
+    [ "Loader", "d5/d95/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_loader.html", "d5/d95/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_loader" ],
+    [ "MotorFinder", "d5/dba/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_motor_finder.html", "d5/dba/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_motor_finder" ],
+    [ "RocketLoader", "d8/dac/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_rocket_loader.html", "d8/dac/interfacenet_1_1sf_1_1openrocket_1_1file_1_1_rocket_loader" ],
+    [ "RocketLoadException", "d3/d3e/classnet_1_1sf_1_1openrocket_1_1file_1_1_rocket_load_exception.html", "d3/d3e/classnet_1_1sf_1_1openrocket_1_1file_1_1_rocket_load_exception" ],
+    [ "RocketSaver", "d6/d07/classnet_1_1sf_1_1openrocket_1_1file_1_1_rocket_saver.html", "d6/d07/classnet_1_1sf_1_1openrocket_1_1file_1_1_rocket_saver" ],
+    [ "TipShapeCode", "d4/d9e/classnet_1_1sf_1_1openrocket_1_1file_1_1_tip_shape_code.html", null ],
+    [ "UnknownFileTypeException", "d2/dde/classnet_1_1sf_1_1openrocket_1_1file_1_1_unknown_file_type_exception.html", "d2/dde/classnet_1_1sf_1_1openrocket_1_1file_1_1_unknown_file_type_exception" ],
+    [ "ZipFileAttachmentFactory", "de/dd2/classnet_1_1sf_1_1openrocket_1_1file_1_1_zip_file_attachment_factory.html", "de/dd2/classnet_1_1sf_1_1openrocket_1_1file_1_1_zip_file_attachment_factory" ]
+];

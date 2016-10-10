@@ -1,0 +1,5 @@
+var namespacenet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1domains =
+[
+    [ "IdentitySimulationDomain", "df/d01/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1domains_1_1_identity_simulation_domain.html", "df/d01/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1domains_1_1_identity_simulation_domain" ],
+    [ "StabilityDomain", "d3/d68/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1domains_1_1_stability_domain.html", "d3/d68/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1domains_1_1_stability_domain" ]
+];

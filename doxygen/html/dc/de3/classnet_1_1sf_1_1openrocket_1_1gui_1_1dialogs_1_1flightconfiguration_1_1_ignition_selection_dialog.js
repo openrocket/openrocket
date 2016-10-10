@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1flightconfiguration_1_1_ignition_selection_dialog =
+[
+    [ "IgnitionSelectionDialog", "dc/de3/classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1flightconfiguration_1_1_ignition_selection_dialog.html#acc4883395fcdd4551ed60d64351db7c6", null ]
+];

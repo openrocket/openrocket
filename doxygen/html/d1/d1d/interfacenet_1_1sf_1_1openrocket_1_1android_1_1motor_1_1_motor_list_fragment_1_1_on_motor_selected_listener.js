@@ -1,0 +1,4 @@
+var interfacenet_1_1sf_1_1openrocket_1_1android_1_1motor_1_1_motor_list_fragment_1_1_on_motor_selected_listener =
+[
+    [ "onMotorSelected", "d1/d1d/interfacenet_1_1sf_1_1openrocket_1_1android_1_1motor_1_1_motor_list_fragment_1_1_on_motor_selected_listener.html#a3c4deffa822cad4f50702ecb2b52bde9", null ]
+];

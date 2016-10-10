@@ -1,0 +1,4 @@
+var namespacecom_1_1actionbarsherlock_1_1internal_1_1nineoldandroids_1_1view_1_1animation =
+[
+    [ "AnimatorProxy", "d8/dad/classcom_1_1actionbarsherlock_1_1internal_1_1nineoldandroids_1_1view_1_1animation_1_1_animator_proxy.html", "d8/dad/classcom_1_1actionbarsherlock_1_1internal_1_1nineoldandroids_1_1view_1_1animation_1_1_animator_proxy" ]
+];

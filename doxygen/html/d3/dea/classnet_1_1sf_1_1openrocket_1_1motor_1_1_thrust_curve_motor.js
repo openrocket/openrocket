@@ -1,0 +1,25 @@
+var classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor =
+[
+    [ "ThrustCurveMotor", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#aa2287eb5483a7412e9ec501db607a364", null ],
+    [ "ThrustCurveMotor", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#af2ecbfafd6f900d1993197bef79b34f9", null ],
+    [ "compareTo", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a105242e88058b4cb66e55c38d7fb4721", null ],
+    [ "getAverageThrustEstimate", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#ac9b8e43ee6f7c83ed7e9b7976fc52438", null ],
+    [ "getBurnTimeEstimate", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a5795a2cebfe3ade8f91fc7ec0dccd472", null ],
+    [ "getCGPoints", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a6e188906abf9cb3f603f816b442c3253", null ],
+    [ "getDescription", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#af626d34a06e68a7f66e1dcee2fe2f12d", null ],
+    [ "getDesignation", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a21ad0437dc804bce9834c05dccdb74b8", null ],
+    [ "getDesignation", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a19447e6684d9b1ae39951af6f1ee1ac3", null ],
+    [ "getDiameter", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a948645292db7ccedd428b37eb5ae86e2", null ],
+    [ "getDigest", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a7aa36225d14306b88b6b6a8c5ab1a34b", null ],
+    [ "getEmptyCG", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#aeeb3c5d1d0d6520d85f3e95896437692", null ],
+    [ "getInstance", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#aa4c2e3c91e3e93b090a24062ec45c778", null ],
+    [ "getLaunchCG", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#af8030add01de1e9360730799f7543754", null ],
+    [ "getLength", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a62ce35f930b5a2ddd1cd4dc1dae5ec7b", null ],
+    [ "getManufacturer", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#ad6e70f7c7b0082f54d954b73c5e2850e", null ],
+    [ "getMaxThrustEstimate", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a3fb642f3d9d45831576bad574ad2adf4", null ],
+    [ "getMotorType", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#afb9838221dd3679387ba5901c0aa1739", null ],
+    [ "getStandardDelays", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a3234d5ac8ff821434c256e6224ad27ba", null ],
+    [ "getThrustPoints", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a928bf56761b063efb213de3c488a9eaa", null ],
+    [ "getTimePoints", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a612bc7ed9891126d5114dcb3fb437b56", null ],
+    [ "getTotalImpulseEstimate", "d3/dea/classnet_1_1sf_1_1openrocket_1_1motor_1_1_thrust_curve_motor.html#a7141beecb6ad4de3bc5a51a2dcff2c0b", null ]
+];

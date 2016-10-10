@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1motor_1_1thrustcurve_1_1_thrust_curve_motor_plot_dialog =
+[
+    [ "ThrustCurveMotorPlotDialog", "dc/de0/classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1motor_1_1thrustcurve_1_1_thrust_curve_motor_plot_dialog.html#ae861e0c4d9bff17a492d18f350536e53", null ]
+];

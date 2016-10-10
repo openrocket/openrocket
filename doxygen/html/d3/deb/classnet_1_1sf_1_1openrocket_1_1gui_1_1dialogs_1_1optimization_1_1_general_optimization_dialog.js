@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1optimization_1_1_general_optimization_dialog =
+[
+    [ "GeneralOptimizationDialog", "d3/deb/classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1optimization_1_1_general_optimization_dialog.html#a72c74c53016f055b5359ecf535e75115", null ]
+];

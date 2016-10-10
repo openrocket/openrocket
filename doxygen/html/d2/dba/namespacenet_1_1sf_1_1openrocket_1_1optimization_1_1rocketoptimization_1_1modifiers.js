@@ -1,0 +1,8 @@
+var namespacenet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers =
+[
+    [ "AbstractSimulationModifier", "db/d03/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_abstract_simulation_modifier.html", "db/d03/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_abstract_simulation_modifier" ],
+    [ "FlightConfigurationModifier", "d9/dc8/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_flight_configuration_modifier.html", "d9/dc8/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_flight_configuration_modifier" ],
+    [ "GenericComponentModifier", "d8/d64/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_component_modifier.html", "d8/d64/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_component_modifier" ],
+    [ "GenericModifier", "d6/db8/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_modifier.html", "d6/db8/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_modifier" ],
+    [ "TestGenericModifier", "de/d28/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_test_generic_modifier.html", "de/d28/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_test_generic_modifier" ]
+];

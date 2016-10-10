@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1preferences_1_1_simulation_preferences_panel =
+[
+    [ "SimulationPreferencesPanel", "d4/de6/classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1preferences_1_1_simulation_preferences_panel.html#af36a61aca53cdf78571925ad7859552b", null ]
+];
