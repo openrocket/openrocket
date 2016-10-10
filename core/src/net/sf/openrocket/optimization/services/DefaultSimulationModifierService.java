@@ -252,7 +252,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			
 			// Recovery device deployment altitude and delay
 			if (c instanceof RecoveryDevice) {
-				RecoveryDevice device = (RecoveryDevice) c;
+				//RecoveryDevice device = (RecoveryDevice) c;
 				
 				SimulationModifier mod = new FlightConfigurationModifier<DeploymentConfiguration>(
 						trans.get("optimization.modifier.recoverydevice.deployDelay"),
@@ -283,8 +283,8 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						"DeployAltitude") {
 					
 					@Override
-					public void initialize(Simulation simulation) throws OptimizationException {
-						DeploymentConfiguration config = getModifiedObject(simulation);
+					public void initialize(Simulation targetSimulation) throws OptimizationException {
+						DeploymentConfiguration config = getModifiedObject( targetSimulation);
 						config.setDeployEvent(DeployEvent.APOGEE);
 					}
 					

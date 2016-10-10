@@ -44,7 +44,6 @@ public class VariableSelector extends JDialog {
 	private final VariableTableModel tableModel;
 	private final ExpressionBuilderDialog parentBuilder;
 
-	@SuppressWarnings("serial")
 	public VariableSelector(Window parent, final ExpressionBuilderDialog parentBuilder, final OpenRocketDocument doc){
 
 		super(parent, trans.get("CustomVariableSelector.title"), JDialog.ModalityType.DOCUMENT_MODAL);

@@ -120,7 +120,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private TreeSelectionModel selectionModel = null;
 
 	private BasicSlider rotationSlider;
-	private ScaleSelector scaleSelector;
+	private ZoomSelector scaleSelector;
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
@@ -188,7 +188,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder = new JPanel(new BorderLayout());
 
 		scrollPane = new ScaleScrollPane(figure) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -305,7 +304,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(new JComboBox<VIEW_TYPE>(cm));
 
 		// Zoom level selector
-		scaleSelector = new ScaleSelector(scrollPane);
+		scaleSelector = new ZoomSelector(scrollPane);
 		add(scaleSelector);
 
 		// Stage selector

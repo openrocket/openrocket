@@ -94,7 +94,7 @@ public class CheckList<T> {
 		
 		if (!isEditorAttached())
 			list.addMouseListener(checkBoxEditor);
-		this.list.setCellRenderer(new CheckListRenderer());
+		this.list.setCellRenderer(new CheckListRenderer<T>());
 		
 		setupKeyboardActions(list);
 		

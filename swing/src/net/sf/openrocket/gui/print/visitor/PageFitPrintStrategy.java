@@ -12,9 +12,6 @@ import java.util.Set;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableComponent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -28,11 +25,6 @@ public class PageFitPrintStrategy {
 
     /** The margin. */
     public final static int MARGIN = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
-
-    /**
-     * The logger.
-     */
-    private static final Logger log = LoggerFactory.getLogger(PageFitPrintStrategy.class);
 
     /**
      * The iText document.

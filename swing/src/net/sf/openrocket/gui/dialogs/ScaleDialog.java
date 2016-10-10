@@ -4,7 +4,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -82,7 +80,7 @@ public class ScaleDialog extends JDialog {
 		List<Scaler> list;
 		
 		// RocketComponent
-		addScaler(RocketComponent.class, "PositionValue");
+		addScaler(RocketComponent.class, "AxialOffset");
 		SCALERS.get(RocketComponent.class).add(new OverrideScaler());
 		
 		// BodyComponent
@@ -616,11 +614,8 @@ public class ScaleDialog extends JDialog {
 			for (int i = 0; i < points.length; i++) {
 				points[i] = points[i].multiply(multiplier);
 			}
-			try {
-				finset.setPoints(points);
-			} catch (IllegalFinPointException e) {
-				throw new BugException("Failed to set points after scaling, original=" + Arrays.toString(finset.getFinPoints()) + " scaled=" + Arrays.toString(points), e);
-			}
+			finset.setPoints(points);
+			
 		}
 		
 	}

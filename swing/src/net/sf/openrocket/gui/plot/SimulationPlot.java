@@ -157,7 +157,7 @@ public class SimulationPlot {
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
 			
-			List<String> seriesNames = Util.generateSeriesLabels(simulation);
+			//List<String> seriesNames = Util.generateSeriesLabels(simulation);
 			
 			// Populate data for each branch.
 			

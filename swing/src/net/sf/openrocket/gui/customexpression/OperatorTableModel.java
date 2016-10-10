@@ -6,6 +6,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.customexpression.Functions;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class OperatorTableModel extends AbstractTableModel {
 
 	private static final Translator trans = Application.getTranslator();

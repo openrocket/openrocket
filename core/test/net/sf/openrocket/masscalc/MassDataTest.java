@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.PointWeight;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class MassDataTest extends BaseTestCase {
@@ -19,26 +20,27 @@ public class MassDataTest extends BaseTestCase {
 	@Test
 	public void testTwoPointInline() {
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, 0, m1);
+		PointWeight r1 = new PointWeight(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		MassData body1 = new MassData( r1, I1ax, I1t, I1t);
 		
 		double m2 = 5.7;
-		Coordinate r2 = new Coordinate(0, 32, 0, m2);
+		PointWeight r2 = new PointWeight(0, 32, 0, m2);
 		double I2ax=20;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		MassData body2 = new MassData( r2, I2ax, I2t, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
 		
-		Coordinate cm3_expected = r1.average(r2);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
+		PointWeight cm3_actual = new PointWeight( asbly3.getCM());
+		PointWeight cm3_expected = r1.add(r2);
+		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, cm3_actual );
 				
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub( r1);
-		Coordinate delta23 = asbly3.getCM().sub( r2);
+		Coordinate delta13 = asbly3.getCM().sub( r1.toCoordinate());
+		Coordinate delta23 = asbly3.getCM().sub( r2.toCoordinate());
 		
 		double y13 = delta13.y;
 		double dy_13_2 = MathUtil.pow2( y13); // hack
@@ -54,37 +56,39 @@ public class MassDataTest extends BaseTestCase {
 		double expI3yy = I1t+I2t;
 		double expI3zz = I13zz+I23zz;
 		
-		assertEquals("x-axis MOI don't match: ", asbly3.getIxx(), expI3xx, EPSILON*10);
+		assertEquals("x-axis MOI doesn't match: ", asbly3.getIxx(), expI3xx, EPSILON*10);
 		
-		assertEquals("y-axis MOI don't match: ", asbly3.getIyy(), expI3yy, EPSILON*10);
+		assertEquals("y-axis MOI doesn't match: ", asbly3.getIyy(), expI3yy, EPSILON*10);
 		
-		assertEquals("z-axis MOI don't match: ", asbly3.getIzz(), expI3zz, EPSILON*10);
+		assertEquals("z-axis MOI doesn't match: ", asbly3.getIzz(), expI3zz, EPSILON*10);
 	}
 	
 	
 	@Test
 	public void testTwoPointGeneral() {
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, -10, m1);
+		PointWeight r1 = new PointWeight(0,-40, -10, m1);
 		double I1xx=28.7;
 		double I1t = I1xx/2;
-		MassData body1 = new MassData(r1, I1xx, I1t);
+		MassData body1 = new MassData(r1, I1xx, I1t, I1t);
 		
 		double m2 = 5.7;
-		Coordinate r2 = new Coordinate(0, 32, 15, m2);
+		PointWeight r2 = new PointWeight(0, 32, 15, m2);
 		double I2xx=20;
 		double I2t = I2xx/2;
-		MassData body2 = new MassData(r2, I2xx, I2t);
+		MassData body2 = new MassData(r2, I2xx, I2t, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
+
 		
-		Coordinate cm3_expected = r1.average(r2);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
-				
+		PointWeight cm3_actual = new PointWeight( asbly3.getCM());
+		PointWeight cm3_expected = r1.add(r2);
+		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, cm3_actual );		
+		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub( r1);
-		Coordinate delta23 = asbly3.getCM().sub( r2);
+		Coordinate delta13 = asbly3.getCM().sub( r1.toCoordinate());
+		Coordinate delta23 = asbly3.getCM().sub( r2.toCoordinate());
 		double x2, y2, z2;
 		
 		x2 = MathUtil.pow2( delta13.x);
@@ -102,44 +106,45 @@ public class MassDataTest extends BaseTestCase {
 		double I23zz = I2t + m2*(x2+y2);
 		
 		double expI3xx = I13xx + I23xx;
-		assertEquals("x-axis MOI don't match: ", asbly3.getIxx(), expI3xx, EPSILON*10);
+		assertEquals("x-axis MOI doesn't match: ", asbly3.getIxx(), expI3xx, EPSILON*10);
 		
 		double expI3yy = I13yy + I23yy;
-		assertEquals("y-axis MOI don't match: ", asbly3.getIyy(), expI3yy, EPSILON*10);
+		assertEquals("y-axis MOI doesn't match: ", asbly3.getIyy(), expI3yy, EPSILON*10);
 		
 		double expI3zz = I13zz + I23zz;
-		assertEquals("z-axis MOI don't match: ", asbly3.getIzz(), expI3zz, EPSILON*10);
+		assertEquals("z-axis MOI doesn't match: ", asbly3.getIzz(), expI3zz, EPSILON*10);
 	}
 	
 
 	@Test
 	public void testMassDataCompoundCalculations() {
 		double m1 = 2.5;
-		Coordinate r1 = new Coordinate(0,-40, 0, m1);
+		PointWeight r1 = new PointWeight(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		MassData body1 = new MassData(r1, I1ax, I1t, I1t);
 		
 		double m2 = m1;
-		Coordinate r2 = new Coordinate(0, -2, 0, m2);
+		PointWeight r2 = new PointWeight(0, -2, 0, m2);
 		double I2ax=28.7;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		MassData body2 = new MassData(r2, I2ax, I2t, I2t);
 		
 		double m5 = 5.7;
-		Coordinate r5 = new Coordinate(0, 32, 0, m5);
+		PointWeight r5 = new PointWeight(0, 32, 0, m5);
 		double I5ax=20;
 		double I5t = I5ax/2;
-		MassData body5 = new MassData(r5, I5ax, I5t);
+		MassData body5 = new MassData(r5, I5ax, I5t, I5t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		MassData asbly3 = body1.add(body2);
 		
 		// point 4 is defined as the CM of bodies 1, 2 and 5 combined.
 		MassData asbly4_indirect = asbly3.add(body5);
-		Coordinate cm4_expected = r1.average(r2).average(r5);
+		PointWeight cm4_expected = r1.add(r2).add(r5);
+		PointWeight cm4_actual = new PointWeight( 0, 7.233644859813085, 0, m1+m2+m5 );
 		
-		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, new Coordinate( 0, 7.233644859813085, 0, m1+m2+m5 ) );
+		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, cm4_actual);
 		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
 		double y4 = cm4_expected.y;
@@ -156,11 +161,11 @@ public class MassDataTest extends BaseTestCase {
 		double I4zz = I14zz+I24zz+I54zz;
 		MassData asbly4_expected = new MassData( cm4_expected, I4xx, I4yy, I4zz);
 
-		assertEquals("x-axis MOI don't match: ", asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON*10);
+		assertEquals("x-axis MOI doesn't match: ", asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON*10);
 
-		assertEquals("y-axis MOI don't match: ", asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON*10);
+		assertEquals("y-axis MOI doesn't match: ", asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON*10);
 		
-		assertEquals("z-axis MOI don't match: ", asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON*10);
+		assertEquals("z-axis MOI doesn't match: ", asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON*10);
 	}
 	
 	

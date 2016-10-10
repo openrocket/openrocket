@@ -88,7 +88,6 @@ public class RingHandlerTest extends RocksimTestBase {
     public void testBulkhead() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
@@ -225,7 +224,8 @@ public class RingHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+
+	@org.junit.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -238,6 +238,8 @@ public class RingHandlerTest extends RocksimTestBase {
 
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
+        
+        @SuppressWarnings("unused")
         CenteringRing component = (CenteringRing) getField(handler, "ring");
     }
 

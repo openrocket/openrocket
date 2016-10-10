@@ -31,7 +31,6 @@ import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -563,6 +562,7 @@ public class TestRockets {
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 			finset.setThickness( 0.0032);
 			finset.setRelativePosition(Position.BOTTOM);
+			finset.setAxialOffset(0.0);
 			finset.setName("3 Fin Set");
 			bodytube.addChild(finset);
 			
@@ -683,7 +683,8 @@ public class TestRockets {
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 			finset.setThickness( 0.0032);
 			finset.setRelativePosition(Position.BOTTOM);
-			finset.setAxialOffset(1);
+			finset.setAxialOffset(0.0);
+
 			finset.setName("Booster Fins");
 			boosterTube.addChild(finset);
 			
@@ -769,6 +770,7 @@ public class TestRockets {
 	}
 	
 	
+	
 	public static Rocket makeBigBlue() {
 		Rocket rocket;
 		AxialStage stage;
@@ -786,17 +788,13 @@ public class TestRockets {
 		bodytube = new BodyTube(0.69, 0.033, 0.001);
 		
 		finset = new FreeformFinSet();
-		try {
-			finset.setPoints(new Coordinate[] {
+		finset.setPoints(new Coordinate[] {
 					new Coordinate(0, 0),
 					new Coordinate(0.115, 0.072),
 					new Coordinate(0.255, 0.072),
 					new Coordinate(0.255, 0.037),
-					new Coordinate(0.150, 0)
-			});
-		} catch (IllegalFinPointException e) {
-			e.printStackTrace();
-		}
+					new Coordinate(0.150, 0)	});
+		
 		finset.setThickness(0.003);
 		finset.setFinCount(4);
 		
@@ -1180,6 +1178,97 @@ public class TestRockets {
 		rocket.setSelectedConfiguration( selFCID);
 		rocket.getFlightConfiguration( selFCID).setAllStages();
 		
+		return rocket;
+	}
+	
+	// This a scale V2 rocket 
+	// WARNING:  as of February 1, 2016, this is not yet a valid rocket.  
+	//           may require changes to the FreeformFinSet class
+	public static final Rocket makeV2(){
+		Rocket rocket = new Rocket();
+		rocket.setName("V-2 Scale Model ");
+		
+		// make stage
+		AxialStage stage = new AxialStage();
+		stage.setName("Stage 1");
+		rocket.addChild(stage);
+		
+		final double SKIN_THICKNESS = 0.001;
+		
+		// make nose cone 
+		NoseCone nose = new NoseCone();
+		nose.setName("nose");
+		nose.setMassOverridden(true);
+		nose.setOverrideMass( 0.038 ); 
+		nose.setLength(0.21);
+		nose.setThickness( SKIN_THICKNESS);
+		nose.setType(Shape.OGIVE);
+		nose.setShapeParameter(1.0);
+		nose.setAftRadius(0.033);
+		nose.setAftShoulderRadius(0.031);
+		nose.setAftShoulderLength( 0.04 );
+        nose.setAftShoulderThickness(0.001);
+        nose.setAftShoulderCapped(false);
+        stage.addChild(nose);
+        
+		// make body tube 
+		BodyTube body = new BodyTube( 0.2, 0.33, SKIN_THICKNESS);
+		body.setName("body");
+		body.setOuterRadiusAutomatic( true);
+		stage.addChild(body );
+		
+		{ // make boat tail 
+			Transition boattail = new Transition();
+			boattail.setName("Transition");
+			boattail.setMassOverridden( true);
+	        boattail.setOverrideMass( 0.036);
+	        boattail.setLength( 0.14 );
+	        boattail.setThickness( SKIN_THICKNESS);
+	        boattail.setType(Shape.OGIVE);
+			boattail.setShapeParameter(1.0);
+			boattail.setForeRadiusAutomatic(true);
+			boattail.setAftRadius( 0.02);
+			
+			boattail.setForeShoulderRadius(0.031);
+			boattail.setForeShoulderLength( 0.04 );
+			boattail.setForeShoulderThickness(0.001);
+			boattail.setForeShoulderCapped(false);
+        
+			boattail.setAftShoulderLength( 0.0 );
+			boattail.setAftShoulderCapped(false);
+  		    stage.addChild( boattail);
+  		    
+  		    { // freeform fins -- on boattail
+  				FreeformFinSet fins = new FreeformFinSet();
+  				boattail.addChild( fins);
+  				fins.setName("fins");
+  				fins.setFinCount(4);
+  				Coordinate[] points = new Coordinate[] { 
+  					      new Coordinate( 0, 0)
+  						, new Coordinate( 0.09,   0.0587)
+  						, new Coordinate( 0.1666, 0.0590)
+  						, new Coordinate( 0.1668, 0.0294)
+  						, new Coordinate( 0.1568, 0.0257)
+  						, new Coordinate( 0.1565, 0.0082)
+  						, new Coordinate( 0.1388, 0.0)
+  				};
+  				fins.setPoints( points);
+  				
+  				fins.setRelativePosition( Position.TOP );
+  				fins.setAxialOffset(0);
+  				fins.setThickness(0.0024);
+  				fins.setCrossSection( CrossSection.AIRFOIL );
+  	                
+  				fins.setTabHeight( 0.020);
+  	            fins.setTabLength( 0.12 );
+  	            fins.setTabPositionMethod( RocketComponent.Position.TOP );
+  	            fins.setTabShift( 0.02 );
+  	            
+  		    }
+		}
+          
+		rocket.enableEvents();
+		rocket.getSelectedConfiguration().setAllStages();
 		return rocket;
 	}
 	

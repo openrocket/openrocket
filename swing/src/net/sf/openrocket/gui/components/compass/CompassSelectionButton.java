@@ -41,8 +41,6 @@ public class CompassSelectionButton extends FlatButton implements Resettable {
 	
 	private static int minWidth = -1;
 	
-
-	@SuppressWarnings("hiding")
 	private final DoubleModel model;
 	
 	private final ChangeListener listener;

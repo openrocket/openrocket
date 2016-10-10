@@ -11,6 +11,7 @@ import java.io.File;
 /**
  * From a JavaLobby article by Michael Urban:  http://www.javalobby.org/java/forums/t49462.html
  */
+@SuppressWarnings("serial")
 public class ImagePreviewPanel extends JPanel
         implements PropertyChangeListener {
 

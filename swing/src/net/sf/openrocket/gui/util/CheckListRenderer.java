@@ -46,7 +46,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
-public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Serializable {
+public class CheckListRenderer<E> extends JCheckBox implements ListCellRenderer<E>, Serializable {
 		
 	private static final Border NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
 	private static final Border SAFE_NO_FOCUS_BORDER = NO_FOCUS_BORDER; // may change in the feature
@@ -68,7 +68,7 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 		}
 	}
 	
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+	public Component getListCellRendererComponent(JList<? extends E> list, E value, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		
 		setComponentOrientation(list.getComponentOrientation());
@@ -126,7 +126,7 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 		return (obj == null) ? "" : obj.toString();
 	}
 	
-	private boolean isChecked(JList list, int index) {
+	private boolean isChecked(JList<? extends E> list, int index) {
 		
 		if (list.getModel() instanceof DefaultCheckListModel<?>) {
 			return ((DefaultCheckListModel<?>) list.getModel()).isCheckedIndex(index);
@@ -220,7 +220,6 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 	public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
 	}
 	
-	@SuppressWarnings("serial")
 	public static class UIResource extends DefaultListCellRenderer implements javax.swing.plaf.UIResource {
 	}
 	

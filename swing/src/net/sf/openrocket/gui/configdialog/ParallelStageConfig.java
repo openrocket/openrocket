@@ -79,7 +79,6 @@ public class ParallelStageConfig extends AxialStageConfig {
 		motherPanel.add( positionLabel);
 		
 		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
-		@SuppressWarnings("unchecked")
 		ComboBoxModel<RocketComponent.Position> relativePositionMethodModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
 				new RocketComponent.Position[] {
 						RocketComponent.Position.TOP,

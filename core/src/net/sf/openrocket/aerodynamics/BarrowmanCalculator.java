@@ -478,7 +478,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				FinSet f = (FinSet) c;
 				double mac = ((FinSetCalc) calcMap.get(c)).getMACLength();
 				double cd = componentCf * (1 + 2 * f.getThickness() / mac) *
-						2 * f.getFinCount() * f.getFinArea();
+						2 * f.getFinCount() * f.getFinWettedArea();
 				finFriction += cd;
 				
 				if (map != null) {
@@ -718,7 +718,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (c instanceof FinSet) {
 				FinSet f = (FinSet) c;
-				mul += 0.6 * Math.min(f.getFinCount(), 4) * f.getFinArea() *
+				mul += 0.6 * Math.min(f.getFinCount(), 4) * f.getFinWettedArea() *
 						MathUtil.pow3(Math.abs(f.toAbsolute(new Coordinate(
 								((FinSetCalc) calcMap.get(f)).getMidchordPos()))[0].x
 								- cgx)) /

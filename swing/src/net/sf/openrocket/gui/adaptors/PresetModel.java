@@ -23,6 +23,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
+@SuppressWarnings("serial")
 public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
 	
 	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);

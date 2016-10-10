@@ -6,6 +6,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.PointWeight;
 
 /**
  * An immutable value object containing the mass data of a component, assembly or entire rocket.
@@ -160,6 +161,10 @@ public class MassData {
 		this.I_cm = new InertiaMatrix( Ix, It, It);
 	}
 	
+	public MassData( final PointWeight cm, final double newIxx, final double newIyy, final double newIzz){
+		this( cm.toCoordinate(), newIxx, newIyy, newIzz );
+	}
+	
 	public MassData(Coordinate newCM, double newIxx, double newIyy, double newIzz){
 		if (newCM == null) {
 			throw new IllegalArgumentException("CM is null");
@@ -168,6 +173,7 @@ public class MassData {
 		this.cm = newCM;
 		this.I_cm = new InertiaMatrix(newIxx, newIyy, newIzz);
 	}
+	
 	
 	public MassData(final Coordinate cg, final double rotationalInertia, final double longitudinalInertia) {
 		if (cg == null) {

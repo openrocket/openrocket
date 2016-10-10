@@ -14,6 +14,7 @@ import java.awt.geom.GeneralPath;
  * modified) and rendering it within a JPanel.  The JPanel is not actually visualized on a display, but instead renders
  * it to a print device.
  */
+@SuppressWarnings("serial")
 public class PrintableFinSet extends AbstractPrintable<FinSet> {
 
     /**

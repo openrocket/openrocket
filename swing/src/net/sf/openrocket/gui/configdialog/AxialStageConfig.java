@@ -48,8 +48,8 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 			sepConfig = new StageSeparationConfiguration();
 			stage.getSeparationConfigurations().set( flConfig.getId(), sepConfig );
 		}
-		@SuppressWarnings("unchecked")
-		JComboBox<?> combo = new JComboBox<StageSeparationConfiguration.SeparationEvent>(
+
+		JComboBox<StageSeparationConfiguration.SeparationEvent> combo = new JComboBox<StageSeparationConfiguration.SeparationEvent>(
 				new EnumModel<StageSeparationConfiguration.SeparationEvent>( sepConfig, "SeparationEvent", 
 					new StageSeparationConfiguration.SeparationEvent[] {
 						StageSeparationConfiguration.SeparationEvent.UPPER_IGNITION,

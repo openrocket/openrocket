@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.scalefigure;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.EventObject;
@@ -16,7 +18,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.util.StateChangeListener;
 
-public class ScaleSelector extends JPanel {
+@SuppressWarnings("serial")
+public class ZoomSelector extends JPanel implements PropertyChangeListener {
 
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
@@ -32,21 +35,23 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private final ScaleScrollPane scrollPane;
-	private JComboBox zoomSelector;
+	private JComboBox<String> zoomSelector;
 
-	public ScaleSelector(ScaleScrollPane scroll) {
+	public ZoomSelector(ScaleScrollPane scroll) {
 		super(new MigLayout());
 
 		this.scrollPane = scroll;
+		this.scrollPane.addPropertyChangeListener(ScaleScrollPane.ZOOM_PROPERTY, this);
 
 		// Zoom out button
 		JButton button = new JButton(Icons.ZOOM_OUT);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
-				scale = getPreviousScale(scale);
-				scrollPane.setScaling(scale);
+				double scale = scrollPane.getZoom();
+				scale = getFartherZoom(scale);
+				scrollPane.setZoom(scale);
+				setZoomText();
 			}
 		});
 		add(button, "gap");
@@ -57,7 +62,7 @@ public class ScaleSelector extends JPanel {
 			settings = Arrays.copyOf(settings, settings.length - 1);
 		}
 
-		zoomSelector = new JComboBox(settings);
+		zoomSelector = new JComboBox<String>(settings);
 		zoomSelector.setEditable(true);
 		setZoomText();
 		zoomSelector.addActionListener(new ActionListener() {
@@ -79,7 +84,7 @@ public class ScaleSelector extends JPanel {
 					if (n <= 0.005)
 						n = 0.005;
 
-					scrollPane.setScaling(n);
+					scrollPane.setZoom(n);
 					setZoomText();
 				} catch (NumberFormatException ignore) {
 				} finally {
@@ -100,9 +105,10 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
-				scale = getNextScale(scale);
-				scrollPane.setScaling(scale);
+				double scale = scrollPane.getZoom();
+				scale = getCloserZoom(scale);
+				scrollPane.setZoom(scale);
+				setZoomText();
 			}
 		});
 		add(button, "gapleft rel");
@@ -111,7 +117,7 @@ public class ScaleSelector extends JPanel {
 
 	private void setZoomText() {
 		String text;
-		double zoom = scrollPane.getScaling();
+		double zoom = scrollPane.getZoom();
 		text = PERCENT_FORMAT.format(zoom);
 		if (scrollPane.isFitting()) {
 			text = "Fit (" + text + ")";
@@ -120,7 +126,7 @@ public class ScaleSelector extends JPanel {
 			zoomSelector.setSelectedItem(text);
 	}
 
-	private double getPreviousScale(double scale) {
+	private static double getFartherZoom(double scale) {
 		int i;
 		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
 			if (scale > ZOOM_LEVELS[i] + 0.05 && scale < ZOOM_LEVELS[i + 1] + 0.05)
@@ -135,7 +141,7 @@ public class ScaleSelector extends JPanel {
 		return scale / 1.5;
 	}
 
-	private double getNextScale(double scale) {
+	private static double getCloserZoom(double scale) {
 		int i;
 		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
 			if (scale > ZOOM_LEVELS[i] - 0.05 && scale < ZOOM_LEVELS[i + 1] - 0.05)
@@ -156,5 +162,14 @@ public class ScaleSelector extends JPanel {
 		}
 		super.setEnabled(b);
 	}
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if( evt.getPropertyName().equals( ScaleScrollPane.ZOOM_PROPERTY) ){
+            if( this.scrollPane.isFitting()){
+                this.setZoomText();
+            }
+        }
+    }
 
 }

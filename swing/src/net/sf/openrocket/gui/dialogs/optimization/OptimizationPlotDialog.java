@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class OptimizationPlotDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(OptimizationPlotDialog.class);
 	private static final Translator trans = Application.getTranslator();

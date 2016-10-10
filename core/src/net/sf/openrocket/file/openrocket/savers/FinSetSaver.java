@@ -26,8 +26,8 @@ public class FinSetSaver extends ExternalComponentSaver {
 			elements.add("<tabheight>" + fins.getTabHeight() + "</tabheight>");
 			elements.add("<tablength>" + fins.getTabLength() + "</tablength>");
 			elements.add("<tabposition relativeto=\"" +
-					fins.getTabRelativePosition().name().toLowerCase(Locale.ENGLISH) + "\">" +
-					fins.getTabShift() + "</tabposition>");
+					fins.getTabPositionMethod().name().toLowerCase(Locale.ENGLISH) + "\">" +
+					fins.getTabFrontEdge() + "</tabposition>");
 			
 		}
 		

@@ -7,6 +7,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 
+@SuppressWarnings("serial")
 public class SelectableLabel extends JTextField {
 
 	public SelectableLabel() {

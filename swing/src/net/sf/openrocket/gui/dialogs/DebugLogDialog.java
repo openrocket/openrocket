@@ -108,7 +108,6 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
 	
-	@SuppressWarnings("serial")
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));

@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -19,14 +18,10 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("serial")
 public class PreferencesDialog extends JDialog {
-	private static final Logger log = LoggerFactory
-			.getLogger(PreferencesDialog.class);
 
-	private File defaultDirectory = null;
 	private static final Translator trans = Application.getTranslator();
 
 	private final SwingPreferences preferences = (SwingPreferences) Application

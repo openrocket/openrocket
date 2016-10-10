@@ -16,9 +16,8 @@ import net.sf.openrocket.util.ArrayList;
 /**
  * The table model for selecting whether components are motor mounts or not.
  */
+@SuppressWarnings("serial")
 class MotorMountTableModel extends AbstractTableModel implements ComponentChangeListener {
-	
-	private final MotorMountConfigurationPanel motorConfigurationPanel;
 	
 	private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
 	
@@ -28,7 +27,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 	 * @param motorConfigurationPanel
 	 */
 	MotorMountTableModel(MotorMountConfigurationPanel motorConfigurationPanel, Rocket rocket) {
-		this.motorConfigurationPanel = motorConfigurationPanel;
+		//this.motorConfigurationPanel = motorConfigurationPanel;
 		this.rocket = rocket;
 		
 		initialize();

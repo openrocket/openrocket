@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	

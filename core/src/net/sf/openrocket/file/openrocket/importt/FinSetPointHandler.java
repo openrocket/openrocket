@@ -3,6 +3,8 @@ package net.sf.openrocket.file.openrocket.importt;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
@@ -10,10 +12,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.util.Coordinate;
-
-import org.xml.sax.SAXException;
 
 /**
  * A handler that reads the <point> specifications within the freeformfinset's
@@ -62,10 +61,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-		try {
-			finset.setPoints(coordinates.toArray(new Coordinate[0]));
-		} catch (IllegalFinPointException e) {
-			warnings.add(Warning.fromString("Freeform fin set point definitions illegal, ignoring."));
-		}
+		finset.setPoints(coordinates.toArray(new Coordinate[0]));
+		
 	}
 }

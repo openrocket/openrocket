@@ -35,7 +35,7 @@ public class OperatorSelector extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(OperatorSelector.class);
 	
-	private final Window parentWindow;
+	protected final Window parentWindow;
 	
 	private final JTable table;
 	private final OperatorTableModel tableModel;

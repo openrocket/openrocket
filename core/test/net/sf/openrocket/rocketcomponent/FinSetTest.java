@@ -1,306 +1,385 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import net.sf.openrocket.aerodynamics.AerodynamicForces;
-import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.material.Material.Type;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
-import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.LineStyle;
+import net.sf.openrocket.util.PointWeight;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
+	final double EPSILON = 1E-8;
 	
-	@Test
-	public void testTrapezoidCGComputation() {
-		
-		{
-			// This is a simple square fin with sides of 1.0.
-			TrapezoidFinSet fins = new TrapezoidFinSet();
-			fins.setFinCount(1);
-			fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
-			
-			Coordinate coords = fins.getCG();
-			assertEquals(1.0, fins.getFinArea(), 0.001);
-			assertEquals(0.5, coords.x, 0.001);
-			assertEquals(0.5, coords.y, 0.001);
-		}
-		
-		{
-			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
-			// It can be decomposed into a rectangle followed by a triangle
-			//  +---+
-			//  |    \
-			//  |     \
-			//  +------+
-			TrapezoidFinSet fins = new TrapezoidFinSet();
-			fins.setFinCount(1);
-			fins.setFinShape(1.0, 0.5, 0.0, 1.0, .005);
-			
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-		
-	}
-	
-	@Test
-	public void testFreeformCGComputation() throws Exception {
-		
-		{
-			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
-			// It can be decomposed into a rectangle followed by a triangle
-			//  +---+
-			//  |    \
-			//  |     \
-			//  +------+
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-					new Coordinate(0, 0),
-					new Coordinate(0, 1),
-					new Coordinate(.5, 1),
-					new Coordinate(1, 0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-		
-		{
-			// This is the same trapezoid as previous free form, but it has
-			// some extra points along the lines.
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-					new Coordinate(0, 0),
-					new Coordinate(0, .5),
-					new Coordinate(0, 1),
-					new Coordinate(.25, 1),
-					new Coordinate(.5, 1),
-					new Coordinate(.75, .5),
-					new Coordinate(1, 0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-		
-		{
-			// This is the same trapezoid as previous free form, but it has
-			// some extra points which are very close to previous points.
-			// in particular for points 0 & 1,
-			// y0 + y1 is very small.
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-					new Coordinate(0, 0),
-					new Coordinate(0, 1E-15),
-					new Coordinate(0, 1),
-					new Coordinate(1E-15, 1),
-					new Coordinate(.5, 1),
-					new Coordinate(.5, 1 - 1E-15),
-					new Coordinate(1, 1E-15),
-					new Coordinate(1, 0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-		
-	}
-	
-	@Test
-	public void testWildmanVindicatorShape() throws Exception {
-		// This fin shape is similar to the aft fins on the Wildman Vindicator.
-		// A user noticed that if the y values are similar but not equal,
-		// the compuation of CP was incorrect because of numerical instability.
+	public Rocket createSimpleFin() {
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		BodyTube body = new BodyTube(0.2, 0.1);
+		stg.addChild(body);
+		TrapezoidFinSet fins = new TrapezoidFinSet(1, 0.06, 0.02, 0.02, 0.05);
 		//
-		//     +-----------------+
-		//      \                 \
-		//       \                 \
-		//        +                 \
-		//       /                   \
-		//      +---------------------+
+		//     sweep= 0.02 | tipChord = 0.02
+		//            |    |      |
+		//            |    +------+  ----------
+		//            |   /        \
+		//            |  /          \     height = 0.05
+		//            | /            \
+		//             /              \
+		//  __________/________________\_____   length == rootChord == 0.06
+		//                |        |
+		//                |        |      tab height = 0.02
+		//                |        |
+		//                +--------+      tab length = 0.02
+		//                    position = 0.0 via middle
 		//
-		FreeformFinSet fins = new FreeformFinSet();
-		fins.setFinCount(1);
-		Coordinate[] points = new Coordinate[] {
-				new Coordinate(0, 0),
-				new Coordinate(0.02143125, 0.01143),
-				new Coordinate(0.009524999999999999, 0.032543749999999996),
-				new Coordinate(0.041275, 0.032537399999999994),
-				new Coordinate(0.066675, 0)
-		};
-		fins.setPoints(points);
+		//         Fin Area = 0.05 * ( (0.2 + 0.06)/2) = 0.0
+		//
+		fins.setAxialOffset(Position.MIDDLE, 0.0);
+		fins.setMaterial(Material.newMaterial(Material.Type.BULK, "Fin-Test-Material", 1.0, true));
+		fins.setThickness(0.005); // == 5 mm
+		
+		body.addChild(fins);
+		
+		fins.setTabLength(0.00);
+		
+		fins.setFilletRadius(0.0);
+		
+		rkt.enableEvents();
+		return rkt;
+	}
+
+	@Test
+	public void testCGCalculation_simpleFin() {
+		// test simple square fin.
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		BodyTube body = new BodyTube(0.5, 0.1);
+		stg.addChild(body);
+		rkt.enableEvents();
+		
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(1); // verify that this method return numbers for a single fin w/in a multi-fin set.
+		fins.setFinShape(0.1, 0.1, 0.0, 0.1, .005);
+		body.addChild(fins);
+		fins.setMaterial(Material.newMaterial(Material.Type.BULK, "testMaterial", 1.0, true));
+		
+		assertEquals("area calculation doesn't match: ", 0.01, fins.getFinWettedArea(), 0.00001);
 		Coordinate coords = fins.getCG();
-		assertEquals(0.00130, fins.getFinArea(), 0.00001);
-		assertEquals(0.03423, coords.x, 0.00001);
-		assertEquals(0.01427, coords.y, 0.00001);
+		assertEquals("Centroid x coordinate is wrong! ", 0.05, coords.x, EPSILON);
+		assertEquals("Centroid y coordinate is wrong! ", 0.15, coords.y, EPSILON);
 		
-		BodyTube bt = new BodyTube();
-		bt.addChild(fins);
-		FinSetCalc calc = new FinSetCalc(fins);
-		FlightConditions conditions = new FlightConditions(null);
-		AerodynamicForces forces = new AerodynamicForces();
-		WarningSet warnings = new WarningSet();
-		calc.calculateNonaxialForces(conditions, forces, warnings);
-		//System.out.println(forces);
-		assertEquals(0.023409, forces.getCP().x, 0.0001);
+		// should still return a single-fin-wetted area
+		assertEquals(0.00005, fins.getComponentVolume(), 0.0000001);
+		
+		{
+			// this should also trigger a recalculation
+			fins.setFinCount(2);
+
+			// should still return a single-fin-wetted area
+			assertEquals(0.01, fins.getFinWettedArea(), 0.00001);
+			
+			Coordinate newCG = fins.getComponentCG();
+			assertEquals(0.05, newCG.x, EPSILON);
+			assertEquals(0.0, newCG.y, EPSILON);
+		}
+	}
+	
+	
+	@Test
+	public void testCGCalculations_finWithTab() {
+		final Rocket rkt = createSimpleFin();
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+		
+		fins.setTabLength(0.02);
+		fins.setTabHeight(0.02);
+		fins.setTabPositionMethod(Position.MIDDLE);
+		fins.setTabShift(0.0);
+
+		assertEquals("Wetted Area does not match!", 0.0020, fins.getFinWettedArea(), EPSILON);
+		
+		final double expVol1 = 0.00001200;
+		final double actVol1 = fins.getComponentVolume();
+		assertEquals(" fin volume is incorrect", expVol1, actVol1, EPSILON);
+		
+		Coordinate actCentroid1 = fins.getCG();
+		assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid1.x, EPSILON);
+		assertEquals(" basic centroid y doesn't match: ", 0.11569444, actCentroid1.y, EPSILON);
+		
+		{
+			fins.setFinCount(2);
+			final double expVol2 = expVol1 * 2;
+			final double actVol2 = fins.getComponentVolume();
+			assertEquals(" fin volume is incorrect", expVol2, actVol2, EPSILON);
+			
+			Coordinate actCentroid2 = fins.getCG();
+			// x coordinate will be the same....
+			assertEquals(" basic centroid y doesn't match: ", 0.0, actCentroid2.y, EPSILON);
+		}
 	}
 	
 	@Test
-	public void testFreeFormCGWithNegativeY() throws Exception {
-		// This particular fin shape is currently not allowed in OR since the y values are negative
-		// however, it is possible to convert RockSim files and end up with fins which
-		// have negative y values.
+	public void testFilletCalculations() {
+		final Rocket rkt = createSimpleFin();
+		BodyTube body = (BodyTube) rkt.getChild(0).getChild(0);
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
 		
-		// A user submitted an ork file which could not be simulated because the fin
-		// was constructed on a tail cone.  It so happened that for one pair of points
-		// y_n = - y_(n+1) which caused a divide by zero and resulted in CGx = NaN.
+		fins.setFilletRadius(0.005);
+		fins.setFilletMaterial(Material.newMaterial(Material.Type.BULK, "Fillet-Test-Material", 1.0, true));
 		
-		// This Fin set is constructed to have the same problem.  It is a square and rectagle
-		// where the two trailing edge corners of the rectangle satisfy y_0 = -y_1
+		// used for fillet and edge calculations:
 		//
-		// +---------+
-		// |         |
-		// |         |
-		// +----+    |
-		//      |    |
-		//      |    |
-		//      +----+
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
+		//       
+		assertEquals("Body radius doesn't match: ", 0.1, body.getOuterRadius(), EPSILON);
 		
+		final PointWeight actVolume = fins.calculateFilletVolumeCentroid();
+		
+		assertEquals("Line volume doesn't match: ", 5.973e-07, actVolume.w, EPSILON);
+		
+		assertEquals("Line mass center.x doesn't match: ", 0.03, actVolume.x, EPSILON);
+		assertEquals("Line mass center.y doesn't match: ", 0.101, actVolume.y, EPSILON);
+		
+		
+		{ // and then, check that the fillet volume feeds into a correct overall CG: 
+			Coordinate actCentroid = fins.getCG();
+			assertEquals("Complete centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
+			assertEquals("Complete centroid y doesn't match: ", 0.11971548, actCentroid.y, EPSILON);
+		}
+	}
+	
+	
+	@Test
+	public void testRelativeLocation() throws IllegalFinPointException {
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		BodyTube body = new BodyTube(2.0, 0.01);
+		stg.addChild(body);
+		
+		// Fin length = 1
+		// Body Length = 2
+		//          +--+
+		//         /   |
+		//        /    |
+		//   +---+-----+---+
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setFinCount(1);
-		Coordinate[] points = new Coordinate[] {
+		Coordinate[] initPoints = new Coordinate[] {
 				new Coordinate(0, 0),
-				new Coordinate(0, 1),
-				new Coordinate(2, 1),
-				new Coordinate(2, -1),
-				new Coordinate(1, -1),
+				new Coordinate(0.5, 1),
+				new Coordinate(1, 1),
 				new Coordinate(1, 0)
 		};
-		fins.setPoints(points);
-		Coordinate coords = fins.getCG();
-		assertEquals(3.0, fins.getFinArea(), 0.001);
-		assertEquals(3.5 / 3.0, coords.x, 0.001);
-		assertEquals(0.5 / 3.0, coords.y, 0.001);
+		body.addChild(fins);
+		fins.setPoints(initPoints);
 		
+		assertEquals("fin body length doesn't match: ", body.getLength(), 2.0, EPSILON);
+		assertEquals("fin length doesn't match: ", fins.getLength(), 1.0, EPSILON);
+		
+		final Position[] pos = { Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM };
+		final double[] expOffs = { 1.0, 0.0, 0.4, -0.2 };
+		final double[] expPos = { 1.0, 0.5, 0.9, 0.8 };
+		for (int caseIndex = 0; caseIndex < pos.length; ++caseIndex) {
+			fins.setAxialOffset(pos[caseIndex], expOffs[caseIndex]);
+			
+			final double actOffset = fins.getAxialOffset();
+			assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+					expOffs[caseIndex], actOffset, EPSILON);
+			
+			final double actXLoc = fins.getLocations()[0].x;
+			assertEquals(String.format(" Top Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+					expPos[caseIndex], actXLoc, EPSILON);
+			
+			
+			final double actTop = fins.asPositionValue(Position.TOP);
+			assertEquals(String.format(" Top Positioning doesn't match for: (%6.2g via:%s)\n", expOffs[caseIndex], pos[caseIndex].name()),
+					expPos[caseIndex], actTop, EPSILON);
+		}
+	}
+
+	@Test
+	public void testTabLocation() throws IllegalFinPointException {
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		BodyTube body = new BodyTube(0.2, 0.001);
+		stg.addChild(body);
+		
+		// Fin length = 0.025
+				// Tab Length = 0.01
+		//          +--+
+		//         /   |
+		//        /    |
+		//   +---+-----+---+
+		//   
+		FinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
+		fins.setName("test fins");
+		fins.setAxialOffset( Position.MIDDLE, 0.0);
+		body.addChild(fins);
+		// length = 0.05
+		assertEquals("incorrect fin length:", 0.05, fins.getLength(), EPSILON);
+		fins.setTabLength(0.01);
+		assertEquals("incorrect fin tab length:", 0.01, fins.getTabLength(), EPSILON);
+		
+		final Position[] pos={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+		final double[] expShift = {0.01, 0.0, 0.01, -0.02};
+		final double[] expFront = {0.01, 0.02, 0.03, 0.02};
+		final double[] expMiddle = {-0.01,  0.0, 0.01, 0.0};
+		final double[] expBottom = {-0.03,  -0.02, -0.01, -0.02};
+		for( int caseIndex=0; caseIndex < pos.length; ++caseIndex ){
+			fins.setTabPositionMethod( pos[caseIndex]);
+			fins.setTabShift( expShift[caseIndex]);
+			double actFront= fins.getTabFrontEdge();
+			double actShift = fins.getTabShift();
+			
+			assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s) with fin=%6.4g, tab=%6.4g \n", expShift[caseIndex], pos[caseIndex].name(), fins.getLength(), fins.getTabLength()),
+					expFront[caseIndex], actFront, EPSILON);
+			
+			assertEquals(String.format(" Relative Positioning doesn't match for: (%6.2g via:%s) with fin=%6.4g, tab=%6.4g \n", expShift[caseIndex], pos[caseIndex].name(), fins.getLength(), fins.getTabLength()),
+					expShift[caseIndex], actShift, EPSILON);
+			
+			fins.setTabPositionMethod( Position.TOP);
+			actFront = fins.getTabFrontEdge();
+			
+			assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s) with fin=%6.4g, tab=%6.4g \n", expShift[caseIndex], pos[caseIndex].name(), fins.getLength(), fins.getTabLength()),
+					expFront[caseIndex], actFront, EPSILON);
+			assertEquals(String.format(" Relative Positioning doesn't match when reshift to top, from "+expShift[caseIndex]+" via: "+pos[caseIndex].name()),
+					expFront[caseIndex], fins.getTabShift(), EPSILON);
+			
+			fins.setTabPositionMethod( Position.MIDDLE);
+			actShift = fins.getTabShift();
+			assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+					expFront[caseIndex], actFront, EPSILON);
+			assertEquals(String.format(" Relative Positioning doesn't match when reshift to middle, from "+pos[caseIndex].name()),
+					expMiddle[caseIndex], fins.getTabShift(), EPSILON);
+			
+			fins.setTabPositionMethod( Position.BOTTOM);
+			actShift = fins.getTabShift();
+			assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], pos[caseIndex].name()),
+					expFront[caseIndex], actFront, EPSILON);
+			assertEquals(String.format(" Relative Positioning doesn't match when reshift to bottom, from "+pos[caseIndex].name()),
+					expBottom[caseIndex], fins.getTabShift(), EPSILON);
+			
+		}
+	}
+    
+    
+    @Test 
+    public void testGetTabShiftAs() {
+        final Position[] method={Position.TOP, Position.MIDDLE, Position.MIDDLE, Position.BOTTOM};
+        final double[] expTop = {0.1, 0.04, 0.07, 0.06};
+        final double[] expShift = {0.1, 0.0, 0.03, -0.02};
+        final double finLength = 0.10;
+        final double tabLength = 0.02;
+        
+        for( int caseIndex=0; caseIndex < method.length; ++caseIndex ){
+        	double actShift = Position.getShift( method[caseIndex], expTop[caseIndex], finLength, tabLength);
+        	assertEquals(String.format("Returned shift doesn't match for: (%6.2g via:%s)\n", expTop[caseIndex], method[caseIndex].name()),
+          		 	expShift[caseIndex], actShift, EPSILON);
+        	
+        	
+        	double actTop = Position.getTop( expShift[caseIndex], method[caseIndex], finLength, tabLength );
+        	assertEquals(String.format("Returned front doesn't match for: (%6.2g via:%s)\n", expShift[caseIndex], method[caseIndex].name()),
+          		 	expTop[caseIndex], actTop, EPSILON);
+        }
+    }
+    
+
+    @Test
+    public void testTabLocationUpdate() throws IllegalFinPointException {
+    	final Rocket rkt = new Rocket();
+    	final AxialStage stg = new AxialStage();
+    	rkt.addChild(stg);
+    	BodyTube body = new BodyTube(0.2, 0.001);
+    	stg.addChild(body);
+    	
+    	// Fin length = 0.025
+    	// Tab Length = 0.01
+    	//          +--+
+    	//         /   |
+    	//        /    |
+    	//   +---+-----+---+
+    	//
+    	TrapezoidFinSet fins = new TrapezoidFinSet( 1, 0.05, 0.02, 0.03, 0.025);
+    	fins.setAxialOffset( Position.MIDDLE, 0.0);
+    	body.addChild(fins);
+    	// fins.length = 0.05;
+    	fins.setTabLength(0.01);
+
+     	fins.setTabPositionMethod( Position.MIDDLE);
+ 	 	fins.setTabShift( 0.0 );
+     
+ 	 	final double expFrontFirst = 0.02;
+ 	 	final double actFrontFirst = fins.getTabFrontEdge();
+	 	assertEquals(String.format(" Front edge doesn't match for: (%6.2g via:%s)\n", fins.getTabFrontEdge(), Position.MIDDLE.name()),
+       		 	expFrontFirst, actFrontFirst, EPSILON);
+    
+     	fins.setRootChord(0.08);
+     	
+	 	final double expFrontSecond = 0.035;
+ 	 	final double actFrontSecond = fins.getTabFrontEdge();
+	 	assertEquals(" Front edge doesn't match after adjusting root chord...",expFrontSecond, actFrontSecond, EPSILON);
+    }
+
+	// arguably, this should be in a test class for TrapezoidalFinSet
+	@Test
+	public void testGenerateTrapezoidalPoints() {
+		final Rocket rkt = createSimpleFin();
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+		
+		// Fin length = 0.05
+		// Tab Length = 0.01
+		//          +--+
+		//         /    \
+		//        /      \
+		//   +---+--------+---+
+		//
+		Coordinate[] actPoints = fins.getFinPoints();
+		
+		Coordinate[] expPoints = { new Coordinate(0.00, 0.0),
+				new Coordinate(0.02, 0.05),
+				new Coordinate(0.04, 0.05),
+				new Coordinate(0.06, 0.0),
+				new Coordinate(0.00, 0.0) };
+		
+		for (int index = 0; index < actPoints.length; ++index) {
+			assertEquals(" generated fin point [" + index + "] doesn't match! ", expPoints[index].x, actPoints[index].x, EPSILON);
+			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
+			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
+		}
 	}
 	
 	
 	@Test
-	public void testFreeformConvert() {
-		testFreeformConvert(new TrapezoidFinSet());
-		testFreeformConvert(new EllipticalFinSet());
-		testFreeformConvert(new FreeformFinSet());
+	public void testAreaCalculations() {
+		Coordinate[] basicPoints = { 
+				new Coordinate(0.00, 0.0),
+				new Coordinate(0.02, 0.05),
+				new Coordinate(0.04, 0.05),
+				new Coordinate(0.06, 0.0),
+				new Coordinate(0.00, 0.0) };
+		//
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
+		//       [4]
+		//
+		
+		final double expArea = 0.04 * 0.05;
+		final PointWeight actCentroid = FinSet.calculateCurveIntegral(basicPoints);
+		assertEquals(" basic area doesn't match...", expArea, actCentroid.w, EPSILON);
+		assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, 1e-8);
+		assertEquals(" basic centroid y doesn't match: ", 0.020833333, actCentroid.y, 1e-8);
 	}
-	
-	
-	private void testFreeformConvert(FinSet fin) {
-		FreeformFinSet converted;
-		Material mat = Material.newMaterial(Type.BULK, "foo", 0.1, true);
-		
-		fin.setBaseRotation(1.1);
-		fin.setCantAngle(0.001);
-		fin.setCGOverridden(true);
-		fin.setColor(Color.BLACK);
-		fin.setComment("cmt");
-		fin.setCrossSection(CrossSection.ROUNDED);
-		fin.setFinCount(5);
-		fin.setFinish(Finish.ROUGH);
-		fin.setLineStyle(LineStyle.DASHDOT);
-		fin.setMassOverridden(true);
-		fin.setMaterial(mat);
-		fin.setOverrideCGX(0.012);
-		fin.setOverrideMass(0.0123);
-		fin.setOverrideSubcomponents(true);
-		fin.setAxialOffset(0.1);
-		fin.setRelativePosition(Position.ABSOLUTE);
-		fin.setTabHeight(0.01);
-		fin.setTabLength(0.02);
-		fin.setTabRelativePosition(TabRelativePosition.END);
-		fin.setTabShift(0.015);
-		fin.setThickness(0.005);
-		
-		
-		converted = FreeformFinSet.convertFinSet((FinSet) fin.copy());
-		
-		/// what do we want to ACTUALLY compare?
-		//  ComponentCompare.assertSimilarity(fin, converted, true);  // deprecated; removed
-        
-		
-		assertEquals(converted.getComponentName(), converted.getName());
-		
-		
-		// Create test rocket
-		Rocket rocket = new Rocket();
-		AxialStage stage = new AxialStage();
-		BodyTube body = new BodyTube();
-		
-		rocket.addChild(stage);
-		stage.addChild(body);
-		body.addChild(fin);
-		rocket.enableEvents();
-		
-		Listener l1 = new Listener("l1");
-		rocket.addComponentChangeListener(l1);
-		
-		fin.setName("Custom name");
-		assertEquals("FinSet listener has not been notified: ", l1.changed, true);
-		assertEquals(ComponentChangeEvent.NONFUNCTIONAL_CHANGE, l1.changetype);
-		
-		
-		// Create copy
-		RocketComponent rocketcopy = rocket.copy();
-		
-		Listener l2 = new Listener("l2");
-		rocketcopy.addComponentChangeListener(l2);
-		
-		FinSet fincopy = (FinSet) rocketcopy.getChild(0).getChild(0).getChild(0);
-		FreeformFinSet.convertFinSet(fincopy);
-		
-		assertTrue("FinSet listener is changed", l2.changed);
-		assertEquals(ComponentChangeEvent.TREE_CHANGE,
-				l2.changetype & ComponentChangeEvent.TREE_CHANGE);
-		
-	}
-	
-	
-	private static class Listener implements ComponentChangeListener {
-		private boolean changed = false;
-		private int changetype = 0;
-		private final String name;
-		
-		public Listener(String name) {
-			this.name = name;
-		}
-		
-		@Override
-		public void componentChanged(ComponentChangeEvent e) {
-			assertFalse("Ensuring listener " + name + " has not been called.", changed);
-			changed = true;
-			changetype = e.getType();
-		}
-	}
-	
+
+
 }

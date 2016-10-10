@@ -11,7 +11,9 @@ import javax.swing.text.DefaultFormatterFactory;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
+// because this editor isn't *always* used as a number editor --> see MotorConfigurationPanel
 //public class SpinnerEditor extends JSpinner.NumberEditor {
+@SuppressWarnings("serial")
 public class SpinnerEditor extends JSpinner.DefaultEditor {
 
 	public SpinnerEditor(JSpinner spinner) {

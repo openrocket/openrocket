@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class DesignPreferencesPanel extends PreferencesPanel {
 
 	public DesignPreferencesPanel() {

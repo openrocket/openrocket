@@ -424,12 +424,8 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	}
 
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings("serial")
 	private static class InternalException extends Exception {
-		public InternalException() {
-			super();
-		}
-
 		public InternalException(String message, Throwable cause) {
 			super(message, cause);
 		}
@@ -438,8 +434,5 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			super(message);
 		}
 
-		public InternalException(Throwable cause) {
-			super(cause);
-		}
 	}
 }

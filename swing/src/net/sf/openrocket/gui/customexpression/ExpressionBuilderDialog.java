@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 
+@SuppressWarnings("serial")
 public class ExpressionBuilderDialog extends JDialog {
 
 	private static final Translator trans = Application.getTranslator();

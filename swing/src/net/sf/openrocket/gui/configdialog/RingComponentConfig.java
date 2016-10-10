@@ -22,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class RingComponentConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -125,7 +126,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 		
-		JComboBox combo = new JComboBox(
+		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,
@@ -133,7 +134,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
 						}));
-		panel.add(combo, "spanx 3, growx, wrap");
+		panel.add( positionCombo, "spanx 3, growx, wrap");
 		
 		//// plus
 		panel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
