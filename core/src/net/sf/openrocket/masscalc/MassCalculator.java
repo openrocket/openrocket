@@ -3,7 +3,6 @@ package net.sf.openrocket.masscalc;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.openrocket.masscalc.MassCalculation.Type;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -25,7 +24,7 @@ public class MassCalculator implements Monitorable {
 	//	private MassData rocketSpentMassCache;
 	//	private MassData propellantMassCache;
 
-	private int modId=0;
+	private int modId = 0;
 	
 	//////////////////  Constructors ///////////////////
 	public MassCalculator() {
@@ -40,7 +39,7 @@ public class MassCalculator implements Monitorable {
 	 * - includes motors
 	 * - for Black Powder & Composite motors, this generally *excludes* propellant
 	 *  
-	 * @param configuration		the rocket configuration to calculate for
+	 * @param config		the rocket configuration to calculate for
 	 * @return					the MassData struct of the motors at burnout
 	 */
 	public static RigidBody calculateStructure( final FlightConfiguration config) {
@@ -53,7 +52,7 @@ public class MassCalculator implements Monitorable {
 	 * - includes motors
 	 * - for Black Powder & Composite motors, this generally *excludes* propellant
 	 *  
-	 * @param configuration		the rocket configuration to calculate for
+	 * @param config		the rocket configuration to calculate for
 	 * @return					the MassData struct of the motors at burnout
 	 */
 	public static RigidBody calculateBurnout( final FlightConfiguration config) {
@@ -124,7 +123,6 @@ public class MassCalculator implements Monitorable {
 	 *     ( or mount-data collides with motor-data )  
 	 *
 	 * @param configuration		the rocket configuration
-	 * @param type				the state of the motors (none, launch mass, burnout mass)
 	 * @return					a map from each rocket component to its corresponding CG.
 	 */
 	@Deprecated
@@ -152,10 +150,6 @@ public class MassCalculator implements Monitorable {
 
 	
 	////////////////// Mass property calculations  ///////////////////
-	
-
-	
-	
 	@Override
 	public int getModID() {
 		return this.modId;

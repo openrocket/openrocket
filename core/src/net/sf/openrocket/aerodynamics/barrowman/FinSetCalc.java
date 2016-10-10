@@ -62,16 +62,19 @@ public class FinSetCalc extends RocketComponentCalc {
 	public FinSetCalc(FinSet component) {
 		super(component);
 		
-		thickness = component.getThickness();
-		bodyRadius = component.getBodyRadius();
-		finCount = component.getFinCount();
-		baseRotation = component.getBaseRotation();
-		cantAngle = component.getCantAngle();
-		span = component.getSpan();
-		finArea = component.getFinArea();
-		crossSection = component.getCrossSection();
+		FinSet fin = (FinSet) component;
+
+		thickness = fin.getThickness();
+		bodyRadius = fin.getFinFront().y;
+		finCount = fin.getFinCount();
 		
-		calculateFinGeometry(component);
+		baseRotation = fin.getBaseRotation();
+		cantAngle = fin.getCantAngle();
+		span = fin.getSpan();
+		finArea = fin.getPlanformArea();
+		crossSection = fin.getCrossSection();
+		
+		calculateFinGeometry(fin);
 		calculatePoly();
 		calculateInterferenceFinCount(component);
 	}
@@ -246,7 +249,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected void calculateFinGeometry(FinSet component) {
 		
 		span = component.getSpan();
-		finArea = component.getFinArea();
+		finArea = component.getPlanformArea();
 		ar = 2 * pow2(span) / finArea;
 		
 		Coordinate[] points = component.getFinPoints();
@@ -339,7 +342,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		cosGammaLead = 0;
 		rollSum = 0;
 		double area = 0;
-		double radius = component.getBodyRadius();
+		double radius = component.getFinFront().y;
 		
 		final double dy = span / (DIVISIONS - 1);
 		for (int i = 0; i < DIVISIONS; i++) {

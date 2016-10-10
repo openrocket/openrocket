@@ -243,10 +243,7 @@ public class MassCalculation {
 	 * Returns the mass and inertia data for this component and all subcomponents.
 	 * The inertia is returned relative to the CG, and the CG is in the coordinates
 	 * of the specified component, not global coordinates.
-	 * 
-	 * @param calculation - i/o parameter to specifies the calculation parameters, and 
-	 * 		the instance returned with the calculation's tree data.
-	 * 
+	 *
 	 */
 	/* package-scope */ MassCalculation calculateAssembly(){
 		final RocketComponent component = this.root;
@@ -346,10 +343,7 @@ public class MassCalculation {
 	 * MOI Calculation needs to be a two-step process:
 	 * (1) calculate overall Center-of-Mass (CM) first (down inline with data-gathering)
 	 * (2) Move MOIs to CM via parallel axis theorem (this method)
-	 * 
-	 * @param Center-of-Mass where the MOI should be calculated around.
-	 * @param inertias a list of component MassData instances to condense into a single MOI
-	 * 
+	 *
 	 * @return freshly calculated Moment-of-Inertia matrix
 	 */
 	/* package-scope */ RigidBody calculateMomentOfInertia() {

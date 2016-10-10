@@ -201,7 +201,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
 		panel.add(label, "gapleft para");
 		
-		final DoubleModel mts = new DoubleModel(component, "TabShift", UnitGroup.UNITS_LENGTH);
+		final DoubleModel mts = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
 		component.addChangeListener( mts);
 		spin = new JSpinner(mts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -215,7 +215,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label, "right, gapright unrel");
 		
 
-		final EnumModel<AxialMethod> em = new EnumModel<>(component, "TabRelativePosition");
+		final EnumModel<AxialMethod> em = new EnumModel<>(component, "TabOffsetMethod");
 		
 		JComboBox<AxialMethod> enumCombo = new JComboBox<>(em);
 		
