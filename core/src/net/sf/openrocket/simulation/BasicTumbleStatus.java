@@ -54,15 +54,16 @@ public class BasicTumbleStatus extends SimulationStatus {
 				continue;
 			}
 			if (component instanceof FinSet) {
+				final FinSet finComponent = ((FinSet) component);
+				final double finArea = finComponent.getPlanformArea();
+				int finCount = finComponent.getFinCount();
 				
-				double finComponent = ((FinSet) component).getFinArea();
-				int finCount = ((FinSet) component).getFinCount();
 				// check bounds on finCount.
 				if (finCount >= finEff.length) {
 					finCount = finEff.length - 1;
 				}
 				
-				aFins += finComponent * finEff[finCount];
+				aFins += finArea * finEff[finCount];
 				
 			} else if (component instanceof SymmetricComponent) {
 				aBt += ((SymmetricComponent) component).getComponentPlanformArea();

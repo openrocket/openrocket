@@ -910,8 +910,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 	/**
 	 * Get the positioning of the component relative to its parent component.
-	 * This is one of the enums of {@link AxialMethod}.  A setter method is not provided,
-	 * but can be provided by a subclass.
+	 *
+	 * @return This will return one of the enums of {@link AxialMethod}
 	 */
 	public final AxialMethod getAxialMethod() {
 		return axialMethod;
@@ -952,7 +952,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public double getAxialOffset(AxialMethod asMethod) {
 		double parentLength = 0;
 		if (null != this.parent) {
-			parentLength = this.parent.length;
+		    parentLength = this.parent.length;
 		}
 
 		if(AxialMethod.ABSOLUTE == asMethod){
@@ -965,7 +965,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public double getAxialOffset() {
 		return this.axialOffset;
 	}
-	
+
+	public double getAxialFront(){
+	    return this.position.x;
+    }
+
 	public double getRadiusOffset() {
 		mutex.verify();
 		return 0;
@@ -1017,14 +1021,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Set the position value of the component.  The exact meaning of the value
 	 * depends on the current relative positioning.
 	 *
-	 * @param newOffset  the position value of the component.
-	 */
-	public void setAxialOffset(double newOffset) {
+	 * @param newOffset  the desired offset of this component, using the components current axial-method
+     */
+    public void setAxialOffset(double newOffset) {
 		this.setAxialOffset(this.axialMethod, newOffset);
 		this.fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
-	final protected void setAxialOffset( final AxialMethod requestedMethod, final double requestedOffset) {
+	protected void setAxialOffset( final AxialMethod requestedMethod, final double requestedOffset) {
 		checkState();
 
 		double newX = Double.NaN;
@@ -1060,7 +1064,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.setAxialOffset(this.axialMethod, this.axialOffset);
 	}
 
-	public final void updateChildren(){
+	private final void updateChildren(){
 		this.update();
 		for( RocketComponent rc : children ){
 			rc.updateChildren();
@@ -1079,7 +1083,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * NOTE: the length of this array returned always equals this.getInstanceCount()
 	 *
-	 * @return    an generated (i.e. new) array of instance locations
+	 * @return    a generated (i.e. new) array of instance locations
 	 */
 	// @Override Me !
 	public Coordinate[] getInstanceLocations(){
@@ -1529,8 +1533,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final RocketComponent getRoot() {
 		checkState();
 		RocketComponent gp = this;
-		while (gp.parent != null)
+		while (gp.parent != null){
 			gp = gp.parent;
+		}
 		return gp;
 	}
 	
@@ -2119,12 +2124,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	// multi-line output
 	protected StringBuilder toDebugDetail() {
 		StringBuilder buf = new StringBuilder();
+
+		// infer the calling method name
 		StackTraceElement[] stackTrace = (new Exception()).getStackTrace();
-		buf.append(" >> Dumping Detailed Information from: " + stackTrace[1].getMethodName() + "\n");
-		buf.append("      current Component: " + this.getName() + "  ofClass: " + this.getClass().getSimpleName() + "\n");
-		buf.append("      offset: " + this.axialOffset + " via: " + this.axialMethod.name() + "  => " + this.getAxialOffset() + "\n");
-		buf.append("      thisCenterX: " + this.position.x + "\n");
-		buf.append("      this length: " + this.length + "\n");
+		String callingMethod = stackTrace[1].getMethodName();
+		for( StackTraceElement el : stackTrace ){
+			if( ! "toDebugDetail".equals(el.getMethodName())){
+				callingMethod = el.getMethodName();
+				break;
+			}
+		}
+
+		buf.append(String.format(" >> Dumping Detailed Information from: %s\n", callingMethod));
+		buf.append(String.format("      At Component: %s, of class: %s \n", this.getName(), this.getClass().getSimpleName()));
+		buf.append(String.format("      position: %.6f    at offset: %.4f via: %s\n", this.position.x, this.axialOffset, this.axialMethod.name()));
+		buf.append(String.format("      length: %.4f\n", this.length ));
 		return buf;
 	}
 	
@@ -2152,7 +2166,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
 		String prefix = String.format("%s%s (x%d)", indent, this.getName(), this.getInstanceCount() );
 		
-		buffer.append(String.format("%-40s|  %6.4f; %24s; %24s; \n", prefix, getLength(), getPosition().toPreciseString(), getComponentLocations()[0].toPreciseString() )); 
+		// 1) instanced vs non-instanced
+		if( 1 == getInstanceCount() ){
+			// un-instanced RocketComponents (usual case)
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s; ", prefix, this.getLength(), this.axialOffset, this.getComponentLocations()[0]));
+			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.axialMethod.name()));
+		}else if( this instanceof Instanceable ){
+			// instanced components -- think motor clusters or booster stage clusters
+			final String patternName = ((Instanceable)this).getPatternName();
+			buffer.append(String.format("%-40s (cluster: %s )", prefix, patternName));
+			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.axialMethod.name()));
+			
+			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
+				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount());
+				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(), this.axialOffset, getLocations()[0]));
+			}
+		}else{
+			throw new IllegalStateException("This is a developer error! If you implement an instanced class, please subclass the Instanceable interface.");
+		}
 		
 		// 2) if this is an ACTING motor mount:
 		if(( this instanceof MotorMount ) &&( ((MotorMount)this).isMotorMount())){ 

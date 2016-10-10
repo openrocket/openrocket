@@ -340,10 +340,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				List<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
 				finset.setPoints( points);
-			} catch (IllegalFinPointException e) {
-				log.warn("Error storing fin points", e);
-				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
-						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
 			} catch (IOException e) {
 				log.warn("Error loading file", e);
 				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
@@ -426,11 +422,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 			
 			Point2D.Double point = getCoordinates(event);
-			try {
-				 finset.setPoint(dragIndex, point.x, point.y);
-			} catch (IllegalFinPointException ignore) {
-				 log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
-		    }
+			finset.setPoint(dragIndex, point.x, point.y);
 
 			updateFields();
 		}
@@ -581,8 +573,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				updateFields();
 			} catch (NumberFormatException ignore) {
 			    log.warn("ignoring NumberFormatException while editing a Freeform Fin");
-			} catch (IllegalFinPointException ignore) {
-				log.warn("ignoring IllegalFinPointException while editing a Freeform Fin");
 			}
 		}
 	}
