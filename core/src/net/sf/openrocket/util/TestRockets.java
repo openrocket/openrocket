@@ -366,7 +366,7 @@ public class TestRockets {
 		Enum<T>[] values = c.getEnumConstants();
 		if (values.length == 0)
 			return null;
-		
+			
 		return values[rnd.nextInt(values.length)];
 	}
 	
@@ -1654,7 +1654,5 @@ public class TestRockets {
 		rocket.enableEvents();
 		return rocketDoc;
 	}
-	
-
 	
 }

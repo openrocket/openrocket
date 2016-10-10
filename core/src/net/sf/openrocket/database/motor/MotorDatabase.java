@@ -20,5 +20,7 @@ public interface MotorDatabase {
 	public List<? extends Motor> findMotors(Motor.Type type,
 			String manufacturer, String designation, double diameter,
 			double length);
+			
+	public Motor findMotor(String digest);
 	
 }

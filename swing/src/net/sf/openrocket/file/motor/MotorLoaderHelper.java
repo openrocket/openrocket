@@ -34,7 +34,7 @@ public final class MotorLoaderHelper {
 	 * @param target	the file or directory to load.
 	 * @return			a list of all motors in the file/directory.
 	 */
-	public static List<Motor> load(File target) {
+	public static List<ThrustCurveMotor.Builder> load(File target) {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 
 		if (target.isDirectory()) {
@@ -68,10 +68,10 @@ public final class MotorLoaderHelper {
 		}
 	}
 
-	public static List<Motor> load( InputStream is, String fileName ) {
+	public static List<ThrustCurveMotor.Builder> load( InputStream is, String fileName ) {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		try {
-			List<Motor> motors = loader.load(is, fileName);
+			List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
 			if (motors.size() == 0) {
 				log.warn("No motors found in file " + fileName);
 			}
@@ -79,7 +79,7 @@ public final class MotorLoaderHelper {
 		} catch (IOException e) {
 			log.warn("IOException when loading motor file " + fileName, e);
 		}
-		return Collections.<Motor>emptyList();
+		return Collections.<ThrustCurveMotor.Builder>emptyList();
 	}
 
 	/**
@@ -91,16 +91,16 @@ public final class MotorLoaderHelper {
 	 * @param iterator	the FileIterator that iterates of the files to load.
 	 * @return			a list of all motors loaded.
 	 */
-	public static List<Motor> load(FileIterator iterator) {
-		List<Motor> list = new ArrayList<Motor>();
+	public static List<ThrustCurveMotor.Builder> load(FileIterator iterator) {
+		List<ThrustCurveMotor.Builder> list = new ArrayList<ThrustCurveMotor.Builder>();
 
 		while (iterator.hasNext()) {
 			final Pair<String, InputStream> input = iterator.next();
 			log.debug("Loading motors from file " + input.getU());
 			try {
-				List<Motor> motors = load(input.getV(), input.getU());
-				for (Motor m : motors) {
-					list.add((ThrustCurveMotor) m);
+				List<ThrustCurveMotor.Builder> motors = load(input.getV(), input.getU());
+				for (ThrustCurveMotor.Builder m : motors) {
+					list.add(m);
 				}
 			} finally {
 				try {

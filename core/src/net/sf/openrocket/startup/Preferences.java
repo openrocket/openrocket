@@ -58,6 +58,7 @@ public abstract class Preferences implements ChangeSource {
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
+	public static final String MOTOR_HIDE_UNAVAILABLE = "MotorHideUnavailable";
 	
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";

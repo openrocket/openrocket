@@ -21,14 +21,10 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
 	
-	
-	
-	
 	@Override
 	protected Charset getDefaultCharset() {
 		return CHARSET;
 	}
-	
 	
 	/**
 	 * Load a <code>Motor</code> from a RASP file specified by the <code>Reader</code>.
@@ -42,8 +38,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	 * @throws IOException  if an I/O error occurs or if the file format is illegal.
 	 */
 	@Override
-	public List<Motor> load(Reader reader, String filename) throws IOException {
-		List<Motor> motors = new ArrayList<Motor>();
+	public List<ThrustCurveMotor.Builder> load(Reader reader, String filename) throws IOException {
+		List<ThrustCurveMotor.Builder> motors = new ArrayList<ThrustCurveMotor.Builder>();
 		BufferedReader in = new BufferedReader(reader);
 		
 		String manufacturer = "";
@@ -66,7 +62,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 			
 			line = in.readLine();
 			main: while (line != null) { // Until EOF
-			
+				
 				manufacturer = "";
 				designation = "";
 				comment = "";
@@ -102,7 +98,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 				length = Double.parseDouble(pieces[2]) / 1000.0;
 				
 				if (pieces[3].equalsIgnoreCase("None")) {
-					
+				
 				} else {
 					buf = split(pieces[3], "[-,]+");
 					for (int i = 0; i < buf.length; i++) {
@@ -170,11 +166,11 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	 * Create a motor from RASP file data.
 	 * @throws IOException  if the data is illegal for a thrust curve
 	 */
-	private static Motor createRASPMotor(String manufacturer, String designation,
+	private static ThrustCurveMotor.Builder createRASPMotor(String manufacturer, String designation,
 			String comment, double length, double diameter, double[] delays,
 			double propW, double totalW, List<Double> time, List<Double> thrust)
-			throws IOException {
-		
+					throws IOException {
+					
 		// Add zero time/thrust if necessary
 		sortLists(time, thrust);
 		finalizeThrustCurve(time, thrust);
@@ -198,17 +194,23 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
 		final String digest = motorDigest.getDigest();
 		
-		try {
-			
-			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
-			return new ThrustCurveMotor(m, designation, comment, m.getMotorType(),
-					delays, diameter, length, timeArray, thrustArray, cgArray, digest);
-			
-		} catch (IllegalArgumentException e) {
-			
-			// Bad data read from file.
-			throw new IOException("Illegal file format.", e);
-			
-		}
+		Manufacturer m = Manufacturer.getManufacturer(manufacturer);
+		
+		ThrustCurveMotor.Builder builder = new ThrustCurveMotor.Builder();
+		builder.setManufacturer(m)
+				.setDesignation(designation)
+				.setDescription(comment)
+				.setDigest(digest)
+				.setMotorType(m.getMotorType())
+				.setStandardDelays(delays)
+				.setDiameter(diameter)
+				.setLength(length)
+				.setTimePoints(timeArray)
+				.setThrustPoints(thrustArray)
+				.setCGPoints(cgArray)
+				.setInitialMass(totalW)
+				.setPropellantMass(propW);
+				
+		return builder;
 	}
 }

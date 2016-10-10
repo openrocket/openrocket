@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.sf.openrocket.aerodynamics.WarningSet;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import net.sf.openrocket.aerodynamics.WarningSet;
 
 
 /**
@@ -29,8 +27,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 public class SimpleSAX {
 
 	static final XMLReaderCache cache = new XMLReaderCache(10);
-	private static final Logger log = LoggerFactory.getLogger(SimpleSAX.class);
-	
+
 	/**
 	 * Read a simple XML file.
 	 * 

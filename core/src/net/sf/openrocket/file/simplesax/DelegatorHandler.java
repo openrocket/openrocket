@@ -4,12 +4,12 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
 
 /**
  * The actual SAX handler class.  Contains the necessary methods for parsing the SAX source.
@@ -39,7 +39,7 @@ class DelegatorHandler extends DefaultHandler {
 	@Override
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
-		
+			
 		// Check for ignore
 		if (ignore > 0) {
 			ignore++;
@@ -78,7 +78,7 @@ class DelegatorHandler extends DefaultHandler {
 		// Check for ignore
 		if (ignore > 0)
 			return;
-		
+			
 		StringBuilder sb = elementData.peek();
 		sb.append(chars, start, length);
 	}
