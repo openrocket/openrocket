@@ -8,7 +8,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 
 /**
@@ -21,7 +20,6 @@ class DelegatorHandler extends DefaultHandler {
 	private final Deque<ElementHandler> handlerStack = new ArrayDeque<ElementHandler>();
 	private final Deque<StringBuilder> elementData = new ArrayDeque<StringBuilder>();
 	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<HashMap<String, String>>();
-	
 	
 	// Ignore all elements as long as ignore > 0
 	private int ignore = 0;
@@ -39,17 +37,9 @@ class DelegatorHandler extends DefaultHandler {
 	@Override
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
-			
+		
 		// Check for ignore
 		if (ignore > 0) {
-			ignore++;
-			return;
-		}
-		
-		// Check for unknown namespace
-		if (!uri.equals("")) {
-			warnings.add(Warning.fromString("Unknown namespace element '" + uri
-					+ "' encountered, ignoring."));
 			ignore++;
 			return;
 		}
@@ -78,7 +68,7 @@ class DelegatorHandler extends DefaultHandler {
 		// Check for ignore
 		if (ignore > 0)
 			return;
-			
+		
 		StringBuilder sb = elementData.peek();
 		sb.append(chars, start, length);
 	}

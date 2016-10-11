@@ -1,13 +1,5 @@
 package net.sf.openrocket.utils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.openrocket.file.motor.GeneralMotorLoader;
-import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
@@ -83,49 +75,6 @@ public class MotorCorrelation {
 		}
 		
 		return cross / auto;
-	}
-	
-	
-	
-	
-	public static void main(String[] args) {
-		
-		MotorLoader loader = new GeneralMotorLoader();
-		List<Motor> motors = new ArrayList<Motor>();
-		List<String> files = new ArrayList<String>();
-		
-		// Load files
-		for (String file : args) {
-			List<Motor> m = null;
-			try {
-				InputStream stream = new FileInputStream(file);
-				m = loader.load(stream, file);
-				stream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			if (m != null) {
-				motors.addAll(m);
-				for (int i = 0; i < m.size(); i++)
-					files.add(file);
-			}
-		}
-		
-		// Output motor digests
-		final int count = motors.size();
-		for (int i = 0; i < count; i++) {
-			System.out.println(files.get(i) + ": " + ((Motor) motors.get(i)).getDigest());
-		}
-		
-		// Cross-correlate every pair
-		for (int i = 0; i < count; i++) {
-			for (int j = i + 1; j < count; j++) {
-				System.out.println(files.get(i) + " " + files.get(j) + " : " +
-						crossCorrelation(motors.get(i), motors.get(j)));
-			}
-		}
-		
 	}
 	
 }

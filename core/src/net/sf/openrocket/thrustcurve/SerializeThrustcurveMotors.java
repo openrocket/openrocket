@@ -17,7 +17,6 @@ import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.motor.ThrustCurveMotor.Builder;
 import net.sf.openrocket.util.Pair;
 
 public class SerializeThrustcurveMotors {
@@ -130,11 +129,11 @@ public class SerializeThrustcurveMotors {
 						builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
 					}
 					
-					builder.setCaseInfo(mi.getCase_info())
-							.setPropellantInfo(mi.getProp_info())
-							.setDiameter(mi.getDiameter() / 1000.0)
-							.setLength(mi.getLength() / 1000.0)
-							.setMotorType(type);
+					builder.setCaseInfo(mi.getCase_info());
+					builder.setPropellantInfo(mi.getProp_info());
+					builder.setDiameter(mi.getDiameter() / 1000.0);
+					builder.setLength(mi.getLength() / 1000.0);
+					builder.setMotorType(type);
 							
 					if ("OOP".equals(mi.getAvailiability())) {
 						builder.setDesignation(mi.getDesignation());
@@ -183,9 +182,9 @@ public class SerializeThrustcurveMotors {
 				String fileName = f.getU();
 				InputStream is = f.getV();
 				
-				List<Builder> motors = loader.load(is, fileName);
+				List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
 				
-				for (Builder builder : motors) {
+				for (ThrustCurveMotor.Builder builder : motors) {
 					allMotors.add(builder.build());
 				}
 			}

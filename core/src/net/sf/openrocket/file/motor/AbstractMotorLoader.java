@@ -174,10 +174,10 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	@SuppressWarnings("unchecked")
 	protected static void finalizeThrustCurve(List<Double> time, List<Double> thrust,
 			List... lists) {
-			
+		
 		if (time.size() == 0)
 			return;
-			
+		
 		// Start
 		if (!MathUtil.equals(time.get(0), 0) || !MathUtil.equals(thrust.get(0), 0)) {
 			time.add(0, 0.0);

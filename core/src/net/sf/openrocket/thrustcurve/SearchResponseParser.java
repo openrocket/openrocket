@@ -100,6 +100,9 @@ public class SearchResponseParser implements ElementHandler {
 			}
 			response.addMotor(currentMotor);
 			break;
+		case matches:
+			this.response.setMatches(Integer.parseInt(content));
+			break;
 		case motor_id:
 			currentMotor.setMotor_id(Integer.parseInt(content));
 			break;
@@ -172,7 +175,7 @@ public class SearchResponseParser implements ElementHandler {
 		}
 		
 	}
-	
+
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
 	}

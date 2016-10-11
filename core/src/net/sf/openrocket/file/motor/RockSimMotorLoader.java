@@ -23,6 +23,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.motor.ThrustCurveMotor.Builder;
 import net.sf.openrocket.util.Coordinate;
 
 public class RockSimMotorLoader extends AbstractMotorLoader {
@@ -79,7 +80,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	 * Initial handler for the RockSim engine files.
 	 */
 	private static class RSEHandler extends AbstractElementHandler {
-		private final List<ThrustCurveMotor.Builder> motors = new ArrayList<ThrustCurveMotor.Builder>();
+		private final List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		
 		private RSEMotorHandler motorHandler;
 		
@@ -90,7 +91,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-				
+			
 			if (element.equals("engine-database") ||
 					element.equals("engine-list")) {
 				// Ignore <engine-database> and <engine-list> elements
@@ -113,7 +114,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) throws SAXException {
-				
+			
 			if (element.equals("engine")) {
 				ThrustCurveMotor.Builder motor = motorHandler.getMotor();
 				motors.add(motor);
@@ -265,7 +266,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-				
+			
 			if (element.equals("comments")) {
 				return PlainTextHandler.INSTANCE;
 			}
@@ -286,7 +287,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) {
-				
+			
 			if (element.equals("comments")) {
 				if (description.length() > 0) {
 					description = description + "\n\n" + content.trim();
@@ -320,10 +321,10 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			}
 		}
 		
-		public ThrustCurveMotor.Builder getMotor() throws SAXException {
+		public Builder getMotor() throws SAXException {
 			if (time == null || time.size() == 0)
 				throw new SAXException("Illegal motor data");
-				
+			
 			finalizeThrustCurve(time, force, mass, cg);
 			
 			final int n = time.size();
@@ -332,7 +333,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				calculateMass = true;
 			if (hasIllegalValue(cg))
 				calculateCG = true;
-				
+			
 			if (calculateMass) {
 				mass = calculateMass(time, force, initMass, propMass);
 			}
@@ -350,6 +351,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				cgArray[i] = new Coordinate(cg.get(i), 0, 0, mass.get(i));
 			}
 			
+			
 			// Create the motor digest from all data available in the file
 			MotorDigest motorDigest = new MotorDigest();
 			motorDigest.update(DataType.TIME_ARRAY, timeArray);
@@ -364,35 +366,36 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
 			final String digest = motorDigest.getDigest();
 			
-			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
-			Motor.Type t = type;
-			if (t == Motor.Type.UNKNOWN) {
-				t = m.getMotorType();
-			} else {
-				if (m.getMotorType() != Motor.Type.UNKNOWN && m.getMotorType() != t) {
-					log.warn("Loaded motor type inconsistent with manufacturer," +
-							" loaded type=" + t + " manufacturer=" + m +
-							" manufacturer type=" + m.getMotorType() +
-							" designation=" + designation);
-				}
-			}
 			
-			ThrustCurveMotor.Builder builder = new ThrustCurveMotor.Builder();
-			builder.setManufacturer(m)
-					.setDesignation(designation)
-					.setDescription(description)
-					.setDigest(digest)
-					.setMotorType(t)
-					.setStandardDelays(delays)
-					.setDiameter(diameter)
-					.setLength(length)
-					.setTimePoints(timeArray)
-					.setThrustPoints(thrustArray)
-					.setCGPoints(cgArray)
-					.setInitialMass(initMass)
-					.setPropellantMass(propMass);
-					
-			return builder;
+			try {
+				Manufacturer m = Manufacturer.getManufacturer(manufacturer);
+				Motor.Type t = type;
+				if (t == Motor.Type.UNKNOWN) {
+					t = m.getMotorType();
+				} else {
+					if (m.getMotorType() != Motor.Type.UNKNOWN && m.getMotorType() != t) {
+						log.warn("Loaded motor type inconsistent with manufacturer," +
+								" loaded type=" + t + " manufacturer=" + m +
+								" manufacturer type=" + m.getMotorType() +
+								" designation=" + designation);
+					}
+				}
+				
+				return new ThrustCurveMotor.Builder()
+						.setManufacturer(m)
+						.setDesignation(designation)
+						.setDescription(description)
+						.setMotorType(t)
+						.setStandardDelays(delays)
+						.setDiameter(diameter)
+						.setLength(length)
+						.setTimePoints(timeArray)
+						.setThrustPoints(thrustArray)
+						.setCGPoints(cgArray)
+						.setDigest(digest);
+			} catch (IllegalArgumentException e) {
+				throw new SAXException("Illegal motor data", e);
+			}
 		}
 	}
 	
@@ -428,7 +431,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) {
-				
+			
 			if (element.equals("eng-data")) {
 				return NullElementHandler.INSTANCE;
 			}
@@ -440,7 +443,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) throws SAXException {
-				
+			
 			double t = parseDouble(attributes.get("t"));
 			double f = parseDouble(attributes.get("f"));
 			double m = parseDouble(attributes.get("m")) / 1000.0;

@@ -25,7 +25,7 @@ public class GeneralMotorLoader implements MotorLoader {
 	}
 	
 	
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -37,7 +37,7 @@ public class GeneralMotorLoader implements MotorLoader {
 	}
 	
 	
-	
+
 	/**
 	 * Return an array containing the supported file extensions.
 	 * 
@@ -65,7 +65,7 @@ public class GeneralMotorLoader implements MotorLoader {
 		
 		if (point > 0)
 			ext = filename.substring(point + 1);
-			
+		
 		if (ext.equalsIgnoreCase("eng")) {
 			return RASP_LOADER;
 		} else if (ext.equalsIgnoreCase("rse")) {

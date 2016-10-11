@@ -45,7 +45,7 @@ public class ZipFileMotorLoader implements MotorLoader {
 	
 	@Override
 	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException {
-		List<ThrustCurveMotor.Builder> motors = new ArrayList<ThrustCurveMotor.Builder>();
+		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		
 		ZipInputStream is = new ZipInputStream(stream);
 		
@@ -56,10 +56,10 @@ public class ZipFileMotorLoader implements MotorLoader {
 			ZipEntry entry = is.getNextEntry();
 			if (entry == null)
 				break;
-				
+			
 			if (entry.isDirectory())
 				continue;
-				
+			
 			// Get the file name of the entry
 			String name = entry.getName();
 			int index = name.lastIndexOf('/');

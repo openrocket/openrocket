@@ -60,6 +60,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.utils.MotorCorrelation;
 
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
 	private static final long serialVersionUID = -8737784181512143155L;
@@ -492,6 +493,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 			motors = filtered;
 		}
+
 		Collections.sort(motors, MOTOR_COMPARATOR);
 
 		return motors;

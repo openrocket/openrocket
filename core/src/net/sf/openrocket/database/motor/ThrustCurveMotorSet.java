@@ -7,6 +7,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.Manufacturer;
@@ -37,6 +39,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	
 	private Manufacturer manufacturer = null;
 	private String designation = null;
+	private String simplifiedDesignation = null;
 	private double diameter = -1;
 	private double length = -1;
 	private long totalImpulse = 0;
@@ -51,6 +54,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (motors.isEmpty()) {
 			manufacturer = motor.getManufacturer();
 			designation = motor.getDesignation();
+			simplifiedDesignation = simplifyDesignation(designation);
 			diameter = motor.getDiameter();
 			length = motor.getLength();
 			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
@@ -78,6 +82,11 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 					delays.add(Motor.PLUGGED_DELAY);
 				}
 			}
+		}
+		
+		// Change the simplified designation if necessary
+		if (!designation.equalsIgnoreCase(motor.getDesignation().trim())) {
+			designation = simplifiedDesignation;
 		}
 		
 		if (caseInfo == null) {
@@ -145,6 +154,9 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 				(type != m.getMotorType())) {
 			return false;
 		}
+		
+		if (!simplifiedDesignation.equalsIgnoreCase(simplifyDesignation(m.getDesignation())))
+			return false;
 		
 		if (!designation.equalsIgnoreCase(m.getDesignation()))
 			return false;
@@ -250,6 +262,25 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 				", type=" + type + ", count=" + motors.size() + "]";
 	}
 	
+	private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
+	
+	/**
+	 * Simplify a motor designation, if possible.  This attempts to reduce the designation
+	 * into a simple letter + number notation for the impulse class and average thrust.
+	 * 
+	 * @param str	the designation to simplify
+	 * @return		the simplified designation, or the string itself if the format was not detected
+	 */
+	public static String simplifyDesignation(String str) {
+		str = str.trim();
+		Matcher m = SIMPLIFY_PATTERN.matcher(str);
+		if (m.matches()) {
+			return m.group(1);
+		} else {
+			return str.replaceAll("\\s", "");
+		}
+	}
+
 	/**
 	 * Comparator for deciding in which order to display matching motors.
 	 */
