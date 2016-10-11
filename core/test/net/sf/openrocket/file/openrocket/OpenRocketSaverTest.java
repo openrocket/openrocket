@@ -284,8 +284,8 @@ public class OpenRocketSaverTest {
 		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/net/sf/openrocket/Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
-			for (Motor m : loader.load(is, "Estes_A8.rse")) {
-				return (ThrustCurveMotor) m;
+			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {
+				return m.build();
 			}
 			is.close();
 		} catch (IOException e) {
@@ -311,11 +311,19 @@ public class OpenRocketSaverTest {
 		
 		public MotorDbProvider() {
 			db.addMotor(readMotor());
-			db.addMotor( new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA"));
+			db.addMotor( new ThrustCurveMotor.Builder()
+					.setManufacturer(Manufacturer.getManufacturer("A"))
+					.setDesignation("F12X")
+					.setDescription("Desc")
+					.setMotorType(Motor.Type.UNKNOWN)
+					.setStandardDelays(new double[] {})
+					.setDiameter(0.024)
+					.setLength(0.07)
+					.setTimePoints(new double[] { 0, 1, 2 })
+					.setThrustPoints(new double[] { 0, 1, 0 })
+					.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+					.setDigest("digestA")
+					.build());
 
 			assertEquals(2, db.getMotorSets().size());
 		}

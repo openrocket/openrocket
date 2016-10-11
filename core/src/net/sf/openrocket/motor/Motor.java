@@ -1,6 +1,6 @@
 package net.sf.openrocket.motor;
 
-public interface Motor extends Cloneable {
+public interface Motor {
 	
 	/**
 	 * Enum of rocket motor types.
@@ -119,8 +119,6 @@ public interface Motor extends Cloneable {
 	
 	public String getDigest();
 	
-	public Motor clone();
-		
 	public double getAverageThrust( final double startTime, final double endTime );
 	
 	public double getLaunchCGx();
@@ -187,4 +185,5 @@ public interface Motor extends Cloneable {
 	public double getUnitIyy();
 	
 	public double getUnitIzz();
+
 }

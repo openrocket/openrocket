@@ -88,97 +88,127 @@ public class TestRockets {
 	
 	// Minimal motor without any useful numbers data
 	private static ThrustCurveMotor getTestMotor() {
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("A"))
+				.setDesignation("F12X")
+				.setDescription("Desc")
+				.setMotorType(Motor.Type.UNKNOWN)
+				.setStandardDelays(new double[] {})
+				.setDiameter(0.024)
+				.setLength(0.07)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+				.setDigest("digestA")
+				.build();
 	} 
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_A8_18mm(){
-		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
-		//			Motor.Type type, double[] delays, double diameter, double length,
-		//			double[] time, double[] thrust,
-		//          Coordinate[] cg, String digest);
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("Estes"),"A8", " SU Black Powder",
-				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
-				new double[] { 0, 1, 2 }, new double[] { 0, 9, 0 },
-				new Coordinate[] {
-					new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)},
-				"digest A8 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("A8")
+				.setDescription(" SU Black Powder")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {0,3,5})
+				.setDiameter(0.018)
+				.setLength(0.070)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 9, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)})
+				.setDigest("digest A8 test")
+				.build();
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_B4_18mm(){
-		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
-		//			Motor.Type type, double[] delays, double diameter, double length,
-		//			double[] time, double[] thrust,
-		//          Coordinate[] cg, String digest);
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("Estes"),"B4", " SU Black Powder", 
-				Motor.Type.SINGLE, new double[] {0,3,5}, 0.018, 0.070,
-				new double[] { 0, 1, 2 }, new double[] { 0, 11.4, 0 },
-				new Coordinate[] {
-					new Coordinate(0.035, 0, 0, 0.0195),new Coordinate(.035, 0, 0, 0.0155),new Coordinate(.035, 0, 0, 0.013)}, 
-				"digest B4 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("B4")
+				.setDescription(" SU Black Powder")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {0,3,5})
+				.setDiameter(0.018)
+				.setLength(0.070)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 11.4, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(0.035, 0, 0, 0.0195),new Coordinate(.035, 0, 0, 0.0155),new Coordinate(.035, 0, 0, 0.013)})
+				.setDigest("digest B4 test")
+				.build();
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_C6_18mm(){
-		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
-		//			Motor.Type type, double[] delays, double diameter, double length,
-		//			double[] time, double[] thrust,
-		//          Coordinate[] cg, String digest);
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("Estes"),"C6", " SU Black Powder", 
-				Motor.Type.SINGLE, new double[] {0,3,5,7}, 0.018, 0.070,
-				new double[] { 0, 1, 2 }, new double[] { 0, 6, 0 },
-				new Coordinate[] {
-					new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.012)}, 
-				"digest C6 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("C6")
+				.setDescription(" SU Black Powder")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {0,3,5,7})
+				.setDiameter(0.018)
+				.setLength(0.070)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 6, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(0.035, 0, 0, 0.0227),new Coordinate(.035, 0, 0, 0.0165),new Coordinate(.035, 0, 0, 0.012)})
+				.setDigest("digest C6 test")
+				.build();
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_D21_18mm(){
-		return new ThrustCurveMotor(
-			Manufacturer.getManufacturer("AeroTech"),"D21", "Desc", 
-			Motor.Type.SINGLE, new double[] {}, 0.018, 0.07,
-			new double[] { 0, 1, 2 }, new double[] { 0, 32, 0 },
-			new Coordinate[] {
-				new Coordinate(.035, 0, 0, 0.025),new Coordinate(.035, 0, 0, .020),new Coordinate(.035, 0, 0, 0.0154)}, 
-			"digest D21 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("D21")
+				.setDescription("Desc")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {})
+				.setDiameter(0.018)
+				.setLength(0.070)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 32, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(.035, 0, 0, 0.025),new Coordinate(.035, 0, 0, .020),new Coordinate(.035, 0, 0, 0.0154)})
+				.setDigest("digest D21 test")
+				.build();
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_M1350_75mm(){
-		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
-		//			Motor.Type type, double[] delays, double diameter, double length,
-		//			double[] time, double[] thrust,
-		//          Coordinate[] cg, String digest);
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("AeroTech"),"M1350", "Desc", 
-				Motor.Type.SINGLE, new double[] {}, 0.075, 0.622,
-				new double[] { 0, 1, 2 }, new double[] { 0, 1357, 0 },
-				new Coordinate[] {
-					new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)}, 
-				"digest M1350 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("M1350")
+				.setDescription("Desc")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {})
+				.setDiameter(0.075)
+				.setLength(0.622)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1357, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(.311, 0, 0, 4.808),new Coordinate(.311, 0, 0, 3.389),new Coordinate(.311, 0, 0, 1.970)})
+				.setDigest("digest M1350 test")
+				.build();
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	private static Motor generateMotor_G77_29mm(){
-		// public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
-		//			Motor.Type type, double[] delays, double diameter, double length,
-		//			double[] time, double[] thrust,
-		//          Coordinate[] cg, String digest);
-		return new ThrustCurveMotor(
-				Manufacturer.getManufacturer("AeroTech"),"G77", "Desc", 
-				Motor.Type.SINGLE, new double[] {4,7,10},0.029, 0.124,
-				new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] {
-					new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)}, 
-				"digest G77 test");
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("G77")
+				.setDescription("Desc")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {4,7,10})
+				.setDiameter(0.029)
+				.setLength(0.124)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)})
+				.setDigest("digest G77 test")
+				.build();
 	}
 	
 	// 
@@ -366,7 +396,7 @@ public class TestRockets {
 		Enum<T>[] values = c.getEnumConstants();
 		if (values.length == 0)
 			return null;
-		
+			
 		return values[rnd.nextInt(values.length)];
 	}
 	
@@ -1654,7 +1684,5 @@ public class TestRockets {
 		rocket.enableEvents();
 		return rocketDoc;
 	}
-	
-
 	
 }
