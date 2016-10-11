@@ -43,7 +43,6 @@ import net.sf.openrocket.gui.main.UndoRedoAction;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
@@ -265,8 +264,8 @@ public class IntegrationTest {
 		InputStream is = IntegrationTest.class.getResourceAsStream("Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
-			for (Motor m : loader.load(is, "Estes_A8.rse")) {
-				return (ThrustCurveMotor) m;
+			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {
+				return m.build();
 			}
 			is.close();
 		} catch (IOException e) {

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.file.UnknownFileTypeException;
-import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.UncloseableInputStream;
 
 /**
@@ -44,8 +44,8 @@ public class ZipFileMotorLoader implements MotorLoader {
 	
 	
 	@Override
-	public List<Motor> load(InputStream stream, String filename) throws IOException {
-		List<Motor> motors = new ArrayList<Motor>();
+	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException {
+		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		
 		ZipInputStream is = new ZipInputStream(stream);
 		
@@ -71,7 +71,7 @@ public class ZipFileMotorLoader implements MotorLoader {
 			}
 			
 			try {
-				List<Motor> m = loader.load(uncloseable, entry.getName());
+				List<ThrustCurveMotor.Builder> m = loader.load(uncloseable, entry.getName());
 				motors.addAll(m);
 				log.info("Loaded " + m.size() + " motors from ZIP entry " + entry.getName());
 			} catch (UnknownFileTypeException e) {

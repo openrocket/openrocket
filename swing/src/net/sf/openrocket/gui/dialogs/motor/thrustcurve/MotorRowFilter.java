@@ -55,6 +55,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	// Impulse class filtering
 	private ImpulseClass minimumImpulse;
 	private ImpulseClass maximumImpulse;
+	
+	// Show only available motors
+	private boolean hideUnavailable = false;
 
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
@@ -151,11 +154,19 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		this.maximumImpulse = maximumImpulse;
 	}
 
+	public boolean isHideUnavailable() {
+		return hideUnavailable;
+	}
+
+	public void setHideUnavailable(boolean hideUnavailable) {
+		this.hideUnavailable = hideUnavailable;
+	}
+
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m);
+		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m) && filterUnavailable(m);
 	}
 
 	private boolean filterManufacturers(ThrustCurveMotorSet m) {
@@ -231,6 +242,14 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 
 		return true;
 	}
+
+	private boolean filterUnavailable(ThrustCurveMotorSet m) {
+		if (!hideUnavailable) {
+			return true;
+		}
+		return m.isAvailable();
+	}
+
 
 	public final void addChangeListener(StateChangeListener listener) {
 		changeSourceDelegate.addChangeListener(listener);

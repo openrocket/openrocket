@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -18,12 +23,8 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.motor.ThrustCurveMotor.Builder;
 import net.sf.openrocket.util.Coordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 public class RockSimMotorLoader extends AbstractMotorLoader {
 	
@@ -60,7 +61,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	 * @throws IOException  if an I/O error occurs or if the file format is invalid.
 	 */
 	@Override
-	public List<Motor> load(Reader reader, String filename) throws IOException {
+	public List<ThrustCurveMotor.Builder> load(Reader reader, String filename) throws IOException {
 		InputSource source = new InputSource(reader);
 		RSEHandler handler = new RSEHandler();
 		WarningSet warnings = new WarningSet();
@@ -79,11 +80,11 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	 * Initial handler for the RockSim engine files.
 	 */
 	private static class RSEHandler extends AbstractElementHandler {
-		private final List<Motor> motors = new ArrayList<Motor>();
+		private final List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		
 		private RSEMotorHandler motorHandler;
 		
-		public List<Motor> getMotors() {
+		public List<ThrustCurveMotor.Builder> getMotors() {
 			return motors;
 		}
 		
@@ -115,7 +116,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				String content, WarningSet warnings) throws SAXException {
 			
 			if (element.equals("engine")) {
-				Motor motor = motorHandler.getMotor();
+				ThrustCurveMotor.Builder motor = motorHandler.getMotor();
 				motors.add(motor);
 			}
 		}
@@ -320,7 +321,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			}
 		}
 		
-		public Motor getMotor() throws SAXException {
+		public Builder getMotor() throws SAXException {
 			if (time == null || time.size() == 0)
 				throw new SAXException("Illegal motor data");
 			
@@ -380,8 +381,18 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 					}
 				}
 				
-				return new ThrustCurveMotor(m, designation, description, t,
-						delays, diameter, length, timeArray, thrustArray, cgArray, digest);
+				return new ThrustCurveMotor.Builder()
+						.setManufacturer(m)
+						.setDesignation(designation)
+						.setDescription(description)
+						.setMotorType(t)
+						.setStandardDelays(delays)
+						.setDiameter(diameter)
+						.setLength(length)
+						.setTimePoints(timeArray)
+						.setThrustPoints(thrustArray)
+						.setCGPoints(cgArray)
+						.setDigest(digest);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);
 			}

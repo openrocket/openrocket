@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.MathUtil;
 
@@ -23,7 +23,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 * returned by {@link #getDefaultCharset()}.
 	 */
 	@Override
-	public List<Motor> load(InputStream stream, String filename) throws IOException {
+	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException {
 		return load(new InputStreamReader(stream, getDefaultCharset()), filename);
 	}
 	
@@ -37,7 +37,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 * @return				a list of motors contained in the file.
 	 * @throws IOException	if an I/O exception occurs of the file format is invalid.
 	 */
-	protected abstract List<Motor> load(Reader reader, String filename) throws IOException;
+	protected abstract List<ThrustCurveMotor.Builder> load(Reader reader, String filename) throws IOException;
 	
 	
 	/**
