@@ -126,7 +126,7 @@ public class SerializeThrustcurveMotors {
 						builder.setInitialMass(mi.getTot_mass_g() / 1000.0);
 					}
 					if (mi.getProp_mass_g() != null) {
-						builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
+//						builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
 					}
 					
 					builder.setCaseInfo(mi.getCase_info());

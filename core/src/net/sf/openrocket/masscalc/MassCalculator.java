@@ -34,7 +34,7 @@ public class MassCalculator implements Monitorable {
 	
 	//private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
 	
-	public boolean debug=false;
+	public boolean debug=true;
 	
 	public static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
 
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Serializable {
@@ -46,7 +47,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private String propellantInfo;
 	
 	private double initialMass;
-	private double propellantMass;
 	private double maxThrust;
 	private double burnTimeEstimate;
 	private double averageThrust;
@@ -130,11 +130,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return this;
 		}
 		
-		public Builder setPropellantMass(double v) {
-			motor.propellantMass = v;
-			return this;
-		}
-		
 		public Builder setStandardDelays(double[] d) {
 			motor.delays = d;
 			return this;
@@ -215,7 +210,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				throw new IllegalArgumentException("Illegal motor type=" + motor.type);
 			}
 			
-			
+			motor.unitRotationalInertia = Inertia.filledCylinderRotational( motor.diameter / 2);
+			motor.unitLongitudinalInertia = Inertia.filledCylinderLongitudinal( motor.diameter / 2, motor.length);
+
 			motor.computeStatistics();
 			
 			return motor;
@@ -555,7 +552,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	public double getPropellantMass(){
-		return propellantMass;
+		return (getLaunchMass() - getBurnoutMass());
 	}
 	
 	@Override
