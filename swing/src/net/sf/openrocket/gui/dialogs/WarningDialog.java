@@ -10,13 +10,13 @@ import javax.swing.JScrollPane;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 
+@SuppressWarnings("serial")
 public class WarningDialog extends JDialog {
 
-	public static void showWarnings(Component parent, Object message, String title, 
-			WarningSet warnings) {
+	public static void showWarnings(Component parent, Object message, String title, WarningSet warnings) {
 		
 		Warning[] w = warnings.toArray(new Warning[0]);
-		JList list = new JList(w);
+		final JList<Warning> list = new JList<Warning>(w);
 		JScrollPane pane = new JScrollPane(list);
 		
 		JOptionPane.showMessageDialog(parent, new Object[] { message, pane }, 

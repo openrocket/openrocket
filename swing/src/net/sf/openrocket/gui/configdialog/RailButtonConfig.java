@@ -22,9 +22,9 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class RailButtonConfig extends RocketComponentConfig {
 	
-	private MotorConfig motorConfigPane = null;
 	private static final Translator trans = Application.getTranslator();
 	
 	public RailButtonConfig( OpenRocketDocument document, RocketComponent component) {
@@ -78,7 +78,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
-			@SuppressWarnings("unchecked")
+			
 			JComboBox<RocketComponent.Position> relToCombo = new JComboBox<RocketComponent.Position>(
 					(ComboBoxModel<RocketComponent.Position>) new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 							new RocketComponent.Position[] {
