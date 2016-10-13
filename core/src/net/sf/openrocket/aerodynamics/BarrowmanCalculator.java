@@ -261,7 +261,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				f.setCroll(forces.getCroll());
 				f.setCrollDamp(forces.getCrollDamp());
 				f.setCrollForce(forces.getCrollForce());
-				map.replace(component, f); //have you forgotten to add this?
+				map.put(component, f);
 			}
 			
 			total.setCP(total.getCP().average(forces.getCP()));
