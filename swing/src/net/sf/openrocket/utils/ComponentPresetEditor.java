@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
  * TODO: Full I18n TODO: Save As .csv
  */
+@SuppressWarnings("serial")
 public class ComponentPresetEditor extends JPanel implements PresetResultListener {
 	
 	/**

@@ -70,7 +70,17 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	private double yawDampingMoment = Double.NaN;
 	
 	private int modID = 0;
+
+	private boolean axisymmetric = true; 
 	
+	
+	public boolean isAxisymmetric(){
+		return this.axisymmetric;
+	}
+	
+	public void setAxisymmetric( final boolean isSym ){
+		this.axisymmetric = isSym;
+	}
 	
 	public void setComponent(RocketComponent component) {
 		this.component = component;
@@ -254,6 +264,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public void zero() {
 		// component untouched
 
+		setAxisymmetric(true);
 		setCP(Coordinate.NUL);
 		setCNa(0);
 		setCN(0);

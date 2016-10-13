@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -27,6 +26,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class StorageOptionChooser extends JPanel {
 	
 	public static final double DEFAULT_SAVE_TIME_SKIP = 0.20;

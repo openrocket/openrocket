@@ -31,6 +31,7 @@ import net.sf.openrocket.startup.Preferences;
 
 import com.itextpdf.text.Font;
 
+@SuppressWarnings("serial")
 public class GraphicsPreferencesPanel extends PreferencesPanel {
 
 	public GraphicsPreferencesPanel(JDialog parent) {

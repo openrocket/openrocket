@@ -25,18 +25,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	
 	private Material.Surface material;
 	
-	private FlightConfigurationImpl<DeploymentConfiguration> deploymentConfigurations;
-	
-	
+	private FlightConfigurableParameterSet<DeploymentConfiguration> deploymentConfigurations;
 	
 	public RecoveryDevice() {
-		this.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new DeploymentConfiguration());
+		this.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>( new DeploymentConfiguration());
 		setMaterial(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
-	
-	
-	
-	
 	
 	public abstract double getArea();
 	
@@ -91,17 +85,19 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
-	
-	public FlightConfiguration<DeploymentConfiguration> getDeploymentConfiguration() {
+	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {
 		return deploymentConfigurations;
 	}
 	
-	
 	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
-		deploymentConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
+	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
+		deploymentConfigurations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
+	@Override
+	public void reset( final FlightConfigurationId fcid){
+		deploymentConfigurations.reset(fcid);
+	}
 	
 	@Override
 	public double getComponentMass() {
@@ -121,8 +117,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
-		copy.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(deploymentConfigurations,
-				copy, ComponentChangeEvent.EVENT_CHANGE);
+		copy.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(deploymentConfigurations);
 		return copy;
 	}
 }

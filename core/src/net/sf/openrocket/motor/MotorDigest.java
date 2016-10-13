@@ -143,9 +143,9 @@ public class MotorDigest {
 		MotorDigest motorDigest = new MotorDigest();
 		motorDigest.update(DataType.TIME_ARRAY, m.getTimePoints());
 		
-		Coordinate[] cg = m.getCGPoints();
-		double[] cgx = new double[cg.length];
-		double[] mass = new double[cg.length];
+		final Coordinate[] cg = m.getCGPoints();
+		final double[] cgx = new double[cg.length];
+		final double[] mass = new double[cg.length];
 		for (int i = 0; i < cg.length; i++) {
 			cgx[i] = cg[i].x;
 			mass[i] = cg[i].weight;

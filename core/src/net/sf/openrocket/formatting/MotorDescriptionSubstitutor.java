@@ -6,17 +6,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.inject.Inject;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.Plugin;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
-
-import com.google.inject.Inject;
 
 @Plugin
 public class MotorDescriptionSubstitutor implements RocketSubstitutor {
@@ -31,7 +33,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	}
 	
 	@Override
-	public String substitute(String str, Rocket rocket, String configId) {
+	public String substitute(String str, Rocket rocket, FlightConfigurationId configId) {
 		String description = getMotorConfigurationDescription(rocket, configId);
 		return str.replace(SUBSTITUTION, description);
 	}
@@ -45,7 +47,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	
 	
 	
-	public String getMotorConfigurationDescription(Rocket rocket, String id) {
+	public String getMotorConfigurationDescription(Rocket rocket, FlightConfigurationId fcid) {
 		String name;
 		int motorCount = 0;
 		
@@ -59,7 +61,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
-			if (c instanceof Stage) {
+			if (c instanceof AxialStage) {
 				
 				currentList = new ArrayList<String>();
 				list.add(currentList);
@@ -67,10 +69,11 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			} else if (c instanceof MotorMount) {
 				
 				MotorMount mount = (MotorMount) c;
-				Motor motor = mount.getMotor(id);
+				MotorConfiguration inst = mount.getMotorConfig(fcid);
+				Motor motor = inst.getMotor();
 				
 				if (mount.isMotorMount() && motor != null) {
-					String designation = motor.getDesignation(mount.getMotorDelay(id));
+					String designation = motor.getDesignation(inst.getEjectionDelay());
 					
 					for (int i = 0; i < mount.getMotorCount(); i++) {
 						currentList.add(designation);

@@ -1,10 +1,11 @@
 package net.sf.openrocket.file.simplesax;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.util.SimpleStack;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -17,9 +18,9 @@ import org.xml.sax.helpers.DefaultHandler;
 class DelegatorHandler extends DefaultHandler {
 	private final WarningSet warnings;
 	
-	private final SimpleStack<ElementHandler> handlerStack = new SimpleStack<ElementHandler>();
-	private final SimpleStack<StringBuilder> elementData = new SimpleStack<StringBuilder>();
-	private final SimpleStack<HashMap<String, String>> elementAttributes = new SimpleStack<HashMap<String, String>>();
+	private final Deque<ElementHandler> handlerStack = new ArrayDeque<ElementHandler>();
+	private final Deque<StringBuilder> elementData = new ArrayDeque<StringBuilder>();
+	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<HashMap<String, String>>();
 	
 	
 	// Ignore all elements as long as ignore > 0

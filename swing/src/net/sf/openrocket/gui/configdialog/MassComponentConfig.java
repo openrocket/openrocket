@@ -120,7 +120,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// plus
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");

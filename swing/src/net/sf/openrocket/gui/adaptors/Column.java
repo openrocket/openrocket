@@ -96,7 +96,7 @@ public abstract class Column {
 	 * 
 	 * @return
 	 */
-	public Comparator getComparator() {
+	public Comparator<?> getComparator() {
 		return null;
 	}
 

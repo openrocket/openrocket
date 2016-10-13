@@ -55,10 +55,10 @@ public class MotorCheck {
 						//						sum += m.getTotalTime();
 						sum += m.getDiameter();
 						sum += m.getLength();
-						sum += m.getEmptyCG().weight;
-						sum += m.getEmptyCG().x;
-						sum += m.getLaunchCG().weight;
-						sum += m.getLaunchCG().x;
+						sum += m.getBurnoutMass();
+						sum += m.getBurnoutCGx();
+						sum += m.getLaunchMass();
+						sum += m.getLaunchCGx();
 						sum += m.getMaxThrustEstimate();
 						if (Double.isInfinite(sum) || Double.isNaN(sum)) {
 							System.out.println("ERROR: Invalid motor values");
@@ -72,7 +72,7 @@ public class MotorCheck {
 							ok = false;
 						}
 						
-						int points = ((ThrustCurveMotor) m).getTimePoints().length;
+						int points = ((ThrustCurveMotor) m).getSampleSize();
 						if (points < WARN_POINTS) {
 							System.out.println("WARNING: Only " + points + " data points");
 							ok = false;

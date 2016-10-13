@@ -1,45 +1,62 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Transformation;
-
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
 
-public class BodyTubeShapes extends RocketComponentShapes {
+
+public class BodyTubeShapes extends RocketComponentShape {
 	
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.BodyTube tube = (net.sf.openrocket.rocketcomponent.BodyTube)component;
 
 		double length = tube.getLength();
 		double radius = tube.getOuterRadius();
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
+		
+		// old version
+		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		// new version
+		Coordinate[] instanceOffsets = transformation.transform( component.getLocations());
 
-		Shape[] s = new Shape[start.length];
-		for (int i=0; i < start.length; i++) {
-			s[i] = new Rectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
-					length*S,2*radius*S);
+		Shape[] s = new Shape[instanceOffsets.length];
+		for (int i=0; i < instanceOffsets.length; i++) {
+			s[i] = new Rectangle2D.Double((instanceOffsets[i].x)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
+					(instanceOffsets[i].y-radius)*S, // y - the Y coordinate of the upper-left corner of the newly constructed Rectangle2D
+					length*S, // w - the width of the newly constructed Rectangle2D
+					2*radius*S); //  h - the height of the newly constructed Rectangle2D
 		}
-		return s;
+		
+		return RocketComponentShape.toArray(s, component);
 	}
 	
-
-	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesBack(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.BodyTube tube = (net.sf.openrocket.rocketcomponent.BodyTube)component;
 		
 		double or = tube.getOuterRadius();
 		
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
+		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
+		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		
+		instanceOffsets = component.getLocations();
 
-		Shape[] s = new Shape[start.length];
-		for (int i=0; i < start.length; i++) {
-			s[i] = new Ellipse2D.Double((start[i].z-or)*S,(start[i].y-or)*S,2*or*S,2*or*S);
+		
+		Shape[] s = new Shape[instanceOffsets.length];
+		for (int i=0; i < instanceOffsets.length; i++) {
+			s[i] = new Ellipse2D.Double((instanceOffsets[i].z-or)*S,(instanceOffsets[i].y-or)*S,2*or*S,2*or*S);
 		}
-		return s;
+		
+		return RocketComponentShape.toArray(s, component);
 	}
 	
 	

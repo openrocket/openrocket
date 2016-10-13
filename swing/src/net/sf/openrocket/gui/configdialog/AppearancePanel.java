@@ -51,6 +51,8 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class AppearancePanel extends JPanel {
+	private static final long serialVersionUID = 2709187552673202019L;
+
 	private static final Translator trans = Application.getTranslator();
 
 	private EditDecalHelper editDecalHelper = Application.getInjector()
@@ -159,7 +161,7 @@ public class AppearancePanel extends JPanel {
 		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
 
 		final DecalModel decalModel = new DecalModel(this, document, ab);
-		final JComboBox textureDropDown = new JComboBox(decalModel);
+		final JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
 
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
@@ -248,7 +250,7 @@ public class AppearancePanel extends JPanel {
 			System.arraycopy(LineStyle.values(), 0, list, 1,
 					LineStyle.values().length);
 
-			JComboBox combo = new JComboBox(new EnumModel<LineStyle>(c,
+			final JComboBox<LineStyle> combo = new JComboBox<LineStyle>(new EnumModel<LineStyle>(c,
 					"LineStyle",
 					// // Default style
 					list, trans.get("LineStyle.Defaultstyle")));
@@ -382,7 +384,7 @@ public class AppearancePanel extends JPanel {
 			EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
 			System.arraycopy(EdgeMode.values(), 0, list, 0,
 					EdgeMode.values().length);
-			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab,
+			JComboBox<EdgeMode> combo = new JComboBox<EdgeMode>(new EnumModel<EdgeMode>(ab,
 					"EdgeMode", list));
 			mDefault.addEnableComponent(combo, false);
 			add(combo);

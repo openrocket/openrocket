@@ -53,23 +53,29 @@ import javax.swing.ListSelectionModel;
  */
 public class CheckList<T> {
 	
-	private final JList list;
+	private final JList<T> list;
 	private static final MouseAdapter checkBoxEditor = new CheckListEditor();
 	
 	public static class Builder {
 		
-		private JList list;
+		private JList<?> list;
 		
-		public Builder(JList list) {
-			this.list = list == null ? new JList() : list;
+		@SuppressWarnings("rawtypes")
+		public Builder(JList<?> list) {
+			if( null == list ){
+				this.list = new JList();
+			}else{
+				this.list = list;
+			}
 		}
 		
 		public Builder() {
 			this(null);
 		}
 		
+		@SuppressWarnings("unchecked")
 		public <T> CheckList<T> build() {
-			return new CheckList<T>(list);
+			return new CheckList<T>((JList<T>)list);
 		}
 		
 	}
@@ -79,7 +85,7 @@ public class CheckList<T> {
 	 * Wraps the standard JList and makes it work like check list 
 	 * @param list
 	 */
-	private CheckList(final JList list) {
+	private CheckList(final JList<T> list) {
 		
 		if (list == null)
 			throw new NullPointerException();
@@ -95,7 +101,7 @@ public class CheckList<T> {
 	}
 	
 	@SuppressWarnings("serial")
-	private void setupKeyboardActions(final JList list) {
+	private void setupKeyboardActions(final JList<T> list) {
 		String actionKey = "toggle-check";
 		list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), actionKey);
 		list.getActionMap().put(actionKey, new AbstractAction() {
@@ -117,7 +123,7 @@ public class CheckList<T> {
 		
 	}
 	
-	public JList getList() {
+	public JList<T> getList() {
 		return list;
 	}
 	
@@ -137,7 +143,6 @@ public class CheckList<T> {
 		list.setModel(model);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public DefaultCheckListModel<T> getModel() {
 		return (DefaultCheckListModel<T>) list.getModel();
 	}

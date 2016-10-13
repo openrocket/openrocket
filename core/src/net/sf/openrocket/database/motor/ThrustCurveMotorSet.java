@@ -74,8 +74,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			type = motor.getMotorType();
 			// Add "Plugged" option if hybrid
 			if (type == Motor.Type.HYBRID) {
-				if (!delays.contains(Motor.PLUGGED)) {
-					delays.add(Motor.PLUGGED);
+				if (!delays.contains(Motor.PLUGGED_DELAY)) {
+					delays.add(Motor.PLUGGED_DELAY);
 				}
 			}
 		}
@@ -271,8 +271,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			}
 			
 			// 2. Number of data points (more is better)
-			if (o1.getTimePoints().length != o2.getTimePoints().length) {
-				return o2.getTimePoints().length - o1.getTimePoints().length;
+			if (o1.getSampleSize() != o2.getSampleSize()) {
+				return o2.getSampleSize() - o1.getSampleSize();
 			}
 			
 			// 3. Comment length (longer is better)

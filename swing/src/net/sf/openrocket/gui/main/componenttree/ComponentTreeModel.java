@@ -147,7 +147,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 				// TODO: LOW: Could this be performed better?
 				expandAll();
 			}
-		} else if (e.isOtherChange()) {
+		} else {
 			fireTreeNodeChanged(e.getSource());
 		}
 	}

@@ -211,7 +211,7 @@ public class MotorCompare {
 		min = Double.MAX_VALUE;
 		System.out.printf("Init mass  :");
 		for (Motor m : motors) {
-			double f = m.getLaunchCG().weight;
+			double f = m.getLaunchMass();
 			System.out.printf("\t%.2f", f * 1000);
 			max = Math.max(max, f);
 			min = Math.min(min, f);
@@ -229,7 +229,7 @@ public class MotorCompare {
 		min = Double.MAX_VALUE;
 		System.out.printf("Empty mass :");
 		for (Motor m : motors) {
-			double f = m.getEmptyCG().weight;
+			double f = m.getBurnoutMass();
 			System.out.printf("\t%.2f", f * 1000);
 			max = Math.max(max, f);
 			min = Math.min(min, f);
@@ -256,8 +256,8 @@ public class MotorCompare {
 		maxPoints = 0;
 		System.out.printf("Points     :");
 		for (Motor m : motors) {
-			System.out.printf("\t%d", ((ThrustCurveMotor) m).getTimePoints().length);
-			maxPoints = Math.max(maxPoints, ((ThrustCurveMotor) m).getTimePoints().length);
+			System.out.printf("\t%d", ((ThrustCurveMotor) m).getSampleSize());
+			maxPoints = Math.max(maxPoints, ((ThrustCurveMotor) m).getSampleSize());
 		}
 		System.out.println();
 		
@@ -318,7 +318,7 @@ public class MotorCompare {
 			ThrustCurveMotor m = motors.get(i);
 			if (m.getStandardDelays().length == maxDelays)
 				goodness[i] += 1000;
-			if (((ThrustCurveMotor) m).getTimePoints().length == maxPoints)
+			if (((ThrustCurveMotor) m).getSampleSize() == maxPoints)
 				goodness[i] += 100;
 			if (m.getDescription().length() == maxCommentLen)
 				goodness[i] += 10;
@@ -333,7 +333,7 @@ public class MotorCompare {
 		
 
 		// Verify enough points
-		int pts = ((ThrustCurveMotor) motors.get(best)).getTimePoints().length;
+		int pts = ((ThrustCurveMotor) motors.get(best)).getSampleSize();
 		if (pts < MIN_POINTS) {
 			System.out.println("WARNING: Best has only " + pts + " data points");
 		}

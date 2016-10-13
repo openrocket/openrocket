@@ -116,6 +116,17 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH }),
 
+		RAIL_BUTTON(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				// these are optional / secondary parameters.  Probably not necessary to include.  
+				//ComponentPreset.BASE_HEIGHT,
+				//ComponentPreset.FLANGE_HEIGHT, 
+				//ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.HEIGHT }),
+
 		STREAMER(new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
@@ -167,6 +178,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<String> DESCRIPTION = new TypedKey<String>("Description", String.class);
 	public final static TypedKey<Type> TYPE = new TypedKey<Type>("Type", Type.class);
 	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> HEIGHT = new TypedKey<Double>("Height", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> WIDTH = new TypedKey<Double>("Width", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);

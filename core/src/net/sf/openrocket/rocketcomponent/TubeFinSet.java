@@ -166,6 +166,12 @@ public class TubeFinSet extends ExternalComponent {
 		return fins;
 	}
 	
+
+	@Override
+	public boolean isAfter(){ 
+		return false;
+	}
+	
 	/**
 	 * Sets the number of fins in the set.
 	 * @param n The number of fins, greater of equal to one.
@@ -218,13 +224,6 @@ public class TubeFinSet extends ExternalComponent {
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
-	@Override
-	public void setPositionValue(double value) {
-		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -333,7 +332,7 @@ public class TubeFinSet extends ExternalComponent {
 		s = this.getParent();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
-				double x = this.toRelative(new Coordinate(0, 0, 0), s)[0].x;
+				double x = this.getOffset().x;
 				return ((SymmetricComponent) s).getRadius(x);
 			}
 			s = s.getParent();

@@ -3,6 +3,11 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
@@ -11,10 +16,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.HashMap;
 
 /**
  * StreamerHandler Tester.
@@ -149,13 +150,13 @@ public class StreamerHandlerTest extends RocksimTestBase {
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), -10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), -10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), 10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), 10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Thickness", attributes, "0.02", warnings);
         Assert.assertEquals(0.01848, handler.computeDensity(RocksimDensityType.ROCKSIM_BULK, 924d), 0.001);

@@ -31,6 +31,7 @@ import net.sf.openrocket.util.TextUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class SimulationModifierTree extends BasicTree {
 	
 	private final List<SimulationModifier> selectedModifiers;

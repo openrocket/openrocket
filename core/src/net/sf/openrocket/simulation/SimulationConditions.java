@@ -9,6 +9,7 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.wind.WindModel;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BugException;
@@ -25,9 +26,6 @@ import net.sf.openrocket.util.WorldCoordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationConditions implements Monitorable, Cloneable {
-	
-	private Rocket rocket;
-	private String motorID = null;
 	
 	private Simulation simulation; // The parent simulation 
 	
@@ -102,26 +100,16 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	
 	public Rocket getRocket() {
-		return rocket;
+		return simulation.getRocket();
 	}
-	
-	
-	public void setRocket(Rocket rocket) {
-		if (this.rocket != null)
-			this.modIDadd += this.rocket.getModID();
-		this.modID++;
-		this.rocket = rocket;
+
+
+	public FlightConfigurationId getMotorConfigurationID() {
+		return simulation.getId();
 	}
-	
-	
-	public String getMotorConfigurationID() {
-		return motorID;
-	}
-	
-	
-	public void setMotorConfigurationID(String motorID) {
-		this.motorID = motorID;
-		this.modID++;
+
+	public FlightConfigurationId getFlightConfigurationID() {
+		return simulation.getId();
 	}
 	
 	
@@ -309,7 +297,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	public int getModID() {
 		//return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
 		//		gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
-		return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
+		return (modID + modIDadd + simulation.getRocket().getModID() + windModel.getModID() + atmosphericModel.getModID() +
 				aerodynamicCalculator.getModID() + massCalculator.getModID());
 	}
 	
@@ -323,6 +311,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 			for (SimulationListener listener : this.simulationListeners) {
 				clone.simulationListeners.add(listener.clone());
 			}
+			
 			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);

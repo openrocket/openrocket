@@ -30,7 +30,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Named;
 
 public class GuidedTourSelectionDialog extends JDialog {
-	
+	private static final long serialVersionUID = -3643116444821710259L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	private static GuidedTourSelectionDialog instance = null;
@@ -41,7 +42,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 	
 	private SlideShowDialog slideShowDialog;
 	
-	private JList tourList;
+	private JList<Named<SlideSet>> tourList;
 	private JEditorPane tourDescription;
 	private JLabel tourLength;
 	
@@ -56,7 +57,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		panel.add(new StyledLabel(trans.get("lbl.selectTour"), Style.BOLD), "spanx, wrap rel");
 		
-		tourList = new JList(new TourListModel());
+		tourList = new JList<Named<SlideSet>>(new TourListModel());
 		tourList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tourList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -157,15 +158,15 @@ public class GuidedTourSelectionDialog extends JDialog {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	private SlideSet getSelectedSlideSet() {
-		return ((Named<SlideSet>) tourList.getSelectedValue()).get();
+		return tourList.getSelectedValue().get();
 	}
 	
-	private class TourListModel extends AbstractListModel {
-		
+	private class TourListModel extends AbstractListModel<Named<SlideSet>> {
+		private static final long serialVersionUID = -4031709944507449410L;
+
 		@Override
-		public Object getElementAt(int index) {
+		public Named<SlideSet> getElementAt(int index) {
 			String name = tourNames.get(index);
 			SlideSet set = slideSetManager.getSlideSet(name);
 			return new Named<SlideSet>(set, set.getTitle());

@@ -11,6 +11,7 @@ import javax.swing.JLabel;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class HtmlLabel extends JLabel {
 
 	public HtmlLabel() {

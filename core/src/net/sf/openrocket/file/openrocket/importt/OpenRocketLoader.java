@@ -53,7 +53,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-		doc.getDefaultConfiguration().setAllStages();
+		doc.getSelectedConfiguration().setAllStages();
 		
 		// Deduce suitable time skip
 		double timeSkip = StorageOptions.SIMULATION_DATA_NONE;
