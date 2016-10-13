@@ -178,14 +178,14 @@ public abstract class Unit {
 	 */
 	public abstract double getPreviousValue(double value);
 	
-	//public abstract ArrayList<Tick> getTicks(double start, double end, double scale);
-	
-	/**
-	 * Return ticks in the range start - end (in current units).  minor is the minimum
-	 * distance between minor, non-notable ticks and major the minimum distance between
-	 * major non-notable ticks.  The values are in current units, i.e. no conversion is
-	 * performed.
-	 */
+    /**
+     * Return ticks in the range start - end (in current units).  
+     * 
+     * @param start start of interval to draw
+     * @param end end of interval to draw
+     * @param minor the minimum distance between minor, non-notable ticks 
+     * @param major the minimum distance between major, non-notable ticks
+     */
 	public abstract Tick[] getTicks(double start, double end, double minor, double major);
 	
 	/**
