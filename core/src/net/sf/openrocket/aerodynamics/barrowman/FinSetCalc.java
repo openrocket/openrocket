@@ -26,7 +26,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	/** logger for debugging*/
 	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
 	
-	/** considers the stall angle as 20º*/
+	/** considers the stall angle as 20 degrees*/
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	
 	/** Number of divisions in the fin chords. */
