@@ -8,11 +8,20 @@ import java.io.InputStream;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.util.StateChangeListener;
 
-
+/**
+ * 
+ * Default implementation class of DecalImage
+ *
+ */
 public class ResourceDecalImage implements DecalImage {
 	
+	/** File path to the image*/
 	final String resource;
 	
+	/**
+	 *  main constructor, stores the file path given
+	 * @param resource
+	 */
 	public ResourceDecalImage(final String resource) {
 		this.resource = resource;
 	}

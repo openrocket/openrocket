@@ -30,7 +30,11 @@ import net.sf.openrocket.util.SafetyMutex;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
-
+/**
+ * 	Master class that defines components of rockets
+ *	almost all hardware from the rocket extends from this abstract class
+ *	
+ */
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
@@ -41,7 +45,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	//private static final Translator trans = Application.getTranslator();
 	
 	
-	/*
+	/**
 	 * Text is suitable to the form
 	 *    Position relative to:  <title>
 	 */

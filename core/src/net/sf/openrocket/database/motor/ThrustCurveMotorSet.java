@@ -45,31 +45,128 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private Motor.Type type = Motor.Type.UNKNOWN;
 	
 	
-	
+	/**
+	 * adds a motor into the set, 
+	 * uses digest and designation to determinate if a motor is present or not
+	 * @param motor	the motor to be added
+	 */
 	public void addMotor(ThrustCurveMotor motor) {
 		
-		// Check for first insertion
-		if (motors.isEmpty()) {
-			manufacturer = motor.getManufacturer();
-			designation = motor.getDesignation();
-			simplifiedDesignation = simplifyDesignation(designation);
-			diameter = motor.getDiameter();
-			length = motor.getLength();
-			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
+		checkFirstInsertion(motor);
+		verifyMotor(motor);
+		updateType(motor);
+		checkChangeSimplifiedDesignation(motor);
+		addStandardDelay(motor);
+		if(!checkMotorOverwrite(motor)){
+			motors.add(motor);
+			digestMap.put(motor, motor.getDigest());
+			Collections.sort(motors, comparator);
+		}		
+	}
+	
+	/**
+	 * checks whether a motor is present, overwriting it
+	 * @param motor	the motor to be checked
+	 * @return	if there was an overwrite or not
+	 */
+	private boolean checkMotorOverwrite(ThrustCurveMotor motor) {
+		// Check whether to add as new motor or overwrite existing
+		final String digest = motor.getDigest();
+		for (int index = 0; index < motors.size(); index++) {
+			Motor m = motors.get(index);
+
+			if (isMotorPresent(motor, digest, m)) {
+				String newCmt = getFormattedDescription(motor);
+				String oldCmt = getFormattedDescription(m);
+				if (isNewDescriptionIrrelevant(newCmt, oldCmt)) {
+					return true;
+				} else if (oldCmt.length() == 0) {
+					replaceMotor(motor, digest, index);
+					return true;
+				}				
+			}
 		}
-		
-		// Verify that the motor can be added
-		if (!matches(motor)) {
-			throw new IllegalArgumentException("Motor does not match the set:" +
-					" manufacturer=" + manufacturer +
-					" designation=" + designation +
-					" diameter=" + diameter +
-					" length=" + length +
-					" set_size=" + motors.size() +
-					" motor=" + motor);
+		return false;
+	}
+
+
+	/**
+	 * get a description from a motor
+	 * @param motor	the motor
+	 * @return		the description of the motor
+	 */
+	private String getFormattedDescription(Motor motor) {
+		return motor.getDescription().replaceAll("\\s+", " ").trim();
+	}
+
+
+	/**
+	 * checks if a motor is in the maps
+	 * @param motor		the motor to be checked
+	 * @param digest	the digest of the motor
+	 * @param m			the current motor being checked with
+	 * @return	wheter the motor is or no
+	 */
+	private boolean isMotorPresent(ThrustCurveMotor motor, final String digest, Motor m) {
+		return digest.equals(digestMap.get(m)) &&
+				motor.getDesignation().equals(m.getDesignation());
+	}
+
+
+	/**
+	 * replace a motor into the given index
+	 * @param motor
+	 * @param digest
+	 * @param index
+	 */
+	private void replaceMotor(ThrustCurveMotor motor, final String digest, int index) {
+		motors.set(index, motor);
+		digestMap.put(motor, digest);
+	}
+
+
+
+
+	/**
+	 * checks if the new commit message is empty or equals to the old commit
+	 * @param newCmt	the new commit message
+	 * @param oldCmt	the old commit message
+	 * @return	whether the new commit is empty or equals to the old commit
+	 */
+	private boolean isNewDescriptionIrrelevant(String newCmt, String oldCmt) {
+		return newCmt.length() == 0 || newCmt.equals(oldCmt);
+	}
+
+	/**
+	 * adds the standard delay if aplicable
+	 * @param motor	the motor to be considered
+	 */
+	private void addStandardDelay(ThrustCurveMotor motor) {
+		for (double d : motor.getStandardDelays()) {
+			d = Math.rint(d);
+			if (!delays.contains(d)) {
+				delays.add(d);
+			}
 		}
-		
-		// Update the type if now known
+		Collections.sort(delays);
+	}
+
+	/**
+	 * checks if simplified designation should be changed with the given motor
+	 * @param motor	the motor to be checked with
+	 */
+	private void checkChangeSimplifiedDesignation(ThrustCurveMotor motor) {
+		if (!designation.equalsIgnoreCase(motor.getDesignation().trim())) {
+			designation = simplifiedDesignation;
+		}
+	}
+
+	/**
+	 * checks if the cached type should be changed with the given motor
+	 * if it's hybrid, delays will be added
+	 * @param motor	the motor to be checked with
+	 */
+	private void updateType(ThrustCurveMotor motor) {
 		if (type == Motor.Type.UNKNOWN) {
 			type = motor.getMotorType();
 			// Add "Plugged" option if hybrid
@@ -79,56 +176,45 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 				}
 			}
 		}
-		
-		// Change the simplified designation if necessary
-		if (!designation.equalsIgnoreCase(motor.getDesignation().trim())) {
-			designation = simplifiedDesignation;
+	}
+
+	/**
+	 * verifies if a motor is valid
+	 * @param motor
+	 */
+	private void verifyMotor(ThrustCurveMotor motor) {
+		if (!matches(motor)) {
+			throw new IllegalArgumentException("Motor does not match the set:" +
+					" manufacturer=" + manufacturer +
+					" designation=" + designation +
+					" diameter=" + diameter +
+					" length=" + length +
+					" set_size=" + motors.size() +
+					" motor=" + motor);
 		}
-		
-		// Add the standard delays
-		for (double d : motor.getStandardDelays()) {
-			d = Math.rint(d);
-			if (!delays.contains(d)) {
-				delays.add(d);
-			}
+	}
+
+	/**
+	 * check if the given motor is the first one, and sets attributes according to it
+	 * @param motor
+	 */
+	private void checkFirstInsertion(ThrustCurveMotor motor) {
+		if (motors.isEmpty()) {
+			manufacturer = motor.getManufacturer();
+			designation = motor.getDesignation();
+			simplifiedDesignation = simplifyDesignation(designation);
+			diameter = motor.getDiameter();
+			length = motor.getLength();
+			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
 		}
-		Collections.sort(delays);
-		
-		
-		// Check whether to add as new motor or overwrite existing
-		final String digest = motor.getDigest();
-		for (int index = 0; index < motors.size(); index++) {
-			Motor m = motors.get(index);
-			
-			if (digest.equals(digestMap.get(m)) &&
-					motor.getDesignation().equals(m.getDesignation())) {
-				
-				// Match found, check which one to keep (or both) based on comment
-				String newCmt = motor.getDescription().replaceAll("\\s+", " ").trim();
-				String oldCmt = m.getDescription().replaceAll("\\s+", " ").trim();
-				
-				if (newCmt.length() == 0 || newCmt.equals(oldCmt)) {
-					// Do not replace and do not add
-					return;
-				} else if (oldCmt.length() == 0) {
-					// Replace existing motor
-					motors.set(index, motor);
-					digestMap.put(motor, digest);
-					return;
-				}
-				// else continue search and add both
-				
-			}
-		}
-		
-		// Motor not present, add it
-		motors.add(motor);
-		digestMap.put(motor, digest);
-		Collections.sort(motors, comparator);
-		
 	}
 	
-	
+	/**
+	 * Checks if a motor can be added with the set
+	 * A set contains motors of same manufacturer, diameter, length and type
+	 * @param m	the motor to be checked with
+	 * @return	if the motor passed the test or not
+	 */
 	public boolean matches(ThrustCurveMotor m) {
 		if (motors.isEmpty())
 			return true;
@@ -153,12 +239,18 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		return true;
 	}
 	
-	
+	/**
+	 * returns a new list with the stored motors
+	 * @return	list 
+	 */
 	public List<ThrustCurveMotor> getMotors() {
 		return motors.clone();
 	}
 	
-	
+	/**
+	 * 
+	 * @return number of motor in the set
+	 */
 	public int getMotorCount() {
 		return motors.size();
 	}

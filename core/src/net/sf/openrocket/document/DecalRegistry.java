@@ -25,11 +25,20 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
+/**
+ * 
+ * Class that handles decal usage registration
+ *
+ */
 public class DecalRegistry {
 	
+	/**
+	 * default constructor
+	 */
 	DecalRegistry() {
 	}
 	
+	/** the decal usage map*/
 	private Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
 	
 	public DecalImage makeUniqueImage(DecalImage original) {

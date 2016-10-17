@@ -7,19 +7,38 @@ import java.io.InputStream;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.ChangeSource;
 
+/**
+ * 
+ * Class handler of documents attachments
+ *
+ */
 public abstract class Attachment extends AbstractChangeSource implements Comparable<Attachment>, ChangeSource {
 	
 	private final String name;
 	
+	/**
+	 * default constructor
+	 * @param name	the name of attachment
+	 */
 	public Attachment(String name) {
 		super();
 		this.name = name;
 	}
 	
+	/**
+	 * returns the name of attachment
+	 * @return	name of attachment
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * returns the stream of bytes representing the attachment
+	 * @return the stream of bytes representing the attachment
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public abstract InputStream getBytes() throws FileNotFoundException, IOException;
 	
 	@Override

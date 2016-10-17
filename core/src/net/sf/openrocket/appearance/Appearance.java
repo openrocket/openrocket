@@ -23,9 +23,7 @@ public class Appearance {
 	}
 	
 	public Appearance(final Color paint, final double shine) {
-		this.paint = paint;
-		this.shine = MathUtil.clamp(shine, 0, 1);
-		this.texture = null;
+		this(paint,shine,null);
 	}
 	
 	public Color getPaint() {
