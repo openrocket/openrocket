@@ -50,7 +50,9 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this( _mount, _fcid);
 		
 		if( null != _source){
-			ejectionDelay = _source.getEjectionDelay();
+			motor = _source.motor;
+			ejectionDelay = _source.ejectionDelay;
+			ignitionOveride = _source.ignitionOveride;
 			ignitionEvent = _source.getIgnitionEvent();
 			ignitionDelay = _source.getIgnitionDelay();
 		}
