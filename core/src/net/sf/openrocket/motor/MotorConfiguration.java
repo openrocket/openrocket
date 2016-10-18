@@ -46,13 +46,13 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		modID++;
 	}
 	
-	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid, final MotorConfiguration _template ) {
+	public MotorConfiguration( final MotorMount _mount, final FlightConfigurationId _fcid, final MotorConfiguration _source ) {
 		this( _mount, _fcid);
 		
-		if( null != _template){
-			ejectionDelay = _template.getEjectionDelay();
-			ignitionEvent = _template.getIgnitionEvent();
-			ignitionDelay = _template.getIgnitionDelay();
+		if( null != _source){
+			ejectionDelay = _source.getEjectionDelay();
+			ignitionEvent = _source.getIgnitionEvent();
+			ignitionDelay = _source.getIgnitionDelay();
 		}
 	}
 	
