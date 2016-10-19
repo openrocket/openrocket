@@ -355,6 +355,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
+	/**
+	 * appends the debug string of the component into the passed builder
+	 * @param sb	String builder to be appended
+	 */
 	private void toDebugString(StringBuilder sb) {
 		sb.append(this.getClass().getSimpleName()).append('@').append(System.identityHashCode(this));
 		sb.append("[\"").append(this.getName()).append('"');
@@ -962,6 +966,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return result;
 	}
 	
+	/**
+	 * returns the axial offset of the component
+	 * @return	
+	 */
 	public double getAxialOffset() {
 		mutex.verify();
 		return this.asPositionValue(this.relativePosition);
@@ -2085,6 +2093,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 
+	/// debug functions
 	public String toDebugName(){
 		return this.getName()+"<"+this.getClass().getSimpleName()+">("+this.getID().substring(0,8)+")";
 	}

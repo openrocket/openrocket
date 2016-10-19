@@ -18,7 +18,7 @@ public abstract class Attachment extends AbstractChangeSource implements Compara
 	
 	/**
 	 * default constructor
-	 * @param name	the name of attachment
+	 * @param name	the attachment name
 	 */
 	public Attachment(String name) {
 		super();
@@ -41,6 +41,10 @@ public abstract class Attachment extends AbstractChangeSource implements Compara
 	 */
 	public abstract InputStream getBytes() throws FileNotFoundException, IOException;
 	
+	/**
+	 * {@inheritDoc}
+	 * considers only the name to equals
+	 */
 	@Override
 	public int compareTo(Attachment o) {
 		return this.name.compareTo(o.name);
