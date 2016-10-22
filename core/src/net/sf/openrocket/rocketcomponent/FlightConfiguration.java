@@ -435,8 +435,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/**
-	 * Perform a deep-clone.  The object references are also cloned and no
-	 * listeners are listening on the cloned object.  The rocket instance remains the same.
+	 * Perform a shallow-clone;  copies configuration fields only. 
+	 *   
+	 * Preserved:  
+	 * - components
+	 * - motors
+	 * - configurables 
+	 * 
 	 */
 	@Override
 	public FlightConfiguration clone() {
