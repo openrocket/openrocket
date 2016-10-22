@@ -3,7 +3,6 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
@@ -42,18 +41,17 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	private class StageFlags implements Cloneable {
 		public boolean active = true;
-		public int prev = -1;
-		public AxialStage stage = null;
+		//public int prev = -1;
+		public int stageNumber = -1;
 		
-		public StageFlags(AxialStage _stage, int _prev, boolean _active) {
-			this.stage = _stage;
-			this.prev = _prev;
+		public StageFlags( int _num, boolean _active) {
+			this.stageNumber = _num;
 			this.active = _active;
 		}
 		
 		@Override
 		public StageFlags clone(){
-			return new StageFlags( this.stage, this.prev, true);
+			return new StageFlags( this.stageNumber, true);
 		}
 	}
 	
@@ -191,7 +189,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		for (StageFlags flags : this.stages.values()) {
 			if (flags.active) {
-				activeStages.add(flags.stage);
+				activeStages.add( rocket.getStage( flags.stageNumber) );
 			}
 		}
 		
@@ -215,7 +213,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		AxialStage bottomStage = null;
 		for (StageFlags curFlags : this.stages.values()) {
 			if (curFlags.active) {
-				bottomStage = curFlags.stage;
+				bottomStage = rocket.getStage( curFlags.stageNumber);
 			}
 		}
 		return bottomStage;
@@ -264,18 +262,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	private void updateStages() {
-		if (this.rocket.getStageCount() == this.stages.size()) {
-			// no changes needed
-			return;
-		}
-		
+        if (this.rocket.getStageCount() == this.stages.size()) {
+            return;
+        }
+	                		
 		this.stages.clear();
 		for (AxialStage curStage : this.rocket.getStageList()) {
-			int prevStageNum = curStage.getStageNumber() - 1;
-			if (curStage.getParent() instanceof AxialStage) {
-				prevStageNum = curStage.getParent().getStageNumber();
-			}
-			StageFlags flagsToAdd = new StageFlags(curStage, prevStageNum, true);
+			
+			StageFlags flagsToAdd = new StageFlags( curStage.getStageNumber(), true);
 			this.stages.put(curStage.getStageNumber(), flagsToAdd);
 		}
 	}
@@ -361,9 +355,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private void updateMotors() {
 		this.motors.clear();
 		
-		Iterator<RocketComponent> iter = rocket.iterator(false);
-		while( iter.hasNext() ){
-			RocketComponent comp = iter.next();
+		for ( RocketComponent comp : getActiveComponents() ){
 			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){
 				MotorMount mount = (MotorMount)comp;
 				MotorConfiguration motorConfig = mount.getMotorConfig( fcid);
@@ -532,8 +524,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
-			AxialStage curStage = flags.stage;
-			buf.append(String.format(fmt, curStage.getStageNumber(), (flags.active?" on": "off"), curStage.getName()));
+			final int stageNumber = flags.stageNumber;
+			buf.append(String.format(fmt, stageNumber, (flags.active?" on": "off"), rocket.getStage( stageNumber).getName()));
 		}
 		buf.append("\n");
 		return buf.toString();

@@ -226,7 +226,12 @@ public class Rocket extends RocketComponent {
 		AxialStage value = stageMap.get(stageNumber);
 		
 		if (newStage.equals(value)) {
-			// stage is already added. skip.
+			// stage is already added
+			if( newStage != value ){
+				// but the value is the wrong instance
+				stageMap.put(stageNumber, newStage);
+			}
+			return;
 		} else {
 			stageNumber = getNewStageNumber();
 			newStage.setStageNumber(stageNumber);
@@ -454,7 +459,17 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	public void update(){
+		updateStageMap();
 		updateConfigurations();
+	}
+	
+	private void updateStageMap(){
+		for( RocketComponent component : getChildren() ){
+			if (component instanceof AxialStage) {
+				AxialStage stage = (AxialStage) component;
+				trackStage(stage);
+			}
+		}
 	}
 	
 	private void updateConfigurations(){
