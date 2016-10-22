@@ -448,8 +448,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
         // Note the stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
-        clone.setName("clone[#"+clone.instanceNumber+"]"+clone.fcid.toShortKey());
-
+		clone.setName(configurationName);
+		
         clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
