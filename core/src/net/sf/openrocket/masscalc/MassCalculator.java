@@ -22,7 +22,6 @@ import net.sf.openrocket.util.Monitorable;
 public class MassCalculator implements Monitorable {
 
 	//private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
-	
 	public static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	
 	private int rocketMassModID = -1;

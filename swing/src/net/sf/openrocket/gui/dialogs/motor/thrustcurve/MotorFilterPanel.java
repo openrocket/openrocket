@@ -379,6 +379,11 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 	}
 
+	void setHideUnavailable( boolean hideUnavailable ) {
+		this.filter.setHideUnavailable(hideUnavailable);
+		onSelectionChanged();
+	}
+	
 	public abstract void onSelectionChanged();
 
 }
