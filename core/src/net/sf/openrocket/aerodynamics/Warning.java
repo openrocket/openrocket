@@ -7,10 +7,11 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class Warning {
 	
+	/** support to multiple languages warning */
 	private static final Translator trans = Application.getTranslator();
 	
 	/**
-	 * Return a Warning with the specific text.
+	 * @return a Warning with the specific text.
 	 */
 	public static Warning fromString(String text) {
 		return new Warning.Other(text);
@@ -321,43 +322,33 @@ public abstract class Warning {
 	
 	/** A <code>Warning</code> that the body diameter is discontinuous. */
 	////Discontinuity in rocket body diameter.
-	public static final Warning DIAMETER_DISCONTINUITY =
-			new Other(trans.get("Warning.DISCONTINUITY"));
+	public static final Warning DIAMETER_DISCONTINUITY = new Other(trans.get("Warning.DISCONTINUITY"));
 	
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */
 	////Thick fins may not be modeled accurately.
-	public static final Warning THICK_FIN =
-			new Other(trans.get("Warning.THICK_FIN"));
+	public static final Warning THICK_FIN = new Other(trans.get("Warning.THICK_FIN"));
 	
 	/** A <code>Warning</code> that the fins have jagged edges. */
 	////Jagged-edged fin predictions may be inaccurate.
-	public static final Warning JAGGED_EDGED_FIN =
-			new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
+	public static final Warning JAGGED_EDGED_FIN = new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
 	
 	/** A <code>Warning</code> that simulation listeners have affected the simulation */
 	////Listeners modified the flight simulation
-	public static final Warning LISTENERS_AFFECTED =
-			new Other(trans.get("Warning.LISTENERS_AFFECTED"));
+	public static final Warning LISTENERS_AFFECTED = new Other(trans.get("Warning.LISTENERS_AFFECTED"));
 	
 	////Recovery device opened while motor still burning.
-	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING =
-			new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
+	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING = new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
 	
 	
 	//// Invalid parameter encountered, ignoring.
-	public static final Warning FILE_INVALID_PARAMETER =
-			new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
+	public static final Warning FILE_INVALID_PARAMETER = new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
 	
-	public static final Warning PARALLEL_FINS =
-			new Other(trans.get("Warning.PARALLEL_FINS"));
+	public static final Warning PARALLEL_FINS = new Other(trans.get("Warning.PARALLEL_FINS"));
 	
-	public static final Warning SUPERSONIC =
-			new Other(trans.get("Warning.SUPERSONIC"));
+	public static final Warning SUPERSONIC = new Other(trans.get("Warning.SUPERSONIC"));
 	
-	public static final Warning RECOVERY_LAUNCH_ROD =
-			new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
+	public static final Warning RECOVERY_LAUNCH_ROD = new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
 	
-	public static final Warning TUMBLE_UNDER_THRUST =
-			new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
+	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
 	
 }
