@@ -315,6 +315,7 @@ public class Rocket extends RocketComponent {
 		// Rocket copy is cloned, so non-trivial members must be cloned as well:
 		copy.stageMap = new HashMap<Integer, AxialStage>();
 		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet );
+		copy.selectedConfiguration = copy.configSet.get( this.getSelectedConfiguration().getId());
 		copy.listenerList = new ArrayList<EventListener>();
 		
 		return copy;
