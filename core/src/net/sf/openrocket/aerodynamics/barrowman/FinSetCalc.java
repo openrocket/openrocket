@@ -5,6 +5,9 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
@@ -17,14 +20,13 @@ import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class FinSetCalc extends RocketComponentCalc {
 	
+	/** logger for debugging*/
 	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
 	
+	/** considers the stall angle as 20 degrees*/
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	
 	/** Number of divisions in the fin chords. */
@@ -57,25 +59,27 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
 	
-	public FinSetCalc(RocketComponent component) {
+	/**
+	 * builds a calculator of aerodynamic forces a specified fin
+	 * @param component		The fin in consideration
+	 */
+	///why is this accepting RocketComponent when it rejects?
+	///why not put FinSet in the parameter instead?
+	public FinSetCalc(FinSet component) {
 		super(component);
-		if (!(component instanceof FinSet)) {
-			throw new IllegalArgumentException("Illegal component type " + component);
-		}
 		
-		FinSet fin = (FinSet) component;
-		thickness = fin.getThickness();
-		bodyRadius = fin.getBodyRadius();
-		finCount = fin.getFinCount();
-		baseRotation = fin.getBaseRotation();
-		cantAngle = fin.getCantAngle();
-		span = fin.getSpan();
-		finArea = fin.getFinArea();
-		crossSection = fin.getCrossSection();
+		thickness = component.getThickness();
+		bodyRadius = component.getBodyRadius();
+		finCount = component.getFinCount();
+		baseRotation = component.getBaseRotation();
+		cantAngle = component.getCantAngle();
+		span = component.getSpan();
+		finArea = component.getFinArea();
+		crossSection = component.getCrossSection();
 		
-		calculateFinGeometry(fin);
+		calculateFinGeometry(component);
 		calculatePoly();
-		calculateInterferenceFinCount(fin);
+		calculateInterferenceFinCount(component);
 	}
 	
 	/*
@@ -439,8 +443,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	private static final PolyInterpolator cnaInterpolator = new PolyInterpolator(
 			new double[] { CNA_SUBSONIC, CNA_SUPERSONIC },
 			new double[] { CNA_SUBSONIC, CNA_SUPERSONIC },
-			new double[] { CNA_SUBSONIC }
-			);
+			new double[] { CNA_SUBSONIC });
 	/* Pre-calculate the values for K1, K2 and K3 */
 	static {
 		// Up to Mach 5
