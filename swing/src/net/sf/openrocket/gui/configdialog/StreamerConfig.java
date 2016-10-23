@@ -152,7 +152,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");

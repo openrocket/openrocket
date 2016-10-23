@@ -226,7 +226,12 @@ public class Rocket extends RocketComponent {
 		AxialStage value = stageMap.get(stageNumber);
 		
 		if (newStage.equals(value)) {
-			// stage is already added. skip.
+			// stage is already added
+			if( newStage != value ){
+				// but the value is the wrong instance
+				stageMap.put(stageNumber, newStage);
+			}
+			return;
 		} else {
 			stageNumber = getNewStageNumber();
 			newStage.setStageNumber(stageNumber);
@@ -310,22 +315,10 @@ public class Rocket extends RocketComponent {
 		// Rocket copy is cloned, so non-trivial members must be cloned as well:
 		copy.stageMap = new HashMap<Integer, AxialStage>();
 		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet );
-		new HashMap<FlightConfigurationId, FlightConfiguration>();
-		if( 0 < this.configSet.size() ){
-			Rocket.cloneConfigs( this, copy);
-		}
+		copy.selectedConfiguration = copy.configSet.get( this.getSelectedConfiguration().getId());
 		copy.listenerList = new ArrayList<EventListener>();
 		
 		return copy;
-	}
-	
-	private static void cloneConfigs( final Rocket source, Rocket dest ){
-		source.checkState();
-		dest.checkState();
-		dest.selectedConfiguration = source.selectedConfiguration.clone();
-		for( final FlightConfiguration config : source.configSet ){
-			dest.configSet.set( config.getId(), config.clone() );
-		}
 	}
 	
 	public int getFlightConfigurationCount() {
@@ -363,7 +356,7 @@ public class Rocket extends RocketComponent {
 		this.functionalModID = r.functionalModID;
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
-		Rocket.cloneConfigs( r, this);
+		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet );
 		
 		this.perfectFinish = r.perfectFinish;
 		
@@ -467,7 +460,17 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	public void update(){
+		updateStageMap();
 		updateConfigurations();
+	}
+	
+	private void updateStageMap(){
+		for( RocketComponent component : getChildren() ){
+			if (component instanceof AxialStage) {
+				AxialStage stage = (AxialStage) component;
+				trackStage(stage);
+			}
+		}
 	}
 	
 	private void updateConfigurations(){

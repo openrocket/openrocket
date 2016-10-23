@@ -64,7 +64,6 @@ public class MassDataTest extends BaseTestCase {
 	
 	@Test
 	public void testTwoPointGeneral() {
-		boolean debug=false;
 		double m1 = 2.5;
 		Coordinate r1 = new Coordinate(0,-40, -10, m1);
 		double I1xx=28.7;
@@ -81,20 +80,8 @@ public class MassDataTest extends BaseTestCase {
 		MassData asbly3 = body1.add(body2);
 		
 		Coordinate cm3_expected = r1.average(r2);
-//		System.err.println("     @(1):     "+ body1.toDebug());
-//		System.err.println("     @(2):     "+ body2.toDebug());
-//		System.err.println("     @(3):     "+ asbly3.toDebug());
-//		System.err.println(" Center of Mass: (3) expected:  "+ cm3_expected);
 		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
-		
-		
-		if(debug){
-			System.err.println(" Body 1:     "+ body1.toDebug() );
-			System.err.println(" Body 2:     "+ body2.toDebug() );
-			System.err.println(" Body 3:     "+ asbly3.toDebug() );
-		}
-
-		
+				
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
 		Coordinate delta13 = asbly3.getCM().sub( r1);
 		Coordinate delta23 = asbly3.getCM().sub( r2);
@@ -152,10 +139,6 @@ public class MassDataTest extends BaseTestCase {
 		MassData asbly4_indirect = asbly3.add(body5);
 		Coordinate cm4_expected = r1.average(r2).average(r5);
 		
-		//System.err.println(" Center of Mass: (3):     "+ asbly3.toCMDebug() );
-		//System.err.println("           MOI:  (3):     "+ asbly3.toIMDebug() );
-		//System.err.println(" Center of Mass: indirect:"+ asbly4_indirect.getCM() );
-		//System.err.println(" Center of Mass: (4) direct:  "+ cm4_expected);
 		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, new Coordinate( 0, 7.233644859813085, 0, m1+m2+m5 ) );
 		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
@@ -166,21 +149,17 @@ public class MassDataTest extends BaseTestCase {
 		
 		double I14zz = I1t + m1*MathUtil.pow2( Math.abs(body1.getCM().y - y4) );
 		double I24zz = I2t + m2*MathUtil.pow2( Math.abs(body2.getCM().y - y4) );
-//		System.err.println(String.format(" I24yy: %8g = %6g + %3g*%g", I24zz,  I2t, m2, MathUtil.pow2( Math.abs(body2.getCM().y - y4)) ));
-//		System.err.println(String.format("      : delta y24: %8g = ||%g - %g||", Math.abs(body2.getCM().y - y4), body2.getCM().y, y4 ));
 		double I54zz = I5t + m5*MathUtil.pow2( Math.abs(body5.getCM().y - y4) );
 		
 		double I4xx = I14ax+I24ax+I54ax;
 		double I4yy = I1t+I2t+I5t;
 		double I4zz = I14zz+I24zz+I54zz;
 		MassData asbly4_expected = new MassData( cm4_expected, I4xx, I4yy, I4zz);
-		//System.err.println(String.format(" Ixx: direct:   %12g", I4xx ));
+
 		assertEquals("x-axis MOI don't match: ", asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON*10);
-		
-		//System.err.println(String.format(" Iyy: direct:   %12g", I4yy ));
+
 		assertEquals("y-axis MOI don't match: ", asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON*10);
 		
-		//System.err.println(String.format(" Izz: direct: %12g", I4zz));
 		assertEquals("z-axis MOI don't match: ", asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON*10);
 	}
 	

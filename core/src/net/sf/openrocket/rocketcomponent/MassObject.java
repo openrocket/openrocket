@@ -40,7 +40,7 @@ public abstract class MassObject extends InternalComponent {
 		this.radius = radius;
 		
 		this.setRelativePosition(Position.TOP);
-		this.setPositionValue(0.0);
+		this.setAxialOffset(0.0);
 	}
 	
 	@Override

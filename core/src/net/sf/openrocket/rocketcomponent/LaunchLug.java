@@ -106,14 +106,6 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	
 	@Override
-	public void setPositionValue(double value) {
-		super.setPositionValue(value);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
-	
-	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);

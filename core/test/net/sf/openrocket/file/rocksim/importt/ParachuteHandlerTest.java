@@ -3,6 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
+import org.junit.Assert;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -10,9 +14,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.junit.Assert;
-
-import java.util.HashMap;
 
 /**
  * ParachuteHandler Tester.
@@ -153,12 +154,12 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), -10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), -10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), 10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), 10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
     }
 }
