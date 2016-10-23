@@ -31,6 +31,9 @@ public class AbstractChangeSource implements ChangeSource {
 		log.trace("Removing change listeners, listener count is now " + listeners.size());
 	}
 	
+	/**
+	 * execute a change event from any listeners that are triggered by it
+	 */
 	public void fireChangeEvent(Object source) {
 		EventObject event = new EventObject(source);
 		// Copy the list before iterating to prevent concurrent modification exceptions.

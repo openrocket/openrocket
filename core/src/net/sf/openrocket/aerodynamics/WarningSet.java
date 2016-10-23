@@ -20,6 +20,7 @@ import net.sf.openrocket.util.Mutable;
  */
 public class WarningSet extends AbstractSet<Warning> implements Cloneable, Monitorable {
 	
+	/** the actual array of warnings*/
 	private ArrayList<Warning> warnings = new ArrayList<Warning>();
 	
 	private Mutable mutable = new Mutable();

@@ -82,11 +82,20 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		this.axisymmetric = isSym;
 	}
 	
+	/**
+	 * gives a new component to be linked with
+	 * changes it's modification id
+	 * @param component		The rocket component
+	 */
 	public void setComponent(RocketComponent component) {
 		this.component = component;
 		modID++;
 	}
 
+	/**
+	 * 
+	 * @return the actual component linked with this 
+	 */
 	public RocketComponent getComponent() {
 		return component;
 	}

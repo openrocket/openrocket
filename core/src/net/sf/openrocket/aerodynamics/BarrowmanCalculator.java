@@ -154,6 +154,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 
+	/**
+	 * Perform the actual CP calculation.
+	 */
 	private AerodynamicForces calculateNonAxialForces(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
@@ -295,8 +298,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	////////////////  DRAG CALCULATIONS  ////////////////
-	
-	
+	/**
+	 * Calculation of drag coefficient due to air friction
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @param map				?
+	 * @param set				Set to handle 
+	 * @return
+	 */
 	private double calculateFrictionDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
 		double c1 = 1.0, c2 = 1.0;
@@ -505,7 +515,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
-	
+	/**
+	 * Calculation of drag coefficient due to pressure
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @param map				?
+	 * @param set				Set to handle 
+	 * @return
+	 */
 	private double calculatePressureDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
@@ -554,6 +572,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
+	/**
+	 * Calculation of drag coefficient due to base
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @param map				?
+	 * @param set				Set to handle 
+	 * @return
+	 */
 	private double calculateBaseDrag(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
@@ -600,6 +627,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	
+	/**
+	 * gets CD by the speed
+	 * @param m		Mach number for calculation
+	 * @return		Stagnation CD
+	 */
 	public static double calculateStagnationCD(double m) {
 		double pressure;
 		if (m <= 1) {
@@ -611,6 +643,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
+	/**
+	 * Calculates base CD
+	 * @param m		Mach number for calculation
+	 * @return		Base CD
+	 */
 	public static double calculateBaseCD(double m) {
 		if (m <= 1) {
 			return 0.12 + 0.13 * m * m;
@@ -668,6 +705,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
+	/**
+	 * get damping moments from a rocket in a flight
+	 * @param configuration		Rocket configuration
+	 * @param conditions		flight conditions in consideration
+	 * @param total				acting aerodynamic forces
+	 */
 	private void calculateDampingMoments(FlightConfiguration configuration, FlightConditions conditions,
 			AerodynamicForces total) {
 		

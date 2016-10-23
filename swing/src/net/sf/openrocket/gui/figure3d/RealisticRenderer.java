@@ -81,6 +81,10 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public boolean isDrawnTransparent(RocketComponent c) {
+		// if there is any degree of transparency, then...
+		if (getAppearance(c).getPaint().getAlpha()<255){
+			return true;
+		}
 		return false;
 	}
 	
@@ -91,7 +95,12 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void renderComponent(final GL2 gl, final RocketComponent c, final float alpha) {
-		render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, 1.0f);
+		if (isDrawnTransparent(c)){
+			// if transparent, draw inside the same as the outside so we dont get a cardboard interior on a clear payload bay
+			render(gl, cr.getGeometry(c, Surface.INSIDE), getAppearance(c), true, alpha);
+		}else{
+			render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, 1.0f);
+		}
 		render(gl, cr.getGeometry(c, Surface.OUTSIDE), getAppearance(c), true, alpha);
 		render(gl, cr.getGeometry(c, Surface.EDGES), getAppearance(c), false, alpha);
 	}
@@ -103,13 +112,13 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		
-		convertColor(a.getPaint(), color);
-		color[3] = alpha;
+		convertColor(a.getPaint(), color);//color now contains alpha value
+		
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
 		
 		color[0] = color[1] = color[2] = (float) a.getShine();
-		color[3] = alpha;
+		color[3] = 1;//no alpha for shine
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int) (100 * a.getShine()));
 		
@@ -201,10 +210,12 @@ public class RealisticRenderer extends RocketRenderer {
 			out[0] = 1;
 			out[1] = 1;
 			out[2] = 0;
+			out[3] = 1;
 		} else {
 			out[0] = (float) color.getRed() / 255f;
 			out[1] = (float) color.getGreen() / 255f;
 			out[2] = (float) color.getBlue() / 255f;
+			out[3] = (float) color.getAlpha() / 255f;
 		}
 	}
 }
