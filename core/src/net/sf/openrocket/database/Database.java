@@ -19,6 +19,7 @@ import net.sf.openrocket.database.DatabaseListener;
  */
 public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 	
+	/** the list that contains the data from the database itself*/
 	protected final List<T> list = new ArrayList<T>();
 	private final ArrayList<DatabaseListener<T>> listeners = new ArrayList<DatabaseListener<T>>();
 	
@@ -33,6 +34,10 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		return list.size();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * fires add event
+	 */
 	@Override
 	public boolean add(T element) {
 		int index;
@@ -71,17 +76,27 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		return list.indexOf(m);
 	}
 	
-	
+	/**
+	 * adds a listener for database changes
+	 * @param listener	the listener
+	 */
 	public void addDatabaseListener(DatabaseListener<T> listener) {
 		listeners.add(listener);
 	}
 	
+	/**
+	 * removes a listener from the list os listeners
+	 * @param listener
+	 */
 	public void removeChangeListener(DatabaseListener<T> listener) {
 		listeners.remove(listener);
 	}
 	
 	
-	
+	/**
+	 * wake up call for database listeners for when elements are added
+	 * @param element	the element added
+	 */
 	@SuppressWarnings("unchecked")
 	protected void fireAddEvent(T element) {
 		Object[] array = listeners.toArray();
@@ -90,6 +105,10 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		}
 	}
 	
+	/**
+	 * wake up call for database listeners when elements are removed
+	 * @param element	the removed element
+	 */
 	@SuppressWarnings("unchecked")
 	protected void fireRemoveEvent(T element) {
 		Object[] array = listeners.toArray();
@@ -97,10 +116,6 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 			((DatabaseListener<T>) l).elementRemoved(element, this);
 		}
 	}
-	
-	
-	
-	
 	
 	/**
 	 * Iterator class implementation that fires changes if remove() is called.
@@ -120,6 +135,10 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 			return current;
 		}
 		
+		/**
+		 * {@inheritDoc}
+		 * fires remove event
+		 */
 		@Override
 		public void remove() {
 			iterator.remove();

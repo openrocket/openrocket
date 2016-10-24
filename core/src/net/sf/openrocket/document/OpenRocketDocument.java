@@ -102,36 +102,56 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
 	
+	/**
+	 * main constructor, enable events in the rocket 
+	 * and initializes the document 
+	 * @param rocket	the rocket to be used in the document
+	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
 		rocket.enableEvents();
 		init();
 	}
 	
+	/**
+	 * initializes the document, clearing the undo cache and
+	 * setting itself as a listener for changes in the rocket
+	 */
 	private void init() {
 		clearUndo();
-		
 		rocket.addComponentChangeListener(this);
 	}
 	
+	/**
+	 * adds a customExpression into the list
+	 * @param expression	the expression to be added
+	 */
 	public void addCustomExpression(CustomExpression expression) {
 		if (customExpressions.contains(expression)) {
 			log.info(Markers.USER_MARKER, "Could not add custom expression " + expression.getName() + " to document as document alerady has a matching expression.");
-		} else {
-			customExpressions.add(expression);
-		}
+		} 
+		customExpressions.add(expression);
 	}
 	
+	/**
+	 * remves
+	 * @param expression
+	 */
 	public void removeCustomExpression(CustomExpression expression) {
 		customExpressions.remove(expression);
 	}
 	
+	//TODO:LOW:this leaves the object custom expression exposed, is it supposed to be like that?
+	/**
+	 * 
+	 * @return
+	 */
 	public List<CustomExpression> getCustomExpressions() {
 		return customExpressions;
 	}
 	
-	/*
-	 * Returns a set of all the flight data types defined or available in any way in the rocket document
+	/**
+	 * @returns a set of all the flight data types defined or available in any way in the rocket document
 	 */
 	public Set<FlightDataType> getFlightDataTypes() {
 		Set<FlightDataType> allTypes = new LinkedHashSet<FlightDataType>();
@@ -158,28 +178,50 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return allTypes;
 	}
 	
-	
+	/**
+	 * gets the rocket in the document
+	 * @return	the rocket in the document
+	 */
 	public Rocket getRocket() {
 		return rocket;
 	}
 	
-	
+	/**
+	 * returns the selected configuration from the rocket
+	 * @return	selected configuration from the rocket
+	 */
 	public FlightConfiguration getSelectedConfiguration() {
 		return rocket.getSelectedConfiguration();
 	}
 	
+	/**
+	 * returns the File handler object for the document
+	 * @return	the File handler object for the document
+	 */
 	public File getFile() {
 		return file;
 	}
 	
+	/**
+	 * set the file handler object for the document
+	 * @param file	the new file handler object
+	 */
 	public void setFile(File file) {
 		this.file = file;
 	}
 	
+	/**
+	 * returns if the current rocket is saved
+	 * @return	if the current rocket is saved
+	 */
 	public boolean isSaved() {
 		return rocket.getModID() == savedID;
 	}
 	
+	/**
+	 * sets the current rocket as saved, and none if false is given
+	 * @param saved	if the current rocket or none will be set to save
+	 */
 	public void setSaved(boolean saved) {
 		if (saved == false)
 			this.savedID = -1;
@@ -197,33 +239,57 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
+	/**
+	 * returns the decal list used in the document
+	 * @return	the decal list registered in the document
+	 */
 	public Collection<DecalImage> getDecalList() {
 		
 		return decalRegistry.getDecalList();
 		
 	}
 	
+	/**
+	 * returns the number of times the given decal was used
+	 * @param img	the decal to be counted
+	 * @return		the number of times 
+	 */
 	public int countDecalUsage(DecalImage img) {
 		int count = 0;
 		
 		Iterator<RocketComponent> it = rocket.iterator();
 		while (it.hasNext()) {
-			RocketComponent comp = it.next();
-			Appearance a = comp.getAppearance();
-			if (a == null) {
-				continue;
-			}
-			Decal d = a.getTexture();
-			if (d == null) {
-				continue;
-			}
-			if (img.equals(d.getImage())) {
+			if(hasDecal(it.next(),img))
 				count++;
-			}
 		}
 		return count;
 	}
 	
+	//TODO: LOW: move this method to rocketComponent, Appearance and decal
+	//I see 3 layers of object accessed, seems unsafe
+	/**
+	 * checks if a rocket component has the given decalImage
+	 * @param comp	the RocketComponent to be searched
+	 * @param img	the DecalImage to be checked
+	 * @return	if the comp has img
+	 */
+	private boolean hasDecal(RocketComponent comp, DecalImage img){
+		Appearance a = comp.getAppearance();
+		if(a == null)
+			return false;
+		Decal d = a.getTexture();
+		if(d == null)
+			return false;
+		if(img.equals(d.getImage()))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * gets a unique identification for the given decal
+	 * @param img	the decal to be made unique
+	 * @return		the new unique decal
+	 */
 	public DecalImage makeUniqueDecal(DecalImage img) {
 		if (countDecalUsage(img) <= 1) {
 			return img;
@@ -231,26 +297,54 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return decalRegistry.makeUniqueImage(img);
 	}
 	
+	/**
+	 * gets the decal image from an attachment
+	 * @param a	the attachment
+	 * @return	the image from the attachment
+	 */
 	public DecalImage getDecalImage(Attachment a) {
 		return decalRegistry.getDecalImage(a);
 	}
 	
+	/**
+	 * gets a list of simulations in the document
+	 * @return	the simulations in the document
+	 */
 	public List<Simulation> getSimulations() {
 		return simulations.clone();
 	}
 	
+	/**
+	 * gets the number of simulations in the document
+	 * @return	the number of simulations in the document
+	 */
 	public int getSimulationCount() {
 		return simulations.size();
 	}
 	
+	/**
+	 * the the Nth simulation from the document
+	 * @param n	simulation index
+	 * @return	the Nth simulation from the document, null if there's none
+	 */
 	public Simulation getSimulation(int n) {
 		return simulations.get(n);
 	}
 	
+	/**
+	 * gets the index of the given simulation
+	 * @param simulation	the simulation being searched
+	 * @return				the index of the simulation in the document
+	 */
 	public int getSimulationIndex(Simulation simulation) {
 		return simulations.indexOf(simulation);
 	}
 	
+	/**
+	 * adds simulation into the document
+	 * fires document change event
+	 * @param simulation	the simulation to be added
+	 */
 	public void addSimulation(Simulation simulation) {
 		simulations.add(simulation);
 		FlightConfigurationId simId = simulation.getId();
@@ -260,33 +354,61 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	
+	/**
+	 * adds the simulation to the Nth index, overwriting if there is already one
+	 * fires change document event
+	 * @param simulation	the simulation to be added
+	 * @param n				the index to be added
+	 */
 	public void addSimulation(Simulation simulation, int n) {
 		simulations.add(n, simulation);
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	
+	/**
+	 * removes the specific simulation from the list
+	 * @param simulation	the simulation to be removed
+	 */
 	public void removeSimulation(Simulation simulation) {
 		simulations.remove(simulation);
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	
+	/**
+	 * removes the Nth simulation from the document
+	 * fires document change event
+	 * @param n	the Nth simulation
+	 * @return	the removed simulation
+	 */
 	public Simulation removeSimulation(int n) {
 		Simulation simulation = simulations.remove(n);
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 		return simulation;
 	}
 	
+	/**
+	 * removes the flight configuration and simulation with the specific id
+	 * @param configId
+	 */
 	public void removeFlightConfigurationAndSimulations(FlightConfigurationId configId) {
 		if (configId == null) {
 			return;
 		}
+		removeSimulations(configId);
+		rocket.removeFlightConfiguration(configId);
+	}
+
+	/**
+	 * removes all simulations with the specific configId
+	 * @param configId	the Flight Configuration Id that dictates which simulations shoul be removed
+	 */
+	private void removeSimulations(FlightConfigurationId configId) {
 		for (Simulation s : getSimulations()) {
 			// Assumes modifiable collection - which it is
 			if (configId.equals(s.getId())) {
 				removeSimulation(s);
 			}
 		}
-		rocket.removeFlightConfiguration(configId);
 	}
 	
 	
@@ -331,42 +453,22 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 */
 	public void addUndoPosition(String description) {
 		
-		if (storedDescription != null) {
-			logUndoError("addUndoPosition called while storedDescription=" + storedDescription +
-					" description=" + description);
-		}
+		checkDescription(description);
 		
 		// Check whether modifications have been done since last call
-		if (isCleanState()) {
-			// No modifications
-			log.info("Adding undo position '" + description + "' to " + this + ", document was in clean state");
-			nextDescription = description;
+		if(isCheckNoModification(description))
 			return;
-		}
-		
 		log.info("Adding undo position '" + description + "' to " + this + ", document is in unclean state");
+		checkUndoPositionConsistency();
+		addStateToUndoHistory(description);
 		
-		/*
-		 * Modifications have been made to the rocket.  We should be at the end of the
-		 * undo history, but check for consistency and try to recover.
-		 */
-		if (undoPosition != undoHistory.size() - 1) {
-			logUndoError("undo position inconsistency");
-		}
-		while (undoPosition < undoHistory.size() - 1) {
-			undoHistory.removeLast();
-			undoDescription.removeLast();
-		}
-		
-		
-		// Add the current state to the undo history
-		undoHistory.add(rocket.copyWithOriginalID());
-		undoDescription.add(null);
-		nextDescription = description;
-		undoPosition++;
-		
-		
-		// Maintain maximum undo size
+		maintainMaximumUndoSize();
+	}
+
+	/**
+	 * 
+	 */
+	private void maintainMaximumUndoSize() {
 		if (undoHistory.size() > UNDO_LEVELS + UNDO_MARGIN && undoPosition > UNDO_MARGIN) {
 			for (int i = 0; i < UNDO_MARGIN; i++) {
 				undoHistory.removeFirst();
@@ -374,6 +476,57 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				undoPosition--;
 			}
 		}
+	}
+
+	/**
+	 * @param description
+	 */
+	private void addStateToUndoHistory(String description) {
+		// Add the current state to the undo history
+		undoHistory.add(rocket.copyWithOriginalID());
+		undoDescription.add(null);
+		nextDescription = description;
+		undoPosition++;
+	}
+
+	/**
+	 * checks if there was or not modification, and logs
+	 * 
+	 * @param description	the description to be used in the log
+	 * @return	if there was or not modification
+	 */
+	private boolean isCheckNoModification(String description){
+		if (isCleanState()) {
+			// No modifications
+			log.info("Adding undo position '" + description + "' to " + this + ", document was in clean state");
+			nextDescription = description;
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * checks if the document already has a stored undo description
+	 * logs if it has
+	 * 
+	 * @param description	undo description to be logged
+	 */
+	private void checkDescription(String description) {
+		if (storedDescription != null) {
+			logUndoError("addUndoPosition called while storedDescription=" + storedDescription +
+					" description=" + description);
+		}
+	}
+
+	/**
+	 * If modifications have been made to the rocket.  We should be at the end of the
+	 * undo history, but check for consistency and try to recover.
+	 */
+	private void checkUndoPositionConsistency() {
+		if (undoPosition != undoHistory.size() - 1) {
+			logUndoError("undo position inconsistency");
+		}
+		removeRedoInfo();
 	}
 	
 	
@@ -436,17 +589,28 @@ public class OpenRocketDocument implements ComponentChangeListener {
 						" undoPosition=" + undoPosition + " undoHistory.size=" + undoHistory.size() +
 						" isClean=" + isCleanState());
 			}
-			// Remove any redo information if available
-			while (undoPosition < undoHistory.size() - 1) {
-				undoHistory.removeLast();
-				undoDescription.removeLast();
-			}
-			
-			// Set the latest description
-			undoDescription.set(undoPosition, nextDescription);
+			removeRedoInfo();
+			setLatestDescription();
 		}
 		
 		fireUndoRedoChangeEvent();
+	}
+
+	/**
+	 * Sets the latest description
+	 */
+	private void setLatestDescription() {
+		undoDescription.set(undoPosition, nextDescription);
+	}
+
+	/**
+	 * Removes any redo information if available
+	 */
+	private void removeRedoInfo() {
+		while (undoPosition < undoHistory.size() - 1) {
+			undoHistory.removeLast();
+			undoDescription.removeLast();
+		}
 	}
 	
 	
@@ -609,6 +773,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public void removeUndoRedoListener(UndoRedoListener listener) {
 		undoRedoListeners.remove(listener);
 	}
+	
 	
 	private void fireUndoRedoChangeEvent() {
 		UndoRedoListener[] array = undoRedoListeners.toArray(new UndoRedoListener[0]);

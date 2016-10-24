@@ -117,7 +117,13 @@ public class Databases {
 		BULK_MATERIAL.addDatabaseListener(listener);
 	}
 	
-	
+	/**
+	 * builds a new material based on the parameters given
+	 * @param type		The type of material
+	 * @param baseName	the name of material
+	 * @param density	density
+	 * @return	a new onejct withe the material data
+	 */
 	private static Material newMaterial(Type type, String baseName, double density) {
 		String name = trans.get("material", baseName);
 		return Material.newMaterial(type, name, density, false);
@@ -145,21 +151,7 @@ public class Databases {
 	 * @return			the material, or <code>null</code> if not found.
 	 */
 	public static Material findMaterial(Material.Type type, String baseName) {
-		Database<Material> db;
-		switch (type) {
-		case BULK:
-			db = BULK_MATERIAL;
-			break;
-		case SURFACE:
-			db = SURFACE_MATERIAL;
-			break;
-		case LINE:
-			db = LINE_MATERIAL;
-			break;
-		default:
-			throw new IllegalArgumentException("Illegal material type: " + type);
-		}
-		
+		Database<Material> db = getDatabase(type);		
 		String name = trans.get("material", baseName);
 		
 		for (Material m : db) {
@@ -168,6 +160,24 @@ public class Databases {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * gets the specific database with the given type
+	 * @param 	type	the desired type
+	 * @return	the database of the type given
+	 */
+	private static Database<Material> getDatabase(Material.Type type){
+		switch (type) {
+		case BULK:
+			return BULK_MATERIAL;
+		case SURFACE:
+			return SURFACE_MATERIAL;
+		case LINE:
+			return LINE_MATERIAL;
+		default:
+			throw new IllegalArgumentException("Illegal material type: " + type);
+		}
 	}
 	
 	
@@ -184,21 +194,7 @@ public class Databases {
 	 * @return				the material object from the database or a new material.
 	 */
 	public static Material findMaterial(Material.Type type, String baseName, double density) {
-		Database<Material> db;
-		switch (type) {
-		case BULK:
-			db = BULK_MATERIAL;
-			break;
-		case SURFACE:
-			db = SURFACE_MATERIAL;
-			break;
-		case LINE:
-			db = LINE_MATERIAL;
-			break;
-		default:
-			throw new IllegalArgumentException("Illegal material type: " + type);
-		}
-		
+		Database<Material> db = getDatabase(type);
 		String name = trans.get("material", baseName);
 		
 		for (Material m : db) {
