@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -112,6 +113,7 @@ public class ComponentRenderer {
 				renderTubeFins( gl, (TubeFinSet) c, which);
 			} else if ( c instanceof AxialStage ) {
 			} else if ( c instanceof ParallelStage ) {
+			} else if ( c instanceof PodSet ) {
 			} else {
 				renderOther(gl, c);
 			}
