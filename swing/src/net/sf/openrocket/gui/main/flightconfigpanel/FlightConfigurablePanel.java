@@ -23,6 +23,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -54,6 +55,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	public void fireTableDataChanged() {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();	
+		this.rocket.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		((AbstractTableModel)table.getModel()).fireTableDataChanged();
 		restoreSelection(selectedRow,selectedColumn);
 		updateButtonState();
