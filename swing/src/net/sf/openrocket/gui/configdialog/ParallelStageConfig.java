@@ -45,7 +45,7 @@ public class ParallelStageConfig extends AxialStageConfig {
 		motherPanel.add( radiusLabel , "align left");
 		autoRadOffsModel.addEnableComponent(radiusLabel, false);
 		DoubleModel radiusModel = new DoubleModel( boosters, "RadialOffset", UnitGroup.UNITS_LENGTH, 0);
-		//radiusModel.setCurrentUnit( UnitGroup.UNITS_LENGTH.getUnit("cm"));
+
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
 		motherPanel.add(radiusSpinner , "growx 1, align right");
@@ -58,7 +58,7 @@ public class ParallelStageConfig extends AxialStageConfig {
 		JLabel angleLabel = new JLabel(trans.get("StageConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
 		DoubleModel angleModel = new DoubleModel( boosters, "AngularOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
-		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad"));
+
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 		motherPanel.add(angleSpinner, "growx 1");
@@ -94,7 +94,7 @@ public class ParallelStageConfig extends AxialStageConfig {
 		JLabel positionPlusLabel = new JLabel(trans.get("StageConfig.parallel.offset"));
 		motherPanel.add( positionPlusLabel );
 		DoubleModel axialOffsetModel = new DoubleModel( boosters, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		axialOffsetModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getUnit("cm"));
+
 		JSpinner axPosSpin= new JSpinner( axialOffsetModel.getSpinnerModel());
 		axPosSpin.setEditor(new SpinnerEditor(axPosSpin));
 		motherPanel.add(axPosSpin, "growx");
