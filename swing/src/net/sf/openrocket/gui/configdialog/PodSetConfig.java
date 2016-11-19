@@ -38,7 +38,7 @@ public class PodSetConfig extends RocketComponentConfig {
 		JLabel radiusLabel = new JLabel(trans.get("StageConfig.parallel.radius"));  
 		motherPanel.add( radiusLabel , "align left");
 		DoubleModel radiusModel = new DoubleModel( assembly, "RadialOffset", UnitGroup.UNITS_LENGTH, 0);
-		//radiusModel.setCurrentUnit( UnitGroup.UNITS_LENGTH.getUnit("cm"));
+
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
 		motherPanel.add(radiusSpinner , "growx 1, align right");
@@ -49,7 +49,7 @@ public class PodSetConfig extends RocketComponentConfig {
 		JLabel angleLabel = new JLabel(trans.get("StageConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
 		DoubleModel angleModel = new DoubleModel( assembly, "AngularOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
-		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad"));
+
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 		motherPanel.add(angleSpinner, "growx 1");
@@ -84,7 +84,7 @@ public class PodSetConfig extends RocketComponentConfig {
 		JLabel positionPlusLabel = new JLabel(trans.get("StageConfig.parallel.offset"));
 		motherPanel.add( positionPlusLabel );
 		DoubleModel axialOffsetModel = new DoubleModel( assembly, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		axialOffsetModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getUnit("cm"));
+
 		JSpinner axPosSpin= new JSpinner( axialOffsetModel.getSpinnerModel());
 		axPosSpin.setEditor(new SpinnerEditor(axPosSpin));
 		motherPanel.add(axPosSpin, "growx");
