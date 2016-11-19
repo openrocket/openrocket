@@ -23,6 +23,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
+@SuppressWarnings("serial")
 public class MassComponentConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -34,8 +35,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		//// Mass component type
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.type")));
-		@SuppressWarnings("unchecked")
-		JComboBox typecombo = new JComboBox(
+		
+		final JComboBox<?> typecombo = new JComboBox<MassComponent.MassComponentType>(
 				new EnumModel<MassComponent.MassComponentType>(component, "MassComponentType",
 						new MassComponent.MassComponentType[] {
 								MassComponent.MassComponentType.MASSCOMPONENT,
@@ -108,7 +109,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 		
-		JComboBox combo = new JComboBox(
+		final JComboBox<RocketComponent.Position> combo = new JComboBox<RocketComponent.Position>(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
 						new RocketComponent.Position[] {
 								RocketComponent.Position.TOP,

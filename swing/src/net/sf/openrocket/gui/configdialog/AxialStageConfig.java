@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
 
 public class AxialStageConfig extends ComponentAssemblyConfig {
@@ -48,16 +49,10 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 			sepConfig = new StageSeparationConfiguration();
 			stage.getSeparationConfigurations().set( flConfig.getId(), sepConfig );
 		}
-		@SuppressWarnings("unchecked")
+		
 		JComboBox<?> combo = new JComboBox<StageSeparationConfiguration.SeparationEvent>(
-				new EnumModel<StageSeparationConfiguration.SeparationEvent>( sepConfig, "SeparationEvent", 
-					new StageSeparationConfiguration.SeparationEvent[] {
-						StageSeparationConfiguration.SeparationEvent.UPPER_IGNITION,
-						StageSeparationConfiguration.SeparationEvent.IGNITION,
-						StageSeparationConfiguration.SeparationEvent.BURNOUT,
-						StageSeparationConfiguration.SeparationEvent.EJECTION,
-						StageSeparationConfiguration.SeparationEvent.LAUNCH,
-						StageSeparationConfiguration.SeparationEvent.NEVER	}));
+				new EnumModel<StageSeparationConfiguration.SeparationEvent>( sepConfig, "SeparationEvent", SeparationEvent.values()));
+		
 		//combo.setSelectedItem(sepConfig);
 		panel.add(combo, "");
 		

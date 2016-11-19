@@ -30,6 +30,7 @@ import net.sf.openrocket.startup.Application;
 /**
  * This class is a dialog for displaying advanced settings for printing rocket related info.
  */
+@SuppressWarnings("serial")
 public class PrintSettingsDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(PrintSettingsDialog.class);
 	private static final Translator trans = Application.getTranslator();
@@ -75,16 +76,16 @@ public class PrintSettingsDialog extends JDialog {
 		
 
 
-		JComboBox combo = new JComboBox(new EnumModel<PaperSize>(settings, "PaperSize"));
+		final JComboBox<PaperSize> sizeCombo = new JComboBox<PaperSize>(new EnumModel<PaperSize>(settings, "PaperSize"));
 		////Paper size:
 		panel.add(new JLabel(trans.get("lbl.Papersize")));
-		panel.add(combo, "growx, wrap para");
+		panel.add( sizeCombo, "growx, wrap para");
 		
 
-		combo = new JComboBox(new EnumModel<PaperOrientation>(settings, "PaperOrientation"));
+		final JComboBox<PaperOrientation> orientCombo = new JComboBox<PaperOrientation>(new EnumModel<PaperOrientation>(settings, "PaperOrientation"));
 		//// Paper orientation:
 		panel.add(new JLabel(trans.get("lbl.Paperorientation")));
-		panel.add(combo, "growx, wrap para*2");
+		panel.add( orientCombo, "growx, wrap para*2");
 		
 
 
