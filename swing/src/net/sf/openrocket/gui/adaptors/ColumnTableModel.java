@@ -6,6 +6,7 @@ import javax.swing.table.TableColumnModel;
 
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public abstract class ColumnTableModel extends AbstractTableModel {
 	private final Column[] columns;
 	

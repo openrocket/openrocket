@@ -33,7 +33,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.unit.Unit;
@@ -150,7 +150,7 @@ public class PartsDetailVisitorStrategy {
     private void handle (RocketComponent component) {
         //This ugly if-then-else construct is not object oriented.  Originally it was an elegant, and very OO savy, design
         //using the Visitor pattern.  Unfortunately, it was misunderstood and was removed.
-        if (component instanceof Stage) {
+        if (component instanceof AxialStage) {
             try {
                 if (grid != null) {
                     document.add(grid);

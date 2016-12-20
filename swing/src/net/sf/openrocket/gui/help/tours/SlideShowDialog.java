@@ -25,6 +25,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 
+@SuppressWarnings("serial")
 public class SlideShowDialog extends JDialog {
 	
 	private static final Logger log = LoggerFactory.getLogger(SlideShowDialog.class);

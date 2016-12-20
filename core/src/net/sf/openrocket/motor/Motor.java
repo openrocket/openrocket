@@ -1,7 +1,5 @@
 package net.sf.openrocket.motor;
 
-import net.sf.openrocket.util.Coordinate;
-
 public interface Motor {
 	
 	/**
@@ -10,11 +8,12 @@ public interface Motor {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public enum Type {
-		SINGLE("Single-use", "Single-use solid propellant motor"),
-		RELOAD("Reloadable", "Reloadable solid propellant motor"),
-		HYBRID("Hybrid", "Hybrid rocket motor engine"),
+		SINGLE("Single-use", "Single-use solid propellant motor"), 
+		RELOAD("Reloadable", "Reloadable solid propellant motor"), 
+		HYBRID("Hybrid", "Hybrid rocket motor engine"), 
 		UNKNOWN("Unknown", "Unknown motor type");
-		
+				
+				
 		private final String name;
 		private final String description;
 		
@@ -46,12 +45,16 @@ public interface Motor {
 		}
 	}
 	
+	public static final double PSEUDO_TIME_EMPTY = Double.NaN;
+	public static final double PSEUDO_TIME_LAUNCH = 0.0;
+	public static final double PSEUDO_TIME_BURNOUT = Double.MAX_VALUE;
 	
+		
 	/**
 	 * Ejection charge delay value signifying a "plugged" motor with no ejection charge.
 	 * The value is that of <code>Double.POSITIVE_INFINITY</code>.
 	 */
-	public static final double PLUGGED = Double.POSITIVE_INFINITY;
+	public static final double PLUGGED_DELAY = Double.POSITIVE_INFINITY;
 	
 	
 	/**
@@ -116,13 +119,15 @@ public interface Motor {
 	
 	public String getDigest();
 	
-	public MotorInstance getInstance();
+	public double getAverageThrust( final double startTime, final double endTime );
 	
+	public double getLaunchCGx();
 	
-	public Coordinate getLaunchCG();
+	public double getBurnoutCGx();
 	
-	public Coordinate getEmptyCG();
+	public double getLaunchMass();
 	
+	public double getBurnoutMass();
 	
 	/**
 	 * Return an estimate of the burn time of this motor, or NaN if an estimate is unavailable.
@@ -143,5 +148,42 @@ public interface Motor {
 	 * Return an estimate of the total impulse of this motor, or NaN if an estimate is unavailable.
 	 */
 	public double getTotalImpulseEstimate();
+
+
+	double getBurnTime();
+
 	
+	/**
+	 * Return the thrust at a time offset from motor ignition
+	 * 
+	 * this is probably a badly-designed way to expose the thrust, but it's not worth worrying about until 
+	 * there's a second (non-trivial) type of motor to support...
+	 *
+ 	 * @param motorTime  time (in seconds) since motor ignition
+ 	 * @return thrust (double, in Newtons) at given time
+ 	 */
+	public double getThrust( final double motorTime);
+	
+	/**
+	 * Return the mass at a time offset from motor ignition
+	 * 
+     * @param motorTime  time (in seconds) since motor ignition
+	 */
+	public double getTotalMass( final double motorTime);
+
+	public double getPropellantMass( final Double motorTime);
+	
+	/** Return the mass at a given time 
+	 * 
+	 * @param motorTime  time (in seconds) since motor ignition
+	 * @return
+	 */
+	public double getCMx( final double motorTime);
+	
+	public double getUnitIxx();
+	
+	public double getUnitIyy();
+	
+	public double getUnitIzz();
+
 }

@@ -39,6 +39,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.jfree.chart.ChartColor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -50,18 +54,17 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.utils.MotorCorrelation;
 
-import org.jfree.chart.ChartColor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
+	private static final long serialVersionUID = -8737784181512143155L;
+
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSelectionPanel.class);
 
 	private static final Translator trans = Application.getTranslator();
@@ -82,13 +85,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final MotorRowFilter rowFilter;
 
 	private final JCheckBox hideSimilarBox;
+	private final JCheckBox hideUnavailableBox;
 
 	private final JTextField searchField;
 
 	private final JLabel curveSelectionLabel;
-	private final JComboBox curveSelectionBox;
-	private final DefaultComboBoxModel curveSelectionModel;
-	private final JComboBox delayBox;
+	private final JComboBox<MotorHolder> curveSelectionBox;
+	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
+	private final JComboBox<String> delayBox;
 
 	private final MotorInformationPanel motorInformationPanel;
 	private final MotorFilterPanel motorFilterPanel;
@@ -97,11 +101,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 
-	public ThrustCurveMotorSelectionPanel(MotorMount mount, String currentConfig) {
+	public ThrustCurveMotorSelectionPanel( final FlightConfigurationId fcid, MotorMount mount ) {
 		this();
-		setMotorMountAndConfig( mount, currentConfig );
+		setMotorMountAndConfig( fcid, mount );
 
 	}
+	
 	/**
 	 * Sole constructor.
 	 * 
@@ -128,6 +133,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 
 			motorFilterPanel = new MotorFilterPanel(allManufacturers, rowFilter) {
+				private static final long serialVersionUID = 8441555209804602238L;
+
 				@Override
 				public void onSelectionChanged() {
 					sorter.sort();
@@ -145,13 +152,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Selectthrustcurve"));
 			panel.add(curveSelectionLabel);
 
-			curveSelectionModel = new DefaultComboBoxModel();
-			curveSelectionBox = new JComboBox(curveSelectionModel);
-			curveSelectionBox.setRenderer(new CurveSelectionRenderer(curveSelectionBox.getRenderer()));
+			curveSelectionModel = new DefaultComboBoxModel<MotorHolder>();
+			curveSelectionBox = new JComboBox<MotorHolder>(curveSelectionModel);
+			@SuppressWarnings("unchecked")
+			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer(); 
+			curveSelectionBox.setRenderer(new CurveSelectionRenderer(lcr));
 			curveSelectionBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Object value = curveSelectionBox.getSelectedItem();
+					MotorHolder value = (MotorHolder)curveSelectionBox.getSelectedItem();
 					if (value != null) {
 						select(((MotorHolder) value).getMotor());
 					}
@@ -164,16 +173,16 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		{
 			panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay")));
 
-			delayBox = new JComboBox();
+			delayBox = new JComboBox<String>();
 			delayBox.setEditable(true);
 			delayBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JComboBox cb = (JComboBox) e.getSource();
-					String sel = (String) cb.getSelectedItem();
+					
+					String sel = (String) delayBox.getSelectedItem();
 					//// None
 					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.equalsIgnoreCase.None"))) {
-						selectedDelay = Motor.PLUGGED;
+						selectedDelay = Motor.PLUGGED_DELAY;
 					} else {
 						try {
 							selectedDelay = Double.parseDouble(sel);
@@ -202,6 +211,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
+		}
+		
+		//// Hide unavailable motors
+		{
+			hideUnavailableBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUnavailable"));
+			GUIUtil.changeFontSize(hideUnavailableBox, -1);
+			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, true));
+			hideUnavailableBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
+					motorFilterPanel.setHideUnavailable(hideUnavailableBox.isSelected());
+				}
+			});
+			panel.add(hideUnavailableBox, "gapleft para, spanx, growx, wrap");
+			
 		}
 
 		//// Motor selection table
@@ -309,18 +334,24 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	}
 
-	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {
+		if ( null == _fcid ){
+			throw new NullPointerException(" attempted to set mount with a null FCID. bug.  ");
+		}else if ( null == mountToEdit ){
+			throw new NullPointerException(" attempted to set mount with a null mount. bug. ");
+		}
+		motorFilterPanel.setMotorMount(mountToEdit);
+		
+		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(_fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
-		
 		ThrustCurveMotor motorToSelect = null;
-		if (currentConfig != null && mount != null) {
-			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
-			motorToSelect = (ThrustCurveMotor) motorConf.getMotor();
-			selectedDelay = motorConf.getEjectionDelay();
+		if ( curMotorInstance.hasMotor()){ 
+			motorToSelect = (ThrustCurveMotor) curMotorInstance.getMotor();
+			selectedDelay = curMotorInstance.getEjectionDelay();
 		}
-
+		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
 		if (motorToSelect != null) {
 			ThrustCurveMotorSet motorSetToSelect = null;
@@ -332,13 +363,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				database.add(extra);
 				Collections.sort(database);
 			}
+			
+			select(motorToSelect);
+
 		}
-
-		select(motorToSelect);
-
-		motorFilterPanel.setMotorMount(mount);
+		motorFilterPanel.setMotorMount(mountToEdit);
 		scrollSelectionVisible();
-
 	}
 
 	@Override
@@ -547,7 +577,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if (selectedMotor == null) {
 
 			//// None
-			delayBox.setModel(new DefaultComboBoxModel(new String[] { trans.get("TCMotorSelPan.delayBox.None") }));
+			delayBox.setModel(new DefaultComboBoxModel<String>(new String[] { trans.get("TCMotorSelPan.delayBox.None") }));
 			delayBox.setSelectedIndex(0);
 
 		} else {
@@ -560,7 +590,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				//// None
 				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.None"));
 			}
-			delayBox.setModel(new DefaultComboBoxModel(delayStrings));
+			delayBox.setModel(new DefaultComboBoxModel<String>(delayStrings));
 
 			if (reset) {
 
@@ -594,16 +624,16 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	//////////////////////
 
 
-	private class CurveSelectionRenderer implements ListCellRenderer {
+	private class CurveSelectionRenderer implements ListCellRenderer<MotorHolder> {
 
-		private final ListCellRenderer renderer;
+		private final ListCellRenderer<MotorHolder> renderer;
 
-		public CurveSelectionRenderer(ListCellRenderer renderer) {
+		public CurveSelectionRenderer(ListCellRenderer<MotorHolder> renderer) {
 			this.renderer = renderer;
 		}
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index,
+		public Component getListCellRendererComponent(JList<? extends MotorHolder> list, MotorHolder value, int index,
 				boolean isSelected, boolean cellHasFocus) {
 
 			Component c = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

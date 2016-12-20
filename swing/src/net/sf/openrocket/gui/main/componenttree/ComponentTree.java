@@ -7,6 +7,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.BasicTree;
 
 
+@SuppressWarnings("serial")
 public class ComponentTree extends BasicTree {
 	
 	public ComponentTree(OpenRocketDocument document) {

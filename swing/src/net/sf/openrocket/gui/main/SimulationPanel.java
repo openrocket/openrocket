@@ -24,6 +24,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -44,22 +47,20 @@ import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
+
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -127,6 +128,7 @@ public class SimulationPanel extends JPanel {
 				if (selection.length == 0) {
 					return;
 				}
+				
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
@@ -325,7 +327,7 @@ public class SimulationPanel extends JPanel {
 					}
 
 					@Override
-					public Comparator getComparator() {
+					public Comparator<String> getComparator() {
 						return new AlphanumComparator();
 					}
 				},
@@ -334,10 +336,13 @@ public class SimulationPanel extends JPanel {
 				new Column(trans.get("simpanel.col.Configuration")) {
 					@Override
 					public Object getValueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
+						if (row < 0 || row >= document.getSimulationCount()){
 							return null;
-						Configuration c = document.getSimulation(row).getConfiguration();
-						return descriptor.format(c.getRocket(), c.getFlightConfigurationID());
+						}
+						
+						Rocket rkt = document.getRocket();
+						FlightConfigurationId fcid = document.getSimulation(row).getId();
+						return descriptor.format( rkt, fcid);
 					}
 
 					@Override
@@ -489,6 +494,9 @@ public class SimulationPanel extends JPanel {
 				}
 
 				) {
+	
+				private static final long serialVersionUID = 8686456963492628476L;
+
 			@Override
 			public int getRowCount() {
 				return document.getSimulationCount();
@@ -498,6 +506,9 @@ public class SimulationPanel extends JPanel {
 		// Override processKeyBinding so that the JTable does not catch
 		// key bindings used in menu accelerators
 		simulationTable = new ColumnTable(simulationTableModel) {
+
+			private static final long serialVersionUID = -5799340181229735630L;
+
 			@Override
 			protected boolean processKeyBinding(KeyStroke ks,
 					KeyEvent e,
@@ -601,7 +612,7 @@ public class SimulationPanel extends JPanel {
 				if((s==Simulation.Status.NOT_SIMULATED) ||
 						(s==Simulation.Status.OUTDATED)){
 					outdated++;
-				}	
+				}
 			}
 			if(outdated>0){
 				Simulation[] sims = new Simulation[outdated];
@@ -656,10 +667,6 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
-	private enum SimulationTableColumns {
-
-	}
-
 	private class JLabelRenderer extends DefaultTableCellRenderer {
 
 		@Override
@@ -702,6 +709,9 @@ public class SimulationPanel extends JPanel {
 
 			tip = "<html><b>" + sim.getName() + "</b><br>";
 			switch (sim.getStatus()) {
+			case CANT_RUN:
+				tip += trans.get("simpanel.ttip.noData")+"<br>";
+				break;
 			case UPTODATE:
 				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
 				break;

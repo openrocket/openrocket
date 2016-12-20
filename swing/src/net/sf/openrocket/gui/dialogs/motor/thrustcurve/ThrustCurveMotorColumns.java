@@ -58,11 +58,10 @@ enum ThrustCurveMotorColumns {
 			};
 		}
 	},
-	//// Type
-	TYPE("TCurveMotorCol.TYPE") {
+	CASEINFO("TCurveMotorCol.CASEINFO") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
-			return m.getType().getName();
+			return m.getCaseInfo();
 		}
 		
 		@Override
@@ -151,11 +150,11 @@ enum ThrustCurveMotorColumns {
 				UnitGroup.UNITS_IMPULSE.getDefaultUnit()
 						.toStringUnit(m.getTotalImpulseEstimate()) + "<br>");
 		tip += (trans.get("TCurveMotor.ttip.launchMass") + " " +
-				UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(m.getLaunchCG().weight) +
+				UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(m.getLaunchMass()) +
 				"<br>");
 		tip += (trans.get("TCurveMotor.ttip.emptyMass") + " " +
 				UnitGroup.UNITS_MASS.getDefaultUnit()
-						.toStringUnit(m.getEmptyCG().weight));
+						.toStringUnit(m.getBurnoutMass()));
 		return tip;
 	}
 	

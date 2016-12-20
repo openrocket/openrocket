@@ -83,10 +83,10 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	 */
 	public static void setLocation(RocketComponent component, RocketComponent.Position position, double location) {
 		if (position.equals(RocketComponent.Position.BOTTOM)) {
-			component.setPositionValue(-1d * location);
+			component.setAxialOffset(-1d * location);
 		}
 		else {
-			component.setPositionValue(location);
+			component.setAxialOffset(location);
 		}
 	}
 	

@@ -5,10 +5,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 /**
- * An inner component that consists of a hollow cylindrical component.  This can be
- * an inner tube, tube coupler, centering ring, bulkhead etc.
- *
- * The properties include the inner and outer radii, length and radial position.
+ * ???
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -36,7 +33,6 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public double getOuterRadius() {
 		if (outerRadiusAutomatic && getParent() instanceof RadialParent) {
-			RocketComponent parent = getParent();
 			double pos1 = this.toRelative(Coordinate.NUL, parent)[0].x;
 			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].x;
 			pos1 = MathUtil.clamp(pos1, 0, parent.getLength());

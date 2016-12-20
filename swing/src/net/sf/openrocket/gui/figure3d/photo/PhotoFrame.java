@@ -206,7 +206,7 @@ public class PhotoFrame extends JFrame {
 		menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
 		// // Rocket editing
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.menu.Rocketedt"));
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.unk"));
 		menubar.add(menu);
 
 		Action action = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {

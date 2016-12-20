@@ -1,7 +1,6 @@
 package net.sf.openrocket.motor;
 
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Coordinate;
 
 public class ThrustCurveMotorPlaceholder implements Motor {
 	
@@ -74,18 +73,8 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	}
 	
 	@Override
-	public MotorInstance getInstance() {
+	public Motor clone() {
 		throw new BugException("Called getInstance on PlaceholderMotor");
-	}
-	
-	@Override
-	public Coordinate getLaunchCG() {
-		return new Coordinate(length / 2, 0, 0, launchMass);
-	}
-	
-	@Override
-	public Coordinate getEmptyCG() {
-		return new Coordinate(length / 2, 0, 0, emptyMass);
 	}
 	
 	@Override
@@ -183,4 +172,68 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 				+ ", designation=" + designation + "]";
 	}
 	
+	@Override
+	public double getLaunchCGx() {
+		return length / 2;
+	}
+
+	@Override
+	public double getBurnoutCGx() {
+		return length / 2;
+	}
+
+	@Override
+	public double getLaunchMass() {
+		return launchMass;
+	}
+
+	@Override
+	public double getBurnoutMass() {
+		return emptyMass;
+	}
+
+	@Override
+	public double getThrust(double pseudoIndex) {
+		return 0;
+	}
+
+	@Override
+	public double getAverageThrust(double startTime, double endTime) {
+		return 0;
+	}
+
+	@Override
+	public double getTotalMass(final double motorTime) {
+		return 0;
+	}
+	
+	@Override
+	public double getPropellantMass( final Double motorTime){
+		return 0.;
+	}
+	
+	@Override
+	public double getCMx(double pseudoIndex) {
+		return 0;
+	}
+	
+	@Override
+	public double getBurnTime() { 
+		return 0; 
+	}
+	
+	@Override
+	public double getUnitIxx() {
+		return 0.; 
+	}
+	
+	@Override
+	public double getUnitIyy() {
+		return 0.;
+	}
+
+	@Override
+	public double getUnitIzz(){
+		return 0.;
+	}
 }

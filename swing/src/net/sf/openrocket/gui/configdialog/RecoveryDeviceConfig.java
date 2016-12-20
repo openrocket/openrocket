@@ -30,7 +30,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 		if (altitudeComponents == null)
 			return;
 		
-		boolean enabled = (((RecoveryDevice) component).getDeploymentConfiguration().getDefault().getDeployEvent() == DeployEvent.ALTITUDE);
+		boolean enabled = (((RecoveryDevice) component).getDeploymentConfigurations().getDefault().getDeployEvent() == DeployEvent.ALTITUDE);
 		
 		for (JComponent c : altitudeComponents) {
 			c.setEnabled(enabled);

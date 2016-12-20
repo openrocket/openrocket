@@ -279,7 +279,7 @@ public class FlightDataBranch implements Monitorable {
 	 */
 	public void addEvent(FlightEvent event) {
 		mutable.check();
-		events.add(event.resetSourceAndData());
+		events.add(event);
 		modID++;
 	}
 	

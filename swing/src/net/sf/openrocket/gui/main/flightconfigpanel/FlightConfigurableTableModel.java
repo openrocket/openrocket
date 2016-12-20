@@ -10,20 +10,21 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
-public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel  implements ComponentChangeListener{
-
+public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel implements ComponentChangeListener{
+	private static final long serialVersionUID = 3168465083803936363L;
 	private static final Translator trans = Application.getTranslator();
 	private static final String CONFIGURATION = trans.get("edtmotorconfdlg.col.configuration");
 
 	protected final Rocket rocket;
 	protected final Class<T> clazz;
 	private final List<T> components = new ArrayList<T>();
-
+	
 	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
 		super();
 		this.rocket = rocket;
@@ -33,8 +34,8 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	}
 
 	@Override
-	public void componentChanged(ComponentChangeEvent e) {
-		if ( e.isMotorChange() || e.isTreeChange() ) {
+	public void componentChanged(ComponentChangeEvent cce) {
+		if ( cce.isMotorChange() || cce.isTreeChange() ) {
 			initialize();
 			fireTableStructureChanged();
 		}
@@ -49,6 +50,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		return true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected void initialize() {
 		components.clear();
 		Iterator<RocketComponent> it = rocket.iterator();
@@ -62,7 +64,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public int getRowCount() {
-		return rocket.getFlightConfigurationIDs().length - 1;
+		return rocket.getConfigurationCount();
 	}
 
 	@Override
@@ -72,15 +74,16 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		String id = getConfiguration(row);
+		FlightConfigurationId fcid = rocket.getId( row);
+		
 		switch (column) {
 		case 0: {
-			return id;
+			return fcid;
 		}
 		default: {
 			int index = column - 1;
 			T d = components.get(index);
-			return new Pair<String, T>(id, d);
+			return new Pair<FlightConfigurationId, T>(fcid, d);
 		}
 		}
 	}
@@ -98,11 +101,6 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 	
 		}
 		}
-	}
-
-	private String getConfiguration(int row) {
-		String id = rocket.getFlightConfigurationIDs()[row + 1];
-		return id;
 	}
 
 }

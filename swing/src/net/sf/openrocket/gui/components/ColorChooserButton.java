@@ -22,6 +22,7 @@ import net.sf.openrocket.logging.Markers;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class ColorChooserButton extends JButton {
 	private static final Logger log = LoggerFactory.getLogger(ColorChooserButton.class);
 	

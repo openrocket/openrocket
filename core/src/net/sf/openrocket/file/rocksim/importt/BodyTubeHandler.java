@@ -5,6 +5,8 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -14,8 +16,6 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-
-import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim Body Tubes.
@@ -100,6 +100,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 	 *
 	 * @return BULK
 	 */
+	@Override
 	public Material.Type getMaterialType() {
 		return Material.Type.BULK;
 	}

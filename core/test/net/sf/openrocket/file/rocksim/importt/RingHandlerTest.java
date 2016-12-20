@@ -3,6 +3,11 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -14,10 +19,6 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.HashMap;
 
 /**
  * RingHandler Tester.
@@ -108,7 +109,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
-        Assert.assertEquals(0, child.getPositionValue(), 0.0);
+        Assert.assertEquals(0, child.getAxialOffset(), 0.0);
         Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
         Assert.assertTrue(child instanceof Bulkhead);
 
@@ -144,7 +145,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
-        Assert.assertEquals(0, child.getPositionValue(), 0.0);
+        Assert.assertEquals(0, child.getAxialOffset(), 0.0);
         Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
     }
 
@@ -179,7 +180,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
-        Assert.assertEquals(0, child.getPositionValue(), 0.0);
+        Assert.assertEquals(0, child.getAxialOffset(), 0.0);
         Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
         Assert.assertEquals(4d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().x, 0.000001);
         
@@ -214,7 +215,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
-        Assert.assertEquals(0, child.getPositionValue(), 0.0);
+        Assert.assertEquals(0, child.getAxialOffset(), 0.0);
         Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
         Assert.assertTrue(child instanceof CenteringRing);
     }

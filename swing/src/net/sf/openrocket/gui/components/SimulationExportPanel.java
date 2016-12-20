@@ -33,6 +33,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class SimulationExportPanel extends JPanel {
 	
 	private static final String SPACE = "SPACE";

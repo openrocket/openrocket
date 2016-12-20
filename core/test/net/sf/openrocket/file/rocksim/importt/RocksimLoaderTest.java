@@ -4,21 +4,22 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Assert;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-import org.junit.Assert;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * RocksimLoader Tester.
@@ -85,13 +86,13 @@ public class RocksimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Three Stage Everything Included Rocket", doc.getRocket().getName());
         Assert.assertEquals(0, loader.getWarnings().size());
         Assert.assertEquals(3, rocket.getStageCount());
-        Stage stage1 = (Stage) rocket.getChild(0);
+        AxialStage stage1 = (AxialStage) rocket.getChild(0);
         Assert.assertFalse(stage1.isMassOverridden());
         Assert.assertFalse(stage1.isCGOverridden());
-        Stage stage2 = (Stage) rocket.getChild(1);
+        AxialStage stage2 = (AxialStage) rocket.getChild(1);
         Assert.assertFalse(stage2.isMassOverridden());
         Assert.assertFalse(stage2.isCGOverridden());
-        Stage stage3 = (Stage) rocket.getChild(2);
+        AxialStage stage3 = (AxialStage) rocket.getChild(2);
         Assert.assertFalse(stage3.isMassOverridden());
         Assert.assertFalse(stage3.isCGOverridden());
 
@@ -109,9 +110,9 @@ public class RocksimLoaderTest extends BaseTestCase {
         Assert.assertNotNull(rocket);
         Assert.assertEquals("Three Stage Everything Included Rocket - Override Total Mass/CG", doc.getRocket().getName());
         Assert.assertEquals(3, rocket.getStageCount());
-        stage1 = (Stage) rocket.getChild(0);
-        stage2 = (Stage) rocket.getChild(1);
-        stage3 = (Stage) rocket.getChild(2);
+        stage1 = (AxialStage) rocket.getChild(0);
+        stage2 = (AxialStage) rocket.getChild(1);
+        stage3 = (AxialStage) rocket.getChild(2);
 
         //Do some 1st level and simple asserts; the idea here is to not do a deep validation as that
         //should have been covered elsewhere.  Assert that the stage overrides are correct.
@@ -133,7 +134,7 @@ public class RocksimLoaderTest extends BaseTestCase {
 
         BodyTube bt = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt.getChild(6);
-        Assert.assertEquals(1.22d, ll.getRadialDirection(), 0.001);
+        Assert.assertEquals(1.22d, ll.getAngularOffset(), 0.001);
 
         Assert.assertEquals(2, stage3.getChildCount());
         Assert.assertEquals("Transition", stage3.getChild(0).getName());
@@ -170,7 +171,7 @@ public class RocksimLoaderTest extends BaseTestCase {
         rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
         Assert.assertEquals(1, rocket.getStageCount());
-        Stage stage1 = (Stage) rocket.getChild(0);
+        AxialStage stage1 = (AxialStage) rocket.getChild(0);
         Assert.assertEquals("Nose cone", stage1.getChild(0).getName());
         Assert.assertEquals("Forward Body tube", stage1.getChild(1).getName());
         Assert.assertEquals("Aft Body tube", stage1.getChild(2).getName());

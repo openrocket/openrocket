@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 
+@SuppressWarnings("serial")
 public class ColumnTable extends JTable {
 
 	public ColumnTable( ColumnTableModel model ) {

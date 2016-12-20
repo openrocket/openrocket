@@ -11,6 +11,7 @@ import javax.swing.table.TableCellEditor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 
+@SuppressWarnings("serial")
 public class DoubleCellEditor extends AbstractCellEditor implements TableCellEditor {
 	
 	private final JSpinner editor;

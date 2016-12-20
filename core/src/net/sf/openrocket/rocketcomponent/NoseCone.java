@@ -34,6 +34,8 @@ public class NoseCone extends Transition {
 		super.setLength(length);
 		super.setClipped(false);
 		
+		super.setAftRadiusAutomatic(false);
+		super.setAftRadius(radius);
 	}
 	
 	

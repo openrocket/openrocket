@@ -22,17 +22,18 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	
 	//  Comparators:
 	private static final Collator COLLATOR = Collator.getInstance(Locale.US);
+	
 	static {
 		COLLATOR.setStrength(Collator.PRIMARY);
 	}
+	
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	private static final ThrustCurveMotorComparator comparator = new ThrustCurveMotorComparator();
 	
 	
 	
 	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
-	private final Map<ThrustCurveMotor, String> digestMap =
-			new IdentityHashMap<ThrustCurveMotor, String>();
+	private final Map<ThrustCurveMotor, String> digestMap = new IdentityHashMap<ThrustCurveMotor, String>();
 	
 	private final List<Double> delays = new ArrayList<Double>();
 	
@@ -43,7 +44,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private double length = -1;
 	private long totalImpulse = 0;
 	private Motor.Type type = Motor.Type.UNKNOWN;
-	
+	private String caseInfo = null;
+	private boolean available = true;
 	
 	
 	public void addMotor(ThrustCurveMotor motor) {
@@ -56,6 +58,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			diameter = motor.getDiameter();
 			length = motor.getLength();
 			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
+			caseInfo = motor.getCaseInfo();
+			available = motor.isAvailable();
 		}
 		
 		// Verify that the motor can be added
@@ -74,8 +78,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			type = motor.getMotorType();
 			// Add "Plugged" option if hybrid
 			if (type == Motor.Type.HYBRID) {
-				if (!delays.contains(Motor.PLUGGED)) {
-					delays.add(Motor.PLUGGED);
+				if (!delays.contains(Motor.PLUGGED_DELAY)) {
+					delays.add(Motor.PLUGGED_DELAY);
 				}
 			}
 		}
@@ -83,6 +87,10 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		// Change the simplified designation if necessary
 		if (!designation.equalsIgnoreCase(motor.getDesignation().trim())) {
 			designation = simplifiedDesignation;
+		}
+		
+		if (caseInfo == null) {
+			caseInfo = motor.getCaseInfo();
 		}
 		
 		// Add the standard delays
@@ -102,7 +110,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			
 			if (digest.equals(digestMap.get(m)) &&
 					motor.getDesignation().equals(m.getDesignation())) {
-				
+					
 				// Match found, check which one to keep (or both) based on comment
 				String newCmt = motor.getDescription().replaceAll("\\s+", " ").trim();
 				String oldCmt = m.getDescription().replaceAll("\\s+", " ").trim();
@@ -132,16 +140,16 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public boolean matches(ThrustCurveMotor m) {
 		if (motors.isEmpty())
 			return true;
-		
+			
 		if (manufacturer != m.getManufacturer())
 			return false;
-		
+			
 		if (!MathUtil.equals(diameter, m.getDiameter()))
 			return false;
-		
+			
 		if (!MathUtil.equals(length, m.getLength()))
 			return false;
-		
+			
 		if ((type != Type.UNKNOWN) && (m.getMotorType() != Type.UNKNOWN) &&
 				(type != m.getMotorType())) {
 			return false;
@@ -150,6 +158,9 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (!simplifiedDesignation.equalsIgnoreCase(simplifyDesignation(m.getDesignation())))
 			return false;
 		
+		if (caseInfo != null && !caseInfo.equalsIgnoreCase(m.getCaseInfo()))
+			return false;
+			
 		return true;
 	}
 	
@@ -229,14 +240,21 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	}
 	
 	
+	public String getCaseInfo() {
+		return caseInfo;
+	}
+	
+	
+	public boolean isAvailable() {
+		return available;
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "ThrustCurveMotorSet[" + manufacturer + " " + designation +
 				", type=" + type + ", count=" + motors.size() + "]";
 	}
-	
-	
-	
 	
 	private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
 	
@@ -256,8 +274,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return str.replaceAll("\\s", "");
 		}
 	}
-	
-	
+
 	/**
 	 * Comparator for deciding in which order to display matching motors.
 	 */
@@ -271,8 +288,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			}
 			
 			// 2. Number of data points (more is better)
-			if (o1.getTimePoints().length != o2.getTimePoints().length) {
-				return o2.getTimePoints().length - o1.getTimePoints().length;
+			if (o1.getSampleSize() != o2.getSampleSize()) {
+				return o2.getSampleSize() - o1.getSampleSize();
 			}
 			
 			// 3. Comment length (longer is better)
@@ -292,17 +309,17 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 				other.manufacturer.getDisplayName());
 		if (value != 0)
 			return value;
-		
+			
 		// 2. Designation
 		value = DESIGNATION_COMPARATOR.compare(this.designation, other.designation);
 		if (value != 0)
 			return value;
-		
+			
 		// 3. Diameter
 		value = (int) ((this.diameter - other.diameter) * 1000000);
 		if (value != 0)
 			return value;
-		
+			
 		// 4. Length
 		value = (int) ((this.length - other.length) * 1000000);
 		return value;

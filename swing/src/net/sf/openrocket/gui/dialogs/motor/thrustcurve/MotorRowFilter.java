@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -11,8 +12,8 @@ import javax.swing.table.TableModel;
 
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.ChangeSource;
@@ -54,6 +55,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	// Impulse class filtering
 	private ImpulseClass minimumImpulse;
 	private ImpulseClass maximumImpulse;
+	
+	// Show only available motors
+	private boolean hideUnavailable = false;
 
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
@@ -63,8 +67,12 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 
 	public void setMotorMount( MotorMount mount ) {
 		if (mount != null) {
-			for (MotorConfiguration m : mount.getMotorConfiguration()) {
-				this.usedMotors.add((ThrustCurveMotor) m.getMotor());
+			Iterator<MotorConfiguration> iter = mount.getMotorIterator();
+			while( iter.hasNext()){
+				MotorConfiguration mi = iter.next();
+				if( !mi.isEmpty()){
+					this.usedMotors.add((ThrustCurveMotor) mi.getMotor());
+				}
 			}
 		}
 	}
@@ -146,11 +154,19 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		this.maximumImpulse = maximumImpulse;
 	}
 
+	public boolean isHideUnavailable() {
+		return hideUnavailable;
+	}
+
+	public void setHideUnavailable(boolean hideUnavailable) {
+		this.hideUnavailable = hideUnavailable;
+	}
+
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m);
+		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m) && filterUnavailable(m);
 	}
 
 	private boolean filterManufacturers(ThrustCurveMotorSet m) {
@@ -226,6 +242,14 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 
 		return true;
 	}
+
+	private boolean filterUnavailable(ThrustCurveMotorSet m) {
+		if (!hideUnavailable) {
+			return true;
+		}
+		return m.isAvailable();
+	}
+
 
 	public final void addChangeListener(StateChangeListener listener) {
 		changeSourceDelegate.addChangeListener(listener);

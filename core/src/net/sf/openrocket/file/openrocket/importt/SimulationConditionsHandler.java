@@ -7,24 +7,26 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
-	private SimulationOptions conditions;
+	public FlightConfigurationId idToSet = FlightConfigurationId.ERROR_FCID;
+	private SimulationOptions options;
 	private AtmosphereHandler atmosphereHandler;
 	
 	public SimulationConditionsHandler(Rocket rocket, DocumentLoadingContext context) {
 		this.context = context;
-		conditions = new SimulationOptions(rocket);
+		options = new SimulationOptions();
 		// Set up default loading settings (which may differ from the new defaults)
-		conditions.setGeodeticComputation(GeodeticComputationStrategy.FLAT);
+		options.setGeodeticComputation(GeodeticComputationStrategy.FLAT);
 	}
 	
 	public SimulationOptions getConditions() {
-		return conditions;
+		return options;
 	}
 	
 	@Override
@@ -49,74 +51,70 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		
 		
 		if (element.equals("configid")) {
-			if (content.equals("")) {
-				conditions.setMotorConfigurationID(null);
-			} else {
-				conditions.setMotorConfigurationID(content);
-			}
+			this.idToSet= new FlightConfigurationId(content);
 		} else if (element.equals("launchrodlength")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod length defined, ignoring.");
 			} else {
-				conditions.setLaunchRodLength(d);
+				options.setLaunchRodLength(d);
 			}
 		} else if (element.equals("launchrodangle")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod angle defined, ignoring.");
 			} else {
-				conditions.setLaunchRodAngle(d * Math.PI / 180);
+				options.setLaunchRodAngle(d * Math.PI / 180);
 			}
 		} else if (element.equals("launchroddirection")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod direction defined, ignoring.");
 			} else {
-				conditions.setLaunchRodDirection(d * 2.0 * Math.PI / 360);
+				options.setLaunchRodDirection(d * 2.0 * Math.PI / 360);
 			}
 		} else if (element.equals("windaverage")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal average windspeed defined, ignoring.");
 			} else {
-				conditions.setWindSpeedAverage(d);
+				options.setWindSpeedAverage(d);
 			}
 		} else if (element.equals("windturbulence")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal wind turbulence intensity defined, ignoring.");
 			} else {
-				conditions.setWindTurbulenceIntensity(d);
+				options.setWindTurbulenceIntensity(d);
 			}
 		} else if (element.equals("launchaltitude")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch altitude defined, ignoring.");
 			} else {
-				conditions.setLaunchAltitude(d);
+				options.setLaunchAltitude(d);
 			}
 		} else if (element.equals("launchlatitude")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch latitude defined, ignoring.");
 			} else {
-				conditions.setLaunchLatitude(d);
+				options.setLaunchLatitude(d);
 			}
 		} else if (element.equals("launchlongitude")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch longitude.");
 			} else {
-				conditions.setLaunchLongitude(d);
+				options.setLaunchLongitude(d);
 			}
 		} else if (element.equals("geodeticmethod")) {
 			GeodeticComputationStrategy gcs =
 					(GeodeticComputationStrategy) DocumentConfig.findEnum(content, GeodeticComputationStrategy.class);
 			if (gcs != null) {
-				conditions.setGeodeticComputation(gcs);
+				options.setGeodeticComputation(gcs);
 			} else {
 				warnings.add("Unknown geodetic computation method '" + content + "'");
 			}
 		} else if (element.equals("atmosphere")) {
-			atmosphereHandler.storeSettings(conditions, warnings);
+			atmosphereHandler.storeSettings(options, warnings);
 		} else if (element.equals("timestep")) {
 			if (Double.isNaN(d) || d <= 0) {
 				warnings.add("Illegal time step defined, ignoring.");
 			} else {
-				conditions.setTimeStep(d);
+				options.setTimeStep(d);
 			}
 		}
 	}

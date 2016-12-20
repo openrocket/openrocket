@@ -24,6 +24,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -52,11 +55,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FreeformFinSetConfig extends FinSetConfig {
-	
+	private static final long serialVersionUID = 2504130276828826021L;
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -86,7 +86,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		DoubleModel m;
 		JSpinner spin;
-		JComboBox combo;
 		
 		JPanel mainPanel = new JPanel(new MigLayout("fill"));
 		
@@ -139,13 +138,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
 		
-		combo = new JComboBox(new EnumModel<RocketComponent.Position>(component, "RelativePosition", new RocketComponent.Position[] { RocketComponent.Position.TOP, RocketComponent.Position.MIDDLE,
-				RocketComponent.Position.BOTTOM, RocketComponent.Position.ABSOLUTE }));
-		panel.add(combo, "spanx 3, growx, wrap");
+		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
+				new EnumModel<RocketComponent.Position>(component, "RelativePosition", new RocketComponent.Position[] { 
+				RocketComponent.Position.TOP, RocketComponent.Position.MIDDLE, RocketComponent.Position.BOTTOM, RocketComponent.Position.ABSOLUTE }));
+		panel.add(positionCombo, "spanx 3, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -169,8 +169,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		////  Cross section
 		//// Fin cross section:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
-		combo = new JComboBox(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add(combo, "growx, wrap unrel");
+		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+		panel.add(sectionCombo, "growx, wrap unrel");
 		
 		
 		////  Thickness:
@@ -312,6 +312,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private class FinPointScrollPane extends ScaleScrollPane {
+		private static final long serialVersionUID = 2232218393756983666L;
+
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
 		
 		private int dragIndex = -1;
@@ -480,6 +482,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	private class FinPointTableModel extends AbstractTableModel {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4803736958177227852L;
+
 		@Override
 		public int getColumnCount() {
 			return Columns.values().length;

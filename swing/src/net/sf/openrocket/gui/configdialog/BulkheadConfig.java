@@ -10,6 +10,7 @@ import net.sf.openrocket.startup.Application;
 
 
 
+@SuppressWarnings("serial")
 public class BulkheadConfig extends RingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	

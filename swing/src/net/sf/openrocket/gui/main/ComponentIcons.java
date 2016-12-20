@@ -10,6 +10,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -22,6 +23,9 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassComponent.MassComponentType;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -58,6 +62,8 @@ public class ComponentIcons {
 		load("tubefin", trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
 		//// Launch lug
 		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
+		//// Rail Button
+		load("railbutton", trans.get("ComponentIcons.RailButton"), RailButton.class);
 		//// Inner tube
 		load("innertube", trans.get("ComponentIcons.Innertube"), InnerTube.class);
 		//// Tube coupler
@@ -79,6 +85,13 @@ public class ComponentIcons {
 				ShockCord.class);
 		load("mass", trans.get("ComponentIcons.Masscomponent"),
 				MassComponent.class);
+		// // Component Assemblies
+		load("stage", trans.get("ComponentIcons.Stage"),
+				AxialStage.class);
+		load("boosters", trans.get("ComponentIcons.Boosters"),
+				ParallelStage.class);
+		load("pods", trans.get("ComponentIcons.Pods"),
+				PodSet.class);
 		// // Mass components
 		loadMassTypeIcon("mass", trans.get("ComponentIcons.Masscomponent"),
 				MassComponentType.MASSCOMPONENT);

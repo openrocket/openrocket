@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
  * 
  * The chosen color may be retrieved via a call to getCurrentColor.
  */
+@SuppressWarnings("serial")
 public class ColorChooser extends JPanel {
 
     private static final String COLOR_CHOOSER_BUTTON_LABEL = "Color";

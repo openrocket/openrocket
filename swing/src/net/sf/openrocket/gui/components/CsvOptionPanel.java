@@ -16,6 +16,7 @@ import net.sf.openrocket.startup.Preferences;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class CsvOptionPanel extends JPanel {
 	
 	private static final Translator trans = Application.getTranslator();
@@ -25,9 +26,9 @@ public class CsvOptionPanel extends JPanel {
 	
 	private final String baseClassName;
 	
-	private final JComboBox fieldSeparator;
+	private final JComboBox<String> fieldSeparator;
 	private final JCheckBox[] options;
-	private final JComboBox commentCharacter;
+	private final JComboBox<String> commentCharacter;
 	
 	/**
 	 * Sole constructor.
@@ -57,7 +58,7 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(tip);
 		panel.add(label, "gapright unrel");
 		
-		fieldSeparator = new JComboBox(new String[] { ",", ";", SPACE, TAB });
+		fieldSeparator = new JComboBox<String>(new String[] { ",", ";", SPACE, TAB });
 		fieldSeparator.setEditable(true);
 		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ","));
 		fieldSeparator.setToolTipText(tip);
@@ -90,7 +91,7 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(tip);
 		panel.add(label, "split 2, gapright unrel");
 		
-		commentCharacter = new JComboBox(new String[] { "#", "%", ";" });
+		commentCharacter = new JComboBox<String>(new String[] { "#", "%", ";" });
 		commentCharacter.setEditable(true);
 		commentCharacter.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_COMMENT_CHARACTER, "#"));
 		commentCharacter.setToolTipText(tip);

@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.util.List;
 
 import net.sf.openrocket.file.Loader;
-import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 
-public interface MotorLoader extends Loader<Motor> {
+public interface MotorLoader extends Loader<ThrustCurveMotor.Builder> {
 	
 	/**
 	 * Load motors from the specified <code>InputStream</code>.
@@ -20,6 +20,6 @@ public interface MotorLoader extends Loader<Motor> {
 	 * @throws IOException	if an I/O exception occurs of the file format is invalid.
 	 */
 	@Override
-	public List<Motor> load(InputStream stream, String filename) throws IOException;
+	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException;
 	
 }
