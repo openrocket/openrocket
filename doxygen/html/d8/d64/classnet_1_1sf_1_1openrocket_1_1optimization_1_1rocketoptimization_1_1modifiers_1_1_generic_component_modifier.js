@@ -1,0 +1,5 @@
+var classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_component_modifier =
+[
+    [ "GenericComponentModifier", "d8/d64/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_component_modifier.html#ad9f4c7ebc7a75ae858f84d65f68a6277", null ],
+    [ "getModifiedObject", "d8/d64/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_generic_component_modifier.html#a53bfe0ebb4eddca7424e42f2d33a3280", null ]
+];

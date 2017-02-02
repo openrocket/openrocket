@@ -1,0 +1,26 @@
+var classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch =
+[
+    [ "FlightDataBranch", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a537e456766b509e935c19d57189feeb7", null ],
+    [ "FlightDataBranch", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#ae039b3ee6cb7659dedb5c29934aa16e6", null ],
+    [ "addEvent", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a55b12fe364e00b6a2cd2b0a0b5aee786", null ],
+    [ "addPoint", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#ada0e1d007bd7e17961c6c2ba02e93b2f", null ],
+    [ "get", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#ab8031dd6f7ff35301081aeb4d66fbf41", null ],
+    [ "getBranchName", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a65210302db038ffd1a0bfcdaa1a37a48", null ],
+    [ "getEvents", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a78c2160810715cf2f1d540d5d78cc58b", null ],
+    [ "getFirstEvent", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a2786efc9698a126f3a162787caeb96dc", null ],
+    [ "getLast", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a2b2893c4d6dc0b49ccd2f6da4081fe7c", null ],
+    [ "getLastEvent", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a97824e1c24fe805683bc54e89ac2aac9", null ],
+    [ "getLength", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#aeb9ec18c40be54f22b33fb3445ccf7ff", null ],
+    [ "getMaximum", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a3238b05c9ca3e630dce05edcbb8bc76b", null ],
+    [ "getMinimum", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a86281f60656d05fdc8bd5f6ce91c5738", null ],
+    [ "getModID", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a1af61a78ba1e5caead79631bb52f1b2e", null ],
+    [ "getOptimumAltitude", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a6c7bf5e51c4a9658b17fdedb97e6da7d", null ],
+    [ "getOptimumDelay", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#aaeb5533f83ba088f0908624cd7553cf6", null ],
+    [ "getTimeToOptimumAltitude", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a0c51561077b3f346a918f13c8aa61c3e", null ],
+    [ "getTypes", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a81141829a7553963d92645fe0d328a42", null ],
+    [ "immute", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#afc49a722b4e9e356d80fd1987a2bc4a7", null ],
+    [ "isMutable", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#ae705f4acce561e4e5a5abfddbf304c49", null ],
+    [ "setOptimumAltitude", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#a6774a67a628cc9295028db43bf42f2a7", null ],
+    [ "setTimeToOptimumAltitude", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#aaa3f6b7020e78a67e10d81902413c54e", null ],
+    [ "setValue", "d4/d45/classnet_1_1sf_1_1openrocket_1_1simulation_1_1_flight_data_branch.html#af9a7caabf096b5c6a486e5d2c03ced16", null ]
+];

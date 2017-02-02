@@ -1,0 +1,5 @@
+var classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_test_generic_modifier_1_1_test_value =
+[
+    [ "getValue", "d4/d00/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_test_generic_modifier_1_1_test_value.html#a16fec15f8cc2aabacef8c1da839e42b1", null ],
+    [ "setValue", "d4/d00/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1modifiers_1_1_test_generic_modifier_1_1_test_value.html#a7779ef8bacf91d40c7a4b739ead0dae3", null ]
+];

@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_minimization_goal =
+[
+    [ "getMinimizationParameter", "d8/d22/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_minimization_goal.html#af8553bbfb4bf4fe1b003464578055f3c", null ]
+];

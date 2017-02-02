@@ -1,0 +1,4 @@
+var interfaceandroid_1_1support_1_1v4_1_1app_1_1___action_bar_sherlock_trojan_horse_1_1_on_options_item_selected_listener =
+[
+    [ "onOptionsItemSelected", "da/df8/interfaceandroid_1_1support_1_1v4_1_1app_1_1___action_bar_sherlock_trojan_horse_1_1_on_options_item_selected_listener.html#ad6a9c4d947fea0ccd949c4d4c944c19a", null ]
+];

@@ -1,0 +1,6 @@
+var namespacenet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals =
+[
+    [ "MaximizationGoal", "d4/dee/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_maximization_goal.html", "d4/dee/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_maximization_goal" ],
+    [ "MinimizationGoal", "d8/d22/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_minimization_goal.html", "d8/d22/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_minimization_goal" ],
+    [ "ValueSeekGoal", "d8/d9d/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_value_seek_goal.html", "d8/d9d/classnet_1_1sf_1_1openrocket_1_1optimization_1_1rocketoptimization_1_1goals_1_1_value_seek_goal" ]
+];

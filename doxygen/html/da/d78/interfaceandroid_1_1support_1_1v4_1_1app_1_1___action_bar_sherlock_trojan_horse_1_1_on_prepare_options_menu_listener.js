@@ -1,0 +1,4 @@
+var interfaceandroid_1_1support_1_1v4_1_1app_1_1___action_bar_sherlock_trojan_horse_1_1_on_prepare_options_menu_listener =
+[
+    [ "onPrepareOptionsMenu", "da/d78/interfaceandroid_1_1support_1_1v4_1_1app_1_1___action_bar_sherlock_trojan_horse_1_1_on_prepare_options_menu_listener.html#aa09b62ade559066361d97c029d6db786", null ]
+];

@@ -1,0 +1,4 @@
+var classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1motor_1_1thrustcurve_1_1_motor_information_panel_1_1_custom_layered_pane =
+[
+    [ "doLayout", "d4/d47/classnet_1_1sf_1_1openrocket_1_1gui_1_1dialogs_1_1motor_1_1thrustcurve_1_1_motor_information_panel_1_1_custom_layered_pane.html#ada0db4c6edf5c6e4614f8965e81d4180", null ]
+];
