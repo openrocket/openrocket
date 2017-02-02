@@ -6,7 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -232,6 +239,56 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
+		JButton exportCsvButton = new JButton("Export CSV");
+		exportCsvButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
+				
+				 JFileChooser c = new JFileChooser();
+			      // Demonstrate "Save" dialog:
+			      int rVal = c.showSaveDialog(FreeformFinSetConfig.this);
+			      if (rVal == JFileChooser.APPROVE_OPTION) {
+			        File myFile = c.getSelectedFile();
+
+			        	Writer writer = null;
+			            int nRow = table.getRowCount();
+				        int nCol = table.getColumnCount();
+				        try{
+				        	try {
+				               	writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(myFile.getAbsoluteFile()), "utf-8"));
+
+				               	//write the header information
+				               	StringBuffer bufferHeader = new StringBuffer();
+				               	for (int j = 0; j < nCol; j++) {
+				               		bufferHeader.append(table.getColumnName(j));
+				               		if (j!=nCol) bufferHeader.append(", ");
+				               	}
+				               	writer.write(bufferHeader.toString() + "\r\n");
+
+				               	//write row information
+				               	for (int i = 0 ; i < nRow ; i++){
+				               		StringBuffer buffer = new StringBuffer();
+				               		for (int j = 0 ; j < nCol ; j++){
+				               			buffer.append(table.getValueAt(i,j));
+				               			if (j!=nCol) buffer.append(", ");
+				               		}
+				               		writer.write(buffer.toString() + "\r\n");
+				               	}
+				        	}finally {
+								writer.close();
+				        	}
+				        } catch (UnsupportedEncodingException e1) {
+							e1.printStackTrace();
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+				        
+			      }
+			    }
+			});
 		
 		panel.add(tablePane, "growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane, "gap unrel, spanx, spany 3, growx, growy 1000, height 100lp:250lp:, wrap");
@@ -240,6 +297,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
 		
 		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
+		panel.add(exportCsvButton, "spany 2, alignx 50%, aligny 50%");
 		panel.add(new ScaleSelector(figurePane), "spany 2, aligny 50%");
 		
 		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
@@ -258,9 +316,34 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		return panel;
 	}
 	
-	
-	
-	
+	 public void writeCSVfile(JTable table, String filename) throws IOException{
+	        Writer writer = null;
+	        int nRow = table.getRowCount();
+	        int nCol = table.getColumnCount();
+	        try {
+	            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "utf-8"));
+
+	            //write the header information
+	            StringBuffer bufferHeader = new StringBuffer();
+	            for (int j = 0; j < nCol; j++) {
+	                bufferHeader.append(table.getColumnName(j));
+	                if (j!=nCol) bufferHeader.append(", ");
+	            }
+	            writer.write(bufferHeader.toString() + "\r\n");
+
+	           //write row information
+	            for (int i = 0 ; i < nRow ; i++){
+	                 StringBuffer buffer = new StringBuffer();
+	                for (int j = 0 ; j < nCol ; j++){
+	                    buffer.append(table.getValueAt(i,j));
+	                    if (j!=nCol) buffer.append(", ");
+	                }
+	                writer.write(buffer.toString() + "\r\n");
+	            }
+	        } finally {
+	              writer.close();
+	        }
+	    }	
 	
 	private void importImage() {
 		JFileChooser chooser = new JFileChooser();
