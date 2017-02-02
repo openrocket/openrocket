@@ -35,6 +35,7 @@ public class DirectoryIterator extends FileIterator {
 	 * 
 	 * @param directory		the directory to read.
 	 * @param filter		the filter for selecting files.
+	 * @param recursive		true for recursive search
 	 * @throws IOException	if the directory cannot be read.
 	 */
 	public DirectoryIterator(File directory, FileFilter filter, boolean recursive)

@@ -2,7 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.UUID;
 
-/*
+/**
  * FlightConfigurationID is a very minimal wrapper class used to identify a given flight configuration for various components and options.  
  * It is intended to provide better visibility and traceability by more specific type safety -- this class replaces a 
  * straight-up <code>String</code> Key in previous implementations. 
@@ -19,10 +19,17 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 	public final static FlightConfigurationId ERROR_FCID = new FlightConfigurationId( FlightConfigurationId.ERROR_UUID);
 	public final static FlightConfigurationId DEFAULT_VALUE_FCID = new FlightConfigurationId( FlightConfigurationId.DEFAULT_VALUE_UUID ); 
 	
+	/**
+	 * default constructor, builds with an unique random ID
+	 */
 	public FlightConfigurationId() {
 		this(UUID.randomUUID());
 	}
 	
+	/**
+	 * builds the id with the given String
+	 * @param _str	te string to be made into the id
+	 */
 	public FlightConfigurationId(final String _str) {
 		UUID candidate;
 		if(_str == null || "".equals(_str)){
@@ -37,6 +44,10 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		this.key = candidate;
 	}
 	
+	/**
+	 * builds he id with the given UUID object
+	 * @param _val	the UUID to be made into the id
+	 */
 	public FlightConfigurationId(final UUID _val) {
 		if (null == _val){
 			this.key = FlightConfigurationId.ERROR_UUID;
@@ -45,6 +56,10 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * considers equals ids with the same key
+	 */
 	@Override
 	public boolean equals(Object anObject) {
 		if (!(anObject instanceof FlightConfigurationId)) {
@@ -55,32 +70,65 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		return this.key.equals(otherFCID.key);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String toShortKey(){
-		if( hasError() ){
+		if( hasError() )
 			return FlightConfigurationId.ERROR_KEY_NAME;
-		}else if( this.key == FlightConfigurationId.DEFAULT_VALUE_UUID){
+		if( isDefaultId())
 			return FlightConfigurationId.DEFAULT_VALUE_NAME;
-		}else{
-			return this.key.toString().substring(0,8);
-		}
+		return this.key.toString().substring(0,8);
+		
+	}
+
+	//extracted this method because maybe, just maybe, this info could be used somewhere else
+	/**
+	 * gets if the id is the default
+	 * @return	if the id is default
+	 */
+	private boolean isDefaultId() {
+		return this.key == FlightConfigurationId.DEFAULT_VALUE_UUID;
 	}
 	
+	/**
+	 * returns the whole key in the id
+	 * @return	the full key of the id
+	 */
 	public String toFullKey(){
-		return this.key.toString();
+		return this.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * uses the key hash code
+	 */
 	@Override
 	public int hashCode() {
 		return this.key.hashCode();
 	}
 
+	/**
+	 * checks if the key is the ERROR_UUID flag
+	 * @return	if the id has error
+	 */
 	public boolean hasError(){
 		return (ERROR_UUID == this.key);
 	}
+	
+	/**
+	 * checks if the key from the id is valid
+	 * @return	if the id is valid or not
+	 */
 	public boolean isValid() {
 		return !hasError();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * same as get full id
+	 */
 	@Override
 	public String toString() {
 		return this.key.toString();
@@ -91,6 +139,10 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		return this.key.compareTo( other.key);
 	}
 	
+	/**
+	 * used for debuggin, gets the short key
+	 * @return	the short key version of the id
+	 */
 	public String toDebug(){
 		return this.toShortKey();
 	}
