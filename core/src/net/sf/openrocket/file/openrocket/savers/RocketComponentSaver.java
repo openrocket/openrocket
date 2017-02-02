@@ -240,7 +240,7 @@ public class RocketComponentSaver {
 	private final static void emitColor(String elementName, List<String> elements, Color color) {
 		if (color != null) {
 			elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-					+ "\" blue=\"" + color.getBlue() + "\"/>");
+					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
 		}
 		
 	}
