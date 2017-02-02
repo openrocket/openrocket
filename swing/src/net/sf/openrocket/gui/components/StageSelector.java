@@ -81,7 +81,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			rocket.getSelectedConfiguration().toggleStage(stageNumber);
-			rocket.fireComponentChangeEvent(ComponentChangeEvent.GRAPHIC_CHANGE);
+			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE );
 		}
 		
 	}
