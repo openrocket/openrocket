@@ -1,6 +1,7 @@
 <project name="OpenRocket" basedir=".">
 
-	<property file="resources/build.properties" />
+  <property name="core.dir" value="${basedir}/../core"/>
+	<property file="${core.dir}/resources/build.properties" />
 	
 	<property name="src.dir"    	value="${basedir}/src"/>		<!-- Source directory -->
 	<property name="src-test.dir"	value="${basedir}/test"/>		<!-- Test directory -->
@@ -12,7 +13,7 @@
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
 	<property name="resources-src.dir"	value="${basedir}/resources-src"/>
-        <property name="core.dir" value="${basedir}/../core"/>
+  <property name="bundler.dir" value="${basedir}/jarbundler"/>
 	
 	<!-- Distribution directory, from which stuff is jar'ed -->
 	<property name="classes.dir"    	value="${build.dir}/classes"/> 
@@ -25,6 +26,7 @@
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
 	<property name="dist.bin"    value="${jar.dir}/${pkgname}.jar"/>
 	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
+  <property name="bundle.name" value="${jar.dir}/${ant.project.name}.app"/>
 	
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.OpenRocket"/>
@@ -59,6 +61,10 @@
 		</classpath>
 	</taskdef>
 
+  <!-- Add bundler task so we can create an app bundle on OS X -->
+  <taskdef name="jarbundler"
+           classname="net.sourceforge.jarbundler.JarBundler"
+           classpath="${bundler.dir}/jarbundler-2.2.0.jar" />
 	
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
@@ -117,7 +123,20 @@
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
-	
+
+    <!-- BUNDLE (for OS X) -->
+    <target name="bundle" depends="dist-bin">
+      <jarbundler dir="${build.dir}"
+                  name="${ant.project.name}"
+                  mainclass="${main-class}"
+                  jar="${dist.bin}"
+                  icon="${bundler.dir}/${ant.project.name}.icns"
+                  version="${build.version}"
+                  signature="ORKT"
+                  bundleid="net.sf.openrocket"
+                  />
+    </target>
+
 	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
 	    <java classname="net.sf.openrocket.utils.SerializePresets"
 	          fork="true"
