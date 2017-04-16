@@ -9,6 +9,7 @@ import java.util.Map;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.plugin.Plugin;
+import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -67,14 +68,18 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			} else if (c instanceof MotorMount) {
 				
 				MotorMount mount = (MotorMount) c;
-				Motor motor = mount.getMotor(id);
+				Motor motor = mount.getMotorConfiguration().get(id).getMotor();
 				
 				if (mount.isMotorMount() && motor != null) {
-					String designation = motor.getDesignation(mount.getMotorDelay(id));
+					String designation = motor.getDesignation(mount.getMotorConfiguration().get(id).getEjectionDelay());
 					
-					for (int i = 0; i < mount.getMotorCount(); i++) {
+					if (Clusterable.class.isInstance(mount)) {
+						for (int i = 0; i < ((Clusterable) mount).getClusterConfiguration().getClusterCount(); i++) {
+							currentList.add(designation);
+							motorCount++;
+						}
+					} else {
 						currentList.add(designation);
-						motorCount++;
 					}
 				}
 				

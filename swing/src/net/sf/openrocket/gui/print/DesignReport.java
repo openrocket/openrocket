@@ -77,36 +77,37 @@ import com.itextpdf.text.pdf.PdfWriter;
  * </pre>
  */
 public class DesignReport {
-	
+
 	/**
 	 * The logger.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(DesignReport.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(DesignReport.class);
 	public static final double SCALE_FUDGE_FACTOR = 0.4d;
-	
-	private static final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
-	
-	
+
+	private static final RocketDescriptor descriptor = Application
+			.getInjector().getInstance(RocketDescriptor.class);
+
 	/**
 	 * The OR Document.
 	 */
 	private OpenRocketDocument rocketDocument;
-	
+
 	/**
 	 * A panel used for rendering of the design diagram.
 	 */
 	final RocketPanel panel;
-	
+
 	/**
 	 * The iText document.
 	 */
 	protected Document document;
-	
+
 	/**
 	 * The figure rotation.
 	 */
 	private double rotation = 0d;
-	
+
 	/** The displayed strings. */
 	private static final String STAGES = "Stages: ";
 	private static final String MASS_WITH_MOTORS = "Mass (with motors): ";
@@ -133,66 +134,79 @@ public class DesignReport {
 	private static final String LANDING_VELOCITY = "Landing Velocity";
 	private static final String ROCKET_DESIGN = "Rocket Design";
 	private static final double GRAVITY_CONSTANT = 9.80665d;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param theRocDoc the OR document
-	 * @param theIDoc   the iText document
-	 * @param figureRotation the angle the figure is rotated on the screen; printed report will mimic
+	 * @param theRocDoc
+	 *            the OR document
+	 * @param theIDoc
+	 *            the iText document
+	 * @param figureRotation
+	 *            the angle the figure is rotated on the screen; printed report
+	 *            will mimic
 	 */
-	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation) {
+	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc,
+			Double figureRotation) {
 		document = theIDoc;
 		rocketDocument = theRocDoc;
 		panel = new RocketPanel(rocketDocument);
 		rotation = figureRotation;
 	}
-	
+
 	/**
-	 * Main entry point.  Prints the rocket drawing and design data.
+	 * Main entry point. Prints the rocket drawing and design data.
 	 *
-	 * @param writer a direct byte writer
+	 * @param writer
+	 *            a direct byte writer
 	 */
 	public void writeToDocument(PdfWriter writer) {
 		if (writer == null) {
 			return;
 		}
 		com.itextpdf.text.Rectangle pageSize = document.getPageSize();
-		int pageImageableWidth = (int) pageSize.getWidth() - (int) pageSize.getBorderWidth() * 2;
-		int pageImageableHeight = (int) pageSize.getHeight() / 2 - (int) pageSize.getBorderWidthTop();
-		
-		PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
-		
+		int pageImageableWidth = (int) pageSize.getWidth()
+				- (int) pageSize.getBorderWidth() * 2;
+		int pageImageableHeight = (int) pageSize.getHeight() / 2
+				- (int) pageSize.getBorderWidthTop();
+
+		PrintUtilities
+				.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
+
 		Rocket rocket = rocketDocument.getRocket();
-		final Configuration configuration = rocket.getDefaultConfiguration().clone();
+		final Configuration configuration = rocket.getDefaultConfiguration()
+				.clone();
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
-		
+
 		final PrintFigure figure = new PrintFigure(configuration);
 		figure.setRotation(rotation);
-		
+
 		FigureElement cp = panel.getExtraCP();
 		FigureElement cg = panel.getExtraCG();
 		RocketInfo text = panel.getExtraText();
-		
-		double scale = paintRocketDiagram(pageImageableWidth, pageImageableHeight, canvas, figure, cp, cg);
-		
+
+		double scale = paintRocketDiagram(pageImageableWidth,
+				pageImageableHeight, canvas, figure, cp, cg);
+
 		canvas.beginText();
-		canvas.setFontAndSize(ITextHelper.getBaseFont(), PrintUtilities.NORMAL_FONT_SIZE);
-		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getFigureHeight()) * 0.4 * (scale / PrintUnit.METERS
+		canvas.setFontAndSize(ITextHelper.getBaseFont(),
+				PrintUtilities.NORMAL_FONT_SIZE);
+		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure
+				.getFigureHeight()) * 0.4 * (scale / PrintUnit.METERS
 				.toPoints(1)));
 		final int diagramHeight = pageImageableHeight * 2 - 70 - (figHeightPts);
-		canvas.moveText(document.leftMargin() + pageSize.getBorderWidthLeft(), diagramHeight);
+		canvas.moveText(document.leftMargin() + pageSize.getBorderWidthLeft(),
+				diagramHeight);
 		canvas.moveTextWithLeading(0, -16);
-		
+
 		float initialY = canvas.getYTLM();
-		
+
 		canvas.showText(rocketDocument.getRocket().getName());
-		
+
 		canvas.newlineShowText(STAGES);
 		canvas.showText("" + rocket.getStageCount());
-		
-		
+
 		if (configuration.hasMotors()) {
 			if (configuration.getStageCount() > 1) {
 				canvas.newlineShowText(MASS_WITH_MOTORS);
@@ -203,29 +217,31 @@ public class DesignReport {
 			canvas.newlineShowText(MASS_EMPTY);
 		}
 		canvas.showText(text.getMass(UnitGroup.UNITS_MASS.getDefaultUnit()));
-		
+
 		canvas.newlineShowText(STABILITY);
 		canvas.showText(text.getStability());
-		
+
 		canvas.newlineShowText(CG);
 		canvas.showText(text.getCg());
-		
+
 		canvas.newlineShowText(CP);
 		canvas.showText(text.getCp());
 		canvas.endText();
-		
+
 		try {
-			//Move the internal pointer of the document below that of what was just written using the direct byte buffer.
+			// Move the internal pointer of the document below that of what was
+			// just written using the direct byte buffer.
 			Paragraph paragraph = new Paragraph();
 			float finalY = canvas.getYTLM();
-			int heightOfDiagramAndText = (int) (pageSize.getHeight() - (finalY - initialY + diagramHeight));
-			
+			int heightOfDiagramAndText = (int) (pageSize.getHeight() - (finalY
+					- initialY + diagramHeight));
+
 			paragraph.setSpacingAfter(heightOfDiagramAndText);
 			document.add(paragraph);
-			
+
 			String[] motorIds = rocket.getFlightConfigurationIDs();
 			List<Simulation> simulations = rocketDocument.getSimulations();
-			
+
 			for (int j = 0; j < motorIds.length; j++) {
 				String motorId = motorIds[j];
 				if (motorId != null) {
@@ -235,7 +251,8 @@ public class DesignReport {
 					parent.setSpacingBefore(0);
 					parent.setWidths(new int[] { 1, 3 });
 					int leading = 0;
-					//The first motor config is always null.  Skip it and the top-most motor, then set the leading.
+					// The first motor config is always null. Skip it and the
+					// top-most motor, then set the leading.
 					if (j > 1) {
 						leading = 25;
 					}
@@ -249,242 +266,315 @@ public class DesignReport {
 			log.error("Could not modify document.", e);
 		}
 	}
-	
-	
+
 	/**
 	 * Paint a diagram of the rocket into the PDF document.
 	 *
-	 * @param thePageImageableWidth  the number of points in the width of the page available for drawing
-	 * @param thePageImageableHeight the number of points in the height of the page available for drawing
-	 * @param theCanvas              the direct byte writer
-	 * @param theFigure              the print figure
-	 * @param theCp                  the center of pressure figure element
-	 * @param theCg                  the center of gravity figure element
+	 * @param thePageImageableWidth
+	 *            the number of points in the width of the page available for
+	 *            drawing
+	 * @param thePageImageableHeight
+	 *            the number of points in the height of the page available for
+	 *            drawing
+	 * @param theCanvas
+	 *            the direct byte writer
+	 * @param theFigure
+	 *            the print figure
+	 * @param theCp
+	 *            the center of pressure figure element
+	 * @param theCg
+	 *            the center of gravity figure element
 	 *
 	 * @return the scale of the diagram
 	 */
-	private double paintRocketDiagram(final int thePageImageableWidth, final int thePageImageableHeight,
-			final PdfContentByte theCanvas, final PrintFigure theFigure,
-			final FigureElement theCp, final FigureElement theCg) {
+	private double paintRocketDiagram(final int thePageImageableWidth,
+			final int thePageImageableHeight, final PdfContentByte theCanvas,
+			final PrintFigure theFigure, final FigureElement theCp,
+			final FigureElement theCg) {
 		theFigure.clearAbsoluteExtra();
 		theFigure.clearRelativeExtra();
 		theFigure.addRelativeExtra(theCp);
 		theFigure.addRelativeExtra(theCg);
 		theFigure.updateFigure();
-		
-		double scale =
-				(thePageImageableWidth * 2.2) / theFigure.getFigureWidth();
+
+		double scale = (thePageImageableWidth * 2.2)
+				/ theFigure.getFigureWidth();
 		theFigure.setScale(scale);
 		/*
-		 * page dimensions are in points-per-inch, which, in Java2D, are the same as pixels-per-inch; thus we don't need any conversion
+		 * page dimensions are in points-per-inch, which, in Java2D, are the
+		 * same as pixels-per-inch; thus we don't need any conversion
 		 */
 		theFigure.setSize(thePageImageableWidth, thePageImageableHeight);
 		theFigure.updateFigure();
-		
+
 		final DefaultFontMapper mapper = new DefaultFontMapper();
-		Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
-		final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeightPx() / 2;
+		Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth,
+				thePageImageableHeight * 2, mapper);
+		final double halfFigureHeight = SCALE_FUDGE_FACTOR
+				* theFigure.getFigureHeightPx() / 2;
 		int y = PrintUnit.POINTS_PER_INCH;
-		//If the y dimension is negative, then it will potentially be drawn off the top of the page.  Move the origin
-		//to allow for this.
+		// If the y dimension is negative, then it will potentially be drawn off
+		// the top of the page. Move the origin
+		// to allow for this.
 		if (theFigure.getDimensions().getY() < 0.0d) {
 			y += (int) halfFigureHeight;
 		}
 		g2d.translate(20, y);
-		
+
 		g2d.scale(SCALE_FUDGE_FACTOR, SCALE_FUDGE_FACTOR);
 		theFigure.paint(g2d);
 		g2d.dispose();
 		return scale;
 	}
-	
+
 	/**
 	 * Add the motor data for a motor configuration to the table.
 	 *
-	 * @param rocket	the rocket
-	 * @param motorId	the motor ID to output
-	 * @param parent	the parent to which the motor data will be added
+	 * @param rocket
+	 *            the rocket
+	 * @param motorId
+	 *            the motor ID to output
+	 * @param parent
+	 *            the parent to which the motor data will be added
 	 */
-	private void addMotorData(Rocket rocket, String motorId, final PdfPTable parent) {
-		
+	private void addMotorData(Rocket rocket, String motorId,
+			final PdfPTable parent) {
+
 		PdfPTable motorTable = new PdfPTable(8);
 		motorTable.setWidthPercentage(68);
 		motorTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-		
-		final PdfPCell motorCell = ITextHelper.createCell(MOTOR, PdfPCell.BOTTOM, PrintUtilities.SMALL);
+
+		final PdfPCell motorCell = ITextHelper.createCell(MOTOR,
+				PdfPCell.BOTTOM, PrintUtilities.SMALL);
 		final int mPad = 10;
 		motorCell.setPaddingLeft(mPad);
 		motorTable.addCell(motorCell);
-		motorTable.addCell(ITextHelper.createCell(AVG_THRUST, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(BURN_TIME, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		
+		motorTable.addCell(ITextHelper.createCell(AVG_THRUST, PdfPCell.BOTTOM,
+				PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(BURN_TIME, PdfPCell.BOTTOM,
+				PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM,
+				PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE,
+				PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT,
+				PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT,
+				PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM,
+				PrintUtilities.SMALL));
+
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
-		
+
 		MassCalculator massCalc = new BasicMassCalculator();
-		
+
 		Configuration config = new Configuration(rocket);
 		config.setFlightConfigurationID(motorId);
-		
+
 		int totalMotorCount = 0;
 		double totalPropMass = 0;
 		double totalImpulse = 0;
 		double totalTTW = 0;
-		
+
 		int stage = 0;
 		double stageMass = 0;
-		
+
 		boolean topBorder = false;
 		for (RocketComponent c : rocket) {
-			
+
 			if (c instanceof Stage) {
 				config.setToStage(stage);
 				stage++;
 				stageMass = massCalc.getCG(config, MassCalcType.LAUNCH_MASS).weight;
-				// Calculate total thrust-to-weight from only lowest stage motors
+				// Calculate total thrust-to-weight from only lowest stage
+				// motors
 				totalTTW = 0;
 				topBorder = true;
 			}
-			
+
 			if (c instanceof MotorMount && ((MotorMount) c).isMotorMount()) {
 				MotorMount mount = (MotorMount) c;
-				
-				if (mount.isMotorMount() && mount.getMotor(motorId) != null) {
-					Motor motor = mount.getMotor(motorId);
+
+				if (mount.isMotorMount()
+						&& mount.getMotorConfiguration().get(motorId)
+								.getMotor() != null) {
+					Motor motor = mount.getMotorConfiguration().get(motorId)
+							.getMotor();
 					int motorCount = c.toAbsolute(Coordinate.NUL).length;
-					
-					
+
 					int border = Rectangle.NO_BORDER;
 					if (topBorder) {
 						border = Rectangle.TOP;
 						topBorder = false;
 					}
-					
+
 					String name = motor.getDesignation();
 					if (motorCount > 1) {
 						name += " (" + Chars.TIMES + motorCount + ")";
 					}
-					
-					final PdfPCell motorVCell = ITextHelper.createCell(name, border);
+
+					final PdfPCell motorVCell = ITextHelper.createCell(name,
+							border);
 					motorVCell.setPaddingLeft(mPad);
 					motorTable.addCell(motorVCell);
 					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getAverageThrustEstimate()), border));
+							UnitGroup.UNITS_FORCE.getDefaultUnit()
+									.toStringUnit(
+											motor.getAverageThrustEstimate()),
+							border));
 					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit().toStringUnit(motor.getBurnTimeEstimate()), border));
+							UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit()
+									.toStringUnit(motor.getBurnTimeEstimate()),
+							border));
+					motorTable
+							.addCell(ITextHelper.createCell(
+									UnitGroup.UNITS_FORCE
+											.getDefaultUnit()
+											.toStringUnit(
+													motor.getMaxThrustEstimate()),
+									border));
 					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getMaxThrustEstimate()), border));
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(motor.getTotalImpulseEstimate()), border));
-					
-					double ttw = motor.getAverageThrustEstimate() / (stageMass * GRAVITY_CONSTANT);
+							UnitGroup.UNITS_IMPULSE.getDefaultUnit()
+									.toStringUnit(
+											motor.getTotalImpulseEstimate()),
+							border));
+
+					double ttw = motor.getAverageThrustEstimate()
+							/ (stageMass * GRAVITY_CONSTANT);
 					motorTable.addCell(ITextHelper.createCell(
 							ttwFormat.format(ttw) + ":1", border));
-					
-					double propMass = (motor.getLaunchCG().weight - motor.getEmptyCG().weight);
+
+					double propMass = (motor.getLaunchCG().weight - motor
+							.getEmptyCG().weight);
 					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
-					
-					final Unit motorUnit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
-					motorTable.addCell(ITextHelper.createCell(motorUnit.toString(motor.getDiameter()) +
-							"/" +
-							motorUnit.toString(motor.getLength()) + " " +
-							motorUnit.toString(), border));
-					
+							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
+									propMass), border));
+
+					final Unit motorUnit = UnitGroup.UNITS_MOTOR_DIMENSIONS
+							.getDefaultUnit();
+					motorTable.addCell(ITextHelper.createCell(
+							motorUnit.toString(motor.getDiameter()) + "/"
+									+ motorUnit.toString(motor.getLength())
+									+ " " + motorUnit.toString(), border));
+
 					// Sum up total count
 					totalMotorCount += motorCount;
 					totalPropMass += propMass * motorCount;
-					totalImpulse += motor.getTotalImpulseEstimate() * motorCount;
+					totalImpulse += motor.getTotalImpulseEstimate()
+							* motorCount;
 					totalTTW += ttw * motorCount;
 				}
 			}
 		}
-		
+
 		if (totalMotorCount > 1) {
 			int border = Rectangle.TOP;
-			final PdfPCell motorVCell = ITextHelper.createCell("Total:", border);
+			final PdfPCell motorVCell = ITextHelper
+					.createCell("Total:", border);
 			motorVCell.setPaddingLeft(mPad);
 			motorTable.addCell(motorVCell);
 			motorTable.addCell(ITextHelper.createCell("", border));
 			motorTable.addCell(ITextHelper.createCell("", border));
 			motorTable.addCell(ITextHelper.createCell("", border));
-			motorTable.addCell(ITextHelper.createCell(
-					UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(totalImpulse), border));
+			motorTable.addCell(ITextHelper.createCell(UnitGroup.UNITS_IMPULSE
+					.getDefaultUnit().toStringUnit(totalImpulse), border));
 			motorTable.addCell(ITextHelper.createCell(
 					ttwFormat.format(totalTTW) + ":1", border));
-			motorTable.addCell(ITextHelper.createCell(
-					UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(totalPropMass), border));
+			motorTable.addCell(ITextHelper.createCell(UnitGroup.UNITS_MASS
+					.getDefaultUnit().toStringUnit(totalPropMass), border));
 			motorTable.addCell(ITextHelper.createCell("", border));
-			
+
 		}
-		
+
 		PdfPCell c = new PdfPCell(motorTable);
 		c.setBorder(PdfPCell.LEFT);
 		c.setBorderWidthTop(0f);
 		parent.addCell(c);
 		config.release();
 	}
-	
-	
+
 	/**
 	 * Add the flight data for a simulation configuration to the table.
 	 *
-	 * @param flight    the flight data for a single simulation
-	 * @param theRocket the rocket
-	 * @param motorId   a motor configuration id
-	 * @param parent    the parent to which the simulation flight data will be added
-	 * @param leading   the number of points for the leading
+	 * @param flight
+	 *            the flight data for a single simulation
+	 * @param theRocket
+	 *            the rocket
+	 * @param motorId
+	 *            a motor configuration id
+	 * @param parent
+	 *            the parent to which the simulation flight data will be added
+	 * @param leading
+	 *            the number of points for the leading
 	 */
-	private void addFlightData(final FlightData flight, final Rocket theRocket, final String motorId, final PdfPTable parent, int leading) {
-		
+	private void addFlightData(final FlightData flight, final Rocket theRocket,
+			final String motorId, final PdfPTable parent, int leading) {
+
 		// Output the flight data
 		if (flight != null) {
 			try {
-				final Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-				final Unit velocityUnit = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
-				final Unit flightTimeUnit = UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit();
-				
+				final Unit distanceUnit = UnitGroup.UNITS_DISTANCE
+						.getDefaultUnit();
+				final Unit velocityUnit = UnitGroup.UNITS_VELOCITY
+						.getDefaultUnit();
+				final Unit flightTimeUnit = UnitGroup.UNITS_FLIGHT_TIME
+						.getDefaultUnit();
+
 				PdfPTable labelTable = new PdfPTable(2);
 				labelTable.setWidths(new int[] { 3, 2 });
-				final Paragraph chunk = ITextHelper.createParagraph(stripBrackets(
-						descriptor.format(theRocket, motorId)), PrintUtilities.BOLD);
+				final Paragraph chunk = ITextHelper.createParagraph(
+						stripBrackets(descriptor.format(theRocket, motorId)),
+						PrintUtilities.BOLD);
 				chunk.setLeading(leading);
 				chunk.setSpacingAfter(3f);
-				
+
 				document.add(chunk);
-				
+
 				final PdfPCell cell = ITextHelper.createCell(ALTITUDE, 2, 2);
 				cell.setUseBorderPadding(false);
 				cell.setBorderWidthTop(0f);
 				labelTable.addCell(cell);
-				labelTable.addCell(ITextHelper.createCell(distanceUnit.toStringUnit(flight.getMaxAltitude()), 2, 2));
-				
+				labelTable.addCell(ITextHelper.createCell(
+						distanceUnit.toStringUnit(flight.getMaxAltitude()), 2,
+						2));
+
 				labelTable.addCell(ITextHelper.createCell(FLIGHT_TIME, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getFlightTime()), 2, 2));
-				
-				labelTable.addCell(ITextHelper.createCell(TIME_TO_APOGEE, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getTimeToApogee()), 2, 2));
-				
+				labelTable.addCell(ITextHelper.createCell(
+						flightTimeUnit.toStringUnit(flight.getFlightTime()), 2,
+						2));
+
+				labelTable
+						.addCell(ITextHelper.createCell(TIME_TO_APOGEE, 2, 2));
+				labelTable.addCell(ITextHelper.createCell(
+						flightTimeUnit.toStringUnit(flight.getTimeToApogee()),
+						2, 2));
+
 				labelTable.addCell(ITextHelper.createCell(OPTIMUM_DELAY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getBranch(0).getOptimumDelay()), 2, 2));
-				
-				labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getLaunchRodVelocity()), 2, 2));
-				
+				labelTable.addCell(ITextHelper.createCell(flightTimeUnit
+						.toStringUnit(flight.getBranch(0).getOptimumDelay()),
+						2, 2));
+
+				labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2,
+						2));
+				labelTable.addCell(ITextHelper.createCell(velocityUnit
+						.toStringUnit(flight.getLaunchRodVelocity()), 2, 2));
+
 				labelTable.addCell(ITextHelper.createCell(MAX_VELOCITY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getMaxVelocity()), 2, 2));
-				
-				labelTable.addCell(ITextHelper.createCell(DEPLOYMENT_VELOCITY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getDeploymentVelocity()), 2, 2));
-				
-				labelTable.addCell(ITextHelper.createCell(LANDING_VELOCITY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getGroundHitVelocity()), 2, 2));
-				
-				//Add the table to the parent; have to wrap it in a cell
+				labelTable.addCell(ITextHelper.createCell(
+						velocityUnit.toStringUnit(flight.getMaxVelocity()), 2,
+						2));
+
+				labelTable.addCell(ITextHelper.createCell(DEPLOYMENT_VELOCITY,
+						2, 2));
+				labelTable.addCell(ITextHelper.createCell(velocityUnit
+						.toStringUnit(flight.getDeploymentVelocity()), 2, 2));
+
+				labelTable.addCell(ITextHelper.createCell(LANDING_VELOCITY, 2,
+						2));
+				labelTable.addCell(ITextHelper.createCell(velocityUnit
+						.toStringUnit(flight.getGroundHitVelocity()), 2, 2));
+
+				// Add the table to the parent; have to wrap it in a cell
 				PdfPCell c = new PdfPCell(labelTable);
 				c.setBorder(PdfPCell.RIGHT);
 				c.setBorderWidthTop(0);
@@ -495,23 +585,28 @@ public class DesignReport {
 			}
 		}
 	}
-	
+
 	/**
-	 * Locate the simulation based on the motor id.  Copy the simulation and execute it, then return the resulting
-	 * flight data.
+	 * Locate the simulation based on the motor id. Copy the simulation and
+	 * execute it, then return the resulting flight data.
 	 *
-	 * @param motorId     the motor id corresponding to the simulation to find
-	 * @param simulations the list of simulations currently associated with the rocket
+	 * @param motorId
+	 *            the motor id corresponding to the simulation to find
+	 * @param simulations
+	 *            the list of simulations currently associated with the rocket
 	 *
-	 * @return the flight data from the simulation for the specified motor id, or null if not found
+	 * @return the flight data from the simulation for the specified motor id,
+	 *         or null if not found
 	 */
-	private FlightData findSimulation(final String motorId, List<Simulation> simulations) {
+	private FlightData findSimulation(final String motorId,
+			List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
 		try {
 			for (int i = 0; i < simulations.size(); i++) {
 				Simulation simulation = simulations.get(i);
-				if (Utils.equals(simulation.getOptions().getMotorConfigurationID(), motorId)) {
+				if (Utils.equals(simulation.getOptions()
+						.getMotorConfigurationID(), motorId)) {
 					simulation = simulation.copy();
 					simulation.simulate();
 					flight = simulation.getSimulatedData();
@@ -523,38 +618,41 @@ public class DesignReport {
 		}
 		return flight;
 	}
-	
+
 	/**
 	 * Strip [] brackets from a string.
 	 *
-	 * @param target the original string
+	 * @param target
+	 *            the original string
 	 *
 	 * @return target with [] removed
 	 */
 	private String stripBrackets(String target) {
 		return stripLeftBracket(stripRightBracket(target));
 	}
-	
+
 	/**
 	 * Strip [ from a string.
 	 *
-	 * @param target the original string
+	 * @param target
+	 *            the original string
 	 *
 	 * @return target with [ removed
 	 */
 	private String stripLeftBracket(String target) {
 		return target.replace("[", "");
 	}
-	
+
 	/**
 	 * Strip ] from a string.
 	 *
-	 * @param target the original string
+	 * @param target
+	 *            the original string
 	 *
 	 * @return target with ] removed
 	 */
 	private String stripRightBracket(String target) {
 		return target.replace("]", "");
 	}
-	
+
 }
