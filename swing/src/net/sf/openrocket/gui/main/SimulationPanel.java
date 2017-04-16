@@ -146,7 +146,8 @@ public class SimulationPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
 				if (selection.length == 0) {
-					return;
+					simulationTable.selectAll();
+					selection = simulationTable.getSelectedRows();
 				}
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
