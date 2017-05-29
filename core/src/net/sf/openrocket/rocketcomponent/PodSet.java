@@ -17,6 +17,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 
 	protected double angularSeparation = Math.PI;
 	protected double angularPosition_rad = 0;
+	protected boolean autoRadialPosition = false;
 	protected double radialPosition_m = 0;
 	
 	public PodSet() {
@@ -175,18 +176,21 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		return (this.getInstanceCount() + "-ring");
 	}
 	
+	@Override
+	public boolean getAutoRadialOffset(){
+		return this.autoRadialPosition;
+	}
 	
+	public void setAutoRadialOffset( final boolean enabled ){
+		this.autoRadialPosition = enabled;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
+	}
 
 	@Override
 	public double getRadialOffset() {
 		return this.radialPosition_m;
 	}
-
-	@Override
-	public boolean getAutoRadialOffset(){
-		return false;
-	}
-
+	
 	@Override
 	public int getInstanceCount() {
 		return this.count;
