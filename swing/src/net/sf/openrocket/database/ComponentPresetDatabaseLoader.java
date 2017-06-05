@@ -19,6 +19,11 @@ import net.sf.openrocket.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * Loader that gets all component preset from the database in directory datafiles/preset
+ *
+ */
 public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	private final static Logger log = LoggerFactory.getLogger(ComponentPresetDatabaseLoader.class);
@@ -27,6 +32,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	private int fileCount = 0;
 	private int presetCount = 0;
 	
+	/** the database is immutable*/
 	private final ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
 	
 	public ComponentPresetDatabaseLoader() {
@@ -47,51 +53,72 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	@Override
 	protected void loadDatabase() {
 		long startTime = System.currentTimeMillis();
+		loadPresetComponents();
+		loadUserComponents();
+		long end = System.currentTimeMillis();
+		log.debug("Time to load presets: " + (end - startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
 		
-		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
-		
-		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "ser"));
-		
-		if (iterator != null) {
-			while (iterator.hasNext()) {
-				Pair<String, InputStream> f = iterator.next();
-				try {
-					ObjectInputStream ois = new ObjectInputStream(f.getV());
-					List<ComponentPreset> list = (List<ComponentPreset>) ois.readObject();
-					componentPresetDao.addAll(list);
-					fileCount++;
-					presetCount += list.size();
-				} catch (Exception ex) {
-					throw new BugException(ex);
-				}
-			}
-		}
-		
+	}
+
+	/**
+	 * loads the user defined defined components into the database
+	 * uses the directory defined in the preferences
+	 */
+	private void loadUserComponents() {
 		SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc");
+		FileIterator iterator;
 		try {
 			iterator = new DirectoryIterator(
 					((SwingPreferences) Application.getPreferences()).getDefaultUserComponentDirectory(),
 					orcFilter,
 					true);
 		} catch (IOException ioex) {
-			iterator = null;
 			log.debug("Error opening UserComponentDirectory", ioex);
+			return;
 		}
-		if (iterator != null) {
-			while (iterator.hasNext()) {
-				Pair<String, InputStream> f = iterator.next();
-				Collection<ComponentPreset> presets = loadFile(f.getU(), f.getV());
-				componentPresetDao.addAll(presets);
+		while (iterator.hasNext()) {
+			Pair<String, InputStream> f = iterator.next();
+			Collection<ComponentPreset> presets = loadFile(f.getU(), f.getV());
+			componentPresetDao.addAll(presets);
+			fileCount++;
+			presetCount += presets.size();
+		}
+	}
+
+	/**
+	 * loads the default preset components into the database
+	 * uses the file directory from "datafiles/presets"
+	 */
+	private void loadPresetComponents() {
+		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
+		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "ser"));
+		
+		if(iterator == null)
+			return;
+		
+		while (iterator.hasNext()) {
+			Pair<String, InputStream> f = iterator.next();
+			try {
+				ObjectInputStream ois = new ObjectInputStream(f.getV());
+				@SuppressWarnings("unchecked")
+				List<ComponentPreset> list = (List<ComponentPreset>) ois.readObject();
+				componentPresetDao.addAll(list);
 				fileCount++;
-				presetCount += presets.size();
+				presetCount += list.size();
+			} catch (Exception ex) {
+				throw new BugException(ex);
 			}
 		}
-		
-		long end = System.currentTimeMillis();
-		log.debug("Time to load presets: " + (end - startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
-		
 	}
 	
+	/**
+	 * load components from a custom component file
+	 * uses an OpenRocketComponentLoader for the job
+	 * 
+	 * @param fileName	name of the file to be 
+	 * @param stream	the input stream to the file
+	 * @return	a collection of components preset from the file
+	 */
 	private Collection<ComponentPreset> loadFile(String fileName, InputStream stream) {
 		log.debug("loading from file: " + fileName);
 		OpenRocketComponentLoader loader = new OpenRocketComponentLoader();

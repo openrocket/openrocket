@@ -12,16 +12,24 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
+	/** list of separations to be happening*/
 	protected FlightConfigurableParameterSet<StageSeparationConfiguration> separations;
-	
+	/** number of stages */
 	protected int stageNumber;
 	
+	/**
+	 * default constructor, builds a rocket with zero stages
+	 */
 	public AxialStage(){
 		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>( new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
 		this.stageNumber = 0;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * AxialStage will always accept children
+	 */
 	@Override
 	public boolean allowsChildren() {
 		return true;
@@ -33,6 +41,10 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return trans.get("Stage.Stage");
 	}
 	
+	/**
+	 * gets the separation configuration of the rocket
+	 * @return	the separation configuration of the rocket
+	 */
 	public FlightConfigurableParameterSet<StageSeparationConfiguration> getSeparationConfigurations() {
 		return separations;
 	}
@@ -42,7 +54,10 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		separations.reset(fcid);
 	}
 	
-	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
+	/**
+	 * {@inheritDoc}
+	 * not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
+	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
@@ -110,16 +125,28 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return this.stageNumber;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * axialStage is always after 
+	 */
 	@Override
 	public boolean isAfter(){ 
 		return true;
 	}
 
+	/**
+	 * returns if the object is a launch stage
+	 * @return	if the object is a launch stage
+	 */
 	public boolean isLaunchStage(){
 		return ( this instanceof ParallelStage )
 				||( getRocket().getBottomCoreStage().equals(this));
 	}
 
+	/**
+	 * sets the stage number
+	 * @param newStageNumber
+	 */
 	public void setStageNumber(final int newStageNumber) {
 		this.stageNumber = newStageNumber;
 	}
@@ -138,12 +165,21 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return buf;
 	}
 
+	/**
+	 * method used for debugging separation
+	 * @return	a string that represents the debug message of separation
+	 */
 	public String toDebugSeparation() {
 		StringBuilder buff = new StringBuilder();
 		buff.append( this.separations.toDebug() );
 		return buff.toString();
 	}
 
+	/**
+	 * gets the previous stage installed in the rockets
+	 * returns null if this is the first stage
+	 * @return	the previous stage in the rocket
+	 */
 	public AxialStage getPreviousStage() {
 		if( this instanceof ParallelStage ){
 			return (AxialStage) this.parent;

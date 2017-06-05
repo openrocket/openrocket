@@ -402,28 +402,104 @@ public class MassCalculatorTest extends BaseTestCase {
 	public void testBoosterStructureCM() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
-
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
-		int boostNum = boosters.getStageNumber();
 		
 		FlightConfiguration config = rocket.getEmptyConfiguration();
-		config.setOnlyStage( boostNum);
-		
-		// Validate Boosters
 		MassCalculator mc = new MassCalculator();
-		MassData md = mc.calculateBurnoutMassData( config);
-		Coordinate actCM = md.getCM(); 
 		
-		double expMass = BOOSTER_SET_NO_MOTORS_MASS;
-		double expCMx = BOOSTER_SET_NO_MOTORS_CMX;
-		double calcMass = actCM.weight;
-		assertEquals(" Delta Heavy Booster Mass is incorrect: ", expMass, calcMass, EPSILON);
+		{
+			// validate payload stage
+			AxialStage payloadStage = (AxialStage) rocket.getChild(0);
+			int plNum = payloadStage.getStageNumber();
+			config.setOnlyStage( plNum );
+			
+//			System.err.println( config.toStageListDetail());
+//			System.err.println( rocket.toDebugTree());
+			
+			MassData upperMass = mc.calculateBurnoutMassData( config );
+			Coordinate actCM = upperMass.getCM(); 
+			
+			double expMass = 0.116287;
+			double expCMx = 0.278070785749;
+			assertEquals("Upper Stage Mass is incorrect: ", expMass, upperMass.getCM().weight, EPSILON);
+			
+			assertEquals("Upper Stage CM.x is incorrect: ", expCMx, upperMass.getCM().x, EPSILON);
+			assertEquals("Upper Stage CM.y is incorrect: ", 0.0f, upperMass.getCM().y, EPSILON);
+			assertEquals("Upper Stage CM.z is incorrect: ", 0.0f, upperMass.getCM().z, EPSILON);
+		}
+		{
+			// Validate Boosters
+			ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+			int boostNum = boosters.getStageNumber();
+			config.setOnlyStage( boostNum );
+			
+			//System.err.println( config.toStageListDetail());
+			//System.err.println( rocket.toDebugTree());
 		
-		Coordinate expCM = new Coordinate(expCMx,0,0, expMass);
-		assertEquals(" Delta Heavy Booster CM.x is incorrect: ", expCM.x, md.getCM().x, EPSILON);
-		assertEquals(" Delta Heavy Booster CM.y is incorrect: ", expCM.y, md.getCM().y, EPSILON);
-		assertEquals(" Delta Heavy Booster CM.z is incorrect: ", expCM.z, md.getCM().z, EPSILON);
-		assertEquals(" Delta Heavy Booster CM is incorrect: ", expCM, md.getCM() );  
+			MassData boosterMass = mc.calculateBurnoutMassData( config);
+			
+			double expMass = BOOSTER_SET_NO_MOTORS_MASS;
+			double expCMx = BOOSTER_SET_NO_MOTORS_CMX;
+			assertEquals("Heavy Booster Mass is incorrect: ", expMass, boosterMass.getCM().weight, EPSILON);
+			
+			assertEquals("Heavy Booster CM.x is incorrect: ", expCMx, boosterMass.getCM().x, EPSILON);
+			assertEquals("Heavy Booster CM.y is incorrect: ", 0.0f, boosterMass.getCM().y, EPSILON);
+			assertEquals("Heavy Booster CM.z is incorrect: ", 0.0f, boosterMass.getCM().z, EPSILON);
+		}
+	}
+		
+	@Test
+	public void testCMCache() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		rocket.setName("TestRocket."+Thread.currentThread().getStackTrace()[1].getMethodName());
+		
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		MassCalculator mc = new MassCalculator();
+		
+		{
+			// validate payload stage
+			AxialStage payloadStage = (AxialStage) rocket.getChild(0);
+			int plNum = payloadStage.getStageNumber();
+			config.setOnlyStage( plNum );
+			
+			MassData calcMass = mc.calculateBurnoutMassData( config );
+			
+			double expMass = 0.116287;
+			double expCMx = 0.278070785749;
+			assertEquals("Upper Stage Mass is incorrect: ", expMass, calcMass.getCM().weight, EPSILON);
+			assertEquals("Upper Stage CM.x is incorrect: ", expCMx, calcMass.getCM().x, EPSILON);
+			assertEquals("Upper Stage CM.y is incorrect: ", 0.0f, calcMass.getCM().y, EPSILON);
+			assertEquals("Upper Stage CM.z is incorrect: ", 0.0f, calcMass.getCM().z, EPSILON);
+		
+			MassData rocketLaunchMass = mc.getRocketLaunchMassData( config);
+			assertEquals("Upper Stage Mass (cache) is incorrect: ", expMass, rocketLaunchMass.getCM().weight, EPSILON);
+			assertEquals("Upper Stage CM.x (cache) is incorrect: ", expCMx, rocketLaunchMass.getCM().x, EPSILON);
+			
+			MassData rocketSpentMass = mc.getRocketSpentMassData( config);
+			assertEquals("Upper Stage Mass (cache) is incorrect: ", expMass, rocketSpentMass.getCM().weight, EPSILON);
+			assertEquals("Upper Stage CM.x (cache) is incorrect: ", expCMx, rocketSpentMass.getCM().x, EPSILON);
+		}{
+			ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+			int boostNum = boosters.getStageNumber();
+			config.setOnlyStage( boostNum );
+			
+			mc.voidMassCache();
+			MassData boosterMass = mc.calculateBurnoutMassData( config);
+			
+			double expMass = BOOSTER_SET_NO_MOTORS_MASS;
+			double expCMx = BOOSTER_SET_NO_MOTORS_CMX;
+			assertEquals("Heavy Booster Mass is incorrect: ", expMass, boosterMass.getCM().weight, EPSILON);
+			assertEquals("Heavy Booster CM.x is incorrect: ", expCMx, boosterMass.getCM().x, EPSILON);
+			assertEquals("Heavy Booster CM.y is incorrect: ", 0.0f, boosterMass.getCM().y, EPSILON);
+			assertEquals("Heavy Booster CM.z is incorrect: ", 0.0f, boosterMass.getCM().z, EPSILON);
+			
+			MassData rocketLaunchMass = mc.getRocketLaunchMassData( config);
+			assertEquals(" Booster Stage Mass (cache) is incorrect: ", expMass, rocketLaunchMass.getCM().weight, EPSILON);
+			assertEquals(" Booster Stage CM.x (cache) is incorrect: ", expCMx, rocketLaunchMass.getCM().x, EPSILON);
+			
+			MassData rocketSpentMass = mc.getRocketSpentMassData( config);
+			assertEquals(" Booster Stage Mass (cache) is incorrect: ", expMass, rocketSpentMass.getCM().weight, EPSILON);
+			assertEquals(" Booster Stage CM.x (cache) is incorrect: ", expCMx, rocketSpentMass.getCM().x, EPSILON);
+		}
 	}
 	
 

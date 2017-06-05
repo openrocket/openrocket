@@ -25,13 +25,28 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
+/**
+ * 
+ * Class that handles decal usage registration
+ *
+ */
 public class DecalRegistry {
 	
+	/**
+	 * default constructor, does nothing
+	 */
 	DecalRegistry() {
 	}
 	
+	/** the decal usage map*/
 	private Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
 	
+	/**
+	 * returns a new decal with the same image but with unique names
+	 * supports only classes and subclasses of DecalImageImpl
+	 * @param original	the decal to be made unique
+	 * @return
+	 */
 	public DecalImage makeUniqueImage(DecalImage original) {
 		
 		if (!(original instanceof DecalImageImpl)) {
@@ -57,6 +72,11 @@ public class DecalRegistry {
 		
 	}
 	
+	/**
+	 * get the image from an attachment
+	 * @param attachment
+	 * @return
+	 */
 	public DecalImage getDecalImage(Attachment attachment) {
 		String decalName = attachment.getName();
 		DecalImageImpl d;
@@ -166,6 +186,10 @@ public class DecalRegistry {
 			}
 		}
 		
+		/**
+		 * 
+		 * @return
+		 */
 		File getFileSystemLocation() {
 			return fileSystemLocation;
 		}
@@ -205,6 +229,11 @@ public class DecalRegistry {
 		
 	}
 	
+	/**
+	 * sercha
+	 * @param file
+	 * @return
+	 */
 	private DecalImageImpl findDecalForFile(File file) {
 		
 		for (DecalImageImpl d : registeredDecals.values()) {
@@ -240,28 +269,25 @@ public class DecalRegistry {
 	private static final int NUMBER_INDEX = 3;
 	private static final int EXTENSION_INDEX = 4;
 	
+	/**
+	 * Makes a unique name for saving decal files in case the name already exists
+	 * @param name	the name of the decal
+	 * @return	the name formated and unique
+	 */
 	private String makeUniqueName(String name) {
 		
-		String newName = name;
-		if (!newName.startsWith("decals/")) {
-			newName = "decals/" + name;
-		}
-		String basename = "";
-		String extension = "";
-		Matcher nameMatcher = fileNamePattern.matcher(newName);
-		if (nameMatcher.matches()) {
-			basename = nameMatcher.group(BASE_NAME_INDEX);
-			extension = nameMatcher.group(EXTENSION_INDEX);
-		}
+		String newName = checkPathConsistency(name);
+		String basename = getGroup(BASE_NAME_INDEX,fileNamePattern.matcher(newName));
+		String extension = getGroup(EXTENSION_INDEX,fileNamePattern.matcher(newName));
 		
 		Set<Integer> counts = new TreeSet<Integer>();
 		
 		boolean needsRewrite = false;
-		
+
 		for (DecalImageImpl d : registeredDecals.values()) {
 			Matcher m = fileNamePattern.matcher(d.getName());
 			if (m.matches()) {
-				if (basename.equals(m.group(BASE_NAME_INDEX)) && extension.equals(m.group(EXTENSION_INDEX))) {
+				if (isofSameBaseAndExtension(m, basename, extension)) {
 					String intString = m.group(NUMBER_INDEX);
 					if (intString != null) {
 						Integer i = Integer.parseInt(intString);
@@ -278,13 +304,54 @@ public class DecalRegistry {
 			return newName;
 		}
 		
-		// find a missing integer;
+		return MessageFormat.format("{0} ({1}).{2}", basename, findMissingInteger(counts),extension);
+	}
+
+	/**
+	 * Searches the count for a new Integer
+	 * @param counts	the count set
+	 * @return	a unique integer in the count
+	 */
+	private Integer findMissingInteger(Set<Integer> counts) {
 		Integer newIndex = 1;
 		while (counts.contains(newIndex)) {
 			newIndex++;
 		}
-		
-		return MessageFormat.format("{0} ({1}).{2}", basename, newIndex, extension);
+		return newIndex;
+	}
+
+	/**
+	 * Tests if a matcher has the same basename and extension
+	 * @param m			the matcher being tested
+	 * @param basename	the basename
+	 * @param extension	the extension
+	 * @return
+	 */
+	private boolean isofSameBaseAndExtension(Matcher m, String basename, String extension) {
+		return basename.equals(m.group(BASE_NAME_INDEX)) && extension.equals(m.group(EXTENSION_INDEX));
+	}
+	
+	/**
+	 * gets the String group from a matcher
+	 * @param index		the index of the group to
+	 * @param matcher	the matcher for the search
+	 * @return the String according with the group, empty if there's no match
+	 */
+	private String getGroup(int index, Matcher matcher) {
+		if (matcher.matches()) 
+			return matcher.group(index);
+		return "";
+	}
+
+	/**
+	 * checks if the name starts with "decals/"
+	 * @param name	the name being checked
+	 * @return	the name complete with the starting folder
+	 */
+	private String checkPathConsistency(String name){
+		if (name.startsWith("decals/")) 
+			return	name;
+		return "decals/" + name;
 	}
 	
 }

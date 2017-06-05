@@ -3,26 +3,40 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
+import java.awt.datatransfer.FlavorListener;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.DefaultEditorKit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +98,7 @@ public class SimulationPanel extends JPanel {
 	private final JButton runButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
+	private final JPopupMenu pm;
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
@@ -522,7 +537,9 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
-
+		
+		 pm = new JPopupMenu();
+         pm.add(new CopyAction(simulationTable));
 
 		// Mouse listener to act on double-clicks
 		simulationTable.addMouseListener(new MouseAdapter() {
@@ -545,6 +562,8 @@ public class SimulationPanel extends JPanel {
 
 						openDialog(document.getSimulations().get(selected));
 					}
+				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1){
+                    doPopup(e);
 				} else {
 					updateButtonStates();
 				}
@@ -578,6 +597,10 @@ public class SimulationPanel extends JPanel {
 		updateButtonStates();
 	}
 
+	protected void doPopup(MouseEvent e) {
+        pm.show(e.getComponent(), e.getX(), e.getY());
+    }
+	
 	private void updateButtonStates() {
 		int[] selection = simulationTable.getSelectedRows();
 		if (selection.length == 0) {
@@ -666,7 +689,85 @@ public class SimulationPanel extends JPanel {
 			simulationTable.addRowSelectionInterval(row, row);
 		}
 	}
+	
+	class CopyAction extends AbstractAction {
 
+        private JTable table;
+
+        public CopyAction(JTable table) {
+            this.table = table;
+            putValue(NAME, "Copy");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            int numCols=table.getColumnCount();
+            int numRows=table.getSelectedRowCount(); 
+            int[] rowsSelected=table.getSelectedRows(); 
+          
+            if (numRows!=rowsSelected[rowsSelected.length-1]-rowsSelected[0]+1 || numRows!=rowsSelected.length ) {
+
+                    JOptionPane.showMessageDialog(null, "Invalid Copy Selection", "Invalid Copy Selection", JOptionPane.ERROR_MESSAGE);
+                    return; 
+            } 
+
+            StringBuffer excelStr=new StringBuffer(); 
+            for (int k=1; k<numCols; k++) {
+            	excelStr.append(table.getColumnName(k));
+            	if (k<numCols-1) {
+            		excelStr.append("\t");
+            	}
+            }
+            excelStr.append("\n");
+            for (int i=0; i<numRows; i++) { 
+                    for (int j=1; j<numCols; j++) { 
+                            excelStr.append(table.getValueAt(rowsSelected[i], j)); 
+                            if (j<numCols-1) { 
+                                    excelStr.append("\t"); 
+                            } 
+                    } 
+                    excelStr.append("\n"); 
+            } 
+
+            StringSelection sel  = new StringSelection(excelStr.toString()); 
+	        	
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cb.setContents(sel, sel);
+        }
+
+    }
+	
+	public static class CellTransferable implements Transferable {
+
+        public static final DataFlavor CELL_DATA_FLAVOR = new DataFlavor(Object.class, "application/x-cell-value");
+
+        private Object cellValue;
+
+        public CellTransferable(Object cellValue) {
+            this.cellValue = cellValue;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[]{CELL_DATA_FLAVOR};
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return CELL_DATA_FLAVOR.equals(flavor);
+        }
+
+        @Override
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+            if (!isDataFlavorSupported(flavor)) {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return cellValue;
+        }
+
+    }
+	
 	private class JLabelRenderer extends DefaultTableCellRenderer {
 
 		@Override

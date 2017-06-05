@@ -1,7 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
@@ -30,7 +28,7 @@ import net.sf.openrocket.util.UniqueID;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 @SuppressWarnings("serial")
-public class Rocket extends RocketComponent {
+public class Rocket extends ComponentAssembly {
 	private static final Logger log = LoggerFactory.getLogger(Rocket.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -76,7 +74,6 @@ public class Rocket extends RocketComponent {
 	/////////////  Constructor  /////////////
 	
 	public Rocket() {
-		super(RocketComponent.Position.AFTER);
 		modID = UniqueID.next();
 		massModID = modID;
 		aeroModID = modID;
@@ -768,45 +765,7 @@ public class Rocket extends RocketComponent {
 		return trans.get("Rocket.compname.Rocket");
 	}
 	
-	@Override
-	public Coordinate getComponentCG() {
-		return new Coordinate(0, 0, 0, 0);
-	}
-	
-	@Override
-	public double getComponentMass() {
-		return 0;
-	}
-	
-	@Override
-	public double getLongitudinalUnitInertia() {
-		return 0;
-	}
-	
-	@Override
-	public double getRotationalUnitInertia() {
-		return 0;
-	}
-	
-	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public boolean isAerodynamic() {
-		return false;
-	}
-	
-	@Override
-	public boolean isMassive() {
-		return false;
-	}
-	
-	@Override
-	public boolean allowsChildren() {
-		return true;
-	}
+
 	
 	/**
 	 * Allows only <code>AxialStage</code> components to be added to the type Rocket.

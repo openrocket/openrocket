@@ -17,7 +17,6 @@ import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -40,7 +39,9 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	private final ThrustCurveMotorSetDatabase database = new ThrustCurveMotorSetDatabase();
 	private int motorCount = 0;
 	
-	
+	/**
+	 * sole constructor, default startup delay = 0
+	 */
 	public MotorDatabaseLoader() {
 		super(STARTUP_DELAY);
 	}
@@ -48,19 +49,18 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	@Override
 	protected void loadDatabase() {
-		
+		loadSerializedMotorDatabase();
+		loadUserDefinedMotors();
+	}
+
+
+	/**
+	 * Loads the user defined motors
+	 * the directories are defined in the preferences
+	 */
+	private void loadUserDefinedMotors() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		SimpleFileFilter fileFilter = new SimpleFileFilter("", loader.getSupportedExtensions());
-		
-		log.info("Starting reading serialized motor database");
-		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
-		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			loadSerialized(f);
-		}
-		log.info("Ending reading serialized motor database, motorCount=" + motorCount);
-		
-		
 		log.info("Starting reading user-defined motors");
 		for (File file : ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles()) {
 			if (file.isFile()) {
@@ -72,11 +72,29 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 			}
 		}
 		log.info("Ending reading user-defined motors, motorCount=" + motorCount);
-		
+	}
+
+
+	/**
+	 * Loads the default, with established serialized manufacturing and data
+	 * uses directory "datafiles/thrustcurves" for data  
+	 */
+	private void loadSerializedMotorDatabase() {
+		log.info("Starting reading serialized motor database");
+		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
+		while (iterator.hasNext()) {
+			Pair<String, InputStream> f = iterator.next();
+			loadSerialized(f);
+		}
+		log.info("Ending reading serialized motor database, motorCount=" + motorCount);
 	}
 	
 	
-	
+	/**
+	 * loads a serailized motor data from an stream
+	 * 
+	 * @param f	the pair of a String with the filename (for logging) and the input stream
+	 */
 	@SuppressWarnings("unchecked")
 	private void loadSerialized(Pair<String, InputStream> f) {
 		try {
@@ -89,27 +107,52 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		}
 	}
 	
-	
+	/**
+	 * loads a single motor file into the database using a simple file handler object
+	 * 
+	 * @param loader	the motor loading handler object
+	 * @param file		the File to the file itself
+	 */
 	private void loadFile(GeneralMotorLoader loader, File file) {
-		BufferedInputStream bis = null;
 		try {
 			log.debug("Loading motors from file " + file);
-			bis = new BufferedInputStream(new FileInputStream(file));
-			List<ThrustCurveMotor.Builder> motors = loader.load(bis, file.getName());
-			addMotorsFromBuilders(motors);
-			bis.close();
+			loadFile(
+					loader,
+					new Pair<String,InputStream>(
+							file.getName(),
+							new BufferedInputStream(new FileInputStream(file))));
 		} catch (IOException e) {
 			log.warn("IOException while reading " + file + ": " + e, e);
-			if (bis != null) {
-				try {
-					bis.close();
-				} catch (IOException e1) {
-					
-				}
+		}
+	}
+	
+	/**
+	 * loads a single motor file into the database using inputStream instead of file object
+	 * 
+	 * @param loader	an object to handle the loading
+	 * @param f			the pair of File name and its input stream
+	 */
+	private void loadFile(GeneralMotorLoader loader, Pair<String, InputStream> f) {
+		try {
+			List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU());
+			addMotorsFromBuilders(motors);
+			f.getV().close();
+		} catch (IOException e) {
+			log.warn("IOException while loading file " + f.getU() + ": " + e, e);
+			try {
+				f.getV().close();
+			} catch (IOException e1) {
 			}
 		}
 	}
 	
+	/**
+	 * loads an entire directory of motor files
+	 * 
+	 * @param loader 		a motor loading handler object
+	 * @param fileFilter	the supported extensions of files
+	 * @param file			the directory file object
+	 */
 	private void loadDirectory(GeneralMotorLoader loader, SimpleFileFilter fileFilter, File file) {
 		FileIterator iterator;
 		try {
@@ -119,21 +162,17 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 			return;
 		}
 		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			try {
-				List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU());
-				addMotorsFromBuilders(motors);
-				f.getV().close();
-			} catch (IOException e) {
-				log.warn("IOException while loading file " + f.getU() + ": " + e, e);
-				try {
-					f.getV().close();
-				} catch (IOException e1) {
-				}
-			}
+			loadFile(loader, iterator.next());
 		}
 	}
+
+
 	
+	
+	/**
+	 * adds a motor list into the database
+	 * @param motors	the list of motors to be added
+	 */
 	private synchronized void addMotors(List<ThrustCurveMotor> motors) {
 		for (ThrustCurveMotor m : motors) {
 			motorCount++;
@@ -141,8 +180,13 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		}
 	}
 	
-	private synchronized void addMotorsFromBuilders(List<ThrustCurveMotor.Builder> motors) {
-		for (ThrustCurveMotor.Builder m : motors) {
+	/**
+	 * builds the motors while building them
+	 * 
+	 * @param motorBuilders List of motor builders to be used for adding motor into the database
+	 */
+	private synchronized void addMotorsFromBuilders(List<ThrustCurveMotor.Builder> motorBuilders) {
+		for (ThrustCurveMotor.Builder m : motorBuilders) {
 			motorCount++;
 			database.addMotor(m.build());
 		}
