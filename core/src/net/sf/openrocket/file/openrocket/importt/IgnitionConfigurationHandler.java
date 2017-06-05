@@ -1,7 +1,8 @@
 package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
-import java.util.Locale;
+
+import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -9,40 +10,24 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
-
-import org.xml.sax.SAXException;
+import net.sf.openrocket.motor.IgnitionEvent;
 
 class IgnitionConfigurationHandler extends AbstractElementHandler {
 	
-	private Double ignitionDelay = null;
-	private IgnitionEvent ignitionEvent = null;
+	// TODO: this is pretty hacky and should be fixed eventually 
+	public Double ignitionDelay = null;
+	public IgnitionEvent ignitionEvent = null;
 	
 	
 	public IgnitionConfigurationHandler(DocumentLoadingContext context) {
 		
 	}
 	
-	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		return PlainTextHandler.INSTANCE;
 	}
-	
-	
-	public IgnitionConfiguration getConfiguration(IgnitionConfiguration def) {
-		IgnitionConfiguration config = def.clone();
-		if (ignitionEvent != null) {
-			config.setIgnitionEvent(ignitionEvent);
-		}
-		if (ignitionDelay != null) {
-			config.setIgnitionDelay(ignitionDelay);
-		}
-		return config;
-	}
-	
 	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
@@ -51,10 +36,10 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 		content = content.trim();
 		
 		if (element.equals("ignitionevent")) {
-			
-			for (IgnitionEvent e : IgnitionEvent.values()) {
-				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
-					ignitionEvent = e;
+
+			for (IgnitionEvent ie : IgnitionEvent.values()) {
+				if (ie.equals(content)) {
+					ignitionEvent = ie;
 					break;
 				}
 			}

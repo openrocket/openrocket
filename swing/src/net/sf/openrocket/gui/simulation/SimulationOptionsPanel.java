@@ -50,7 +50,9 @@ import net.sf.openrocket.util.GeodeticComputationStrategy;
 import com.google.inject.Key;
 
 class SimulationOptionsPanel extends JPanel {
-	
+
+	private static final long serialVersionUID = -5251458539346201239L;
+
 	private static final Translator trans = Application.getTranslator();
 	
 	private OpenRocketDocument document;
@@ -114,7 +116,7 @@ class SimulationOptionsPanel extends JPanel {
 		
 		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
 				conditions, "GeodeticComputation");
-		final JComboBox gcsCombo = new JComboBox(gcsModel);
+		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<GeodeticComputationStrategy>(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -317,6 +319,11 @@ class SimulationOptionsPanel extends JPanel {
 	
 	private class SimulationExtensionPanel extends JPanel {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3296795614810745035L;
+
 		public SimulationExtensionPanel(final SimulationExtension extension) {
 			super(new MigLayout("fillx, gapx 0"));
 			

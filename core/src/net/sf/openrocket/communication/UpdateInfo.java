@@ -6,18 +6,30 @@ import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
 
+ /**
+  * 
+  * class that stores the update information of the application
+  *
+  */
 public class UpdateInfo {
 	
 	private final String latestVersion;
 	
 	private final ArrayList<ComparablePair<Integer, String>> updates;
 	
-	
+	/**
+	 * loads the default information
+	 */
 	public UpdateInfo() {
 		this.latestVersion = BuildProperties.getVersion();
 		this.updates = new ArrayList<ComparablePair<Integer, String>>();
 	}
 	
+	/**
+	 * loads a custom update information into the cache
+	 * @param version	String with the version
+	 * @param updates	The list of updates contained in the version
+	 */
 	public UpdateInfo(String version, List<ComparablePair<Integer, String>> updates) {
 		this.latestVersion = version;
 		this.updates = new ArrayList<ComparablePair<Integer, String>>(updates);

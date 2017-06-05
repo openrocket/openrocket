@@ -9,16 +9,18 @@ import java.util.Set;
 /**
  * A combo box that allows for items to be deselected.
  */
-public class DeselectableComboBox extends JComboBox {
+public class DeselectableComboBox<T> extends JComboBox<T> {
+	private static final long serialVersionUID = 1803702330221425938L;
 
-    public DeselectableComboBox() {
+	@SuppressWarnings("unchecked")
+	public DeselectableComboBox() {
         super();
-        super.setRenderer(new DeselectedtemsRenderer());
+        super.setRenderer(new DeselectedItemsRenderer());
     }
 
     private Set<Integer> disabled_items = new HashSet<Integer>();
 
-    public void addItem(Object anObject, boolean disabled) {
+    public void addItem(T anObject, boolean disabled) {
         super.addItem(anObject);
         if (disabled) {
             disabled_items.add(getItemCount() - 1);
@@ -54,9 +56,12 @@ public class DeselectableComboBox extends JComboBox {
         }
     }
 
-    private class DeselectedtemsRenderer extends BasicComboBoxRenderer {
+    private class DeselectedItemsRenderer extends BasicComboBoxRenderer {
+		private static final long serialVersionUID = 6149806777306976399L;
 
-        @Override
+		 // is raw because its super-method-signature is also a raw generic
+		@SuppressWarnings("rawtypes")
+		@Override
         public Component getListCellRendererComponent(JList list,
                                                       Object value,
                                                       int index,

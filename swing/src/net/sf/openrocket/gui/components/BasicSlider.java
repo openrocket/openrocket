@@ -11,6 +11,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
+@SuppressWarnings("serial")
 public class BasicSlider extends JSlider {
 
 	public BasicSlider(BoundedRangeModel brm) {

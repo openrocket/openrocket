@@ -112,8 +112,8 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		
-		convertColor(a.getPaint(), color);//color now contains alpha value
-		
+		convertColor(a.getPaint(), color);
+		color[3] = alpha;//re-set to "alpha" so that Unfinished renderer will show interior parts.
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
 		

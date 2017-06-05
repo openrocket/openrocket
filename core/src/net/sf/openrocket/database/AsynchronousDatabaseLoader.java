@@ -43,7 +43,7 @@ public abstract class AsynchronousDatabaseLoader {
 	
 	
 	/**
-	 * Return whether loading the database has ended.
+	 * @return whether loading the database has ended.
 	 */
 	public boolean isLoaded() {
 		return endedLoading;
@@ -86,10 +86,27 @@ public abstract class AsynchronousDatabaseLoader {
 		}
 	}
 	
-	
+	/**
+	 * 
+	 */
 	private void doLoad() {
 		
 		// Pause for indicated startup time
+		pauseForStartupTime();
+		
+		loadDatabase();
+		
+		synchronized (this) {
+			endedLoading = true;
+			this.notifyAll();
+		}
+	}
+
+
+	/**
+	 * waits the startup time before loading the database
+	 */
+	private void pauseForStartupTime() {
 		long startLoading = System.currentTimeMillis() + startupDelay;
 		while (!inUse && System.currentTimeMillis() < startLoading) {
 			synchronized (this) {
@@ -99,16 +116,11 @@ public abstract class AsynchronousDatabaseLoader {
 				}
 			}
 		}
-		
-		loadDatabase();
-		
-		synchronized (this) {
-			endedLoading = true;
-			this.notifyAll();
-		}
 	}
 	
-	
+	/**
+	 * method that actually load the database
+	 */
 	protected abstract void loadDatabase();
 	
 	

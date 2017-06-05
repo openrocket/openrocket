@@ -300,7 +300,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 *
 	 * @return the Method instance, or null
 	 */
-	private static Method getMethod(RocketComponent component, String name, Class[] args) {
+	private static Method getMethod(RocketComponent component, String name, Class<?>[] args) {
 		Method method = null;
 		try {
 			method = component.getClass().getMethod(name, args);

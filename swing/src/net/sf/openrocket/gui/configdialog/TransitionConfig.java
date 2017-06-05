@@ -26,9 +26,10 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class TransitionConfig extends RocketComponentConfig {
+	private static final long serialVersionUID = -1851275950604625741L;
 	
 	private static final Translator trans = Application.getTranslator();
-	private JComboBox typeBox;
+	private JComboBox<Transition.Shape> typeBox;
 	//private JLabel description;
 	
 	private JLabel shapeLabel;
@@ -59,7 +60,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		Transition.Shape selected = ((Transition) component).getType();
 		Transition.Shape[] typeList = Transition.Shape.values();
 		
-		typeBox = new JComboBox(typeList);
+		typeBox = new JComboBox<Transition.Shape>(typeList);
 		typeBox.setEditable(false);
 		typeBox.setSelectedItem(selected);
 		typeBox.addActionListener(new ActionListener() {

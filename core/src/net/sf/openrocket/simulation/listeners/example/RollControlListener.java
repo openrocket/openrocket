@@ -36,7 +36,7 @@ public class RollControlListener extends AbstractSimulationListener {
 	// Maximum control fin angle (rad)
 	private static final double MAX_ANGLE = 15 * Math.PI / 180;
 	
-
+	
 	/*
 	 * PID parameters
 	 * 
@@ -47,9 +47,9 @@ public class RollControlListener extends AbstractSimulationListener {
 	private static final double KP = 0.007;
 	private static final double KI = 0.2;
 	
-
-
-
+	
+	
+	
 	private double rollrate;
 	
 	private double prevTime = 0;
@@ -58,7 +58,7 @@ public class RollControlListener extends AbstractSimulationListener {
 	private double finPosition = 0;
 	
 	
-
+	
 	@Override
 	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) {
 		// Store the current roll rate for later use
@@ -78,7 +78,7 @@ public class RollControlListener extends AbstractSimulationListener {
 		
 		// Find the fin set named CONTROL
 		FinSet finset = null;
-		for (RocketComponent c : status.getConfiguration()) {
+		for (RocketComponent c : status.getConfiguration().getActiveComponents()) {
 			if ((c instanceof FinSet) && (c.getName().equals(CONTROL_FIN_NAME))) {
 				finset = (FinSet) c;
 				break;
@@ -88,12 +88,12 @@ public class RollControlListener extends AbstractSimulationListener {
 			throw new SimulationException("A fin set with name '" + CONTROL_FIN_NAME + "' was not found");
 		}
 		
-
+		
 		// Determine time step
 		double deltaT = status.getSimulationTime() - prevTime;
 		prevTime = status.getSimulationTime();
 		
-
+		
 		// PID controller
 		double error = SETPOINT - rollrate;
 		
@@ -103,7 +103,7 @@ public class RollControlListener extends AbstractSimulationListener {
 		
 		double value = p + i;
 		
-
+		
 		// Clamp the fin angle between -MAX_ANGLE and MAX_ANGLE
 		if (Math.abs(value) > MAX_ANGLE) {
 			System.err.printf("Attempting to set angle %.1f at t=%.3f, clamping.\n",
@@ -111,7 +111,7 @@ public class RollControlListener extends AbstractSimulationListener {
 			value = MathUtil.clamp(value, -MAX_ANGLE, MAX_ANGLE);
 		}
 		
-
+		
 		// Limit the fin turn rate
 		if (finPosition < value) {
 			finPosition = Math.min(finPosition + TURNRATE * deltaT, value);

@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-motors" description="Create the OpenRocket Core">
+	<target name="jar" depends="build" description="Create the OpenRocket Core">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${dist.dir}">
 
@@ -74,7 +74,7 @@
 	</target>
 	
 	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializeMotors"
+	    <java classname="net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">

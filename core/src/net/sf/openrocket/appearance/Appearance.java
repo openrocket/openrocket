@@ -36,9 +36,7 @@ public class Appearance {
 	*	@param shine	shine of the appearance, will be clamped between 0 and 1
 	*/
 	public Appearance(final Color paint, final double shine) {
-		this.paint = paint;
-		this.shine = MathUtil.clamp(shine, 0, 1);
-		this.texture = null;
+		this(paint,shine,null);
 	}
 	
 	/**

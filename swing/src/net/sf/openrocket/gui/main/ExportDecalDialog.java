@@ -25,13 +25,14 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
+@SuppressWarnings("serial")
 public class ExportDecalDialog extends JDialog {
 	
 	private final static Translator trans = Application.getTranslator();
 	
 	private final OpenRocketDocument document;
 	
-	private final JComboBox decalComboBox;
+	private final JComboBox<DecalImage> decalComboBox;
 	private final JFileChooser chooser;
 	
 	public ExportDecalDialog(Window parent, OpenRocketDocument doc) {
@@ -47,7 +48,7 @@ public class ExportDecalDialog extends JDialog {
 		
 		Collection<DecalImage> exportableDecals = document.getDecalList();
 		
-		decalComboBox = new JComboBox(exportableDecals.toArray(new DecalImage[0]));
+		decalComboBox = new JComboBox<DecalImage>(exportableDecals.toArray(new DecalImage[0]));
 		decalComboBox.setEditable(false);
 		panel.add(decalComboBox, "growx, wrap");
 		

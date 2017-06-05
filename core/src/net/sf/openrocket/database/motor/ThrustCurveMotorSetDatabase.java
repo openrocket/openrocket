@@ -17,6 +17,22 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	
 	private final List<ThrustCurveMotorSet> motorSets = new ArrayList<ThrustCurveMotorSet>();
 	
+	@Override
+	public ThrustCurveMotor findMotor(String digest) {
+		if (digest == null) {
+			return null;
+		}
+		for (ThrustCurveMotorSet set : motorSets) {
+			for (ThrustCurveMotor m : set.getMotors()) {
+				if (digest.equals(m.getDigest())) {
+					return m;
+				}
+			}
+		}
+		
+		return null;
+		
+	}
 	
 	@Override
 	public List<ThrustCurveMotor> findMotors(Motor.Type type, String manufacturer, String designation,
@@ -32,11 +48,11 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 					match = false;
 				else if (designation != null && !designation.equalsIgnoreCase(m.getDesignation()))
 					match = false;
-				else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.0015))
+				else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.005))
 					match = false;
-				else if (!Double.isNaN(length) && (Math.abs(length - m.getLength()) > 0.0015))
+				else if (!Double.isNaN(length) && (Math.abs(length - m.getLength()) > 0.005))
 					match = false;
-				
+					
 				if (match)
 					results.add(m);
 			}

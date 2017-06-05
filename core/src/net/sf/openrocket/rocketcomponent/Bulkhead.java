@@ -8,7 +8,8 @@ import net.sf.openrocket.startup.Application;
 
 public class Bulkhead extends RadiusRingComponent {
 	private static final Translator trans = Application.getTranslator();
-	
+
+
 	public Bulkhead() {
 		setOuterRadiusAutomatic(true);
 		setLength(0.002);

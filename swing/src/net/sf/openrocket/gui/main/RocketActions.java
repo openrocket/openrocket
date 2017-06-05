@@ -24,7 +24,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Pair;
@@ -174,7 +174,7 @@ public class RocketActions {
 			return false;
 
 		// Cannot remove last stage
-		if ((c instanceof Stage) && (c.getParent().getChildCount() == 1)) {
+		if ((c instanceof AxialStage) && (c.getParent().getChildCount() == 1)) {
 			return false;
 		}
 
@@ -277,6 +277,11 @@ public class RocketActions {
 	///////  Action classes
 
 	private abstract class RocketAction extends AbstractAction implements ClipboardListener {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public abstract void clipboardChanged();
 	}
@@ -286,6 +291,8 @@ public class RocketActions {
 	 * Action that deletes the selected component.
 	 */
 	private class DeleteComponentAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public DeleteComponentAction() {
 			//// Delete
 			this.putValue(NAME, trans.get("RocketActions.DelCompAct.Delete"));
@@ -321,6 +328,8 @@ public class RocketActions {
 	 * Action that deletes the selected component.
 	 */
 	private class DeleteSimulationAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public DeleteSimulationAction() {
 			//// Delete
 			this.putValue(NAME, trans.get("RocketActions.DelSimuAct.Delete"));
@@ -356,6 +365,8 @@ public class RocketActions {
 	 * Action that deletes the selected component.
 	 */
 	private class DeleteAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public DeleteAction() {
 			//// Delete
 			this.putValue(NAME, trans.get("RocketActions.DelAct.Delete"));
@@ -391,6 +402,8 @@ public class RocketActions {
 	 * Action the cuts the selected component (copies to clipboard and deletes).
 	 */
 	private class CutAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public CutAction() {
 			//// Cut
 			this.putValue(NAME, trans.get("RocketActions.CutAction.Cut"));
@@ -442,6 +455,8 @@ public class RocketActions {
 	 * Action that copies the selected component to the clipboard.
 	 */
 	private class CopyAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public CopyAction() {
 			//// Copy
 			this.putValue(NAME, trans.get("RocketActions.CopyAct.Copy"));
@@ -488,6 +503,8 @@ public class RocketActions {
 	 * as a child, and after that as a sibling after the selected component. 
 	 */
 	private class PasteAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public PasteAction() {
 			//// Paste
 			this.putValue(NAME, trans.get("RocketActions.PasteAct.Paste"));
@@ -551,6 +568,8 @@ public class RocketActions {
 	 * Action to edit the currently selected component.
 	 */
 	private class EditAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public EditAction() {
 			//// Edit
 			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
@@ -584,6 +603,8 @@ public class RocketActions {
 	 * Action to add a new stage to the rocket.
 	 */
 	private class NewStageAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public NewStageAction() {
 			//// New stage
 			this.putValue(NAME, trans.get("RocketActions.NewStageAct.Newstage"));
@@ -597,13 +618,13 @@ public class RocketActions {
 			
 			ComponentConfigDialog.hideDialog();
 
-			RocketComponent stage = new Stage();
+			RocketComponent stage = new AxialStage();
 			//// Booster stage
 			stage.setName(trans.get("RocketActions.ActBoosterstage"));
 			//// Add stage
 			document.addUndoPosition("Add stage");
 			rocket.addChild(stage);
-			rocket.getDefaultConfiguration().setAllStages();
+			rocket.getSelectedConfiguration().setAllStages();
 			selectionModel.setSelectedComponent(stage);
 			ComponentConfigDialog.showDialog(parentFrame, document, stage);
 			
@@ -622,6 +643,8 @@ public class RocketActions {
 	 * Action to move the selected component upwards in the parent's child list.
 	 */
 	private class MoveUpAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public MoveUpAction() {
 			//// Move up
 			this.putValue(NAME, trans.get("RocketActions.MoveUpAct.Moveup"));
@@ -641,6 +664,7 @@ public class RocketActions {
 			RocketComponent parent = selected.getParent();
 			document.addUndoPosition("Move "+selected.getComponentName());
 			parent.moveChild(selected, parent.getChildPosition(selected)-1);
+			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
 			selectionModel.setSelectedComponent(selected);
 		}
 
@@ -665,6 +689,8 @@ public class RocketActions {
 	 * Action to move the selected component down in the parent's child list.
 	 */
 	private class MoveDownAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
 		public MoveDownAction() {
 			//// Move down
 			this.putValue(NAME, trans.get("RocketActions.MoveDownAct.Movedown"));
@@ -684,6 +710,7 @@ public class RocketActions {
 			RocketComponent parent = selected.getParent();
 			document.addUndoPosition("Move "+selected.getComponentName());
 			parent.moveChild(selected, parent.getChildPosition(selected)+1);
+			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
 			selectionModel.setSelectedComponent(selected);
 		}
 

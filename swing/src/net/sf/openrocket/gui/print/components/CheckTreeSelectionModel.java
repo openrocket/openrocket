@@ -14,6 +14,7 @@ import java.util.Stack;
  * This class implements the selection model for the checkbox tree.  This specifically is used to keep
  * track of the TreePaths that have a selected CheckBox.
  */
+@SuppressWarnings("serial")
 public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
 
     /**

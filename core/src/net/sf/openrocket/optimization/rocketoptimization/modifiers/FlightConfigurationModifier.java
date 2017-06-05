@@ -5,7 +5,7 @@ import java.util.Locale;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableParameter;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableParameterSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -70,8 +70,8 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 					+ " with correct ID");
 		}
 		
-		FlightConfiguration<E> configs = (FlightConfiguration<E>) configGetter.invoke(c);
-		return configs.get(simulation.getConfiguration().getFlightConfigurationID());
+		FlightConfigurableParameterSet<E> configs = (FlightConfigurableParameterSet<E>) configGetter.invoke(c);
+		return configs.get(simulation.getRocket().getSelectedConfiguration().getFlightConfigurationID());
 	}
 	
 }

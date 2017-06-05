@@ -29,6 +29,7 @@ import net.sf.openrocket.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("serial")
 public class OperatorSelector extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();

@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import javax.swing.table.TableRowSorter;
 
-public class ColumnTableRowSorter extends TableRowSorter {
+public class ColumnTableRowSorter extends TableRowSorter<ColumnTableModel> {
 
 	private final ColumnTableModel columnTableModel;
 	
@@ -14,8 +14,8 @@ public class ColumnTableRowSorter extends TableRowSorter {
 	}
 
 	@Override
-	public Comparator getComparator(int column) {
-		Comparator c = columnTableModel.getColumn(column).getComparator();
+	public Comparator<?> getComparator(int column) {
+		Comparator<?> c = columnTableModel.getColumn(column).getComparator();
 		return (c!= null) ? c : super.getComparator(column);
 	}
 
@@ -30,7 +30,7 @@ public class ColumnTableRowSorter extends TableRowSorter {
 	 */
 	@Override
 	protected boolean useToString(int column) {
-		Comparator c = columnTableModel.getColumn(column).getComparator();
+		Comparator<?> c = columnTableModel.getColumn(column).getComparator();
 		return ( c != null ) ? false : super.useToString(column);
 	}
 

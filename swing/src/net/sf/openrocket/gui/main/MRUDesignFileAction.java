@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * Implements a menu for the Most-Recently-Used Open Rocket design files.
  */
+@SuppressWarnings("serial")
 public final class MRUDesignFileAction extends JMenu {
 
     /**

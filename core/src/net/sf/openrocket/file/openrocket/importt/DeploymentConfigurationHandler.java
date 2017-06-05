@@ -2,6 +2,8 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
@@ -10,9 +12,8 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-
-import org.xml.sax.SAXException;
 
 class DeploymentConfigurationHandler extends AbstractElementHandler {
 	
@@ -72,9 +73,9 @@ class DeploymentConfigurationHandler extends AbstractElementHandler {
 	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
-		String configId = attributes.get("configid");
-		DeploymentConfiguration def = recoveryDevice.getDeploymentConfiguration().getDefault();
-		recoveryDevice.getDeploymentConfiguration().set(configId, getConfiguration(def));
+		FlightConfigurationId configId = new FlightConfigurationId(attributes.get("configid"));
+		DeploymentConfiguration def = recoveryDevice.getDeploymentConfigurations().getDefault();
+		recoveryDevice.getDeploymentConfigurations().set(configId, getConfiguration(def));
 	}
 	
 }

@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.jfree.util.Log;
+
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -99,8 +101,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 			throw new IllegalArgumentException("column=" + column + ", value=" + value);
 		}
 		
-		MotorMount mount = potentialMounts.get(row);
-		mount.setMotorMount((Boolean) value);
-		this.motorConfigurationPanel.onDataChanged();
+		Log.warn("this method is no longer useful....: setValueAt(obj,int,int):104");
+		//this.motorConfigurationPanel.onDataChanged();
 	}
 }

@@ -16,7 +16,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 
 import org.xml.sax.SAXException;
 
@@ -205,7 +205,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 		 * rocket defines stage '2' as the initial booster with stage '3' sitting atop it.  And so on.
 		 */
 		if ("Stage3Parts".equals(element)) {
-			final Stage stage = new Stage();
+			final AxialStage stage = new AxialStage();
 			if (stage3Mass > 0.0d) {
 				stage.setMassOverridden(true);
 				stage.setOverrideSubcomponents(true); //Rocksim does not support this type of override
@@ -221,7 +221,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 		}
 		if ("Stage2Parts".equals(element)) {
 			if (stageCount >= 2) {
-				final Stage stage = new Stage();
+				final AxialStage stage = new AxialStage();
 				if (stage2Mass > 0.0d) {
 					stage.setMassOverridden(true);
 					stage.setOverrideSubcomponents(true); //Rocksim does not support this type of override
@@ -238,7 +238,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 		}
 		if ("Stage1Parts".equals(element)) {
 			if (stageCount == 3) {
-				final Stage stage = new Stage();
+				final AxialStage stage = new AxialStage();
 				if (stage1Mass > 0.0d) {
 					stage.setMassOverridden(true);
 					stage.setOverrideSubcomponents(true); //Rocksim does not support this type of override

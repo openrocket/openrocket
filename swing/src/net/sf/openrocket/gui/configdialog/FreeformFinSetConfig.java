@@ -6,7 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -23,6 +30,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -52,11 +62,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FreeformFinSetConfig extends FinSetConfig {
-	
+	private static final long serialVersionUID = 2504130276828826021L;
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -86,7 +93,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		DoubleModel m;
 		JSpinner spin;
-		JComboBox combo;
 		
 		JPanel mainPanel = new JPanel(new MigLayout("fill"));
 		
@@ -139,13 +145,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
 		
-		combo = new JComboBox(new EnumModel<RocketComponent.Position>(component, "RelativePosition", new RocketComponent.Position[] { RocketComponent.Position.TOP, RocketComponent.Position.MIDDLE,
-				RocketComponent.Position.BOTTOM, RocketComponent.Position.ABSOLUTE }));
-		panel.add(combo, "spanx 3, growx, wrap");
+		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
+				new EnumModel<RocketComponent.Position>(component, "RelativePosition", new RocketComponent.Position[] { 
+				RocketComponent.Position.TOP, RocketComponent.Position.MIDDLE, RocketComponent.Position.BOTTOM, RocketComponent.Position.ABSOLUTE }));
+		panel.add(positionCombo, "spanx 3, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -169,8 +176,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		////  Cross section
 		//// Fin cross section:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
-		combo = new JComboBox(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add(combo, "growx, wrap unrel");
+		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+		panel.add(sectionCombo, "growx, wrap unrel");
 		
 		
 		////  Thickness:
@@ -232,6 +239,56 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
+		JButton exportCsvButton = new JButton("Export CSV");
+		exportCsvButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
+				
+				 JFileChooser c = new JFileChooser();
+			      // Demonstrate "Save" dialog:
+			      int rVal = c.showSaveDialog(FreeformFinSetConfig.this);
+			      if (rVal == JFileChooser.APPROVE_OPTION) {
+			        File myFile = c.getSelectedFile();
+
+			        	Writer writer = null;
+			            int nRow = table.getRowCount();
+				        int nCol = table.getColumnCount();
+				        try{
+				        	try {
+				               	writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(myFile.getAbsoluteFile()), "utf-8"));
+
+				               	//write the header information
+				               	StringBuffer bufferHeader = new StringBuffer();
+				               	for (int j = 0; j < nCol; j++) {
+				               		bufferHeader.append(table.getColumnName(j));
+				               		if (j!=nCol) bufferHeader.append(", ");
+				               	}
+				               	writer.write(bufferHeader.toString() + "\r\n");
+
+				               	//write row information
+				               	for (int i = 0 ; i < nRow ; i++){
+				               		StringBuffer buffer = new StringBuffer();
+				               		for (int j = 0 ; j < nCol ; j++){
+				               			buffer.append(table.getValueAt(i,j));
+				               			if (j!=nCol) buffer.append(", ");
+				               		}
+				               		writer.write(buffer.toString() + "\r\n");
+				               	}
+				        	}finally {
+								writer.close();
+				        	}
+				        } catch (UnsupportedEncodingException e1) {
+							e1.printStackTrace();
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+				        
+			      }
+			    }
+			});
 		
 		panel.add(tablePane, "growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane, "gap unrel, spanx, spany 3, growx, growy 1000, height 100lp:250lp:, wrap");
@@ -240,6 +297,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
 		
 		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
+		panel.add(exportCsvButton, "spany 2, alignx 50%, aligny 50%");
 		panel.add(new ScaleSelector(figurePane), "spany 2, aligny 50%");
 		
 		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
@@ -258,9 +316,34 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		return panel;
 	}
 	
-	
-	
-	
+	 public void writeCSVfile(JTable table, String filename) throws IOException{
+	        Writer writer = null;
+	        int nRow = table.getRowCount();
+	        int nCol = table.getColumnCount();
+	        try {
+	            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "utf-8"));
+
+	            //write the header information
+	            StringBuffer bufferHeader = new StringBuffer();
+	            for (int j = 0; j < nCol; j++) {
+	                bufferHeader.append(table.getColumnName(j));
+	                if (j!=nCol) bufferHeader.append(", ");
+	            }
+	            writer.write(bufferHeader.toString() + "\r\n");
+
+	           //write row information
+	            for (int i = 0 ; i < nRow ; i++){
+	                 StringBuffer buffer = new StringBuffer();
+	                for (int j = 0 ; j < nCol ; j++){
+	                    buffer.append(table.getValueAt(i,j));
+	                    if (j!=nCol) buffer.append(", ");
+	                }
+	                writer.write(buffer.toString() + "\r\n");
+	            }
+	        } finally {
+	              writer.close();
+	        }
+	    }	
 	
 	private void importImage() {
 		JFileChooser chooser = new JFileChooser();
@@ -312,6 +395,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private class FinPointScrollPane extends ScaleScrollPane {
+		private static final long serialVersionUID = 2232218393756983666L;
+
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
 		
 		private int dragIndex = -1;
@@ -480,6 +565,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	private class FinPointTableModel extends AbstractTableModel {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4803736958177227852L;
+
 		@Override
 		public int getColumnCount() {
 			return Columns.values().length;

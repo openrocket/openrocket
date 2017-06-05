@@ -6,15 +6,16 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
-import net.sf.openrocket.formatting.MotorDescriptionSubstitutor;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
@@ -22,11 +23,7 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
-import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.util.WorldCoordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class holding simulation options in basic parameter form and which functions
@@ -37,6 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
@@ -47,10 +45,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
 	protected final Preferences preferences = Application.getPreferences();
-	
-	private final Rocket rocket;
-	private String motorID = null;
-	
 	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
@@ -91,36 +85,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
-	public SimulationOptions(Rocket rocket) {
-		this.rocket = rocket;
+	public SimulationOptions() {
 	}
-	
-	public Rocket getRocket() {
-		return rocket;
-	}
-	
-	
-	public String getMotorConfigurationID() {
-		return motorID;
-	}
-	
-	/**
-	 * Set the motor configuration ID.  This must be a valid motor configuration ID of
-	 * the rocket, otherwise the configuration is set to <code>null</code>.
-	 * 
-	 * @param id	the configuration to set.
-	 */
-	public void setMotorConfigurationID(String id) {
-		if (id != null)
-			id = id.intern();
-		if (!rocket.isFlightConfigurationID(id))
-			id = null;
-		if (id == motorID)
-			return;
-		motorID = id;
-		fireChangeEvent();
-	}
-	
 	
 	public double getLaunchRodLength() {
 		return launchRodLength;
@@ -130,7 +96,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
-		fireChangeEvent();
 	}
 	
 	
@@ -428,38 +393,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	public void copyFrom(SimulationOptions src) {
 		
-		if (this.rocket == src.rocket) {
-			
-			this.motorID = src.motorID;
-			
-		} else {
-			
-			if (src.rocket.hasMotors(src.motorID)) {
-				// First check for exact match:
-				if (this.rocket.isFlightConfigurationID(src.motorID)) {
-					this.motorID = src.motorID;
-				} else {
-					// Try to find a closely matching motor ID
-					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
-					
-					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
-					String matchID = null;
-					
-					for (String id : this.rocket.getFlightConfigurationIDs()) {
-						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
-						if (motorDesc.equals(motorDesc2)) {
-							matchID = id;
-							break;
-						}
-					}
-					
-					this.motorID = matchID;
-				}
-			} else {
-				this.motorID = null;
-			}
-		}
-		
 		this.launchAltitude = src.launchAltitude;
 		this.launchLatitude = src.launchLatitude;
 		this.launchLongitude = src.launchLongitude;
@@ -559,9 +492,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (!(other instanceof SimulationOptions))
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
-		return ((this.rocket == o.rocket) &&
-				Utils.equals(this.motorID, o.motorID) &&
-				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
+		return (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
@@ -582,9 +513,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public int hashCode() {
-		if (motorID == null)
-			return rocket.hashCode();
-		return rocket.hashCode() + motorID.hashCode();
+		return 0;
 	}
 	
 	@Override
@@ -614,9 +543,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	// TODO: HIGH: Clean up
 	public SimulationConditions toSimulationConditions() {
 		SimulationConditions conditions = new SimulationConditions();
-		
-		conditions.setRocket((Rocket) getRocket().copy());
-		conditions.setMotorConfigurationID(getMotorConfigurationID());
+
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
@@ -638,7 +565,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setGravityModel(gravityModel);
 		
 		conditions.setAerodynamicCalculator(new BarrowmanCalculator());
-		conditions.setMassCalculator(new BasicMassCalculator());
+		conditions.setMassCalculator(new MassCalculator());
 		
 		conditions.setTimeStep(getTimeStep());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());

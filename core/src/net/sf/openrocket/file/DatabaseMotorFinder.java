@@ -1,5 +1,6 @@
 package net.sf.openrocket.file;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -45,12 +46,21 @@ public class DatabaseMotorFinder implements MotorFinder {
 			return null;
 		}
 		
-		List<? extends Motor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer, designation, diameter, length);
+		List<? extends Motor> motors;
+		
+		{
+			Motor m = Application.getMotorSetDatabase().findMotor(digest);
+			if (m != null) {
+				motors = Collections.<Motor> singletonList(m);
+			} else {
+				motors = Application.getMotorSetDatabase().findMotors(type, manufacturer, designation, diameter, length);
+			}
+		}
 		
 		// No motors
 		if (motors.size() == 0) {
 			return handleMissingMotor(type, manufacturer, designation, diameter, length, digest, warnings);
-		}		
+		}
 		
 		// One motor
 		if (motors.size() == 1) {

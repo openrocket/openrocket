@@ -42,8 +42,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	 * @throws IOException  if an I/O error occurs or if the file format is illegal.
 	 */
 	@Override
-	public List<Motor> load(Reader reader, String filename) throws IOException {
-		List<Motor> motors = new ArrayList<Motor>();
+	public List<ThrustCurveMotor.Builder> load(Reader reader, String filename) throws IOException {
+		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		BufferedReader in = new BufferedReader(reader);
 		
 		String manufacturer = "";
@@ -108,7 +108,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 					for (int i = 0; i < buf.length; i++) {
 						if (buf[i].equalsIgnoreCase("P") ||
 								buf[i].equalsIgnoreCase("plugged")) {
-							delays.add(Motor.PLUGGED);
+							delays.add(Motor.PLUGGED_DELAY);
 						} else if (buf[i].matches("[0-9]+")) {
 							// Many RASP files have "100" as an only delay
 							double d = Double.parseDouble(buf[i]);
@@ -170,7 +170,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	 * Create a motor from RASP file data.
 	 * @throws IOException  if the data is illegal for a thrust curve
 	 */
-	private static Motor createRASPMotor(String manufacturer, String designation,
+	private static ThrustCurveMotor.Builder createRASPMotor(String manufacturer, String designation,
 			String comment, double length, double diameter, double[] delays,
 			double propW, double totalW, List<Double> time, List<Double> thrust)
 			throws IOException {
@@ -201,8 +201,19 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		try {
 			
 			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
-			return new ThrustCurveMotor(m, designation, comment, m.getMotorType(),
-					delays, diameter, length, timeArray, thrustArray, cgArray, digest);
+			ThrustCurveMotor.Builder builder = new ThrustCurveMotor.Builder();
+			builder.setManufacturer(m)
+					.setDesignation(designation)
+					.setDescription(comment)
+					.setMotorType(m.getMotorType())
+					.setStandardDelays(delays)
+					.setDiameter(diameter)
+					.setLength(length)
+					.setTimePoints(timeArray)
+					.setThrustPoints(thrustArray)
+					.setCGPoints(cgArray)
+					.setDigest(digest);
+			return builder;
 			
 		} catch (IllegalArgumentException e) {
 			

@@ -13,6 +13,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
+@SuppressWarnings("serial")
 public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure {
 	
 	// Number of pixels to leave at edges when fitting figure

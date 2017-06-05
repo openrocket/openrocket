@@ -25,6 +25,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -32,6 +35,7 @@ import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -44,6 +48,9 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
@@ -58,9 +65,6 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Reflection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A component that contains addition buttons to add different types of rocket components
  * to a rocket.  It enables and disables buttons according to the current selection of a 
@@ -70,6 +74,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ComponentAddButtons extends JPanel implements Scrollable {
+	private static final long serialVersionUID = 4315680855765544950L;
+	
 	private static final Logger log = LoggerFactory.getLogger(ComponentAddButtons.class);
 	private static final Translator trans = Application.getTranslator();
 	
@@ -105,12 +111,16 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		this.viewport = viewport;
 		
 		buttons = new ComponentButton[ROWS][];
+		for( int rowCur = 0; rowCur < ROWS; rowCur++){
+			buttons[rowCur]=null;
+		}
 		int row = 0;
-		
+		int col = 0;
 		////////////////////////////////////////////
 		
 		//// Body components and fin sets
-		addButtonRow(trans.get("compaddbuttons.Bodycompandfinsets"), row,
+		add(new JLabel(trans.get("compaddbuttons.Bodycompandfinsets")), "span, gaptop 0, wrap");
+		addButtonGroup(row, 
 				//// Nose cone
 				new BodyComponentButton(NoseCone.class, trans.get("compaddbuttons.Nosecone")),
 				//// Body tube
@@ -125,16 +135,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
 				//// Freeform
 				new FinButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
+				//// Rail Button // TODO: implement drawing graphics for the component
+				new FinButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
 				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
+			row++;
 		
-		row++;
-		
-
 		/////////////////////////////////////////////
 		
 		//// Inner component
-		addButtonRow(trans.get("compaddbuttons.Innercomponent"), row,
+		add(new JLabel(trans.get("compaddbuttons.Innercomponent")), "span, gaptop unrel, wrap");
+		addButtonGroup(row, 
 				//// Inner tube
 				new ComponentButton(InnerTube.class, trans.get("compaddbuttons.Innertube")),
 				//// Coupler
@@ -149,9 +160,23 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		row++;
 		
 		////////////////////////////////////////////
+		add(new JLabel(trans.get("compaddbuttons.assembly")), "span 3");
+		add(new JLabel(trans.get("compaddbuttons.Massobjects")), "span, gaptop unrel, wrap");
+
+//		RocketActions.NewStageAct.ttip.Newstage = Add a new stage to the rocket design.
+//		RocketActions.NewStageAct.ttip.newBooster = Add a new set booster stage to the rocket design.
+//		RocketActions.NewStageAct.ttip.newPods = Add a new set of pods to the rocket design.
+
+		//// Component Assembly Components:
+		ComponentButton[] buttonsToAdd = { 
+				new ComponentButton(AxialStage.class, trans.get("RocketActions.NewStageAct.Newstage")),
+				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.newBooster.lbl")),
+				new ComponentButton(PodSet.class, trans.get("compaddbuttons.newPods.lbl"))};
+		addButtonGroup(row, buttonsToAdd);
 		
 		//// Mass objects
-		addButtonRow(trans.get("compaddbuttons.Massobjects"), row,
+		// NOTE: These are on the same line as the assemblies above
+		addButtonGroup(row, 
 				//// Parachute
 				new ComponentButton(Parachute.class, trans.get("compaddbuttons.Parachute")),
 				//// Streamer
@@ -160,7 +185,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new ComponentButton(ShockCord.class, trans.get("compaddbuttons.Shockcord")),
 				//				new ComponentButton("Motor clip"),
 				//				new ComponentButton("Payload"),
-				//// Mass\ncomponent
+				//// Mass component
 				new ComponentButton(MassComponent.class, trans.get("compaddbuttons.Masscomponent")));
 		
 
@@ -168,7 +193,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		int w = 0, h = 0;
 		
 		for (row = 0; row < buttons.length; row++) {
-			for (int col = 0; col < buttons[row].length; col++) {
+			for (col = 0; col < buttons[row].length; col++) {
 				Dimension d = buttons[row][col].getPreferredSize();
 				if (d.width > w)
 					w = d.width;
@@ -182,7 +207,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		height = h;
 		Dimension d = new Dimension(width, height);
 		for (row = 0; row < buttons.length; row++) {
-			for (int col = 0; col < buttons[row].length; col++) {
+			for (col = 0; col < buttons[row].length; col++) {
 				buttons[row][col].setMinimumSize(d);
 				buttons[row][col].setPreferredSize(d);
 				buttons[row][col].getComponent(0).validate();
@@ -210,27 +235,32 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	
 	
 	/**
-	 * Adds a row of buttons to the panel.
+	 * Adds a buttons to the panel in a row.  Assumes.
+	 * 
 	 * @param label  Label placed before the row
 	 * @param row    Row number
 	 * @param b      List of ComponentButtons to place on the row
 	 */
-	private void addButtonRow(String label, int row, ComponentButton... b) {
-		if (row > 0)
-			add(new JLabel(label), "span, gaptop unrel, wrap");
-		else
-			add(new JLabel(label), "span, gaptop 0, wrap");
+	private void addButtonGroup(int row, ComponentButton... b) {
 		
-		int col = 0;
-		buttons[row] = new ComponentButton[b.length];
+		int oldLen=0;
+		if( null == buttons[row] ){
+			buttons[row] = new ComponentButton[b.length];
+		}else{
+			ComponentButton[] oldArr = buttons[row];
+			oldLen = oldArr.length;
+			ComponentButton[] newArr = new ComponentButton[oldLen + b.length];
+			System.arraycopy(oldArr, 0, newArr, 0, oldLen);
+			buttons[row] = newArr;
+		}
 		
-		for (int i = 0; i < b.length; i++) {
-			buttons[row][col] = b[i];
-			if (i < b.length - 1)
-				add(b[i], BUTTONPARAM);
-			else
-				add(b[i], BUTTONPARAM + ", wrap");
-			col++;
+		int dstCol = oldLen;
+		int srcCol=0;
+		while( srcCol < b.length) {
+			buttons[row][dstCol] = b[srcCol];
+			add(b[srcCol], BUTTONPARAM);
+			dstCol++;
+			srcCol++;
 		}
 	}
 	
@@ -272,6 +302,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	 * Class for a component button.
 	 */
 	private class ComponentButton extends JButton implements TreeSelectionListener {
+		private static final long serialVersionUID = 4510127994205259083L;
 		protected Class<? extends RocketComponent> componentClass = null;
 		private Constructor<? extends RocketComponent> constructor = null;
 		
@@ -466,7 +497,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	 * A class suitable for BodyComponents.  Addition is allowed ...  
 	 */
 	private class BodyComponentButton extends ComponentButton {
-		
+		private static final long serialVersionUID = 1574998068156786363L;
+
 		public BodyComponentButton(Class<? extends RocketComponent> c, String text) {
 			super(c, text);
 		}
@@ -599,6 +631,11 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	 * Class for fin sets, that attach only to BodyTubes.
 	 */
 	private class FinButton extends ComponentButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -219204844803871258L;
+
 		public FinButton(Class<? extends RocketComponent> c, String text) {
 			super(c, text);
 		}

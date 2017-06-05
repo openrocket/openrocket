@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.congrace.exp4j.Calculable;
-import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.Markers;

@@ -17,6 +17,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class CompassPointer extends CompassRose implements Resettable {
 	
 	private static final Color PRIMARY_POINTER_COLOR = new Color(1.0f, 0.2f, 0.2f);

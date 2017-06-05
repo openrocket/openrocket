@@ -51,7 +51,14 @@ class AppearanceHandler extends AbstractElementHandler {
 			int red = Integer.parseInt(attributes.get("red"));
 			int green = Integer.parseInt(attributes.get("green"));
 			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setPaint(new Color(red, green, blue));
+			int alpha = 255;//set default
+			// add a test if "alpha" was added to the XML / backwards compatibility
+			String a = attributes.get("alpha");
+			if (a != null){
+				// "alpha" string was present so load the value
+				alpha = Integer.parseInt(a);
+			}
+			builder.setPaint(new Color(red, green, blue, alpha));
 			return;
 		}
 		if ("shine".equals(element)) {

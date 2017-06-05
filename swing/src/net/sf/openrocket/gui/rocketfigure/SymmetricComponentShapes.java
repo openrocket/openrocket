@@ -4,12 +4,11 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 
-public class SymmetricComponentShapes extends RocketComponentShapes {
+public class SymmetricComponentShapes extends RocketComponentShape {
 	private static final int MINPOINTS = 91;
 	private static final double ACCEPTABLE_ANGLE = Math.cos(7.0 * Math.PI / 180.0);
 	
@@ -17,13 +16,19 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 	
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable)
 
-    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
-                                        Transformation transformation) {
-        return getShapesSide(component, transformation, S);
+    public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation) {
+
+        return getShapesSide(component, transformation, componentAbsoluteLocation, S);
     }
 
-    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
-                                        Transformation transformation, final double scaleFactor) {
+    public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate componentAbsoluteLocation,
+			final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.SymmetricComponent c = (net.sf.openrocket.rocketcomponent.SymmetricComponent) component;
 		int i;
 		
@@ -64,11 +69,10 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 
 		//System.out.println("Final points: "+points.size());
 		
-		final int len = points.size();
 		
-		for (i = 0; i < len; i++) {
-			points.set(i, c.toAbsolute(points.get(i))[0]);
-		}
+//		for (i = 0; i < len; i++) {
+//			points.set(i, c.toAbsolute(points.get(i))[0]);
+//		}
 		
 		/*   Show points:
 		Shape[] s = new Shape[len+1];
@@ -80,21 +84,24 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 
 		//System.out.println("here");
 		
+		final int len = points.size();
+		Coordinate nose = componentAbsoluteLocation;
+		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
+		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo(points.get(i).x * scaleFactor, points.get(i).y * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x)* scaleFactor, (nose.y+points.get(i).y) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo(points.get(i).x * scaleFactor, -points.get(i).y * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y-points.get(i).y) * scaleFactor);
 		}
-		path.lineTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
+		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;
 		//return s;
-		return new Shape[] { path };
+		return new RocketComponentShape[] { new RocketComponentShape(path, component) };
 	}
 	
 	private static boolean angleAcceptable(Coordinate v1, Coordinate v2, Coordinate v3) {
