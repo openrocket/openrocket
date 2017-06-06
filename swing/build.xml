@@ -92,9 +92,9 @@
 			<!-- Libraries to extract into base JAR -->
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
 			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
-			<zipfileset src="${core.dir}/lib/guice-3.0.jar" />
+			<zipfileset src="${core.dir}/lib/guice-4.1.0.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
-			<zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/>
+			<zipfileset src="${core.dir}/lib/guice-multibindings-4.1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/javax.inject.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
@@ -106,6 +106,7 @@
 			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
+			<zipfileset src="${core.dir}/lib/guava-20.0.jar"/>
 									
 			
 			<!-- JOGL libraries need to be jar-in-jar -->

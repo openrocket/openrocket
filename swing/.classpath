@@ -12,8 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-3.0.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-multibindings-3.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar"/>
@@ -30,5 +28,8 @@
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/junit-dep-4.8.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/test-plugin.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/uispec4j-2.3-jdk16.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guava-20.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-4.1.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-multibindings-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
