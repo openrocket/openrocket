@@ -1,5 +1,7 @@
 language: java
+dist: xenial
 jdk:
   - oraclejdk7
+  - openjdk7
 script:
- - "ant -buildfile build.xml clean check jar unittest"
+  - "ant -buildfile build.xml clean check jar unittest"
