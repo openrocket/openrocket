@@ -218,11 +218,11 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		super.update();
 		
 		if( this.autoRadialPosition ){
-			AxialStage parentStage = (AxialStage)this.parent;
-			if( null == parentStage ){
+			ComponentAssembly parentAssembly = (ComponentAssembly)this.parent;
+			if( null == parentAssembly ){
 				this.radialPosition_m = this.getOuterRadius();
 			}else{
-				this.radialPosition_m = this.getOuterRadius() + parentStage.getOuterRadius();
+				this.radialPosition_m = this.getOuterRadius() + parentAssembly.getOuterRadius();
 			}
 		}
 	}
