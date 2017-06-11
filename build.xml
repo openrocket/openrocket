@@ -1,5 +1,8 @@
 <project name="OpenRocket" basedir="." default="jar">
-
+    <presetdef name="javac">
+        <javac includeantruntime="false" />
+    </presetdef>
+  
     <!-- CLEAN -->
 
 	<target name="clean" depends="clean-core, clean-swing">
