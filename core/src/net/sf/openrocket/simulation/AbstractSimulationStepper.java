@@ -174,7 +174,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param stepMotors				whether to step the motors forward or work on a clone object
 	 * @return							the average thrust during the time step.
 	 */
-	protected double calculateAvrageThrust(SimulationStatus status, double timestep,
+	protected double calculateAverageThrust(SimulationStatus status, double timestep,
 			double acceleration, AtmosphericConditions atmosphericConditions,
 			boolean stepMotors) throws SimulationException {
 		double thrust;
