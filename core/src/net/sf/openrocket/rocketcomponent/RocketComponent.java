@@ -927,7 +927,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * is modified.
 	 *
 	 * @param thePosition the relative position to be used as the basis for the computation
-	 * @param relativeTo  the position is computed relative the the given component
 	 *
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
