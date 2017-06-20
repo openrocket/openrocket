@@ -66,18 +66,17 @@ import net.sf.openrocket.util.Reflection.Method;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ScaleDialog extends JDialog {
-	private static final long serialVersionUID = -8558418577377862794L;
+//	private static final long serialVersionUID = -8558418577377862794L;  // This class is not serializable.
+
 	private static final Logger log = LoggerFactory.getLogger(ScaleDialog.class);
-	private static final Translator trans = Application.getTranslator();
-	
+	private static final Translator translator = Application.getTranslator();
 	
 	/*
 	 * Scaler implementations
 	 * 
 	 * Each scaled value (except override cg/mass) is defined using a Scaler instance.
 	 */
-	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS =
-			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
+	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS = new HashMap<>();
 	static {
 		List<Scaler> list;
 		
@@ -127,7 +126,7 @@ public class ScaleDialog extends JDialog {
 		addScaler(EllipticalFinSet.class, "Height");
 		
 		// FreeformFinSet
-		list = new ArrayList<ScaleDialog.Scaler>(1);
+		list = new ArrayList<>(1);
 		list.add(new FreeformFinSetScaler());
 		SCALERS.put(FreeformFinSet.class, list);
 		
@@ -137,7 +136,7 @@ public class ScaleDialog extends JDialog {
 		addScaler(MassObject.class, "RadialPosition");
 		
 		// MassComponent
-		list = new ArrayList<ScaleDialog.Scaler>(1);
+		list = new ArrayList<>(1);
 		list.add(new MassComponentScaler());
 		SCALERS.put(MassComponent.class, list);
 		
@@ -175,7 +174,7 @@ public class ScaleDialog extends JDialog {
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
 		List<Scaler> list = SCALERS.get(componentClass);
 		if (list == null) {
-			list = new ArrayList<ScaleDialog.Scaler>();
+			list = new ArrayList<>();
 			SCALERS.put(componentClass, list);
 		}
 		list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
@@ -189,9 +188,9 @@ public class ScaleDialog extends JDialog {
 	private static final double SCALE_MIN = 0.01;
 	private static final double SCALE_MAX = 100.0;
 	
-	private static final String SCALE_ROCKET = trans.get("lbl.scaleRocket");
-	private static final String SCALE_SUBSELECTION = trans.get("lbl.scaleSubselection");
-	private static final String SCALE_SELECTION = trans.get("lbl.scaleSelection");
+	private static final String SCALE_ROCKET = translator.get("lbl.scaleRocket");
+	private static final String SCALE_SUBSELECTION = translator.get("lbl.scaleSubselection");
+	private static final String SCALE_SELECTION = translator.get("lbl.scaleSelection");
 	
 	
 	
@@ -229,7 +228,7 @@ public class ScaleDialog extends JDialog {
 	 * @param onlySelection	true to only allow scaling on the selected component (not the whole rocket)
 	 */
 	public ScaleDialog(OpenRocketDocument document, RocketComponent selection, Window parent, Boolean onlySelection) {
-		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
+		super(parent, translator.get("title"), ModalityType.APPLICATION_MODAL);
 		
 		this.document = document;
 		this.selection = selection;
@@ -240,7 +239,7 @@ public class ScaleDialog extends JDialog {
 	
 	private void init() {
 		// Generate options for scaling
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		if (!onlySelection)
 			options.add(SCALE_ROCKET);
 		if (selection != null && selection.getChildCount() > 0) {
@@ -325,20 +324,20 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scaling selection
-		tip = trans.get("lbl.scale.ttip");
-		JLabel label = new JLabel(trans.get("lbl.scale"));
+		tip = translator.get("lbl.scale.ttip");
+		JLabel label = new JLabel(translator.get("lbl.scale"));
 		label.setToolTipText(tip);
 		panel.add(label, "span, split, gapright unrel");
 		
-		selectionOption = new JComboBox<String>(options.toArray(new String[0]));
+		selectionOption = new JComboBox<>(options.toArray(new String[0]));
 		selectionOption.setEditable(false);
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
 		
 		
 		// Scale multiplier
-		tip = trans.get("lbl.scaling.ttip");
-		label = new JLabel(trans.get("lbl.scaling"));
+		tip = translator.get("lbl.scaling.ttip");
+		label = new JLabel(translator.get("lbl.scaling"));
 		label.setToolTipText(tip);
 		panel.add(label, "gapright unrel");
 		
@@ -357,8 +356,8 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scale from ... to ...
-		tip = trans.get("lbl.scaleFromTo.ttip");
-		label = new JLabel(trans.get("lbl.scaleFrom"));
+		tip = translator.get("lbl.scaleFromTo.ttip");
+		label = new JLabel(translator.get("lbl.scaleFrom"));
 		label.setToolTipText(tip);
 		panel.add(label, "gapright unrel, right");
 		
@@ -371,7 +370,7 @@ public class ScaleDialog extends JDialog {
 		unit.setToolTipText(tip);
 		panel.add(unit, "w 30lp");
 		
-		label = new JLabel(trans.get("lbl.scaleTo"));
+		label = new JLabel(translator.get("lbl.scaleTo"));
 		label.setToolTipText(tip);
 		panel.add(label, "gap unrel");
 		
@@ -386,8 +385,8 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scale override
-		scaleMassValues = new JCheckBox(trans.get("checkbox.scaleMass"));
-		scaleMassValues.setToolTipText(trans.get("checkbox.scaleMass.ttip"));
+		scaleMassValues = new JCheckBox(translator.get("checkbox.scaleMass"));
+		scaleMassValues.setToolTipText(translator.get("checkbox.scaleMass.ttip"));
 		scaleMassValues.setSelected(true);
 		boolean overridden = false;
 		for (RocketComponent c : document.getRocket()) {
@@ -402,7 +401,7 @@ public class ScaleDialog extends JDialog {
 		
 		// Buttons
 		
-		JButton scale = new JButton(trans.get("button.scale"));
+		JButton scale = new JButton(translator.get("button.scale"));
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -412,7 +411,7 @@ public class ScaleDialog extends JDialog {
 		});
 		panel.add(scale, "span, split, right, gap para");
 		
-		JButton cancel = new JButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(translator.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -449,7 +448,7 @@ public class ScaleDialog extends JDialog {
 			
 			// Scale the entire rocket design
 			try {
-				document.startUndo(trans.get("undo.scaleRocket"));
+				document.startUndo(translator.get("undo.scaleRocket"));
 				for (RocketComponent c : document.getRocket()) {
 					scale(c, mul, scaleMass);
 				}
@@ -459,9 +458,9 @@ public class ScaleDialog extends JDialog {
 			
 		} else if (SCALE_SUBSELECTION.equals(item)) {
 			
-			// Scale component and subcomponents
+			// Scale component and sub-components
 			try {
-				document.startUndo(trans.get("undo.scaleComponents"));
+				document.startUndo(translator.get("undo.scaleComponents"));
 				for (RocketComponent c : selection) {
 					scale(c, mul, scaleMass);
 				}
@@ -473,7 +472,7 @@ public class ScaleDialog extends JDialog {
 			
 			// Scale only the selected component
 			try {
-				document.startUndo(trans.get("undo.scaleComponent"));
+				document.startUndo(translator.get("undo.scaleComponent"));
 				scale(selection, mul, scaleMass);
 			} finally {
 				document.stopUndo();
@@ -529,7 +528,7 @@ public class ScaleDialog extends JDialog {
 	 * Interface for scaling a specific component/value.
 	 */
 	private interface Scaler {
-		public void scale(RocketComponent c, double multiplier, boolean scaleMass);
+		void scale(RocketComponent c, double multiplier, boolean scaleMass);
 	}
 	
 	/**
