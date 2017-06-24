@@ -111,7 +111,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		/*
 		 * Compute the initial thrust estimate.  This is used for the first time step computation.
 		 */
-		store.thrustForce = calculateAvrageThrust(status, store.timestep, status.getPreviousAcceleration(),
+		store.thrustForce = calculateAverageThrust(status, store.timestep, status.getPreviousAcceleration(),
 				status.getPreviousAtmosphericConditions(), false);
 		
 
@@ -180,7 +180,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * diminished by it affecting only 1/6th of the total, so it's an acceptable error.
 		 */
 		double thrustEstimate = store.thrustForce;
-		store.thrustForce = calculateAvrageThrust(status, store.timestep, store.longitudinalAcceleration,
+		store.thrustForce = calculateAverageThrust(status, store.timestep, store.longitudinalAcceleration,
 				store.atmosphericConditions, true);
 		log.trace("Thrust at time " + store.timestep + " thrustForce = " + store.thrustForce);
 		double thrustDiff = Math.abs(store.thrustForce - thrustEstimate);
