@@ -683,7 +683,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @param cd
 	 * @return
 	 */
-	private double calculateAxialDrag(FlightConditions conditions, double cd) {
+	static public double calculateAxialDrag(FlightConditions conditions, double cd) {
 		double aoa = MathUtil.clamp(conditions.getAOA(), 0, Math.PI);
 		double mul;
 		

@@ -135,7 +135,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	/**
 	 * Helper method to tokenize a string using the given delimiter.
 	 */
-	protected static String[] split(String str, String delim) {
+	public static String[] split(String str, String delim) {
 		String[] pieces = str.split(delim);
 		if (pieces.length == 0 || !pieces[0].equals(""))
 			return pieces;
