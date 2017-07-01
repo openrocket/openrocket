@@ -133,22 +133,22 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	public Coordinate[] getInstanceOffsets(){
 		checkState();
 		
-		final double radius = this.radialPosition_m;
-		final double startAngle = this.angularPosition_rad;
-		final double angleIncr = this.angularSeparation;
 		Coordinate center = Coordinate.ZERO;
-		
-		double curAngle = startAngle;
 		Coordinate[] toReturn = new Coordinate[this.instanceCount];
 		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
-			final double curY = radius * Math.cos(curAngle);
-			final double curZ = radius * Math.sin(curAngle);
+			final double curAngle = getInstanceAngle( instanceNumber);
+			final double curY = this.radialPosition_m * Math.cos(curAngle);
+			final double curZ = this.radialPosition_m * Math.sin(curAngle);
 			toReturn[instanceNumber] = center.add(0, curY, curZ );
-			
-			curAngle += angleIncr;
 		}
 		
 		return toReturn;
+	}
+	
+
+	@Override
+	public double getInstanceAngle( final int instanceNumber){
+		return this.angularPosition_rad + ( instanceNumber * this.angularSeparation);
 	}
 	
 	@Override

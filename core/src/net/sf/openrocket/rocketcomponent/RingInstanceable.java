@@ -4,6 +4,8 @@ public interface RingInstanceable extends Instanceable {
 
 	public double getAngularOffset();
 
+	public double getInstanceAngle( final int instanceNumber);
+	
 	public double getRadialOffset();
 	
 	public boolean getAutoRadialOffset();
