@@ -446,6 +446,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 			}
 			
+			//Handle Overriden CD for Whole Rocket
+			if(c.isCDOverridden()) {
+				continue;
+			}
 			
 			
 			// Calculate the friction drag:
@@ -479,6 +483,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 				
 			}
+
+		
 			
 		}
 		// fB may be POSITIVE_INFINITY, but that's ok for us
@@ -493,6 +499,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 			}
 		}
+
+               
 		
 		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
 	}
@@ -541,7 +549,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				map.get(c).setPressureCD(cd);
 			}
 			
-			
+			if(c.isCDOverridden()) continue;					
+
+	
 			// Stagnation drag
 			if (c instanceof SymmetricComponent) {
 				SymmetricComponent s = (SymmetricComponent) c;
@@ -589,6 +599,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 			
 			SymmetricComponent s = (SymmetricComponent) c;
+
+			if(c.isCDOverridden()) {
+				total += c.getOverrideCD();
+				continue;
+			}
 			
 			if (radius > s.getForeRadius()) {
 				double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
