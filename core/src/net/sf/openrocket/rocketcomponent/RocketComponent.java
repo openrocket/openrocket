@@ -72,6 +72,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.title = title;
 		}
 		
+		public Position[] getAxialOptions(){
+			return new Position[]{ TOP, MIDDLE, BOTTOM, ABSOLUTE};
+		}
+		
 		@Override
 		public String toString() {
 			return title;
@@ -1626,6 +1630,25 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		throw new IllegalStateException("getStage() called on hierarchy without an AxialStage.");
 	}
+	
+	/**
+	 * Return the first component assembly component that this component belongs to.
+	 *
+	 * @return	The Stage component this component belongs to.
+	 * @throws	IllegalStateException   if we cannot find an AxialStage above <code>this</code> 
+	 */
+	public final ComponentAssembly getAssembly() {
+		checkState();
+
+		RocketComponent curComponent = this;
+		while ( null != curComponent ) {
+			if( ComponentAssembly.class.isAssignableFrom( curComponent.getClass()))
+				return (ComponentAssembly) curComponent;
+			curComponent = curComponent.parent;
+		}
+		throw new IllegalStateException("getAssembly() called on hierarchy without a ComponentAssembly.");
+	}
+	
 	
 	/**
 	 * Return the stage number of the stage this component belongs to.  The stages

@@ -1,17 +1,25 @@
 package net.sf.openrocket.rocketcomponent;
 
-public interface RingInstanceable extends Instanceable {
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
+import net.sf.openrocket.rocketcomponent.position.RadiusPositionable;
 
+public interface RingInstanceable extends Instanceable, AnglePositionable, RadiusPositionable {
+
+	@Override
 	public double getAngularOffset();
-
-	public double getInstanceAngle( final int instanceNumber);
-	
-	public double getRadialOffset();
-	
-	public boolean getAutoRadialOffset();
-	
+	@Override
 	public void setAngularOffset(final double angle);
 	
+	public double getInstanceAngleIncrement();
+	
+	public double[] getInstanceAngles();
+	
+	
+	@Override
+	public double getRadialOffset();
+	@Override
+	public boolean getAutoRadialOffset();
+	@Override
 	public void setRadialOffset(final double radius);
 	
 }

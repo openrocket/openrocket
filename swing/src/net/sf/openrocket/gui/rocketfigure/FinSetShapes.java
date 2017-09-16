@@ -21,7 +21,7 @@ public class FinSetShapes extends RocketComponentShape {
 		
 		int finCount = finset.getFinCount();
 		Transformation cantRotation = finset.getCantRotation();
-		Transformation baseRotation = finset.getBaseRotationTransformation(); // rotation about x-axis
+		Transformation baseRotation = Transformation.rotate_x(finset.getAngularOffset()); // rotation about x-axis
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
 		Coordinate finSetFront = componentAbsoluteLocation;
@@ -96,7 +96,7 @@ public class FinSetShapes extends RocketComponentShape {
 		double thickness = finset.getThickness();
 		double height = finset.getSpan();
 		Coordinate compCenter = location;
-		Transformation baseRotation = finset.getBaseRotationTransformation();
+		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
 
@@ -146,7 +146,7 @@ public class FinSetShapes extends RocketComponentShape {
 		double radius = finset.getBodyRadius();
 		double thickness = finset.getThickness();
 		
-		Transformation baseRotation = finset.getBaseRotationTransformation();
+		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
 		Transformation finRotation = finset.getFinRotationTransformation();
 		Transformation cantRotation = finset.getCantRotation();
 

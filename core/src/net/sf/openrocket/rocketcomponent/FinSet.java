@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
@@ -13,8 +17,9 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
 
-public abstract class FinSet extends ExternalComponent {
+public abstract class FinSet extends ExternalComponent implements RingInstanceable, AxialPositionable {
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
 	
 	
 	/**
@@ -77,18 +82,12 @@ public abstract class FinSet extends ExternalComponent {
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
-	protected Transformation finRotation = Transformation.rotate_x(2 * Math.PI / fins);
+	protected Transformation finRotation = Transformation.IDENTITY;
 	
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
-	protected double rotation = 0;
-	
-	/**
-	 * Rotation about the x-axis by angle this.rotation.
-	 */
-	protected Transformation baseRotation = Transformation.rotate_x(rotation);
-	
+	protected double baseRotationValue = 0;	
 	
 	/**
 	 * Cant angle of fins.
@@ -182,7 +181,7 @@ public abstract class FinSet extends ExternalComponent {
 	 * @return The base rotation amount.
 	 */
 	public double getBaseRotation() {
-		return rotation;
+		return getAngularOffset();
 	}
 	
 	/**
@@ -190,19 +189,8 @@ public abstract class FinSet extends ExternalComponent {
 	 * @param r The base rotation amount.
 	 */
 	public void setBaseRotation(double r) {
-		r = MathUtil.reduce180(r);
-		if (MathUtil.equals(r, rotation))
-			return;
-		rotation = r;
-		baseRotation = Transformation.rotate_x(rotation);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		setAngularOffset(r);
 	}
-	
-	public Transformation getBaseRotationTransformation() {
-		return baseRotation;
-	}
-	
-	
 	
 	public double getCantAngle() {
 		return cantAngle;
@@ -230,7 +218,7 @@ public abstract class FinSet extends ExternalComponent {
 		}
 		return cantRotation;
 	}
-	
+
 	
 	
 	public double getThickness() {
@@ -431,16 +419,10 @@ public abstract class FinSet extends ExternalComponent {
 		
 		double mass = getFinMass();
 		double filletMass = getFilletMass();
-		double filletCenter = length / 2;
-		
-		double newCGx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
-		
-		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
-		// is.  Finding the actual position is very involved and won't make a huge difference.
-		double newCGy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
 		
 		if (fins == 1) {
-			return baseRotation.transform(
+			Transformation rotation = Transformation.rotate_x( getAngularOffset()); 
+			return rotation.transform(
 					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
 			return new Coordinate(finCGx, 0, 0, (filletMass + mass));
@@ -640,32 +622,32 @@ public abstract class FinSet extends ExternalComponent {
 		return bounds;
 	}
 	
-	/**
-	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
-	 * all fin rotations.
-	 */
-	private void addFinBound(Collection<Coordinate> set, double x, double y) {
-		Coordinate c;
-		int i;
-		
-		c = new Coordinate(x, y, thickness / 2);
-		c = baseRotation.transform(c);
-		set.add(c);
-		for (i = 1; i < fins; i++) {
-			c = finRotation.transform(c);
-			set.add(c);
-		}
-		
-		c = new Coordinate(x, y, -thickness / 2);
-		c = baseRotation.transform(c);
-		set.add(c);
-		for (i = 1; i < fins; i++) {
-			c = finRotation.transform(c);
-			set.add(c);
-		}
-	}
-	
-	
+//	/**
+//	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
+//	 * all fin rotations.
+//	 */
+//	private void addFinBound(Collection<Coordinate> set, double x, double y) {
+//		Coordinate c;
+//		int i;
+//		
+//		c = new Coordinate(x, y, thickness / 2);
+//		c = baseRotation.transform(c);
+//		set.add(c);
+//		for (i = 1; i < fins; i++) {
+//			c = finRotation.transform(c);
+//			set.add(c);
+//		}
+//		
+//		c = new Coordinate(x, y, -thickness / 2);
+//		c = baseRotation.transform(c);
+//		set.add(c);
+//		for (i = 1; i < fins; i++) {
+//			c = finRotation.transform(c);
+//			set.add(c);
+//		}
+//	}
+//	
+//	
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -763,6 +745,89 @@ public abstract class FinSet extends ExternalComponent {
 		return points;
 	}
 	
+	@Override
+	public double getAngularOffset() {
+		ComponentAssembly stage = this.getAssembly();
+		if( PodSet.class.isAssignableFrom( stage.getClass() )){
+			PodSet assembly= (PodSet)stage;
+			return assembly.getAngularOffset() + baseRotationValue;
+		}else if( ParallelStage.class.isAssignableFrom( stage.getClass())){
+			ParallelStage assembly = (ParallelStage)stage;
+			log.debug("detected p-stage with position: "+assembly.getAngularOffset());
+			return assembly.getAngularOffset() + baseRotationValue;
+		}
+		
+		return baseRotationValue;
+	}
+
+
+	@Override
+	public void setAngularOffset(double angle) {
+		angle = MathUtil.reduce180(angle);
+		if (MathUtil.equals(angle, baseRotationValue))
+			return;
+		baseRotationValue = angle;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	@Override
+	public double getInstanceAngleIncrement(){
+		return ( 2*Math.PI / getFinCount());
+	}
+	
+	@Override
+	public double[] getInstanceAngles(){
+		final double baseAngle = getAngularOffset();
+		final double incrAngle = getInstanceAngleIncrement();
+		
+		double[] result = new double[ getFinCount()]; 
+		for( int i=0; i<getFinCount(); ++i){
+			result[i] = baseAngle + incrAngle*i;
+		}
+		
+		return result;
+	}
+
+	@Override
+	public Position getAxialPositionMethod( ){
+		return getRelativePositionMethod();
+	}
+	
+	@Override
+	public void setAxialPositionMethod( Position newMethod ){
+		setRelativePosition( newMethod );
+	}
+	
+	@Override
+	public double getRadialOffset() {
+		return getBodyRadius();
+	}
+
+	@Override
+	public boolean getAutoRadialOffset() {
+		return true;
+	}
+
+	@Override
+	public void setRadialOffset(double radius) {
+		// no-op.  Not allowed for fins		
+	}
+
+	@Override
+	public void setInstanceCount(int newCount) {
+		setFinCount(newCount);
+	}
+
+	@Override
+	public int getInstanceCount() {
+		return getFinCount();
+	}
+	
+	@Override
+	public String getPatternName() {
+		return (getInstanceCount() + "-ring");
+	}
+	
 	
 	
 	/**
@@ -777,8 +842,7 @@ public abstract class FinSet extends ExternalComponent {
 		FinSet src = (FinSet) c;
 		this.fins = src.fins;
 		this.finRotation = src.finRotation;
-		this.rotation = src.rotation;
-		this.baseRotation = src.baseRotation;
+		this.baseRotationValue = src.baseRotationValue;
 		this.cantAngle = src.cantAngle;
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
