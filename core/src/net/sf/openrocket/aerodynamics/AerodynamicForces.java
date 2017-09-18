@@ -201,6 +201,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 	
 	public double getCD() {
+		if(component == null) return CD;
+		if(component.isCDOverridden()) {
+			return component.getOverrideCD();
+		}
 		return CD;
 	}
 	
@@ -210,6 +214,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 	
 	public double getPressureCD() {
+		if(component == null) return pressureCD;
+		if(component.isCDOverridden()) {
+			return 0;
+		}
 		return pressureCD;
 	}
 	
@@ -219,6 +227,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 	
 	public double getBaseCD() {
+		if(component == null) return baseCD;
+		if(component.isCDOverridden()) {
+			return component.getOverrideCD();
+		}
 		return baseCD;
 	}
 	
@@ -228,6 +240,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 	
 	public double getFrictionCD() {
+		if(component == null) return frictionCD;
+		if(component.isCDOverridden()) {
+			return 0;
+		}
 		return frictionCD;
 	}
 	
