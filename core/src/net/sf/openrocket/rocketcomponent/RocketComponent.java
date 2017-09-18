@@ -133,6 +133,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private boolean massOverriden = false;
 	private double overrideCGX = 0;
 	private boolean cgOverriden = false;
+	private double overrideCD = 0;
+	private boolean cdOverriden = false;
 	
 	private boolean overrideSubcomponents = false;
 	
@@ -633,6 +635,60 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cgOverriden = o;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+
+
+	/** Return the current override CD. The CD is not neccesarily overriden.
+	 * 
+	 * @return the override CG.
+	 */
+	public final double getOverrideCD() {
+		mutex.verify();
+		return overrideCD;
+	}
+
+	/**
+	 * Set the current override CD to x.
+	 *
+	 * @param x the override CD to set.
+	 */
+	public final void setOverrideCD(double x) {
+		if (MathUtil.equals(overrideCD, x))
+			return;
+		checkState();
+		this.overrideCD = x;
+		if (isCDOverridden())
+			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		else
+			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+		
+
+
+	/**
+	 * Return whether the CD is currently overriden.
+	 * 
+	 * @return whether the CD is overridden
+	 */
+	public final boolean isCDOverridden() {
+		mutex.verify();
+		return cdOverriden;
+	}
+
+
+	/**
+	 * Set whether the CD is currently overriden.
+	 *
+	 * @param o whether the CD is overriden
+	 */
+	public final void setCDOverridden(boolean o) {
+		if(cdOverriden == o) {
+			return;
+		}
+		checkState();
+		cdOverriden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	

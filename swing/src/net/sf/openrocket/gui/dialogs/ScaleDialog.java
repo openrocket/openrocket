@@ -589,6 +589,8 @@ public class ScaleDialog extends JDialog {
 				mass = mass * MathUtil.pow3(multiplier);
 				component.setOverrideMass(mass);
 			}
+
+			//TODO: Fix overridden pressure!
 		}
 		
 	}

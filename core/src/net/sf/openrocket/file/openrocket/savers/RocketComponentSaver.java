@@ -125,6 +125,10 @@ public class RocketComponentSaver {
 			elements.add("<overridecg>" + c.getOverrideCGX() + "</overridecg>");
 			overridden = true;
 		}
+		if (c.isCDOverridden()) {
+			elements.add("<overridecd>" + c.getOverrideCD() + "</overridecd>");
+			overridden = true;
+		}
 		if (overridden) {
 			elements.add("<overridesubcomponents>" + c.getOverrideSubcomponents()
 					+ "</overridesubcomponents>");
