@@ -127,17 +127,15 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 		return ComponentPreset.Type.LAUNCH_LUG;
 	}
 	
-
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double xOffset = this.position.x;
 		final double yOffset = Math.cos(radialDirection) * (radialDistance);
 		final double zOffset = Math.sin(radialDirection) * (radialDistance);
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
-			toReturn[index] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
+			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;

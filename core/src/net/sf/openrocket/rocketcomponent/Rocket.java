@@ -210,6 +210,11 @@ public class Rocket extends ComponentAssembly {
 		return (AxialStage) children.get( children.size()-1 );
 	}
 	
+	@Override
+	public int getStageNumber() {
+		// invalid, error value
+		return -1;
+	}
 	private int getNewStageNumber() {
 		int guess = 0;
 		while (stageMap.containsKey(guess)) {

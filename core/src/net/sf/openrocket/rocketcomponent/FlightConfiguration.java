@@ -14,6 +14,7 @@ import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
@@ -60,7 +61,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	
 	private int boundsModID = -1;
-	private ArrayList<Coordinate> cachedBounds = new ArrayList<Coordinate>();
+	private BoundingBox cachedBounds = new BoundingBox();
 	private double cachedLength = -1;
 	
 	private int refLengthModID = -1;
@@ -159,8 +160,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * Check whether the stage specified by the index is active.
 	 */
 	public boolean isStageActive(int stageNumber) {
-		if( ! stages.containsKey(stageNumber)){
-			throw new IllegalArgumentException(" Configuration does not contain stage number: "+stageNumber);
+		if( -1 == stageNumber ) {
+			return false;
 		}
 		
 		return stages.get(stageNumber).active;
@@ -397,29 +398,26 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public Collection<Coordinate> getBounds() {
 		if (rocket.getModID() != boundsModID) {
 			boundsModID = rocket.getModID();
-			cachedBounds.clear();
 			
-			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
+//			System.err.println(String.format(">> generating bounds for configuration: %s   (%d)(%s)", getName(), this.instanceNumber, getId() )); 
+			
+			BoundingBox bounds = new BoundingBox();
+			
 			for (RocketComponent component : this.getActiveComponents()) {
-				for (Coordinate coord : component.getComponentBounds()) {
-					cachedBounds.add(coord);
-					if (coord.x < minX){
-						minX = coord.x;
-					}else if (coord.x > maxX){
-						maxX = coord.x;
-					}
-				}
+				BoundingBox componentBounds = new BoundingBox( component.getComponentBounds() );				
+				
+				bounds.compare( componentBounds );
+				
+//				System.err.println(String.format("    [%s]     %s      >>     %s", component.getName(), componentBounds.toString(), bounds.toString() ));
 			}
 			
-			if (Double.isInfinite(minX) || Double.isInfinite(maxX)) {
-				cachedLength = 0;
-			} else {
-				cachedLength = maxX - minX;
-			}
+			cachedLength = bounds.span().x;
+
+			cachedBounds.compare( bounds );
 		}
-		return cachedBounds.clone();
+		
+		return cachedBounds.toCollection();
 	}
-	
 	
 	/**
 	 * Returns the length of the rocket configuration, from the foremost bound X-coordinate

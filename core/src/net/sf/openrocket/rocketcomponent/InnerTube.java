@@ -145,7 +145,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public int getInstanceCount() {
-		return this.getLocations().length;
+		return cluster.getClusterCount();
 	}
 	
 	@Override
@@ -226,23 +226,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		
-		int instanceCount = getClusterCount();
-		if (instanceCount == 1)
-			return super.getInstanceOffsets();
+		if ( 1 == getClusterCount())
+			return new Coordinate[] { Coordinate.ZERO };
 		
 		List<Coordinate> points = getClusterPoints();
-		if (points.size() != instanceCount) {
-			throw new BugException("Inconsistent cluster configuration, cluster count(" + instanceCount +
-					") != point count(" + points.size()+")");
-		}
 		
-		 
-		Coordinate[] newArray = new Coordinate[ instanceCount];
-		for (int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++) {
-			newArray[ instanceNumber] = this.position.add( points.get(instanceNumber));
-		}
-		
-		return newArray;
+		return points.toArray( new Coordinate[ points.size()]);
 	}
 	
 //	@Override

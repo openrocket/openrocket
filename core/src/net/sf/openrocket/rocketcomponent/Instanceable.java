@@ -3,16 +3,20 @@ package net.sf.openrocket.rocketcomponent;
 import net.sf.openrocket.util.Coordinate;
 
 public interface Instanceable {
-		
-	/**
-	 * Note: <code> this.getLocation().length == this.getInstanceCount() </code> should ALWAYS be true.  If getInstanceCount() returns anything besides 1,
-	 *       this function should be override as well.  
-	 * 
-	 * Note: This is function has a concrete implementation in RocketComponent.java ... it is included here only as a reminder.
-	 * 
-	 * @return coordinates of each instance of this component -- specifically the front center of each instance in global coordinates
-	 */
+	
+	@Deprecated
 	public Coordinate[] getLocations();
+	
+	/**
+	 * Returns vector coordinates of each instance of this component relative to this component's parent
+	 * 
+	 * Note: <code> this.getOffsets().length == this.getInstanceCount() </code> should ALWAYS be true.  
+	 * If getInstanceCount() returns anything besides 1 this function should be overridden as well.  
+	 * 
+	 * 
+	 * @return coordinates location of each instance relative to component's parent
+	 */
+	public Coordinate[] getInstanceLocations();
 	
 	/**
 	 * Returns vector coordinates of each instance of this component relative to this component's reference point (typically front center)

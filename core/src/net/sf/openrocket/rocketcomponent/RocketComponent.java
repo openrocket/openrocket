@@ -1174,20 +1174,47 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 			  of the passed array and return the array itself.
 	 */
 	// @Override Me !
+	public Coordinate[] getInstanceLocations(){
+		int instanceCount = getInstanceCount();
+		if( 0 == instanceCount ){
+			return new Coordinate[]{this.position};
+		}
+
+		checkState();
+
+		Coordinate center = this.position;
+		Coordinate[] offsets = getInstanceOffsets();
+
+		Coordinate[] locations= new Coordinate[offsets.length];
+		for (int instanceNumber = 0; instanceNumber < locations.length; instanceNumber++) {
+			locations[instanceNumber] = center.add( offsets[instanceNumber] );
+		}
+
+		return locations;
+	}
+
 	public Coordinate[] getInstanceOffsets(){
-		return new Coordinate[]{this.position};
+		// According to the language specification, Java will initialized double values to 0.0
+		return new Coordinate[]{Coordinate.ZERO};
+	}
+
+	// this is an inefficient way to calculate all of the locations;
+	// it also breaks locality, (i.e. is a rocket-wide calculation )
+	@Deprecated
+	public Coordinate[] getLocations() {
+		return getComponentLocations();
 	}
 	
-	public Coordinate[] getLocations() {
+	public Coordinate[] getComponentLocations() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 
-			return new Coordinate[] { Coordinate.ZERO };
+			return getInstanceOffsets();
 		} else {
 			Coordinate[] parentPositions = this.parent.getLocations();
 			int parentCount = parentPositions.length;
 			
 			// override <instance>.getInstanceOffsets()  in the subclass you want to fix.
-			Coordinate[] instanceOffsets = this.getInstanceOffsets();
+			Coordinate[] instanceOffsets = this.getInstanceLocations();
 			int instanceCount = instanceOffsets.length;
 			
 			// usual case optimization
@@ -1207,6 +1234,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			}
 			return thesePositions;
 		}
+	}
+	
+	public double[] getInstanceAngles(){
+		return new double[getInstanceCount()]; 
 	}
 	
 	///////////  Coordinate changes  ///////////
@@ -1954,11 +1985,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Helper method to add eight bounds in a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
+	 * Helper method to add two points on opposite corners of a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
 	 */
 	protected static final void addBoundingBox(Collection<Coordinate> bounds, double x_min, double x_max, double r) {
-		addBound(bounds, x_min, r);
-		addBound(bounds, x_max, r);
+		bounds.add(new Coordinate(x_min, -r, -r));
+		bounds.add(new Coordinate(x_max, r, r));
 	}
 	
 	/**

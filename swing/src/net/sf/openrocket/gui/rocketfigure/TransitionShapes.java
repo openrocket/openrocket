@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
@@ -17,21 +18,21 @@ public class TransitionShapes extends RocketComponentShape {
     public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
-		return getShapesSide(component, transformation, instanceOffset, S);
+			Coordinate instanceLocation) {
+		return getShapesSide(component, transformation, instanceLocation, S);
     }
 
     public static RocketComponentShape[] getShapesSide(
-               net.sf.openrocket.rocketcomponent.RocketComponent component,
+                       RocketComponent component,
                        Transformation transformation,
-                       Coordinate componentAbsoluteLocation,
+                       Coordinate instanceAbsoluteLocation,
                        final double scaleFactor) {
-		net.sf.openrocket.rocketcomponent.Transition transition = (net.sf.openrocket.rocketcomponent.Transition)component;
+        
+		Transition transition = (Transition)component;
 
 		RocketComponentShape[] mainShapes;
 		
-		Coordinate frontCenter = transformation.transform( componentAbsoluteLocation );
-		// this component type does not allow multiple instances
+		Coordinate frontCenter = instanceAbsoluteLocation;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
 		if (transition.getType() == Transition.Shape.CONICAL) {
@@ -48,14 +49,14 @@ public class TransitionShapes extends RocketComponentShape {
 			
 			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };
 		} else {
-			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, componentAbsoluteLocation, scaleFactor);
+			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, instanceAbsoluteLocation, scaleFactor);
 		}
 		
 		Rectangle2D.Double foreShoulder=null, aftShoulder=null;
 		int arrayLength = mainShapes.length;
 		
 		if (transition.getForeShoulderLength() > 0.0005) {
-			Coordinate foreTransitionShoulderCenter = componentAbsoluteLocation.sub( transition.getForeShoulderLength()/2, 0, 0);
+			Coordinate foreTransitionShoulderCenter = instanceAbsoluteLocation.sub( transition.getForeShoulderLength()/2, 0, 0);
 			frontCenter = transformation.transform( foreTransitionShoulderCenter);
 					
 			double rad = transition.getForeShoulderRadius();
@@ -64,7 +65,7 @@ public class TransitionShapes extends RocketComponentShape {
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
-			Coordinate aftTransitionShoulderCenter = componentAbsoluteLocation.add( transition.getLength() + (transition.getAftShoulderLength())/2, 0, 0);
+			Coordinate aftTransitionShoulderCenter = instanceAbsoluteLocation.add( transition.getLength() + (transition.getAftShoulderLength())/2, 0, 0);
 			frontCenter= transformation.transform( aftTransitionShoulderCenter );
 		
 			double rad = transition.getAftShoulderRadius();

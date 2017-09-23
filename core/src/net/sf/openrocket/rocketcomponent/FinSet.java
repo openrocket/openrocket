@@ -1,6 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -168,7 +168,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if (n > 8)
 			n = 8;
 		fins = n;
-		finRotation = Transformation.rotate_x(2 * Math.PI / fins);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -186,7 +185,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	/**
 	 * Sets the base rotation amount of the first fin.
-	 * @param r The base rotation amount.
+	 * @param r The base rotation in radians
 	 */
 	public void setBaseRotation(double r) {
 		setAngularOffset(r);
@@ -596,58 +595,17 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		BoundingBox singleFinBounds= new BoundingBox( getFinPoints());
+		final double finLength = singleFinBounds.max.x;
+		final double finHeight = singleFinBounds.max.y;
 		
-		// should simply return this component's bounds in this component's body frame.
+		BoundingBox compBox = new BoundingBox( getComponentLocations() );
 		
-		double x_min = Double.MAX_VALUE;
-		double x_max = Double.MIN_VALUE;
-		double r_max = 0.0;
+		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
+												compBox.max.add( finLength, finHeight, finHeight ));
 		
-		for (Coordinate point : getFinPoints()) {
-			double hypot = MathUtil.hypot(point.y, point.z);
-			double x_cur = point.x;
-			if (x_min > x_cur) {
-				x_min = x_cur;
-			}
-			if (x_max < x_cur) {
-				x_max = x_cur;
-			}
-			if (r_max < hypot) {
-				r_max = hypot;
-			}
-		}
-		
-		addBoundingBox(bounds, x_min, x_max, r_max);
-		return bounds;
+		return finSetBox.toCollection();
 	}
-	
-//	/**
-//	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
-//	 * all fin rotations.
-//	 */
-//	private void addFinBound(Collection<Coordinate> set, double x, double y) {
-//		Coordinate c;
-//		int i;
-//		
-//		c = new Coordinate(x, y, thickness / 2);
-//		c = baseRotation.transform(c);
-//		set.add(c);
-//		for (i = 1; i < fins; i++) {
-//			c = finRotation.transform(c);
-//			set.add(c);
-//		}
-//		
-//		c = new Coordinate(x, y, -thickness / 2);
-//		c = baseRotation.transform(c);
-//		set.add(c);
-//		for (i = 1; i < fins; i++) {
-//			c = finRotation.transform(c);
-//			set.add(c);
-//		}
-//	}
-//	
-//	
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -672,8 +630,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		s = this.getParent();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
-				double x = this.toRelative(new Coordinate(0, 0, 0), s)[0].x;
-				return ((SymmetricComponent) s).getRadius(x);
+				return ((SymmetricComponent) s).getRadius( this.position.x);
 			}
 			s = s.getParent();
 		}
@@ -747,16 +704,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	@Override
 	public double getAngularOffset() {
-		ComponentAssembly stage = this.getAssembly();
-		if( PodSet.class.isAssignableFrom( stage.getClass() )){
-			PodSet assembly= (PodSet)stage;
-			return assembly.getAngularOffset() + baseRotationValue;
-		}else if( ParallelStage.class.isAssignableFrom( stage.getClass())){
-			ParallelStage assembly = (ParallelStage)stage;
-			log.debug("detected p-stage with position: "+assembly.getAngularOffset());
-			return assembly.getAngularOffset() + baseRotationValue;
-		}
-		
 		return baseRotationValue;
 	}
 
@@ -782,10 +729,30 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		double[] result = new double[ getFinCount()]; 
 		for( int i=0; i<getFinCount(); ++i){
-			result[i] = baseAngle + incrAngle*i;
+			double currentAngle = baseAngle + incrAngle*i;
+			if( Math.PI*2 <= currentAngle)
+				currentAngle -= Math.PI*2;
+			result[i] = currentAngle;
 		}
 		
 		return result;
+	}
+
+	@Override
+	public Coordinate[] getInstanceOffsets(){
+		checkState();
+		
+		final int finCount = getFinCount();
+		double radius = this.getBodyRadius();
+		Coordinate[] toReturn = new Coordinate[finCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < finCount; instanceNumber++) {
+			final double curY = radius * Math.cos(angles[instanceNumber]);
+			final double curZ = radius * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
+		}
+		
+		return toReturn;
 	}
 
 	@Override

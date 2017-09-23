@@ -76,22 +76,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return BodyComponent.class.isAssignableFrom(type);
 	}
-	
-	@Override
-	public Coordinate[] getInstanceOffsets(){
-		checkState();
-		
-		Coordinate center = Coordinate.ZERO;
-		Coordinate[] toReturn = new Coordinate[this.instanceCount];
-		final double[] angles = getInstanceAngles();
-		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
-			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
-			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
-			toReturn[instanceNumber] = center.add(0, curY, curZ );
-		}
-		
-		return toReturn;
-	}
+
 		
 	@Override
 	public double getInstanceAngleIncrement(){
@@ -112,30 +97,18 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
-	public Coordinate[] getLocations() {
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
+	public Coordinate[] getInstanceOffsets(){
+		checkState();
+		
+		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
+			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
+			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
 		}
 		
-		if (this.isAfter()) {
-			return super.getLocations();
-		} else {
-			Coordinate[] parentInstances = this.parent.getLocations();
-			if (1 != parentInstances.length) {
-				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
-						"(assumed reason for getting multiple parent locations into an external stage.)");
-			}
-			
-			final Coordinate center = parentInstances[0].add( this.position);
-			Coordinate[] instanceLocations = this.getInstanceOffsets();
-			Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
-			for( int i = 0; i < toReturn.length; i++){
-				toReturn[i] = center.add( instanceLocations[i]); 
-			}
-			
-			return toReturn;
-		}
-		
+		return toReturn;
 	}
 	
 	@Override

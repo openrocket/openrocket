@@ -242,6 +242,19 @@ public class Transformation implements java.io.Serializable {
 		System.out.println();
 	}
 	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
+				rotation[X][X],rotation[X][Y],rotation[X][Z],translate.x));
+		sb.append(String.format("[%3.2f %3.2f %3.2f] + [%3.2f]\n",
+				rotation[Y][X],rotation[Y][Y],rotation[Y][Z],translate.y));
+		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
+				rotation[Z][X],rotation[Z][Y],rotation[Z][Z],translate.z));
+		return sb.toString();
+	}
+	
 	
 	@Override
 	public boolean equals(Object other) {
