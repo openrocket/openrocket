@@ -82,7 +82,7 @@ public class ScaleDialog extends JDialog {
 		List<Scaler> list;
 		
 		// RocketComponent
-		addScaler(RocketComponent.class, "PositionValue");
+		addScaler(RocketComponent.class, "RelativePosition");
 		SCALERS.get(RocketComponent.class).add(new OverrideScaler());
 		
 		// BodyComponent
@@ -589,6 +589,8 @@ public class ScaleDialog extends JDialog {
 				mass = mass * MathUtil.pow3(multiplier);
 				component.setOverrideMass(mass);
 			}
+
+			//TODO: Fix overridden pressure!
 		}
 		
 	}

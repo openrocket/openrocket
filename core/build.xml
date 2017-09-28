@@ -43,7 +43,7 @@
 		<pathelement location="${classes.dir}"/>
 	</path>
 
-	
+
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
@@ -88,7 +88,7 @@
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
-		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
+		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath" includeantruntime="false"/>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
