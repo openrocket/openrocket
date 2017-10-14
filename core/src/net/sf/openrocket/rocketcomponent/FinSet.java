@@ -779,6 +779,11 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public void setRadialOffset(double radius) {
 		// no-op.  Not allowed for fins		
 	}
+	
+	@Override
+	public void setAutoRadialOffset( final boolean auto ) {
+		// no-op.  Fins are *always* automatically positioned
+	}
 
 	@Override
 	public void setInstanceCount(int newCount) {

@@ -16,9 +16,11 @@ public interface RingInstanceable extends Instanceable, AnglePositionable, Radiu
 	
 	
 	@Override
+	public boolean getAutoRadialOffset();
+	@Override
 	public double getRadialOffset();
 	@Override
-	public boolean getAutoRadialOffset();
+	public void setAutoRadialOffset( final boolean auto );
 	@Override
 	public void setRadialOffset(final double radius);
 	
