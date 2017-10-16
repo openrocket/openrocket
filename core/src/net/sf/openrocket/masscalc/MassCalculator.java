@@ -8,6 +8,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -26,7 +27,7 @@ public class MassCalculator implements Monitorable {
 	
 	private int rocketMassModID = -1;
 	private int rocketTreeModID = -1;
-	
+	private FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID;
 	
 	/*
 	 * Cached data.  All CG data is in absolute coordinates.  All moments of inertia
@@ -321,7 +322,6 @@ public class MassCalculator implements Monitorable {
 		
 		// if instanced, adjust children's data too. 
 		if ( 1 < component.getInstanceCount() ){
-			
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
 			final double curIzz = childrenData.getIzz(); // MOI about z axis
@@ -404,9 +404,11 @@ public class MassCalculator implements Monitorable {
 	 */
 	protected final boolean checkCache(FlightConfiguration configuration) {
 		if (rocketMassModID != configuration.getRocket().getMassModID() ||
-				rocketTreeModID != configuration.getRocket().getTreeModID()) {
+				rocketTreeModID != configuration.getRocket().getTreeModID() ||
+				configId != configuration.getId()) {
 			rocketMassModID = configuration.getRocket().getMassModID();
 			rocketTreeModID = configuration.getRocket().getTreeModID();
+			configId = configuration.getId();
 			voidMassCache();
 			return false;
 		}
