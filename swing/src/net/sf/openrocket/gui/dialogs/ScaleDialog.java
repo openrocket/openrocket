@@ -82,7 +82,7 @@ public class ScaleDialog extends JDialog {
 		List<Scaler> list;
 		
 		// RocketComponent
-		addScaler(RocketComponent.class, "RelativePosition");
+		addScaler(RocketComponent.class, "AxialOffset");
 		SCALERS.get(RocketComponent.class).add(new OverrideScaler());
 		
 		// BodyComponent
