@@ -585,7 +585,18 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		return fins * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
 	}
 	
-	
+
+	public BoundingBox getBoundingBox() {
+		BoundingBox singleFinBounds= new BoundingBox( getFinPoints());
+		final double finLength = singleFinBounds.max.x;
+		final double finHeight = singleFinBounds.max.y;
+		
+		BoundingBox compBox = new BoundingBox( getComponentLocations() );
+		
+		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
+												compBox.max.add( finLength, finHeight, finHeight ));
+		return finSetBox; 
+	}
 	
 	/**
 	 * Adds bounding coordinates to the given set.  The body tube will fit within the
@@ -595,16 +606,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		BoundingBox singleFinBounds= new BoundingBox( getFinPoints());
-		final double finLength = singleFinBounds.max.x;
-		final double finHeight = singleFinBounds.max.y;
-		
-		BoundingBox compBox = new BoundingBox( getComponentLocations() );
-		
-		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
-												compBox.max.add( finLength, finHeight, finHeight ));
-		
-		return finSetBox.toCollection();
+		return getBoundingBox().toCollection();
 	}
 	
 	@Override

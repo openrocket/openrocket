@@ -26,7 +26,7 @@ public class TestTransformation {
 	@Test
 	public void testTransformIdentityToOpenGL() {
 		Transformation t = Transformation.IDENTITY;
-		DoubleBuffer buf = t.toGLTransform();
+		DoubleBuffer buf = t.getGLMatrix();
 		
 		assertEquals( 1.0, buf.get(0), 1e-6);
 		assertEquals( 0.0, buf.get(1), 1e-6);
@@ -52,7 +52,7 @@ public class TestTransformation {
 	@Test
 	public void testTransformTranslationToOpenGL() {
 		Transformation translate = new Transformation( 1,2,3 );
-		DoubleBuffer buf = translate.toGLTransform();
+		DoubleBuffer buf = translate.getGLMatrix();
 		
 		assertEquals( 1.0, buf.get(0), 1e-6);
 		assertEquals( 0.0, buf.get(1), 1e-6);
@@ -79,7 +79,7 @@ public class TestTransformation {
 	@Test
 	public void testTransformRotateByPI2ToOpenGL() {
 		Transformation translate = Transformation.getAxialRotation(M_PI_2);
-		DoubleBuffer buf = translate.toGLTransform();
+		DoubleBuffer buf = translate.getGLMatrix();
 		
 		assertEquals( 1.0, buf.get(0), 1e-6);
 		assertEquals( 0.0, buf.get(1), 1e-6);

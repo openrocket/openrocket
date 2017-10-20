@@ -1193,6 +1193,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return locations;
 	}
 
+	/** 
+	 * Provides locations of all instances of component relative to this component's reference point
+	 * 
+	 * <p>
+	 * NOTE: the length of this array returned always equals this.getInstanceCount()
+	 * @return
+	 */
 	public Coordinate[] getInstanceOffsets(){
 		// According to the language specification, Java will initialized double values to 0.0
 		return new Coordinate[]{Coordinate.ZERO};
@@ -1205,6 +1212,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return getComponentLocations();
 	}
 	
+	
+	/** 
+	 * Provides locations of all instances of component *accounting for all parent instancing*
+	 * 
+	 * <p>
+	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
+	 * @return
+	 */
 	public Coordinate[] getComponentLocations() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 

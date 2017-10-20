@@ -16,6 +16,7 @@ import java.util.Iterator;
 
 public class Transformation implements java.io.Serializable {
 
+	public static final double ANGLE_EPSILON = 0.000000001;
 	
 	public static final Transformation IDENTITY = new Transformation();
 	
@@ -214,6 +215,9 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_x(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{1,0,0},
 				{0,Math.cos(theta),-Math.sin(theta)},
@@ -226,6 +230,9 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_y(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{Math.cos(theta),0,Math.sin(theta)},
 				{0,1,0},
@@ -238,6 +245,9 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_z(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{Math.cos(theta),-Math.sin(theta),0},
 				{Math.sin(theta),Math.cos(theta),0},
@@ -337,7 +347,7 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
-	public DoubleBuffer toGLTransform() {
+	public DoubleBuffer getGLMatrix() {
 		double[] data = new double[]{1,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1};
 		
 		// output array is in column-major order
