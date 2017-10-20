@@ -318,10 +318,13 @@ public class MassCalculator implements Monitorable {
 			
 			childrenData  = childrenData.add( childData );
 		}
-		assemblyData = assemblyData.add( childrenData);
+		
+
 		
 		// if instanced, adjust children's data too. 
-		if ( 1 < component.getInstanceCount() ){
+		if( 1 == component.getInstanceCount() ){
+			assemblyData = assemblyData.add( childrenData );
+		}else if( 0 < component.getChildCount()){
 			final double curIxx = childrenData.getIxx(); // MOI about x-axis
 			final double curIyy = childrenData.getIyy(); // MOI about y axis
 			final double curIzz = childrenData.getIzz(); // MOI about z axis
@@ -337,8 +340,8 @@ public class MassCalculator implements Monitorable {
 				//    and add to the total
 				instAccumData = instAccumData.add( instanceData);
 			}
-			
-			assemblyData = instAccumData;
+
+			assemblyData = assemblyData.add( instAccumData );
 		}
 		
 		
