@@ -345,6 +345,10 @@ class DocumentConfig {
 				Math.PI / 180.0));
 		
 		// RadiusRingComponent
+		setters.put("RadiusRingComponent:instancecount", new IntSetter(
+				Reflection.findMethod( RadiusRingComponent.class, "setInstanceCount",int.class)));
+		setters.put("RadiusRingComponent:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( RadiusRingComponent.class, "setInstanceSeparation", double.class)));
 		
 		// Bulkhead
 		setters.put("RadiusRingComponent:innerradius", new DoubleSetter(
@@ -363,12 +367,6 @@ class DocumentConfig {
 				Reflection.findMethod(CenteringRing.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
-		setters.put("CenteringRing:instancecount", new IntSetter(
-				Reflection.findMethod(CenteringRing.class, "setInstanceCount",int.class)));
-		setters.put("CenteringRing:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( CenteringRing.class, "setInstanceSeparation", double.class)));
-		
-
 		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
