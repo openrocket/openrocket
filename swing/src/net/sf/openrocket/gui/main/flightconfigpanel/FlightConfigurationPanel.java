@@ -54,6 +54,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		
 		this.document = doc;
 		this.rocket = doc.getRocket();
+		this.rocket.addChangeListener(this);
 		
 		//JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
 		
@@ -159,7 +160,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
 		if (currentId == null)
 			return;
-		System.err.println(this.rocket.toDebugConfigs());
 		document.removeFlightConfigurationAndSimulations(currentId);
 		configurationChanged();
 	}
@@ -180,7 +180,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		motorConfigurationPanel.fireTableDataChanged();
 		recoveryConfigurationPanel.fireTableDataChanged();
 		separationConfigurationPanel.fireTableDataChanged();
-		updateButtonState();
 	}
 	
 	private void updateButtonState() {
@@ -199,7 +198,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		// Count the number of stages
 		int stageCount = rocket.getStageCount();
 		
-		// Enable the new configuration button only when a motor mount is defined.
+        // Enable the new configuration button only when a motor mount is defined.
 		newConfButton.setEnabled(motorMountCount > 0);
 		
 		// Only enable the recovery tab if there is a motor mount and there is a recovery device
