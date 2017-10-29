@@ -2240,8 +2240,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-	// this method is in need of some refactoring... 
-	//   eventually, combine the stage-instance debug code into here...
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
 		final String prefix = String.format("%s%s", indent, this.getName());
 		
@@ -2250,9 +2248,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// un-instanced RocketComponents (usual case)
 			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s; ", prefix, this.getLength(), this.getOffset(), this.getLocations()[0]));
 			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
-		}else if( this instanceof Clusterable ){
+		}else if( this instanceof Instanceable ){
 			// instanced components -- think motor clusters or booster stage clusters
-			final String patternName = ((Clusterable)this).getPatternName();
+			final String patternName = ((Instanceable)this).getPatternName();
 			buffer.append(String.format("%-40s (cluster: %s )", prefix, patternName));
 			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
 			
