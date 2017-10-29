@@ -79,8 +79,6 @@ public class FinSetShapes extends RocketComponentShape {
         c[2]=new Coordinate(0,height,thickness/2);
         c[3]=new Coordinate(0,height,-thickness/2);
 
-        System.err.println(String.format("         -- %s", transformation.toString() ));
-        
 		// Apply base rotation
 		c = transformation.transform(c);
           
