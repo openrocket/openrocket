@@ -96,7 +96,8 @@ public class DebugLogDialog extends JDialog {
 	private final JCheckBox followBox;
 	private final Timer timer;
 	
-	
+	private final JSplitPane split;
+	private final JPanel bottomPanel;
 	private final JTable table;
 	private final ColumnTableModel model;
 	private final TableRowSorter<TableModel> sorter;
@@ -108,7 +109,6 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
 	
-	@SuppressWarnings("serial")
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
@@ -137,7 +137,7 @@ public class DebugLogDialog extends JDialog {
 		// Create the UI
 		this.setLayout( new MigLayout("fill"));
 		
-		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		split.setDividerLocation(0.7);
 		this.add(split, "grow, pushy 200, growprioy 200");
 		
@@ -160,7 +160,25 @@ public class DebugLogDialog extends JDialog {
 			topPanel.add(box, "gapright unrel");
 			filterButtons.put(l, box);
 		}
-		
+
+        //// Toggle Bottom Details Pane
+        JCheckBox toggleDetailsBox = new JCheckBox(trans.get("debuglogdlg.ToggleDetails"));
+        toggleDetailsBox.setSelected(true);
+        topPanel.add(toggleDetailsBox, "gapright unrel");
+        toggleDetailsBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean isActive = ((JCheckBox)e.getSource()).isSelected();
+                log.info("    toggled to: "+isActive );
+                bottomPanel.setEnabled(isActive);
+                if(isActive) {
+                    split.setDividerLocation(0.5);
+                }else {
+                    split.setDividerLocation(1.0);
+                }
+            }
+        });
+
 		//// Follow
 		followBox = new JCheckBox(trans.get("debuglogdlg.Follow"));
 		followBox.setSelected(true);
@@ -298,7 +316,7 @@ public class DebugLogDialog extends JDialog {
 				"px, height 400px, growy, pushy 200, growprioy 200");
 		
 		
-		JPanel bottomPanel = new JPanel(new MigLayout("fill"));
+		bottomPanel = new JPanel(new MigLayout("fill"));
 		split.add(bottomPanel);
 		
 		//// Log line number:
