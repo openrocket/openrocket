@@ -173,18 +173,18 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	@Override
 	public Coordinate getComponentCG() {
 		Coordinate cg = Coordinate.ZERO;
-		int instanceCount = getInstanceCount();
-		double instanceMass = ringMass(getOuterRadius(), getInnerRadius(), getLength(),
-				getMaterial().getDensity());
+		final int instanceCount = getInstanceCount();
+		final double instanceMass =  ringMass(getOuterRadius(), getInnerRadius(), getLength(), getMaterial().getDensity());
 
 		if (1 == instanceCount ) {
 			cg = new Coordinate( length/2, 0, 0, instanceMass );
 		}else{
 			Coordinate offsets[] = getInstanceOffsets();
 			for( Coordinate c : offsets) {
-				cg = cg.average(c);
+				c = c.setWeight( instanceMass );
+				cg = cg.average(c); 
 			}
-			cg.add( length/2, 0, 0);
+			cg = cg.add( length/2, 0, 0);
 		}
 		return cg;
 	}

@@ -52,7 +52,7 @@ import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -125,8 +125,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
-	private MassCalculator massCalculator;
-
+	
 	private final OpenRocketDocument document;
 
 	private Caret extraCP = null;
@@ -180,8 +179,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		// TODO: FUTURE: calculator selection
 		aerodynamicCalculator = new BarrowmanCalculator();
-		massCalculator = new MassCalculator();
-
+		
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(rkt);
 		figure3d = new RocketFigure3d(document);
@@ -595,7 +593,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		extraText.setTheta(cpTheta);
 
-		cg = massCalculator.getRocketLaunchMassData( curConfig).getCG();
+		cg = MassCalculator.calculateLaunch( curConfig).getCM();
 
 		if (cp.weight > MassCalculator.MIN_MASS){
 			cpx = cp.x;
@@ -634,8 +632,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		}
 
-		MassData emptyInfo = massCalculator.getRocketSpentMassData( curConfig.getRocket().getEmptyConfiguration());
-
+		RigidBody emptyInfo = MassCalculator.calculateStructure( curConfig );
+		
 		extraText.setCG(cgx);
 		extraText.setCP(cpx);
 		extraText.setLength(length);

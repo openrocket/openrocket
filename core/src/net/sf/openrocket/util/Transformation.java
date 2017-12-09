@@ -122,7 +122,6 @@ public class Transformation implements java.io.Serializable {
 		return new Coordinate(x,y,z,orig.weight);
 	}
 	
-	
 	/**
 	 * Transform an array of coordinates.  The transformed coordinates are stored
 	 * in the same array, and the array is returned.
@@ -255,6 +254,13 @@ public class Transformation implements java.io.Serializable {
 	}
 	
 	
+	public boolean isIdentity() {
+		if( this == Transformation.IDENTITY ) {
+			return true;
+		}
+		return this.equals( Transformation.IDENTITY );
+	}
+	
 	
 	public void print(String... str) {
 		for (String s: str) {
@@ -363,6 +369,10 @@ public class Transformation implements java.io.Serializable {
 		data[14] = this.translate.z;
 		
 		return DoubleBuffer.wrap(data);		
+	}
+	
+	public Coordinate getTranslationVector() {
+		return this.translate;
 	}
 	
 }

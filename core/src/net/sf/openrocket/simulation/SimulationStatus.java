@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -101,7 +102,6 @@ public class SimulationStatus implements Monitorable {
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
 		FlightConditions cond = new FlightConditions(this.configuration);
-		this.simulationConditions.getAerodynamicCalculator().getWorstCP(this.configuration, cond, null);
 		double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 		

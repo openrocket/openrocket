@@ -3,7 +3,7 @@ package net.sf.openrocket.simulation;
 import java.util.Collection;
 
 import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
@@ -110,53 +110,47 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @return			the mass data to use
 	 * @throws SimulationException	if a listener throws SimulationException
 	 */
-	protected MassData calculateDryMassData(SimulationStatus status) throws SimulationException {
-		MassData mass;
+	protected RigidBody calculateStructureMass(SimulationStatus status) throws SimulationException {
+		RigidBody structureMass;
 		
 		// Call pre-listener
-		mass = SimulationListenerHelper.firePreMassCalculation(status);
-		if (mass != null) {
-			return mass;
+		structureMass = SimulationListenerHelper.firePreMassCalculation(status);
+		if (structureMass != null) {
+			return structureMass;
 		}
 		
-		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
-
-		mass = calc.getRocketSpentMassData( status.getConfiguration() );  
+		structureMass = MassCalculator.calculateStructure( status.getConfiguration() );  
 						
 		// Call post-listener
-		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
+		structureMass = SimulationListenerHelper.firePostMassCalculation(status, structureMass);
 		
-		checkNaN(mass.getCG());
-		checkNaN(mass.getLongitudinalInertia());
-		checkNaN(mass.getRotationalInertia());
+		checkNaN(structureMass.getCenterOfMass());
+		checkNaN(structureMass.getLongitudinalInertia());
+		checkNaN(structureMass.getRotationalInertia());
 		
-		return mass;
+		return structureMass;
 	}
 	
-	protected MassData calculatePropellantMassData(SimulationStatus status) throws SimulationException {
-		MassData mass;
+	protected RigidBody calculateMotorMass(SimulationStatus status) throws SimulationException {
+		RigidBody motorMass;
 		
 		// Call pre-listener
-		mass = SimulationListenerHelper.firePreMassCalculation(status);
-		if (mass != null) {
-			return mass;
+		motorMass = SimulationListenerHelper.firePreMassCalculation(status);
+		if (motorMass != null) {
+			return motorMass;
 		}
 		
-		MassCalculator calc = status.getSimulationConditions().getMassCalculator();
-		
-		
-		
-		mass = calc.getPropellantMassData( status );  
+		motorMass = MassCalculator.calculateMotor( status );  
 
 				
 		// Call post-listener
-		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
+		motorMass = SimulationListenerHelper.firePostMassCalculation(status, motorMass);
 		
-		checkNaN(mass.getCG());
-		checkNaN(mass.getLongitudinalInertia());
-		checkNaN(mass.getRotationalInertia());
+		checkNaN(motorMass.getCenterOfMass());
+		checkNaN(motorMass.getLongitudinalInertia());
+		checkNaN(motorMass.getRotationalInertia());
 		
-		return mass;
+		return motorMass;
 	}
 	
 	

@@ -212,36 +212,6 @@ public class TestRockets {
 				.build();
 	}
 	
-	// 
-	public static Rocket makeNoMotorRocket() {
-		Rocket rocket;
-		AxialStage stage;
-		NoseCone nosecone;
-		BodyTube bodytube;
-		
-		rocket = new Rocket();
-		stage = new AxialStage();
-		stage.setName("Stage1");
-		// Stage construction
-		rocket.addChild(stage);
-				
-		nosecone = new NoseCone(Transition.Shape.ELLIPSOID, 0.105, 0.033);
-		nosecone.setThickness(0.001);
-		bodytube = new BodyTube(0.69, 0.033, 0.001);
-		bodytube.setMotorMount(true);
-		
-		TrapezoidFinSet finset = new TrapezoidFinSet(3, 0.495, 0.1, 0.3, 0.185);
-		finset.setThickness(0.005);
-		bodytube.addChild(finset);
-		
-		// Component construction
-		stage.addChild(nosecone);
-		stage.addChild(bodytube);
-		
-		rocket.enableEvents();
-		return rocket;
-	}
-	
 	/**
 	 * Create a new test rocket based on the value 'key'.  The rocket utilizes most of the 
 	 * properties and features available.  The same key always returns the same rocket,
@@ -877,7 +847,11 @@ public class TestRockets {
 		return rocket;
 	}
 	
-	public final static String FALCON_9_FCID_1="test_config #1: [ M1350, G77]";
+	public final static String FALCON_9H_FCID_1="test_config #1: [ M1350, G77]";
+	public final static int FALCON_9H_PAYLOAD_STAGE_NUMBER=0;
+	public final static int FALCON_9H_CORE_STAGE_NUMBER=1;
+	public final static int FALCON_9H_BOOSTER_STAGE_NUMBER=2;
+	
 	
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
@@ -885,7 +859,7 @@ public class TestRockets {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
 
-		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9_FCID_1 ));
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9H_FCID_1 ));
         rocket.setSelectedConfiguration(selFCID);
 
 		// ====== Payload Stage ======

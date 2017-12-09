@@ -17,6 +17,7 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -92,11 +93,9 @@ public class RocksimSaver extends RocketSaver {
 	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
 		RocketDesignDTO result = new RocketDesignDTO();
 		
-		MassCalculator massCalc = new MassCalculator();
-		
 		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
-		final double cg = massCalc.getRocketSpentMassData(configuration).getCM().x *
-				RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+		final RigidBody spentData = MassCalculator.calculateStructure( configuration);
+		final double cg = spentData.cm.x *RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
 		int stageCount = rocket.getStageCount();
 		if (stageCount == 3) {

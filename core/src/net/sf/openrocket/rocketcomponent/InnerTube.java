@@ -134,15 +134,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		}
 	}
 	
-	/**
-	 * Return the number of tubes in the cluster.
-	 * @return Number of tubes in the current cluster.
-	 */
-	@Override
-	public int getClusterCount() {
-		return cluster.getClusterCount();
-	}
-	
 	@Override
 	public int getInstanceCount() {
 		return cluster.getClusterCount();
@@ -212,9 +203,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return 2 * getOuterRadius() * clusterScale;
 	}
 	
-	
 	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(getClusterCount());
+		List<Coordinate> list = new ArrayList<Coordinate>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
 		for (int i = 0; i < points.size() / 2; i++) {
@@ -226,7 +216,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		
-		if ( 1 == getClusterCount())
+		if ( 1 == getInstanceCount())
 			return new Coordinate[] { Coordinate.ZERO };
 		
 		List<Coordinate> points = getClusterPoints();

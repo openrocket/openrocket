@@ -167,6 +167,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return stages.get(stageNumber).active;
 	}
 	
+	
+	// this method is deprecated because it ignores instancing of parent components (e.g. Strapons or pods )
+	// if you're calling this method, you're probably not getting the numbers you expect.
+	@Deprecated
 	public Collection<RocketComponent> getActiveComponents() {
 		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.getActiveStages());
 		ArrayList<RocketComponent> toReturn = new ArrayList<>();

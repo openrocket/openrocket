@@ -336,6 +336,11 @@ public final class Coordinate implements Cloneable, Serializable {
 			return String.format("(%.3f,%.3f,%.3f)", x, y, z);
 	}
 	
+	// high-precision output, for use with verifying calculations
+	public String toPreciseString() {
+		return String.format("cm= %.8fg @[%.8f,%.8f,%.8f]", weight, x, y, z);
+	}
+	
 	@Override
 	public Coordinate clone() {
 		return new Coordinate(this.x, this.y, this.z, this.weight);

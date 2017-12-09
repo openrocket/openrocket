@@ -1,6 +1,5 @@
 package net.sf.openrocket.simulation;
 
-import net.sf.openrocket.masscalc.MassData;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -39,8 +38,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
 		double dragForce = totalCD * dynP * refArea;
-		MassData massData = calculateDryMassData(status);
-		double mass = massData.getCG().weight;
+		double mass = calculateStructureMass(status).getMass();
 		
 
 		// Compute drag acceleration
