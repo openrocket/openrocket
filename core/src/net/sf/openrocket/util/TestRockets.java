@@ -27,6 +27,7 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
@@ -400,11 +401,14 @@ public class TestRockets {
 		return values[rnd.nextInt(values.length)];
 	}
 	
-	public final static String ESTES_ALPHA_III_FCID_1="test_config #1: A8-0";
-	public final static String ESTES_ALPHA_III_FCID_2="test_config #2: B4-3";
-	public final static String ESTES_ALPHA_III_FCID_3="test_config #3: C6-3";
-	public final static String ESTES_ALPHA_III_FCID_4="test_config #4: C6-5";
-	public final static String ESTES_ALPHA_III_FCID_5="test_config #5: C6-7";
+	final static FlightConfigurationId ESTES_ALPHA_III_FCID[] = { 
+			null, // treat the array as 1-indexed.   
+			new FlightConfigurationId("test_config #1: A8-0"), 
+			new FlightConfigurationId("test_config #2: B4-3"),
+			new FlightConfigurationId("test_config #3: C6-3"),
+			new FlightConfigurationId("test_config #4: C6-5"),
+			new FlightConfigurationId("test_config #5: C6-7"),
+	};
 	
 	// This is a Estes Alpha III 
 	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
@@ -413,11 +417,11 @@ public class TestRockets {
 	public static final Rocket makeEstesAlphaIII(){
 		Rocket rocket = new Rocket();
 		FlightConfigurationId fcid[] = new FlightConfigurationId[5];
-		fcid[0] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_1 ));
-		fcid[1] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_2 ));
-		fcid[2] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_3 ));
-		fcid[3] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_4 ));
-		fcid[4] = rocket.createFlightConfiguration( new FlightConfigurationId( ESTES_ALPHA_III_FCID_5 ));
+		fcid[0] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[1] );
+		fcid[1] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[2] );
+		fcid[2] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[3] );
+		fcid[3] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[4] );
+		fcid[4] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[5] );
 		
 		
 		rocket.setName("Estes Alpha III / Code Verification Rocket");
@@ -555,249 +559,72 @@ public class TestRockets {
 	
 	// This is an extra stage tacked onto the end of an Estes Alpha III 
 	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
-	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	// 
+	// This function is used for unit, integration tests, DO NOT CHANGE WITHOUT UPDATING TESTS
 	public static final Rocket makeBeta(){
-		Rocket rocket = new Rocket();
+		Rocket rocket = makeEstesAlphaIII();
 		rocket.setName("Kit-bash Beta");
-		AxialStage sustainerStage = new AxialStage();
-		sustainerStage.setName("Sustainer Stage");
-		rocket.addChild(sustainerStage);
-		FlightConfigurationId fcid[] = new FlightConfigurationId[5];
-		for( int i=0; i< fcid.length; ++i){
-			fcid[i] = new FlightConfigurationId();
-			rocket.createFlightConfiguration(fcid[i]);
-		}
-
-		double noseconeLength = 0.07;
-		double noseconeRadius = 0.012;
-		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, noseconeLength, noseconeRadius);
-		nosecone.setAftShoulderLength(0.025);
-		nosecone.setAftShoulderRadius(0.012);
-		nosecone.setName("Nose Cone");
-		sustainerStage.addChild(nosecone);
 		
-		double bodytubeLength = 0.20;
-		double bodytubeRadius = 0.012;
-		double bodyTubeThickness = 0.0003;
-		BodyTube bodytube = new BodyTube(bodytubeLength, bodytubeRadius, bodyTubeThickness);
-		bodytube.setName("Body Tube");
-		sustainerStage.addChild(bodytube);
+		AxialStage sustainerStage = (AxialStage)rocket.getChild(0);
+		sustainerStage.setName( "Sustainer Stage");
+		BodyTube sustainerBody = (BodyTube)sustainerStage.getChild(1);
+		final double sustainerRadius = sustainerBody.getAftRadius();
+		final double sustainerThickness = sustainerBody.getThickness();
 		
-		TrapezoidFinSet finset;
+		AxialStage boosterStage = new AxialStage();
+		boosterStage.setName("Booster Stage");
+		rocket.addChild( boosterStage );
 		{
-			int finCount = 3;
-			double finRootChord = .05;
-			double finTipChord = .03;
-			double finSweep = 0.02;
-			double finHeight = 0.05;
-			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
-			finset.setThickness( 0.0032);
-			finset.setRelativePosition(Position.BOTTOM);
-			finset.setName("3 Fin Set");
-			bodytube.addChild(finset);
-			
-			LaunchLug lug = new LaunchLug();
-			lug.setName("Launch Lugs");
-			lug.setRelativePosition(Position.TOP);
-			lug.setAxialOffset(0.111);
-			lug.setLength(0.050);
-			lug.setOuterRadius(0.0022);
-			lug.setInnerRadius(0.0020);
-			bodytube.addChild(lug);
-			
-			InnerTube inner = new InnerTube();
-			inner.setRelativePosition(Position.TOP);
-			inner.setAxialOffset(0.133);
-			inner.setLength(0.07);
-			inner.setOuterRadius(0.009);
-			inner.setThickness(0.0003);
-			inner.setMotorMount(true);
-			inner.setName("Motor Mount Tube");
-			bodytube.addChild(inner);
-			
+			BodyTube boosterBody = new BodyTube(0.06, sustainerRadius, sustainerThickness);
+			boosterBody.setName("Booster Body");
+			boosterStage.addChild( boosterBody);
 			{
-				// MotorBlock 
-				EngineBlock thrustBlock= new EngineBlock();
-				thrustBlock.setRelativePosition(Position.TOP);
-				thrustBlock.setAxialOffset(0.0);
-				thrustBlock.setLength(0.005);
-				thrustBlock.setOuterRadius(0.009);
-				thrustBlock.setThickness(0.0008);
-				thrustBlock.setName("Engine Block");
-				inner.addChild(thrustBlock);
-				inner.setMotorMount( true);
+				TubeCoupler coupler = new TubeCoupler();
+				coupler.setName("Coupler");
+				coupler.setOuterRadiusAutomatic(true);
+				coupler.setThickness( sustainerThickness );
+				coupler.setLength(0.03);
+				coupler.setRelativePosition(Position.TOP);
+				coupler.setAxialOffset(-0.015);
+				boosterBody.addChild(coupler);
 				
-				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[0]);
-					Motor mtr = TestRockets.generateMotor_A8_18mm();
-					motorConfig.setEjectionDelay(0.0);
-					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[0]);
-				}
-				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[1]);
-					Motor mtr = TestRockets.generateMotor_B4_18mm();
-					motorConfig.setEjectionDelay(3.0);
-					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[1]);
-				}
-				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[2]);
-					Motor mtr = TestRockets.generateMotor_C6_18mm();
-					motorConfig.setEjectionDelay(3.0);
-					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[2]);
-				}
-				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[3]);
-					Motor mtr = TestRockets.generateMotor_C6_18mm();
-					motorConfig.setEjectionDelay(5.0);
-					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[3]);
-				}
-				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[4]);
-					Motor mtr = TestRockets.generateMotor_C6_18mm();
-					motorConfig.setEjectionDelay(7.0);
-					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[4]);
-				}
-			}
-		
-			// parachute
-			Parachute chute = new Parachute();
-			chute.setRelativePosition(Position.TOP);
-			chute.setName("Parachute");
-			chute.setAxialOffset(0.028);
-			chute.setOverrideMass(0.002);
-			chute.setMassOverridden(true);
-			bodytube.addChild(chute);
-			
-			// bulkhead x2
-			CenteringRing centerings = new CenteringRing();
-			centerings.setName("Centering Rings");
-			centerings.setRelativePosition(Position.TOP);
-			centerings.setAxialOffset(0.14);
-			centerings.setLength(0.006);
-			centerings.setInstanceCount(2);
-			centerings.setInstanceSeparation(0.035);
-			bodytube.addChild(centerings);
-		}
-		
-		Material material = Application.getPreferences().getDefaultComponentMaterial(null, Material.Type.BULK);
-		nosecone.setMaterial(material);
-		bodytube.setMaterial(material);
-		finset.setMaterial(material);
-		
-		{
-			AxialStage boosterStage = new AxialStage();
-			boosterStage.setName("Booster");
-			
-			BodyTube boosterTube = new BodyTube(0.06, bodytubeRadius, bodyTubeThickness);
-			boosterStage.addChild(boosterTube);
-			
-			TubeCoupler coupler = new TubeCoupler();
-			coupler.setName("Interstage");
-			coupler.setOuterRadiusAutomatic(true);
-			coupler.setThickness( bodyTubeThickness);
-			coupler.setLength(0.03);
-			coupler.setRelativePosition(Position.TOP);
-			coupler.setAxialOffset(-1.5);
-			boosterTube.addChild(coupler);
-			
-			int finCount = 3;
-			double finRootChord = .05;
-			double finTipChord = .03;
-			double finSweep = 0.02;
-			double finHeight = 0.05;
-			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
-			finset.setThickness( 0.0032);
-			finset.setRelativePosition(Position.BOTTOM);
-			finset.setAxialOffset(1);
-			finset.setName("Booster Fins");
-			boosterTube.addChild(finset);
-			
-			// Motor mount
-			InnerTube boosterMMT = new InnerTube();
-			boosterMMT.setName("Booster MMT");
-			boosterMMT.setAxialOffset(0.005);
-			boosterMMT.setRelativePosition(Position.BOTTOM);
-			boosterMMT.setOuterRadius(0.019 / 2);
-			boosterMMT.setInnerRadius(0.018 / 2);
-			boosterMMT.setLength(0.075);
-			boosterTube.addChild(boosterMMT);
-			
-			rocket.addChild(boosterStage);
+				int finCount = 3;
+				double finRootChord = .05;
+				double finTipChord = .03;
+				double finSweep = 0.02;
+				double finHeight = 0.05;
+				FinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
+				finset.setName("Booster Fins");
+				finset.setThickness( 0.0032);
+				finset.setRelativePosition(Position.BOTTOM);
+				finset.setAxialOffset(0.);
+				boosterBody.addChild(finset);
 
-			boosterMMT.setMotorMount(true);
-			{
-				MotorConfiguration motorConfig= new MotorConfiguration(boosterMMT,fcid[0]);
-				Motor mtr = generateMotor_D21_18mm();
-				motorConfig.setMotor(mtr);
-				boosterMMT.setMotorConfig( motorConfig, fcid[0]);
+				// Motor mount
+				InnerTube boosterMMT = new InnerTube();
+				boosterMMT.setName("Booster MMT");
+				boosterMMT.setAxialOffset(0.005);
+				boosterMMT.setRelativePosition(Position.BOTTOM);
+				boosterMMT.setOuterRadius(0.019 / 2);
+				boosterMMT.setInnerRadius(0.018 / 2);
+				boosterMMT.setLength(0.05);
+				boosterMMT.setMotorMount(true);
+				{
+					MotorConfiguration motorConfig= new MotorConfiguration(boosterMMT, ESTES_ALPHA_III_FCID[1] );
+					Motor mtr = generateMotor_D21_18mm();
+					motorConfig.setMotor(mtr);
+					boosterMMT.setMotorConfig( motorConfig, ESTES_ALPHA_III_FCID[1]);
+				}
+				boosterBody.addChild(boosterMMT);
 			}
-
 		}
+
+		rocket.setSelectedConfiguration( ESTES_ALPHA_III_FCID[1] );
 		rocket.getSelectedConfiguration().setAllStages();
-		rocket.setSelectedConfiguration( fcid[0] );
 		rocket.enableEvents();
+		
 		return rocket;
 	}
-	
-	
-	public static Rocket makeSmallFlyable() {
-		double noseconeLength = 0.10, noseconeRadius = 0.01;
-		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
-		
-		int finCount = 3;
-		@SuppressWarnings("unused")
-		double finRootChord = 0.04, finTipChord = 0.05, finSweep = 0.01, finThickness = 0.003, finHeight = 0.03;
-		
-		Rocket rocket;
-		AxialStage stage;
-		NoseCone nosecone;
-		BodyTube bodytube;
-		TrapezoidFinSet finset;
-		
-		rocket = new Rocket();
-		stage = new AxialStage();
-		stage.setName("Stage1");
-		
-		nosecone = new NoseCone(Transition.Shape.ELLIPSOID, noseconeLength, noseconeRadius);
-		bodytube = new BodyTube(bodytubeLength, bodytubeRadius, bodytubeThickness);
-		
-		finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
-		
-		// Stage construction
-		rocket.addChild(stage);
-		
-		// Component construction
-		stage.addChild(nosecone);
-		stage.addChild(bodytube);
-		
-		bodytube.addChild(finset);
-		
-		Material material = Application.getPreferences().getDefaultComponentMaterial(null, Material.Type.BULK);
-		nosecone.setMaterial(material);
-		bodytube.setMaterial(material);
-		finset.setMaterial(material);
-		
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		FlightConfigurationId fcid = config.getFlightConfigurationID();
-		
-		ThrustCurveMotor motor = getTestMotor();
-		MotorConfiguration instance = new MotorConfiguration( bodytube, fcid );
-		instance.setMotor( motor);
-		instance.setEjectionDelay(5);
-		
-		bodytube.setMotorConfig( instance, fcid);
-		bodytube.setMotorOverhang(0.005);
-		
-		config.setAllStages();
-		rocket.enableEvents();
-		return rocket;
-	}
-	
 	
 	public static Rocket makeBigBlue() {
 		Rocket rocket;
@@ -1592,7 +1419,7 @@ public class TestRockets {
 	
 	
 	public static OpenRocketDocument makeTestRocket_v107_withSimulationExtension(String script) {
-		Rocket rocket = makeSmallFlyable();
+		Rocket rocket = makeEstesAlphaIII();
 		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		Simulation sim = new Simulation(rocket);
 		ScriptingExtension ext = new ScriptingExtension();

@@ -14,6 +14,8 @@ import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class RocketTest extends BaseTestCase {
 
+	final double EPSILON = MathUtil.EPSILON;
+
 	@Test
 	public void testCopyIndependence() {
 		Rocket rkt1 = TestRockets.makeEstesAlphaIII();
@@ -54,7 +56,6 @@ public class RocketTest extends BaseTestCase {
 
 	@Test
 	public void testEstesAlphaIII(){
-		final double EPSILON = MathUtil.EPSILON;
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 			
 //		String treeDump = rocket.toDebugTree();
@@ -141,4 +142,41 @@ public class RocketTest extends BaseTestCase {
 		}
 	}
 	
+	@Test
+	public void testBeta(){
+		Rocket rocket = TestRockets.makeBeta();
+
+		AxialStage boosterStage= (AxialStage)rocket.getChild(1);
+
+		Coordinate expLoc;
+		Coordinate actLoc;
+		Coordinate actLocs[];
+		{
+			BodyTube body = (BodyTube)boosterStage.getChild(0);
+			Coordinate[] bodyLocs = body.getComponentLocations();
+			expLoc = new Coordinate(0.27, 0, 0);
+			assertThat(body.getName()+" not positioned correctly: ", bodyLocs[0], equalTo(expLoc));
+
+			{
+				TubeCoupler coupler = (TubeCoupler)body.getChild(0);
+				actLocs = coupler.getComponentLocations();
+				expLoc = new Coordinate(0.255, 0, 0);
+				assertThat(coupler.getName()+" not positioned correctly: ", actLocs[0], equalTo(expLoc) );
+
+				FinSet fins = (FinSet)body.getChild(1);
+				actLocs = fins.getComponentLocations();
+				assertThat(fins.getName()+" have incorrect count: ", fins.getInstanceCount(), equalTo(3));
+				{ // fin #1
+					expLoc = new Coordinate(0.28, 0.012, 0);
+					assertThat(fins.getName()+" not positioned correctly: ", actLocs[0], equalTo(expLoc));
+				}
+
+				InnerTube mmt = (InnerTube)body.getChild(2);
+				actLoc = mmt.getComponentLocations()[0];
+				expLoc = new Coordinate(0.285, 0, 0);
+				assertThat(mmt.getName()+" not positioned correctly: ", actLoc, equalTo( expLoc ));
+			}
+		}
+	}
+
 }

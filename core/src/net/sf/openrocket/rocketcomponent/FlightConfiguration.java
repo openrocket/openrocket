@@ -399,16 +399,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (rocket.getModID() != boundsModID) {
 			boundsModID = rocket.getModID();
 			
-//			System.err.println(String.format(">> generating bounds for configuration: %s   (%d)(%s)", getName(), this.instanceNumber, getId() )); 
-			
 			BoundingBox bounds = new BoundingBox();
 			
 			for (RocketComponent component : this.getActiveComponents()) {
 				BoundingBox componentBounds = new BoundingBox( component.getComponentBounds() );				
 				
 				bounds.compare( componentBounds );
-				
-//				System.err.println(String.format("    [%s]     %s      >>     %s", component.getName(), componentBounds.toString(), bounds.toString() ));
 			}
 			
 			cachedLength = bounds.span().x;

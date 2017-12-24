@@ -20,7 +20,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 	 */
 	@Test
 	public void testEmptyRocket() {
-		Rocket r1 = TestRockets.makeSmallFlyable();
+		Rocket r1 = TestRockets.makeEstesAlphaIII();
 		FlightConfiguration config = r1.getSelectedConfiguration();
 		
 		FlightConfiguration configClone = config.clone();
@@ -28,16 +28,35 @@ public class FlightConfigurationTest extends BaseTestCase {
 		assertTrue(config.getRocket() == configClone.getRocket());
 	}
 	
-	/**
-	 * Test flight configuration ID methods
-	 */
+
+	@Test
+	public void testFlightConfigurationRocketLength() {
+		Rocket rocket = TestRockets.makeBeta();
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		rocket.setSelectedConfiguration( config.getId() );
+
+		config.setAllStages();
+
+		// preconditions
+		assertThat("active stage count doesn't match", config.getActiveStageCount(), equalTo(2));
+
+		final double expectedLength = 0.33;
+		final double calculatedLength = config.getLength();
+		assertEquals("source config length doesn't match: ", expectedLength, calculatedLength, EPSILON);
+
+		double expectedReferenceLength = 0.024;
+		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, config.getReferenceLength(), EPSILON);
+
+		double expectedReferenceArea = Math.pow(expectedReferenceLength/2,2)*Math.PI;
+		double actualReferenceArea = config.getReferenceArea();
+		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea, EPSILON);
+	}
+	
+
 	@Test
 	public void testCloneBasic() {
 		Rocket rkt1 = TestRockets.makeBeta();
 		FlightConfiguration config1 = rkt1.getSelectedConfiguration();
-		
-//		final String treedump = rkt1.toDebugTree();
-//		System.err.println("treedump: \n" + treedump);
 		
 		// preconditions
 		config1.setAllStages();
@@ -48,14 +67,13 @@ public class FlightConfigurationTest extends BaseTestCase {
 		int actualMotorCount = config1.getActiveMotors().size();
 		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
 		double expectedLength = 0.33;
-		double actualLength = config1.getLength();
-		assertEquals("source config length doesn't match: ", expectedLength, actualLength, EPSILON);
+		assertEquals("source config length doesn't match: ", expectedLength, config1.getLength(), EPSILON);
 		double expectedReferenceLength = 0.024;
-		double actualReferenceLength = config1.getReferenceLength();
-		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, actualReferenceLength, EPSILON);
+		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, config1.getReferenceLength(), EPSILON);
 		double expectedReferenceArea = Math.pow(expectedReferenceLength/2,2)*Math.PI;
 		double actualReferenceArea = config1.getReferenceArea();
 		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea, EPSILON);
+
 
 		// vvvv test target vvvv 
 		FlightConfiguration config2= config1.clone();
@@ -68,12 +86,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 		expectedMotorCount = 2;
 		actualMotorCount = config2.getActiveMotors().size();
 		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
-		actualLength = config2.getLength();
-		assertEquals("source config length doesn't match: ", expectedLength, actualLength, EPSILON);
-		actualReferenceLength = config2.getReferenceLength();
-		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, actualReferenceLength, EPSILON);
-		actualReferenceArea = config2.getReferenceArea();
-		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea, EPSILON);
+		assertEquals("source config length doesn't match: ", expectedLength, config2.getLength(), EPSILON);
+		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, config2.getReferenceLength(), EPSILON);
+		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, config2.getReferenceArea(), EPSILON);
 
 	}
 	
