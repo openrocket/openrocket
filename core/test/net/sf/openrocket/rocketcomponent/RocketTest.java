@@ -62,86 +62,80 @@ public class RocketTest extends BaseTestCase {
 		
 		AxialStage stage= (AxialStage)rocket.getChild(0);
 		
-		NoseCone nose = (NoseCone)stage.getChild(0);
-		BodyTube body = (BodyTube)stage.getChild(1);
-		FinSet fins = (FinSet)body.getChild(0);
-		LaunchLug lug = (LaunchLug)body.getChild(1);
-		InnerTube mmt = (InnerTube)body.getChild(2);
-		EngineBlock block = (EngineBlock)mmt.getChild(0);
-		Parachute chute = (Parachute)body.getChild(3);
-		CenteringRing center = (CenteringRing)body.getChild(4);
-		
-		
-		RocketComponent cc;
 		Coordinate expLoc;
 		Coordinate actLoc;
 		{
-			cc = nose;
+			NoseCone nose = (NoseCone)stage.getChild(0);
 			expLoc = new Coordinate(0,0,0);
-			actLoc = cc.getLocations()[0];
-			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+			actLoc = nose.getComponentLocations()[0];
+			assertThat(nose.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
-			cc = body;
+			BodyTube body = (BodyTube)stage.getChild(1);
 			expLoc = new Coordinate(0.07,0,0);
-			actLoc = cc.getLocations()[0];
-			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+			actLoc = body.getComponentLocations()[0];
+			assertThat(body.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
 			{	
-				cc = fins;
-				expLoc = new Coordinate(0.22,0,0);
-				actLoc = cc.getLocations()[0];
-				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
-				
-				cc = lug;
+				FinSet fins = (FinSet)body.getChild(0);
+				Coordinate actLocs[] = fins.getComponentLocations();
+				assertThat(fins.getName()+" have incorrect count: ", fins.getInstanceCount(), equalTo(3));
+				{ // fin #1
+					expLoc = new Coordinate(0.22,0.012,0);
+					assertThat(fins.getName()+" not positioned correctly: ", actLocs[0], equalTo(expLoc));
+				}
+
+				LaunchLug lugs = (LaunchLug)body.getChild(1);
 				expLoc = new Coordinate(0.181, 0.015, 0);
-				actLoc = cc.getLocations()[0];
-				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
-				
-				cc = mmt;
+				assertThat(lugs.getName()+" have incorrect count: ", lugs.getInstanceCount(), equalTo(1));
+				actLocs = lugs.getComponentLocations();
+				{ // singular instance:
+					assertThat(lugs.getName()+" not positioned correctly: ", actLocs[0], equalTo(expLoc));
+				}
+
+				InnerTube mmt = (InnerTube)body.getChild(2);
 				expLoc = new Coordinate(0.203,0,0);
-				actLoc = cc.getLocations()[0];
-				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+				actLoc = mmt.getComponentLocations()[0];
+				assertThat(mmt.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				{
-					cc = block;
+					EngineBlock block = (EngineBlock)mmt.getChild(0);
 					expLoc = new Coordinate(0.203,0,0);
-					actLoc = cc.getLocations()[0];
-					assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+					actLoc = block.getComponentLocations()[0];
+					assertThat(block.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 				}
 				
 			}
-			
-			cc = chute;
+
+			Parachute chute = (Parachute)body.getChild(3);
 			expLoc = new Coordinate(0.098,0,0);
-			actLoc = cc.getLocations()[0];
-			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+			actLoc = chute.getComponentLocations()[0];
+			assertThat(chute.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			
-			cc = center;
-			assertThat(cc.getName()+" not instanced correctly: ", cc.getInstanceCount(), equalTo(2));
+			CenteringRing ring = (CenteringRing)body.getChild(4);
+			assertThat(ring.getName()+" not instanced correctly: ", ring.getInstanceCount(), equalTo(2));
 			// singleton instances follow different code paths
-			center.setInstanceCount(1);
+			ring.setInstanceCount(1);
 			expLoc = new Coordinate(0.21,0,0);
-			actLoc = cc.getLocations()[0];
+			actLoc = ring.getComponentLocations()[0];
 			assertEquals(" position x fail: ", expLoc.x, actLoc.x, EPSILON);
 			assertEquals(" position y fail: ", expLoc.y, actLoc.y, EPSILON);
 			assertEquals(" position z fail: ", expLoc.z, actLoc.z, EPSILON);
-			assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+			assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 
-			cc = center;
-			center.setInstanceCount(2);
-			Coordinate actLocs[] = cc.getLocations();
+			ring.setInstanceCount(2);
+			Coordinate actLocs[] = ring.getComponentLocations();
 			{ // first instance
 //				assertEquals(" position x fail: ", expLoc.x, actLoc.x, EPSILON);
 //				assertEquals(" position y fail: ", expLoc.y, actLoc.y, EPSILON);
 //				assertEquals(" position z fail: ", expLoc.z, actLoc.z, EPSILON);
 				expLoc = new Coordinate(0.21, 0, 0);
 				actLoc = actLocs[0];
-				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+				assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}
 			{ // second instance
-				assertThat(cc.getName()+" not instanced correctly: ", cc.getInstanceCount(), equalTo(2));
+				assertThat(ring.getName()+" not instanced correctly: ", ring.getInstanceCount(), equalTo(2));
 				expLoc = new Coordinate(0.245, 0, 0);
 				actLoc = actLocs[1];
-				assertThat(cc.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
+				assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}
 			
 		}

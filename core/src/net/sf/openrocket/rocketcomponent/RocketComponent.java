@@ -1175,11 +1175,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	// @Override Me !
 	public Coordinate[] getInstanceLocations(){
-		int instanceCount = getInstanceCount();
-		if( 0 == instanceCount ){
-			return new Coordinate[]{this.position};
-		}
-
 		checkState();
 
 		Coordinate center = this.position;
