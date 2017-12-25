@@ -5,9 +5,6 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
@@ -22,9 +19,6 @@ import net.sf.openrocket.util.PolyInterpolator;
 
 
 public class FinSetCalc extends RocketComponentCalc {
-	
-	/** logger for debugging*/
-	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
 	
 	/** considers the stall angle as 20 degrees*/
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
@@ -83,8 +77,8 @@ public class FinSetCalc extends RocketComponentCalc {
 	}
 	
 	/*
-	 * Calculates the non-axial forces produced by the fins (normal and side forces,
-	 * pitch, yaw and roll moments, CP position, CNa).
+	 * Calculates the non-axial forces produced by *one* *instance* of the fins.
+	 * (normal and side forces, pitch, yaw and roll moments, CP position, CNa).
 	 */
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions,
@@ -130,7 +124,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			cna = cna1 * mul;
 		} else {
 			// Basic CNa assuming full efficiency
-			cna = cna1 * finCount / 2.0;
+			cna = cna1 / 2.0;
 		}
 		
 		//		logger.debug("Component cna = {}", cna);
