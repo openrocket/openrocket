@@ -340,7 +340,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 						}
 
 						InnerTube tube = (InnerTube) component;
-						if (tube.getClusterCount() <= 1)
+						if (tube.getInstanceCount() <= 1)
 							return;
 
 						document.addUndoPosition("Split cluster");

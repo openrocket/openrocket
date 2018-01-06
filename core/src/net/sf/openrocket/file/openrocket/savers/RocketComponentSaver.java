@@ -84,25 +84,23 @@ public class RocketComponentSaver {
 		
 		if ( c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
-			if( 1 < instanceCount ){
-				if( c instanceof Clusterable ){
-					; // no-op.  Instance counts are set via named cluster configurations
+			if( c instanceof Clusterable ){
+				; // no-op.  Instance counts are set via named cluster configurations
+			}
+			if( c instanceof LineInstanceable ){
+				LineInstanceable line = (LineInstanceable)c;
+				emitInteger( elements, "instancecount", instanceCount );
+				emitDouble( elements, "instanceseparation", line.getInstanceSeparation());
+			}
+			if( c instanceof RingInstanceable){
+				RingInstanceable ring = (RingInstanceable)c;
+				emitInteger( elements, "instancecount", instanceCount );
+				if( ring.getAutoRadialOffset() ){
+					emitString(elements, "radialoffset", "auto");
+				}else{
+					emitDouble( elements, "radialoffset", ring.getRadialOffset() );
 				}
-				if( c instanceof LineInstanceable ){
-					LineInstanceable line = (LineInstanceable)c;
-					emitString( elements, "instancecount", Integer.toString( instanceCount ) );
-					emitDouble( elements, "linseparation", line.getInstanceSeparation());
-				}
-				if( c instanceof RingInstanceable){
-					RingInstanceable ring = (RingInstanceable)c;
-					emitString( elements, "instancecount", Integer.toString( instanceCount ));
-					if( ring.getAutoRadialOffset() ){
-						emitString(elements, "radialoffset", "auto");
-					}else{
-						emitDouble( elements, "radialoffset", ring.getRadialOffset() );
-					}
-					emitDouble( elements, "angularoffset", ring.getAngularOffset()*180.0/Math.PI);
-				}
+				emitDouble( elements, "angularoffset", ring.getAngularOffset()*180.0/Math.PI);
 			}
 		}
 		
@@ -250,11 +248,15 @@ public class RocketComponentSaver {
 	}
 	
     protected static void emitDouble( final List<String> elements, final String enclosingTag, final double value){
-    	emitString( elements, enclosingTag, Double.toString( value ));
+    		emitString( elements, enclosingTag, Double.toString( value ));
+    }
+
+    protected static void emitInteger( final List<String> elements, final String enclosingTag, final int value){
+    		elements.add("<"+enclosingTag+">" +  Integer.toString( value ) + "</"+enclosingTag+">");
     }
 
     protected static void emitString( final List<String> elements, final String enclosingTag, final String value){
-    	elements.add("<"+enclosingTag+">" + value + "</"+enclosingTag+">");
+    		elements.add("<"+enclosingTag+">" + value + "</"+enclosingTag+">");
     }
 
 

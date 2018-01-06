@@ -24,14 +24,14 @@ public class DisplayListComponentRenderer extends ComponentRenderer {
 	}
 	
 	@Override
-	protected void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
+	protected void renderInstance(GL2 gl, RocketComponent c, Surface which) {
 		Key k = new Key(c, which);
 		if (lists.containsKey(k)) {
 			gl.glCallList(lists.get(k));
 		} else {
 			int list = gl.glGenLists(1);
 			gl.glNewList(list, GL2.GL_COMPILE_AND_EXECUTE);
-			super.renderGeometry(gl, c, which);
+			super.renderInstance(gl, c, which);
 			gl.glEndList();
 			lists.put(k, list);
 		}

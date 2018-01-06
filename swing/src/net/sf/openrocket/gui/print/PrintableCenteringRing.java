@@ -74,7 +74,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         List<Coordinate> points = new ArrayList<Coordinate>();
         //Transform the radial positions of the tubes.
         for (InnerTube it : theMotorMounts) {
-            if (it.getClusterCount() > 1) {
+            if (it.getInstanceCount() > 1) {
                 List<Coordinate> c = it.getClusterPoints();
                 for (Coordinate coordinate : c) {
                     points.add(coordinate.setX(it.getOuterRadius()));

@@ -63,7 +63,7 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 24.146933;
 		double exp_cpx_fins = 0.0193484;
 				
-		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa(), EPSILON);
+		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa()*fins.getInstanceCount(), EPSILON);
 		assertEquals(" FinSetCalc produces bad C_p.x: ", exp_cpx_fins, forces.getCP().x, EPSILON);
 		assertEquals(" FinSetCalc produces bad CN: ", 0.0, forces.getCN(), EPSILON);
 		assertEquals(" FinSetCalc produces bad C_m: ", 0.0, forces.getCm(), EPSILON);
@@ -97,7 +97,7 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 32.195911;
 		double exp_cpx_fins = 0.0193484;
 				
-		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa(), EPSILON);
+		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa()*fins.getFinCount(), EPSILON);
 		assertEquals(" FinSetCalc produces bad C_p.x: ", exp_cpx_fins, forces.getCP().x, EPSILON);
 		assertEquals(" FinSetCalc produces bad CN: ", 0.0, forces.getCN(), EPSILON);
 		assertEquals(" FinSetCalc produces bad C_m: ", 0.0, forces.getCm(), EPSILON);

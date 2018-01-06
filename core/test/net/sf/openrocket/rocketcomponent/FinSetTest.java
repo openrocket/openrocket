@@ -58,6 +58,83 @@ public class FinSetTest extends BaseTestCase {
 	}
 	
 	@Test
+	public void testInstancePoints_PI_2_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/2 );
+		
+		BodyTube body = new BodyTube(1.0, 0.05 );
+		body.addChild( fins );
+		
+		Coordinate[] points = fins.getInstanceOffsets();
+		
+		assertEquals( 0, points[0].x, 0.00001);
+		assertEquals( 0, points[0].y, 0.00001);
+		assertEquals( 0.05, points[0].z, 0.00001);
+		
+		assertEquals( 0, points[1].x, 0.00001);
+		assertEquals( -0.05, points[1].y, 0.00001);
+		assertEquals( 0, points[1].z, 0.00001);		
+	}
+			
+	@Test
+	public void testInstancePoints_PI_4_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/4 );
+		
+		BodyTube body = new BodyTube(1.0, 0.05 );
+		body.addChild( fins );
+		
+		Coordinate[] points = fins.getInstanceOffsets();
+		
+		assertEquals( 0, points[0].x, 0.0001);
+		assertEquals( 0.03535, points[0].y, 0.0001);
+		assertEquals( 0.03535, points[0].z, 0.0001);
+		
+		assertEquals( 0, points[1].x, 0.0001);
+		assertEquals( -0.03535, points[1].y, 0.0001);
+		assertEquals( 0.03535, points[1].z, 0.0001);	
+	}
+			
+	
+	@Test
+	public void testInstanceAngles_zeroBaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( 0.0 );
+
+		double[] angles = fins.getInstanceAngles();
+			
+		assertEquals( angles[0], 0, 0.000001 );
+		assertEquals( angles[1], Math.PI/2, 0.000001 );
+		assertEquals( angles[2], Math.PI, 0.000001 );
+		assertEquals( angles[3], 1.5*Math.PI, 0.000001 );
+	}
+	
+	@Test
+	public void testInstanceAngles_90_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/2 );
+
+		double[] angles = fins.getInstanceAngles();
+			
+		assertEquals( angles[0], Math.PI/2, 0.000001 );
+		assertEquals( angles[1], Math.PI, 0.000001 );
+		assertEquals( angles[2], 1.5*Math.PI, 0.000001 );
+		assertEquals( angles[3], 0, 0.000001 );
+	}
+	
+	@Test
 	public void testFreeformCGComputation() throws Exception {
 		
 		{

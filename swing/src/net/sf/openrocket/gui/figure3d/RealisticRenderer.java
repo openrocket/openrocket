@@ -75,11 +75,6 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	@Override
-	public boolean isDrawn(RocketComponent c) {
-		return true;
-	}
-	
-	@Override
 	public boolean isDrawnTransparent(RocketComponent c) {
 		// if there is any degree of transparency, then...
 		if (getAppearance(c).getPaint().getAlpha()<255){
@@ -90,22 +85,23 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	protected void renderMotor(final GL2 gl, final Motor motor) {
-		render(gl, cr.getGeometry(motor, Surface.OUTSIDE), DefaultAppearance.getDefaultAppearance(motor), true, 1);
+	    render(gl, cr.getMotorGeometry(motor), Surface.OUTSIDE, DefaultAppearance.getDefaultAppearance(motor), true, 1);
 	}
 	
 	@Override
-	public void renderComponent(final GL2 gl, final RocketComponent c, final float alpha) {
-		if (getAppearance(c).getPaint().getAlpha()<255){
+	public void renderComponent(final GL2 gl, Geometry geom, final float alpha) {
+	    Appearance app = getAppearance( geom.getComponent() );
+	    if (app.getPaint().getAlpha()<255){
 			// if transparent, draw inside the same as the outside so we dont get a cardboard interior on a clear payload bay
-			render(gl, cr.getGeometry(c, Surface.INSIDE), getAppearance(c), true, alpha);
+			render(gl, geom, Surface.INSIDE, app, true, alpha);
 		}else{
-			render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, 1.0f);
+			render(gl, geom, Surface.INSIDE, DefaultAppearance.getDefaultAppearance(geom.getComponent()), true, 1.0f);
 		}
-		render(gl, cr.getGeometry(c, Surface.OUTSIDE), getAppearance(c), true, alpha);
-		render(gl, cr.getGeometry(c, Surface.EDGES), getAppearance(c), false, alpha);
+		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
+		render(gl, geom, Surface.EDGES, app, false, alpha);
 	}
 	
-	private void render(GL2 gl, Geometry g, Appearance a, boolean decals, float alpha) {
+	private void render(GL2 gl, Geometry g, Surface which, Appearance a, boolean decals, float alpha) {
 		final Decal t = a.getTexture();
 		final Texture tex = textures.getTexture(t);
 		
@@ -123,7 +119,7 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int) (100 * a.getShine()));
 		
 		
-		g.render(gl);
+		g.render(gl,which);
 		
 		if (decals && t != null && tex != null) {
 			
@@ -161,7 +157,7 @@ public class RealisticRenderer extends RocketRenderer {
 				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
 			}
 			
-			g.render(gl);
+			g.render(gl,which);
 			
 			if (t.getEdgeMode() == Decal.EdgeMode.STICKER) {
 				gl.glDepthFunc(GL.GL_LESS);

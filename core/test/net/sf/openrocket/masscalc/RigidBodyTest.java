@@ -9,7 +9,8 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-public class MassDataTest extends BaseTestCase {
+
+public class RigidBodyTest extends BaseTestCase {
 	
 	// tolerance for compared double test results
 	protected final double EPSILON = MathUtil.EPSILON;
@@ -22,20 +23,21 @@ public class MassDataTest extends BaseTestCase {
 		Coordinate r1 = new Coordinate(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		RigidBody body1 = new RigidBody(r1, I1ax, I1t);
 		
 		double m2 = 5.7;
 		Coordinate r2 = new Coordinate(0, 32, 0, m2);
 		double I2ax=20;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		RigidBody body2 = new RigidBody(r2, I2ax, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
-		MassData asbly3 = body1.add(body2);
+		RigidBody asbly3 = body1.add(body2);
 		
 		Coordinate cm3_expected = r1.average(r2);
+		
 		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
-				
+		
 		// these are a bit of a hack, and depend upon all the bodies being along the y=0, z=0 line.
 		Coordinate delta13 = asbly3.getCM().sub( r1);
 		Coordinate delta23 = asbly3.getCM().sub( r2);
@@ -68,16 +70,16 @@ public class MassDataTest extends BaseTestCase {
 		Coordinate r1 = new Coordinate(0,-40, -10, m1);
 		double I1xx=28.7;
 		double I1t = I1xx/2;
-		MassData body1 = new MassData(r1, I1xx, I1t);
+		RigidBody body1 = new RigidBody(r1, I1xx, I1t);
 		
 		double m2 = 5.7;
 		Coordinate r2 = new Coordinate(0, 32, 15, m2);
 		double I2xx=20;
 		double I2t = I2xx/2;
-		MassData body2 = new MassData(r2, I2xx, I2t);
+		RigidBody body2 = new RigidBody(r2, I2xx, I2t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
-		MassData asbly3 = body1.add(body2);
+		RigidBody asbly3 = body1.add(body2);
 		
 		Coordinate cm3_expected = r1.average(r2);
 		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM() );
@@ -113,30 +115,30 @@ public class MassDataTest extends BaseTestCase {
 	
 
 	@Test
-	public void testMassDataCompoundCalculations() {
+	public void testRigidBodyCompoundCalculations() {
 		double m1 = 2.5;
 		Coordinate r1 = new Coordinate(0,-40, 0, m1);
 		double I1ax=28.7;
 		double I1t = I1ax/2;
-		MassData body1 = new MassData(r1, I1ax, I1t);
+		RigidBody body1 = new RigidBody(r1, I1ax, I1t);
 		
 		double m2 = m1;
 		Coordinate r2 = new Coordinate(0, -2, 0, m2);
 		double I2ax=28.7;
 		double I2t = I2ax/2;
-		MassData body2 = new MassData(r2, I2ax, I2t);
+		RigidBody body2 = new RigidBody(r2, I2ax, I2t);
 		
 		double m5 = 5.7;
 		Coordinate r5 = new Coordinate(0, 32, 0, m5);
 		double I5ax=20;
 		double I5t = I5ax/2;
-		MassData body5 = new MassData(r5, I5ax, I5t);
+		RigidBody body5 = new RigidBody(r5, I5ax, I5t);
 		
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
-		MassData asbly3 = body1.add(body2);
+		RigidBody asbly3 = body1.add(body2);
 		
 		// point 4 is defined as the CM of bodies 1, 2 and 5 combined.
-		MassData asbly4_indirect = asbly3.add(body5);
+		RigidBody asbly4_indirect = asbly3.add(body5);
 		Coordinate cm4_expected = r1.average(r2).average(r5);
 		
 		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected, new Coordinate( 0, 7.233644859813085, 0, m1+m2+m5 ) );
@@ -154,14 +156,11 @@ public class MassDataTest extends BaseTestCase {
 		double I4xx = I14ax+I24ax+I54ax;
 		double I4yy = I1t+I2t+I5t;
 		double I4zz = I14zz+I24zz+I54zz;
-		MassData asbly4_expected = new MassData( cm4_expected, I4xx, I4yy, I4zz);
+		RigidBody asbly4_expected = new RigidBody( cm4_expected, I4xx, I4yy, I4zz);
 
 		assertEquals("x-axis MOI don't match: ", asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON*10);
-
 		assertEquals("y-axis MOI don't match: ", asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON*10);
-		
 		assertEquals("z-axis MOI don't match: ", asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON*10);
 	}
-	
 	
 }

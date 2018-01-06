@@ -72,6 +72,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.title = title;
 		}
 		
+		public Position[] getAxialOptions(){
+			return new Position[]{ TOP, MIDDLE, BOTTOM, ABSOLUTE};
+		}
+		
 		@Override
 		public String toString() {
 			return title;
@@ -1170,20 +1174,57 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 			  of the passed array and return the array itself.
 	 */
 	// @Override Me !
+	public Coordinate[] getInstanceLocations(){
+		checkState();
+
+		Coordinate center = this.position;
+		Coordinate[] offsets = getInstanceOffsets();
+
+		Coordinate[] locations= new Coordinate[offsets.length];
+		for (int instanceNumber = 0; instanceNumber < locations.length; instanceNumber++) {
+			locations[instanceNumber] = center.add( offsets[instanceNumber] );
+		}
+
+		return locations;
+	}
+
+	/** 
+	 * Provides locations of all instances of component relative to this component's reference point
+	 * 
+	 * <p>
+	 * NOTE: the length of this array returned always equals this.getInstanceCount()
+	 * @return
+	 */
 	public Coordinate[] getInstanceOffsets(){
-		return new Coordinate[]{this.position};
+		// According to the language specification, Java will initialized double values to 0.0
+		return new Coordinate[]{Coordinate.ZERO};
+	}
+
+	// this is an inefficient way to calculate all of the locations;
+	// it also breaks locality, (i.e. is a rocket-wide calculation )
+	@Deprecated
+	public Coordinate[] getLocations() {
+		return getComponentLocations();
 	}
 	
-	public Coordinate[] getLocations() {
+	
+	/** 
+	 * Provides locations of all instances of component *accounting for all parent instancing*
+	 * 
+	 * <p>
+	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
+	 * @return
+	 */
+	public Coordinate[] getComponentLocations() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 
-			return new Coordinate[] { Coordinate.ZERO };
+			return getInstanceOffsets();
 		} else {
-			Coordinate[] parentPositions = this.parent.getLocations();
+			Coordinate[] parentPositions = this.parent.getComponentLocations();
 			int parentCount = parentPositions.length;
 			
 			// override <instance>.getInstanceOffsets()  in the subclass you want to fix.
-			Coordinate[] instanceOffsets = this.getInstanceOffsets();
+			Coordinate[] instanceOffsets = this.getInstanceLocations();
 			int instanceCount = instanceOffsets.length;
 			
 			// usual case optimization
@@ -1205,6 +1246,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
+	public double[] getInstanceAngles(){
+		return new double[getInstanceCount()]; 
+	}
+	
 	///////////  Coordinate changes  ///////////
 	
 	/**
@@ -1219,7 +1264,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		final String lockText = "toAbsolute";
 		mutex.lock(lockText);
-		Coordinate[] thesePositions = this.getLocations();
+		Coordinate[] thesePositions = this.getComponentLocations();
 		
 		final int instanceCount = thesePositions.length;
 		
@@ -1628,6 +1673,25 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	/**
+	 * Return the first component assembly component that this component belongs to.
+	 *
+	 * @return	The Stage component this component belongs to.
+	 * @throws	IllegalStateException   if we cannot find an AxialStage above <code>this</code> 
+	 */
+	public final ComponentAssembly getAssembly() {
+		checkState();
+
+		RocketComponent curComponent = this;
+		while ( null != curComponent ) {
+			if( ComponentAssembly.class.isAssignableFrom( curComponent.getClass()))
+				return (ComponentAssembly) curComponent;
+			curComponent = curComponent.parent;
+		}
+		throw new IllegalStateException("getAssembly() called on hierarchy without a ComponentAssembly.");
+	}
+	
+	
+	/**
 	 * Return the stage number of the stage this component belongs to.  The stages
 	 * are numbered from zero upwards.
 	 *
@@ -1931,11 +1995,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Helper method to add eight bounds in a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
+	 * Helper method to add two points on opposite corners of a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
 	 */
 	protected static final void addBoundingBox(Collection<Coordinate> bounds, double x_min, double x_max, double r) {
-		addBound(bounds, x_min, r);
-		addBound(bounds, x_max, r);
+		bounds.add(new Coordinate(x_min, -r, -r));
+		bounds.add(new Coordinate(x_max, r, r));
 	}
 	
 	/**
@@ -2172,6 +2236,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
 		buffer.append("     [Name]                               [Length]          [Rel Pos]                [Abs Pos]  \n");
 		this.toDebugTreeHelper(buffer, "");
+		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
 		return buffer.toString();
 	}
 	
@@ -2186,29 +2251,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-	// this method is in need of some refactoring... 
-	//   eventually, combine the stage-instance debug code into here...
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
-		final String prefix = String.format("%s%s", indent, this.getName());
-		
-		// 1) instanced vs non-instanced
-		if( 1 == getInstanceCount() ){
-			// un-instanced RocketComponents (usual case)
-			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s; ", prefix, this.getLength(), this.getOffset(), this.getLocations()[0]));
-			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
-		}else if( this instanceof Clusterable ){
-			// instanced components -- think motor clusters or booster stage clusters
-			final String patternName = ((Clusterable)this).getPatternName();
-			buffer.append(String.format("%-40s (cluster: %s )", prefix, patternName));
-			buffer.append(String.format("(offset: %4.1f  via: %s )\n", this.getAxialOffset(), this.relativePosition.name()));
-			
-			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
-				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount());
-				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(), getOffset(), getLocations()[0]));
-			}
-		}else{
-			throw new IllegalStateException("This is a developer error! If you implement an instanced class, please subclass the Clusterable interface.");
+		String prefix = String.format("%s%s", indent, this.getName());
+		if( 0 < this.getInstanceCount() ){
+			prefix = prefix + String.format(" (x%d)", this.getInstanceCount() );
 		}
+		
+		buffer.append(String.format("%-40s|  %6.4f; %24s; %24s; \n", prefix, getLength(), getOffset().toPreciseString(), getComponentLocations()[0].toPreciseString() )); 
 		
 		// 2) if this is an ACTING motor mount:
 		if(( this instanceof MotorMount ) &&( ((MotorMount)this).isMotorMount())){ 
@@ -2222,10 +2271,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public void toDebugMountNode(final StringBuilder buffer, final String indent) {		
 		MotorMount mnt = (MotorMount)this;
 
-		Coordinate[] relCoords = this.getInstanceOffsets();
-		Coordinate[] absCoords = this.getLocations();
+//		Coordinate[] relCoords = this.getInstanceOffsets();
+		Coordinate[] absCoords = this.getComponentLocations();
 		FlightConfigurationId curId = this.getRocket().getSelectedConfiguration().getFlightConfigurationID();
-		final int intanceCount = this.getInstanceCount();
+//		final int instanceCount = this.getInstanceCount();
 		MotorConfiguration curInstance = mnt.getMotorConfig( curId);
 		if( curInstance.isEmpty() ){
 			// print just the tube locations
@@ -2234,6 +2283,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// curInstance has a motor ... 
 			Motor curMotor = curInstance.getMotor();
 			final double motorOffset = this.getLength() - curMotor.getLength();
+			final String instancePrefix = String.format("%s    [ */%2d]", indent, getInstanceCount());
 			
 			buffer.append(String.format("%-40sThrust: %f N; \n", 
 					indent+"  Mounted: "+curMotor.getDesignation(), curMotor.getMaxThrustEstimate() ));
@@ -2241,9 +2291,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
 			Coordinate tubeAbs = absCoords[0];
 			Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x+motorOffset,tubeAbs.y,tubeAbs.z);
-			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", indent, curMotor.getLength(), motorRelativePosition, motorAbsolutePosition));
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, curMotor.getLength(), motorRelativePosition, motorAbsolutePosition));
 			
 		}
+	}
+
+	public boolean isMotorMount() {
+		return false;
 	}
 	
 }

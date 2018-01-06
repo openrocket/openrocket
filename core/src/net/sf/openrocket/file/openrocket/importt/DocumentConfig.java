@@ -187,7 +187,7 @@ class DocumentConfig {
 		// RailButton
 		setters.put("RailButton:instancecount", new IntSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceCount",int.class)));
-		setters.put("RailButton:linseparation",  new DoubleSetter(
+		setters.put("RailButton:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
 		setters.put("RailButton:angularoffset",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setAngularOffset", double.class), Math.PI / 180.0));
@@ -242,8 +242,16 @@ class DocumentConfig {
 		// FinSet
 		setters.put("FinSet:fincount", new IntSetter(
 				Reflection.findMethod(FinSet.class, "setFinCount", int.class)));
+		setters.put("FinSet:instancecount", new IntSetter(
+				Reflection.findMethod(FinSet.class, "setInstanceCount", int.class)));
 		setters.put("FinSet:rotation", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
+		setters.put("FinSet:angularoffset", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setAngularOffset", double.class), Math.PI / 180.0));
+		setters.put("FinSet:radialoffset", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setRadialOffset", double.class),
+				"auto",
+				Reflection.findMethod(FinSet.class, "setAutoRadialOffset", boolean.class)));
 		setters.put("FinSet:thickness", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setThickness", double.class)));
 		setters.put("FinSet:crosssection", new EnumSetter<FinSet.CrossSection>(
@@ -261,6 +269,7 @@ class DocumentConfig {
 		setters.put("FinSet:filletmaterial", new MaterialSetter(
 				Reflection.findMethod(FinSet.class, "setFilletMaterial", Material.class),
 				Material.Type.BULK));
+		
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
@@ -336,6 +345,10 @@ class DocumentConfig {
 				Math.PI / 180.0));
 		
 		// RadiusRingComponent
+		setters.put("RadiusRingComponent:instancecount", new IntSetter(
+				Reflection.findMethod( RadiusRingComponent.class, "setInstanceCount",int.class)));
+		setters.put("RadiusRingComponent:instanceseparation",  new DoubleSetter(
+				Reflection.findMethod( RadiusRingComponent.class, "setInstanceSeparation", double.class)));
 		
 		// Bulkhead
 		setters.put("RadiusRingComponent:innerradius", new DoubleSetter(
@@ -354,12 +367,6 @@ class DocumentConfig {
 				Reflection.findMethod(CenteringRing.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
-		setters.put("CenteringRing:instancecount", new IntSetter(
-				Reflection.findMethod(CenteringRing.class, "setInstanceCount",int.class)));
-		setters.put("CenteringRing:instanceseparation",  new DoubleSetter(
-				Reflection.findMethod( CenteringRing.class, "setInstanceSeparation", double.class)));
-		
-
 		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
@@ -425,10 +432,18 @@ class DocumentConfig {
 		setters.put("PodSet:instancecount", new IntSetter(
 				Reflection.findMethod(PodSet.class, "setInstanceCount",int.class)));
 		setters.put("PodSet:radialoffset", new DoubleSetter(
-				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class)));
+				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class),
+				"auto",
+				Reflection.findMethod(PodSet.class, "setAutoRadialOffset", boolean.class)));
+
+		setters.put("ParallelStage:radialoffset", new DoubleSetter(
+				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class),
+				"auto",
+				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
+		
 		setters.put("PodSet:angularoffset", new DoubleSetter(
 				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class),Math.PI / 180.0));
-
+				
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
 				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));

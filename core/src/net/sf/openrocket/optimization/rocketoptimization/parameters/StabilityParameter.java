@@ -55,8 +55,6 @@ public class StabilityParameter implements OptimizableParameter {
 		 * Caching would in any case be inefficient since the rocket changes all the time.
 		 */
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
-		MassCalculator massCalculator = new MassCalculator();
-		
 		
 		FlightConfiguration configuration = simulation.getRocket().getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
@@ -66,7 +64,7 @@ public class StabilityParameter implements OptimizableParameter {
 		
 		cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 		// worst case CM is also 
-		cg = massCalculator.getRocketLaunchMassData(configuration).getCM();
+		cg = MassCalculator.calculateLaunch(configuration).getCM();
 		
 		if (cp.weight > 0.000001)
 			cpx = cp.x;

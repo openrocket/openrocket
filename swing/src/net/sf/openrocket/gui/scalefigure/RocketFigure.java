@@ -18,22 +18,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -51,8 +46,6 @@ import net.sf.openrocket.util.Transformation;
  */
 @SuppressWarnings("serial")
 public class RocketFigure extends AbstractScaleFigure {
-	
-	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
@@ -107,11 +100,6 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		updateFigure();
 	}
-	
-	public FlightConfiguration getConfiguration() {
-		return this.rocket.getSelectedConfiguration();
-	}
-	
 	
 	@Override
 	public Dimension getOrigin() {
@@ -183,9 +171,9 @@ public class RocketFigure extends AbstractScaleFigure {
 		figureShapes.clear();
 		
 		calculateSize();
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		getShapes( figureShapes, config);
 		
+		getShapeTree( this.figureShapes, rocket, this.transformation, Coordinate.ZERO);
+
 		repaint();
 		fireChangeEvent();
 	}
@@ -347,23 +335,23 @@ public class RocketFigure extends AbstractScaleFigure {
 			
 			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
 			// so, just draw a motor once for each Coordinate returned... 
-			Coordinate[] mountLocations = mountComponent.getLocations();
+			Coordinate[] mountLocations = mount.getLocations();
 			
 			double mountLength = mountComponent.getLength();
-			//System.err.println("Drawing motor from here. Motor: "+motor.getDesignation()+" of length: "+motor.getLength());
+//			System.err.println("Drawing Motor: "+motor.getDesignation()+" (x"+mountLocations.length+")");
 			for ( Coordinate curMountLocation : mountLocations ){
-				Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
-				
-				Coordinate coord = curMotorLocation;
+			    Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
+//		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
+	        
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
-						s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
-								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * motorLength,
+						s = new Rectangle2D.Double(EXTRA_SCALE * curMotorLocation.x,
+								EXTRA_SCALE * (curMotorLocation.y - motorRadius), EXTRA_SCALE * motorLength,
 								EXTRA_SCALE * 2 * motorRadius);
 					} else {
-						s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - motorRadius),
-								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
+						s = new Ellipse2D.Double(EXTRA_SCALE * (curMotorLocation.z - motorRadius),
+								EXTRA_SCALE * (curMotorLocation.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
 								EXTRA_SCALE * 2 * motorRadius);
 					}
 					g2.setColor(fillColor);
@@ -420,41 +408,52 @@ public class RocketFigure extends AbstractScaleFigure {
 		return l.toArray(new RocketComponent[0]);
 	}
 	
-	// facade for the recursive function below
-	private void getShapes(ArrayList<RocketComponentShape> allShapes, FlightConfiguration configuration){
-		for( AxialStage stage : configuration.getActiveStages()){
-			getShapeTree( allShapes, stage, Coordinate.ZERO);
-		}
-	}
-	
     // NOTE:  Recursive function
     private void getShapeTree(
-    		ArrayList<RocketComponentShape> allShapes,  // output parameter 
-    		final RocketComponent comp, 
-    		final Coordinate parentLocation){
-   
-    	RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
-    	Transformation viewTransform = this.transformation;
-    	Coordinate[] locs = comp.getLocations();
-    	
-        // generate shapes
-    	for( Coordinate curLocation : locs){
-    		allShapes = addThisShape( allShapes, viewType, comp, curLocation, viewTransform);
-    	}
+        ArrayList<RocketComponentShape> allShapes,  // output parameter 
+    		final RocketComponent comp,
+        final Transformation parentTransform,
+        final Coordinate parentLocation){
 
-		// recurse into component's children
-    	for( RocketComponent child: comp.getChildren() ){
-    		if( child instanceof AxialStage ){
-    			// recursing into BoosterSet here would double count its tree
-    			continue;
-    		}
-    		
-    		for( Coordinate curLocation : locs){
-    			getShapeTree( allShapes, child, curLocation);
-    		}
-    	}
         
-	    return;
+        final int instanceCount = comp.getInstanceCount();
+    	    	Coordinate[] instanceLocations = comp.getInstanceLocations(); 
+    	    	instanceLocations = parentTransform.transform( instanceLocations ); 
+    	    	double[] instanceAngles = comp.getInstanceAngles();
+        if( instanceLocations.length != instanceAngles.length ){
+            throw new ArrayIndexOutOfBoundsException(String.format("lengths of location array (%d) and angle arrays (%d) differs! (in: %s) ", instanceLocations.length, instanceAngles.length, comp.getName()));
+        }
+        
+        // iterate over the aggregated instances *for the whole* tree.
+        for( int index = 0; instanceCount > index ; ++index ){
+            final double currentAngle = instanceAngles[index];
+
+            Transformation currentTransform = parentTransform;
+            if( 0.00001 < Math.abs( currentAngle )) {
+                Transformation currentAngleTransform = Transformation.rotate_x( currentAngle );
+                currentTransform = currentAngleTransform.applyTransformation( parentTransform );
+            }
+             
+            Coordinate currentLocation = parentLocation.add( instanceLocations[index] );
+            
+//            System.err.println(String.format("@%s: %s  --  inst:   [%d/%d]", comp.getClass().getSimpleName(), comp.getName(), index+1, instanceCount));
+//            System.err.println(String.format("         --  stage: %d,    active: %b,  config: (%d) %s", comp.getStageNumber(), this.getConfiguration().isComponentActive(comp), this.getConfiguration().instanceNumber, this.getConfiguration().getId()));
+//            System.err.println(String.format("         --  %s + %s  = %s", parentLocation.toString(), instanceLocations[index].toString(), currentLocation.toString()));
+//            if( 0.00001 < Math.abs( currentAngle )) {
+//                System.err.println(String.format("         --  at: %6.4f radians", currentAngle));
+//            }
+        
+            // generate shape for this component, if active
+            if( this.rocket.getSelectedConfiguration().isComponentActive( comp )){
+                allShapes = addThisShape( allShapes, this.currentViewType, comp, currentLocation, currentTransform);
+            }
+            
+            // recurse into component's children
+            for( RocketComponent child: comp.getChildren() ){
+                // draw a tree for each instance subcomponent
+    		        getShapeTree( allShapes, child, currentTransform, currentLocation );
+        		}
+        	}
 	}
 
 	/**

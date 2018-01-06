@@ -512,14 +512,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		}
 		
 		@Override
-		public boolean isAddable(RocketComponent c) {
-			if (super.isAddable(c))
+		public boolean isAddable(RocketComponent selectedComponent) {
+			if (super.isAddable(selectedComponent)) {
 				return true;
-			// Handled separately:
-			if (c instanceof BodyComponent)
+			}else if (selectedComponent instanceof BodyComponent) {
+	            // Handled separately:
 				return true;
-			if (c == null || c instanceof Rocket)
-				return true;
+		    }else if (selectedComponent == null) {
+			    return false;
+		    }else if( selectedComponent instanceof Rocket) {
+			    return false;
+			}
 			return false;
 		}
 		

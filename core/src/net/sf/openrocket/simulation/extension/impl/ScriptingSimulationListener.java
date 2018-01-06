@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -144,8 +144,8 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	}
 	
 	@Override
-	public MassData preMassCalculation(SimulationStatus status) throws SimulationException {
-		return invoke(MassData.class, null, "preMassCalculation", status);
+	public RigidBody preMassCalculation(SimulationStatus status) throws SimulationException {
+		return invoke(RigidBody.class, null, "preMassCalculation", status);
 	}
 	
 	@Override
@@ -184,8 +184,8 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	}
 	
 	@Override
-	public MassData postMassCalculation(SimulationStatus status, MassData massData) throws SimulationException {
-		return invoke(MassData.class, null, "postMassCalculation", status, massData);
+	public RigidBody postMassCalculation(SimulationStatus status, RigidBody RigidBody) throws SimulationException {
+		return invoke(RigidBody.class, null, "postMassCalculation", status, RigidBody);
 	}
 	
 	@Override

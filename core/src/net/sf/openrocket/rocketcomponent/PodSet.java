@@ -13,7 +13,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(PodSet.class);
 	
-	protected int count = 1;
+	protected int instanceCount = 2;
 
 	protected double angularSeparation = Math.PI;
 	protected double angularPosition_rad = 0;
@@ -21,7 +21,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	protected double radialPosition_m = 0;
 	
 	public PodSet() {
-		this.count = 2;
+		this.instanceCount = 2;
 		this.relativePosition = Position.BOTTOM;
 	}
 	
@@ -76,55 +76,39 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return BodyComponent.class.isAssignableFrom(type);
 	}
+
+		
+	@Override
+	public double getInstanceAngleIncrement(){
+		return angularSeparation;
+	}
+	
+	@Override
+	public double[] getInstanceAngles(){
+		final double baseAngle = getAngularOffset();
+		final double incrAngle = getInstanceAngleIncrement();
+		
+		double[] result = new double[ getInstanceCount()]; 
+		for( int i=0; i<getInstanceCount(); ++i){
+			result[i] = baseAngle + incrAngle*i;
+		}
+		
+		return result;
+	}
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		checkState();
 		
-		final double radius = this.radialPosition_m;
-		final double startAngle = this.angularPosition_rad;
-		final double angleIncr = this.angularSeparation;
-		Coordinate center = Coordinate.ZERO;
-		
-		double curAngle = startAngle;
-		Coordinate[] toReturn = new Coordinate[this.count];
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			final double curY = radius * Math.cos(curAngle);
-			final double curZ = radius * Math.sin(curAngle);
-			toReturn[instanceNumber] = center.add(0, curY, curZ );
-			
-			curAngle += angleIncr;
+		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
+			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
+			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
 		}
 		
 		return toReturn;
-	}
-		
-	
-	@Override
-	public Coordinate[] getLocations() {
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-		}
-		
-		if (this.isAfter()) {
-			return super.getLocations();
-		} else {
-			Coordinate[] parentInstances = this.parent.getLocations();
-			if (1 != parentInstances.length) {
-				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
-						"(assumed reason for getting multiple parent locations into an external stage.)");
-			}
-			
-			final Coordinate center = parentInstances[0].add( this.position);
-			Coordinate[] instanceLocations = this.getInstanceOffsets();
-			Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
-			for( int i = 0; i < toReturn.length; i++){
-				toReturn[i] = center.add( instanceLocations[i]); 
-			}
-			
-			return toReturn;
-		}
-		
 	}
 	
 	@Override
@@ -193,7 +177,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	@Override
 	public int getInstanceCount() {
-		return this.count;
+		return this.instanceCount;
 	}
 	
 	
@@ -205,8 +189,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			return;
 		}
 		
-        this.count = newCount;
-        this.angularSeparation = Math.PI * 2 / this.count;
+        this.instanceCount = newCount;
+        this.angularSeparation = Math.PI * 2 / this.instanceCount;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

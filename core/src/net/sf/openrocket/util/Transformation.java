@@ -1,5 +1,6 @@
 package net.sf.openrocket.util;
 
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,9 +16,9 @@ import java.util.Iterator;
 
 public class Transformation implements java.io.Serializable {
 
+	public static final double ANGLE_EPSILON = 0.000000001;
 	
-	public static final Transformation IDENTITY =
-		new Transformation();
+	public static final Transformation IDENTITY = new Transformation();
 	
 	public static final Transformation PROJECT_XY = 
 		new Transformation(new double[][]{{1,0,0},{0,1,0},{0,0,0}});
@@ -26,6 +27,7 @@ public class Transformation implements java.io.Serializable {
 	public static final Transformation PROJECT_XZ = 
 		new Transformation(new double[][]{{1,0,0},{0,0,0},{0,0,1}});
 	
+	
 	private static final int X = 0;
 	private static final int Y = 1;
 	private static final int Z = 2;
@@ -33,10 +35,17 @@ public class Transformation implements java.io.Serializable {
 	private final Coordinate translate;
 	private final double[][] rotation = new double[3][3];
 	
+	static public Transformation getTranslationTransform( double x, double y, double z) {
+		return new Transformation(new Coordinate(x,y,z));
+	}
+	static public Transformation getTranslationTransform( final Coordinate translate ){
+		return new Transformation( translate );
+	}
+
 	/**
 	 * Create identity transformation.
 	 */
-	public Transformation() {
+	private Transformation() {
 		translate = new Coordinate(0,0,0);
 		rotation[X][X]=1;
 		rotation[Y][Y]=1;
@@ -45,6 +54,7 @@ public class Transformation implements java.io.Serializable {
 	
 	/**
 	 * Create transformation with only translation.
+	 *
 	 * @param x Translation in x-axis.
 	 * @param y Translation in y-axis.
 	 * @param z Translation in z-axis.
@@ -111,7 +121,6 @@ public class Transformation implements java.io.Serializable {
 		
 		return new Coordinate(x,y,z,orig.weight);
 	}
-	
 	
 	/**
 	 * Transform an array of coordinates.  The transformed coordinates are stored
@@ -190,6 +199,14 @@ public class Transformation implements java.io.Serializable {
 		return combined;
 	}
 	
+	/**
+	 * Returns a rotation around the rocket's long axis
+	 * 
+	 * @param theta rotation around rocket axis, in radians
+	 */
+	static public Transformation getAxialRotation( double theta ) {
+		return Transformation.rotate_x(theta);
+	}
 	
 	/**
 	 * Rotate around x-axis a given angle.
@@ -197,6 +214,9 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_x(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{1,0,0},
 				{0,Math.cos(theta),-Math.sin(theta)},
@@ -209,6 +229,9 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_y(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{Math.cos(theta),0,Math.sin(theta)},
 				{0,1,0},
@@ -221,12 +244,22 @@ public class Transformation implements java.io.Serializable {
 	 * @return  The transformation.
 	 */
 	public static Transformation rotate_z(double theta) {
+		if( ANGLE_EPSILON > Math.abs(theta)) {
+			return Transformation.IDENTITY;
+		}
 		return new Transformation(new double[][]{
 				{Math.cos(theta),-Math.sin(theta),0},
 				{Math.sin(theta),Math.cos(theta),0},
 				{0,0,1}});
 	}
 	
+	
+	public boolean isIdentity() {
+		if( this == Transformation.IDENTITY ) {
+			return true;
+		}
+		return this.equals( Transformation.IDENTITY );
+	}
 	
 	
 	public void print(String... str) {
@@ -242,6 +275,47 @@ public class Transformation implements java.io.Serializable {
 		System.out.println();
 	}
 	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
+				rotation[X][X],rotation[X][Y],rotation[X][Z],translate.x));
+		sb.append(String.format("[%3.2f %3.2f %3.2f] + [%3.2f]\n",
+				rotation[Y][X],rotation[Y][Y],rotation[Y][Z],translate.y));
+		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
+				rotation[Z][X],rotation[Z][Y],rotation[Z][Z],translate.z));
+		return sb.toString();
+	}
+	
+
+	/**
+	 * Rotation matrix is constructed from Euler angles, in a z-x-z order
+	 * 
+	 * $  y = f(x) = R_z( R_x( R_z( x ))) + v $
+	 * 
+	 * @param alpha rotation around z    (in radians)
+	 * @param beta  rotation around x'   (in radians)
+	 * @param gamma rotation around z'   (in radians)
+	 */
+	static public Transformation getEulerAngle313Transform( double alpha, double beta, double gamma ) {
+		return new Transformation( new double[][]{
+				{
+					(Math.cos(alpha)*Math.cos(gamma) - Math.sin(alpha)*Math.cos(beta)*Math.sin(gamma)),
+				    (-Math.cos(alpha)*Math.sin(gamma) - Math.sin(alpha)*Math.cos(beta)*Math.cos(gamma)),
+					(Math.sin(alpha)*Math.sin(beta))
+				},{
+					(Math.sin(alpha)*Math.cos(gamma) + Math.cos(alpha)*Math.cos(beta)*Math.sin(gamma)),
+					(-Math.sin(alpha)*Math.sin(gamma) + Math.cos(alpha)*Math.cos(beta)*Math.cos(gamma)),
+					(-Math.cos(alpha)*Math.sin(beta))
+				},{
+					(Math.sin(beta)*Math.sin(gamma)),
+					(Math.sin(beta)*Math.cos(gamma)),
+					(Math.cos(beta))
+				}
+			},
+			Coordinate.ZERO);
+	}
 	
 	@Override
 	public boolean equals(Object other) {
@@ -255,6 +329,50 @@ public class Transformation implements java.io.Serializable {
 			}
 		}
 		return this.translate.equals(o.translate);
+	}
+
+	@Override
+	public int hashCode() {
+		long bits = 0;
+		for(int i=0;i<Z;++i) {
+			for(int j=0;j<Z;++j) {
+				Double.doubleToLongBits( rotation[i][j] );
+			}
+		}
+		bits ^= translate.hashCode();
+		return (int)(bits ^ (bits >>> 32));
+	}
+
+	/**
+	 * 
+	 * 
+	 * m = [  m[0]  m[4] m[ 8]  m[12] ] = [ 1 0 0 1 ]
+	 *     [  m[1]  m[5] m[ 9]  m[13] ]   [ 0 1 0 1 ]
+	 *     [  m[2]  m[6] m[10]  m[14] ]   [ 0 0 1 1 ]
+	 *     [  m[3]  m[7] m[11]  m[15] ]   [ 0 0 0 1 ]
+	 * 
+	 * @return
+	 */
+	public DoubleBuffer getGLMatrix() {
+		double[] data = new double[]{1,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1};
+		
+		// output array is in column-major order
+		// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glLoadMatrix.xml
+		for( int i=0; i<3; ++i) {
+			for( int j=0; j<3; ++j) {
+				data[i+j*4] = this.rotation[i][j];
+			}
+		}
+		
+		data[12] = this.translate.x; 
+		data[13] = this.translate.y;
+		data[14] = this.translate.z;
+		
+		return DoubleBuffer.wrap(data);		
+	}
+	
+	public Coordinate getTranslationVector() {
+		return this.translate;
 	}
 	
 }

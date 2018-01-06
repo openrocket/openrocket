@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -502,9 +502,9 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return	<code>null</code> normally, or overriding mass data.
 	 */
-	public static MassData firePreMassCalculation(SimulationStatus status)
+	public static RigidBody firePreMassCalculation(SimulationStatus status)
 			throws SimulationException {
-		MassData mass;
+		RigidBody mass;
 		int modID = status.getModID();
 		
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
@@ -528,8 +528,8 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return	the resultant mass data
 	 */
-	public static MassData firePostMassCalculation(SimulationStatus status, MassData mass) throws SimulationException {
-		MassData m;
+	public static RigidBody firePostMassCalculation(SimulationStatus status, RigidBody mass) throws SimulationException {
+		RigidBody m;
 		int modID = status.getModID();
 		
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {

@@ -62,7 +62,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 				//Only if the inner tube is NOT a cluster, then create the corresponding Rocksim DTO and add it
 				//to the list of attached parts.  If it is a cluster, then it is handled specially outside of this
 				//loop.
-				if (innerTube.getClusterCount() == 1) {
+				if (innerTube.getInstanceCount() == 1) {
 					attachedParts.add(new InnerBodyTubeDTO(innerTube, this));
 				}
 			} else if (rocketComponents instanceof BodyTube) {
