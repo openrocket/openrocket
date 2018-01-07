@@ -227,11 +227,11 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		super.update();
 
 		if( this.autoRadialPosition){
-			ComponentAssembly parentAssembly = (ComponentAssembly)this.parent;
-			if( null == parentAssembly ){
+			if( null == this.parent ){
 				this.radialPosition_m = this.getOuterRadius();
-			}else{
-				this.radialPosition_m = this.getOuterRadius() + parentAssembly.getOuterRadius();
+			}else if( BodyTube.class.isAssignableFrom(this.parent.getClass())) {
+				BodyTube parentBody = (BodyTube)this.parent;
+				this.radialPosition_m = this.getOuterRadius() + parentBody.getOuterRadius();				
 			}
 		}
 	}

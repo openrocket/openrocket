@@ -935,75 +935,75 @@ public class TestRockets {
 			coreBody.setMotorMount(true);
 			coreStage.addChild( coreBody);
 			{
-				MotorConfiguration motorConfig = new MotorConfiguration(coreBody, selFCID);
+				MotorConfiguration coreMotorConfig = new MotorConfiguration(coreBody, selFCID);
 				Motor mtr = TestRockets.generateMotor_M1350_75mm();
-				motorConfig.setMotor( mtr);
+				coreMotorConfig.setMotor( mtr);
 				coreBody.setMotorMount( true);
 				FlightConfigurationId motorConfigId = selFCID;
-				coreBody.setMotorConfig( motorConfig, motorConfigId);	 
-			}
+				coreBody.setMotorConfig( coreMotorConfig, motorConfigId);	 
 			
-			TrapezoidFinSet coreFins = new TrapezoidFinSet();
-			coreFins.setName("Core Fins");
-			coreFins.setFinCount(4);
-			coreFins.setRelativePosition(Position.BOTTOM);
-			coreFins.setAxialOffset(0.0);
-			coreFins.setBaseRotation( Math.PI / 4);
-			coreFins.setThickness(0.003);
-			coreFins.setCrossSection(CrossSection.ROUNDED);
-			coreFins.setRootChord(0.32);
-			coreFins.setTipChord(0.12);
-			coreFins.setHeight(0.12);
-			coreFins.setSweep(0.18);
-			coreBody.addChild(coreFins);
-		
+				TrapezoidFinSet coreFins = new TrapezoidFinSet();
+				coreFins.setName("Core Fins");
+				coreFins.setFinCount(4);
+				coreFins.setRelativePosition(Position.BOTTOM);
+				coreFins.setAxialOffset(0.0);
+				coreFins.setBaseRotation( Math.PI / 4);
+				coreFins.setThickness(0.003);
+				coreFins.setCrossSection(CrossSection.ROUNDED);
+				coreFins.setRootChord(0.32);
+				coreFins.setTipChord(0.12);
+				coreFins.setHeight(0.12);
+				coreFins.setSweep(0.18);
+				coreBody.addChild(coreFins);
 			
-			// ====== Booster Stage Set ======
-			// ====== ====== ====== ======
-			ParallelStage boosterStage = new ParallelStage();
-			boosterStage.setName("Booster Stage");
-			coreStage.addChild( boosterStage);
-			boosterStage.setRelativePositionMethod(Position.BOTTOM);
-			boosterStage.setAxialOffset(0.0);
-			boosterStage.setInstanceCount(2);
-			boosterStage.setRadialOffset(0.075);
-			
-			{
-				NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
-				boosterCone.setShapeParameter(0.5);
-				boosterCone.setName("Booster Nose");
-				boosterCone.setThickness(0.002);
-				//payloadFairingNoseCone.setLength(0.118);
-				//payloadFairingNoseCone.setAftRadius(0.052);
-				boosterCone.setAftShoulderRadius( 0.051 );
-				boosterCone.setAftShoulderLength( 0.02 );
-				boosterCone.setAftShoulderThickness( 0.001 );
-				boosterCone.setAftShoulderCapped( false );
-				boosterStage.addChild( boosterCone);
-				
-				BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
-				boosterBody.setName("Booster Body");
-				boosterBody.setOuterRadiusAutomatic(true);
-				boosterStage.addChild( boosterBody);
+	
+				// ====== Booster Stage Set ======
+				// ====== ====== ====== ======
+				ParallelStage boosterStage = new ParallelStage();
+				boosterStage.setName("Booster Stage");
+				coreBody.addChild( boosterStage);
+				boosterStage.setRelativePositionMethod(Position.BOTTOM);
+				boosterStage.setAxialOffset(0.0);
+				boosterStage.setInstanceCount(2);
+				boosterStage.setRadialOffset(0.075);
 				
 				{
-					InnerTube boosterMotorTubes = new InnerTube();
-					boosterMotorTubes.setName("Booster Motor Tubes");
-					boosterMotorTubes.setLength(0.15);
-					boosterMotorTubes.setOuterRadius(0.015); // => 29mm motors
-					boosterMotorTubes.setThickness(0.0005);
-					boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
-					//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
-					boosterMotorTubes.setClusterScale(1.0);
-					boosterBody.addChild( boosterMotorTubes);
+					NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
+					boosterCone.setShapeParameter(0.5);
+					boosterCone.setName("Booster Nose");
+					boosterCone.setThickness(0.002);
+					//payloadFairingNoseCone.setLength(0.118);
+					//payloadFairingNoseCone.setAftRadius(0.052);
+					boosterCone.setAftShoulderRadius( 0.051 );
+					boosterCone.setAftShoulderLength( 0.02 );
+					boosterCone.setAftShoulderThickness( 0.001 );
+					boosterCone.setAftShoulderCapped( false );
+					boosterStage.addChild( boosterCone);
 					
-					FlightConfigurationId motorConfigId = selFCID;
-					MotorConfiguration motorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);
-					Motor mtr = TestRockets.generateMotor_G77_29mm();
-					motorConfig.setMotor(mtr);
-					boosterMotorTubes.setMotorConfig( motorConfig, motorConfigId);
-					boosterMotorTubes.setMotorOverhang(0.01234);
+					BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
+					boosterBody.setName("Booster Body");
+					boosterBody.setOuterRadiusAutomatic(true);
+					boosterStage.addChild( boosterBody);
+					
+					{
+						InnerTube boosterMotorTubes = new InnerTube();
+						boosterMotorTubes.setName("Booster Motor Tubes");
+						boosterMotorTubes.setLength(0.15);
+						boosterMotorTubes.setOuterRadius(0.015); // => 29mm motors
+						boosterMotorTubes.setThickness(0.0005);
+						boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
+						//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
+						boosterMotorTubes.setClusterScale(1.0);
+						boosterBody.addChild( boosterMotorTubes);
+						
+						MotorConfiguration boosterMotorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);
+						Motor boosterMotor = TestRockets.generateMotor_G77_29mm();
+						boosterMotorConfig.setMotor( boosterMotor );
+						boosterMotorTubes.setMotorConfig( boosterMotorConfig, motorConfigId);
+						boosterMotorTubes.setMotorOverhang(0.01234);
+					}
 				}
+				
 			}
 		}
 		

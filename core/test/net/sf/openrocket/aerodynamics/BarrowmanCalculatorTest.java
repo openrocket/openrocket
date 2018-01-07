@@ -180,7 +180,7 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		
-		ParallelStage booster = (ParallelStage)rocket.getChild(1).getChild(1); 
+		ParallelStage booster = (ParallelStage)rocket.getChild(1).getChild(0).getChild(1); 
 		NoseCone nose = (NoseCone)booster.getChild(0);
 		BodyTube body = (BodyTube)booster.getChild(1);
 		

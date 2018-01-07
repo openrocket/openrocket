@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import junit.framework.Assert;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.motor.Motor;
@@ -110,7 +111,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected double length = 0;
 	
 	/**
-	 * Positioning of this component relative to the parent component.
+	 * How this component is axially positioned, possibly in relative to the parent component.
 	 */
 	protected Position relativePosition = Position.AFTER;
 	
@@ -992,32 +993,29 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
 	public double asPositionValue(Position thePosition) {
-		double relativeLength;
+		double parentLength;
 		if (null == this.parent) {
-			 relativeLength = 0;
+			 parentLength = 0;
 		}else{
-			relativeLength = this.parent.length;
+			parentLength = this.parent.length;
 		}
 		
-		double thisX = this.position.x;
 		double result = Double.NaN;
-		
 		switch (thePosition) {
 		case AFTER:
-			result = thisX - relativeLength;
+			result = this.position.x - parentLength;
 			break;
 		case ABSOLUTE:
-			Coordinate[] insts = this.getLocations();
-			result = insts[0].x;
+			result = this.getComponentLocations()[0].x;
 			break;
 		case TOP:
-			result = thisX;
+			result = this.position.x;
 			break;
 		case MIDDLE:
-			result = thisX + (-relativeLength + this.getLength()) / 2;
+			result = this.position.x + ( this.length - parentLength) / 2;
 			break;
 		case BOTTOM:
-			result = thisX + (-relativeLength + this.getLength());
+			result = this.position.x + ( this.length - parentLength);
 			break;
 		default:
 			throw new BugException("Unknown position type: " + thePosition);
@@ -1096,6 +1094,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}else{
 			this.relativePosition = positionMethod;
 		}
+		
 		if (null == this.parent) {
 			// if this is the root of a hierarchy, constrain the position to zero.
 			if( this instanceof Rocket ){
@@ -1113,9 +1112,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		final double EPSILON = 0.000001;
 		double newAxialPosition = Double.NaN;
 		final double refLength = this.parent.getLength();
+		
 		switch (this.relativePosition) {
 		case ABSOLUTE:
-			newAxialPosition = newOffset - this.parent.position.x;
+			newAxialPosition = newOffset - this.parent.getComponentLocations()[0].x;
 			break;
 		case AFTER:
 			// no-op 
@@ -1129,6 +1129,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			break;
 		case BOTTOM:
 			newAxialPosition = (refLength - this.length) + newOffset;
+			//System.err.println(String.format("____( %.6g - %.6g) + %.6g = %.6g", refLength, this.length, newOffset, newAxialPosition ));
 			break;
 		default:
 			throw new BugException("Unknown position type: " + this.relativePosition);

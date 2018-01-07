@@ -205,7 +205,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// ====== Booster Set Stage ====== 
 		// ====== ====== ======
-		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(0).getChild(1);
 		{
 			expMass = 0.0222459863653;
 			// think of the casts as an assert that ( child instanceof NoseCone) == true  
@@ -288,7 +288,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// ====== Booster Set Stage ======
 		// ====== ====== ======
-		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rkt.getChild(1).getChild(0).getChild(1);
 		{
 			expCMx = 0.055710581052;
 			// think of the casts as an assert that ( child instanceof NoseCone) == true
@@ -406,7 +406,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		// ====== Booster Set Stage ====== 
 		// ====== ====== ======
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		{
 			cc= boosters.getChild(0);
 			expInertia = 1.82665797857e-5;
@@ -535,7 +535,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		FlightConfiguration config = rocket.getEmptyConfiguration();
 		
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		config.setOnlyStage( boosters.getStageNumber() );
 		
 		final RigidBody actualData = MassCalculator.calculateStructure( config );
@@ -606,7 +606,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		RigidBody actualPropellant = MassCalculator.calculateMotor( config );
 		final Coordinate actCM= actualPropellant.getCM();
 		
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		final MotorMount mnt = (MotorMount)boosters.getChild(1).getChild(0);
 		final Motor boosterMotor = mnt.getMotorConfig( config.getFlightConfigurationID()).getMotor();
 		
@@ -690,7 +690,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		rocket.setSelectedConfiguration( config.getId() );
 		config.setOnlyStage( TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER );
 		
-		final ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		final ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		final double overrideMass = 0.5;
 		boosters.setOverrideSubcomponents(true);
 		boosters.setMassOverridden(true);
@@ -730,7 +730,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration config = rocket.getEmptyConfiguration();
 		rocket.setSelectedConfiguration( config.getId() );
 		
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		config.setOnlyStage( boosters.getStageNumber() );
 		
 		NoseCone nose = (NoseCone)boosters.getChild(0);
@@ -777,7 +777,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		rocket.setSelectedConfiguration( config.getId() );
 		
 		config.setOnlyStage( TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER );
-		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
+		ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(0).getChild(1);
 		
 		NoseCone nose = (NoseCone)boosters.getChild(0);
 		nose.setCGOverridden(true);

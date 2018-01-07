@@ -351,6 +351,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
+		if (ParallelStage.class.isAssignableFrom(type))
+			return true;
+		if (PodSet.class.isAssignableFrom(type))
+			return true;
+		
 		if (InternalComponent.class.isAssignableFrom(type))
 			return true;
 		if (ExternalComponent.class.isAssignableFrom(type) &&

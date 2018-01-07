@@ -82,13 +82,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		if (ParallelStage.class.isAssignableFrom(type)) {
-			return true;
-		} else if (PodSet.class.isAssignableFrom(type)) {
-			return true;
-		}
-		
-		return BodyComponent.class.isAssignableFrom(type);
+		 return BodyComponent.class.isAssignableFrom(type);
 	}
 	
 	@Override
@@ -180,18 +174,18 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 * returns null if this is the first stage
 	 * @return	the previous stage in the rocket
 	 */
-	public AxialStage getPreviousStage() {
-		if( this instanceof ParallelStage ){
-			return (AxialStage) this.parent;
-		}
-		AxialStage thisStage = this.getStage();  // necessary in case of pods or other assemblies
-		if( thisStage.parent instanceof Rocket ){
-			final int thisIndex = parent.getChildPosition( thisStage );
+	public AxialStage getUpperStage() {
+		if( null == this.parent ) {
+			return null; 
+		}else if(Rocket.class.isAssignableFrom(this.parent.getClass()) ){
+			final int thisIndex = getStageNumber();
 			if( 0 < thisIndex ){
-				return (AxialStage)thisStage.parent.getChild(thisIndex-1);
+				return (AxialStage)parent.getChild(thisIndex-1);
 			}
+		}else {
+			return this.parent.getStage();
 		}
-		return null; 
+		return null;
 	}
 	
 	@Override

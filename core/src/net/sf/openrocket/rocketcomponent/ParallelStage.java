@@ -183,6 +183,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		return this.autoRadialPosition;
 	}
 	
+	@Override
 	public void setAutoRadialOffset( final boolean enabled ){
 		this.autoRadialPosition = enabled;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
@@ -205,13 +206,13 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	protected void update() {
 		super.update();
-		
-		if( this.autoRadialPosition ){
-			ComponentAssembly parentAssembly = (ComponentAssembly)this.parent;
-			if( null == parentAssembly ){
+
+		if( this.autoRadialPosition){
+			if( null == this.parent ){
 				this.radialPosition_m = this.getOuterRadius();
-			}else{
-				this.radialPosition_m = this.getOuterRadius() + parentAssembly.getOuterRadius();
+			}else if( BodyTube.class.isAssignableFrom(this.parent.getClass())) {
+				BodyTube parentBody = (BodyTube)this.parent;
+				this.radialPosition_m = this.getOuterRadius() + parentBody.getOuterRadius();				
 			}
 		}
 	}

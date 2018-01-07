@@ -38,7 +38,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	
 	@Override
 	public double getAxialOffset() {
-		return super.asPositionValue(this.relativePosition);
+		return asPositionValue(this.relativePosition);
 	}
 
 	/**
