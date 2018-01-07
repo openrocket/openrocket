@@ -27,7 +27,7 @@
 	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
 	
 	<!-- The main class of the application -->
-	<property name="main-class"  value="net.sf.openrocket.startup.OpenRocket"/>
+	<property name="main-class"  value="net.sf.openrocket.startup.SwingStartup"/>
 
 	<!-- Classpath definitions -->
 	<path id="classpath">
@@ -73,15 +73,22 @@
 		<echo level="info">Compiling main classes</echo>
 		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.7" target="1.7"/>
 	</target>
-	
-	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-presets" description="Create the OpenRocket executable JAR">
+
+	<target name="jogamp-fat-jar">
+		<jar destfile="${build.dir}/jogamp-fat.jar">
+			<zipgroupfileset dir="${lib.dir}/jogl">
+				<include name="**/*.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+
+	<!-- Executable Fat-Jar style JAR -->
+	<target name="jar" depends="build,serialize-presets,jogamp-fat-jar" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${classes.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
@@ -106,12 +113,8 @@
 			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
-									
-			
-			<!-- JOGL libraries need to be jar-in-jar -->
-			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
-				<include name="*.jar"/>
-			</zipfileset>
+			<!-- As described in: https://jogamp.org/wiki/index.php/JogAmp_JAR_File_Handling#Ant -->
+			<zipfileset src="${build.dir}/jogamp-fat.jar" includes="**/*.class,**/*.png,**/*.glsl,**/*.vp,**/*.fp,**/*.bvp,**/*.bfp,**/*.so,**/*.jnilib,**/*.dylib,**/*.dll,**/*.bin,**/*.defl"/>
 			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
