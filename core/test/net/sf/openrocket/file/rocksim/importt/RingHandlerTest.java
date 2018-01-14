@@ -17,8 +17,8 @@ import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * RingHandler Tester.
@@ -88,7 +88,11 @@ public class RingHandlerTest extends RocksimTestBase {
     public void testBulkhead() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
+        
+        
+        @SuppressWarnings("unused")
+		CenteringRing component = (CenteringRing) getField(handler, "ring");
+        
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
@@ -110,7 +114,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getAxialOffset(), 0.0);
-        Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
+        Assert.assertEquals(AxialMethod.TOP, child.getAxialMethod());
         Assert.assertTrue(child instanceof Bulkhead);
 
     }
@@ -146,7 +150,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getAxialOffset(), 0.0);
-        Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
+        Assert.assertEquals(AxialMethod.TOP, child.getAxialMethod());
     }
 
     /**
@@ -181,7 +185,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getAxialOffset(), 0.0);
-        Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
+        Assert.assertEquals(AxialMethod.TOP, child.getAxialMethod());
         Assert.assertEquals(4d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().x, 0.000001);
         
     }
@@ -216,7 +220,7 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getAxialOffset(), 0.0);
-        Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
+        Assert.assertEquals(AxialMethod.TOP, child.getAxialMethod());
         Assert.assertTrue(child instanceof CenteringRing);
     }
 
@@ -238,21 +242,23 @@ public class RingHandlerTest extends RocksimTestBase {
 
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
+        
+        @SuppressWarnings("unused")
+		CenteringRing component = (CenteringRing) getField(handler, "ring");
     }
 
     /**
-     * Method: setRelativePosition(RocketComponent.Position position)
+     * Method: setAxialMethod(AxialMethod position)
      *
      * @throws Exception thrown if something goes awry
      */
     @org.junit.Test
-    public void testSetRelativePosition() throws Exception {
+    public void testsetAxialMethod() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
         CenteringRing component = (CenteringRing) getField(handler, "ring");
-        handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
-        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        handler.setAxialMethod(AxialMethod.ABSOLUTE);
+        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 
     

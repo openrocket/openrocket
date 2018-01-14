@@ -24,8 +24,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import java.text.DecimalFormat;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -50,6 +48,7 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
@@ -351,7 +350,7 @@ public class RocketComponentConfig extends JPanel {
 			Iterator<RocketComponent> iterator = component.iterator(false);
 			while (iterator.hasNext()) {
 				RocketComponent c = iterator.next();
-				if (c.getRelativePosition() == RocketComponent.Position.AFTER)
+				if (c.getAxialMethod() == AxialMethod.AFTER)
 					l += c.getLength();
 			}
 			length = new DoubleModel(l);

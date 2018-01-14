@@ -15,6 +15,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * A SAX handler for Rocksim inside tubes.
@@ -105,8 +106,8 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
 	 * @param position  the OpenRocket position
 	 */
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		bodyTube.setRelativePosition(position);
+	public void setAxialMethod(AxialMethod position) {
+		bodyTube.setAxialMethod(position);
 	}
 	
 	/**

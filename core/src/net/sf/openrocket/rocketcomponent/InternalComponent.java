@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * A component internal to the rocket.  Internal components have no effect on the
@@ -13,13 +14,13 @@ package net.sf.openrocket.rocketcomponent;
 public abstract class InternalComponent extends RocketComponent {
 
 	public InternalComponent() {
-		super(RocketComponent.Position.BOTTOM);
+		super( AxialMethod.BOTTOM);
 	}
 	
 	
 	@Override
-	public final void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
+	public void setAxialMethod(final AxialMethod newAxialMethod) {
+		super.setAxialMethod(newAxialMethod);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	

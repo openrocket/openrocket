@@ -5,6 +5,7 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -39,7 +40,7 @@ public abstract class MassObject extends InternalComponent {
 		this.length = length;
 		this.radius = radius;
 		
-		this.setRelativePosition(Position.TOP);
+		this.setAxialMethod( AxialMethod.TOP);
 		this.setAxialOffset(0.0);
 	}
 	

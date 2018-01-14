@@ -16,6 +16,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * The base class for all OpenRocket to Rocksim conversions.
@@ -93,17 +94,17 @@ public abstract class BasePartDTO {
         //When the relative position is BOTTOM, the position location of the bottom edge of the component is +
         //to the right of the bottom of the parent, and - to the left.
         //But in Rocksim, it's + to the left and - to the right
-        if (ec.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
+        if (ec.getAxialMethod().equals(AxialMethod.BOTTOM)) {
             setXb((-1 * ec.getAxialOffset()) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
-        else if (ec.getRelativePosition().equals(RocketComponent.Position.MIDDLE)) {
+        else if (ec.getAxialMethod().equals(AxialMethod.MIDDLE)) {
             //Mapped to TOP, so adjust accordingly
             setXb((ec.getAxialOffset() + (ec.getParent().getLength() - ec.getLength()) /2)* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
 
         if (ec instanceof ExternalComponent) {
             ExternalComponent comp = (ExternalComponent) ec;
-            setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
+            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
 
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
@@ -118,7 +119,7 @@ public abstract class BasePartDTO {
         else if (ec instanceof StructuralComponent) {
             StructuralComponent comp = (StructuralComponent) ec;
 
-            setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
+            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
             String compMaterial = comp.getMaterial().getName();
@@ -130,7 +131,7 @@ public abstract class BasePartDTO {
         else if (ec instanceof RecoveryDevice) {
             RecoveryDevice comp = (RecoveryDevice) ec;
 
-            setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
+            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
             String compMaterial = comp.getMaterial().getName();

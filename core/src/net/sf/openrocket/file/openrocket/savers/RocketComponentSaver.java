@@ -23,6 +23,8 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
@@ -95,20 +97,22 @@ public class RocketComponentSaver {
 			if( c instanceof RingInstanceable){
 				RingInstanceable ring = (RingInstanceable)c;
 				emitInteger( elements, "instancecount", instanceCount );
-				if( ring.getAutoRadialOffset() ){
+				// WARNING!! THIS IS WRONG! 
+				// TODO: Re-Implement
+				if( RadiusMethod.SURFACE == ring.getRadiusMethod() ) {
 					emitString(elements, "radialoffset", "auto");
 				}else{
-					emitDouble( elements, "radialoffset", ring.getRadialOffset() );
+					emitDouble( elements, "radialoffset", ring.getRadiusOffset() );
 				}
-				emitDouble( elements, "angularoffset", ring.getAngularOffset()*180.0/Math.PI);
+				emitDouble( elements, "angularoffset", ring.getAngleOffset()*180.0/Math.PI);
 			}
 		}
 		
 		
 		// Save position unless "AFTER"
-		if (c.getRelativePosition() != RocketComponent.Position.AFTER) {
+		if (c.getAxialMethod() != AxialMethod.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
-			String type = c.getRelativePosition().name().toLowerCase(Locale.ENGLISH);
+			String type = c.getAxialMethod().name().toLowerCase(Locale.ENGLISH);
 			elements.add("<position type=\"" + type + "\">" + c.getAxialOffset() + "</position>");
 		}
 		

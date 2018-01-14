@@ -3,12 +3,12 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.BoundingBox;
@@ -19,14 +19,11 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent implements RingInstanceable, AxialPositionable {
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
-	
 	
 	/**
 	 * Maximum allowed cant of fins.
 	 */
 	public static final double MAX_CANT = (15.0 * Math.PI / 180);
-	
 	
 	public enum CrossSection {
 		//// Square
@@ -83,11 +80,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
 	protected Transformation finRotation = Transformation.IDENTITY;
+
 	
+		
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
-	protected double baseRotationValue = 0;	
+	private AngleMethod angleMethod = AngleMethod.RELATIVE;
+	protected double firstFinOffset = 0;	
 	
 	/**
 	 * Cant angle of fins.
@@ -97,7 +97,9 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/* Cached value: */
 	private Transformation cantRotation = null;
 	
-	
+	// fixed to body surface...
+	final private RadiusMethod radiusMethod = RadiusMethod.SURFACE;
+		
 	/**
 	 * Thickness of the fins.
 	 */
@@ -139,7 +141,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * i.e. fins are positioned at the bottom of the parent component.
 	 */
 	public FinSet() {
-		super(RocketComponent.Position.BOTTOM);
+		super( AxialMethod.BOTTOM);
 		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
@@ -180,7 +182,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @return The base rotation amount.
 	 */
 	public double getBaseRotation() {
-		return getAngularOffset();
+		return getAngleOffset();
 	}
 	
 	/**
@@ -188,7 +190,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @param r The base rotation in radians
 	 */
 	public void setBaseRotation(double r) {
-		setAngularOffset(r);
+		setAngleOffset(r);
 	}
 	
 	public double getCantAngle() {
@@ -242,14 +244,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		crossSection = cs;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
-	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
+		
 	public double getTabHeight() {
 		return tabHeight;
 	}
@@ -420,7 +415,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		double filletMass = getFilletMass();
 		
 		if (fins == 1) {
-			Transformation rotation = Transformation.rotate_x( getAngularOffset()); 
+			Transformation rotation = Transformation.rotate_x( getAngleOffset()); 
 			return rotation.transform(
 					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
@@ -457,6 +452,11 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 				- outerAngle * filletRadius * filletRadius / 2
 				- innerAngle * btRadius * btRadius / 2);
 		return 2 * filletVolume;
+	}
+	
+	@Override
+	public double getOuterRadius(){
+		return 0.0;
 	}
 	
 	private void calculateAreaCG() {
@@ -705,17 +705,17 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	@Override
-	public double getAngularOffset() {
-		return baseRotationValue;
+	public double getAngleOffset() {
+		return firstFinOffset;
 	}
 
 
 	@Override
-	public void setAngularOffset(double angle) {
+	public void setAngleOffset(double angle) {
 		angle = MathUtil.reduce180(angle);
-		if (MathUtil.equals(angle, baseRotationValue))
+		if (MathUtil.equals(angle, firstFinOffset))
 			return;
-		baseRotationValue = angle;
+		firstFinOffset = angle;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -726,7 +726,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	@Override
 	public double[] getInstanceAngles(){
-		final double baseAngle = getAngularOffset();
+		final double baseAngle = getAngleOffset();
 		final double incrAngle = getInstanceAngleIncrement();
 		
 		double[] result = new double[ getFinCount()]; 
@@ -758,34 +758,43 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	@Override
-	public Position getAxialPositionMethod( ){
-		return getRelativePositionMethod();
+	public void setAxialMethod(final AxialMethod newAxialMethod) {
+		super.setAxialMethod(newAxialMethod);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+	 
 	@Override
-	public void setAxialPositionMethod( Position newMethod ){
-		setRelativePosition( newMethod );
-	}
-	
-	@Override
-	public double getRadialOffset() {
-		return getBodyRadius();
+	public AngleMethod getAngleMethod() {
+		return this.angleMethod;
 	}
 
 	@Override
-	public boolean getAutoRadialOffset() {
-		return true;
+	public void setAngleMethod(AngleMethod newAngleMethod ) {
+		mutex.verify();
+		this.angleMethod = newAngleMethod;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	@Override
-	public void setRadialOffset(double radius) {
-		// no-op.  Not allowed for fins		
+	public RadiusMethod getRadiusMethod() {
+		return this.radiusMethod;
+	}
+
+	@Override
+	public void setRadiusMethod(RadiusMethod newRadiusMethod) {
+		// no-op.  Fins are inherently set to RadiusMethod.SURFACE @ 0.0 
+	}
+
+	@Override
+	public void setRadius( final RadiusMethod newMethod, final double newRadius_m ) {
+		// no-op.  Fins are inherently set to RadiusMethod.SURFACE @ 0.0 
 	}
 	
 	@Override
-	public void setAutoRadialOffset( final boolean auto ) {
-		// no-op.  Fins are *always* automatically positioned
+	public void setRadiusOffset(double radius) {
+		// no-op.  Fins are inherently set to RadiusMethod.SURFACE @ 0.0 
 	}
+	
 
 	@Override
 	public void setInstanceCount(int newCount) {
@@ -816,7 +825,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		FinSet src = (FinSet) c;
 		this.fins = src.fins;
 		this.finRotation = src.finRotation;
-		this.baseRotationValue = src.baseRotationValue;
+		this.firstFinOffset = src.firstFinOffset;
 		this.cantAngle = src.cantAngle;
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;

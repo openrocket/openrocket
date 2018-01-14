@@ -118,7 +118,8 @@ class DocumentConfig {
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(
 				Reflection.findMethod(RocketComponent.class, "setLineStyle", LineStyle.class),
 				LineStyle.class));
-		setters.put("RocketComponent:position", new PositionSetter());
+		setters.put("RocketComponent:position", new AxialPositionSetter() );
+		setters.put("RocketComponent:axialposition", new AxialPositionSetter() );
 		setters.put("RocketComponent:overridemass", new OverrideSetter(
 				Reflection.findMethod(RocketComponent.class, "setOverrideMass", double.class),
 				Reflection.findMethod(RocketComponent.class, "setMassOverridden", boolean.class)));
@@ -135,6 +136,7 @@ class DocumentConfig {
 		setters.put("RocketComponent:preset", new ComponentPresetSetter(
 				Reflection.findMethod(RocketComponent.class, "loadPreset", ComponentPreset.class)));
 		
+
 		// ExternalComponent
 		setters.put("ExternalComponent:finish", new EnumSetter<Finish>(
 				Reflection.findMethod(ExternalComponent.class, "setFinish", Finish.class),
@@ -155,15 +157,10 @@ class DocumentConfig {
 
 		// Parallel Stage
 		setters.put("ParallelStage:instancecount", new IntSetter(
-				Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
-		setters.put("ParallelStage:radialoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class),
-				"auto",
-				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
-		// file in degrees, internal in radians
-		setters.put("ParallelStage:angularoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setAngularOffset", double.class), Math.PI / 180.0));
-		
+                   Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
+		setters.put("ParallelStage:angleposition", new AnglePositionSetter());      
+        setters.put("ParallelStage:radiusposition", new RadiusPositionSetter());
+       
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
 				Reflection.findMethod(SymmetricComponent.class, "setThickness", double.class),
@@ -176,7 +173,7 @@ class DocumentConfig {
 		setters.put("LaunchLug:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
 		setters.put("LaunchLug:radialdirection",  new DoubleSetter(
-				Reflection.findMethod( LaunchLug.class, "setAngularOffset", double.class), Math.PI / 180.0));
+				Reflection.findMethod( LaunchLug.class, "setAngleOffset", double.class), Math.PI / 180.0));
 		setters.put("LaunchLug:radius", new DoubleSetter(
 				Reflection.findMethod(LaunchLug.class, "setOuterRadius", double.class)));
 		setters.put("LaunchLug:length", new DoubleSetter(
@@ -189,8 +186,7 @@ class DocumentConfig {
 				Reflection.findMethod( RailButton.class, "setInstanceCount",int.class)));
 		setters.put("RailButton:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
-		setters.put("RailButton:angularoffset",  new DoubleSetter(
-				Reflection.findMethod( RailButton.class, "setAngularOffset", double.class), Math.PI / 180.0));
+		setters.put("RailButton:angularoffset",  new AnglePositionSetter() );
 		setters.put("RailButton:height",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setTotalHeight", double.class)));
 		setters.put("RailButton:outerdiameter",  new DoubleSetter(
@@ -246,12 +242,8 @@ class DocumentConfig {
 				Reflection.findMethod(FinSet.class, "setInstanceCount", int.class)));
 		setters.put("FinSet:rotation", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
-		setters.put("FinSet:angularoffset", new DoubleSetter(
-				Reflection.findMethod(FinSet.class, "setAngularOffset", double.class), Math.PI / 180.0));
-		setters.put("FinSet:radialoffset", new DoubleSetter(
-				Reflection.findMethod(FinSet.class, "setRadialOffset", double.class),
-				"auto",
-				Reflection.findMethod(FinSet.class, "setAutoRadialOffset", boolean.class)));
+		setters.put("FinSet:angularoffset", new AnglePositionSetter() );
+		setters.put("FinSet:radialoffset", new RadiusPositionSetter() );
 		setters.put("FinSet:thickness", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setThickness", double.class)));
 		setters.put("FinSet:crosssection", new EnumSetter<FinSet.CrossSection>(
@@ -431,19 +423,9 @@ class DocumentConfig {
 		// PodSet
 		setters.put("PodSet:instancecount", new IntSetter(
 				Reflection.findMethod(PodSet.class, "setInstanceCount",int.class)));
-		setters.put("PodSet:radialoffset", new DoubleSetter(
-				Reflection.findMethod(PodSet.class, "setRadialOffset", double.class),
-				"auto",
-				Reflection.findMethod(PodSet.class, "setAutoRadialOffset", boolean.class)));
-
-		setters.put("ParallelStage:radialoffset", new DoubleSetter(
-				Reflection.findMethod(ParallelStage.class, "setRadialOffset", double.class),
-				"auto",
-				Reflection.findMethod(ParallelStage.class, "setAutoRadialOffset", boolean.class)));
-		
-		setters.put("PodSet:angularoffset", new DoubleSetter(
-				Reflection.findMethod(PodSet.class, "setAngularOffset", double.class),Math.PI / 180.0));
-				
+		setters.put("PodSet:radiusoffset", new RadiusPositionSetter() );
+		setters.put("PodSet:angleoffset", new AnglePositionSetter() );
+		                           
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
 				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));

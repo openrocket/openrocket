@@ -20,6 +20,7 @@ import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -85,14 +86,8 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		JLabel positionLabel = new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto"));
 		motherPanel.add( positionLabel);
 		
-		ComboBoxModel<RocketComponent.Position> relativePositionMethodModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
-				new RocketComponent.Position[] {
-						RocketComponent.Position.TOP,
-						RocketComponent.Position.MIDDLE,
-						RocketComponent.Position.BOTTOM,
-						RocketComponent.Position.ABSOLUTE
-				});
-		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( relativePositionMethodModel );
+		ComboBoxModel<AxialMethod> axialPositionMethodModel = new EnumModel<AxialMethod>(component, "RelativePositionMethod", AxialMethod.axialOffsetMethods );
+		JComboBox<?> positionMethodCombo = new JComboBox<AxialMethod>( axialPositionMethodModel );
 		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");
 		
 		// relative offset labels

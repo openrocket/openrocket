@@ -6,6 +6,7 @@ import java.util.Collection;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -53,7 +54,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
 	public RailButton(){
-		super(Position.MIDDLE);
+		super(AxialMethod.MIDDLE);
 		this.outerDiameter_m = 0;
 		this.totalHeight_m = 0;		
 		this.innerDiameter_m = 0;
@@ -69,7 +70,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 	
 	public RailButton( final double od, final double id, final double ht, final double flangeThickness, final double _standoff ) {
-		super(Position.MIDDLE);
+		super(AxialMethod.MIDDLE);
 		this.outerDiameter_m = od;
 		this.totalHeight_m = ht;
 		this.innerDiameter_m = id;
@@ -191,8 +192,8 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
+	public void setAxialMethod( AxialMethod position) {
+		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	

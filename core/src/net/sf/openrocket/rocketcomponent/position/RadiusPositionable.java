@@ -1,8 +1,22 @@
 package net.sf.openrocket.rocketcomponent.position;
 
 public interface RadiusPositionable {
-	public boolean getAutoRadialOffset();	
-	public double getRadialOffset();
-	public void setAutoRadialOffset( final boolean auto );
-	public void setRadialOffset(final double radius);
+	
+	public double getOuterRadius();
+	
+	public double getRadiusOffset();
+	public void setRadiusOffset(final double radius);
+	
+	public RadiusMethod getRadiusMethod();
+	public void setRadiusMethod( final RadiusMethod method );
+	
+	/**
+	 * Equivalent to:
+	 * `instance.setRadiusMethod(); instance.setRadiusOffset()`
+	 * 
+	 * @param radius
+	 * @param method
+	 */
+	public void setRadius( final RadiusMethod method, final double radius );
+	
 }
