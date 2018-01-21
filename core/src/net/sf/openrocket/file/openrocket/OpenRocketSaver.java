@@ -18,12 +18,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.PodSet;
-import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -218,66 +214,20 @@ public class OpenRocketSaver extends RocketSaver {
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 * 
 		 * File version 1.8 is required for:
+		 *  - new-style positioning
 		 *  - external/parallel booster stages
 		 *  - external pods
 		 *  - Rail Buttons
-		 * 
-		 * File version 1.7 is required for:
-		 *  - simulation extensions
-		 *  - saving tube fins.
-		 * 
-		 * File version 1.6 is required for:
-		 *  - saving files using appearances and textures, flight configurations.
 		 *  
-		 * File version 1.5 is requires for:
-		 *  - saving designs using ComponentPrests
-		 *  - recovery device deployment on lower stage separation
-		 *  - custom expressions
-		 *  
-		 * File version 1.4 is required for:
-		 *  - saving simulation data
-		 *  - saving motor data
-		 * 
-		 * File version 1.1 is required for:
-		 *  - fin tabs
-		 *  - components attached to tube coupler
-		 * 
-		 * Otherwise use version 1.0.
+		 * Otherwise use version 1.8.
 		 */
-		
 		
 		/////////////////
 		// Version 1.8 // 
 		/////////////////
-		// Search the rocket for any Boosters or Pods (version 1.8)
-		for (RocketComponent c : document.getRocket()) {
-			if ((c instanceof ParallelStage) || (c instanceof PodSet) || (c instanceof RailButton)) {
-				return FILE_VERSION_DIVISOR + 8;
-			}
-		}
-		
-		/////////////////
-		// Version 1.7 // 
-		/////////////////
-		for (Simulation sim : document.getSimulations()) {
-			if (!sim.getSimulationExtensions().isEmpty()) {
-				return FILE_VERSION_DIVISOR + 7;
-			}
-		}
-		
-		// Search the rocket for any TubeFinSet objects (version 1.7)
-		for (RocketComponent c : document.getRocket()) {
-			if (c instanceof TubeFinSet) {
-				return FILE_VERSION_DIVISOR + 7;
-			}
-		}
-		
-		/////////////////
-		// Version 1.6 // 
-		/////////////////
-
-		// OpenRocket only writes back to 1.6 now.
-		return FILE_VERSION_DIVISOR + 6;
+		// for any new-style positioning:  'axialoffset', 'angleoffset', 'radiusoffset' tags
+		// these tags are used for any RocketComponent child classes positioning... so... ALL the classes.
+		return FILE_VERSION_DIVISOR + 8;
 		
 	}
 	
