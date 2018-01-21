@@ -168,7 +168,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
 		
-		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		
 		panel.add(positionCombo, "spanx, growx, wrap");

@@ -125,7 +125,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));
 		
-	      final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+	      final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 	      final JComboBox<AxialMethod> methodCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add(methodCombo, "spanx, growx, wrap");
 		

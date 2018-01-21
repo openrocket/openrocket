@@ -13,7 +13,7 @@ import net.sf.openrocket.util.MathUtil;
 
 
 
-public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanceable, AnglePositionable {
+public class LaunchLug extends ExternalComponent implements AnglePositionable, Coaxial, LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	

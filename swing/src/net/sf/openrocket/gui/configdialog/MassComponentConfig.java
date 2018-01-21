@@ -110,7 +110,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 		
-        final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+        final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add(methodCombo, "spanx, growx, wrap");
 		//// plus

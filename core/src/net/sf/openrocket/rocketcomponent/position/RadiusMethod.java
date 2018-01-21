@@ -9,7 +9,7 @@ public enum RadiusMethod implements DistanceMethod {
 
 	// just as a reminder:
 	// public T[] getEnumConstants()
-	
+
 	// both components are on the same axis
 	COAXIAL ( Application.getTranslator().get("RocketComponent.Position.Method.Radius.COAXIAL") ){
 		@Override
@@ -53,6 +53,10 @@ public enum RadiusMethod implements DistanceMethod {
 			return 0.; // fail-safe path
 		}
 	};
+
+	public static final RadiusMethod[] choices(){
+		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE, RadiusMethod.SURFACE }; 
+	}
 	
 	public final String name;
 	

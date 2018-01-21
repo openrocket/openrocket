@@ -29,7 +29,7 @@ public enum AngleMethod implements DistanceMethod {
 	// Mirror Instances 
 	//   - Intended for 2x-instance components...
 	//   - Undefined behavior for components with 3 or more instances
-	MIRRORED_XY (Application.getTranslator().get("RocketComponent.Position.Method.Angle.MIRROR_XY") ){
+	MIRROR_XY (Application.getTranslator().get("RocketComponent.Position.Method.Angle.MIRROR_XY") ){
 		@Override
 		public boolean clampToZero() { return false; }
 		
@@ -44,6 +44,10 @@ public enum AngleMethod implements DistanceMethod {
 			return combinedAngle;
 		}
 	};
+	
+	public static final AngleMethod[] choices(){
+		return new AngleMethod[]{ AngleMethod.RELATIVE, AngleMethod.FIXED };  
+	}
 
 	public final String name;
 	

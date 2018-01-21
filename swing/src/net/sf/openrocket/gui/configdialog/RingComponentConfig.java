@@ -127,7 +127,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 		
-	    final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+	    final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx 3, growx, wrap");
 		

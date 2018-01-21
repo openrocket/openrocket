@@ -21,7 +21,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	
 		RailButton btn = (RailButton)component;
 
-		final double rotation_rad = btn.getAngularOffset();
+		final double rotation_rad = btn.getAngleOffset();
 		final double baseHeight = btn.getStandoff();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
@@ -87,7 +87,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	
 		net.sf.openrocket.rocketcomponent.RailButton btn = (net.sf.openrocket.rocketcomponent.RailButton)component;
 
-		final double rotation_rad = btn.getAngularOffset();
+		final double rotation_rad = btn.getAngleOffset();
 		final double sinr = Math.sin(rotation_rad);
 		final double cosr = Math.cos(rotation_rad);
 		final double baseHeight = btn.getStandoff();

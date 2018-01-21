@@ -146,7 +146,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
 		
-		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods ));
+		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
 		panel.add(positionCombo, "spanx 3, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");

@@ -15,9 +15,8 @@ class AxialPositionSetter implements Setter {
 		
 		// first check preferred attribute name:
 		AxialMethod type = (AxialMethod) DocumentConfig.findEnum(attributes.get("method"), AxialMethod.class);
-		
 		// fall-back to old name
-		if (type == null) {
+		if (null == type) {
 			type = (AxialMethod) DocumentConfig.findEnum(attributes.get("type"), AxialMethod.class);	
 		}
 		
@@ -30,7 +29,7 @@ class AxialPositionSetter implements Setter {
 		try {
 			pos = Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add(String.format("Warning: invalid value radius position. value=%s    class: %s", value, c.getClass().getCanonicalName() ));
 			return;
 		}
 		
@@ -39,7 +38,7 @@ class AxialPositionSetter implements Setter {
 			apc.setAxialMethod(type);
 			apc.setAxialOffset(pos);
 		} else {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add(String.format("Warning: %s is not valid for class: %s", this.getClass().getCanonicalName(), c.getClass().getCanonicalName()));
 		}
 		
 	}

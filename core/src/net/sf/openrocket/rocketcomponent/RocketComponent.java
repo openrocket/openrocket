@@ -1,7 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;

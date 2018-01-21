@@ -64,7 +64,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Posrelativeto")));
 		
-		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<AxialMethod> combo = new JComboBox<AxialMethod>( methodModel );
 		panel2.add(combo, "spanx, growx, wrap");
 		

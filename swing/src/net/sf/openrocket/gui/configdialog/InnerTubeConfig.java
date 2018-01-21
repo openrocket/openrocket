@@ -140,7 +140,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 
-		JComboBox<?> combo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods ));
+		JComboBox<?> combo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
 		panel.add(combo, "spanx 3, growx, wrap");
 
 		//// plus

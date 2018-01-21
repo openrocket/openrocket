@@ -67,7 +67,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 
 		{ //// Angular Position:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));
-			DoubleModel angleModel = new DoubleModel(component, "AngularOffset", UnitGroup.UNITS_ANGLE, -180, +180);
+			DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
 			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
 			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 			panel.add(angleSpinner, "growx");
@@ -78,7 +78,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
 			
-			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 			JComboBox<AxialMethod> relToCombo = new JComboBox<AxialMethod>( methodModel );
 			panel.add( relToCombo, "growx, wrap rel");
 		}

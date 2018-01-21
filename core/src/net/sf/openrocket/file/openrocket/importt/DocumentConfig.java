@@ -119,7 +119,7 @@ class DocumentConfig {
 				Reflection.findMethod(RocketComponent.class, "setLineStyle", LineStyle.class),
 				LineStyle.class));
 		setters.put("RocketComponent:position", new AxialPositionSetter() );
-		setters.put("RocketComponent:axialposition", new AxialPositionSetter() );
+		setters.put("RocketComponent:axialoffset", new AxialPositionSetter() );
 		setters.put("RocketComponent:overridemass", new OverrideSetter(
 				Reflection.findMethod(RocketComponent.class, "setOverrideMass", double.class),
 				Reflection.findMethod(RocketComponent.class, "setMassOverridden", boolean.class)));
@@ -158,8 +158,8 @@ class DocumentConfig {
 		// Parallel Stage
 		setters.put("ParallelStage:instancecount", new IntSetter(
                    Reflection.findMethod(ParallelStage.class, "setInstanceCount",int.class)));
-		setters.put("ParallelStage:angleposition", new AnglePositionSetter());      
-        setters.put("ParallelStage:radiusposition", new RadiusPositionSetter());
+		setters.put("ParallelStage:angleoffset", new AnglePositionSetter());      
+        setters.put("ParallelStage:radiusoffset", new RadiusPositionSetter());
        
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
@@ -174,6 +174,7 @@ class DocumentConfig {
 				Reflection.findMethod( LaunchLug.class, "setInstanceSeparation", double.class)));
 		setters.put("LaunchLug:radialdirection",  new DoubleSetter(
 				Reflection.findMethod( LaunchLug.class, "setAngleOffset", double.class), Math.PI / 180.0));
+		setters.put("LaunchLug:angleoffset",  new AnglePositionSetter() );
 		setters.put("LaunchLug:radius", new DoubleSetter(
 				Reflection.findMethod(LaunchLug.class, "setOuterRadius", double.class)));
 		setters.put("LaunchLug:length", new DoubleSetter(
@@ -186,7 +187,7 @@ class DocumentConfig {
 				Reflection.findMethod( RailButton.class, "setInstanceCount",int.class)));
 		setters.put("RailButton:instanceseparation",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setInstanceSeparation", double.class)));
-		setters.put("RailButton:angularoffset",  new AnglePositionSetter() );
+		setters.put("RailButton:angleoffset",  new AnglePositionSetter() );
 		setters.put("RailButton:height",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setTotalHeight", double.class)));
 		setters.put("RailButton:outerdiameter",  new DoubleSetter(
@@ -242,8 +243,8 @@ class DocumentConfig {
 				Reflection.findMethod(FinSet.class, "setInstanceCount", int.class)));
 		setters.put("FinSet:rotation", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
-		setters.put("FinSet:angularoffset", new AnglePositionSetter() );
-		setters.put("FinSet:radialoffset", new RadiusPositionSetter() );
+		setters.put("FinSet:angleoffset", new AnglePositionSetter() );
+		setters.put("FinSet:radiusoffset", new RadiusPositionSetter() );
 		setters.put("FinSet:thickness", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setThickness", double.class)));
 		setters.put("FinSet:crosssection", new EnumSetter<FinSet.CrossSection>(

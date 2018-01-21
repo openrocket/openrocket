@@ -2,7 +2,6 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
@@ -14,26 +13,25 @@ class AnglePositionSetter implements Setter {
 	public void set(RocketComponent c, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		AngleMethod type = (AngleMethod) DocumentConfig.findEnum(attributes.get("method"), AngleMethod.class);
-		if (type == null) {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
-			return;
+		AngleMethod method = (AngleMethod) DocumentConfig.findEnum(attributes.get("method"), AngleMethod.class);
+		if (null==method) {
+			method=AngleMethod.RELATIVE;
 		}
 		
 		double pos;
 		try {
-			pos = Double.parseDouble(value);
+			pos = Double.parseDouble(value) * Math.PI / 180.0 ;
 		} catch (NumberFormatException e) {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add(String.format("Warning: invalid value radius position. value=%s    class: %s", value, c.getClass().getCanonicalName() ));
 			return;
 		}
 
 		if ( AnglePositionable.class.isAssignableFrom( c.getClass() ) ) {
 			AnglePositionable apc = (AnglePositionable)c;
-			apc.setAngleMethod(type);
+			apc.setAngleMethod(method);
 			apc.setAngleOffset(pos);
 		} else {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add(String.format("Warning: %s is not valid for class: %s", this.getClass().getCanonicalName(), c.getClass().getCanonicalName()));
 		}
 		
 	}

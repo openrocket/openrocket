@@ -111,7 +111,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));		
-		EnumModel<AxialMethod> positionModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+		EnumModel<AxialMethod> positionModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( positionModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
 		

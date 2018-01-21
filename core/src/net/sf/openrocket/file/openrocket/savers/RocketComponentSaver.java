@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
@@ -20,11 +21,11 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.LineInstanceable;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RingInstanceable;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
@@ -86,36 +87,40 @@ public class RocketComponentSaver {
 		
 		if ( c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
+			
 			if( c instanceof Clusterable ){
 				; // no-op.  Instance counts are set via named cluster configurations
+			}else if( 1 < instanceCount ) {
+				emitInteger( elements, "instancecount", c.getInstanceCount() );
 			}
+			
 			if( c instanceof LineInstanceable ){
 				LineInstanceable line = (LineInstanceable)c;
-				emitInteger( elements, "instancecount", instanceCount );
 				emitDouble( elements, "instanceseparation", line.getInstanceSeparation());
 			}
-			if( c instanceof RingInstanceable){
-				RingInstanceable ring = (RingInstanceable)c;
-				emitInteger( elements, "instancecount", instanceCount );
-				// WARNING!! THIS IS WRONG! 
-				// TODO: Re-Implement
-				if( RadiusMethod.SURFACE == ring.getRadiusMethod() ) {
-					emitString(elements, "radialoffset", "auto");
-				}else{
-					emitDouble( elements, "radialoffset", ring.getRadiusOffset() );
-				}
-				emitDouble( elements, "angularoffset", ring.getAngleOffset()*180.0/Math.PI);
+			if( c instanceof RadiusPositionable ){
+				final RadiusPositionable radPos = (RadiusPositionable)c;
+				// The type names are currently equivalent to the enum names except for case.
+				final String radiusMethod = radPos.getRadiusMethod().name().toLowerCase(Locale.ENGLISH);
+				final double radiusOffset = radPos.getRadiusOffset();
+				elements.add("<radiusoffset method=\"" + radiusMethod + "\">" + radiusOffset + "</radiusoffset>");
+			}
+			if( c instanceof AnglePositionable ) { 
+				final AnglePositionable anglePos= (AnglePositionable)c; 
+				// The type names are currently equivalent to the enum names except for case.
+				final String angleMethod = anglePos.getAngleMethod().name().toLowerCase(Locale.ENGLISH);
+				final double angleOffset = anglePos.getAngleOffset()*180.0/Math.PI ;
+				elements.add("<angleoffset method=\"" + angleMethod + "\">" + angleOffset + "</angleoffset>");
+				
 			}
 		}
-		
 		
 		// Save position unless "AFTER"
 		if (c.getAxialMethod() != AxialMethod.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
-			String type = c.getAxialMethod().name().toLowerCase(Locale.ENGLISH);
-			elements.add("<position type=\"" + type + "\">" + c.getAxialOffset() + "</position>");
+			String axialMethod = c.getAxialMethod().name().toLowerCase(Locale.ENGLISH);
+			elements.add("<axialoffset method=\"" + axialMethod + "\">" + c.getAxialOffset() + "</axialoffset>");
 		}
-		
 		
 		// Overrides
 		boolean overridden = false;
@@ -252,17 +257,31 @@ public class RocketComponentSaver {
 	}
 	
     protected static void emitDouble( final List<String> elements, final String enclosingTag, final double value){
-    		emitString( elements, enclosingTag, Double.toString( value ));
+   		appendElement( elements, enclosingTag, enclosingTag, Double.toString( value ));
     }
 
     protected static void emitInteger( final List<String> elements, final String enclosingTag, final int value){
-    		elements.add("<"+enclosingTag+">" +  Integer.toString( value ) + "</"+enclosingTag+">");
+   		appendElement( elements, enclosingTag, enclosingTag, Integer.toString( value ) );
     }
 
     protected static void emitString( final List<String> elements, final String enclosingTag, final String value){
-    		elements.add("<"+enclosingTag+">" + value + "</"+enclosingTag+">");
+   		appendElement( elements, enclosingTag, enclosingTag, value );
     }
 
+    protected static String generateOpenTag( final Map<String,String> attrs, final String enclosingTag ){
+       StringBuffer buf = new StringBuffer();
+       if( null == attrs ) {
+    	   return enclosingTag;
+       }
+       
+       for (Map.Entry<String, String> entry : attrs.entrySet()) {
+           buf.append(String.format(" %s=\"%s\"", entry.getKey(), entry.getValue() ));
+       }
+       return buf.toString();
+    }
 
+    protected static void appendElement( final List<String> elements, final String openTag, final String closeTag, final String elementValue ){
+    	elements.add("<"+openTag+">" + elementValue + "</"+closeTag+">");    	
+    }
 	
 }

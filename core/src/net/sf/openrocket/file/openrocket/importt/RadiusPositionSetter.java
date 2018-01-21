@@ -2,7 +2,6 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
@@ -14,10 +13,9 @@ class RadiusPositionSetter implements Setter {
 	public void set(RocketComponent c, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		RadiusMethod method = (RadiusMethod) DocumentConfig.findEnum(attributes.get("type"), RadiusMethod.class);
+		RadiusMethod method = (RadiusMethod) DocumentConfig.findEnum(attributes.get("method"), RadiusMethod.class);
 		if (method == null) {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
-			return;
+			method = RadiusMethod.SURFACE;
 		}
 		
 		
@@ -25,7 +23,7 @@ class RadiusPositionSetter implements Setter {
 		try {
 			offset = Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add(String.format("Warning: invalid value radius position. value=%s    class: %s", value, c.getClass().getCanonicalName() ));
 			return;
 		}
 		
@@ -34,7 +32,7 @@ class RadiusPositionSetter implements Setter {
 			rp.setRadiusMethod(method);
 			rp.setRadiusOffset(offset);
 		} else {
-			warnings.add(Warning.FILE_INVALID_PARAMETER);
+			warnings.add("Warning: radiusPositionable is not valid for this class: "+c.getClass().getCanonicalName());
 		}
 		
 	}

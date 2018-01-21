@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@SuppressWarnings("serial")
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
@@ -178,10 +179,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				"w 100lp, growx 5, wrap");
 		
 
-		////  Tab length
 		//// Tab height:
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
-		//// The spanwise height of the fin tab.
+		//// The span-wise height of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
 		panel.add(label, "gapleft para");
 		
@@ -210,16 +210,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(mts), "growx");
 		panel.add(new BasicSlider(mts.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
 		
-
 		//// relative to
 		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
-		final EnumModel<FinSet.TabRelativePosition> em =
-				new EnumModel<FinSet.TabRelativePosition>(component, "TabRelativePosition");
+		final EnumModel<FinSet.TabRelativePosition> em = new EnumModel<FinSet.TabRelativePosition>(component, "TabRelativePosition");
 		
-		panel.add(new JComboBox(em), "spanx 3, growx, wrap para");
+		JComboBox<?> enumCombo = new JComboBox<FinSet.TabRelativePosition>(em);
 		
+		panel.add( enumCombo, "spanx 3, growx, wrap para");
 
 		// Calculate fin tab height, length, and position
 		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
@@ -507,7 +506,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 		
-	    JComboBox combo = new JComboBox(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
+	    JComboBox<?> combo = new JComboBox<>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
 	    //// The component material affects the weight of the component.
 	    combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
 	    filletPanel.add(combo, "spanx 4, growx, wrap paragraph");

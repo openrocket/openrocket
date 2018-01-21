@@ -139,7 +139,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Posrelativeto")));
 		
-		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "RelativePosition", AxialMethod.axialOffsetMethods );
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
 		
