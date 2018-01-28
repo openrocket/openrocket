@@ -185,7 +185,7 @@ public class MassCalculation {
 		}
 		
 		
-		final double mountXPosition = root.getOffset().x;
+		final double mountXPosition = root.getPosition().x;
 		
 		final int instanceCount = root.getInstanceCount();
 
@@ -273,7 +273,7 @@ public class MassCalculation {
 			}
 
 			// mass data for *this component only* in the rocket-frame
-			compCM = parentTransform.transform( compCM.add(component.getOffset()) );
+			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
 			this.addMass( compCM );
 			
 			RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
@@ -360,7 +360,7 @@ public class MassCalculation {
 			Ir += eachGlobal.Ixx;
 			It += eachGlobal.Iyy;
 		}
-		
+
 		return new RigidBody( centerOfMass, Ir, It, It );	
 	}
 

@@ -2,10 +2,10 @@ package net.sf.openrocket.rocketcomponent.position;
 
 public interface AnglePositionable {
 
-	public double getAngularOffset();
+	public double getAngleOffset();
 	
-	public void setAngularOffset(final double angle);
+	public void setAngleOffset(final double angle);
 	
-//	public Position getAnglePositionMethod( );
-//	public void setAnglePositionMethod( Position newMethod );
+	public AngleMethod getAngleMethod( );
+	public void setAngleMethod( final AngleMethod newMethod );	
 }

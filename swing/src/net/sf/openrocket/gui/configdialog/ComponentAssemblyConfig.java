@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.ComboBoxModel;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -10,7 +9,6 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
@@ -20,12 +18,15 @@ import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
+@SuppressWarnings("serial")
 public class ComponentAssemblyConfig extends RocketComponentConfig {
-	private static final long serialVersionUID = -5153592258788614257L;
 	private static final Translator trans = Application.getTranslator();
 	
 	public ComponentAssemblyConfig(OpenRocketDocument document, RocketComponent component) {
@@ -42,29 +43,37 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	private JPanel parallelTab( final ComponentAssembly boosters ){
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
 		
-		// auto radial distance		
-		BooleanModel autoRadOffsModel = new BooleanModel( boosters, "AutoRadialOffset");
-		JCheckBox autoRadCheckBox = new JCheckBox( autoRadOffsModel );
-		autoRadCheckBox.setText( trans.get("StageConfig.parallel.autoradius"));
-		motherPanel.add( autoRadCheckBox, "align left, wrap");
+		// radial distance method
+		JLabel radiusMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Radius.Label"));
+        motherPanel.add( radiusMethodLabel, "align left");
+		final EnumModel<RadiusMethod> radiusMethodModel = new EnumModel<RadiusMethod>( boosters, "RadiusMethod", RadiusMethod.choices());
+		final JComboBox<RadiusMethod> radiusMethodCombo = new JComboBox<RadiusMethod>( radiusMethodModel );
+		motherPanel.add( radiusMethodCombo, "align left, wrap");
+		
 		// set radial distance
 		JLabel radiusLabel = new JLabel(trans.get("StageConfig.parallel.radius"));
 		motherPanel.add( radiusLabel , "align left");
-		autoRadOffsModel.addEnableComponent(radiusLabel, false);
-		DoubleModel radiusModel = new DoubleModel( boosters, "RadialOffset", UnitGroup.UNITS_LENGTH, 0);
+		//radiusMethodModel.addEnableComponent(radiusLabel, false);
+		DoubleModel radiusModel = new DoubleModel( boosters, "RadiusOffset", UnitGroup.UNITS_LENGTH, 0);
 
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
 		motherPanel.add(radiusSpinner , "growx 1, align right");
-		autoRadOffsModel.addEnableComponent(radiusSpinner, false);
+//		autoRadOffsModel.addEnableComponent(radiusSpinner, false);
 		UnitSelector radiusUnitSelector = new UnitSelector(radiusModel);
 		motherPanel.add(radiusUnitSelector, "growx 1, wrap");
-		autoRadOffsModel.addEnableComponent(radiusUnitSelector, false);
+//		autoRadOffsModel.addEnableComponent(radiusUnitSelector, false);
 		
 		// set location angle around the primary stage
+		JLabel angleMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Angle.Label"));
+		motherPanel.add( angleMethodLabel, "align left");
+		EnumModel<AngleMethod> angleMethodModel = new EnumModel<AngleMethod>( boosters, "AngleMethod", AngleMethod.choices() );
+		final JComboBox<AngleMethod> angleMethodCombo = new JComboBox<AngleMethod>( angleMethodModel );
+        motherPanel.add( angleMethodCombo, "align left, wrap");
+        
 		JLabel angleLabel = new JLabel(trans.get("StageConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
-		DoubleModel angleModel = new DoubleModel( boosters, "AngularOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
+		DoubleModel angleModel = new DoubleModel( boosters, "AngleOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
 
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
@@ -85,14 +94,8 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		JLabel positionLabel = new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto"));
 		motherPanel.add( positionLabel);
 		
-		ComboBoxModel<RocketComponent.Position> relativePositionMethodModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
-				new RocketComponent.Position[] {
-						RocketComponent.Position.TOP,
-						RocketComponent.Position.MIDDLE,
-						RocketComponent.Position.BOTTOM,
-						RocketComponent.Position.ABSOLUTE
-				});
-		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( relativePositionMethodModel );
+		ComboBoxModel<AxialMethod> axialPositionMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		JComboBox<?> positionMethodCombo = new JComboBox<AxialMethod>( axialPositionMethodModel );
 		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");
 		
 		// relative offset labels

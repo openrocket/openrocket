@@ -43,6 +43,7 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -139,14 +140,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 
-		JComboBox<?> combo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-						RocketComponent.Position.TOP,
-						RocketComponent.Position.MIDDLE,
-						RocketComponent.Position.BOTTOM,
-						RocketComponent.Position.ABSOLUTE
-				}));
+		JComboBox<?> combo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
 		panel.add(combo, "spanx 3, growx, wrap");
 
 		//// plus
@@ -347,7 +341,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 						Coordinate[] coords = new Coordinate[]{Coordinate.ZERO };
 						// coords = component.shiftCoordinates( coords); // old version
-						coords = component.getLocations();
+						coords = component.getComponentLocations();
 						parent.removeChild(index);
 						for (int i = 0; i < coords.length; i++) {
 							InnerTube copy = InnerTube.makeIndividualClusterComponent(coords[i], component.getName() + " #" + (i + 1), component);

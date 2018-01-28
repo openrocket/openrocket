@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -16,22 +18,24 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	
 	protected int instanceCount = 1;
 
-	protected double angularSeparation = Math.PI;
-	protected double angularPosition_rad = 0;
-	protected boolean autoRadialPosition = false;
-	protected double radialPosition_m = 0;
+	protected AngleMethod angleMethod = AngleMethod.RELATIVE;
+	protected double angleSeparation = Math.PI;
+	protected double angleOffset_rad = 0;
+	
+	protected RadiusMethod radiusMethod = RadiusMethod.SURFACE;
+	protected double radiusOffset_m = 0;
 	
 	public ParallelStage() {
 		this.instanceCount = 2;
-		this.relativePosition = Position.BOTTOM;
-		this.angularSeparation = Math.PI * 2 / this.instanceCount;
+		this.axialMethod = AxialMethod.BOTTOM;
+		this.angleSeparation = Math.PI * 2 / this.instanceCount;
 	}
 	
 	public ParallelStage( final int _count ){
 		this();
 		
 		this.instanceCount = _count;
-		this.angularSeparation = Math.PI * 2 / this.instanceCount;
+		this.angleSeparation = Math.PI * 2 / this.instanceCount;
 	}
 	
 	@Override
@@ -48,7 +52,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
 		
-		Coordinate[] instanceLocations = this.getLocations();
+		Coordinate[] instanceLocations = this.getComponentLocations();
 		
 		for (Coordinate currentInstanceLocation : instanceLocations) {
 			if (x_min > (currentInstanceLocation.x)) {
@@ -57,8 +61,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 			if (x_max < (currentInstanceLocation.x + this.length)) {
 				x_max = currentInstanceLocation.x + this.length;
 			}
-			if (r_max < (this.getRadialOffset())) {
-				r_max = this.getRadialOffset();
+			if (r_max < (this.getRadiusOffset())) {
+				r_max = this.getRadiusOffset();
 			}
 		}
 		addBound(bounds, x_min, r_max);
@@ -92,8 +96,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 
 	@Override
-	public double getAngularOffset() {
-		return this.angularPosition_rad;
+	public double getAngleOffset() {
+		return this.angleOffset_rad;
 	}
 
 	@Override
@@ -120,18 +124,18 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		}
 		
         this.instanceCount = newCount;
-        this.angularSeparation = Math.PI * 2 / this.instanceCount;
+        this.angleSeparation = Math.PI * 2 / this.instanceCount;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
-	public double getRadialOffset() {
-		return this.radialPosition_m;
+	public double getRadiusOffset() {
+		return this.radiusOffset_m;
 	}
 
 	@Override
 	public double[] getInstanceAngles(){
-		final double baseAngle = getAngularOffset();
+		final double baseAngle = getAngleOffset();
 		final double incrAngle = getInstanceAngleIncrement();
 		
 		double[] result = new double[ getInstanceCount()]; 
@@ -144,18 +148,20 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	
     @Override
     public double getInstanceAngleIncrement(){
-    	return this.angularSeparation;
+    	return this.angleSeparation;
     }
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		checkState();
 		
+		final double radius = this.radiusMethod.getRadius( this.parent, this, radiusOffset_m );
+
 		Coordinate[] toReturn = new Coordinate[this.instanceCount];
 		final double[] angles = getInstanceAngles();
 		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
-			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
-			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
+			final double curY = radius * Math.cos(angles[instanceNumber]);
+			final double curZ = radius * Math.sin(angles[instanceNumber]);
 			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
 		}
 		
@@ -168,52 +174,65 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 	
 	@Override
-	public void setRelativePositionMethod(final Position _newPosition) {
+	public void setAxialMethod(final AxialMethod _newPosition) {
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
 		
-		super.setRelativePosition(_newPosition);
+		super.setAxialMethod(_newPosition);
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override
-	public boolean getAutoRadialOffset(){
-		return this.autoRadialPosition;
-	}
-	
-	public void setAutoRadialOffset( final boolean enabled ){
-		this.autoRadialPosition = enabled;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
-	}
-	
-	@Override
-	public void setRadialOffset(final double radius) {
-		mutex.verify();
-		this.radialPosition_m = radius;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
+	public void setRadiusOffset(final double radius_m) {
+		setRadius( radiusMethod, radius_m );	
 	}
 
 	@Override
-	public void setAngularOffset(final double angle_rad) {
+	public void setAngleOffset(final double angle_rad) {
 		mutex.verify();
-		this.angularPosition_rad = MathUtil.reduce180( angle_rad);
+		this.angleOffset_rad = MathUtil.reduce180( angle_rad);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 		
 	@Override
-	protected void update() {
-		super.update();
+	public void setRadius( final RadiusMethod requestedMethod, final double requestedRadius ) {
+		mutex.verify();
 		
-		if( this.autoRadialPosition ){
-			ComponentAssembly parentAssembly = (ComponentAssembly)this.parent;
-			if( null == parentAssembly ){
-				this.radialPosition_m = this.getOuterRadius();
-			}else{
-				this.radialPosition_m = this.getOuterRadius() + parentAssembly.getOuterRadius();
-			}
-		}
+		RadiusMethod newMethod = requestedMethod; 
+		double newRadius = requestedRadius;
+		
+		if( newMethod.clampToZero() ) {
+			newRadius = 0.;
+		}	
+
+		this.radiusMethod = newMethod;
+		this.radiusOffset_m = newRadius;
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	@Override
+	public AngleMethod getAngleMethod() {
+		return this.angleMethod;
+	}
+
+	@Override
+	public void setAngleMethod(AngleMethod newAngleMethod ) {
+		mutex.verify();
+		this.angleMethod = newAngleMethod;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+	
+	@Override
+	public RadiusMethod getRadiusMethod() {
+		return this.radiusMethod;
+	}
+
+	@Override
+	public void setRadiusMethod(RadiusMethod newRadiusMethod) {
+		setRadius( newRadiusMethod, this.radiusOffset_m );
 	}
 	
 	

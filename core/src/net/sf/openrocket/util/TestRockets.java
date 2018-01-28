@@ -44,13 +44,13 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
@@ -350,7 +350,7 @@ public class TestRockets {
 		
 		if (c instanceof InternalComponent) {
 			InternalComponent i = (InternalComponent) c;
-			i.setRelativePosition((Position) randomEnum(Position.class));
+			i.setAxialMethod((AxialMethod) randomEnum(AxialMethod.class));
 			i.setAxialOffset(rnd(0.3));
 		}
 	}
@@ -423,13 +423,13 @@ public class TestRockets {
 			double finHeight = 0.05;
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 			finset.setThickness( 0.0032);
-			finset.setRelativePosition(Position.BOTTOM);
+			finset.setAxialMethod(AxialMethod.BOTTOM);
 			finset.setName("3 Fin Set");
 			bodytube.addChild(finset);
 			
 			LaunchLug lug = new LaunchLug();
 			lug.setName("Launch Lugs");
-			lug.setRelativePosition(Position.TOP);
+			lug.setAxialMethod(AxialMethod.TOP);
 			lug.setAxialOffset(0.111);
 			lug.setLength(0.050);
 			lug.setOuterRadius(0.0022);
@@ -437,7 +437,7 @@ public class TestRockets {
 			bodytube.addChild(lug);
 			
 			InnerTube inner = new InnerTube();
-			inner.setRelativePosition(Position.TOP);
+			inner.setAxialMethod(AxialMethod.TOP);
 			inner.setAxialOffset(0.133);
 			inner.setLength(0.07);
 			inner.setOuterRadius(0.009);
@@ -449,7 +449,7 @@ public class TestRockets {
 			{
 				// MotorBlock 
 				EngineBlock thrustBlock= new EngineBlock();
-				thrustBlock.setRelativePosition(Position.TOP);
+				thrustBlock.setAxialMethod(AxialMethod.TOP);
 				thrustBlock.setAxialOffset(0.0);
 				thrustBlock.setLength(0.005);
 				thrustBlock.setOuterRadius(0.009);
@@ -497,7 +497,7 @@ public class TestRockets {
 		
 			// parachute
 			Parachute chute = new Parachute();
-			chute.setRelativePosition(Position.TOP);
+			chute.setAxialMethod(AxialMethod.TOP);
 			chute.setName("Parachute");
 			chute.setAxialOffset(0.028);
 			chute.setOverrideMass(0.002);
@@ -507,7 +507,7 @@ public class TestRockets {
 			// bulkhead x2
 			CenteringRing centerings = new CenteringRing();
 			centerings.setName("Centering Rings");
-			centerings.setRelativePosition(Position.TOP);
+			centerings.setAxialMethod(AxialMethod.TOP);
 			centerings.setAxialOffset(0.14);
 			centerings.setLength(0.006);
 			centerings.setInstanceCount(2);
@@ -554,7 +554,7 @@ public class TestRockets {
 				coupler.setOuterRadiusAutomatic(true);
 				coupler.setThickness( sustainerThickness );
 				coupler.setLength(0.03);
-				coupler.setRelativePosition(Position.TOP);
+				coupler.setAxialMethod(AxialMethod.TOP);
 				coupler.setAxialOffset(-0.015);
 				boosterBody.addChild(coupler);
 				
@@ -566,7 +566,7 @@ public class TestRockets {
 				FinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 				finset.setName("Booster Fins");
 				finset.setThickness( 0.0032);
-				finset.setRelativePosition(Position.BOTTOM);
+				finset.setAxialMethod(AxialMethod.BOTTOM);
 				finset.setAxialOffset(0.);
 				boosterBody.addChild(finset);
 
@@ -574,7 +574,7 @@ public class TestRockets {
 				InnerTube boosterMMT = new InnerTube();
 				boosterMMT.setName("Booster MMT");
 				boosterMMT.setAxialOffset(0.005);
-				boosterMMT.setRelativePosition(Position.BOTTOM);
+				boosterMMT.setAxialMethod(AxialMethod.BOTTOM);
 				boosterMMT.setOuterRadius(0.019 / 2);
 				boosterMMT.setInnerRadius(0.018 / 2);
 				boosterMMT.setLength(0.05);
@@ -631,7 +631,7 @@ public class TestRockets {
 		//System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
 		
 		mcomp = new MassComponent(0.2, 0.03, 0.045 + 0.060);
-		mcomp.setRelativePosition(Position.TOP);
+		mcomp.setAxialMethod(AxialMethod.TOP);
 		mcomp.setAxialOffset(0);
 		
 		// Stage construction
@@ -712,25 +712,25 @@ public class TestRockets {
 		coupler.setLength(0.28);
 		coupler.setMassOverridden(true);
 		coupler.setOverrideMass(0.360);
-		coupler.setRelativePosition(Position.BOTTOM);
+		coupler.setAxialMethod(AxialMethod.BOTTOM);
 		coupler.setAxialOffset(-0.14);
 		tube1.addChild(coupler);
 		
 		// Parachute
 		MassComponent mass = new MassComponent(0.05, 0.05, 0.280);
-		mass.setRelativePosition(Position.TOP);
+		mass.setAxialMethod(AxialMethod.TOP);
 		mass.setAxialOffset(0.2);
 		tube1.addChild(mass);
 		
 		// Cord
 		mass = new MassComponent(0.05, 0.05, 0.125);
-		mass.setRelativePosition(Position.TOP);
+		mass.setAxialMethod(AxialMethod.TOP);
 		mass.setAxialOffset(0.2);
 		tube1.addChild(mass);
 		
 		// Payload
 		mass = new MassComponent(0.40, R, 1.500);
-		mass.setRelativePosition(Position.TOP);
+		mass.setAxialMethod(AxialMethod.TOP);
 		mass.setAxialOffset(0.25);
 		tube1.addChild(mass);
 		
@@ -743,7 +743,7 @@ public class TestRockets {
 		auxfinset.setSweep(0);
 		auxfinset.setThickness(0.008);
 		auxfinset.setCrossSection(CrossSection.AIRFOIL);
-		auxfinset.setRelativePosition(Position.TOP);
+		auxfinset.setAxialMethod(AxialMethod.TOP);
 		auxfinset.setAxialOffset(0.28);
 		auxfinset.setBaseRotation(Math.PI / 2);
 		tube1.addChild(auxfinset);
@@ -751,7 +751,7 @@ public class TestRockets {
 		coupler = new TubeCoupler();
 		coupler.setOuterRadiusAutomatic(true);
 		coupler.setLength(0.28);
-		coupler.setRelativePosition(Position.TOP);
+		coupler.setAxialMethod(AxialMethod.TOP);
 		coupler.setAxialOffset(0.47);
 		coupler.setMassOverridden(true);
 		coupler.setOverrideMass(0.360);
@@ -759,7 +759,7 @@ public class TestRockets {
 		
 		// Parachute
 		mass = new MassComponent(0.1, 0.05, 0.028);
-		mass.setRelativePosition(Position.TOP);
+		mass.setAxialMethod(AxialMethod.TOP);
 		mass.setAxialOffset(0.14);
 		tube2.addChild(mass);
 		
@@ -767,13 +767,13 @@ public class TestRockets {
 		bulk.setOuterRadiusAutomatic(true);
 		bulk.setMassOverridden(true);
 		bulk.setOverrideMass(0.050);
-		bulk.setRelativePosition(Position.TOP);
+		bulk.setAxialMethod(AxialMethod.TOP);
 		bulk.setAxialOffset(0.27);
 		tube2.addChild(bulk);
 		
 		// Chord
 		mass = new MassComponent(0.1, 0.05, 0.125);
-		mass.setRelativePosition(Position.TOP);
+		mass.setAxialMethod(AxialMethod.TOP);
 		mass.setAxialOffset(0.19);
 		tube2.addChild(mass);
 		
@@ -791,7 +791,7 @@ public class TestRockets {
 		center.setLength(0.005);
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
-		center.setRelativePosition(Position.BOTTOM);
+		center.setAxialMethod(AxialMethod.BOTTOM);
 		center.setAxialOffset(0);
 		tube3.addChild(center);
 		
@@ -801,7 +801,7 @@ public class TestRockets {
 		center.setLength(0.005);
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
-		center.setRelativePosition(Position.TOP);
+		center.setAxialMethod(AxialMethod.TOP);
 		center.setAxialOffset(0.28);
 		tube3.addChild(center);
 		
@@ -811,7 +811,7 @@ public class TestRockets {
 		center.setLength(0.005);
 		center.setMassOverridden(true);
 		center.setOverrideMass(0.038);
-		center.setRelativePosition(Position.TOP);
+		center.setAxialMethod(AxialMethod.TOP);
 		center.setAxialOffset(0.83);
 		tube3.addChild(center);
 		
@@ -821,7 +821,7 @@ public class TestRockets {
 		finset.setHeight(0.185);
 		finset.setThickness(0.005);
 		finset.setSweep(0.3);
-		finset.setRelativePosition(Position.BOTTOM);
+		finset.setAxialMethod(AxialMethod.BOTTOM);
 		finset.setAxialOffset(-0.03);
 		finset.setBaseRotation(Math.PI / 2);
 		tube3.addChild(finset);
@@ -901,7 +901,7 @@ public class TestRockets {
 				// Parachute
 				Parachute upperChute= new Parachute();
 				upperChute.setName("Parachute");
-				upperChute.setRelativePosition(Position.MIDDLE);
+				upperChute.setAxialMethod(AxialMethod.MIDDLE);
 				upperChute.setAxialOffset(0.0);
 				upperChute.setDiameter(0.3);
 				upperChute.setLineCount(6);
@@ -911,7 +911,7 @@ public class TestRockets {
 				// Cord
 				ShockCord cord = new ShockCord();
 				cord.setName("Shock Cord");
-				cord.setRelativePosition(Position.BOTTOM);
+				cord.setAxialMethod(AxialMethod.BOTTOM);
 				cord.setAxialOffset(0.0);
 				cord.setCordLength(0.4);
 		    	upperStageBody.addChild( cord);
@@ -935,75 +935,75 @@ public class TestRockets {
 			coreBody.setMotorMount(true);
 			coreStage.addChild( coreBody);
 			{
-				MotorConfiguration motorConfig = new MotorConfiguration(coreBody, selFCID);
+				MotorConfiguration coreMotorConfig = new MotorConfiguration(coreBody, selFCID);
 				Motor mtr = TestRockets.generateMotor_M1350_75mm();
-				motorConfig.setMotor( mtr);
+				coreMotorConfig.setMotor( mtr);
 				coreBody.setMotorMount( true);
 				FlightConfigurationId motorConfigId = selFCID;
-				coreBody.setMotorConfig( motorConfig, motorConfigId);	 
-			}
+				coreBody.setMotorConfig( coreMotorConfig, motorConfigId);	 
 			
-			TrapezoidFinSet coreFins = new TrapezoidFinSet();
-			coreFins.setName("Core Fins");
-			coreFins.setFinCount(4);
-			coreFins.setRelativePosition(Position.BOTTOM);
-			coreFins.setAxialOffset(0.0);
-			coreFins.setBaseRotation( Math.PI / 4);
-			coreFins.setThickness(0.003);
-			coreFins.setCrossSection(CrossSection.ROUNDED);
-			coreFins.setRootChord(0.32);
-			coreFins.setTipChord(0.12);
-			coreFins.setHeight(0.12);
-			coreFins.setSweep(0.18);
-			coreBody.addChild(coreFins);
-		
-			
-			// ====== Booster Stage Set ======
-			// ====== ====== ====== ======
-			ParallelStage boosterStage = new ParallelStage();
-			boosterStage.setName("Booster Stage");
-			coreStage.addChild( boosterStage);
-			boosterStage.setRelativePositionMethod(Position.BOTTOM);
-			boosterStage.setAxialOffset(0.0);
-			boosterStage.setInstanceCount(2);
-			boosterStage.setRadialOffset(0.075);
-			
-			{
-				NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
-				boosterCone.setShapeParameter(0.5);
-				boosterCone.setName("Booster Nose");
-				boosterCone.setThickness(0.002);
-				//payloadFairingNoseCone.setLength(0.118);
-				//payloadFairingNoseCone.setAftRadius(0.052);
-				boosterCone.setAftShoulderRadius( 0.051 );
-				boosterCone.setAftShoulderLength( 0.02 );
-				boosterCone.setAftShoulderThickness( 0.001 );
-				boosterCone.setAftShoulderCapped( false );
-				boosterStage.addChild( boosterCone);
+				TrapezoidFinSet coreFins = new TrapezoidFinSet();
+				coreBody.addChild(coreFins);
+				coreFins.setName("Core Fins");
+				coreFins.setFinCount(4);
+				coreFins.setBaseRotation( Math.PI / 4);
+				coreFins.setThickness(0.003);
+				coreFins.setCrossSection(CrossSection.ROUNDED);
+				coreFins.setRootChord(0.32);
+				coreFins.setTipChord(0.12);
+				coreFins.setHeight(0.12);
+				coreFins.setSweep(0.18);
+				coreFins.setAxialMethod(AxialMethod.BOTTOM);
+				coreFins.setAxialOffset(0.0);
 				
-				BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
-				boosterBody.setName("Booster Body");
-				boosterBody.setOuterRadiusAutomatic(true);
-				boosterStage.addChild( boosterBody);
+	
+				// ====== Booster Stage Set ======
+				// ====== ====== ====== ======
+				ParallelStage boosterStage = new ParallelStage();
+				boosterStage.setName("Booster Stage");
+				coreBody.addChild( boosterStage);
+				boosterStage.setAxialMethod(AxialMethod.BOTTOM);
+				boosterStage.setAxialOffset(0.0);
+				boosterStage.setInstanceCount(2);
+				boosterStage.setRadius( RadiusMethod.SURFACE, 0.0 );
 				
 				{
-					InnerTube boosterMotorTubes = new InnerTube();
-					boosterMotorTubes.setName("Booster Motor Tubes");
-					boosterMotorTubes.setLength(0.15);
-					boosterMotorTubes.setOuterRadius(0.015); // => 29mm motors
-					boosterMotorTubes.setThickness(0.0005);
-					boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
-					//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
-					boosterMotorTubes.setClusterScale(1.0);
-					boosterBody.addChild( boosterMotorTubes);
+					NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
+					boosterCone.setShapeParameter(0.5);
+					boosterCone.setName("Booster Nose");
+					boosterCone.setThickness(0.002);
+					//payloadFairingNoseCone.setLength(0.118);
+					//payloadFairingNoseCone.setAftRadius(0.052);
+					boosterCone.setAftShoulderRadius( 0.051 );
+					boosterCone.setAftShoulderLength( 0.02 );
+					boosterCone.setAftShoulderThickness( 0.001 );
+					boosterCone.setAftShoulderCapped( false );
+					boosterStage.addChild( boosterCone);
 					
-					FlightConfigurationId motorConfigId = selFCID;
-					MotorConfiguration motorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);
-					Motor mtr = TestRockets.generateMotor_G77_29mm();
-					motorConfig.setMotor(mtr);
-					boosterMotorTubes.setMotorConfig( motorConfig, motorConfigId);
-					boosterMotorTubes.setMotorOverhang(0.01234);
+					BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
+					boosterBody.setName("Booster Body");
+					boosterBody.setOuterRadiusAutomatic(true);
+					boosterStage.addChild( boosterBody);
+					
+					{
+						InnerTube boosterMotorTubes = new InnerTube();
+						boosterMotorTubes.setName("Booster Motor Tubes");
+						boosterMotorTubes.setLength(0.15);
+						boosterMotorTubes.setOuterRadius(0.015); // => 29mm motors
+						boosterMotorTubes.setThickness(0.0005);
+						boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
+						//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
+						boosterMotorTubes.setClusterScale(1.0);
+						boosterBody.addChild( boosterMotorTubes);
+						
+						MotorConfiguration boosterMotorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);
+						Motor boosterMotor = TestRockets.generateMotor_G77_29mm();
+						boosterMotorConfig.setMotor( boosterMotor );
+						boosterMotorTubes.setMotorConfig( boosterMotorConfig, motorConfigId);
+						boosterMotorTubes.setMotorOverhang(0.01234);
+					}
 				}
+				
 			}
 		}
 		

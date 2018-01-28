@@ -12,6 +12,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -24,7 +25,7 @@ import net.sf.openrocket.util.MathUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
+public class InnerTube extends ThicknessRingComponent implements AxialPositionable, Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	

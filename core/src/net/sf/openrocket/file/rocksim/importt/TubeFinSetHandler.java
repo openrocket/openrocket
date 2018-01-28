@@ -9,6 +9,8 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+
 import org.xml.sax.SAXException;
 
 import java.util.HashMap;
@@ -49,8 +51,8 @@ public class TubeFinSetHandler extends PositionDependentHandler<TubeFinSet> {
    	 * @param position  the OpenRocket position
    	 */
     @Override
-    protected void setRelativePosition(final RocketComponent.Position position) {
-        tubeFin.setRelativePosition(position);
+    protected void setAxialMethod(final AxialMethod position) {
+        tubeFin.setAxialMethod(position);
     }
 
     /**

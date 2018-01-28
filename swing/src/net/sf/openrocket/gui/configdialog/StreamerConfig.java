@@ -25,6 +25,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.startup.Application;
@@ -139,14 +140,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Posrelativeto")));
 		
-		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-						}));
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
 		
 		//// plus

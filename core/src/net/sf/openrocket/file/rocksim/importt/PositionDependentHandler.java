@@ -10,6 +10,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.xml.sax.SAXException;
 
@@ -25,7 +26,7 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	private Double positionValue = 0d;
 	
 	/** Temporary position. */
-	private RocketComponent.Position position = RocketComponent.Position.TOP;
+	private AxialMethod position = AxialMethod.TOP;
 	
 	public PositionDependentHandler(DocumentLoadingContext context) {
 		super(context);
@@ -62,7 +63,7 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		super.endHandler(element, attributes, content, warnings);
-		setRelativePosition(position);
+		setAxialMethod(position);
 		setLocation(getComponent(), position, positionValue);
 	}
 	
@@ -72,7 +73,7 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	 *
 	 * @param position  the OpenRocket position
 	 */
-	protected abstract void setRelativePosition(RocketComponent.Position position);
+	protected abstract void setAxialMethod(AxialMethod position);
 	
 	/**
 	 * Set the position of a component.
@@ -81,8 +82,8 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	 * @param position   the relative position
 	 * @param location   the actual position value
 	 */
-	public static void setLocation(RocketComponent component, RocketComponent.Position position, double location) {
-		if (position.equals(RocketComponent.Position.BOTTOM)) {
+	public static void setLocation(RocketComponent component, AxialMethod position, double location) {
+		if (position.equals(AxialMethod.BOTTOM)) {
 			component.setAxialOffset(-1d * location);
 		}
 		else {

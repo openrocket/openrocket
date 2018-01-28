@@ -15,7 +15,7 @@ import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
@@ -312,7 +312,7 @@ public class FinSetTest extends BaseTestCase {
 		fin.setOverrideMass(0.0123);
 		fin.setOverrideSubcomponents(true);
 		fin.setAxialOffset(0.1);
-		fin.setRelativePosition(Position.ABSOLUTE);
+		fin.setAxialMethod(AxialMethod.ABSOLUTE);
 		fin.setTabHeight(0.01);
 		fin.setTabLength(0.02);
 		fin.setTabRelativePosition(TabRelativePosition.END);

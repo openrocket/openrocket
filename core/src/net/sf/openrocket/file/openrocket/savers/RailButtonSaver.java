@@ -27,7 +27,7 @@ public class RailButtonSaver extends ExternalComponentSaver {
 
 		emitDouble( elements, "outerdiameter", rb.getOuterDiameter());
 		emitDouble( elements, "height", rb.getTotalHeight());
-		emitDouble( elements, "angularoffset", rb.getAngularOffset()*180.0/Math.PI);
+		
 	}
 
 	

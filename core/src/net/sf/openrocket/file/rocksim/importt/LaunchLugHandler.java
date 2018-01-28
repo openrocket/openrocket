@@ -16,6 +16,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * The SAX handler for Rocksim Launch Lugs.
@@ -94,11 +95,11 @@ class LaunchLugHandler extends PositionDependentHandler<LaunchLug> {
 	 * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not 
 	 * public in all components.
 	 * 
-	 * @param position  the OpenRocket position
+	 * @param newMethod  the OpenRocket position
 	 */
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		lug.setRelativePosition(position);
+	public void setAxialMethod(AxialMethod newMethod) {
+		lug.setAxialMethod(newMethod);
 	}
 	
 	/**

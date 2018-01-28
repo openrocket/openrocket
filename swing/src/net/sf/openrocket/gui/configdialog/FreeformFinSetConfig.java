@@ -58,6 +58,7 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
@@ -145,9 +146,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
 		
-		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition", new RocketComponent.Position[] { 
-				RocketComponent.Position.TOP, RocketComponent.Position.MIDDLE, RocketComponent.Position.BOTTOM, RocketComponent.Position.ABSOLUTE }));
+		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
 		panel.add(positionCombo, "spanx 3, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");

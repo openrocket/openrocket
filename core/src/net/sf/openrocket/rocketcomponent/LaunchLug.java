@@ -6,13 +6,14 @@ import java.util.Collection;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 
 
-public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanceable {
+public class LaunchLug extends ExternalComponent implements AnglePositionable, Coaxial, LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -25,9 +26,10 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
+	private double angle_rad = 0;
 	
 	public LaunchLug() {
-		super(Position.MIDDLE);
+		super(AxialMethod.MIDDLE);
 		radius = 0.01 / 2;
 		thickness = 0.001;
 		length = 0.03;
@@ -99,8 +101,8 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	
 	
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
+	public void setAxialMethod( AxialMethod position) {
+		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -262,6 +264,30 @@ public class LaunchLug extends ExternalComponent implements Coaxial, LineInstanc
 	@Override
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-Line");
+	}
+
+
+	@Override
+	public double getAngleOffset() {
+		return this.angle_rad;
+	}
+
+
+	@Override
+	public void setAngleOffset(double newAngle) {
+		this.angle_rad = newAngle;
+	}
+
+
+	@Override
+	public AngleMethod getAngleMethod() {
+		return AngleMethod.RELATIVE;
+	}
+
+
+	@Override
+	public void setAngleMethod(AngleMethod newMethod) {
+		// no-op
 	}
 
 }

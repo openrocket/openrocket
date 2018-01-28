@@ -19,6 +19,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -126,14 +127,8 @@ public class RingComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 		
-		final JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-						}));
+	    final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+        final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx 3, growx, wrap");
 		
 		//// plus

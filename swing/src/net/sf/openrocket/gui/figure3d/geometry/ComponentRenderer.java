@@ -288,7 +288,7 @@ public class ComponentRenderer {
 			//renderOther(gl, r);
 			final double or = r.getOuterDiameter() / 2.0;
 			final double ir = r.getInnerDiameter() / 2.0;
-			gl.glRotated(r.getAngularOffset()*180/Math.PI -90 , 1, 0, 0);
+			gl.glRotated(r.getAngleOffset()*180/Math.PI -90 , 1, 0, 0);
 			
 			//Inner Diameter
 			glu.gluCylinder(q, ir, ir, r.getTotalHeight(), LOD, 1);

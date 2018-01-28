@@ -21,6 +21,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -167,14 +168,9 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
 		
-		JComboBox<RocketComponent.Position> positionCombo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-						}));
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
+		
 		panel.add(positionCombo, "spanx, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");

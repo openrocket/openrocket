@@ -10,7 +10,8 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+
 import org.junit.Assert;
 
 import java.util.HashMap;
@@ -110,7 +111,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
     }
     
     /**
-     * Method: setRelativePosition(RocketComponent.Position position)
+     * Method: setRelativePosition(AxialMethod position)
      *
      * @throws Exception thrown if something goes awry
      */
@@ -119,8 +120,8 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
         BodyTube tube = new BodyTube();
         LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
-        handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
-        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        handler.setAxialMethod(AxialMethod.ABSOLUTE);
+        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 
     /**

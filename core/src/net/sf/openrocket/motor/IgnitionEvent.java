@@ -38,7 +38,7 @@ public enum IgnitionEvent {
 			    
 			AxialStage targetStage = (AxialStage)targetComponent.getStage();
 			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
-			AxialStage eventParentStage = eventStage.getPreviousStage();
+			AxialStage eventParentStage = eventStage.getUpperStage();
 			return ( targetStage.equals(eventParentStage));
 		}
 	},
@@ -50,7 +50,7 @@ public enum IgnitionEvent {
 			
 			AxialStage targetStage = (AxialStage)targetComponent.getStage();
 			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
-			AxialStage eventParentStage = eventStage.getPreviousStage();
+			AxialStage eventParentStage = eventStage.getUpperStage();
 			return ( targetStage.equals(eventParentStage));
 		}
 	},

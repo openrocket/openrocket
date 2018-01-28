@@ -7,6 +7,7 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -28,7 +29,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	 * (Should have no effect.)
 	 */
 	public ComponentAssembly() {
-		super(RocketComponent.Position.AFTER);
+		super( AxialMethod.AFTER);
 	}
 	
 	@Override
@@ -38,7 +39,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	
 	@Override
 	public double getAxialOffset() {
-		return super.asPositionValue(this.relativePosition);
+		return asPositionValue( this.axialMethod );
 	}
 
 	/**
@@ -127,24 +128,24 @@ public abstract class ComponentAssembly extends RocketComponent {
 	@Override
 	public void setAxialOffset(final double _pos) {
 		this.updateBounds();
-		super.setAxialOffset(this.relativePosition, _pos);
+		super.setAxialOffset(this.axialMethod, _pos);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	public void setRelativePositionMethod(final Position _newPosition) {
+	public void setRelativePositionMethod(final AxialMethod _newPosition) {
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
 		if ((this instanceof ParallelStage ) || ( this instanceof PodSet )){
-			if (Position.AFTER == _newPosition) {
+			if (AxialMethod.AFTER == _newPosition) {
 				log.warn("Stages (or Pods) cannot be relative to other stages via AFTER! Ignoring.");
-				super.setRelativePosition(Position.TOP);
+				super.setAxialMethod(AxialMethod.TOP);
 			} else {
-				super.setRelativePosition(_newPosition);
+				super.setAxialMethod(_newPosition);
 			}
 		}else if( this.getClass().equals( AxialStage.class)){
 			// Centerline stages must be set via AFTER-- regardless of what was requested:
-			super.setRelativePosition(Position.AFTER);
+			super.setAxialMethod(AxialMethod.AFTER);
 		}else{
 			throw new BugException("Unrecognized subclass of Component Assembly.  Please update this method.");
 		}
@@ -163,22 +164,10 @@ public abstract class ComponentAssembly extends RocketComponent {
 	
 	@Override
 	protected void update() {
-		if (null == this.parent) {
-			return;
-		}
-		
 		this.updateBounds();
 		if (this.isAfter()){
-			// stages which are directly children of the rocket are inline, and positioned
-			int thisChildNumber = this.parent.getChildPosition(this);
-			if (0 == thisChildNumber) {
-				this.setAfter(this.parent);
-			} else {
-				RocketComponent prevStage = this.parent.getChild(thisChildNumber  - 1);
-				this.setAfter(prevStage);
-			}
+			this.setAfter();
 		} else {
-			// this path is for 'external' assemblies: pods and boosters
 			super.update();
 		}
 		
@@ -203,13 +192,9 @@ public abstract class ComponentAssembly extends RocketComponent {
 	}
 	
 	protected void updateChildSequence() {
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		RocketComponent prevComp = null;
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			if(Position.AFTER == curChild.getRelativePositionMethod()){
-				curChild.setAfter(prevComp);
-				prevComp = curChild;
+		for( RocketComponent curChild : this.children ) {
+			if(AxialMethod.AFTER == curChild.getAxialMethod()){
+				curChild.setAfter();
 			}
 		}
 	}
