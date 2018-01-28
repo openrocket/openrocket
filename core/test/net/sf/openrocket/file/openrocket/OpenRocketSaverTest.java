@@ -190,41 +190,13 @@ public class OpenRocketSaverTest {
 	
 	
 	////////////////////////////////
-	// Tests for File Version 1.6 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion106_withAppearance() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withAppearance();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withMotorMountIgnitionConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withMotorMountIgnitionConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withRecoveryDeviceDeploymentConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withStageDeploymentConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withStageSeparationConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
 	// Tests for File Version 1.7 // 
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion107_withSimulationExtension() {
+	public void testFileVersion108_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(107, getCalculatedFileVersion(rocketDoc));
+		assertEquals(108, getCalculatedFileVersion(rocketDoc));
 	}
 	
 	
