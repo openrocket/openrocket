@@ -55,7 +55,7 @@ public enum RadiusMethod implements DistanceMethod {
 	};
 
 	public static final RadiusMethod[] choices(){
-		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE, RadiusMethod.SURFACE }; 
+		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE }; 
 	}
 	
 	public final String name;

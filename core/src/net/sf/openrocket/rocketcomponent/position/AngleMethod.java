@@ -46,7 +46,7 @@ public enum AngleMethod implements DistanceMethod {
 	};
 	
 	public static final AngleMethod[] choices(){
-		return new AngleMethod[]{ AngleMethod.RELATIVE, AngleMethod.FIXED };  
+		return new AngleMethod[]{ AngleMethod.RELATIVE };  
 	}
 
 	public final String name;

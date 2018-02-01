@@ -64,12 +64,12 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		motherPanel.add(radiusUnitSelector, "growx 1, wrap");
 //		autoRadOffsModel.addEnableComponent(radiusUnitSelector, false);
 		
-		// set location angle around the primary stage
-		JLabel angleMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Angle.Label"));
-		motherPanel.add( angleMethodLabel, "align left");
-		EnumModel<AngleMethod> angleMethodModel = new EnumModel<AngleMethod>( boosters, "AngleMethod", AngleMethod.choices() );
-		final JComboBox<AngleMethod> angleMethodCombo = new JComboBox<AngleMethod>( angleMethodModel );
-        motherPanel.add( angleMethodCombo, "align left, wrap");
+//		// set location angle around the primary stage
+//		JLabel angleMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Angle.Label"));
+//		motherPanel.add( angleMethodLabel, "align left");
+//		EnumModel<AngleMethod> angleMethodModel = new EnumModel<AngleMethod>( boosters, "AngleMethod", AngleMethod.choices() );
+//		final JComboBox<AngleMethod> angleMethodCombo = new JComboBox<AngleMethod>( angleMethodModel );
+//        motherPanel.add( angleMethodCombo, "align left, wrap");
         
 		JLabel angleLabel = new JLabel(trans.get("StageConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
