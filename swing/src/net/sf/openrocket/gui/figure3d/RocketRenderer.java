@@ -197,17 +197,24 @@ public abstract class RocketRenderer {
 	}
 	
 	private void renderTree( GL2 gl, final Collection<Geometry> geometryList){
+	    //cycle through opaque components first, then transparent to preserve proper depth testing
 	    for(Geometry geom: geometryList ) {
-            if( geom.active ) {
-                if( isDrawnTransparent( (RocketComponent)geom.obj) ){
-                    // Draw T&T front faces blended, without depth test
-                    renderComponent(gl, geom, 0.2f);
-                }else{
-                    renderComponent(gl, geom, 1.0f);
+                if( geom.active ) {
+		    //if not transparent
+                    if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
+                        renderComponent(gl, geom, 1.0f);
+                    }
+                }
+            }
+	    for(Geometry geom: geometryList ) {
+                if( geom.active ) {
+                    if( isDrawnTransparent( (RocketComponent)geom.obj) ){
+                        // Draw T&T front faces blended, without depth test
+                        renderComponent(gl, geom, 0.2f);
+                    }
                 }
             }
         }
-    }
 	
 	private void renderMotors(GL2 gl, FlightConfiguration configuration) {
 //		FlightConfigurationId motorID = configuration.getFlightConfigurationID();
