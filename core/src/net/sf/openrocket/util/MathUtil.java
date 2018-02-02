@@ -184,7 +184,31 @@ public class MathUtil {
 	public static double hypot(double x, double y) {
 		return Math.sqrt(x * x + y * y);
 	}
+	   
+    /**
+     * Reduce the angle x to the range -PI - PI.
+     * 
+     * Either -PI and PI might be returned, depending on the rounding function. 
+     * 
+     * @param x  Original angle.
+     * @return   The equivalent angle in the range -PI ... PI.
+     */
+    public static double reducePI(double x) {
+    	double d = Math.rint(x / (2 * Math.PI));
+    	return x - d * 2 * Math.PI;
+    }
+    
+	/**
+	 * Reduce the angle x to the range 0 - 2*PI.
+	 * @param x  Original angle.
+	 * @return   The equivalent angle in the range 0 ... 2*PI.
+	 */
+    public static double reduce2PI(double x) {
+    	double d = Math.floor(x / (2 * Math.PI));
+    	return x - d * 2 * Math.PI;
+    }
 	
+
 	/**
 	 * Reduce the angle x to the range 0 - 2*PI.
 	 * @param x  Original angle.
@@ -207,8 +231,7 @@ public class MathUtil {
 		double d = Math.rint(x / (2 * Math.PI));
 		return x - d * 2 * Math.PI;
 	}
-	
-	
+		
 	/**
 	 * Return the square root of a value.  If the value is negative, zero is returned.
 	 * This is safer in cases where rounding errors might make a value slightly negative.

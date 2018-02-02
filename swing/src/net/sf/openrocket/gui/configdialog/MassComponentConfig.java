@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -109,15 +110,9 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 		
-		final JComboBox<RocketComponent.Position> combo = new JComboBox<RocketComponent.Position>(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-						}));
-		panel.add(combo, "spanx, growx, wrap");
+        final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+        final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
+		panel.add(methodCombo, "spanx, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
 		

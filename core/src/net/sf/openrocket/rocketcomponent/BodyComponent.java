@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 
 
@@ -22,7 +23,7 @@ public abstract class BodyComponent extends ExternalComponent {
 	 * i.e. body components come after one another.
 	 */
 	public BodyComponent() {
-		super(RocketComponent.Position.AFTER);
+		super( AxialMethod.AFTER);
 	}
 	
 	

@@ -62,9 +62,7 @@ public class StabilityDomain implements SimulationDomain {
 		 * Caching would in any case be inefficient since the rocket changes all the time.
 		 */
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
-		MassCalculator massCalculator = new MassCalculator();
 		
-	
 		FlightConfiguration configuration = simulation.getRocket().getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
@@ -73,7 +71,7 @@ public class StabilityDomain implements SimulationDomain {
 		
 		// TODO: HIGH: This re-calculates the worst theta value every time
 		cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
-		cg = massCalculator.getRocketLaunchMassData(configuration).getCM();
+		cg = MassCalculator.calculateLaunch( configuration).getCM();
 		
 		if (cp.weight > 0.000001)
 			cpx = cp.x;

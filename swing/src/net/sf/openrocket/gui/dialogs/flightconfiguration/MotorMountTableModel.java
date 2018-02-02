@@ -17,18 +17,16 @@ import net.sf.openrocket.util.ArrayList;
  * The table model for selecting whether components are motor mounts or not.
  */
 class MotorMountTableModel extends AbstractTableModel implements ComponentChangeListener {
-	
-	private final MotorMountConfigurationPanel motorConfigurationPanel;
-	
-	private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
+	private static final long serialVersionUID = 1956400848559941228L;
+
+    private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
 	
 	private final Rocket rocket;
 	
 	/**
 	 * @param motorConfigurationPanel
 	 */
-	MotorMountTableModel(MotorMountConfigurationPanel motorConfigurationPanel, Rocket rocket) {
-		this.motorConfigurationPanel = motorConfigurationPanel;
+	MotorMountTableModel( Rocket rocket) {
 		this.rocket = rocket;
 		
 		initialize();
@@ -101,7 +99,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 			throw new IllegalArgumentException("column=" + column + ", value=" + value);
 		}
 		
-		Log.warn("this method is no longer useful....: setValueAt(obj,int,int):104");
-		//this.motorConfigurationPanel.onDataChanged();
+        MotorMount mount = potentialMounts.get(row);
+        mount.setMotorMount((Boolean) value);
 	}
 }

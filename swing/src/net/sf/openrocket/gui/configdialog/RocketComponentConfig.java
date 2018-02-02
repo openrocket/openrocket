@@ -48,6 +48,7 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.Instanceable;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
@@ -330,7 +331,9 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 		
-		
+	
+		//OVERRIDES CG ----------------------------------
+	
 		////  CG override
 		bm = new BooleanModel(component, "CGOverridden");
 		check = new JCheckBox(bm);
@@ -347,7 +350,7 @@ public class RocketComponentConfig extends JPanel {
 			Iterator<RocketComponent> iterator = component.iterator(false);
 			while (iterator.hasNext()) {
 				RocketComponent c = iterator.next();
-				if (c.getRelativePosition() == RocketComponent.Position.AFTER)
+				if (c.getAxialMethod() == AxialMethod.AFTER)
 					l += c.getLength();
 			}
 			length = new DoubleModel(l);
@@ -368,6 +371,37 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap 35lp");
 		
+
+		//END OVERRIDES CG ---------------------------------------------------
+
+
+                //BEGIN OVERRIDES CD ---------------------------------------------------
+
+
+		bm = new BooleanModel(component, "CDOverridden");
+		check = new JCheckBox(bm);
+		//// Override mass:
+		check.setText("Set coefficient of drag:");
+		panel.add(check, "growx 1, gapright 20lp");
+		
+		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_NONE, 0);
+		
+		spin = new JSpinner(m.getSpinnerModel());
+
+		spin.setEditor(new SpinnerEditor(spin));
+		bm.addEnableComponent(spin, true);
+		panel.add(spin, "growx 1");
+		
+		
+		bs = new BasicSlider(m.getSliderModel(0, 0.01, 1.0));
+		bm.addEnableComponent(bs);
+		panel.add(bs, "growx 5, w 100lp, wrap");
+
+
+		//END OVERRIDES CP --------------------------------------------------
+
+
+
 		
 		// Override subcomponents checkbox
 		bm = new BooleanModel(component, "OverrideSubcomponents");
@@ -596,6 +630,7 @@ public class RocketComponentConfig extends JPanel {
 		
 	}
 	
+
 	protected static void setDeepEnabled(Component component, boolean enabled) {
 		component.setEnabled(enabled);
 		if (component instanceof Container) {

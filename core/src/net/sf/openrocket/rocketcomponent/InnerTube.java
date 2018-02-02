@@ -12,6 +12,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -24,7 +25,7 @@ import net.sf.openrocket.util.MathUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
+public class InnerTube extends ThicknessRingComponent implements AxialPositionable, Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	
@@ -134,18 +135,9 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		}
 	}
 	
-	/**
-	 * Return the number of tubes in the cluster.
-	 * @return Number of tubes in the current cluster.
-	 */
-	@Override
-	public int getClusterCount() {
-		return cluster.getClusterCount();
-	}
-	
 	@Override
 	public int getInstanceCount() {
-		return this.getLocations().length;
+		return cluster.getClusterCount();
 	}
 	
 	@Override
@@ -212,9 +204,8 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return 2 * getOuterRadius() * clusterScale;
 	}
 	
-	
 	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(getClusterCount());
+		List<Coordinate> list = new ArrayList<Coordinate>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
 		for (int i = 0; i < points.size() / 2; i++) {
@@ -226,23 +217,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		
-		int instanceCount = getClusterCount();
-		if (instanceCount == 1)
-			return super.getInstanceOffsets();
+		if ( 1 == getInstanceCount())
+			return new Coordinate[] { Coordinate.ZERO };
 		
 		List<Coordinate> points = getClusterPoints();
-		if (points.size() != instanceCount) {
-			throw new BugException("Inconsistent cluster configuration, cluster count(" + instanceCount +
-					") != point count(" + points.size()+")");
-		}
 		
-		 
-		Coordinate[] newArray = new Coordinate[ instanceCount];
-		for (int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++) {
-			newArray[ instanceNumber] = this.position.add( points.get(instanceNumber));
-		}
-		
-		return newArray;
+		return points.toArray( new Coordinate[ points.size()]);
 	}
 	
 //	@Override

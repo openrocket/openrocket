@@ -7,6 +7,7 @@ import java.util.List;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -45,7 +46,7 @@ public class TubeFinSet extends ExternalComponent {
 	 * i.e. fins are positioned at the bottom of the parent component.
 	 */
 	public TubeFinSet() {
-		super(RocketComponent.Position.BOTTOM);
+		super(AxialMethod.BOTTOM);
 		length = 0.10;
 	}
 	
@@ -222,8 +223,8 @@ public class TubeFinSet extends ExternalComponent {
 	}
 	
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
+	public void setAxialMethod(AxialMethod position) {
+		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -332,7 +333,7 @@ public class TubeFinSet extends ExternalComponent {
 		s = this.getParent();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
-				double x = this.getOffset().x;
+				double x = this.getPosition().x;
 				return ((SymmetricComponent) s).getRadius(x);
 			}
 			s = s.getParent();

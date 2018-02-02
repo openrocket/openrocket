@@ -129,7 +129,9 @@ public class MotorClusterState {
 		if( this.currentState.isThrusting() ) {
 			double motorStartTime = this.getMotorTime( startSimulationTime);
 			double motorEndTime = this.getMotorTime( endSimulationTime);
-			return this.motorCount * motor.getAverageThrust( motorStartTime, motorEndTime );
+			
+			int instanceCount = this.config.getMount().getLocations().length;
+			return instanceCount * motor.getAverageThrust( motorStartTime, motorEndTime );
 		}else{
 			return 0.00;
 		}

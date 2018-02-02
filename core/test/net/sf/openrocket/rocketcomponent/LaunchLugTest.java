@@ -46,10 +46,6 @@ public class LaunchLugTest extends BaseTestCase {
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
 
-		//String treeDump = rocket.toDebugTree();
-		//System.err.println(treeDump);
-		
-		
 		double expX = 0.111 +  body.getLocations()[0].x;
 		double expR = 0.015;
 		double expY = Math.cos(startAngle)*expR ;

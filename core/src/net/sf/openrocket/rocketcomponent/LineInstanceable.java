@@ -1,6 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
-public interface LineInstanceable extends Instanceable {
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
+
+public interface LineInstanceable extends AxialPositionable, Instanceable {
 
 	public double getInstanceSeparation();
 	

@@ -15,7 +15,7 @@ import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
@@ -55,6 +55,83 @@ public class FinSetTest extends BaseTestCase {
 			assertEquals(0.4444, coords.y, 0.001);
 		}
 		
+	}
+	
+	@Test
+	public void testInstancePoints_PI_2_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/2 );
+		
+		BodyTube body = new BodyTube(1.0, 0.05 );
+		body.addChild( fins );
+		
+		Coordinate[] points = fins.getInstanceOffsets();
+		
+		assertEquals( 0, points[0].x, 0.00001);
+		assertEquals( 0, points[0].y, 0.00001);
+		assertEquals( 0.05, points[0].z, 0.00001);
+		
+		assertEquals( 0, points[1].x, 0.00001);
+		assertEquals( -0.05, points[1].y, 0.00001);
+		assertEquals( 0, points[1].z, 0.00001);		
+	}
+			
+	@Test
+	public void testInstancePoints_PI_4_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/4 );
+		
+		BodyTube body = new BodyTube(1.0, 0.05 );
+		body.addChild( fins );
+		
+		Coordinate[] points = fins.getInstanceOffsets();
+		
+		assertEquals( 0, points[0].x, 0.0001);
+		assertEquals( 0.03535, points[0].y, 0.0001);
+		assertEquals( 0.03535, points[0].z, 0.0001);
+		
+		assertEquals( 0, points[1].x, 0.0001);
+		assertEquals( -0.03535, points[1].y, 0.0001);
+		assertEquals( 0.03535, points[1].z, 0.0001);	
+	}
+			
+	
+	@Test
+	public void testInstanceAngles_zeroBaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( 0.0 );
+
+		double[] angles = fins.getInstanceAngles();
+			
+		assertEquals( angles[0], 0, 0.000001 );
+		assertEquals( angles[1], Math.PI/2, 0.000001 );
+		assertEquals( angles[2], Math.PI, 0.000001 );
+		assertEquals( angles[3], 1.5*Math.PI, 0.000001 );
+	}
+	
+	@Test
+	public void testInstanceAngles_90_BaseRotation() {
+		// This is a simple square fin with sides of 1.0.
+		TrapezoidFinSet fins = new TrapezoidFinSet();
+		fins.setFinCount(4);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setBaseRotation( Math.PI/2 );
+
+		double[] angles = fins.getInstanceAngles();
+			
+		assertEquals( angles[0], Math.PI/2, 0.000001 );
+		assertEquals( angles[1], Math.PI, 0.000001 );
+		assertEquals( angles[2], 1.5*Math.PI, 0.000001 );
+		assertEquals( angles[3], 0, 0.000001 );
 	}
 	
 	@Test
@@ -235,7 +312,7 @@ public class FinSetTest extends BaseTestCase {
 		fin.setOverrideMass(0.0123);
 		fin.setOverrideSubcomponents(true);
 		fin.setAxialOffset(0.1);
-		fin.setRelativePosition(Position.ABSOLUTE);
+		fin.setAxialMethod(AxialMethod.ABSOLUTE);
 		fin.setTabHeight(0.01);
 		fin.setTabLength(0.02);
 		fin.setTabRelativePosition(TabRelativePosition.END);

@@ -26,9 +26,11 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
+ * @author Daniel Williams <equipoise@gmail.com>
  */
 public class ComponentRenderer {
 	@SuppressWarnings("unused")
@@ -55,70 +57,73 @@ public class ComponentRenderer {
 
 	}
 
-	public Geometry getGeometry(final RocketComponent c, final Surface which) {
-		return new Geometry() {
+	public Geometry getComponentGeometry(final RocketComponent comp) {
+	    return getComponentGeometry(comp, Transformation.IDENTITY); 
+	}
+        
+	public Geometry getComponentGeometry(final RocketComponent comp, final Transformation transform ) {
+	    return new Geometry(comp, transform) {
 			@Override
-			public void render(GL2 gl) {
+			public void render(GL2 gl, final Surface which) {
+			    gl.glPushMatrix();
+
+			    gl.glMultMatrixd( transform.getGLMatrix() );
+			    
 				if (which == Surface.ALL) {
-					renderGeometry(gl, c, Surface.INSIDE);
-					renderGeometry(gl, c, Surface.EDGES);
-					renderGeometry(gl, c, Surface.OUTSIDE);
+					renderInstance(gl, comp, Surface.INSIDE);
+					renderInstance(gl, comp, Surface.EDGES);
+					renderInstance(gl, comp, Surface.OUTSIDE);
 				} else {
-					renderGeometry(gl, c, which);
+					renderInstance(gl, comp, which);
 				}
+				gl.glPopMatrix();
 			}
 		};
 	}
 
-	public Geometry getGeometry(final Motor motor, Surface which) {
-		return new Geometry() {
+	public Geometry getMotorGeometry(final Motor motor) {
+		return new Geometry(motor, Transformation.IDENTITY) {
 			@Override
-			public void render(GL2 gl) {
+			public void render(GL2 gl, final Surface which) {
 				renderMotor(gl, motor);
 			}
 		};
 	}
 
-	protected void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
+	protected void renderInstance(GL2 gl, RocketComponent c, Surface which) {
 		if (glu == null)
 			throw new IllegalStateException(this + " Not Initialized");
 
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
 
-		Coordinate[] oo = c.toAbsolute(new Coordinate(0, 0, 0));
-
-		for (Coordinate o : oo) {
-			gl.glPushMatrix();
-
-			gl.glTranslated(o.x, o.y, o.z);
-
-			if (c instanceof BodyTube) {
-				renderTube(gl, (BodyTube) c, which);
-			} else if (c instanceof LaunchLug) {
-				renderLug(gl, (LaunchLug) c, which);
-			} else if ( c instanceof RailButton ){
-				renderRailButton(gl, (RailButton) c, which);
-			} else if (c instanceof RingComponent) {
-				if (which == Surface.OUTSIDE)
-					renderRing(gl, (RingComponent) c);
-			} else if (c instanceof Transition) {
-				renderTransition(gl, (Transition) c, which);
-			} else if (c instanceof MassObject) {
-				if (which == Surface.OUTSIDE)
-					renderMassObject(gl, (MassObject) c);
-			} else if (c instanceof FinSet) {
-				if (which == Surface.OUTSIDE)
-					fr.renderFinSet(gl, (FinSet) c);
-			} else if (c instanceof TubeFinSet) {
-				renderTubeFins( gl, (TubeFinSet) c, which);
-			} else if ( c instanceof AxialStage ) {
-			} else if ( c instanceof ParallelStage ) {
-			} else if ( c instanceof PodSet ) {
-			} else {
-				renderOther(gl, c);
+		if (c instanceof BodyTube) {
+			renderTube(gl, (BodyTube) c, which);
+		} else if (c instanceof LaunchLug) {
+			renderLug(gl, (LaunchLug) c, which);
+		} else if ( c instanceof RailButton ){
+			renderRailButton(gl, (RailButton) c, which);
+		} else if (c instanceof RingComponent) {
+			if (which == Surface.OUTSIDE)
+				renderRing(gl, (RingComponent) c);
+		} else if (c instanceof Transition) {
+			renderTransition(gl, (Transition) c, which);
+		} else if (c instanceof MassObject) {
+			if (which == Surface.OUTSIDE)
+				renderMassObject(gl, (MassObject) c);
+		} else if (c instanceof FinSet) {
+		    FinSet fins = (FinSet) c;
+			if (which == Surface.OUTSIDE) {
+			    fr.renderFinSet(gl, fins);
 			}
-			gl.glPopMatrix();
+		} else if (c instanceof TubeFinSet) {
+			renderTubeFins( gl, (TubeFinSet) c, which);
+		} else if ( c instanceof AxialStage ) {
+		} else if ( c instanceof ParallelStage ) {
+		} else if ( c instanceof PodSet ) {
+		} else {
+			renderOther(gl, c);
 		}
+	
 
 	}
 
@@ -283,7 +288,7 @@ public class ComponentRenderer {
 			//renderOther(gl, r);
 			final double or = r.getOuterDiameter() / 2.0;
 			final double ir = r.getInnerDiameter() / 2.0;
-			gl.glRotated(r.getAngularOffset()*180/Math.PI -90 , 1, 0, 0);
+			gl.glRotated(r.getAngleOffset()*180/Math.PI -90 , 1, 0, 0);
 			
 			//Inner Diameter
 			glu.gluCylinder(q, ir, ir, r.getTotalHeight(), LOD, 1);

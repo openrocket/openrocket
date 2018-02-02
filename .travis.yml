@@ -1,5 +1,11 @@
 language: java
+dist: trusty
+sudo: false
+addons:
+  apt:
+    packages:
+      - ant-optional
 jdk:
-  - oraclejdk7
+  - openjdk7
 script:
  - "ant -buildfile build.xml clean check jar unittest"

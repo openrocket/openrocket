@@ -1,6 +1,6 @@
 package net.sf.openrocket.simulation;
 
-import net.sf.openrocket.masscalc.MassData;
+
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
@@ -35,9 +35,9 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
 		double dragForce = tumbleDrag * dynP;
-		// n.b. this is consntant, and could be calculated once at the beginning of this simulation branch...
-		MassData massData = calculateDryMassData(status);
-		double mass = massData.getCG().weight;
+		
+		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
+		double mass = calculateStructureMass(status).getMass();
 		
 
 		// Compute drag acceleration

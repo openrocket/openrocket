@@ -49,7 +49,7 @@ import com.google.inject.util.Modules;
 public class OpenRocketSaverTest {
 	
 	private OpenRocketSaver saver = new OpenRocketSaver();
-	private static final String TMP_DIR = "./tmp/";
+	private static final File TMP_DIR = new File("./tmp/");
 	
 	public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
 	
@@ -72,23 +72,19 @@ public class OpenRocketSaverTest {
 		injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
 		Application.setInjector(injector);
 		
-		File tmpDir = new File("./tmp");
-		if (!tmpDir.exists()) {
-			boolean success = tmpDir.mkdirs();
+		if( !(TMP_DIR.exists() && TMP_DIR.isDirectory()) ){
+			boolean success = TMP_DIR.mkdirs();
 			if (!success) {
 				fail("Unable to create core/tmp dir needed for tests.");
 			}
 		}
 	}
 	
-	
 	@After
 	public void deleteRocketFilesFromTemp() {
 		final String fileNameMatchStr = String.format("%s_.*\\.ork", this.getClass().getName());
 		
-		File directory = new File(TMP_DIR);
-		
-		File[] toBeDeleted = directory.listFiles(new FileFilter() {
+		File[] toBeDeleted = TMP_DIR.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File theFile) {
 				if (theFile.isFile()) {
@@ -194,41 +190,13 @@ public class OpenRocketSaverTest {
 	
 	
 	////////////////////////////////
-	// Tests for File Version 1.6 // 
-	////////////////////////////////
-	
-	@Test
-	public void testFileVersion106_withAppearance() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withAppearance();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withMotorMountIgnitionConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withMotorMountIgnitionConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withRecoveryDeviceDeploymentConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	@Test
-	public void testFileVersion106_withStageDeploymentConfig() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withStageSeparationConfig();
-		assertEquals(106, getCalculatedFileVersion(rocketDoc));
-	}
-	
-	////////////////////////////////
 	// Tests for File Version 1.7 // 
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion107_withSimulationExtension() {
+	public void testFileVersion108_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(107, getCalculatedFileVersion(rocketDoc));
+		assertEquals(108, getCalculatedFileVersion(rocketDoc));
 	}
 	
 	
@@ -254,25 +222,24 @@ public class OpenRocketSaverTest {
 	}
 	
 	private File saveRocket(OpenRocketDocument rocketDoc, StorageOptions options) {
-		String fileName = String.format(TMP_DIR + "%s_%s.ork", this.getClass().getName(), rocketDoc.getRocket().getName());
-		File file = new File(fileName);
-		
+		File file = null;
 		OutputStream out = null;
 		try {
+			file = File.createTempFile( TMP_DIR.getName(), ".ork");
 			out = new FileOutputStream(file);
 			this.saver.save(out, rocketDoc, options);
 		} catch (FileNotFoundException e) {
-			fail("FileNotFound saving file " + fileName + ": " + e.getMessage());
+			fail("FileNotFound saving temp file in: " + TMP_DIR.getName() + ": " + e.getMessage());
 		} catch (IOException e) {
-			fail("IOException saving file " + fileName + ": " + e.getMessage());
-		}
-		
-		try {
-			if (out != null) {
-				out.close();
+			fail("IOException saving temp file in: " + TMP_DIR.getName() + ": " + e.getMessage());
+		}finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException e) {
+				fail("Unable to close output stream for temp file in " + TMP_DIR.getName() + ": " + e.getMessage());
 			}
-		} catch (IOException e) {
-			fail("Unable to close output stream for file " + fileName + ": " + e.getMessage());
 		}
 		
 		return file;

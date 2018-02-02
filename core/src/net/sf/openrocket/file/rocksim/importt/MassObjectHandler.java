@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.xml.sax.SAXException;
 
@@ -189,8 +190,9 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 	 *
 	 * @param position the OpenRocket position
 	 */
-	public void setRelativePosition(RocketComponent.Position position) {
-		current.setRelativePosition(position);
+	@Override
+	public void setAxialMethod( AxialMethod position) {
+		current.setAxialMethod(position);
 	}
 	
 	/**

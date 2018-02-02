@@ -16,9 +16,11 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+@SuppressWarnings("serial")
 public class ShockCordConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -62,14 +64,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Posrelativeto")));
 		
-		JComboBox combo = new JComboBox(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-				}));
+		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+        final JComboBox<AxialMethod> combo = new JComboBox<AxialMethod>( methodModel );
 		panel2.add(combo, "spanx, growx, wrap");
 		
 		//// plus

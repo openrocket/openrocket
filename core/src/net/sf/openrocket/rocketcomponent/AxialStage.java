@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
@@ -22,7 +23,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	public AxialStage(){
 		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>( new StageSeparationConfiguration());
-		this.relativePosition = Position.AFTER;
+		this.axialMethod = AxialMethod.AFTER;
 		this.stageNumber = 0;
 	}
 	
@@ -61,7 +62,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		Coordinate[] instanceLocations = this.getLocations();
+		Coordinate[] instanceLocations = this.getInstanceLocations();
 		double x_min = instanceLocations[0].x;
 		double x_max = x_min + this.length;
 		double r_max = 0;
@@ -82,13 +83,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		if (ParallelStage.class.isAssignableFrom(type)) {
-			return true;
-		} else if (PodSet.class.isAssignableFrom(type)) {
-			return true;
-		}
-		
-		return BodyComponent.class.isAssignableFrom(type);
+		 return BodyComponent.class.isAssignableFrom(type);
 	}
 	
 	@Override
@@ -180,31 +175,31 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 * returns null if this is the first stage
 	 * @return	the previous stage in the rocket
 	 */
-	public AxialStage getPreviousStage() {
-		if( this instanceof ParallelStage ){
-			return (AxialStage) this.parent;
-		}
-		AxialStage thisStage = this.getStage();  // necessary in case of pods or other assemblies
-		if( thisStage.parent instanceof Rocket ){
-			final int thisIndex = parent.getChildPosition( thisStage );
+	public AxialStage getUpperStage() {
+		if( null == this.parent ) {
+			return null; 
+		}else if(Rocket.class.isAssignableFrom(this.parent.getClass()) ){
+			final int thisIndex = getStageNumber();
 			if( 0 < thisIndex ){
-				return (AxialStage)thisStage.parent.getChild(thisIndex-1);
+				return (AxialStage)parent.getChild(thisIndex-1);
 			}
+		}else {
+			return this.parent.getStage();
 		}
-		return null; 
+		return null;
 	}
 	
 	@Override
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
 		
 		Coordinate[] relCoords = this.getInstanceOffsets();
-		Coordinate[] absCoords = this.getLocations();
+		Coordinate[] absCoords = this.getComponentLocations();
 		if( 1 == getInstanceCount()){
 			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;", indent+this.getName()+" (# "+this.getStageNumber()+")", 
-					this.getLength(), this.getOffset(), this.getLocations()[0]));
-			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+					this.getLength(), this.getPosition(), this.getComponentLocations()[0]));
+			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.axialMethod.name ));
 		}else{
-			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.relativePosition.name()));
+			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
 			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
 				Coordinate instanceRelativePosition = relCoords[instanceNumber];
 				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];

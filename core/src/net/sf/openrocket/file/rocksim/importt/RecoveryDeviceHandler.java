@@ -11,7 +11,7 @@ import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.xml.sax.SAXException;
 
@@ -66,6 +66,7 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 	 * @param rawDensity the density as specified in the Rocksim design file
 	 * @return a value in OpenRocket SURFACE density units
 	 */
+	@Override
 	protected double computeDensity(RocksimDensityType type, double rawDensity) {
 		
 		double result;
@@ -102,8 +103,8 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 	 * @param position the OpenRocket position
 	 */
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		getComponent().setRelativePosition(position);
+	public void setAxialMethod( AxialMethod position) {
+		getComponent().setAxialMethod(position);
 	}
 	
 	/**

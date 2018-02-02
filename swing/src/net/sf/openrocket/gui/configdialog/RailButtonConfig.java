@@ -1,7 +1,5 @@
 package net.sf.openrocket.gui.configdialog;
 
-
-import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +17,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -68,7 +67,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 
 		{ //// Angular Position:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));
-			DoubleModel angleModel = new DoubleModel(component, "AngularOffset", UnitGroup.UNITS_ANGLE, -180, +180);
+			DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
 			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
 			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 			panel.add(angleSpinner, "growx");
@@ -79,14 +78,8 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
 			
-			JComboBox<RocketComponent.Position> relToCombo = new JComboBox<RocketComponent.Position>(
-					(ComboBoxModel<RocketComponent.Position>) new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-							new RocketComponent.Position[] {
-									RocketComponent.Position.TOP,
-									RocketComponent.Position.MIDDLE,
-									RocketComponent.Position.BOTTOM,
-									RocketComponent.Position.ABSOLUTE
-							}));
+			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+			JComboBox<AxialMethod> relToCombo = new JComboBox<AxialMethod>( methodModel );
 			panel.add( relToCombo, "growx, wrap rel");
 		}
 			

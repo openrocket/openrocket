@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -13,15 +16,21 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	private static final Translator trans = Application.getTranslator();
 	//private static final Logger log = LoggerFactory.getLogger(PodSet.class);
 	
-	protected int count = 1;
+	protected int instanceCount = 2;
 
-	protected double angularSeparation = Math.PI;
-	protected double angularPosition_rad = 0;
-	protected double radialPosition_m = 0;
+	
+	protected AngleMethod angleMethod = AngleMethod.RELATIVE;
+	// angle between each pod
+	protected double angleSeparation = Math.PI;
+	// angle to the first pod
+	protected double angleOffset_rad = 0;
+	 
+	protected RadiusMethod radiusMethod = RadiusMethod.SURFACE;
+	protected double radiusOffset_m = 0;
 	
 	public PodSet() {
-		this.count = 2;
-		this.relativePosition = Position.BOTTOM;
+		this.instanceCount = 2;
+		this.axialMethod = AxialMethod.BOTTOM;
 	}
 	
 	@Override
@@ -44,7 +53,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
 		
-		Coordinate[] instanceLocations = this.getLocations();
+		Coordinate[] instanceLocations = this.getComponentLocations();
 		
 		for (Coordinate currentInstanceLocation : instanceLocations) {
 			if (x_min > (currentInstanceLocation.x)) {
@@ -53,8 +62,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			if (x_max < (currentInstanceLocation.x + this.length)) {
 				x_max = currentInstanceLocation.x + this.length;
 			}
-			if (r_max < (this.getRadialOffset())) {
-				r_max = this.getRadialOffset();
+			if (r_max < (this.getRadiusOffset())) {
+				r_max = this.getRadiusOffset();
 			}
 		}
 		addBound(bounds, x_min, r_max);
@@ -75,55 +84,42 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return BodyComponent.class.isAssignableFrom(type);
 	}
+
+		
+	@Override
+	public double getInstanceAngleIncrement(){
+		return angleSeparation;
+	}
+	
+	@Override
+	public double[] getInstanceAngles(){
+		//		, angleMethod, angleOffset_rad
+		final double baseAngle = getAngleOffset();
+		final double incrAngle = getInstanceAngleIncrement();
+		
+		double[] result = new double[ getInstanceCount()]; 
+		for( int i=0; i<getInstanceCount(); ++i){
+			result[i] = baseAngle + incrAngle*i;
+		}
+		
+		return result;
+	}
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		checkState();
 		
-		final double radius = this.radialPosition_m;
-		final double startAngle = this.angularPosition_rad;
-		final double angleIncr = this.angularSeparation;
-		Coordinate center = Coordinate.ZERO;
+		final double radius = this.radiusMethod.getRadius( this.parent, this, radiusOffset_m );
 		
-		double curAngle = startAngle;
-		Coordinate[] toReturn = new Coordinate[this.count];
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			final double curY = radius * Math.cos(curAngle);
-			final double curZ = radius * Math.sin(curAngle);
-			toReturn[instanceNumber] = center.add(0, curY, curZ );
-			
-			curAngle += angleIncr;
+		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
+			final double curY = radius * Math.cos(angles[instanceNumber]);
+			final double curZ = radius * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
 		}
 		
 		return toReturn;
-	}
-		
-	
-	@Override
-	public Coordinate[] getLocations() {
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-		}
-		
-		if (this.isAfter()) {
-			return super.getLocations();
-		} else {
-			Coordinate[] parentInstances = this.parent.getLocations();
-			if (1 != parentInstances.length) {
-				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
-						"(assumed reason for getting multiple parent locations into an external stage.)");
-			}
-			
-			final Coordinate center = parentInstances[0].add( this.position);
-			Coordinate[] instanceLocations = this.getInstanceOffsets();
-			Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
-			for( int i = 0; i < toReturn.length; i++){
-				toReturn[i] = center.add( instanceLocations[i]); 
-			}
-			
-			return toReturn;
-		}
-		
 	}
 	
 	@Override
@@ -148,14 +144,20 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
+	public void setAxialMethod( final AxialMethod newMethod ) {
+		super.setAxialMethod( newMethod );
+		fireComponentChangeEvent( ComponentChangeEvent.BOTH_CHANGE );
+	}
+	
+	@Override
 	public double getAxialOffset() {
 		double returnValue = Double.NaN;
 		
 		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
+			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getAxialMethod().name );
 		} else {
-			returnValue = super.asPositionValue(this.relativePosition);
+			returnValue = super.asPositionValue(this.axialMethod);
 		}
 		
 		if (0.000001 > Math.abs(returnValue)) {
@@ -166,8 +168,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 
 	@Override
-	public double getAngularOffset() {
-		return this.angularPosition_rad;
+	public double getAngleOffset() {
+		return this.angleOffset_rad;
 	}
 
 	@Override
@@ -175,21 +177,14 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		return (this.getInstanceCount() + "-ring");
 	}
 	
+	@Override
+	public double getRadiusOffset() {
+		return this.radiusOffset_m;
+	}
 	
-
-	@Override
-	public double getRadialOffset() {
-		return this.radialPosition_m;
-	}
-
-	@Override
-	public boolean getAutoRadialOffset(){
-		return false;
-	}
-
 	@Override
 	public int getInstanceCount() {
-		return this.count;
+		return this.instanceCount;
 	}
 	
 	
@@ -201,8 +196,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			return;
 		}
 		
-        this.count = newCount;
-        this.angularSeparation = Math.PI * 2 / this.count;
+        this.instanceCount = newCount;
+        this.angleSeparation = Math.PI * 2 / this.instanceCount;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -221,17 +216,58 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 
 	@Override
-	public void setAngularOffset(double angle_rad) {
+	public void setAngleOffset(double angle_rad) {
 		mutex.verify();
-		this.angularPosition_rad = angle_rad;
+		this.angleOffset_rad = angle_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);		
 	}
 
 	@Override
-	public void setRadialOffset(double radius_m) {
+	public AngleMethod getAngleMethod( ) {
+		return angleMethod;
+	}
+	@Override
+	public void setAngleMethod( final AngleMethod newMethod ) {
+		
+	}
+
+	@Override
+	public void setRadiusOffset(double radius_m) {
 		mutex.verify();
-		this.radialPosition_m = radius_m;
+		if( this.radiusMethod.clampToZero() ) {
+			this.radiusOffset_m = 0.0;
+		}else {
+			this.radiusOffset_m = radius_m;
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
+	@Override
+	public RadiusMethod getRadiusMethod() {
+		return this.radiusMethod;
+	}
+	
+	@Override
+	public void setRadiusMethod( final RadiusMethod newMethod ) {
+		mutex.verify();
+		this.radiusMethod = newMethod;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+	
+	@Override
+	public void setRadius( final RadiusMethod requestMethod, final double requestRadius ) {
+		mutex.verify();
+		
+		RadiusMethod newMethod = requestMethod; 
+		double newRadius = requestRadius;
+		
+		if( this.radiusMethod.clampToZero() ) {
+			newRadius = 0.;
+		}
+		
+		this.radiusMethod = newMethod;
+		this.radiusOffset_m = newRadius;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
 }

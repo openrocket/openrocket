@@ -96,7 +96,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
                 final InnerTube innerTube = (InnerTube) rocketComponents;
                 final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
                 //Only add the inner tube if it is NOT a cluster.
-                if (innerTube.getClusterCount() == 1) {
+                if (innerTube.getInstanceCount() == 1) {
                     attachedParts.add(innerBodyTubeDTO);
                 }
             } else if (rocketComponents instanceof BodyTube) {

@@ -6,6 +6,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
+import net.sf.openrocket.rocketcomponent.RailButton;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -13,13 +15,13 @@ import net.sf.openrocket.util.Transformation;
 public class RailButtonShapes extends RocketComponentShape {
 	
 	public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			RocketComponent component, 
 			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+			Coordinate instanceAbsoluteLocation) {
 	
-		net.sf.openrocket.rocketcomponent.RailButton btn = (net.sf.openrocket.rocketcomponent.RailButton)component;
+		RailButton btn = (RailButton)component;
 
-		final double rotation_rad = btn.getAngularOffset();
+		final double rotation_rad = btn.getAngleOffset();
 		final double baseHeight = btn.getStandoff();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
@@ -27,9 +29,6 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double outerRadius = outerDiameter/2;
 		final double innerDiameter = btn.getInnerDiameter();
 		final double innerRadius = innerDiameter/2;
-		Coordinate[] inst = transformation.transform( btn.getLocations());
-		
-		Shape[] s = new Shape[inst.length];
 	
 		final double sinr = Math.abs(Math.sin(rotation_rad));
 		final double cosr = Math.cos(rotation_rad);
@@ -38,49 +37,46 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double flangeHeightcos = flangeHeight*cosr;
 
 		
-		for (int i=0; i < inst.length; i++) {
-			Path2D.Double compound = new Path2D.Double();
-			s[i] = compound;
-			{// base
-				final double drawWidth = outerDiameter;
-				final double drawHeight = outerDiameter*sinr;
-				final Point2D.Double center = new Point2D.Double( inst[i].x, inst[i].y);
-				Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
-				
-				compound.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+baseHeightcos)*S ), false);
-				compound.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+baseHeightcos)*S ), false);
-				
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+baseHeightcos)*S, drawWidth*S, drawHeight*S), false);
-			}
+		Path2D.Double path = new Path2D.Double();
+		{// central pillar
+			final double drawWidth = outerDiameter;
+			final double drawHeight = outerDiameter*sinr;
+			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y );
+			Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
 			
-			{// inner
-				final double drawWidth = innerDiameter;
-				final double drawHeight = innerDiameter*sinr;
-				final Point2D.Double center = new Point2D.Double( inst[i].x, inst[i].y+baseHeightcos);
-				final Point2D.Double lowerLeft = new Point2D.Double( center.x - innerRadius, center.y-innerRadius*sinr);
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
-				
-				compound.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+innerHeightcos)*S ), false);
-				compound.append( new Line2D.Double( (center.x+innerRadius)*S,  center.y*S, (center.x+innerRadius)*S, (center.y+innerHeightcos)*S ), false);
-				
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+innerHeightcos)*S, drawWidth*S, drawHeight*S), false);
-			}
-			{// outer flange
-				final double drawWidth = outerDiameter;
-				final double drawHeight = outerDiameter*sinr;
-				final Point2D.Double center = new Point2D.Double( inst[i].x, inst[i].y+(baseHeightcos+innerHeightcos));
-				final Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
-				
-				compound.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+flangeHeightcos)*S ), false);
-				compound.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+flangeHeightcos)*S ), false);
-				
-				compound.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+flangeHeightcos)*S, drawWidth*S, drawHeight*S), false);
-			}
+			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+baseHeightcos)*S ), false);
+			path.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+baseHeightcos)*S ), false);
+			
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+baseHeightcos)*S, drawWidth*S, drawHeight*S), false);
+		}
+		
+		{// inner
+			final double drawWidth = innerDiameter;
+			final double drawHeight = innerDiameter*sinr;
+			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y + baseHeightcos);
+			final Point2D.Double lowerLeft = new Point2D.Double( center.x - innerRadius, center.y-innerRadius*sinr);
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
+			
+			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+innerHeightcos)*S ), false);
+			path.append( new Line2D.Double( (center.x+innerRadius)*S,  center.y*S, (center.x+innerRadius)*S, (center.y+innerHeightcos)*S ), false);
+			
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+innerHeightcos)*S, drawWidth*S, drawHeight*S), false);
+		}
+		{// outer flange
+			final double drawWidth = outerDiameter;
+			final double drawHeight = outerDiameter*sinr;
+			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y+baseHeightcos+innerHeightcos);
+			final Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
+			
+			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+flangeHeightcos)*S ), false);
+			path.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+flangeHeightcos)*S ), false);
+			
+			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+flangeHeightcos)*S, drawWidth*S, drawHeight*S), false);
 		}
 	
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShape.toArray( new Shape[]{ path }, component );
 	}
 	
 
@@ -91,7 +87,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	
 		net.sf.openrocket.rocketcomponent.RailButton btn = (net.sf.openrocket.rocketcomponent.RailButton)component;
 
-		final double rotation_rad = btn.getAngularOffset();
+		final double rotation_rad = btn.getAngleOffset();
 		final double sinr = Math.sin(rotation_rad);
 		final double cosr = Math.cos(rotation_rad);
 		final double baseHeight = btn.getStandoff();

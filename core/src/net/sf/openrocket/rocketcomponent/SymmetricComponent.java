@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -573,7 +574,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 				return (SymmetricComponent) c;
 			}
 			if (!(c instanceof AxialStage) &&
-					(c.relativePosition == RocketComponent.Position.AFTER))
+					(c.axialMethod == AxialMethod.AFTER))
 				return null; // Bad component type as "parent"
 		}
 		return null;
@@ -593,7 +594,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 				return (SymmetricComponent) c;
 			}
 			if (!(c instanceof AxialStage) &&
-					(c.relativePosition == RocketComponent.Position.AFTER))
+					(c.axialMethod == AxialMethod.AFTER))
 				return null; // Bad component type as "parent"
 		}
 		return null;

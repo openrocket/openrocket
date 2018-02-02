@@ -2,7 +2,7 @@ package net.sf.openrocket.simulation.listeners;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.masscalc.MassData;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -111,7 +111,7 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	@Override
-	public MassData preMassCalculation(SimulationStatus status) throws SimulationException {
+	public RigidBody preMassCalculation(SimulationStatus status) throws SimulationException {
 		return null;
 	}
 	
@@ -151,7 +151,7 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	@Override
-	public MassData postMassCalculation(SimulationStatus status, MassData massData) throws SimulationException {
+	public RigidBody postMassCalculation(SimulationStatus status, RigidBody RigidBody) throws SimulationException {
 		return null;
 	}
 	

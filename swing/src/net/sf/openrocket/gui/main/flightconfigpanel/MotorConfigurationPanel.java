@@ -60,13 +60,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			JLabel label = new StyledLabel(trans.get("lbl.motorMounts"), Style.BOLD);
 			subpanel.add(label, "wrap");
 
-			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this,rocket) {
-
-				@Override
-				public void onDataChanged() {
-					MotorConfigurationPanel.this.fireTableDataChanged();
-				}
-			};
+			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this,rocket);
 			subpanel.add(mountConfigPanel, "grow");
 			this.add(subpanel, "split, w 200lp, growy");
 		}

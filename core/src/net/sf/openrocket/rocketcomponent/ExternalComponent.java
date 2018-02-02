@@ -5,6 +5,7 @@ import java.util.List;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -62,7 +63,7 @@ public abstract class ExternalComponent extends RocketComponent {
 	/**
 	 * Constructor that sets the relative position of the component.
 	 */
-	public ExternalComponent(RocketComponent.Position relativePosition) {
+	public ExternalComponent( AxialMethod relativePosition) {
 		super(relativePosition);
 		this.material = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}

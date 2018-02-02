@@ -6,6 +6,10 @@ import java.util.Collection;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -16,7 +20,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author widget (Daniel Williams)
  *
  */
-public class RailButton extends ExternalComponent implements LineInstanceable {
+public class RailButton extends ExternalComponent implements AnglePositionable, AxialPositionable, LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -46,17 +50,18 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
  	protected double standoff_m;
 	
 	protected final static double MINIMUM_STANDOFF= 0.001;
-	
+
 	private double radialDistance_m=0;
+	protected static final AngleMethod angleMethod = AngleMethod.RELATIVE;
 	private double angle_rad = 0;
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
 	public RailButton(){
-		super(Position.MIDDLE);
-		this.outerDiameter_m = 0;
-		this.totalHeight_m = 0;		
-		this.innerDiameter_m = 0;
+		super(AxialMethod.MIDDLE);
+		this.outerDiameter_m = 1.0;
+		this.totalHeight_m = 1.0;		
+		this.innerDiameter_m = 0.8;
 		this.flangeHeight_m = 0.002;
 		this.setStandoff( 0.002);
 		this.setInstanceSeparation( 1.0);
@@ -69,7 +74,7 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	}
 	
 	public RailButton( final double od, final double id, final double ht, final double flangeThickness, final double _standoff ) {
-		super(Position.MIDDLE);
+		super(AxialMethod.MIDDLE);
 		this.outerDiameter_m = od;
 		this.totalHeight_m = ht;
 		this.innerDiameter_m = id;
@@ -176,11 +181,24 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		return false;
 	}
 	
-	public double getAngularOffset(){
+	@Override
+	public double getAngleOffset(){
 		return angle_rad;
 	}
 	
-	public void setAngularOffset(final double angle_rad){
+	@Override
+	public AngleMethod getAngleMethod() {
+		return RailButton.angleMethod;
+	}
+
+	@Override
+	public void setAngleMethod(AngleMethod newMethod) {
+		// no-op
+	}
+	
+	
+	@Override
+	public void setAngleOffset(final double angle_rad){
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
 		
 		if (MathUtil.equals(this.angle_rad, clamped_rad))
@@ -191,29 +209,20 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 	
 	
 	@Override
-	public void setRelativePosition(RocketComponent.Position position) {
-		super.setRelativePosition(position);
+	public void setAxialMethod( AxialMethod position) {
+		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
-	
-//	@Override
-//	public void setPositionValue(double value) {
-//		super.setPositionValue(value);
-//		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-//	}
-
-
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double xOffset = this.position.x;
 		final double yOffset = Math.cos(this.angle_rad) * ( this.radialDistance_m );
 		final double zOffset = Math.sin(this.angle_rad) * ( this.radialDistance_m );
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
-			toReturn[index] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
+			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;
@@ -342,5 +351,5 @@ public class RailButton extends ExternalComponent implements LineInstanceable {
 		// Allow nothing to be attached to a LaunchButton
 		return false;
 	}
-	
+
 }
