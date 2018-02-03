@@ -155,7 +155,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		
 		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getAxialMethod().name );
+			throw new BugException("found a pod positioned via: AFTER, but is not on the centerline?!: " + this.getName() + "  is " + this.getAxialMethod().name() );
 		} else {
 			returnValue = super.asPositionValue(this.axialMethod);
 		}

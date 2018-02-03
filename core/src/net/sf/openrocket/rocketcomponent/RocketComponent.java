@@ -967,7 +967,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}else if( AxialMethod.BOTTOM == asMethod) {
 			result = this.position.x + ( this.length - parentLength);
 		}else {
-			throw new BugException("Unknown position type: " + asMethod.name);
+			throw new BugException("Unknown position type: " + asMethod.name() );
 		}
 		
 		return result;
@@ -2176,7 +2176,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		StackTraceElement[] stackTrace = (new Exception()).getStackTrace();
 		buf.append(" >> Dumping Detailed Information from: " + stackTrace[1].getMethodName() + "\n");
 		buf.append("      current Component: " + this.getName() + "  ofClass: " + this.getClass().getSimpleName() + "\n");
-		buf.append("      offset: " + this.axialOffset + " via: " + this.axialMethod.name + "  => " + this.getAxialOffset() + "\n");
+		buf.append("      offset: " + this.axialOffset + " via: " + this.axialMethod.name() + "  => " + this.getAxialOffset() + "\n");
 		buf.append("      thisCenterX: " + this.position.x + "\n");
 		buf.append("      this length: " + this.length + "\n");
 		return buf;

@@ -58,12 +58,17 @@ public enum RadiusMethod implements DistanceMethod {
 		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE }; 
 	}
 	
-	public final String name;
+	public final String description;
 	
 	// =============
 	
-	private RadiusMethod( final String _name ) {
-		this.name = _name;	
+	private RadiusMethod( final String descr ) {
+		this.description = descr;	
+	}
+
+	@Override
+	public String toString() {
+		return description;
 	}
 	
 	@Override

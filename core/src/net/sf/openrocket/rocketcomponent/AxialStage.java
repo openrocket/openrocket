@@ -197,7 +197,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		if( 1 == getInstanceCount()){
 			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;", indent+this.getName()+" (# "+this.getStageNumber()+")", 
 					this.getLength(), this.getPosition(), this.getComponentLocations()[0]));
-			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.axialMethod.name ));
+			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
 		}else{
 			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
 			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {

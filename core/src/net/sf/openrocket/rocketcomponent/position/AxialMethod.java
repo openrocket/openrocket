@@ -35,13 +35,18 @@ public enum AxialMethod implements DistanceMethod {
 	
 	public static final AxialMethod[] axialOffsetMethods = { TOP, MIDDLE, BOTTOM };
 	
-	public final String name;
+	public final String description;
 	
-	private AxialMethod( final String _name ) { 
-		this.name=_name;
+	private AxialMethod( final String newDescription ) { 
+		this.description=newDescription;
 	}
 	
 	@Override
 	public boolean clampToZero() { return true; }
+	
+	@Override
+	public String toString() {
+		return description;
+	}
 	
 }
