@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -21,7 +22,7 @@ import net.sf.openrocket.util.Coordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class ComponentAssembly extends RocketComponent {
+public abstract class ComponentAssembly extends RocketComponent implements  AxialPositionable {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAssembly.class);
 	
 	/**
@@ -131,17 +132,18 @@ public abstract class ComponentAssembly extends RocketComponent {
 		super.setAxialOffset(this.axialMethod, _pos);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	public void setRelativePositionMethod(final AxialMethod _newPosition) {
+		
+	@Override
+	public void setAxialMethod( final AxialMethod newMethod ) {
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
 		if ((this instanceof ParallelStage ) || ( this instanceof PodSet )){
-			if (AxialMethod.AFTER == _newPosition) {
+			if (AxialMethod.AFTER == newMethod) {
 				log.warn("Stages (or Pods) cannot be relative to other stages via AFTER! Ignoring.");
 				super.setAxialMethod(AxialMethod.TOP);
 			} else {
-				super.setAxialMethod(_newPosition);
+				super.setAxialMethod(newMethod);
 			}
 		}else if( this.getClass().equals( AxialStage.class)){
 			// Centerline stages must be set via AFTER-- regardless of what was requested:

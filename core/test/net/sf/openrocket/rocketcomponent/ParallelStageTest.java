@@ -173,7 +173,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		
 		// without making the rocket 'external' and the Stage should be restricted to AFTER positioning.
-		sustainer.setRelativePositionMethod(AxialMethod.ABSOLUTE);
+		sustainer.setAxialMethod(AxialMethod.ABSOLUTE);
 		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.isAfter(), equalTo(true));
 		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.getAxialMethod(), equalTo(AxialMethod.AFTER));
 		
@@ -613,7 +613,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		boosterA.setAxialOffset(AxialMethod.TOP, targetOffset);
 		
-		boosterB.setRelativePositionMethod(AxialMethod.TOP);
+		boosterB.setAxialMethod(AxialMethod.TOP);
 		boosterB.setAxialOffset(targetOffset);
 		String treeDump = rocket.toDebugTree();
 		

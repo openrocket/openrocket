@@ -145,7 +145,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public void setStageNumber(final int newStageNumber) {
 		this.stageNumber = newStageNumber;
 	}
-	
+
 	@Override
 	protected StringBuilder toDebugDetail() {
 		StringBuilder buf = super.toDebugDetail();
