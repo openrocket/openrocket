@@ -46,15 +46,20 @@ public enum AngleMethod implements DistanceMethod {
 	};
 	
 	public static final AngleMethod[] choices(){
-		return new AngleMethod[]{ AngleMethod.RELATIVE, AngleMethod.FIXED };  
+		return new AngleMethod[]{ AngleMethod.RELATIVE };  
 	}
 
-	public final String name;
+	public final String description;
 	
-	private AngleMethod( final String _name ) { 
-		this.name= _name;
+	private AngleMethod( final String descr ) { 
+		this.description= descr;
 	}
 
+	@Override
+	public String toString() {
+		return description;
+	}
+	
 	@Override
 	public boolean clampToZero() { return true; }
 	

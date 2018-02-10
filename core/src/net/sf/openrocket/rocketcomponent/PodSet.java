@@ -25,7 +25,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	// angle to the first pod
 	protected double angleOffset_rad = 0;
 	 
-	protected RadiusMethod radiusMethod = RadiusMethod.SURFACE;
+	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
 	protected double radiusOffset_m = 0;
 	
 	public PodSet() {
@@ -155,7 +155,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		
 		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getAxialMethod().name );
+			throw new BugException("found a pod positioned via: AFTER, but is not on the centerline?!: " + this.getName() + "  is " + this.getAxialMethod().name() );
 		} else {
 			returnValue = super.asPositionValue(this.axialMethod);
 		}
