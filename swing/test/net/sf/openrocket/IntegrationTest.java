@@ -120,10 +120,7 @@ public class IntegrationTest {
 		checkUndoState(null, null);
 		
 		InnerTube mmt = (InnerTube)config.getRocket().getChild(0).getChild(1).getChild(2);
-		System.err.println(String.format("IntegrationTest::testSimpleRocket(...)...."));
-        System.err.println(String.format("    Config:    %s", config.toDebug() ));
-        System.err.println(String.format("    motor config:    %s", mmt.getMotorConfig( config.getId() ).toDescription() ));
-        
+		 
 		// Compute cg+cp + altitude
 	    //   double cgx, double mass, double cpx, double cna)
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
