@@ -22,7 +22,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	protected double angleSeparation = Math.PI;
 	protected double angleOffset_rad = 0;
 	
-	protected RadiusMethod radiusMethod = RadiusMethod.SURFACE;
+	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
 	protected double radiusOffset_m = 0;
 	
 	public ParallelStage() {
