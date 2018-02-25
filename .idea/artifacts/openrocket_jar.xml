@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="openrocket:jar">
     <output-path>$PROJECT_DIR$/build/jar</output-path>
-    <root id="archive" name="openrocket.jar">
+    <root id="archive" name="OpenRocket.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/core/src/META-INF/MANIFEST.MF" />
       </element>
