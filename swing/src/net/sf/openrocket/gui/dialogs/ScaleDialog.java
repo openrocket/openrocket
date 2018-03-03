@@ -33,6 +33,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
@@ -400,18 +401,22 @@ public class ScaleDialog extends JDialog {
 		panel.add(scaleMassValues, "span, wrap para*3");
 		
 		
-		// Buttons
-		
+		// Scale / Accept Buttons
 		JButton scale = new JButton(trans.get("button.scale"));
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doScale();
+
+				ScaleDialog.this.document.getRocket().fireComponentChangeEvent( ComponentChangeEvent.AEROMASS_CHANGE);
+
 				ScaleDialog.this.setVisible(false);
 			}
 		});
+
 		panel.add(scale, "span, split, right, gap para");
-		
+
+		// Cancel Button
 		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
