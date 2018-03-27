@@ -106,7 +106,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		sub.add(filterLabel, "gapright para");
 		
 		filterText = new JTextField();
-		sub.add(filterText, "growx");
+		sub.add(filterText, "width 50:320, growx");
 		filterText.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -174,7 +174,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private JPanel getFilterCheckboxes() {
 		SymmetricComponent sc;
 		
-		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
+		JPanel panel = new JPanel(new MigLayout("ins 0"));
 		
 		/*
 		 * Add show all compatible check box.
