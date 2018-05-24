@@ -38,7 +38,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ConfigurationModel;
+import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
@@ -318,12 +318,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
 
-		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
-		final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
-		rkt.addChangeListener( configModel );
-		configComboBox.setModel(configModel);
+		final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
 		add(configComboBox, "wrap, width 16%, wmin 100");
-
 
 		// Create slider and scroll pane
 		DoubleModel theta = new DoubleModel(figure, "Rotation",
