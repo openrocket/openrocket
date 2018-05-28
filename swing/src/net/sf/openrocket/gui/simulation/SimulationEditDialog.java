@@ -21,7 +21,7 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.ConfigurationModel;
+import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -148,9 +148,7 @@ public class SimulationEditDialog extends JDialog {
 			panel.add(label, "growx 0, gapright para");
 			
 			final Rocket rkt = document.getRocket();
-			final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
-			final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
-			configComboBox.setModel( configModel);
+			final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
 			
 			//// Select the motor configuration to use.
 			configComboBox.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
