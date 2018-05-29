@@ -22,11 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
 
@@ -47,8 +44,7 @@ public class ScaleDialog extends JDialog
     *
     * Each scaled value (except override cg/mass) is defined using a Scaler instance.
     */
-   private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS =
-                                                                                         new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
+   private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS = new HashMap<>();
 
    static {
       List<Scaler> list;
@@ -99,7 +95,7 @@ public class ScaleDialog extends JDialog
       addScaler(EllipticalFinSet.class, "Height");
 
       // FreeformFinSet
-      list = new ArrayList<ScaleDialog.Scaler>(1);
+      list = new ArrayList<>(1);
       list.add(new FreeformFinSetScaler());
       SCALERS.put(FreeformFinSet.class, list);
 
@@ -109,7 +105,7 @@ public class ScaleDialog extends JDialog
       addScaler(MassObject.class, "RadialPosition");
 
       // MassComponent
-      list = new ArrayList<ScaleDialog.Scaler>(1);
+      list = new ArrayList<>(1);
       list.add(new MassComponentScaler());
       SCALERS.put(MassComponent.class, list);
 
@@ -145,11 +141,7 @@ public class ScaleDialog extends JDialog
    }
 
    private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
-      List<Scaler> list = SCALERS.get(componentClass);
-      if (list == null) {
-         list = new ArrayList<ScaleDialog.Scaler>();
-         SCALERS.put(componentClass, list);
-      }
+      List<Scaler> list = SCALERS.computeIfAbsent(componentClass, k -> new ArrayList<>());
       list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
    }
 
@@ -174,7 +166,7 @@ public class ScaleDialog extends JDialog
    private JComboBox<String> selectionOption;
    private JCheckBox scaleMassValues;
 
-   private boolean changing = false;
+   private volatile boolean changing = false;
 
    /**
     * Sole constructor.
@@ -207,7 +199,7 @@ public class ScaleDialog extends JDialog
 
    private void init() {
       // Generate options for scaling
-      List<String> options = new ArrayList<String>();
+      List<String> options = new ArrayList<>();
       if (!onlySelection)
          options.add(SCALE_ROCKET);
       if (selection != null && selection.getChildCount() > 0) {
@@ -253,37 +245,13 @@ public class ScaleDialog extends JDialog
 
 
       // Add actions to the values
-      multiplier.addChangeListener(new ChangeListener()
-      {
-         @Override
-         public void stateChanged(ChangeEvent e) {
-            if (!changing) {
-               changing = true;
-               updateToField();
-               changing = false;
-            }
-         }
-      });
-      fromField.addChangeListener(new ChangeListener()
-      {
-         @Override
-         public void stateChanged(ChangeEvent e) {
-            if (!changing) {
-               changing = true;
-               updateToField();
-               changing = false;
-            }
-         }
-      });
-      toField.addChangeListener(new ChangeListener()
-      {
-         @Override
-         public void stateChanged(ChangeEvent e) {
-            if (!changing) {
-               changing = true;
-               updateMultiplier();
-               changing = false;
-            }
+      CommonChangeListener(multiplier);
+      CommonChangeListener(fromField);
+      toField.addChangeListener((ChangeListener) e -> {
+         if (!changing) {
+            changing = true;
+            updateMultiplier();
+            changing = false;
          }
       });
 
@@ -299,7 +267,7 @@ public class ScaleDialog extends JDialog
       label.setToolTipText(tip);
       panel.add(label, "span, split, gapright unrel");
 
-      selectionOption = new JComboBox<String>(options.toArray(new String[0]));
+      selectionOption = new JComboBox<>(options.toArray(new String[0]));
       selectionOption.setEditable(false);
       selectionOption.setToolTipText(tip);
       panel.add(selectionOption, "growx, wrap para*2");
@@ -371,33 +339,33 @@ public class ScaleDialog extends JDialog
 
       // Scale / Accept Buttons
       JButton scale = new JButton(trans.get("button.scale"));
-      scale.addActionListener(new ActionListener()
-      {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            doScale();
+      scale.addActionListener(e -> {
+         doScale();
 
-            ScaleDialog.this.document.getRocket().fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
+         ScaleDialog.this.document.getRocket().fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 
-            ScaleDialog.this.setVisible(false);
-         }
+         ScaleDialog.this.setVisible(false);
       });
 
       panel.add(scale, "span, split, right, gap para");
 
       // Cancel Button
       JButton cancel = new JButton(trans.get("button.cancel"));
-      cancel.addActionListener(new ActionListener()
-      {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            ScaleDialog.this.setVisible(false);
-         }
-      });
+      cancel.addActionListener(e -> ScaleDialog.this.setVisible(false));
       panel.add(cancel, "right, gap para");
 
 
       GUIUtil.setDisposableDialogOptions(this, scale);
+   }
+
+   private void CommonChangeListener(DoubleModel multiplier) {
+      multiplier.addChangeListener((ChangeListener) e -> {
+         if (!changing) {
+            changing = true;
+            updateToField();
+            changing = false;
+         }
+      });
    }
 
 
@@ -502,7 +470,7 @@ public class ScaleDialog extends JDialog
     */
    private interface Scaler
    {
-      public void scale(RocketComponent c, double multiplier, boolean scaleMass);
+      void scale(RocketComponent c, double multiplier, boolean scaleMass);
    }
 
    /**
@@ -515,7 +483,7 @@ public class ScaleDialog extends JDialog
       private final Method setter;
       private final Method autoMethod;
 
-      public GeneralScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
+      GeneralScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
 
          getter = Reflection.findMethod(componentClass, "get" + methodName);
          setter = Reflection.findMethod(componentClass, "set" + methodName, double.class);
