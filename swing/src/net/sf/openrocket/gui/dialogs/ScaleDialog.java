@@ -371,58 +371,55 @@ public class ScaleDialog extends JDialog
 
    private void doScale() {
       double mul = multiplier.getValue();
-      if (!(SCALE_MIN <= mul && mul <= SCALE_MAX)) {
-         JOptionPane.showMessageDialog(this,"The multiplier value must be between " + SCALE_MIN + " and " + SCALE_MAX,"Illegal Multiplier Value.", JOptionPane.ERROR_MESSAGE);
-         return;
-      }
-
-      if (MathUtil.equals(mul, 1.0)) {
-         // Nothing to do
-         log.info(Markers.USER_MARKER, "Scaling by value 1.0 - nothing to do");
-         return;
-      }
-
       boolean scaleMass = scaleMassValues.isSelected();
-
       Object item = selectionOption.getSelectedItem();
-      log.info(Markers.USER_MARKER, "Scaling design by factor " + mul + ", option=" + item);
-      if (SCALE_ROCKET.equals(item)) {
 
-         // Scale the entire rocket design
-         try {
-            document.startUndo(trans.get("undo.scaleRocket"));
-            for (RocketComponent c : document.getRocket()) {
-               scale(c, mul, scaleMass);
+      if (!MathUtil.equals(mul, 1.0)) {
+         if (isValidMultiplier(mul)) {
+            log.info(Markers.USER_MARKER, "Scaling design by factor " + mul + ", option=" + item);
+            if (SCALE_ROCKET.equals(item)) {  // Scale the entire rocket design
+               try {
+                  document.startUndo(trans.get("undo.scaleRocket"));
+                  for (RocketComponent c : document.getRocket()) {
+                     scale(c, mul, scaleMass);
+                  }
+               } finally {
+                  document.stopUndo();
+               }
+
+            } else if (SCALE_SUBSELECTION.equals(item)) {  // Scale component and subcomponents
+               try {
+                  document.startUndo(trans.get("undo.scaleComponents"));
+                  for (RocketComponent c : selection) {
+                     scale(c, mul, scaleMass);
+                  }
+               } finally {
+                  document.stopUndo();
+               }
+
+            } else if (SCALE_SELECTION.equals(item)) {  // Scale only the selected component
+               try {
+                  document.startUndo(trans.get("undo.scaleComponent"));
+                  scale(selection, mul, scaleMass);
+               } finally {
+                  document.stopUndo();
+               }
+
+            } else {
+               throw new BugException("Unknown item selected, item=" + item);
             }
-         } finally {
-            document.stopUndo();
          }
-
-      } else if (SCALE_SUBSELECTION.equals(item)) {
-
-         // Scale component and subcomponents
-         try {
-            document.startUndo(trans.get("undo.scaleComponents"));
-            for (RocketComponent c : selection) {
-               scale(c, mul, scaleMass);
-            }
-         } finally {
-            document.stopUndo();
-         }
-
-      } else if (SCALE_SELECTION.equals(item)) {
-
-         // Scale only the selected component
-         try {
-            document.startUndo(trans.get("undo.scaleComponent"));
-            scale(selection, mul, scaleMass);
-         } finally {
-            document.stopUndo();
-         }
-
-      } else {
-         throw new BugException("Unknown item selected, item=" + item);
       }
+   }
+
+   private boolean isValidMultiplier(double mul) {
+      boolean retVal = (SCALE_MIN <= mul && mul <= SCALE_MAX);
+
+      if (!retVal) {
+         JOptionPane.showMessageDialog(this, "The multiplier value must be between " + SCALE_MIN + " and " + SCALE_MAX, "Illegal Multiplier Value.", JOptionPane.ERROR_MESSAGE);
+      }
+
+      return retVal;
    }
 
 
