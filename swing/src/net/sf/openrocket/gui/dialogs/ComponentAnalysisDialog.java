@@ -47,7 +47,7 @@ import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ConfigurationModel;
+import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -176,9 +176,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
 
-		final JComboBox<FlightConfiguration> configComboBox = new JComboBox<>();
-		final ConfigurationModel configModel = new ConfigurationModel(rkt, configComboBox);
-		configComboBox.setModel( configModel);
+		final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
 		panel.add( configComboBox, "wrap");
 
 
