@@ -1,7 +1,10 @@
 <project name="OpenRocket-Core" basedir=".">
 
+	<property name="java.source.version" value = "1.8"/>
+	<property name="java.target.version" value = "1.8"/>
+
 	<property file="resources/build.properties" />
-	
+
 	<property name="src.dir"    	value="${basedir}/src"/>		<!-- Source directory -->
 	<property name="src-test.dir"	value="${basedir}/test"/>		<!-- Test directory -->
 	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
@@ -12,22 +15,22 @@
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
 	<property name="resources-src.dir"	value="${basedir}/resources-src"/>	<!-- Resources directory -->
-	
+
 	<!-- Distribution directory, from which stuff is jar'ed -->
-	<property name="dist.dir"    	value="${build.dir}/dist"/> 
+	<property name="dist.dir"    	value="${build.dir}/dist"/>
 	<property name="dist-test.dir"	value="${build.dir}/dist-test"/>
-	
+
 	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
 
 	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
-	
+
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
 	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
 	</path>
-	
+
 	<path id="test-classpath">
 		<path refid="classpath"/>
 		<pathelement location="${resources.dir}"/>
@@ -49,15 +52,15 @@
 		<delete dir="${build.dir}"/>
 		<delete dir="${tmp.dir}/"/>
 	</target>
-		
-	
+
+
 	<!-- BUILD -->
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.7" target="1.7"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="${java.source.version}" target="${java.target.version}"/>
 	</target>
-	
+
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
 	<target name="jar" depends="build" description="Create the OpenRocket Core">
 		<mkdir dir="${jar.dir}" />
@@ -66,13 +69,13 @@
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
-			
-			
+
+
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
-	
+
 	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
 	    <java classname="net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors"
 	          fork="true"
@@ -83,13 +86,13 @@
 	    </java>
 	</target>
 
-	
+
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath" includeantruntime="false"/>
-		
+
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure" dir="${basedir}">
@@ -123,7 +126,7 @@
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
-		
+
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
@@ -148,6 +151,6 @@
 	Unit tests passed successfully.
 		</echo>
  	</target>
-    
-    
+
+
 </project>

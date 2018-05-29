@@ -1,7 +1,10 @@
 <project name="OpenRocket" basedir=".">
 
+	<property name="java.source.version" value = "1.8"/>
+	<property name="java.target.version" value = "1.8"/>
+
 	<property file="resources/build.properties" />
-	
+
 	<property name="src.dir"    	value="${basedir}/src"/>		<!-- Source directory -->
 	<property name="src-test.dir"	value="${basedir}/test"/>		<!-- Test directory -->
 	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
@@ -12,20 +15,20 @@
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
 	<property name="resources-src.dir"	value="${basedir}/resources-src"/>
-        <property name="core.dir" value="${basedir}/../core"/>
-	
+	<property name="core.dir" value="${basedir}/../core"/>
+
 	<!-- Distribution directory, from which stuff is jar'ed -->
-	<property name="classes.dir"    	value="${build.dir}/classes"/> 
+	<property name="classes.dir"    	value="${build.dir}/classes"/>
 	<property name="dist-test.dir"	value="${build.dir}/dist-test"/>
-	
+
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
 
 	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
-	
+
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
 	<property name="dist.bin"    value="${jar.dir}/${pkgname}.jar"/>
 	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
-	
+
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.OpenRocket"/>
 
@@ -35,7 +38,7 @@
                 <fileset dir="${core.dir}/build/jar" includes="OpenRocket-Core.jar"/>
                 <fileset dir="${core.dir}/lib" includes="**/*.jar"/>
 	</path>
-	
+
 	<path id="test-classpath">
 		<path refid="classpath"/>
 		<pathelement location="${resources.dir}"/>
@@ -59,21 +62,21 @@
 		</classpath>
 	</taskdef>
 
-	
+
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
 		<delete dir="${tmp.dir}/"/>
 	</target>
-		
-	
+
+
 	<!-- BUILD -->
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.7" target="1.7"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="${java.source.version}" target="${java.target.version}"/>
 	</target>
-	
+
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
 	<target name="jar" depends="build,serialize-presets" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
@@ -87,8 +90,8 @@
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
-			
-			
+
+
 			<!-- Libraries to extract into base JAR -->
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
 			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
@@ -106,18 +109,18 @@
 			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
-									
-			
+
+
 			<!-- JOGL libraries need to be jar-in-jar -->
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
 			</zipfileset>
-			
+
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
-	
+
 	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
 	    <java classname="net.sf.openrocket.utils.SerializePresets"
 	          fork="true"
@@ -159,10 +162,10 @@
 			</sequential>
 		</for>
 	</target>
-	
+
 	<!-- DIST-SRC -->
 	<target name="dist-src">
-		<echo>			
+		<echo>
 		Building source distribution
 		</echo>
 		<mkdir dir="${build.dir}/${pkgname}"/>
@@ -176,8 +179,8 @@
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
 	</target>
-	
-	
+
+
 	<!-- DIST-SRC-TEST -->
 	<target name="dist-src-test" depends="dist-src">
 		<echo>
@@ -192,24 +195,24 @@
 		<echo>
 		Source distribution test successful
 		</echo>
-	</target>	
-	
-	
+	</target>
+
+
 	<!-- DIST-BIN -->
 	<target name="dist-bin" depends="check,clean,unittest,jar">
 		<move file="${jar.file}" tofile="${dist.bin}"/>
 	</target>
 
-	
+
 	<!-- DIST -->
 	<target name="dist" depends="dist-bin,dist-src,dist-src-test">
 		<echo>Distribution ${build.version} (${build.source}) built into directory ${jar.dir}</echo>
 	</target>
-	
-	
+
+
 	<!-- CHECK -->
 	<target name="check" depends="checktodo,checkascii"/>
-	
+
 	<!-- CHECK TODOs -->
 	<target name="todo" depends="checktodo"/>
 	<target name="checktodo">
@@ -234,8 +237,8 @@
 ${criticaltodos}</fail>
 		<echo>No critical TODOs in project.</echo>
 	</target>
-	
-	
+
+
 	<!-- CHECK ASCII -->
 	<target name="ascii" depends="checkascii"/>
 	<target name="checkascii">
@@ -260,14 +263,14 @@ ${criticaltodos}</fail>
 ${nonascii}</fail>
 		<echo>No non-ASCII characters in project.</echo>
 	</target>
-	
-	
+
+
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
-		
+
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
@@ -301,7 +304,7 @@ ${nonascii}</fail>
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
-		
+
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
@@ -326,6 +329,6 @@ ${nonascii}</fail>
 	Unit tests passed successfully.
 		</echo>
  	</target>
-    
-    
+
+
 </project>
