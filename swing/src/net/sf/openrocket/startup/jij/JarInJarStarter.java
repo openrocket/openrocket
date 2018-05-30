@@ -30,7 +30,7 @@ public class JarInJarStarter {
 		}
 		
 		URL[] urlArray = urls.toArray(new URL[0]);
-		ClassLoader loader = new URLClassLoader(urlArray);
+		ClassLoader loader = new URLClassLoader(urlArray, null);
 		try {
 			Thread.currentThread().setContextClassLoader(loader);
 			Class<?> c = Class.forName(mainClass, true, loader);
