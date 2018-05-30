@@ -3,16 +3,6 @@
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <resourceExtensions />
-    <excludeFromCompile>
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/logging/LogLevelTest.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/gui/print/PrintUnitTest.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/logging/CyclicBufferTest.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/gui/print/TestPaperSize.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/gui/configdialog/FinSetConfigTest.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/IntegrationTest.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/gui/TestGUI.java" />
-      <file url="file://$PROJECT_DIR$/swing/test/net/sf/openrocket/logging/LogLevelBufferLoggerTest.java" />
-    </excludeFromCompile>
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
