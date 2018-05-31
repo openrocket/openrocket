@@ -273,7 +273,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	@Override
 	public double getRotationalUnitInertia() {
 		if (rotationalInertia < 0) {
-			if (getComponentVolume() > 0.0000001)
+			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
 				integrateInertiaVolume();
 			else
 				integrateInertiaSurface();
@@ -425,19 +425,18 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			final double inner;
 			final double dV;
 			
-			if (filled || r1 < thickness || r2 < thickness) {
+			final double hyp = MathUtil.hypot(r2 - r1, l);
+			final double height = thickness * hyp / l;
+			if (filled || r1 < height || r2 < height ) {
 				inner = 0;
 				dV = pil3 * (r1 * r1 + r1 * r2 + r2 * r2);
 			} else {
-				final double hyp = MathUtil.hypot(r2 - r1, l);
-				final double height = thickness * hyp / l;
 				dV = pil * height * (r1 + r2 - height);
-				inner = Math.max(outer - height, 0);
+				inner = Math.max(outer - height, 0.);
 			}
 			
 			rotationalInertia += dV * (pow2(outer) + pow2(inner)) / 2;
-			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12
-					+ pow2(x + l / 2));
+			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12 + pow2(x + l / 2));
 			
 			vol += dV;
 			
