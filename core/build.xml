@@ -1,7 +1,7 @@
 <project name="OpenRocket-Core" basedir=".">
 
-	<property name="java.source.version" value = "1.8"/>
-	<property name="java.target.version" value = "1.8"/>
+	<property name="java.source.version" value = "1.7"/>
+	<property name="java.target.version" value = "1.7"/>
 
 	<property file="resources/build.properties" />
 
