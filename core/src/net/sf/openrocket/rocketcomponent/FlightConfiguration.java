@@ -463,10 +463,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
      * @return the new configuration
      */
     @Override
-    public FlightConfiguration copy( final FlightConfigurationId copyId ) {
+    public FlightConfiguration copy( final FlightConfigurationId newId ) {
         // Note the stages are updated in the constructor call.
-        FlightConfiguration copy= new FlightConfiguration( this.rocket, copyId );
-
+        FlightConfiguration copy= new FlightConfiguration( this.rocket, newId );
+		final FlightConfigurationId copyId = copy.getId();
+		
         // copy motor instances.
         for( final MotorConfiguration sourceMotor: motors.values() ){
             MotorConfiguration cloneMotor = sourceMotor.copy( copyId);
