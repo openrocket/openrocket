@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.configdialog;
 
-
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -199,9 +198,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 	
 	
-	
+	// edit fin points directly here
 	private JPanel shapePane() {
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(null);
 		
 		
 		// Create the figure
@@ -247,30 +246,33 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				}
 			}
 		});
-		
-		panel.add(tablePane, "growy, width 100lp:100lp:, height 100lp:250lp:");
-		panel.add(figurePane, "gap unrel, spanx, spany 3, growx, growy 1000, height 100lp:250lp:, wrap");
-		
-		panel.add(new StyledLabel(trans.get("lbl.doubleClick1"), -2), "alignx 50%, wrap");
-		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "alignx 50%, wrap");
-		
-		panel.add(scaleButton, "spany 2, alignx 50%, aligny 50%");
-		panel.add(exportCsvButton, "spany 2, alignx 50%, aligny 50%");
-		ScaleSelector selector = new ScaleSelector(figurePane);
-		panel.add( selector, "spany 2, aligny 50%");
-		
-		JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
-		importButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				importImage();
-			}
-		});
-		panel.add(importButton, "spany 2, bottom");
+        JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
+            importButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    importImage();
+                }
+            });
+        ScaleSelector selector = new ScaleSelector(figurePane);
+                
+        panel.setLayout(new MigLayout("fill, gap 5!","", "[nogrid, fill, sizegroup display, growprio 200]5![sizegroup text, growprio 5]5![sizegroup buttons, align top, growprio 5]0!"));
+        
+        // first row: main display
+        panel.add(tablePane, "width 100lp:100lp:, growy");        
+        panel.add(figurePane, "width 200lp:400lp:, gap unrel, grow, height 100lp:250lp:, wrap");
+        
+		// row of text directly below figure
+		panel.add(new StyledLabel(trans.get("lbl.doubleClick1")+" "+trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "spanx 3");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 3");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 3, wrap");
+        
+        // row of controls at the bottom of the tab:
+        panel.add(selector, "aligny bottom, gap unrel");
+        panel.add(scaleButton, "");
+        panel.add(importButton, "");
+        panel.add(exportCsvButton, "");
 		
 		//		panel.add(new CustomFinBmpImporter(finset), "spany 2, bottom");
-		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "right, wrap");
-		panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "right");
 		
 		return panel;
 	}
