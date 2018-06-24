@@ -1,5 +1,6 @@
 package net.sf.openrocket.util;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -8,8 +9,7 @@ public class BoundingBox {
 	public Coordinate max;
 	
 	public BoundingBox() {
-		min = Coordinate.MAX.setWeight( 0.0);
-		max = Coordinate.MIN.setWeight( 0.0);
+	    clear();
 	}
 	
 	public BoundingBox( Coordinate _min, Coordinate _max) {
@@ -18,14 +18,9 @@ public class BoundingBox {
 		this.max = _max.clone();
 	}
 	
-	public BoundingBox( Coordinate[] list ) {
-		this();
-		this.compare( list);
-	}
-	
-	public BoundingBox( Collection<Coordinate> list ) {
-		this();
-		this.compare( list.toArray( new Coordinate[0] ));
+	public void clear() {
+		min = Coordinate.MAX.setWeight( 0.0);
+		max = Coordinate.MIN.setWeight( 0.0);
 	}
 	
 	@Override
@@ -33,39 +28,90 @@ public class BoundingBox {
 		return new BoundingBox( this.min, this.max );
 	}
 	
-	public void compare( Coordinate c ) {
-		compare_against_min(c);
-		compare_against_max(c);
+	
+	private void update_x_min( final double xVal) {
+		if( min.x > xVal)
+			min = min.setX( xVal );
 	}
 	
-	protected void compare_against_min( Coordinate c ) {
-		if( min.x > c.x )
-			min = min.setX( c.x );
-		if( min.y > c.y )
-			min = min.setY( c.y );
-		if( min.z > c.z )
-			min = min.setZ( c.z );
+	private void update_y_min( final double yVal) {
+		if( min.y > yVal )
+			min = min.setY( yVal );
 	}
 	
-	protected void compare_against_max( Coordinate c) {
-		if( max.x < c.x )
-			max = max.setX( c.x );
-		if( max.y < c.y )
-			max = max.setY( c.y );
-		if( max.z < c.z )
-			max = max.setZ( c.z );
+	private void update_z_min( final double zVal) {
+		if( min.z > zVal )
+			min = min.setZ( zVal );
+	}
+	
+	private void update_x_max( final double xVal) {
+		if( max.x < xVal )
+			max = max.setX( xVal );
+	}
+	
+	private void update_y_max( final double yVal) {
+		if( max.y < yVal )
+			max = max.setY( yVal );
+	}
+	
+	private void update_z_max( final double zVal) {
+		if( max.z < zVal )
+			max = max.setZ( zVal );
+	}
+	
+	public BoundingBox update( final double val) {
+		update_x_min(val);
+		update_y_min(val);
+		update_z_min(val);
+		
+		update_x_max(val);
+		update_y_max(val);
+		update_z_max(val);
+		return this;
+	}
+	
+
+	public void update( Coordinate c ) {
+		update_x_min(c.x);
+		update_y_min(c.y);
+		update_z_min(c.z);
+		
+		update_x_max(c.x);
+		update_y_max(c.y);
+		update_z_max(c.z);
 	}
 
-	public BoundingBox compare( Coordinate[] list ) {
+    public BoundingBox update( Rectangle2D rect ) {
+	    update_x_min(rect.getMinX());
+	    update_y_min(rect.getMinY());
+	    update_x_max(rect.getMaxX());
+	    update_y_max(rect.getMaxY());
+	    return this;
+	}
+	
+	public BoundingBox update( final Coordinate[] list ) {
 		for( Coordinate c: list ) {
-			compare( c );
+			update( c );
 		}
 		return this;
 	}
 	
-	public void compare( BoundingBox other ) {
-		compare_against_min( other.min);
-		compare_against_max( other.max);
+	public BoundingBox update( Collection<Coordinate> list ) {
+		for( Coordinate c: list ) {
+			update( c );
+		}
+       return this; 
+    }
+	
+	public BoundingBox update( BoundingBox other ) {
+		update_x_min(other.min.x);
+		update_y_min(other.min.y);
+		update_z_min(other.min.y);
+		
+		update_x_max(other.max.x);
+		update_y_max(other.max.y);
+		update_z_max(other.max.z);
+		return this;
 	}
 	
 	public Coordinate span() { return max.sub( min ); }
@@ -81,9 +127,12 @@ public class BoundingBox {
 		return toReturn;
 	}
 	
+	public Rectangle2D toRectangle() {
+		return new Rectangle2D.Double(min.x, min.y, (max.x-min.x), (max.y - min.y));
+    }
+	
 	@Override
 	public String toString() {
-//		return String.format("[( %6.4f, %6.4f, %6.4f) < ( %6.4f, %6.4f, %6.4f)]",
 		return String.format("[( %g, %g, %g) < ( %g, %g, %g)]",
 				min.x, min.y, min.z,
 				max.x, max.y, max.z );
