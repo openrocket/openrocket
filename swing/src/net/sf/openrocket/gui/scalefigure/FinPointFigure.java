@@ -13,96 +13,73 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.slf4j.*;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
-
-// TODO: MEDIUM:  the figure jumps and bugs when using automatic fitting
 
 @SuppressWarnings("serial")
 public class FinPointFigure extends AbstractScaleFigure {
-	
-	private static final int BOX_SIZE = 4;
-	
-	private final FreeformFinSet finset;
+ 
+    private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
+
+    
+    private static final float MINIMUM_CANVAS_SIZE_METERS = 0.01f; // i.e. 1 cm
+
+    private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
+    private static final float GRID_LINE_BASE_WIDTH = 0.001f;
+
+    private static final int LINE_WIDTH_PIXELS = 1;
+    
+    // the size of the boxes around each fin point vertex
+    private static final float BOX_WIDTH_PIXELS = 12; 
+        
+    private static final double MINOR_TICKS = 0.05;
+    private static final double MAJOR_TICKS = 0.1;
+            
+    private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	private double minX, maxX, maxY;
-	private double figureWidth = 0;
-	private double figureHeight = 0;
-	private double translateX = 0;
-	private double translateY = 0;
 	
-	private AffineTransform transform;
-	private Rectangle2D.Double[] handles = null;
-	
+    protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
+	       
+    private Rectangle2D.Double[] finPointHandles = null;
+
 	
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
+		
+		// useful for debugging -- shows a contrast against un-drawn space.
+		setBackground(Color.WHITE);
+		setOpaque(true);
+
+		updateTransform();
 	}
-	
-	
+
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		
-		if (modID != finset.getRocket().getAerodynamicModID()) {
-			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
-		}
-		
-
-		double tx, ty;
-		// Calculate translation for figure centering
-		if (figureWidth * scale + 2 * borderPixelsWidth < getWidth()) {
-			
-			// Figure fits in the viewport
-			tx = (getWidth() - figureWidth * scale) / 2 - minX * scale;
-			
-		} else {
-			
-			// Figure does not fit in viewport
-			tx = borderPixelsWidth - minX * scale;
-			
-		}
-		
-
-		if (figureHeight * scale + 2 * borderPixelsHeight < getHeight()) {
-			ty = getHeight() - borderPixelsHeight;
-		} else {
-			ty = borderPixelsHeight + figureHeight * scale;
-		}
-		
-		if (Math.abs(translateX - tx) > 1 || Math.abs(translateY - ty) > 1) {
-			// Origin has changed, fire event
-			translateX = tx;
-			translateY = ty;
-			fireChangeEvent();
-		}
-		
-
-		if (Math.abs(translateX - tx) > 1 || Math.abs(translateY - ty) > 1) {
-			// Origin has changed, fire event
-			translateX = tx;
-			translateY = ty;
-			fireChangeEvent();
-		}
-		
-
-		// Calculate and store the transformation used
-		transform = new AffineTransform();
-		transform.translate(translateX, translateY);
-		transform.scale(scale / EXTRA_SCALE, -scale / EXTRA_SCALE);
-		
-		// TODO: HIGH:  border Y-scale upwards
-		
-		g2.transform(transform);
+        Graphics2D g2 = (Graphics2D) g.create();
+                
+        if (modID != finset.getRocket().getAerodynamicModID()) {
+            modID = finset.getRocket().getAerodynamicModID(); 
+            updateTransform();
+        }
+                
+		g2.transform(projection);
 		
 		// Set rendering hints appropriately
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
@@ -113,128 +90,184 @@ public class FinPointFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
 
+        // Background grid
+		paintBackgroundGrid( g2);
 
-		Rectangle visible = g2.getClipBounds();
-		double x0 = ((double) visible.x - 3) / EXTRA_SCALE;
-		double x1 = ((double) visible.x + visible.width + 4) / EXTRA_SCALE;
-		double y0 = ((double) visible.y - 3) / EXTRA_SCALE;
-		double y1 = ((double) visible.y + visible.height + 4) / EXTRA_SCALE;
+		paintRocketBody(g2);
 		
-
-		// Background grid
-		
-		g2.setStroke(new BasicStroke((float) (1.0 * EXTRA_SCALE / scale),
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(new Color(0, 0, 255, 30));
-		
-		Unit unit;
-		if (this.getParent() != null &&
-				this.getParent().getParent() instanceof ScaleScrollPane) {
-			unit = ((ScaleScrollPane) this.getParent().getParent()).getCurrentUnit();
-		} else {
-			unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-		}
-		
-		// vertical
-		Tick[] ticks = unit.getTicks(x0, x1,
-				ScaleScrollPane.MINOR_TICKS / scale,
-				ScaleScrollPane.MAJOR_TICKS / scale);
-		Line2D.Double line = new Line2D.Double();
-		for (Tick t : ticks) {
-			if (t.major) {
-				line.setLine(t.value * EXTRA_SCALE, y0 * EXTRA_SCALE,
-						t.value * EXTRA_SCALE, y1 * EXTRA_SCALE);
-				g2.draw(line);
-			}
-		}
-		
-		// horizontal
-		ticks = unit.getTicks(y0, y1,
-				ScaleScrollPane.MINOR_TICKS / scale,
-				ScaleScrollPane.MAJOR_TICKS / scale);
-		for (Tick t : ticks) {
-			if (t.major) {
-				line.setLine(x0 * EXTRA_SCALE, t.value * EXTRA_SCALE,
-						x1 * EXTRA_SCALE, t.value * EXTRA_SCALE);
-				g2.draw(line);
-			}
-		}
-		
-
-
-
-
-		// Base rocket line
-		g2.setStroke(new BasicStroke((float) (3.0 * EXTRA_SCALE / scale),
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(Color.GRAY);
-		
-		g2.drawLine((int) (x0 * EXTRA_SCALE), 0, (int) (x1 * EXTRA_SCALE), 0);
-		
-
-		// Fin shape
-		Coordinate[] points = finset.getFinPoints();
-		Path2D.Double shape = new Path2D.Double();
-		shape.moveTo(0, 0);
-		for (int i = 1; i < points.length; i++) {
-			shape.lineTo(points[i].x * EXTRA_SCALE, points[i].y * EXTRA_SCALE);
-		}
-		
-		g2.setStroke(new BasicStroke((float) (1.0 * EXTRA_SCALE / scale),
-				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(Color.BLACK);
-		g2.draw(shape);
-		
-
-		// Fin point boxes
-		g2.setColor(new Color(150, 0, 0));
-		double s = BOX_SIZE * EXTRA_SCALE / scale;
-		handles = new Rectangle2D.Double[points.length];
-		for (int i = 0; i < points.length; i++) {
-			Coordinate c = points[i];
-			handles[i] = new Rectangle2D.Double(c.x * EXTRA_SCALE - s, c.y * EXTRA_SCALE - s, 2 * s, 2 * s);
-			g2.draw(handles[i]);
-		}
-		
+		paintFinShape(g2);
+		paintFinHandles(g2);	
 	}
 	
-	
+	public void paintBackgroundGrid( Graphics2D g2){
+	    Rectangle visible = g2.getClipBounds();
+	    int x0 = visible.x - 3;
+	    int x1 = visible.x + visible.width + 4;
+	    int y0 = visible.y - 3;
+	    int y1 = visible.y + visible.height + 4;
 
-	public int getIndexByPoint(double x, double y) {
-		if (handles == null)
-			return -1;
-		
-		// Calculate point in shapes' coordinates
-		Point2D.Double p = new Point2D.Double(x, y);
-		try {
-			transform.inverseTransform(p, p);
-		} catch (NoninvertibleTransformException e) {
-			return -1;
-		}
-		
-		for (int i = 0; i < handles.length; i++) {
-			if (handles[i].contains(p))
-				return i;
-		}
-		return -1;
+	    final float grid_line_width = (float)(FinPointFigure.GRID_LINE_BASE_WIDTH/this.scale);
+	    g2.setStroke(new BasicStroke( grid_line_width,
+	            BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+	    g2.setColor(FinPointFigure.GRID_LINE_COLOR);
+
+	    Unit unit;
+	    if (this.getParent() != null && this.getParent().getParent() instanceof ScaleScrollPane) {
+	        unit = ((ScaleScrollPane) this.getParent().getParent()).getCurrentUnit();
+	    } else {
+	        unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+	    }
+
+	    // vertical
+	    Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS, MAJOR_TICKS);
+	    Line2D.Double line = new Line2D.Double();
+	    for (Tick t : verticalTicks) {
+	        if (t.major) {
+	            line.setLine( t.value, y0, t.value, y1);
+	            g2.draw(line);
+	        }
+	    }
+
+	    // horizontal
+	    Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS, MAJOR_TICKS);
+	    for (Tick t : horizontalTicks) {
+	        if (t.major) {
+	            line.setLine( x0, t.value, x1, t.value);
+	            g2.draw(line);
+	        }
+	    }
+	}
+
+    private void paintRocketBody( Graphics2D g2){
+        RocketComponent comp = finset.getParent();
+        if( comp instanceof Transition ){
+            paintBodyTransition(g2);
+        }else{
+            paintBodyTube(g2);                      
+        }
+    }
+
+    // NOTE:  This function drawns relative to the reference point of the BODY component
+    // In other words: 0,0 == the front, foreRadius of the body component
+    private void paintBodyTransition( Graphics2D g2){       
+    
+        // setup lines 
+        final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale ); 
+        g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        g2.setColor(Color.BLACK);
+
+        Transition body = (Transition) finset.getParent();
+        final float xResolution_m = 0.01f; // distance between draw points, in meters
+
+        final double xFinStart = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+
+        // vv in fin-frame == draw-frame vv
+        final double xOffset = -xFinStart;
+        final double yOffset = -body.getRadius(xFinStart);
+
+        Path2D.Double bodyShape = new Path2D.Double();
+        // draw front-cap: 
+        bodyShape.moveTo( xOffset, yOffset);
+        bodyShape.lineTo( xOffset, yOffset + body.getForeRadius());
+
+        final float length_m = (float)( body.getLength());
+        Point2D.Double cur = new Point2D.Double ();
+        for( double xBody = xResolution_m ; xBody < length_m;  xBody += xResolution_m ){
+            // xBody is distance from front of parent body
+            cur.x = xOffset + xBody; // offset from origin (front of fin)
+            cur.y = yOffset + body.getRadius( xBody); // offset from origin ( fin-front-point ) 
+
+            bodyShape.lineTo( cur.x, cur.y);
+        }
+
+        // draw end-cap
+        bodyShape.lineTo( xOffset + length_m, yOffset + body.getAftRadius());
+        bodyShape.lineTo( xOffset + length_m, yOffset);
+
+        g2.draw(bodyShape);
+    }
+
+    private void paintBodyTube( Graphics2D g2){
+        Rectangle visible = g2.getClipBounds();
+        int x0 = visible.x - 3;
+        int x1 = visible.x + visible.width + 4;
+        
+        final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale ); 
+        g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        g2.setColor(Color.BLACK);
+
+        g2.drawLine((int) x0, 0, (int)x1, 0);
+    }
+
+	private void paintFinShape(final Graphics2D g2){
+	    // excludes fin tab points
+	    final Coordinate[] drawPoints = finset.getFinPoints();
+             
+	    Path2D.Double shape = new Path2D.Double();
+	    Coordinate startPoint= drawPoints[0];
+	    shape.moveTo( startPoint.x, startPoint.y);
+	    for (int i = 1; i < drawPoints.length; i++) {
+	        shape.lineTo( drawPoints[i].x, drawPoints[i].y);
+	    }
+
+	    final float finEdgeWidth_m = (float) (LINE_WIDTH_PIXELS / scale  );
+	    g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+	    g2.setColor(Color.BLUE);
+	    g2.draw(shape);
 	}
 	
-	
+	private void paintFinHandles(final Graphics2D g2) {
+	    // excludes fin tab points
+        final Coordinate[] drawPoints = finset.getFinPoints();
+       
+	    // Fin point boxes
+        final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
+        final float boxEdgeWidth_m = (float) ( LINE_WIDTH_PIXELS / scale );
+        g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        g2.setColor(new Color(150, 0, 0));
+        final double boxHalfWidth = boxWidth/2;
+        finPointHandles = new Rectangle2D.Double[ drawPoints.length];
+        for (int i = 0; i < drawPoints.length; i++) {
+            Coordinate c = drawPoints[i];
+            finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
+            g2.draw(finPointHandles[i]);
+        }
+    }
+
+    public int getIndexByPoint(double x, double y) {
+        if (finPointHandles == null)
+            return -1;
+             
+         // Calculate point in shapes' coordinates
+         Point2D.Double p = new Point2D.Double(x, y);
+         try {
+                 projection.inverseTransform(p, p);
+         } catch (NoninvertibleTransformException e) {
+                 return -1;
+         }
+         
+         for (int i = 0; i < finPointHandles.length; i++) {
+             if (finPointHandles[i].contains(p))
+                 return i;
+         }
+         return -1;
+    }
+
 	public int getSegmentByPoint(double x, double y) {
-		if (handles == null)
+		if (finPointHandles == null)
 			return -1;
 		
 		// Calculate point in shapes' coordinates
 		Point2D.Double p = new Point2D.Double(x, y);
 		try {
-			transform.inverseTransform(p, p);
+			projection.inverseTransform(p, p);
 		} catch (NoninvertibleTransformException e) {
 			return -1;
 		}
 		
-		double x0 = p.x / EXTRA_SCALE;
-		double y0 = p.y / EXTRA_SCALE;
-		double delta = BOX_SIZE / scale;
+		double x0 = p.x;
+		double y0 = p.y;
+		double delta = BOX_WIDTH_PIXELS /*/ scale*/;
 		
 		//System.out.println("Point: " + x0 + "," + y0);
 		//System.out.println("delta: " + (BOX_SIZE / scale));
@@ -262,84 +295,60 @@ public class FinPointFigure extends AbstractScaleFigure {
 	public Point2D.Double convertPoint(double x, double y) {
 		Point2D.Double p = new Point2D.Double(x, y);
 		try {
-			transform.inverseTransform(p, p);
+			projection.inverseTransform(p, p);
 		} catch (NoninvertibleTransformException e) {
 			assert (false) : "Should not occur";
 			return new Point2D.Double(0, 0);
 		}
 		
-		p.setLocation(p.x / EXTRA_SCALE, p.y / EXTRA_SCALE);
+		p.setLocation(p.x, p.y);
 		return p;
 	}
-	
-	
 
-	@Override
-	public Dimension getOrigin() {
+	public Dimension getSubjectOrigin() {
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
+			updateTransform();
 		}
-		return new Dimension((int) translateX, (int) translateY);
-	}
-	
+        return new Dimension(originLocation_px.width, originLocation_px.height);
+    }
+    
 	@Override
-	public double getFigureWidth() {
-		if (modID != finset.getRocket().getAerodynamicModID()) {
-			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
-		}
-		return figureWidth;
-	}
-	
-	@Override
-	public double getFigureHeight() {
-		if (modID != finset.getRocket().getAerodynamicModID()) {
-			modID = finset.getRocket().getAerodynamicModID();
-			calculateDimensions();
-		}
-		return figureHeight;
-	}
-	
-	
-	private void calculateDimensions() {
-		minX = 0;
-		maxX = 0;
-		maxY = 0;
-		
-		for (Coordinate c : finset.getFinPoints()) {
-			if (c.x < minX)
-				minX = c.x;
-			if (c.x > maxX)
-				maxX = c.x;
-			if (c.y > maxY)
-				maxY = c.y;
-		}
-		
-		if (maxX < 0.01)
-			maxX = 0.01;
-		
-		figureWidth = maxX - minX;
-		figureHeight = maxY;
-		
+    protected void updateSubjectDimensions(){
+        // update subject bounds
+	    BoundingBox newBounds = new BoundingBox();
+	    
+	    // subsequent updates can only increase the size of the bounds, so this is the minimum size.
+	    newBounds.update( MINIMUM_CANVAS_SIZE_METERS);
+	    
+	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
 
-		Dimension d = new Dimension((int) (figureWidth * scale + 2 * borderPixelsWidth),
-				(int) (figureHeight * scale + 2 * borderPixelsHeight));
-		
-		if (!d.equals(getPreferredSize()) || !d.equals(getMinimumSize())) {
-			setPreferredSize(d);
-			setMinimumSize(d);
-			revalidate();
-		}
+	    // N.B.: (0,0) is the fin front-- where it meets the parent body.
+	    final double xFinFront = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+	    
+	    // update to bound the parent body:
+	    final double xParentFront = -xFinFront;
+	    newBounds.update( xParentFront);
+	    final double xParentBack = -xFinFront + parent.getLength();
+	    newBounds.update( xParentBack );
+	    final double yParentCenterline = -parent.getRadius(xFinFront); // from parent centerline to fin front.
+	    newBounds.update( yParentCenterline );
+	    
+	    // in 99% of fins, this bound is redundant, buuuuut just in case.  
+	    final double yParentMax = yParentCenterline + Math.max( parent.getForeRadius(), parent.getAftRadius());
+	    newBounds.update( yParentMax );
+
+	    // update to bounds the fin points:
+	    newBounds.update( finset.getFinPoints());
+	    
+	    subjectBounds_m = newBounds.toRectangle();
 	}
-	
-	
 
 	@Override
-	public void updateFigure() {
-		repaint();
-	}
-	
-
+    protected void updateCanvasOrigin() {
+        originLocation_px.width = borderThickness_px.width - (int)(subjectBounds_m.getX()*scale);
+        originLocation_px.height = borderThickness_px.height + (int)(subjectBounds_m.getY()*scale);
+        
+    }
 
 }

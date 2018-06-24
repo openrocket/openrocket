@@ -17,7 +17,6 @@ import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
@@ -29,6 +28,7 @@ import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
@@ -44,6 +44,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+@SuppressWarnings("serial")
 public class ScaleScrollPane extends JScrollPane
 		implements MouseListener, MouseMotionListener {
 	
@@ -51,27 +52,17 @@ public class ScaleScrollPane extends JScrollPane
 	public static final int MINOR_TICKS = 3;
 	public static final int MAJOR_TICKS = 30;
 	
+	public static final String USER_SCALE_PROPERTY = "UserScale";
 	
-	private JComponent component;
-	private ScaleFigure figure;
+	private final JComponent component;
+	private final AbstractScaleFigure figure;
 	
 	private DoubleModel rulerUnit;
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
 	
-	private final boolean allowFit;
-	
+	// is the subject *currently* being fitting
 	private boolean fit = false;
-	
-	
-	/**
-	 * Create a scale scroll pane that allows fitting.
-	 * 
-	 * @param component		the component to contain (must implement ScaleFigure)
-	 */
-	public ScaleScrollPane(JComponent component) {
-		this(component, true);
-	}
 	
 	/**
 	 * Create a scale scroll pane.
@@ -79,17 +70,15 @@ public class ScaleScrollPane extends JScrollPane
 	 * @param component		the component to contain (must implement ScaleFigure)
 	 * @param allowFit		whether automatic fitting of the figure is allowed
 	 */
-	public ScaleScrollPane(JComponent component, boolean allowFit) {
+	public ScaleScrollPane(final JComponent component) {
 		super(component);
 		
-		if (!(component instanceof ScaleFigure)) {
+		if (!(component instanceof AbstractScaleFigure)) {
 			throw new IllegalArgumentException("component must implement ScaleFigure");
 		}
 		
 		this.component = component;
-		this.figure = (ScaleFigure) component;
-		this.allowFit = allowFit;
-		
+		this.figure = (AbstractScaleFigure) component;
 		
 		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
@@ -106,48 +95,43 @@ public class ScaleScrollPane extends JScrollPane
 		UnitSelector selector = new UnitSelector(rulerUnit);
 		selector.setFont(new Font("SansSerif", Font.PLAIN, 8));
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, selector);
-		this.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
-		this.setCorner(JScrollPane.LOWER_LEFT_CORNER, new JPanel());
-		this.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
-		
+		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		
 		figure.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				horizontalRuler.updateSize();
+			    horizontalRuler.updateSize();
 				verticalRuler.updateSize();
-				if (fit) {
-					setFitting(true);
-				}
+				if(fit) { 
+                    figure.scaleTo(viewport.getExtentSize());
+			    }
 			}
 		});
 		
 		viewport.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				if (fit) {
-					setFitting(true);
-				}
+			    if(fit) {
+                    figure.scaleTo(viewport.getExtentSize());
+			    }
+                figure.updateFigure();
+			    
+			    horizontalRuler.updateSize();
+                verticalRuler.updateSize();
 			}
 		});
 		
 	}
 	
-	public ScaleFigure getFigure() {
+	public AbstractScaleFigure getFigure() {
 		return figure;
-	}
-	
-	
-	/**
-	 * Return whether automatic fitting of the figure is allowed.
-	 */
-	public boolean isFittingAllowed() {
-		return allowFit;
 	}
 	
 	/**
@@ -159,54 +143,69 @@ public class ScaleScrollPane extends JScrollPane
 	
 	/**
 	 * Set whether the figure is automatically fitted within the component bounds.
-	 * 
-	 * @throws BugException		if automatic fitting is disallowed and <code>fit</code> is <code>true</code>
 	 */
-	public void setFitting(boolean fit) {
-		if (fit && !allowFit) {
-			throw new BugException("Attempting to fit figure not allowing fit.");
-		}
-		this.fit = fit;
-		if (fit) {
-			setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+	public void setFitting(final boolean shouldFit) {
+		this.fit = shouldFit;
+		if (shouldFit) {
 			validate();
-			Dimension view = viewport.getExtentSize();
-			figure.setScaling(view);
-		} else {
-			setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+			
+	        Dimension view = viewport.getExtentSize();
+            figure.scaleTo(view);
+            this.firePropertyChange( USER_SCALE_PROPERTY, 1.0, figure.getUserScale());
+
+            revalidate();
 		}
 	}
 	
-	
-	
-	public double getScaling() {
-		return figure.getScaling();
+	public double getUserScale() {
+		return figure.getUserScale();
 	}
 	
-	public double getScale() {
-		return figure.getAbsoluteScale();
-	}
-	
-	public void setScaling(double scale) {
-		if (fit) {
-			setFitting(false);
-		}
-		figure.setScaling(scale);
-		horizontalRuler.repaint();
-		verticalRuler.repaint();
+	public void setScaling(final double newScale) {
+        // match if closer than 1%:
+        if( MathUtil.equals(newScale, figure.getUserScale(), 0.01)){ 
+            return;
+        }
+        
+        // if explicitly setting a zoom level, turn off fitting
+		this.fit = false;		
+        figure.scaleTo(newScale);
+             
+        revalidate();    
 	}
 	
 	
 	public Unit getCurrentUnit() {
 		return rulerUnit.getCurrentUnit();
 	}
-	
+    	
+	public String toViewportString(){
+	    Rectangle view = this.getViewport().getViewRect();
+	    return ("Viewport::("+view.getWidth()+","+view.getHeight()+")"
+	            +"@("+view.getX()+", "+view.getY()+")");
+    }
+     
+	@Override
+    public void revalidate() {
+	    if( null != component ) {
+    	    component.revalidate();
+            figure.updateFigure();
+	    }
+	    
+	    if( null != horizontalRuler ){
+	        horizontalRuler.revalidate();
+	        horizontalRuler.repaint();
+	    }
+	    if( null != verticalRuler ){
+	        verticalRuler.revalidate();
+	        verticalRuler.repaint();
+        }
+     
+	    super.revalidate();
+	}
+
 	
 	////////////////  Mouse handlers  ////////////////
-	
-	
 	private int dragStartX = 0;
 	private int dragStartY = 0;
 	private Rectangle dragRectangle = null;
@@ -288,27 +287,25 @@ public class ScaleScrollPane extends JScrollPane
 			repaint();
 		}
 		
-		private double fromPx(int px) {
-			Dimension origin = figure.getOrigin();
-			if (orientation == HORIZONTAL) {
-				px -= origin.width;
-			} else {
-				//				px = -(px - origin.height);
-				px -= origin.height;
-			}
-			return px / figure.getAbsoluteScale();
+        private double fromPx(final int px) {
+            Dimension origin = figure.getSubjectOrigin();
+            double realValue = Double.NaN;
+            if (orientation == HORIZONTAL) {
+                realValue = px - origin.width;
+            } else {
+                realValue = origin.height - px;
+            }
+            return realValue / figure.getAbsoluteScale();
 		}
 		
-		private int toPx(double l) {
-			Dimension origin = figure.getOrigin();
-			int px = (int) (l * figure.getAbsoluteScale() + 0.5);
+		private int toPx(final double value) {
+			final Dimension origin = figure.getSubjectOrigin();
+			final int px = (int) (value * figure.getAbsoluteScale() + 0.5);
 			if (orientation == HORIZONTAL) {
-				px += origin.width;
+				return (px + origin.width);
 			} else {
-				px = px + origin.height;
-				//				px += origin.height;
+				return (origin.height - px);
 			}
-			return px;
 		}
 		
 		
@@ -322,8 +319,7 @@ public class ScaleScrollPane extends JScrollPane
 			// Fill area with background color
 			g2.setColor(getBackground());
 			g2.fillRect(area.x, area.y, area.width, area.height + 100);
-			
-			
+		
 			int startpx, endpx;
 			if (orientation == HORIZONTAL) {
 				startpx = area.x;
@@ -337,11 +333,19 @@ public class ScaleScrollPane extends JScrollPane
 			double start, end, minor, major;
 			start = fromPx(startpx);
 			end = fromPx(endpx);
+			
 			minor = MINOR_TICKS / figure.getAbsoluteScale();
 			major = MAJOR_TICKS / figure.getAbsoluteScale();
-			
-			Tick[] ticks = unit.getTicks(start, end, minor, major);
-			
+  
+            Tick[] ticks = null;
+            if( VERTICAL == orientation ){
+                // the parameters are *intended* to be backwards: because 'getTicks(...)' can only 
+                // create increasing arrays (where the start < end)
+                ticks = unit.getTicks(end, start, minor, major);
+            }else if(HORIZONTAL == orientation ){
+                // normal parameter order
+                ticks = unit.getTicks(start, end, minor, major);
+            }
 			
 			// Set color & hints
 			g2.setColor(Color.BLACK);

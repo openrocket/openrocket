@@ -506,7 +506,6 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		// // Rocket figure
 		figure = new RocketFigure( getSelectedSimulation().getRocket() );
-		figure.setBorderPixels(1, 1);
 		ScaleScrollPane figureScrollPane = new ScaleScrollPane(figure);
 		figureScrollPane.setFitting(true);
 		panel.add(figureScrollPane, "span, split, height 200lp, grow");

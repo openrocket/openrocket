@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.Locale;
 
@@ -19,6 +18,9 @@ import net.sf.openrocket.util.StateChangeListener;
 @SuppressWarnings("serial")
 public class ScaleSelector extends JPanel {
 
+    public static final double MINIMUM_ZOOM =    0.01; // ==      1 %
+    public static final double MAXIMUM_ZOOM = 1000.00; // == 10,000 %
+    
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
 
@@ -45,19 +47,16 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
-				scale = getNextLargerScale(scale);
-				scrollPane.setScaling(scale);
+				final double oldScale = scrollPane.getUserScale();
+				final double newScale = getNextLargerScale(oldScale);
+				scrollPane.setScaling(newScale);
 			}
 		});
 		add(button, "gap");
 
 		// Zoom level selector
 		String[] settings = SCALE_LABELS;
-		if (!scrollPane.isFittingAllowed()) {
-			settings = Arrays.copyOf(settings, settings.length - 1);
-		}
-
+		
 		scaleSelector = new JComboBox<>(settings);
 		scaleSelector.setEditable(true);
 		setZoomText();
@@ -68,8 +67,7 @@ public class ScaleSelector extends JPanel {
 					String text = (String) scaleSelector.getSelectedItem();
 					text = text.replaceAll("%", "").trim();
 
-					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault())) &&
-							scrollPane.isFittingAllowed()) {
+					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
 						scrollPane.setFitting(true);
 						setZoomText();
 						return;
@@ -101,7 +99,7 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
+				double scale = scrollPane.getUserScale();
 				scale = getNextSmallerScale(scale);
 				scrollPane.setScaling(scale);
 			}
@@ -111,7 +109,8 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private void setZoomText() {
-		String text = PERCENT_FORMAT.format(scrollPane.getScaling());
+	    final double userScale = scrollPane.getUserScale();
+	    String text = PERCENT_FORMAT.format(userScale);
 		if (scrollPane.isFitting()) {
 			text = "Fit (" + text + ")";
 		}

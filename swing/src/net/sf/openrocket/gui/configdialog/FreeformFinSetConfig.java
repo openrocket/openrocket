@@ -367,7 +367,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		private int dragIndex = -1;
 		
 		private FinPointScrollPane( final FinPointFigure _figure) {
-			super( _figure, true);
+			super( _figure);
 		}
 		
 		@Override
