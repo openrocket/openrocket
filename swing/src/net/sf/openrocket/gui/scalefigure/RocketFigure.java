@@ -108,6 +108,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			this.selection = selection;
 		}
 		updateFigure();
+        fireChangeEvent();
 	}
 	
 	
@@ -125,6 +126,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		this.rotation = rot;
 		this.axialRotation = Transformation.rotate_x(rotation);
 		updateFigure();
+        fireChangeEvent();
 	}
 	
 	
@@ -140,6 +142,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			return;
 		this.currentViewType = type;
 		updateFigure();
+        fireChangeEvent();
 	}
 		
 	

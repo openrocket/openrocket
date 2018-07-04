@@ -39,6 +39,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 	protected double scale = -1;
 	
 	protected static final Dimension borderThickness_px = new Dimension(DEFAULT_BORDER_PIXELS_WIDTH, DEFAULT_BORDER_PIXELS_HEIGHT);
+	// pixel offset from the the subject's origin to the canvas's upper-left-corner. 
 	protected Dimension originLocation_px = new Dimension(0,0);
 	
     // ======= whatever this figure is drawing, in real-space coordinates:  meters
@@ -99,6 +100,8 @@ public abstract class AbstractScaleFigure extends JPanel {
         this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 
 	    this.scale = baseScale * userScale;
+
+        this.fireChangeEvent(); 
 	}
 	
 	/**
@@ -111,9 +114,6 @@ public abstract class AbstractScaleFigure extends JPanel {
 	        return;
 	    
 	    updateSubjectDimensions();
-	    updateCanvasOrigin();
-	    updateCanvasSize();
-	    updateTransform();
 	    
 	    // dimensions within the viewable area, which are available to draw
 		final int drawable_width_px = newBounds.width - 2 * borderThickness_px.width;
@@ -147,7 +147,6 @@ public abstract class AbstractScaleFigure extends JPanel {
         
         setPreferredSize(preferredFigureSize_px);
         setMinimumSize(preferredFigureSize_px);
-        revalidate();   
     }
 
     protected void updateTransform(){

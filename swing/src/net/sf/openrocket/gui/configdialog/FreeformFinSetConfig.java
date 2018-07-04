@@ -254,7 +254,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
                 }
             });
         ScaleSelector selector = new ScaleSelector(figurePane);
-                
+        // fit on first start-up
+        figurePane.setFitting(true);
+        
         panel.setLayout(new MigLayout("fill, gap 5!","", "[nogrid, fill, sizegroup display, growprio 200]5![sizegroup text, growprio 5]5![sizegroup buttons, align top, growprio 5]0!"));
         
         // first row: main display

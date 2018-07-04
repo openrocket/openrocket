@@ -36,9 +36,6 @@ public class FinPointFigure extends AbstractScaleFigure {
  
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
-    
-    private static final float MINIMUM_CANVAS_SIZE_METERS = 0.01f; // i.e. 1 cm
-
     private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
     private static final float GRID_LINE_BASE_WIDTH = 0.001f;
 
@@ -53,6 +50,8 @@ public class FinPointFigure extends AbstractScaleFigure {
     private final FreeformFinSet finset;
 	private int modID = -1;
 	
+	protected Rectangle2D finBounds_m = null;
+	protected Rectangle2D mountBounds_m = null;
 	
     protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
 	       
@@ -66,7 +65,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		setBackground(Color.WHITE);
 		setOpaque(true);
 
-		updateTransform();
+		updateFigure();        
 	}
 
 	@Override
@@ -315,40 +314,33 @@ public class FinPointFigure extends AbstractScaleFigure {
     
 	@Override
     protected void updateSubjectDimensions(){
-        // update subject bounds
-	    BoundingBox newBounds = new BoundingBox();
+        // update subject (i.e. Fin) bounds
+	    finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
+	   
+	    // NOTE: the fin's forward root is pinned at 0,0  
+	    finBounds_m.setRect(0, 0, finBounds_m.getWidth(), finBounds_m.getHeight());
 	    
-	    // subsequent updates can only increase the size of the bounds, so this is the minimum size.
-	    newBounds.update( MINIMUM_CANVAS_SIZE_METERS);
-	    
-	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
-
-	    // N.B.: (0,0) is the fin front-- where it meets the parent body.
+	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
+        mountBounds_m = new BoundingBox().update(parent.getComponentBounds()).toRectangle();
+       
 	    final double xFinFront = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
 	    
 	    // update to bound the parent body:
-	    final double xParentFront = -xFinFront;
-	    newBounds.update( xParentFront);
-	    final double xParentBack = -xFinFront + parent.getLength();
-	    newBounds.update( xParentBack );
-	    final double yParentCenterline = -parent.getRadius(xFinFront); // from parent centerline to fin front.
-	    newBounds.update( yParentCenterline );
+	    final double xParent = -xFinFront;
+	    final double yParent = -parent.getRadius(xFinFront); // from parent centerline to fin front.
+	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
+	    mountBounds_m.setRect(xParent, yParent, mountBounds_m.getWidth(), rParent);
 	    
-	    // in 99% of fins, this bound is redundant, buuuuut just in case.  
-	    final double yParentMax = yParentCenterline + Math.max( parent.getForeRadius(), parent.getAftRadius());
-	    newBounds.update( yParentMax );
-
-	    // update to bounds the fin points:
-	    newBounds.update( finset.getFinPoints());
 	    
-	    subjectBounds_m = newBounds.toRectangle();
+	    subjectBounds_m = new BoundingBox().update(finBounds_m).update(mountBounds_m).toRectangle();
 	}
 
 	@Override
     protected void updateCanvasOrigin() {
-        originLocation_px.width = borderThickness_px.width - (int)(subjectBounds_m.getX()*scale);
-        originLocation_px.height = borderThickness_px.height + (int)(subjectBounds_m.getY()*scale);
-        
+        // the negative sign is to compensate for the mount's negative location.
+        originLocation_px.width = borderThickness_px.width - (int)(mountBounds_m.getX()*scale);
+        originLocation_px.height = borderThickness_px.height + (int)(subjectBounds_m.getHeight()*scale);
     }
+    
 
 }
