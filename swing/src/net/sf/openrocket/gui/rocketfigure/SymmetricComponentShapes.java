@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -21,15 +22,8 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 			Transformation transformation,
 			Coordinate componentAbsoluteLocation) {
 
-        return getShapesSide(component, transformation, componentAbsoluteLocation, S);
-    }
-
-    public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation,
-			final double scaleFactor) {
-		net.sf.openrocket.rocketcomponent.SymmetricComponent c = (net.sf.openrocket.rocketcomponent.SymmetricComponent) component;
+		SymmetricComponent c = (SymmetricComponent) component;
+		
 		int i;
 		
 		final double delta = 0.0000001;
@@ -89,14 +83,14 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
+		path.moveTo((nose.x + points.get(len - 1).x) , (nose.y+points.get(len - 1).y) );
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo((nose.x+points.get(i).x)* scaleFactor, (nose.y+points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x), (nose.y+points.get(i).y) );
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y-points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x) , (nose.y-points.get(i).y) );
 		}
-		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
+		path.lineTo((nose.x+points.get(len - 1).x) , (nose.y+points.get(len - 1).y) );
 		path.closePath();
 		
 		//s[len] = path;

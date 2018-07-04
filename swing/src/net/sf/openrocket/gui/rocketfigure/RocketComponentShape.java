@@ -16,8 +16,6 @@ import net.sf.openrocket.util.Transformation;
  */
 public class RocketComponentShape {
 
-	protected static final double S = RocketFigure.EXTRA_SCALE;
-	
 	final public boolean hasShape;
 	final public Shape shape;
 	final public net.sf.openrocket.util.Color color;

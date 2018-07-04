@@ -26,8 +26,7 @@ public class ParachuteShapes extends RocketComponentShape {
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {
-			s[i] = new RoundRectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
-					length*S,2*radius*S,arc*S,arc*S);
+			s[i] = new RoundRectangle2D.Double(start[i].x, (start[i].y-radius), length, 2*radius, arc, arc);
 		}
 		return RocketComponentShape.toArray( addSymbol(s), component);
 	}
@@ -46,7 +45,7 @@ public class ParachuteShapes extends RocketComponentShape {
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {
-			s[i] = new Ellipse2D.Double((start[i].z-or)*S,(start[i].y-or)*S,2*or*S,2*or*S);
+			s[i] = new Ellipse2D.Double((start[i].z-or),(start[i].y-or),2*or,2*or);
 		}
 		return RocketComponentShape.toArray( s, component);
 	}

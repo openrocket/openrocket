@@ -229,16 +229,16 @@ public class RocketFigure extends AbstractScaleFigure {
 			
 			float[] dashes = style.getDashes();
 			for (int j = 0; j < dashes.length; j++) {
-				dashes[j] *= EXTRA_SCALE / scale;
+				dashes[j] *= 1.0 / scale;
 			}
 			
 			if (selected) {
-				g2.setStroke(new BasicStroke((float) (SELECTED_WIDTH * EXTRA_SCALE / scale),
+				g2.setStroke(new BasicStroke((float) (SELECTED_WIDTH / scale),
 						BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dashes, 0));
 				g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 						RenderingHints.VALUE_STROKE_PURE);
 			} else {
-				g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH * EXTRA_SCALE / scale),
+				g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH / scale),
 						BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dashes, 0));
 				g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 						RenderingHints.VALUE_STROKE_NORMALIZE);
@@ -246,7 +246,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			g2.draw(rcs.shape);
 		}
 		
-		g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH * EXTRA_SCALE / scale),
+		g2.setStroke(new BasicStroke((float) (NORMAL_WIDTH / scale),
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 				RenderingHints.VALUE_STROKE_NORMALIZE);
@@ -276,13 +276,15 @@ public class RocketFigure extends AbstractScaleFigure {
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
-						s = new Rectangle2D.Double(EXTRA_SCALE * curMotorLocation.x,
-								EXTRA_SCALE * (curMotorLocation.y - motorRadius), EXTRA_SCALE * motorLength,
-								EXTRA_SCALE * 2 * motorRadius);
+						s = new Rectangle2D.Double( curMotorLocation.x,
+                    							    (curMotorLocation.y - motorRadius), 
+                    								motorLength,
+                    								2 * motorRadius);
 					} else {
-						s = new Ellipse2D.Double(EXTRA_SCALE * (curMotorLocation.z - motorRadius),
-								EXTRA_SCALE * (curMotorLocation.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
-								EXTRA_SCALE * 2 * motorRadius);
+						s = new Ellipse2D.Double((curMotorLocation.z - motorRadius),
+								                 (curMotorLocation.y - motorRadius), 
+								                 2 * motorRadius,
+								                 2 * motorRadius);
 					}
 					g2.setColor(fillColor);
 					g2.fill(s);
@@ -295,7 +297,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		// Draw relative extras
 		for (FigureElement e : relativeExtra) {
-			e.paint(g2, scale / EXTRA_SCALE);
+			e.paint(g2, scale);
 		}
 		
 		// Draw absolute extras

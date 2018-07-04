@@ -22,16 +22,6 @@ import net.sf.openrocket.util.StateChangeListener;
 public abstract class AbstractScaleFigure extends JPanel {
     
     private final static Logger log = LoggerFactory.getLogger(AbstractScaleFigure.class);
-
-    /**
-     * Extra scaling applied to the figure.  The f***ing Java JRE doesn't know 
-     * how to draw shapes when using very large scaling factors, so this must 
-     * be manually applied to every single shape used.
-     * <p>
-     * The scaling factor used is divided by this value, and every coordinate used 
-     * in the figures must be multiplied by this factor.
-     */
-    public static final double EXTRA_SCALE = 1.0;
     
     public static final double INCHES_PER_METER = 39.3701;
     public static final double METERS_PER_INCH = 0.0254;

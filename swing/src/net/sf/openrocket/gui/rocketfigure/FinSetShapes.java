@@ -34,9 +34,9 @@ public class FinSetShapes extends RocketComponentShape {
 				Coordinate c = finSetFront.add(finPoints[i]);
 				
 				if (i==0)
-					p.moveTo(c.x*S, c.y*S);
+					p.moveTo(c.x, c.y);
 				else
-					p.lineTo(c.x*S, c.y*S);			
+					p.lineTo(c.x, c.y);			
 			}
 			
 			p.closePath();
@@ -87,13 +87,13 @@ public class FinSetShapes extends RocketComponentShape {
 		Path2D.Double p = new Path2D.Double();
 		
 	    a = finFront.add( c[0] );
-		p.moveTo(a.z*S, a.y*S);
+		p.moveTo(a.z, a.y);
 		a = finFront.add( c[1] );
-		p.lineTo(a.z*S, a.y*S);			
+		p.lineTo(a.z, a.y);			
 		a = finFront.add( c[2] );
-		p.lineTo(a.z*S, a.y*S);		
+		p.lineTo(a.z, a.y);		
 		a = finFront.add( c[3] );
-		p.lineTo(a.z*S, a.y*S);
+		p.lineTo(a.z, a.y);
 		p.closePath();
 		
 		return new Shape[]{p};
@@ -190,9 +190,9 @@ public class FinSetShapes extends RocketComponentShape {
 		for (int i=0; i < array.length; i++) {
 			Coordinate a = t.transform(compCenter.add( array[i]) );
 			if (i==0)
-				p.moveTo(a.z*S, a.y*S);
+				p.moveTo(a.z, a.y);
 			else
-				p.lineTo(a.z*S, a.y*S);			
+				p.lineTo(a.z, a.y);			
 		}
 		p.closePath();
 		return p;
