@@ -619,8 +619,7 @@ public class RocketActions {
 			ComponentConfigDialog.hideDialog();
 
 			RocketComponent stage = new AxialStage();
-			//// Booster stage
-			stage.setName(trans.get("RocketActions.ActBoosterstage"));
+
 			//// Add stage
 			document.addUndoPosition("Add stage");
 			rocket.addChild(stage);
