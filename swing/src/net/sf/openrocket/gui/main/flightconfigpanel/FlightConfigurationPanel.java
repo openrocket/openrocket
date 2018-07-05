@@ -64,6 +64,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
+		
 		//// Recovery tab
 		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel);
@@ -76,7 +77,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				addConfiguration();
+				addOrCopyConfiguration(false);
 				configurationChanged();
 			}
 			
@@ -108,7 +109,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		copyConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				copyConfiguration();
+				addOrCopyConfiguration(true);
 				configurationChanged();
 			}
 		});
@@ -118,37 +119,46 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 		this.add(tabs, "spanx, grow, wrap rel");
 	}
-	
-	private void addConfiguration() {
-		FlightConfigurationId newId = new FlightConfigurationId();
-		FlightConfiguration newConfig = new FlightConfiguration( rocket, newId );
-		rocket.setFlightConfiguration( newId, newConfig);
 
-		// Create a new simulation for this configuration.
-		createSimulationForNewConfiguration( newId );
-		
-		configurationChanged();
-	}
-	
-	private void copyConfiguration() {
-        FlightConfigurationId oldId = this.motorConfigurationPanel.getSelectedConfigurationId();
-        FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
+	/**
+	 * either create or copy configuration
+	 * set new configuration as current
+	 * create simulation for new configuration
+	 */
+	private void addOrCopyConfiguration(boolean copy) {
+		FlightConfiguration newConfig;
+		FlightConfigurationId newId;
 
-        FlightConfigurationId newId = new FlightConfigurationId();
-		FlightConfiguration newConfig = oldConfig.copy( newId);
+		// create or copy configuration
+		if (copy) {
+			FlightConfigurationId oldId = this.motorConfigurationPanel.getSelectedConfigurationId();
+			FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
 
-		for (RocketComponent c : rocket) {
-			if (c instanceof FlightConfigurableComponent) {
-				((FlightConfigurableComponent) c).copyFlightConfiguration(oldId, newId);
+			newConfig = oldConfig.copy(null);
+			newId = newConfig.getId();
+
+			for (RocketComponent c : rocket) {
+				if (c instanceof FlightConfigurableComponent) {
+					((FlightConfigurableComponent) c).copyFlightConfiguration(oldId, newId);
+				}
 			}
+		} else {
+			newConfig = new FlightConfiguration(rocket, null);
+			newId = newConfig.getId();
 		}
-        rocket.setFlightConfiguration( newId, newConfig);
 
+		// associate configuration with Id and select it
+		rocket.setFlightConfiguration(newId, newConfig);
+		rocket.setSelectedConfiguration(newId);
 
-        // Create a new simulation for this configuration.
-		createSimulationForNewConfiguration( newId);
+		// create simulation for configuration
+		Simulation newSim = new Simulation(rocket);
 		
-		configurationChanged();
+		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
+        if (doc != null) {
+            newSim.setName(doc.getNextSimulationName());
+            doc.addSimulation(newSim);
+        }
 	}
 	
 	private void renameConfiguration() {
@@ -162,18 +172,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			return;
 		document.removeFlightConfigurationAndSimulations(currentId);
 		configurationChanged();
-	}
-	
-	/**
-	 * prereq - assumes that the new configuration has been set as the default configuration.
-	 */
-	private void createSimulationForNewConfiguration( final FlightConfigurationId fcid ) {
-		Simulation newSim = new Simulation(rocket);
-		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
-        if (doc != null) {
-            newSim.setName(doc.getNextSimulationName());
-            doc.addSimulation(newSim);
-        }
 	}
 	
 	private void configurationChanged() {
