@@ -187,15 +187,23 @@ public class FinPointFigure extends AbstractScaleFigure {
     }
 
     private void paintBodyTube( Graphics2D g2){
-        Rectangle visible = g2.getClipBounds();
-        int x0 = visible.x - 3;
-        int x1 = visible.x + visible.width + 4;
+        // in-figure left extent
+        final double xFore = mountBounds_m.getMinX();
+        // in-figure right extent
+        final double xAft = mountBounds_m.getMaxX();
+        // in-figure right extent
+        final double yCenter = mountBounds_m.getMinY();
+        
+        Path2D.Double shape = new Path2D.Double();
+        shape.moveTo( xFore, yCenter );
+        shape.lineTo( xFore, 0);         // body tube fore edge
+        shape.lineTo( xAft, 0);          // body tube side
+        shape.lineTo( xAft, yCenter);    // body tube aft edge
         
         final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale ); 
         g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         g2.setColor(Color.BLACK);
-
-        g2.drawLine((int) x0, 0, (int)x1, 0);
+        g2.draw(shape);
     }
 
 	private void paintFinShape(final Graphics2D g2){
@@ -208,7 +216,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    for (int i = 1; i < drawPoints.length; i++) {
 	        shape.lineTo( drawPoints[i].x, drawPoints[i].y);
 	    }
-
+        
 	    final float finEdgeWidth_m = (float) (LINE_WIDTH_PIXELS / scale  );
 	    g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 	    g2.setColor(Color.BLUE);
@@ -316,30 +324,31 @@ public class FinPointFigure extends AbstractScaleFigure {
     protected void updateSubjectDimensions(){
         // update subject (i.e. Fin) bounds
 	    finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
-	   
 	    // NOTE: the fin's forward root is pinned at 0,0  
 	    finBounds_m.setRect(0, 0, finBounds_m.getWidth(), finBounds_m.getHeight());
 	    
-	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
-        mountBounds_m = new BoundingBox().update(parent.getComponentBounds()).toRectangle();
-       
-	    final double xFinFront = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
-	    
 	    // update to bound the parent body:
-	    final double xParent = -xFinFront;
-	    final double yParent = -parent.getRadius(xFinFront); // from parent centerline to fin front.
+	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
+        final double xParent = - finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+	    final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
 	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
-	    mountBounds_m.setRect(xParent, yParent, mountBounds_m.getWidth(), rParent);
-	    
-	    
-	    subjectBounds_m = new BoundingBox().update(finBounds_m).update(mountBounds_m).toRectangle();
+	    mountBounds_m = new Rectangle2D.Double( xParent, yParent, parent.getLength(), rParent);
+                
+	    final double subjectWidth = Math.max( finBounds_m.getWidth(), parent.getLength());
+	    final double subjectHeight = Math.max( 2*rParent, rParent + finBounds_m.getHeight());
+	    subjectBounds_m = new Rectangle2D.Double( xParent, yParent, subjectWidth, subjectHeight);
 	}
 
 	@Override
     protected void updateCanvasOrigin() {
+	    final SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
+	    final double rMaxParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
+	    
         // the negative sign is to compensate for the mount's negative location.
         originLocation_px.width = borderThickness_px.width - (int)(mountBounds_m.getX()*scale);
-        originLocation_px.height = borderThickness_px.height + (int)(subjectBounds_m.getHeight()*scale);
+        originLocation_px.height = borderThickness_px.height + (int)(Math.max( rMaxParent, finBounds_m.getHeight())*scale);
+        
+        System.err.println(String.format("________ Origin Location (px): w=%d, h=%d: ", originLocation_px.width, originLocation_px.height));
     }
     
 
