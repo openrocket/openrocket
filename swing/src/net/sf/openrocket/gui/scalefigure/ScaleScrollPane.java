@@ -265,23 +265,23 @@ public class ScaleScrollPane extends JScrollPane
 		
 		public Ruler(int orientation) {
 			this.orientation = orientation;
-			updateSize();
 			
 			rulerUnit.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
+				    updateSize();
 					Ruler.this.repaint();
 				}
 			});
 		}
 		
-		
-		public void updateSize() {
-			Dimension d = component.getPreferredSize();
+		private void updateSize() {
 			if (orientation == HORIZONTAL) {
-				setPreferredSize(new Dimension(d.width + 10, RULER_SIZE));
+			    Ruler.this.setMinimumSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
+			    Ruler.this.setPreferredSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
 			} else {
-				setPreferredSize(new Dimension(RULER_SIZE, d.height + 10));
+			    Ruler.this.setMinimumSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
+			    Ruler.this.setPreferredSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
 			}
 			revalidate();
 			repaint();
@@ -314,8 +314,13 @@ public class ScaleScrollPane extends JScrollPane
 			super.paintComponent(g);
 			Graphics2D g2 = (Graphics2D) g;
 			
-			Rectangle area = g2.getClipBounds();
+			updateSize();
 			
+			// this function doesn't reliably update all the time, so we'll draw everything for the entire canvas, 
+			// and let the JVM drawing algorithms figure out what should be drawn.
+			//
+			Rectangle area = ScaleScrollPane.this.getViewport().getViewRect();
+			 
 			// Fill area with background color
 			g2.setColor(getBackground());
 			g2.fillRect(area.x, area.y, area.width, area.height + 100);
@@ -329,14 +334,13 @@ public class ScaleScrollPane extends JScrollPane
 				endpx = area.y + area.height;
 			}
 			
-			Unit unit = rulerUnit.getCurrentUnit();
-			double start, end, minor, major;
-			start = fromPx(startpx);
-			end = fromPx(endpx);
+			final double start = fromPx(startpx);
+			final double end = fromPx(endpx);
 			
-			minor = MINOR_TICKS / figure.getAbsoluteScale();
-			major = MAJOR_TICKS / figure.getAbsoluteScale();
+			final double minor = MINOR_TICKS / figure.getAbsoluteScale();
+			final double major = MAJOR_TICKS / figure.getAbsoluteScale();
   
+			Unit unit = rulerUnit.getCurrentUnit();
             Tick[] ticks = null;
             if( VERTICAL == orientation ){
                 // the parameters are *intended* to be backwards: because 'getTicks(...)' can only 
