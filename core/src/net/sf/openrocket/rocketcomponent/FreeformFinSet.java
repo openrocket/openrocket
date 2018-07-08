@@ -215,7 +215,8 @@ public class FreeformFinSet extends FinSet {
 			y0 = Double.NaN;
 			x1 = points.get(1).x;
 			y1 = points.get(1).y;
-			
+//		} else if ( (0 > index) || (points.size() <= index) ){
+//			throw new IllegalFinPointException("Point Index not available!");
 		} else if (index == points.size() - 1) {
 			
 			// Restrict point

@@ -381,13 +381,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				return;
 			}
 			
-			int pointIndex = getPoint(event);
+			final int pointIndex = getPoint(event);
+	        
 			if ( pointIndex >= 0) {
 				dragIndex = pointIndex;
 				return;
 			}
 			
-			int segmentIndex = getSegment(event);
+			final int segmentIndex = getSegment(event);
+			System.err.println(String.format(".... finpoint//segmentIndex: %d", segmentIndex));
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(segmentIndex );
@@ -396,6 +398,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				    finset.setPoint(dragIndex, point.x, point.y);
 				} catch (IllegalFinPointException ignore) {
 					// no-op
+				} catch (ArrayIndexOutOfBoundsException ex) {
+				    log.error("bad index while editing fin points!!", ex);
 			    }
 				dragIndex = segmentIndex;
 

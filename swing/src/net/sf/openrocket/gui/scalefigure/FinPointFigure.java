@@ -274,10 +274,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 		
 		double x0 = p.x;
 		double y0 = p.y;
-		double delta = BOX_WIDTH_PIXELS /*/ scale*/;
+		double delta = BOX_WIDTH_PIXELS / scale;
 		
-		//System.out.println("Point: " + x0 + "," + y0);
-		//System.out.println("delta: " + (BOX_SIZE / scale));
+		//System.err.println(String.format("__Point:    x=%.4f,  y=%.4f", x0, y0));
+		//System.err.println(String.format("__delta:   %.4f", BOX_WIDTH_PIXELS / scale));
 		
 		Coordinate[] points = finset.getFinPoints();
 		for (int i = 1; i < points.length; i++) {
@@ -286,11 +286,13 @@ public class FinPointFigure extends AbstractScaleFigure {
 			double x2 = points[i].x;
 			double y2 = points[i].y;
 			
-			//			System.out.println("point1:"+x1+","+y1+" point2:"+x2+","+y2);
+			//System.out.println("point1:"+x1+","+y1+" point2:"+x2+","+y2);
 			
 			double u = Math.abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)) /
 						MathUtil.hypot(x2 - x1, y2 - y1);
-			//System.out.println("Distance of segment " + i + " is " + u);
+			
+			//System.err.println("Distance of segment " + i + " is " + u);
+			
 			if (u < delta)
 				return i;
 		}
