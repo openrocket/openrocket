@@ -169,13 +169,7 @@ public class DebugLogDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean isActive = ((JCheckBox)e.getSource()).isSelected();
-                log.info("    toggled to: "+isActive );
-                bottomPanel.setEnabled(isActive);
-                if(isActive) {
-                    split.setDividerLocation(0.5);
-                }else {
-                    split.setDividerLocation(1.0);
-                }
+                enableDetailsPanel( isActive);
             }
         });
 
@@ -458,6 +452,17 @@ public class DebugLogDialog extends JDialog {
 					}
 				});
 			}
+		}
+	}
+
+	private void enableDetailsPanel(final boolean isActive){
+		bottomPanel.setEnabled(isActive);
+		if(isActive){
+			split.setDividerLocation(0.5);
+			split.setBottomComponent(bottomPanel);
+		}else {
+			split.setBottomComponent(null);
+			split.setDividerLocation(1.0);
 		}
 	}
 	
