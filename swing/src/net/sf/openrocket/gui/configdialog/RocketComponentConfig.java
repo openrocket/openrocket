@@ -77,7 +77,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
-		setLayout(new MigLayout("fill, gap 5!", "[]:5[]", "[growprio 10]10![fill, grow, growprio 500]10![growprio 10]"));
+		setLayout(new MigLayout("fill, gap 5!, ins panel", "[]:5[]", "[growprio 10]10![fill, grow, growprio 500]10![growprio 10]"));
 		this.document = document;
 		this.component = component;
 		
@@ -154,7 +154,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		updateFields();
 		
-		this.add(buttonPanel, "dock south, spanx, growx, height 50!");
+		this.add(buttonPanel, "newline, spanx, growx, height 50!");
 	}
 	
 	
