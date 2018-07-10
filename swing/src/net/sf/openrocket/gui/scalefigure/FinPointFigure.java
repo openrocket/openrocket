@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
@@ -43,6 +42,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     
     // the size of the boxes around each fin point vertex
     private static final float BOX_WIDTH_PIXELS = 12; 
+    private static final float SELECTED_BOX_WIDTH_PIXELS = 16;
         
     private static final double MINOR_TICKS = 0.05;
     private static final double MAJOR_TICKS = 0.1;
@@ -56,7 +56,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
 	       
     private Rectangle2D.Double[] finPointHandles = null;
-
+    private int selectedIndex = -1;
 	
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
@@ -229,19 +229,30 @@ public class FinPointFigure extends AbstractScaleFigure {
        
 	    // Fin point boxes
         final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
+        final float boxHalfWidth = boxWidth/2;
+        final float selBoxWidth = (float) (SELECTED_BOX_WIDTH_PIXELS / scale );
+        final float selBoxHalfWidth = boxWidth/2;
+
         final float boxEdgeWidth_m = (float) ( LINE_WIDTH_PIXELS / scale );
         g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         g2.setColor(new Color(150, 0, 0));
-        final double boxHalfWidth = boxWidth/2;
+        
         finPointHandles = new Rectangle2D.Double[ drawPoints.length];
-        for (int i = 0; i < drawPoints.length; i++) {
-            Coordinate c = drawPoints[i];
-            finPointHandles[i] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
-            g2.draw(finPointHandles[i]);
+        for (int currentIndex = 0; currentIndex < drawPoints.length; currentIndex++) {
+            Coordinate c = drawPoints[currentIndex];
+            
+            if( currentIndex == selectedIndex ) {
+                finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - selBoxHalfWidth, c.y - selBoxHalfWidth, selBoxWidth, selBoxWidth);
+            } else {
+                // normal boxes
+                finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
+            }
+            
+            g2.draw(finPointHandles[currentIndex]);
         }
     }
 
-	public Point2D.Double getPoint( final int x, final int y){
+	private Point2D.Double getPoint( final int x, final int y){
 	    if (finPointHandles == null)
             return null;
          
@@ -261,9 +272,11 @@ public class FinPointFigure extends AbstractScaleFigure {
             return -1;
         
          for (int i = 0; i < finPointHandles.length; i++) {
-             if (finPointHandles[i].contains(p))
+             if (finPointHandles[i].contains(p)) {
                  return i;
+             }
          }
+         
          return -1;
     }
 
@@ -353,6 +366,13 @@ public class FinPointFigure extends AbstractScaleFigure {
         
         System.err.println(String.format("________ Origin Location (px): w=%d, h=%d: ", originLocation_px.width, originLocation_px.height));
     }
-    
+
+    public void resetSelectedIndex() {
+        this.selectedIndex = -1;
+    }
+
+    public void setSelectedIndex(final int newIndex) {
+        this.selectedIndex = newIndex;
+    }
 
 }

@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
@@ -70,6 +71,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private final FreeformFinSet finset;
 	private JTable table = null;
 	private FinPointTableModel tableModel = null;
+	
+	private int dragIndex = -1;
 	
 	private FinPointFigure figure = null;
 	
@@ -214,6 +217,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		for (int i = 0; i < Columns.values().length; i++) {
 			table.getColumnModel().getColumn(i).setPreferredWidth(Columns.values()[i].getWidth());
 		}
+		table.addMouseListener(new MouseAdapter() {
+		    @Override
+            public void mouseClicked(MouseEvent ev) {
+                figure.setSelectedIndex(table.getSelectedRow());
+                figure.updateFigure();
+            }
+
+	    });
 		JScrollPane tablePane = new JScrollPane(table);
 		
 		JButton scaleButton = new JButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
@@ -340,8 +351,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			} finally {
 				document.stopUndo();
 			}
-		}
-		
+		}	
 	}
 	
 	
@@ -351,22 +361,33 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		if (tableModel != null) {
 			tableModel.fireTableDataChanged();
+		
+			// make sure to do this *after* the table data is updated.
+		    if( 0 <= this.dragIndex ) {
+		        table.setRowSelectionInterval(dragIndex, dragIndex);
+		    }else {
+		        table.clearSelection();
+		    }
 		}
+		
 		if (figure != null) {
-		    figure.updateFigure();
+		    if( 0 <= this.dragIndex ) {
+		        figure.setSelectedIndex(dragIndex);
+		    }else{
+		        figure.resetSelectedIndex();
+		    }
+            figure.updateFigure();
 		}
 		
 		revalidate();
 		repaint();
 	}
 	
-	
-	
 	private class FinPointScrollPane extends ScaleScrollPane {
 
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
 		
-		private int dragIndex = -1;
+		
 		
 		private FinPointScrollPane( final FinPointFigure _figure) {
 			super( _figure);
@@ -381,30 +402,30 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				return;
 			}
 			
-			final int pointIndex = getPoint(event);
-	        
-			if ( pointIndex >= 0) {
-				dragIndex = pointIndex;
+			final int pressIndex = getPoint(event);
+			if ( pressIndex >= 0) {
+				dragIndex = pressIndex;
+				updateFields();
 				return;
 			}
 			
 			final int segmentIndex = getSegment(event);
-			System.err.println(String.format(".... finpoint//segmentIndex: %d", segmentIndex));
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(segmentIndex );
 				
 				try {
 				    finset.setPoint(dragIndex, point.x, point.y);
+				    dragIndex = segmentIndex;
+				    updateFields();
+				    return;
 				} catch (IllegalFinPointException ignore) {
 					// no-op
 				} catch (ArrayIndexOutOfBoundsException ex) {
 				    log.error("bad index while editing fin points!!", ex);
 			    }
-				dragIndex = segmentIndex;
 
 				updateFields();
-
 				return;
 			}
 			
@@ -415,7 +436,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			int mods = event.getModifiersEx();
-			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
+			if (dragIndex <= 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
@@ -439,22 +460,22 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		@Override
 		public void mouseClicked(MouseEvent event) {
-			int mods = event.getModifiersEx();
-			if (event.getButton() != MouseEvent.BUTTON1 || (mods & ANY_MASK) != MouseEvent.CTRL_DOWN_MASK) {
-				super.mouseClicked(event);
-				return;
-			}
-			
-			int index = getPoint(event);
-			if (index < 0) {
-				super.mouseClicked(event);
-				return;
-			}
-			
-			try {
-				finset.removePoint(index);
-			} catch (IllegalFinPointException ignore) {
-			}
+           int mods = event.getModifiersEx();
+           if (event.getButton() != MouseEvent.BUTTON1 || (mods & ANY_MASK) != MouseEvent.CTRL_DOWN_MASK) {
+               super.mouseClicked(event);
+               return;
+           }
+
+           int index = getPoint(event);
+           if (index < 0) {
+               super.mouseClicked(event);
+               return;
+           }
+
+           try {
+               finset.removePoint(index);
+           } catch (IllegalFinPointException ignore) {
+           }
 		}
 		
 		
