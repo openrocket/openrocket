@@ -241,18 +241,25 @@ public class FinPointFigure extends AbstractScaleFigure {
         }
     }
 
-    public int getIndexByPoint(double x, double y) {
-        if (finPointHandles == null)
-            return -1;
-             
+	public Point2D.Double getPoint( final int x, final int y){
+	    if (finPointHandles == null)
+            return null;
+         
          // Calculate point in shapes' coordinates
          Point2D.Double p = new Point2D.Double(x, y);
          try {
                  projection.inverseTransform(p, p);
+                 return p;
          } catch (NoninvertibleTransformException e) {
-                 return -1;
+                 return null;
          }
-         
+	}
+	
+    public int getIndexByPoint(final int x, final int y) {
+        final Point2D.Double p = getPoint(x,y); 
+        if (p == null)
+            return -1;
+        
          for (int i = 0; i < finPointHandles.length; i++) {
              if (finPointHandles[i].contains(p))
                  return i;
@@ -260,24 +267,12 @@ public class FinPointFigure extends AbstractScaleFigure {
          return -1;
     }
 
-	public int getSegmentByPoint(double x, double y) {
-		if (finPointHandles == null)
-			return -1;
-		
-		// Calculate point in shapes' coordinates
-		Point2D.Double p = new Point2D.Double(x, y);
-		try {
-			projection.inverseTransform(p, p);
-		} catch (NoninvertibleTransformException e) {
-			return -1;
-		}
-		
-		double x0 = p.x;
-		double y0 = p.y;
-		double delta = BOX_WIDTH_PIXELS / scale;
-		
-		//System.err.println(String.format("__Point:    x=%.4f,  y=%.4f", x0, y0));
-		//System.err.println(String.format("__delta:   %.4f", BOX_WIDTH_PIXELS / scale));
+	public int getSegmentByPoint(final int x, final int y) {
+	    final Point2D.Double p = getPoint(x,y);          
+        if (p == null)
+             return -1;
+
+		final double threshold = BOX_WIDTH_PIXELS / scale;
 		
 		Coordinate[] points = finset.getFinPoints();
 		for (int i = 1; i < points.length; i++) {
@@ -286,22 +281,28 @@ public class FinPointFigure extends AbstractScaleFigure {
 			double x2 = points[i].x;
 			double y2 = points[i].y;
 			
-			//System.out.println("point1:"+x1+","+y1+" point2:"+x2+","+y2);
-			
-			double u = Math.abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)) /
-						MathUtil.hypot(x2 - x1, y2 - y1);
-			
-			//System.err.println("Distance of segment " + i + " is " + u);
-			
-			if (u < delta)
-				return i;
+			final double segmentLength = MathUtil.hypot(x2 - x1, y2 - y1);
+
+			// Distance to an infinite line, defined by two points:
+			// (For a more in-depth explanation, see wikipedia: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line )
+			double x0 = p.x;
+            double y0 = p.y;
+            final double distanceToLine = Math.abs((y2 - y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)/segmentLength;
+						                
+            final double distanceToStart = MathUtil.hypot(x1-x0, y1-y0); 
+            final double distanceToEnd = MathUtil.hypot(x2-x0, y2-y0); 
+            final boolean withinSegment = (distanceToStart < segmentLength && distanceToEnd < segmentLength);
+            
+			if ( distanceToLine < threshold && withinSegment){
+			    return i;
+			}
+
 		}
 		
 		return -1;
 	}
 	
-	
-	public Point2D.Double convertPoint(double x, double y) {
+	public Point2D.Double convertPoint(final double x, final double y) {
 		Point2D.Double p = new Point2D.Double(x, y);
 		try {
 			projection.inverseTransform(p, p);
