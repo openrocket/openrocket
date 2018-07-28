@@ -193,32 +193,19 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			forces.zero();
 			RocketComponentCalc calcObj = calcMap.get(component);
 			calcObj.calculateNonaxialForces(conditions, forces, warnings);
-			
 
-//			// to account for non axi-symmetric rockets such as a Delta-IV heavy, or a Falcon-9 Heavy
-//			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
-//				RingInstanceable ring = (RingInstanceable)component;
-//				forces.setAxisymmetric(false);
-//				total.setAxisymmetric(false);
-//				
-//				// TODO : Implement Best-Case, Worst-Case Cp calculations
-//				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
-//				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
-//				
-//				// worst case: ignore the CP contribution from *twin* externals
-//				// NYI
-//				
-//				// best case: the twins contribute their full CP broadside
-//				// NYI
-//				
-//			}
 			
-			int instanceCount = component.getLocations().length;
+			// previous unstable version 
+			// int instanceCount = component.getLocations().length;
+			final boolean isAssembly = (component.allowsChildren() && (component.getInstanceCount() > 1));
+			
+			// we will need to adjust the calculations *somehow* here... 
+			
 			Coordinate x_cp_comp = forces.getCP();
-			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight * instanceCount);
+			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight);
 			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
 			forces.setCP(x_cp_absolute);
-			double CN_instanced = forces.getCN() * instanceCount;
+			double CN_instanced = forces.getCN();
 			forces.setCm(CN_instanced * forces.getCP().x / conditions.getRefLength());
 			
 			if (map != null) {
