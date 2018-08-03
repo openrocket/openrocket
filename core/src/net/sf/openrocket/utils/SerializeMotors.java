@@ -48,6 +48,8 @@ public class SerializeMotors {
 				InputStream is = f.getV();
 				
 				List<Motor> motors = loader.load(is, fileName);
+
+				is.close();
 				
 				allMotors.addAll(motors);
 			}
@@ -56,6 +58,7 @@ public class SerializeMotors {
 		oos.writeObject(allMotors);
 		
 		oos.flush();
+		oos.close();
 		ofs.flush();
 		ofs.close();
 	}
