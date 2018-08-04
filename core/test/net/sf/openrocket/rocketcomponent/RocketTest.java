@@ -242,7 +242,7 @@ public class RocketTest extends BaseTestCase {
 			
 			// ====== Booster Set Stage ======
 			// ====== ====== ======
-			ParallelStage boosters = (ParallelStage) coreBody.getChild(1);
+			ParallelStage boosters = (ParallelStage) coreBody.getChild(0);
 			{
 				assertEquals( RadiusMethod.SURFACE, boosters.getRadiusMethod() );
 				assertEquals( AngleMethod.RELATIVE, boosters.getAngleMethod() );
@@ -277,19 +277,21 @@ public class RocketTest extends BaseTestCase {
 				loc = boosterBody.getComponentLocations()[0];			
 				assertEquals(boosterBody.getName()+" offset is incorrect: ", 0.08, offset.x, EPSILON);
 				assertEquals(boosterBody.getName()+" location is incorrect: ", 0.564, loc.x, EPSILON);
+				{
+					InnerTube mmt = (InnerTube)boosterBody.getChild(0);
+					offset = mmt.getPosition();
+					loc = mmt.getComponentLocations()[0];
+					assertEquals(mmt.getName()+" offset is incorrect: ", 0.65, offset.x, EPSILON);
+					assertEquals(mmt.getName()+" location is incorrect: ", 1.214, loc.x, EPSILON);
 	
-				InnerTube mmt = (InnerTube)boosters.getChild(1).getChild(0);
-				offset = mmt.getPosition();
-				loc = mmt.getComponentLocations()[0];
-				assertEquals(mmt.getName()+" offset is incorrect: ", 0.65, offset.x, EPSILON);
-				assertEquals(mmt.getName()+" location is incorrect: ", 1.214, loc.x, EPSILON);
+					final FinSet coreFins = (FinSet)boosterBody.getChild(1);
+					offset = coreFins.getPosition();
+					loc = coreFins.getComponentLocations()[0];			
+					assertEquals(coreFins.getName()+" offset is incorrect: ", 0.480, offset.x, EPSILON);
+					assertEquals(coreFins.getName()+" location is incorrect: ", 1.044, loc.x, EPSILON);
+				}
 			}
 			
-			FinSet coreFins = (FinSet)rocket.getChild(1).getChild(0).getChild(0);
-			offset = coreFins.getPosition();
-			loc = coreFins.getComponentLocations()[0];			
-			assertEquals(coreFins.getName()+" offset is incorrect: ", 0.480, offset.x, EPSILON);
-			assertEquals(coreFins.getName()+" location is incorrect: ", 1.044, loc.x, EPSILON);
 		}
 	}
 

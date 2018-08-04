@@ -133,14 +133,6 @@ public class ParallelStageTest extends BaseTestCase {
 		RocketComponent coreBody = coreStage.getChild(0);
 		Assert.assertEquals( coreBody.getPosition().x, 0.0, EPSILON);
 		Assert.assertEquals( coreBody.getComponentLocations()[0].x, expectedCoreStageX, EPSILON);
-		
-		FinSet coreFins = (FinSet)coreBody.getChild(0);
-		
-		// default is offset=0, method=BOTTOM
-		assertEquals( AxialMethod.BOTTOM, coreFins.getAxialMethod() );
-		assertEquals( 0.0, coreFins.getAxialOffset(), EPSILON);
-		assertEquals( 0.480, coreFins.getPosition().x, EPSILON);
-		assertEquals( 1.044, coreFins.getComponentLocations()[0].x, EPSILON);
 
 	}
 
@@ -151,7 +143,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		AxialStage booster = (AxialStage) coreStage.getChild(0).getChild(1);
+		AxialStage booster = (AxialStage) coreStage.getChild(0).getChild(0);
 		
 		AxialStage sustainerPrev = sustainer.getUpperStage();
 		assertThat("sustainer parent is not found correctly: ", sustainerPrev, equalTo(null));
@@ -194,7 +186,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testBoosterInitializationFREERadius() {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage parallelBoosterSet = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage parallelBoosterSet = (ParallelStage)coreStage.getChild(0).getChild(0);
 
 		// vvvv function under test
 		parallelBoosterSet.setRadiusMethod( RadiusMethod.FREE );
@@ -214,7 +206,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testBoosterInitializationSURFACERadius() {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage parallelBoosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage parallelBoosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 
 		final BodyTube coreBody = (BodyTube)coreStage.getChild(0);
 		final BodyTube boosterBody = (BodyTube)parallelBoosterStage.getChild(1);
@@ -257,7 +249,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testBoosterInitializationRELATIVERadius() {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage parallelBoosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage parallelBoosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 
 		final BodyTube coreBody = (BodyTube)coreStage.getChild(0);
 		final BodyTube boosterBody = (BodyTube)parallelBoosterStage.getChild(1);
@@ -299,7 +291,7 @@ public class ParallelStageTest extends BaseTestCase {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
 		final BodyTube coreBody = (BodyTube)coreStage.getChild(0);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		final BodyTube boosterBody = (BodyTube)boosterStage.getChild(1);
 
 		// vv function under test
@@ -335,7 +327,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideABSOLUTE() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final BodyTube coreBody= (BodyTube) rocket.getChild(1).getChild(0);
-		final ParallelStage boosterStage = (ParallelStage)coreBody.getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreBody.getChild(0);
 		
 		double targetAbsoluteX = 0.8;
 		double expectedRelativeX = 0.236;
@@ -386,7 +378,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideTOP() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		double targetOffset = 0.2;
 		
@@ -417,7 +409,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetMIDDLE() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		// when 'external' the stage should be freely movable
 		// vv function under test
@@ -436,7 +428,8 @@ public class ParallelStageTest extends BaseTestCase {
 	@Test
 	public void testSetBOTTOM() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
-		final ParallelStage boosterStage = (ParallelStage)rocket.getChild(1).getChild(0).getChild(1);
+		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		// vv function under test
 		double targetOffset = 0.2;
@@ -454,7 +447,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetTOP_getABSOLUTE() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		double targetOffset = 0.2;
 		
@@ -480,7 +473,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetTOP_getAFTER() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		double targetOffset = 0.2;
 		
@@ -503,7 +496,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetTOP_getMIDDLE() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		double targetOffset = 0.2;
 		
@@ -525,7 +518,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testSetTOP_getBOTTOM() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		double targetOffset = 0.2;
 		
@@ -547,7 +540,8 @@ public class ParallelStageTest extends BaseTestCase {
 	@Test
 	public void testSetBOTTOM_getTOP() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
-		final ParallelStage boosterStage = (ParallelStage)rocket.getChild(1).getChild(0).getChild(1);
+		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		// vv function under test
 		double targetOffset = 0.2;
@@ -568,7 +562,7 @@ public class ParallelStageTest extends BaseTestCase {
 	public void testOutsideStageRepositionTOPAfterAdd() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
-		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(1);
+		final ParallelStage boosterStage = (ParallelStage)coreStage.getChild(0).getChild(0);
 		
 		final double targetOffset = +2.50;
 		final AxialMethod targetMethod = AxialMethod.TOP;
@@ -597,7 +591,9 @@ public class ParallelStageTest extends BaseTestCase {
 	@Test
 	public void testStageInitializationMethodValueOrder() {
 		final RocketComponent rocket = TestRockets.makeFalcon9Heavy();
-		final BodyTube coreBody = (BodyTube) rocket.getChild(1).getChild(0);
+		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
+		final BodyTube coreBody = (BodyTube)coreStage.getChild(0);
+		
 		
 		ParallelStage boosterA = createExtraBooster();
 		boosterA.setName("Booster A Stage");
@@ -632,7 +628,7 @@ public class ParallelStageTest extends BaseTestCase {
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
 		final BodyTube coreBody = (BodyTube) coreStage.getChild(0);
 		
-		ParallelStage boosterA = (ParallelStage)coreBody.getChild(1);
+		ParallelStage boosterA = (ParallelStage)coreBody.getChild(0);
 		
 		ParallelStage boosterB = createExtraBooster();
 		boosterB.setName("Booster A Stage");
@@ -665,8 +661,8 @@ public class ParallelStageTest extends BaseTestCase {
 		actualStageNumber = boosterC.getStageNumber();
 		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
 		
-		// remove Booster A 
-		coreBody.removeChild(2);
+		// remove Booster B
+		coreBody.removeChild(1);
 		
 		String treedump = rocket.toDebugTree();
 		int expectedStageCount = 4;

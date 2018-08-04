@@ -942,21 +942,6 @@ public class TestRockets {
 				FlightConfigurationId motorConfigId = selFCID;
 				coreBody.setMotorConfig( coreMotorConfig, motorConfigId);	 
 			
-				TrapezoidFinSet coreFins = new TrapezoidFinSet();
-				coreBody.addChild(coreFins);
-				coreFins.setName("Core Fins");
-				coreFins.setFinCount(4);
-				coreFins.setBaseRotation( Math.PI / 4);
-				coreFins.setThickness(0.003);
-				coreFins.setCrossSection(CrossSection.ROUNDED);
-				coreFins.setRootChord(0.32);
-				coreFins.setTipChord(0.12);
-				coreFins.setHeight(0.12);
-				coreFins.setSweep(0.18);
-				coreFins.setAxialMethod(AxialMethod.BOTTOM);
-				coreFins.setAxialOffset(0.0);
-				
-	
 				// ====== Booster Stage Set ======
 				// ====== ====== ====== ======
 				ParallelStage boosterStage = new ParallelStage();
@@ -966,6 +951,7 @@ public class TestRockets {
 				boosterStage.setAxialOffset(0.0);
 				boosterStage.setInstanceCount(2);
 				boosterStage.setRadius( RadiusMethod.SURFACE, 0.0 );
+				boosterStage.setAngleMethod( AngleMethod.RELATIVE );
 				
 				{
 					NoseCone boosterCone = new NoseCone(Transition.Shape.POWER, 0.08, 0.0385);
@@ -1001,6 +987,20 @@ public class TestRockets {
 						boosterMotorConfig.setMotor( boosterMotor );
 						boosterMotorTubes.setMotorConfig( boosterMotorConfig, motorConfigId);
 						boosterMotorTubes.setMotorOverhang(0.01234);
+						
+						TrapezoidFinSet boosterFins = new TrapezoidFinSet();
+						boosterBody.addChild(boosterFins);
+						boosterFins.setName("Booster Fins");
+						boosterFins.setFinCount(3);
+						boosterFins.setBaseRotation( Math.PI / 4);
+						boosterFins.setThickness(0.003);
+						boosterFins.setCrossSection(CrossSection.ROUNDED);
+						boosterFins.setRootChord(0.32);
+						boosterFins.setTipChord(0.12);
+						boosterFins.setHeight(0.12);
+						boosterFins.setSweep(0.18);
+						boosterFins.setAxialMethod(AxialMethod.BOTTOM);
+						boosterFins.setAxialOffset(0.0);
 					}
 				}
 				
