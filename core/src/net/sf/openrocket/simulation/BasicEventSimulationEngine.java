@@ -128,7 +128,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
 					}
-					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + currentStatus.getSimulationTime());
+					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
 					currentStepper.step(currentStatus, maxStepTime);
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
@@ -319,6 +319,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			// Handle event
+			log.trace("Handling event " + event);			
 			switch (event.getType()) {
 			
 			case LAUNCH: {
@@ -486,7 +487,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case ALTITUDE:
-				log.trace("BasicEventSimulationEngine:  Handling event " + event);
+				// nothing special needs to be done for this event
 				break;
 			
 			case TUMBLE:
