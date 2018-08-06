@@ -128,7 +128,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
 					}
-					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
+					log.trace("Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
 					currentStepper.step(currentStatus, maxStepTime);
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
