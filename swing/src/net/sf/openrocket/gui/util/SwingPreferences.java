@@ -429,9 +429,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		SimulationOptions cond = s.getOptions();
 		
 		cond.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP * 2);
-		cond.setWindSpeedAverage(1.0);
-		cond.setWindSpeedDeviation(0.1);
-		cond.setLaunchRodLength(5);
 		return s;
 	}
 	
