@@ -397,11 +397,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		public void mousePressed(MouseEvent event) {
 			int mods = event.getModifiersEx();
 			
-			if (event.getButton() != MouseEvent.BUTTON1 || (mods & ANY_MASK) != 0) {
-				super.mousePressed(event);
-				return;
-			}
-			
 			final int pressIndex = getPoint(event);
 			if ( pressIndex >= 0) {
 				dragIndex = pressIndex;
@@ -432,16 +427,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			super.mousePressed(event);
 		}
 		
-		
 		@Override
 		public void mouseDragged(MouseEvent event) {
-			int mods = event.getModifiersEx();
+		    int mods = event.getModifiersEx();
 			if (dragIndex <= 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
+			
 			Point2D.Double point = getCoordinates(event);
-
 			try {
 				 finset.setPoint(dragIndex, point.x, point.y);
 			} catch (IllegalFinPointException ignore) {
@@ -451,7 +445,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			updateFields();
 		}
 		
-		
 		@Override
 		public void mouseReleased(MouseEvent event) {
 			dragIndex = -1;
@@ -460,24 +453,22 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		@Override
 		public void mouseClicked(MouseEvent event) {
-           int mods = event.getModifiersEx();
-           if (event.getButton() != MouseEvent.BUTTON1 || (mods & ANY_MASK) != MouseEvent.CTRL_DOWN_MASK) {
-               super.mouseClicked(event);
-               return;
-           }
-
-           int index = getPoint(event);
-           if (index < 0) {
-               super.mouseClicked(event);
-               return;
-           }
-
-           try {
-               finset.removePoint(index);
-           } catch (IllegalFinPointException ignore) {
-           }
-		}
-		
+            int mods = event.getModifiersEx();
+            if(( event.getButton() == MouseEvent.BUTTON1) && (0 < (MouseEvent.CTRL_DOWN_MASK & mods))) {
+                int clickIndex = getPoint(event);
+                if ( 0 < clickIndex) {
+                    // if ctrl+click, delete point
+                    try {
+                        finset.removePoint(clickIndex);
+                    } catch (IllegalFinPointException ignore) {
+                        log.error("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + ".  This is likely an internal error.");
+                    }
+                    return;
+                }
+            }
+            
+            super.mouseClicked(event);
+        }
 		
 		private int getPoint(MouseEvent event) {
 			Point p0 = event.getPoint();
