@@ -74,7 +74,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Number of fins.
 	 */
-	protected int fins = 1;
+	private int finCount = 1;
 	
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
@@ -155,7 +155,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @return The number of fins.
 	 */
 	public int getFinCount() {
-		return fins;
+		return finCount;
 	}
 	
 	/**
@@ -163,13 +163,13 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
-		if (fins == n)
+		if (finCount == n)
 			return;
 		if (n < 1)
 			n = 1;
 		if (n > 8)
 			n = 8;
-		fins = n;
+		finCount = n;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -400,7 +400,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	@Override
 	public double getComponentVolume() {
 		// this is for the fins alone, fillets are taken care of separately.
-		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
+		return finCount * (getFinArea() + tabHeight * tabLength) * thickness *
 				crossSection.getRelativeVolume();
 	}
 	
@@ -414,7 +414,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		double mass = getFinMass();
 		double filletMass = getFilletMass();
 		
-		if (fins == 1) {
+		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset()); 
 			return rotation.transform(
 					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
@@ -542,12 +542,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		double inertia = (h2 + 2 * w2) / 24;
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return inertia;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
+		return finCount * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
 	}
 	
 	
@@ -577,12 +577,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 			h = MathUtil.safeSqrt(h * area / w);
 		}
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return h * h / 12;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
+		return finCount * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
 	}
 	
 
@@ -823,7 +823,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	@Override
 	protected List<RocketComponent> copyFrom(RocketComponent c) {
 		FinSet src = (FinSet) c;
-		this.fins = src.fins;
+		this.finCount = src.finCount;
 		this.finRotation = src.finRotation;
 		this.firstFinOffset = src.firstFinOffset;
 		this.cantAngle = src.cantAngle;
