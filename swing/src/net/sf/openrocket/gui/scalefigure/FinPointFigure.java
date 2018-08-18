@@ -363,8 +363,6 @@ public class FinPointFigure extends AbstractScaleFigure {
         // the negative sign is to compensate for the mount's negative location.
         originLocation_px.width = borderThickness_px.width - (int)(mountBounds_m.getX()*scale);
         originLocation_px.height = borderThickness_px.height + (int)(Math.max( rMaxParent, finBounds_m.getHeight())*scale);
-        
-        System.err.println(String.format("________ Origin Location (px): w=%d, h=%d: ", originLocation_px.width, originLocation_px.height));
     }
 
     public void resetSelectedIndex() {
