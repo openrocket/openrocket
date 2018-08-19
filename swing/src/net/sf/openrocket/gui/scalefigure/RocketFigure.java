@@ -466,16 +466,18 @@ public class RocketFigure extends AbstractScaleFigure {
 	 */
 	@Override
 	protected void updateCanvasOrigin() {
+	    final int subjectWidth = (int)(subjectBounds_m.getWidth()*scale);
+	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 	    
-	    final Dimension subjectArea = new Dimension((int)(subjectBounds_m.getWidth()*scale),
-                                    	            (int)(subjectBounds_m.getHeight()*scale));
-	    
-	    final int newOriginY = borderThickness_px.height + (int)(subjectArea.getHeight() / 2);
 	    if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
-	        int newOriginX = borderThickness_px.width + getWidth() / 2;
+	        final int newOriginX = borderThickness_px.width + Math.max(getWidth(), subjectWidth + 2*borderThickness_px.width)/ 2;	        
+	        final int newOriginY = borderThickness_px.height + getHeight() / 2;
+	        
 	        originLocation_px = new Dimension(newOriginX, newOriginY);
-    	}else {
-    	    int newOriginX = borderThickness_px.width + (getWidth() - subjectArea.width) / 2;
+    	}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
+    	    final int newOriginX = borderThickness_px.width;
+    	    final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
+            
     	    originLocation_px = new Dimension(newOriginX, newOriginY);
     	}
 	}
