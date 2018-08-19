@@ -338,6 +338,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     
 	@Override
     protected void updateSubjectDimensions(){
+	    
         // update subject (i.e. Fin) bounds
 	    finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
 	    // NOTE: the fin's forward root is pinned at 0,0  
@@ -345,24 +346,32 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    
 	    // update to bound the parent body:
 	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
-        final double xParent = - finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+        final double xFinFront = finset.asPositionValue(AxialMethod.TOP);
+        final double xParent = -xFinFront;
 	    final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
 	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
 	    mountBounds_m = new Rectangle2D.Double( xParent, yParent, parent.getLength(), rParent);
                 
-	    final double subjectWidth = Math.max( finBounds_m.getWidth(), parent.getLength());
+	    final double subjectWidth = Math.max( xFinFront + finBounds_m.getWidth(), parent.getLength());
 	    final double subjectHeight = Math.max( 2*rParent, rParent + finBounds_m.getHeight());
 	    subjectBounds_m = new Rectangle2D.Double( xParent, yParent, subjectWidth, subjectHeight);
 	}
 
 	@Override
     protected void updateCanvasOrigin() {
-	    final SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
-	    final double rMaxParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
+	    final int finHeight = (int)(finBounds_m.getHeight()*scale);
+	    final int mountHeight = (int)(mountBounds_m.getHeight()*scale);	    
+	    final int finFrontX = (int)(subjectBounds_m.getX()*scale);
+	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 	    
-        // the negative sign is to compensate for the mount's negative location.
-        originLocation_px.width = borderThickness_px.width - (int)(mountBounds_m.getX()*scale);
-        originLocation_px.height = borderThickness_px.height + (int)(Math.max( rMaxParent, finBounds_m.getHeight())*scale);
+	    // the negative sign is to compensate for the mount's negative location.
+        originLocation_px.width = borderThickness_px.width - finFrontX;
+        
+        if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {
+            originLocation_px.height = getHeight() - mountHeight - borderThickness_px.height;
+        }else {
+            originLocation_px.height = borderThickness_px.height + finHeight;
+        }
     }
 
     public void resetSelectedIndex() {
