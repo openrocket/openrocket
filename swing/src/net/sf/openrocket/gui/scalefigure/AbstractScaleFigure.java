@@ -42,10 +42,12 @@ public abstract class AbstractScaleFigure extends JPanel {
 	// pixel offset from the the subject's origin to the canvas's upper-left-corner. 
 	protected Dimension originLocation_px = new Dimension(0,0);
 	
+	// size of the visible region
+	protected Dimension visibleBounds_px = new Dimension(0,0);
+	
     // ======= whatever this figure is drawing, in real-space coordinates:  meters
     protected Rectangle2D subjectBounds_m = null;
     
-
     // combines the translation and scale in one place: 
     // which frames does this transform between ?  
     protected AffineTransform projection = null;
@@ -85,11 +87,15 @@ public abstract class AbstractScaleFigure extends JPanel {
     
     /**
      * Set the scale level of the figure.  A scale value of 1.0 is equivalent to 100 % scale. 
-     *  smaller scale display the subject smaller. 
+     * Smaller scales display the subject smaller.
      * 
-     * @param newScaleRequest the scale level.
+     *  If the figure would be smaller than the 'visibleBounds', then the figure is grown to match, 
+     *  and the figures internal contents are centered according to the figure's origin.
+     * 
+     * @param newScaleRequest the scale level
+     * @param visibleBounds the visible bounds upon the Figure
      */
-	public void scaleTo(final double newScaleRequest) {
+	public void scaleTo(final double newScaleRequest, final Dimension visibleBounds) {
 	    if (MathUtil.equals(this.userScale, newScaleRequest, 0.01)){
             return;}
         if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest)) {
@@ -98,33 +104,34 @@ public abstract class AbstractScaleFigure extends JPanel {
         log.warn(String.format("scaling Request from %g => %g  @%s\n", this.userScale, newScaleRequest, this.getClass().getSimpleName()), new Throwable());
         
         this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
-
 	    this.scale = baseScale * userScale;
-
+	    
+	    this.visibleBounds_px = visibleBounds; 
+	    
         this.fireChangeEvent(); 
 	}
 	
 	/**
      * Set the scale level to display newBounds
      * 
-     * @param bounds  the bounds of the figure.
+     * @param visibleBounds the visible bounds to scale this figure to.  
      */
-	public void scaleTo(Dimension newBounds) {
-	    if( 0 == newBounds.getWidth() || 0 == newBounds.getHeight())
+	public void scaleTo(Dimension visibleBounds) {
+	    if( 0 == visibleBounds.getWidth() || 0 == visibleBounds.getHeight())
 	        return;
 	    
 	    updateSubjectDimensions();
 	    
 	    // dimensions within the viewable area, which are available to draw
-		final int drawable_width_px = newBounds.width - 2 * borderThickness_px.width;
-		final int drawable_height_px = newBounds.height - 2 * borderThickness_px.height;
+		final int drawable_width_px = visibleBounds.width - 2 * borderThickness_px.width;
+		final int drawable_height_px = visibleBounds.height - 2 * borderThickness_px.height;
 
         if(( 0 < drawable_width_px ) && ( 0 < drawable_height_px)) {
 		    final double width_scale = (drawable_width_px) / ( subjectBounds_m.getWidth() * baseScale);
     		final double height_scale = (drawable_height_px) / ( subjectBounds_m.getHeight() * baseScale);
     		final double minScale = Math.min(height_scale, width_scale);
     		
-    		scaleTo(minScale);
+    		scaleTo(minScale, visibleBounds);
 		}
 	}
 	
@@ -142,8 +149,12 @@ public abstract class AbstractScaleFigure extends JPanel {
      
      */
     protected void updateCanvasSize() {
-        Dimension preferredFigureSize_px = new Dimension((int)(subjectBounds_m.getWidth()*scale) + 2*borderThickness_px.width,
-                                                         (int)(subjectBounds_m.getHeight()*scale) + 2*borderThickness_px.height);
+         final int desiredWidth = Math.max((int)this.visibleBounds_px.getWidth(),
+                                          (int)(subjectBounds_m.getWidth()*scale) + 2*borderThickness_px.width);
+        final int desiredHeight = Math.max((int)this.visibleBounds_px.getHeight(),
+                                          (int)(subjectBounds_m.getHeight()*scale) + 2*borderThickness_px.height); 
+
+        Dimension preferredFigureSize_px = new Dimension(desiredWidth, desiredHeight);
         
         setPreferredSize(preferredFigureSize_px);
         setMinimumSize(preferredFigureSize_px);
@@ -165,8 +176,8 @@ public abstract class AbstractScaleFigure extends JPanel {
         log.debug(String.format("____ Updating %s to: %g user scale, %g overall scale", this.getClass().getSimpleName(), this.getAbsoluteScale(), this.scale));
         
         updateSubjectDimensions();
-        updateCanvasOrigin();
         updateCanvasSize();
+        updateCanvasOrigin();
         updateTransform();
         
         revalidate();

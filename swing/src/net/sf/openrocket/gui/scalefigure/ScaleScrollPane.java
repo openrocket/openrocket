@@ -168,8 +168,9 @@ public class ScaleScrollPane extends JScrollPane
         }
         
         // if explicitly setting a zoom level, turn off fitting
-		this.fit = false;		
-        figure.scaleTo(newScale);
+		this.fit = false;	
+		Dimension view = viewport.getExtentSize();
+        figure.scaleTo(newScale, view);
              
         revalidate();    
 	}
