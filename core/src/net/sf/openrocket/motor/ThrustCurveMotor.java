@@ -321,23 +321,20 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		// portion from startTime through time[timeIndex]
 		double avgImpulse = 0.0;
-		// For numeric stability.
-		if( time[timeIndex+1] - startTime > 0.001 ) {
-			avgImpulse = (MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]) + thrust[timeIndex+1])
-					/ 2.0 * (time[timeIndex+1] - startTime);
-		}
+		avgImpulse = ((MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]) + thrust[timeIndex+1])
+					  / 2.0) * (time[timeIndex+1] - startTime);
 		
 		// Now add the whole steps;
 		timeIndex++;
-		while( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
-			avgImpulse += (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0 * (time[timeIndex+1]-time[timeIndex]);
+		while ( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
+			avgImpulse += ((thrust[timeIndex] + thrust[timeIndex+1]) / 2.0) * (time[timeIndex+1]-time[timeIndex]);
 			timeIndex++;
 		}
 		
 		// Now add the bit after the last time index
 		if ( timeIndex < time.length -1 ) {
 			double endInstImpulse = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			avgImpulse += (thrust[timeIndex] + endInstImpulse) / 2.0 * (endTime - time[timeIndex]);
+			avgImpulse += ((thrust[timeIndex] + endInstImpulse) / 2.0) * (endTime - time[timeIndex]);
 		}
 		
 		return avgImpulse / (endTime - startTime);
