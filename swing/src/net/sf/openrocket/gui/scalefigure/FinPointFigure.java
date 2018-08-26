@@ -42,8 +42,9 @@ public class FinPointFigure extends AbstractScaleFigure {
     
     // the size of the boxes around each fin point vertex
     private static final float BOX_WIDTH_PIXELS = 12; 
-    private static final float SELECTED_BOX_WIDTH_PIXELS = 16;
-        
+    private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
+    private static final Color POINT_COLOR = new Color(100, 100, 100);
+    private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0);
     private static final double MINOR_TICKS = 0.05;
     private static final double MAJOR_TICKS = 0.1;
             
@@ -230,23 +231,31 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    // Fin point boxes
         final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
         final float boxHalfWidth = boxWidth/2;
-        final float selBoxWidth = (float) (SELECTED_BOX_WIDTH_PIXELS / scale );
-        final float selBoxHalfWidth = boxWidth/2;
-
+        
         final float boxEdgeWidth_m = (float) ( LINE_WIDTH_PIXELS / scale );
         g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-        g2.setColor(new Color(150, 0, 0));
+        g2.setColor(POINT_COLOR);
         
         finPointHandles = new Rectangle2D.Double[ drawPoints.length];
         for (int currentIndex = 0; currentIndex < drawPoints.length; currentIndex++) {
             Coordinate c = drawPoints[currentIndex];
             
             if( currentIndex == selectedIndex ) {
-                finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - selBoxHalfWidth, c.y - selBoxHalfWidth, selBoxWidth, selBoxWidth);
-            } else {
-                // normal boxes
-                finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
-            }
+                final float selBoxWidth = (float) (SELECTED_BOX_WIDTH_PIXELS / scale );
+                final float selBoxHalfWidth = selBoxWidth/2;
+
+                final Rectangle2D.Double selectedPointHighlight = new Rectangle2D.Double(c.x - selBoxHalfWidth, c.y - selBoxHalfWidth, selBoxWidth, selBoxWidth);
+
+                // switch to the highlight color
+                g2.setColor(SELECTED_POINT_COLOR);
+                g2.draw(selectedPointHighlight);
+                
+                // reset to the normal color
+                g2.setColor(POINT_COLOR);
+            } 
+
+            // normal boxes
+            finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
             
             g2.draw(finPointHandles[currentIndex]);
         }
