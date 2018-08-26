@@ -318,26 +318,26 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return (startThrust + endThrust) / 2.0;
 		}
 
-		double avgImpulse = 0.0;
+		double impulse = 0.0;
 
 		// portion from startTime through time[timeIndex+1]
 		double startThrust = MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-		avgImpulse = (time[timeIndex+1] - startTime) * (startThrust + thrust[timeIndex+1]) / 2.0;
+		impulse = (time[timeIndex+1] - startTime) * (startThrust + thrust[timeIndex+1]) / 2.0;
 		
 		// Now add the whole steps;
 		timeIndex++;
 		while ( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
-			avgImpulse += (time[timeIndex+1] - time[timeIndex]) * (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0;
+			impulse += (time[timeIndex+1] - time[timeIndex]) * (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0;
 			timeIndex++;
 		}
 		
 		// Now add the bit after the last time index
 		if ( timeIndex < time.length -1 ) {
 			double endThrust = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			avgImpulse += ((thrust[timeIndex] + endThrust) / 2.0) * (endTime - time[timeIndex]);
+			impulse += ((thrust[timeIndex] + endThrust) / 2.0) * (endTime - time[timeIndex]);
 		}
 		
-		return avgImpulse / (endTime - startTime);
+		return impulse / (endTime - startTime);
 	}
 	
 	@Override
