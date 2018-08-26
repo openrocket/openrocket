@@ -94,6 +94,33 @@ public class FreeformFinSetTest extends BaseTestCase {
 		assertEquals(0.3889, coords.x, 0.001);
 		assertEquals(0.4444, coords.y, 0.001);
 	}
+
+	@Test
+	public void testFreeformFinAddPoint() throws Exception {
+		FreeformFinSet fin = new FreeformFinSet();
+		fin.setFinCount(1);
+		fin.setFinCount(1);
+		Coordinate[] points = new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(0.5, 1.0),
+				new Coordinate(1.0, 1.0),
+				new Coordinate(1, 0)
+		};
+		fin.setPoints(points);
+		assertEquals(4, fin.getPointCount());
+		
+		//     +--+
+		//    /   |x
+		//   /    |
+		//  +=====+
+		Point2D.Double toAdd = new Point2D.Double(1.01, 0.8);
+		fin.addPoint(3, toAdd);
+		
+        assertEquals(5, fin.getPointCount());
+        final Coordinate added = fin.getFinPoints()[3];
+        assertEquals(1.1,added.x, 0.1);
+        assertEquals(0.8, added.y, 0.1);
+	}
 	
 	@Test
 	public void testWildmanVindicatorShape() throws Exception {

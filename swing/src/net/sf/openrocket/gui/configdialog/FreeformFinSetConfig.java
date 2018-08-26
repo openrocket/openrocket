@@ -407,7 +407,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final int segmentIndex = getSegment(event);
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
-				finset.addPoint(segmentIndex );
+				finset.addPoint(segmentIndex, point);
 				
 				try {
 				    finset.setPoint(dragIndex, point.x, point.y);

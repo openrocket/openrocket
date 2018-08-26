@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -128,16 +129,12 @@ public class FreeformFinSet extends FinSet {
 	 * The point is placed at the midpoint of the current segment.
 	 *
 	 * @param index   the fin point before which to add the new point.
+	 * @param point   the target location to create the new point at
 	 */
-	public void addPoint(int index) {
-		double x0, y0, x1, y1;
-		
-		x0 = points.get(index - 1).x;
-		y0 = points.get(index - 1).y;
-		x1 = points.get(index).x;
-		y1 = points.get(index).y;
-		
-		points.add(index, new Coordinate((x0 + x1) / 2, (y0 + y1) / 2));
+	public void addPoint(int index, Point2D.Double location) {
+		// new method: add new point at closest point
+		points.add(index, new Coordinate(location.x, location.y));
+				
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
