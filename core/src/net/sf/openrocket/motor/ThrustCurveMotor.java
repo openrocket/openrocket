@@ -334,7 +334,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		// Now add the bit after the last time index
 		if ( timeIndex < time.length -1 ) {
 			double endThrust = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			impulse += ((thrust[timeIndex] + endThrust) / 2.0) * (endTime - time[timeIndex]);
+			impulse += (endTime - time[timeIndex]) * (thrust[timeIndex] + endThrust) / 2.0;
 		}
 		
 		return impulse / (endTime - startTime);
