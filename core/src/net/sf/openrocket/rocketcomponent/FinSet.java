@@ -79,7 +79,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
-	protected Transformation finRotation = Transformation.IDENTITY;
+	private Transformation finRotation = Transformation.IDENTITY;
 
 	
 		
@@ -87,12 +87,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
 	private AngleMethod angleMethod = AngleMethod.RELATIVE;
-	protected double firstFinOffset = 0;	
+	private double firstFinOffset = 0;
 	
 	/**
 	 * Cant angle of fins.
 	 */
-	protected double cantAngle = 0;
+	private double cantAngle = 0;
 	
 	/* Cached value: */
 	private Transformation cantRotation = null;
@@ -109,7 +109,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * The cross-section shape of the fins.
 	 */
-	protected CrossSection crossSection = CrossSection.SQUARE;
+	private CrossSection crossSection = CrossSection.SQUARE;
 	
 	
 	/*
@@ -124,10 +124,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Fin fillet properties
 	 */
 	
-	protected Material filletMaterial = null;
-	protected double filletRadius = 0;
-	protected double filletCenterY = 0;
-	
+	private Material filletMaterial;
+	private double filletRadius = 0;
+	private double filletCenterY = 0;
+
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
 	// Fin area does not include fin tabs, CG does.
 	private double finArea = -1;
@@ -316,7 +316,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Return the tab front edge position from the front of the fin.
 	 */
-	public double getTabFrontEdge() {
+	private double getTabFrontEdge() {
 		switch (this.tabRelativePosition) {
 		case FRONT:
 			return tabShift;
@@ -335,7 +335,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
-	public double getTabTrailingEdge() {
+	private double getTabTrailingEdge() {
 		switch (this.tabRelativePosition) {
 		case FRONT:
 			return tabLength + tabShift;
@@ -388,11 +388,11 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		return getFilletMass() + getFinMass();
 	}
 	
-	public double getFinMass() {
+	private double getFinMass() {
 		return getComponentVolume() * material.getDensity();
 	}
 	
-	public double getFilletMass() {
+	private double getFilletMass() {
 		return getFilletVolume() * filletMaterial.getDensity();
 	}
 	
@@ -423,7 +423,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 	}
 	
-	public double getFilletVolume() {
+	private double getFilletVolume() {
 		/*
 		 * Here is how the volume of the fillet is found.  It assumes a circular concave 
 		 * fillet tangent to the fin and the body tube. 
