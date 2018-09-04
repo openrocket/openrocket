@@ -408,18 +408,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(segmentIndex, point);
-				
-				try {
-				    finset.setPoint(dragIndex, point.x, point.y);
-				    dragIndex = segmentIndex;
-				    updateFields();
-				    return;
-				} catch (IllegalFinPointException ignore) {
-					// no-op
-				} catch (ArrayIndexOutOfBoundsException ex) {
-				    log.error("bad index while editing fin points!!", ex);
-			    }
 
+				dragIndex = segmentIndex;
 				updateFields();
 				return;
 			}
