@@ -455,10 +455,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	@Override
-	public double getOuterRadius(){
-		return 0.0;
+	public double getBoundingRadius(){
+		return 0.;
 	}
-	
+
 	private void calculateAreaCG() {
 		Coordinate[] points = this.getFinPoints();
 		finArea = 0;

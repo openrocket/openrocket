@@ -87,8 +87,8 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	public double getRotationalUnitInertia() {
 		return 0;
 	}
-	
-	public double getOuterRadius(){
+
+	public double getBoundingRadius(){
 		double outerRadius=0;
 		for( RocketComponent comp : children ){
 			double thisRadius=0;
