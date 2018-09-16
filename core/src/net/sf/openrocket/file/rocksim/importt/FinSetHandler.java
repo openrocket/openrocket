@@ -325,7 +325,8 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setBaseRotation(radialAngle);
 		result.setCrossSection(convertTipShapeCode(tipShapeCode));
 		result.setAxialMethod(axialMethod);
-		PositionDependentHandler.setLocation(result, axialMethod, location);
+		result.setAxialOffset(location);
+
 		return result;
 		
 	}

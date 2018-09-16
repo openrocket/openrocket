@@ -159,7 +159,7 @@ public class FinPointFigure extends AbstractScaleFigure {
         Transition body = (Transition) finset.getParent();
         final float xResolution_m = 0.01f; // distance between draw points, in meters
 
-        final double xFinStart = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+        final double xFinStart = finset.getAxialOffset(AxialMethod.TOP); //<<  in body frame
 
         // vv in fin-frame == draw-frame vv
         final double xOffset = -xFinStart;
@@ -355,7 +355,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    
 	    // update to bound the parent body:
 	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
-        final double xFinFront = finset.asPositionValue(AxialMethod.TOP);
+        final double xFinFront = finset.getAxialOffset(AxialMethod.TOP);
         final double xParent = -xFinFront;
 	    final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
 	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
