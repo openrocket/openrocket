@@ -1088,7 +1088,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (EPSILON > Math.abs(newX)) {
 			newX = 0.0;
 		}
-		if (Double.NaN == newX) {
+		if (Double.isNaN(newX)){
 			throw new BugException("setAxialOffset is broken -- attempted to update as NaN: " + this.toDebugDetail());
 		}
 		
