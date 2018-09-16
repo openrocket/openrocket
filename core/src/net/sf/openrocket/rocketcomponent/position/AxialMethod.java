@@ -7,28 +7,87 @@ public enum AxialMethod implements DistanceMethod {
 	ABSOLUTE (Application.getTranslator().get("RocketComponent.Position.Method.Axial.ABSOLUTE")){
 		@Override
 		public boolean clampToZero() { return false; }
+
+		@Override
+		public double getAsPosition(double offset, double innerLength, double outerLength){
+			return offset;
+		}
+
+		@Override
+		public double getAsOffset(double position, double innerLength, double outerLength){
+			return position;
+		}
 	},
 		
 	// subject component will trail the target component, in the increasing coordinate direction 
-	AFTER (Application.getTranslator().get("RocketComponent.Position.Method.Axial.AFTER")),
+	AFTER (Application.getTranslator().get("RocketComponent.Position.Method.Axial.AFTER")){
+		@Override
+		public boolean clampToZero() { return false; }
+
+		@Override
+		public double getAsPosition(double offset, double innerLength, double outerLength){
+			return outerLength + offset;
+		}
+
+		@Override
+		public double getAsOffset(double position, double innerLength, double outerLength){
+		    return outerLength - position;
+		}
+	},
 
 	// measure from the top of the target component to the top of the subject component
 	TOP (Application.getTranslator().get("RocketComponent.Position.Method.Axial.TOP")){
 		@Override
 		public boolean clampToZero() { return false; }
+
+		@Override
+		public double getAsPosition(double offset, double innerLength, double outerLength){
+			return offset;
+		}
+
+		@Override
+		public double getAsOffset(double position, double innerLength, double outerLength){
+			return position;
+		}
 	},
 	
 	// This coordinate is measured from the middle of the parent component to the middle of this component
-	MIDDLE (Application.getTranslator().get("RocketComponent.Position.Method.Axial.MIDDLE")){
+	MIDDLE (Application.getTranslator().get("RocketComponent.Position.Method.Axial.MIDDLE")) {
 		@Override
-		public boolean clampToZero() { return false; }
+		public boolean clampToZero() {
+			return false;
+		}
+
+		@Override
+		public double getAsPosition(double offset, double innerLength, double outerLength){
+			return (outerLength - innerLength) / 2 - offset;
+		}
+
+		@Override
+		public double getAsOffset(double position, double innerLength, double outerLength){
+			return position + (innerLength - outerLength) / 2;
+		}
 	},
 	
 	// This coordinate is measured from the bottom of the parent component to the bottom of this component
 	BOTTOM (Application.getTranslator().get("RocketComponent.Position.Method.Axial.BOTTOM")){
 		@Override
 		public boolean clampToZero() { return false; }
+
+		@Override
+		public double getAsPosition(double offset, double innerLength, double outerLength){
+			return outerLength - innerLength - offset;
+		}
+
+		@Override
+		public double getAsOffset(double position, double innerLength, double outerLength){
+			return position + (innerLength - outerLength);
+		}
+
+
 	};
+
+
 
 	// just as a reminder:
 	// public T[] getEnumConstants()
@@ -37,13 +96,16 @@ public enum AxialMethod implements DistanceMethod {
 	
 	public final String description;
 	
-	private AxialMethod( final String newDescription ) { 
+	AxialMethod( final String newDescription ) {
 		this.description=newDescription;
 	}
 	
-	@Override
-	public boolean clampToZero() { return true; }
-	
+	public abstract boolean clampToZero();
+
+	public abstract double getAsOffset(double position, double innerLength, double outerLength);
+
+	public abstract double getAsPosition(double offset, double innerLength, double outerLength);
+
 	@Override
 	public String toString() {
 		return description;
