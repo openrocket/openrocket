@@ -404,7 +404,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * 
 	 * @return	a <code>Collection</code> containing coordinates bounding the rocket.
 	 * 
-	 * @deprecated Migrate to FlightConfiguration#BoundingBox, when practical.
+	 * @deprecated Migrate to <FlightConfiguration>.getBoundingBox(), when practical.
 	 */
 	@Deprecated 
 	public Collection<Coordinate> getBounds() {
@@ -414,26 +414,26 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/** 
 	 * Return the bounding box of the current configuration.  
 	 * 
-	 * @return
+	 * @return the rocket's bounding box (under the selected configuration)
 	 */
 	public BoundingBox getBoundingBox() {
 		if (rocket.getModID() != boundsModID) {
-			boundsModID = rocket.getModID();
-			
-			BoundingBox bounds = new BoundingBox();
-			
-			for (RocketComponent component : this.getActiveComponents()) {
-				BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());				
-				
-				bounds.update( componentBounds );
-			}
-			
-			cachedLength = bounds.span().x;
-
-			cachedBounds.update( bounds );
+			calculateBounds();
 		}
-		
 		return cachedBounds;
+	}
+
+	private void calculateBounds(){
+		BoundingBox bounds = new BoundingBox();
+			
+		for (RocketComponent component : this.getActiveComponents()) {
+			BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());
+			bounds.update( componentBounds );
+		}
+
+		boundsModID = rocket.getModID();
+		cachedLength = bounds.span().x;
+		cachedBounds.update( bounds );
 	}
 	
 	/**
@@ -443,9 +443,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @return	the length of the rocket in the X-direction.
 	 */
 	public double getLength() {
-		if (rocket.getModID() != boundsModID)
-			getBounds(); // Calculates the length
-			
+		if (rocket.getModID() != boundsModID) {
+			calculateBounds();
+		}
 		return cachedLength;
 	}
 	
