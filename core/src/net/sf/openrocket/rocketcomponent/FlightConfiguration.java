@@ -476,7 +476,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
      * Copy all available information attached to this, and attached copies to the
      * new configuration
      *
-     * @param copyId attached the new configuration to this Id
+     * @param newId attached the new configuration to this Id
      * @return the new configuration
      */
     @Override

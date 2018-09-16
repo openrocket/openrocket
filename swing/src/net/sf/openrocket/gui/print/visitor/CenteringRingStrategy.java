@@ -87,8 +87,8 @@ public class CenteringRingStrategy extends AbstractPrintStrategy<Void> {
      * @return true if the two physically intersect, from which we infer that the centering ring supports the tube
      */
     private boolean overlaps(CenteringRing one, InnerTube two) {
-        final double crTopPosition = one.asPositionValue( AxialMethod.ABSOLUTE);
-        final double mmTopPosition = two.asPositionValue( AxialMethod.ABSOLUTE);
+        final double crTopPosition = one.getAxialOffset( AxialMethod.ABSOLUTE);
+        final double mmTopPosition = two.getAxialOffset( AxialMethod.ABSOLUTE);
         final double crBottomPosition = one.getLength() + crTopPosition;
         final double mmBottomPosition = two.getLength() + mmTopPosition;
 

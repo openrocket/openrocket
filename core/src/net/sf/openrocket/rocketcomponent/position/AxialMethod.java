@@ -31,9 +31,9 @@ public enum AxialMethod implements DistanceMethod {
 
 		@Override
 		public double getAsOffset(double position, double innerLength, double outerLength){
-		    return outerLength - position;
+		    return position - outerLength;
 		}
-	},
+    },
 
 	// measure from the top of the target component to the top of the subject component
 	TOP (Application.getTranslator().get("RocketComponent.Position.Method.Axial.TOP")){
@@ -60,7 +60,7 @@ public enum AxialMethod implements DistanceMethod {
 
 		@Override
 		public double getAsPosition(double offset, double innerLength, double outerLength){
-			return (outerLength - innerLength) / 2 - offset;
+			return offset + (outerLength - innerLength) / 2;
 		}
 
 		@Override
@@ -76,7 +76,7 @@ public enum AxialMethod implements DistanceMethod {
 
 		@Override
 		public double getAsPosition(double offset, double innerLength, double outerLength){
-			return outerLength - innerLength - offset;
+			return offset + (outerLength - innerLength);
 		}
 
 		@Override
