@@ -251,25 +251,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		log.trace("HandleEvents: current branch = " + currentStatus.getFlightData().getBranchName());
 		for (event = nextEvent(); event != null; event = nextEvent()) {
-			log.trace("EventQueue = " + currentStatus.getEventQueue().toString());
-			
-			// Ignore events for components that are no longer attached to the rocket
-			if (event.getSource() != null && event.getSource().getParent() != null &&
-					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
-				continue;
-			}
-			
-			// Call simulation listeners, allow aborting event handling
-			if (!SimulationListenerHelper.fireHandleFlightEvent(currentStatus, event)) {
-				continue;
-			}
-			
-			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
-				RecoveryDevice device = (RecoveryDevice) event.getSource();
-				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
-					continue;
-				}
-			}
+			log.trace("Obtained event from queue:  " + event.toString());
+			log.trace("Remaining EventQueue = " + currentStatus.getEventQueue().toString());
 			
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
@@ -288,6 +271,25 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
 					
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, mount, state ));
+				}
+			}
+			
+			// Ignore events for components that are no longer attached to the rocket
+			if (event.getSource() != null && event.getSource().getParent() != null &&
+					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
+				log.trace("Ignoring event from unattached componenent");
+				continue;
+			}
+			
+			// Call simulation listeners, allow aborting event handling
+			if (!SimulationListenerHelper.fireHandleFlightEvent(currentStatus, event)) {
+				continue;
+			}
+			
+			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
+				RecoveryDevice device = (RecoveryDevice) event.getSource();
+				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
+					continue;
 				}
 			}
 			
