@@ -443,11 +443,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	@Override
 	public FlightConfiguration clone() {
-
-        // Note the stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
-		clone.setName(configurationName);
 		
+        // The constructor sets all the flags to true.  We need to
+        // clear the ones that weren't set in the original
+        // FlightConfiguration
+		for (int stageNum = 0; stageNum < clone.stages.size(); stageNum++)
+			if (!this.isStageActive(stageNum))
+				clone.clearStage(stageNum);
+		
+		clone.setName(configurationName);
         clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
