@@ -408,7 +408,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 				// Mark the status as having dropped the booster
 				currentStatus.getConfiguration().clearStage( stageNumber);
-				
+				log.trace("current branch stages: " + currentStatus.getConfiguration().toStageListDetail());
+						  
 				// Prepare the simulation branch
 				SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 				boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
@@ -418,6 +419,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
 						currentStatus.getSimulationTime(), 
 						currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
+				log.trace("new branch stages: " + boosterStatus.getConfiguration().toStageListDetail());
 				
 				break;
 			}

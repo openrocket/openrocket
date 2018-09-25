@@ -109,6 +109,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			cur.active = _active;
 		}
 	}
+
+	public void copyStages(FlightConfiguration other) {
+		for (StageFlags cur : other.stages.values())
+			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.active));
+	}
 	
 	/** 
 	 * This method flags a stage inactive.  Other stages are unaffected.
