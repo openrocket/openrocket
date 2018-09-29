@@ -417,7 +417,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 				// Mark the status as having dropped the booster
 				currentStatus.getConfiguration().clearStage( stageNumber);
-				
+						  
 				// Prepare the simulation branch
 				SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 				boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
