@@ -177,7 +177,7 @@ public class DesignReport {
 		
 		canvas.beginText();
 		canvas.setFontAndSize(ITextHelper.getBaseFont(), PrintUtilities.NORMAL_FONT_SIZE);
-		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getFigureHeight()) * 0.4 * (scale / PrintUnit.METERS
+		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getHeight()) * 0.4 * (scale / PrintUnit.METERS
 				.toPoints(1)));
 		final int diagramHeight = pageImageableHeight * 2 - 70 - (figHeightPts);
 		canvas.moveText(document.leftMargin() + pageSize.getBorderWidthLeft(), diagramHeight);
@@ -274,7 +274,7 @@ public class DesignReport {
 		theFigure.updateFigure();
 		
 		double scale =
-				(thePageImageableWidth * 2.2) / theFigure.getFigureWidth();
+				(thePageImageableWidth * 2.2) / theFigure.getWidth();
 		theFigure.setScale(scale);
 		/*
 		 * page dimensions are in points-per-inch, which, in Java2D, are the same as pixels-per-inch; thus we don't need any conversion
@@ -288,7 +288,7 @@ public class DesignReport {
 		int y = PrintUnit.POINTS_PER_INCH;
 		//If the y dimension is negative, then it will potentially be drawn off the top of the page.  Move the origin
 		//to allow for this.
-		if (theFigure.getDimensions().getY() < 0.0d) {
+		if (theFigure.getHeight() < 0.0d) {
 			y += (int) halfFigureHeight;
 		}
 		g2d.translate(20, y);

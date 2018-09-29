@@ -15,10 +15,10 @@ public class TubeShapes extends RocketComponentShape {
 			Coordinate instanceAbsoluteLocation,
 			final double length, final double radius ){
 	    
-	    return new Rectangle2D.Double((instanceAbsoluteLocation.x)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
-			(instanceAbsoluteLocation.y-radius)*S, // y - the Y coordinate of the upper-left corner of the newly constructed Rectangle2D
-			length*S, // w - the width of the newly constructed Rectangle2D
-			2*radius*S); //  h - the height of the newly constructed Rectangle2D
+	    return new Rectangle2D.Double((instanceAbsoluteLocation.x),    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
+			(instanceAbsoluteLocation.y-radius), // y - the Y coordinate of the upper-left corner of the newly constructed Rectangle2D
+			length, // w - the width of the newly constructed Rectangle2D
+			2*radius); //  h - the height of the newly constructed Rectangle2D
 	}
 	
 	public static Shape getShapesBack(
@@ -26,7 +26,7 @@ public class TubeShapes extends RocketComponentShape {
 			Coordinate instanceAbsoluteLocation, 
 			final double radius ) {
 		
-		return new Ellipse2D.Double((instanceAbsoluteLocation.z-radius)*S, (instanceAbsoluteLocation.y-radius)*S, 2*radius*S, 2*radius*S);
+		return new Ellipse2D.Double((instanceAbsoluteLocation.z-radius), (instanceAbsoluteLocation.y-radius), 2*radius, 2*radius);
 	}
 	
 	

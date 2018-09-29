@@ -77,7 +77,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	}
 	
 	/*
-	 * Calculates the non-axial forces produced by *one* *instance* of the fins.
+	 * Calculates the non-axial forces produced by each set of fins.
 	 * (normal and side forces, pitch, yaw and roll moments, CP position, CNa).
 	 */
 	@Override
@@ -124,7 +124,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			cna = cna1 * mul;
 		} else {
 			// Basic CNa assuming full efficiency
-			cna = cna1 / 2.0;
+			cna = cna1 * finCount / 2.0;
 		}
 		
 		//		logger.debug("Component cna = {}", cna);

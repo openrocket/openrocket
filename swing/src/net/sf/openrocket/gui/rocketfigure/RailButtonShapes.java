@@ -43,12 +43,12 @@ public class RailButtonShapes extends RocketComponentShape {
 			final double drawHeight = outerDiameter*sinr;
 			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y );
 			Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
-			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+baseHeightcos)*S ), false);
-			path.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+baseHeightcos)*S ), false);
+			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+baseHeightcos) ), false);
+			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+baseHeightcos) ), false);
 			
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+baseHeightcos)*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+baseHeightcos), drawWidth, drawHeight), false);
 		}
 		
 		{// inner
@@ -56,24 +56,24 @@ public class RailButtonShapes extends RocketComponentShape {
 			final double drawHeight = innerDiameter*sinr;
 			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y + baseHeightcos);
 			final Point2D.Double lowerLeft = new Point2D.Double( center.x - innerRadius, center.y-innerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
-			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+innerHeightcos)*S ), false);
-			path.append( new Line2D.Double( (center.x+innerRadius)*S,  center.y*S, (center.x+innerRadius)*S, (center.y+innerHeightcos)*S ), false);
+			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+innerHeightcos) ), false);
+			path.append( new Line2D.Double( (center.x+innerRadius),  center.y, (center.x+innerRadius), (center.y+innerHeightcos) ), false);
 			
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+innerHeightcos)*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+innerHeightcos), drawWidth, drawHeight), false);
 		}
 		{// outer flange
 			final double drawWidth = outerDiameter;
 			final double drawHeight = outerDiameter*sinr;
 			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y+baseHeightcos+innerHeightcos);
 			final Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, lowerLeft.y*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
-			path.append( new Line2D.Double( lowerLeft.x*S,  center.y*S, lowerLeft.x*S, (center.y+flangeHeightcos)*S ), false);
-			path.append( new Line2D.Double( (center.x+outerRadius)*S,  center.y*S, (center.x+outerRadius)*S, (center.y+flangeHeightcos)*S ), false);
+			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+flangeHeightcos) ), false);
+			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+flangeHeightcos) ), false);
 			
-			path.append( new Ellipse2D.Double( lowerLeft.x*S, (lowerLeft.y+flangeHeightcos)*S, drawWidth*S, drawHeight*S), false);
+			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+flangeHeightcos), drawWidth, drawHeight), false);
 		}
 	
 		return RocketComponentShape.toArray( new Shape[]{ path }, component );
@@ -131,10 +131,10 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double sinr = Math.sin(angle_rad);
 		final double cosr = Math.cos(angle_rad);
 		
-		rect.moveTo( (x-radius*cosr)*S, (y+radius*sinr)*S);
-		rect.lineTo( (x-radius*cosr+height*sinr)*S, (y+radius*sinr+height*cosr)*S);
-		rect.lineTo( (x+radius*cosr+height*sinr)*S, (y-radius*sinr+height*cosr)*S);
-		rect.lineTo( (x+radius*cosr)*S, (y-radius*sinr)*S);
+		rect.moveTo( (x-radius*cosr), (y+radius*sinr));
+		rect.lineTo( (x-radius*cosr+height*sinr), (y+radius*sinr+height*cosr));
+		rect.lineTo( (x+radius*cosr+height*sinr), (y-radius*sinr+height*cosr));
+		rect.lineTo( (x+radius*cosr), (y-radius*sinr));
 		rect.closePath();
 		// add points
 		

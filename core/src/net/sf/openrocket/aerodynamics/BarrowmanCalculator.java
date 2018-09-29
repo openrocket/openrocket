@@ -158,21 +158,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * Perform the actual CP calculation.
 	 */
 	private AerodynamicForces calculateNonAxialForces(FlightConfiguration configuration, FlightConditions conditions,
-			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
+			Map<RocketComponent, AerodynamicForces> calculators, WarningSet warnings) {
 		
 		checkCache(configuration);
-		
-		AerodynamicForces total = new AerodynamicForces();
-		total.zero();
-		
-		AerodynamicForces forces = new AerodynamicForces();
 		
 		if (warnings == null)
 			warnings = ignoreWarningSet;
 		
 		if (conditions.getAOA() > 17.5 * Math.PI / 180)
 			warnings.add(new Warning.LargeAOA(conditions.getAOA()));
-		
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
@@ -182,71 +176,58 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			warnings.add( Warning.DIAMETER_DISCONTINUITY);
 		}
 		
-		for (RocketComponent component : configuration.getActiveComponents()) {
-			
-			// Skip non-aerodynamic components
-			if (!component.isAerodynamic())
-				continue;
-			
-
-			// Call calculation method
-			forces.zero();
-			RocketComponentCalc calcObj = calcMap.get(component);
-			calcObj.calculateNonaxialForces(conditions, forces, warnings);
-			
-
-//			// to account for non axi-symmetric rockets such as a Delta-IV heavy, or a Falcon-9 Heavy
-//			if(( ! component.isAxisymmetric()) &&( component instanceof RingInstanceable )){
-//				RingInstanceable ring = (RingInstanceable)component;
-//				forces.setAxisymmetric(false);
-//				total.setAxisymmetric(false);
-//				
-//				// TODO : Implement Best-Case, Worst-Case Cp calculations
-//				double minAngle = ring.getAngularOffset(); // angle of minimum CP, MOI
-//				double maxAngle = minAngle+Math.PI/2; // angle of maximum CP, MOI
-//				
-//				// worst case: ignore the CP contribution from *twin* externals
-//				// NYI
-//				
-//				// best case: the twins contribute their full CP broadside
-//				// NYI
-//				
-//			}
-			
-			int instanceCount = component.getLocations().length;
-			Coordinate x_cp_comp = forces.getCP();
-			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight * instanceCount);
-			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
-			forces.setCP(x_cp_absolute);
-			double CN_instanced = forces.getCN() * instanceCount;
-			forces.setCm(CN_instanced * forces.getCP().x / conditions.getRefLength());
-			
-			if (map != null) {
-				AerodynamicForces f = map.get(component);
-				
-				f.setCP(forces.getCP());
-				f.setCNa(forces.getCNa());
-				f.setCN(forces.getCN());
-				f.setCm(forces.getCm());
-				f.setCside(forces.getCside());
-				f.setCyaw(forces.getCyaw());
-				f.setCroll(forces.getCroll());
-				f.setCrollDamp(forces.getCrollDamp());
-				f.setCrollForce(forces.getCrollForce());
-			}
-			
-			total.setCP(total.getCP().average(forces.getCP()));
-			total.setCNa(total.getCNa() + forces.getCNa());
-			total.setCN(total.getCN() + forces.getCN());
-			total.setCm(total.getCm() + forces.getCm());
-			total.setCside(total.getCside() + forces.getCside());
-			total.setCyaw(total.getCyaw() + forces.getCyaw());
-			total.setCroll(total.getCroll() + forces.getCroll());
-			total.setCrollDamp(total.getCrollDamp() + forces.getCrollDamp());
-			total.setCrollForce(total.getCrollForce() + forces.getCrollForce());
-		}
+		AerodynamicForces total = calculateAssemblyNonAxialForces(configuration.getRocket(), configuration, conditions, calculators, warnings, "");
 		
 		return total;
+	}
+	
+	private AerodynamicForces calculateAssemblyNonAxialForces(  final RocketComponent component,   
+																FlightConfiguration configuration, FlightConditions conditions,
+																Map<RocketComponent, AerodynamicForces> calculators, WarningSet warnings,
+																String indent) {
+		
+		final AerodynamicForces assemblyForces= new AerodynamicForces().zero();
+		
+//		System.err.println(String.format("%s@@ %s <%s>", indent, component.getName(), component.getClass().getSimpleName()));
+		
+		// ==== calculate child forces ==== 
+		for (RocketComponent child: component.getChildren()) {
+			AerodynamicForces childForces = calculateAssemblyNonAxialForces(  child, configuration, conditions, calculators, warnings, indent+"    ");
+			assemblyForces.merge(childForces);
+		}
+		
+		// calculate *this* component's forces
+		RocketComponentCalc calcObj = calcMap.get(component);
+		if(null != calcObj) {
+			AerodynamicForces componentForces = new AerodynamicForces().zero();
+			calcObj.calculateNonaxialForces(conditions, componentForces, warnings);
+			
+			Coordinate x_cp_comp = componentForces.getCP();
+			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight);
+			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
+			componentForces.setCP(x_cp_absolute);
+			double CN_instanced = componentForces.getCN();
+			componentForces.setCm(CN_instanced * componentForces.getCP().x / conditions.getRefLength());
+		
+//			if( 0.0001 < Math.abs(0 - componentForces.getCNa())){
+//				System.err.println(String.format("%s....Component.CNa: %g   @ CPx: %g", indent, componentForces.getCNa(), componentForces.getCP().x));
+//			}
+			
+			assemblyForces.merge(componentForces);
+		}
+		
+//		if( 0.0001 < Math.abs(0 - assemblyForces.getCNa())){
+//			System.err.println(String.format("%s....Assembly.CNa: %g   @ CPx: %g", indent, assemblyForces.getCNa(), assemblyForces.getCP().x));
+//		}
+		
+		// fetches instanced versions 
+		// int instanceCount = component.getLocations().length;
+		
+		if( component.allowsChildren() && (component.getInstanceCount() > 1)) {
+			return assemblyForces.multiplex(component.getInstanceCount());
+		}else {
+			return assemblyForces;
+		}
 	}
 	
 	

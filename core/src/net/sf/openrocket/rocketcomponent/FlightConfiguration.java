@@ -109,6 +109,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			cur.active = _active;
 		}
 	}
+
+	public void copyStages(FlightConfiguration other) {
+		for (StageFlags cur : other.stages.values())
+			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.active));
+	}
 	
 	/** 
 	 * This method flags a stage inactive.  Other stages are unaffected.
@@ -398,25 +403,37 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * Return the bounds of the current configuration.  The bounds are cached.
 	 * 
 	 * @return	a <code>Collection</code> containing coordinates bounding the rocket.
+	 * 
+	 * @deprecated Migrate to FlightConfiguration#BoundingBox, when practical.
 	 */
+	@Deprecated 
 	public Collection<Coordinate> getBounds() {
+		return getBoundingBox().toCollection();
+	}
+	
+	/** 
+	 * Return the bounding box of the current configuration.  
+	 * 
+	 * @return
+	 */
+	public BoundingBox getBoundingBox() {
 		if (rocket.getModID() != boundsModID) {
 			boundsModID = rocket.getModID();
 			
 			BoundingBox bounds = new BoundingBox();
 			
 			for (RocketComponent component : this.getActiveComponents()) {
-				BoundingBox componentBounds = new BoundingBox( component.getComponentBounds() );				
+				BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());				
 				
-				bounds.compare( componentBounds );
+				bounds.update( componentBounds );
 			}
 			
 			cachedLength = bounds.span().x;
 
-			cachedBounds.compare( bounds );
+			cachedBounds.update( bounds );
 		}
 		
-		return cachedBounds.toCollection();
+		return cachedBounds;
 	}
 	
 	/**

@@ -22,18 +22,12 @@ public class PrintFigure extends RocketFigure {
 		super(rkt);
 	}
 	
-	@Override
-	protected double computeTy(int heightPx) {
-		super.computeTy(heightPx);
-		return 0;
-	}
-	
 	public void setScale(final double theScale) {
 		this.scale = theScale; //dpi/0.0254*scaling;
 		updateFigure();
 	}
 
     public double getFigureHeightPx() {
-        return this.figureHeightPx;
+        return this.getSize().height;
     }
 }

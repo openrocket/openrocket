@@ -34,10 +34,14 @@ public enum RadiusMethod implements DistanceMethod {
 		
 		@Override
 		public double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
-			if( (parentComponent instanceof BodyTube ) && (thisComponent instanceof RadiusPositionable ) ) {
-				return (((BodyTube)parentComponent).getOuterRadius()+((RadiusPositionable)thisComponent).getOuterRadius() + requestedOffset);
+			double radius = requestedOffset;
+			if( parentComponent instanceof BodyTube ) {
+				radius += ((BodyTube)parentComponent).getOuterRadius();
 			}
-			return requestedOffset; // fail-safe path
+			if( thisComponent instanceof RadiusPositionable ) {
+				radius += ((RadiusPositionable)thisComponent).getBoundingRadius();
+			}
+			return radius;
 		}
 	},
 
@@ -47,10 +51,14 @@ public enum RadiusMethod implements DistanceMethod {
 	SURFACE ( Application.getTranslator().get("RocketComponent.Position.Method.Radius.SURFACE") ) {
 		@Override
 		public double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
-			if( (parentComponent instanceof BodyTube ) && (thisComponent instanceof RadiusPositionable ) ) {
-				return ((BodyTube)parentComponent).getOuterRadius()+((RadiusPositionable)thisComponent).getOuterRadius();
+			double radius = 0.;
+			if( parentComponent instanceof BodyTube ) {
+				radius += ((BodyTube)parentComponent).getOuterRadius();
 			}
-			return 0.; // fail-safe path
+			if( thisComponent instanceof RadiusPositionable ) {
+				radius += ((RadiusPositionable)thisComponent).getBoundingRadius();
+			}
+			return radius;
 		}
 	};
 
@@ -70,7 +78,7 @@ public enum RadiusMethod implements DistanceMethod {
 	public String toString() {
 		return description;
 	}
-	
+
 	@Override
 	public boolean clampToZero() { return true; }
 	

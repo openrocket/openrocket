@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,26 +29,11 @@ public class FreeformFinSet extends FinSet {
 		
 		this.length = 0.05;
 	}
-	
-	
+
 	public FreeformFinSet(Coordinate[] finpoints) throws IllegalFinPointException {
 		setPoints(finpoints);
 	}
-	
-	/*
-	public FreeformFinSet(FinSet finset) {
-		Coordinate[] finpoints = finset.getFinPoints();
-		this.copyFrom(finset);
 
-		points.clear();
-		for (Coordinate c: finpoints) {
-			points.add(c);
-		}
-		this.length = points.get(points.size()-1).x - points.get(0).x;
-	}
-	*/
-	
-	
 	/**
 	 * Convert an existing fin set into a freeform fin set.  The specified
 	 * fin set is taken out of the rocket tree (if any) and the new component
@@ -128,16 +114,12 @@ public class FreeformFinSet extends FinSet {
 	 * The point is placed at the midpoint of the current segment.
 	 *
 	 * @param index   the fin point before which to add the new point.
+	 * @param location the target location to create the new point at
 	 */
-	public void addPoint(int index) {
-		double x0, y0, x1, y1;
-		
-		x0 = points.get(index - 1).x;
-		y0 = points.get(index - 1).y;
-		x1 = points.get(index).x;
-		y1 = points.get(index).y;
-		
-		points.add(index, new Coordinate((x0 + x1) / 2, (y0 + y1) / 2));
+	public void addPoint(int index, Point2D.Double location) {
+		// new method: add new point at closest point
+		points.add(index, new Coordinate(location.x, location.y));
+				
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -215,7 +197,8 @@ public class FreeformFinSet extends FinSet {
 			y0 = Double.NaN;
 			x1 = points.get(1).x;
 			y1 = points.get(1).y;
-			
+//		} else if ( (0 > index) || (points.size() <= index) ){
+//			throw new IllegalFinPointException("Point Index not available!");
 		} else if (index == points.size() - 1) {
 			
 			// Restrict point

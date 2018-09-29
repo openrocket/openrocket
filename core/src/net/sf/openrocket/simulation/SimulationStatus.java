@@ -105,8 +105,6 @@ public class SimulationStatus implements Monitorable {
 		double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 		
-		
-		
 		// Launch rod angle and direction
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
@@ -181,6 +179,8 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
 		this.tumbling = orig.tumbling;
+		
+		this.configuration.copyStages(orig.configuration);
 		
 		this.deployedRecoveryDevices.clear();
 		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);

@@ -286,7 +286,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	/**
 	 * Zero all values to 0 / Coordinate.NUL.  Component is left as it was.
 	 */
-	public void zero() {
+	public AerodynamicForces zero() {
 		// component untouched
 
 		setAxisymmetric(true);
@@ -303,6 +303,8 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		setCD(0);
 		setPitchDampingMoment(0);
 		setYawDampingMoment(0);
+		
+		return this;
 	}
 
 	
@@ -388,4 +390,39 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public int getModID() {
 		return modID;
 	}
+
+	public AerodynamicForces merge(AerodynamicForces other) {
+
+		this.cp = cp.average(other.getCP());
+		this.CNa = CNa + other.getCNa();
+		this.CN = CN + other.getCN();
+		this.Cm = Cm + other.getCm();
+		this.Cside = Cside + other.getCside();
+		this.Cyaw = Cyaw + other.getCyaw();
+		this.Croll = Croll + other.getCroll();
+		this.CrollDamp = CrollDamp + other.getCrollDamp();
+		this.CrollForce = CrollForce + other.getCrollForce();
+	
+		modID++;
+		
+		return this;
+	}
+	
+	public AerodynamicForces multiplex(final int instanceCount) {
+		
+		this.cp = cp.setWeight(cp.weight*instanceCount);
+		this.CNa = CNa*instanceCount;
+		this.CN = CN*instanceCount;
+		this.Cm = Cm*instanceCount;
+		this.Cside = Cside*instanceCount;
+		this.Cyaw = Cyaw*instanceCount;
+		this.Croll = Croll*instanceCount;
+		this.CrollDamp = CrollDamp*instanceCount;
+		this.CrollForce = CrollForce*instanceCount;
+	
+		modID++;
+		
+		return this;
+	}
+	
 }

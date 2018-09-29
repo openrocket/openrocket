@@ -313,34 +313,31 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		if ( endTime <= time[timeIndex+1] ) {
 			// we are completely within this time slice so the computation of the average is pretty easy:
-			double avgImpulse = MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			avgImpulse += MathUtil.map(endTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			avgImpulse /= 2.0;
-			return avgImpulse;
+			double startThrust = MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			double endThrust = MathUtil.map(endTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			return (startThrust + endThrust) / 2.0;
 		}
-		
-		// portion from startTime through time[timeIndex]
-		double avgImpulse = 0.0;
-		// For numeric stability.
-		if( time[timeIndex+1] - startTime > 0.001 ) {
-			avgImpulse = (MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]) + thrust[timeIndex+1])
-					/ 2.0 * (time[timeIndex+1] - startTime);
-		}
+
+		double impulse = 0.0;
+
+		// portion from startTime through time[timeIndex+1]
+		double startThrust = MathUtil.map(startTime, time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+		impulse = (time[timeIndex+1] - startTime) * (startThrust + thrust[timeIndex+1]) / 2.0;
 		
 		// Now add the whole steps;
 		timeIndex++;
-		while( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
-			avgImpulse += (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0 * (time[timeIndex+1]-time[timeIndex]);
+		while ( timeIndex < time.length -1 && endTime >= time[timeIndex+1] ) {
+			impulse += (time[timeIndex+1] - time[timeIndex]) * (thrust[timeIndex] + thrust[timeIndex+1]) / 2.0;
 			timeIndex++;
 		}
 		
 		// Now add the bit after the last time index
 		if ( timeIndex < time.length -1 ) {
-			double endInstImpulse = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
-			avgImpulse += (thrust[timeIndex] + endInstImpulse) / 2.0 * (endTime - time[timeIndex]);
+			double endThrust = MathUtil.map( endTime,  time[timeIndex], time[timeIndex+1], thrust[timeIndex], thrust[timeIndex+1]);
+			impulse += (endTime - time[timeIndex]) * (thrust[timeIndex] + endThrust) / 2.0;
 		}
 		
-		return avgImpulse / (endTime - startTime);
+		return impulse / (endTime - startTime);
 	}
 	
 	@Override
