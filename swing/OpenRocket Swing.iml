@@ -24,7 +24,7 @@
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
     </src_description>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/bin" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -207,6 +207,76 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="junit-dep-4.8.2" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-core-1.3.0RC1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-core-1.3.0RC1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-library-1.3.0RC1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-library-1.3.0RC1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-2.6.0-RC2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-2.6.0-RC2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.6.0-RC2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.6.0-RC2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/junit-dep-4.8.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/test-plugin.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib-test/uispec4j-2.3-jdk16.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

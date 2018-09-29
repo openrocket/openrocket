@@ -40,7 +40,7 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		
 		Shape[] s = new Shape[fins];
 		for (int i=0; i<fins; i++) {
-			s[i] = new Rectangle2D.Double(start[0].x*S,(start[0].y-outerRadius)*S,length*S,2*outerRadius*S);
+			s[i] = new Rectangle2D.Double(start[0].x,(start[0].y-outerRadius),length,2*outerRadius);
 			start = finRotation.transform(start);
 		}
 		return RocketComponentShape.toArray(s, component);
@@ -75,7 +75,7 @@ public class TubeFinSetShapes extends RocketComponentShape {
 
 		Shape[] s = new Shape[fins];
 		for (int i=0; i < fins; i++) {
-			s[i] = new Ellipse2D.Double((start[0].z-outerradius)*S,(start[0].y-outerradius)*S,2*outerradius*S,2*outerradius*S);
+			s[i] = new Ellipse2D.Double((start[0].z-outerradius),(start[0].y-outerradius),2*outerradius,2*outerradius);
 			start = finRotation.transform(start);
 		}
 		return RocketComponentShape.toArray(s, component);

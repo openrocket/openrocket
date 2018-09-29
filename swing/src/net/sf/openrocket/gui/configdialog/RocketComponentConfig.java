@@ -77,7 +77,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
-		setLayout(new MigLayout("fill", "[min,align right]:10[fill, grow]"));
+		setLayout(new MigLayout("fill, gap 5!, ins panel", "[]:5[]", "[growprio 10]10![fill, grow, growprio 500]10![growprio 10]"));
 		this.document = document;
 		this.component = component;
 		
@@ -85,7 +85,7 @@ public class RocketComponentConfig extends JPanel {
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
 		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(label, "spanx, split");
+		this.add(label, "spanx, height 50!, split");
 		
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
@@ -106,7 +106,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		
 		tabbedPane = new JTabbedPane();
-		this.add(tabbedPane, "newline, span, growx, growy 1, wrap");
+		this.add(tabbedPane, "newline, span, growx, growy 100, wrap");
 		
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
@@ -132,7 +132,7 @@ public class RocketComponentConfig extends JPanel {
 			this.remove(buttonPanel);
 		}
 		
-		buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
+		buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
 		
 		//// Mass:
 		infoLabel = new StyledLabel(" ", -1);
@@ -154,7 +154,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		updateFields();
 		
-		this.add(buttonPanel, "spanx, growx");
+		this.add(buttonPanel, "newline, spanx, growx, height 50!");
 	}
 	
 	

@@ -15,6 +15,7 @@ import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -107,7 +108,6 @@ public class BarrowmanCalculatorTest {
 		assertEquals(" Estes Alpha III CNa value is incorrect:", exp_cna, calcCP.weight, EPSILON);
 	}
 	
-	
 	@Test
 	public void testCPDoubleStrapOn() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
@@ -116,8 +116,8 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		
-		double expCPx = 0.994642;
-		double expCNa = 15.437111;
+		double expCPx = 1.04662388;
+		double expCNa = 21.5111598;
 		Coordinate calcCP = calc.getCP(config, conditions, warnings);
 		
 		assertEquals(" Falcon 9 Heavy CP x value is incorrect:", expCPx, calcCP.x, EPSILON);
@@ -180,7 +180,9 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		
-		ParallelStage booster = (ParallelStage)rocket.getChild(1).getChild(0).getChild(1); 
+		final AxialStage coreStage = (AxialStage)rocket.getChild(1);
+		final ParallelStage booster = (ParallelStage)coreStage.getChild(0).getChild(0);
+				
 		NoseCone nose = (NoseCone)booster.getChild(0);
 		BodyTube body = (BodyTube)booster.getChild(1);
 		

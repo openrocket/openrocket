@@ -641,8 +641,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
 
 			// TODO: LOW: Y-coordinate and rotation
-			extraCP.setPosition(cpx * RocketFigure.EXTRA_SCALE, 0);
-			extraCG.setPosition(cgx * RocketFigure.EXTRA_SCALE, 0);
+			extraCP.setPosition(cpx, 0);
+			extraCG.setPosition(cgx, 0);
 
 		} else {
 

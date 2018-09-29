@@ -74,12 +74,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Number of fins.
 	 */
-	protected int fins = 3;
+	private int finCount = 1;
 	
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
-	protected Transformation finRotation = Transformation.IDENTITY;
+	private Transformation finRotation = Transformation.IDENTITY;
 
 	
 		
@@ -87,12 +87,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
 	private AngleMethod angleMethod = AngleMethod.RELATIVE;
-	protected double firstFinOffset = 0;	
+	private double firstFinOffset = 0;
 	
 	/**
 	 * Cant angle of fins.
 	 */
-	protected double cantAngle = 0;
+	private double cantAngle = 0;
 	
 	/* Cached value: */
 	private Transformation cantRotation = null;
@@ -109,7 +109,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * The cross-section shape of the fins.
 	 */
-	protected CrossSection crossSection = CrossSection.SQUARE;
+	private CrossSection crossSection = CrossSection.SQUARE;
 	
 	
 	/*
@@ -124,10 +124,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Fin fillet properties
 	 */
 	
-	protected Material filletMaterial = null;
-	protected double filletRadius = 0;
-	protected double filletCenterY = 0;
-	
+	private Material filletMaterial;
+	private double filletRadius = 0;
+	private double filletCenterY = 0;
+
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
 	// Fin area does not include fin tabs, CG does.
 	private double finArea = -1;
@@ -155,7 +155,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @return The number of fins.
 	 */
 	public int getFinCount() {
-		return fins;
+		return finCount;
 	}
 	
 	/**
@@ -163,13 +163,13 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
-		if (fins == n)
+		if (finCount == n)
 			return;
 		if (n < 1)
 			n = 1;
 		if (n > 8)
 			n = 8;
-		fins = n;
+		finCount = n;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -316,7 +316,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Return the tab front edge position from the front of the fin.
 	 */
-	public double getTabFrontEdge() {
+	private double getTabFrontEdge() {
 		switch (this.tabRelativePosition) {
 		case FRONT:
 			return tabShift;
@@ -335,7 +335,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
-	public double getTabTrailingEdge() {
+	private double getTabTrailingEdge() {
 		switch (this.tabRelativePosition) {
 		case FRONT:
 			return tabLength + tabShift;
@@ -388,11 +388,11 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		return getFilletMass() + getFinMass();
 	}
 	
-	public double getFinMass() {
+	private double getFinMass() {
 		return getComponentVolume() * material.getDensity();
 	}
 	
-	public double getFilletMass() {
+	private double getFilletMass() {
 		return getFilletVolume() * filletMaterial.getDensity();
 	}
 	
@@ -400,7 +400,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	@Override
 	public double getComponentVolume() {
 		// this is for the fins alone, fillets are taken care of separately.
-		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
+		return finCount * (getFinArea() + tabHeight * tabLength) * thickness *
 				crossSection.getRelativeVolume();
 	}
 	
@@ -414,7 +414,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		double mass = getFinMass();
 		double filletMass = getFilletMass();
 		
-		if (fins == 1) {
+		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset()); 
 			return rotation.transform(
 					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
@@ -423,7 +423,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 	}
 	
-	public double getFilletVolume() {
+	private double getFilletVolume() {
 		/*
 		 * Here is how the volume of the fillet is found.  It assumes a circular concave 
 		 * fillet tangent to the fin and the body tube. 
@@ -455,10 +455,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	@Override
-	public double getOuterRadius(){
-		return 0.0;
+	public double getBoundingRadius(){
+		return 0.;
 	}
-	
+
 	private void calculateAreaCG() {
 		Coordinate[] points = this.getFinPoints();
 		finArea = 0;
@@ -542,12 +542,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		double inertia = (h2 + 2 * w2) / 24;
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return inertia;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
+		return finCount * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
 	}
 	
 	
@@ -577,21 +577,21 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 			h = MathUtil.safeSqrt(h * area / w);
 		}
 		
-		if (fins == 1)
+		if (finCount == 1)
 			return h * h / 12;
 		
 		double radius = getBodyRadius();
 		
-		return fins * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
+		return finCount * (h * h / 12 + MathUtil.pow2(h / 2 + radius));
 	}
 	
 
 	public BoundingBox getBoundingBox() {
-		BoundingBox singleFinBounds= new BoundingBox( getFinPoints());
+		BoundingBox singleFinBounds= new BoundingBox().update(getFinPoints());
 		final double finLength = singleFinBounds.max.x;
 		final double finHeight = singleFinBounds.max.y;
 		
-		BoundingBox compBox = new BoundingBox( getComponentLocations() );
+		BoundingBox compBox = new BoundingBox().update(getComponentLocations());
 		
 		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
 												compBox.max.add( finLength, finHeight, finHeight ));
@@ -823,7 +823,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	@Override
 	protected List<RocketComponent> copyFrom(RocketComponent c) {
 		FinSet src = (FinSet) c;
-		this.fins = src.fins;
+		this.finCount = src.finCount;
 		this.finRotation = src.finRotation;
 		this.firstFinOffset = src.firstFinOffset;
 		this.cantAngle = src.cantAngle;

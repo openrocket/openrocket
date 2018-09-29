@@ -1,9 +1,9 @@
 package net.sf.openrocket.rocketcomponent.position;
 
 public interface RadiusPositionable {
-	
-	public double getOuterRadius();
-	
+
+    public double getBoundingRadius();
+
 	public double getRadiusOffset();
 	public void setRadiusOffset(final double radius);
 	

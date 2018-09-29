@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.Locale;
 
@@ -16,23 +15,27 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.util.StateChangeListener;
 
+@SuppressWarnings("serial")
 public class ScaleSelector extends JPanel {
 
+    public static final double MINIMUM_ZOOM =    0.01; // ==      1 %
+    public static final double MAXIMUM_ZOOM = 1000.00; // == 10,000 %
+    
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
 
-	private static final double[] ZOOM_LEVELS = { 0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
-	private static final String ZOOM_FIT = "Fit";
-	private static final String[] ZOOM_SETTINGS;
+	private static final double[] SCALE_LEVELS = { 0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
+	private static final String SCALE_FIT = "Fit"; // trans.get("ScaleSelector.something.something");
+	private static final String[] SCALE_LABELS;
 	static {
-		ZOOM_SETTINGS = new String[ZOOM_LEVELS.length + 1];
-		for (int i = 0; i < ZOOM_LEVELS.length; i++)
-			ZOOM_SETTINGS[i] = PERCENT_FORMAT.format(ZOOM_LEVELS[i]);
-		ZOOM_SETTINGS[ZOOM_SETTINGS.length - 1] = ZOOM_FIT;
+		SCALE_LABELS = new String[SCALE_LEVELS.length + 1];
+		for (int i = 0; i < SCALE_LEVELS.length; i++)
+			SCALE_LABELS[i] = PERCENT_FORMAT.format(SCALE_LEVELS[i]);
+		SCALE_LABELS[SCALE_LABELS.length - 1] = SCALE_FIT;
 	}
 
 	private final ScaleScrollPane scrollPane;
-	private JComboBox zoomSelector;
+	private JComboBox<String> scaleSelector;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
 		super(new MigLayout());
@@ -44,31 +47,28 @@ public class ScaleSelector extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
-				scale = getPreviousScale(scale);
-				scrollPane.setScaling(scale);
+				final double oldScale = scrollPane.getUserScale();
+				final double newScale = getNextLargerScale(oldScale);
+				scrollPane.setScaling(newScale);
+				setZoomText();
 			}
 		});
 		add(button, "gap");
 
 		// Zoom level selector
-		String[] settings = ZOOM_SETTINGS;
-		if (!scrollPane.isFittingAllowed()) {
-			settings = Arrays.copyOf(settings, settings.length - 1);
-		}
-
-		zoomSelector = new JComboBox(settings);
-		zoomSelector.setEditable(true);
+		String[] settings = SCALE_LABELS;
+		
+		scaleSelector = new JComboBox<>(settings);
+		scaleSelector.setEditable(true);
 		setZoomText();
-		zoomSelector.addActionListener(new ActionListener() {
+		scaleSelector.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					String text = (String) zoomSelector.getSelectedItem();
+					String text = (String) scaleSelector.getSelectedItem();
 					text = text.replaceAll("%", "").trim();
 
-					if (text.toLowerCase(Locale.getDefault()).startsWith(ZOOM_FIT.toLowerCase(Locale.getDefault())) &&
-							scrollPane.isFittingAllowed()) {
+					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
 						scrollPane.setFitting(true);
 						setZoomText();
 						return;
@@ -93,16 +93,17 @@ public class ScaleSelector extends JPanel {
 				setZoomText();
 			}
 		});
-		add(zoomSelector, "gap rel");
+		add(scaleSelector, "gap rel");
 
 		// Zoom in button
 		button = new JButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getScaling();
-				scale = getNextScale(scale);
+				double scale = scrollPane.getUserScale();
+				scale = getNextSmallerScale(scale);
 				scrollPane.setScaling(scale);
+				setZoomText();
 			}
 		});
 		add(button, "gapleft rel");
@@ -110,43 +111,42 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private void setZoomText() {
-		String text;
-		double zoom = scrollPane.getScaling();
-		text = PERCENT_FORMAT.format(zoom);
+	    final double userScale = scrollPane.getUserScale();
+	    String text = PERCENT_FORMAT.format(userScale);
 		if (scrollPane.isFitting()) {
 			text = "Fit (" + text + ")";
 		}
-		if (!text.equals(zoomSelector.getSelectedItem()))
-			zoomSelector.setSelectedItem(text);
+		if (!text.equals(scaleSelector.getSelectedItem()))
+			scaleSelector.setSelectedItem(text);
 	}
 
-	private double getPreviousScale(double scale) {
+	private static double getNextLargerScale(final double currentScale) {
 		int i;
-		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
-			if (scale > ZOOM_LEVELS[i] + 0.05 && scale < ZOOM_LEVELS[i + 1] + 0.05)
-				return ZOOM_LEVELS[i];
+		for (i = 0; i < SCALE_LEVELS.length - 1; i++) {
+			if (currentScale > SCALE_LEVELS[i] + 0.05 && currentScale < SCALE_LEVELS[i + 1] + 0.05)
+				return SCALE_LEVELS[i];
 		}
-		if (scale > ZOOM_LEVELS[ZOOM_LEVELS.length / 2]) {
+		if (currentScale > SCALE_LEVELS[SCALE_LEVELS.length / 2]) {
 			// scale is large, drop to next lowest full 100%
-			scale = Math.ceil(scale - 1.05);
-			return Math.max(scale, ZOOM_LEVELS[i]);
+			double nextScale = Math.ceil(currentScale - 1.05);
+			return Math.max(nextScale, SCALE_LEVELS[i]);
 		}
 		// scale is small
-		return scale / 1.5;
+		return currentScale / 1.5;
 	}
 
-	private double getNextScale(double scale) {
+	private static double getNextSmallerScale(final double currentScale) {
 		int i;
-		for (i = 0; i < ZOOM_LEVELS.length - 1; i++) {
-			if (scale > ZOOM_LEVELS[i] - 0.05 && scale < ZOOM_LEVELS[i + 1] - 0.05)
-				return ZOOM_LEVELS[i + 1];
+		for (i = 0; i < SCALE_LEVELS.length - 1; i++) {
+			if (currentScale > SCALE_LEVELS[i] - 0.05 && currentScale < SCALE_LEVELS[i + 1] - 0.05)
+				return SCALE_LEVELS[i + 1];
 		}
-		if (scale > ZOOM_LEVELS[ZOOM_LEVELS.length / 2]) {
+		if (currentScale > SCALE_LEVELS[SCALE_LEVELS.length / 2]) {
 			// scale is large, give next full 100%
-			scale = Math.floor(scale + 1.05);
-			return scale;
+			double nextScale = Math.floor(currentScale + 1.05);
+			return nextScale;
 		}
-		return scale * 1.5;
+		return currentScale * 1.5;
 	}
 
 	@Override
