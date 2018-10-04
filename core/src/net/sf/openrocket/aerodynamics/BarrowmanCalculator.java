@@ -785,23 +785,19 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private void buildCalcMap(FlightConfiguration configuration) {
 		Iterator<RocketComponent> iterator;
 		
-		//System.err.println("> Building Calc Map.");
 		calcMap = new HashMap<RocketComponent, RocketComponentCalc>();
-		
-		iterator = configuration.getRocket().iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
-			
-			if (!c.isAerodynamic())
+
+		for (RocketComponent comp: configuration.getActiveComponents()) {
+			if (!comp.isAerodynamic())
 				continue;
-			RocketComponentCalc calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, c, BARROWMAN_SUFFIX, c);
+			
+			RocketComponentCalc calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, comp, BARROWMAN_SUFFIX, comp);
 			//String isNull = (null==calcObj?"null":"valid");
 			//System.err.println("    >> At component: "+c.getName() +"=="+c.getID()+". CalcObj is "+isNull);
 			
-			calcMap.put(c, calcObj ); 
+			calcMap.put(comp, calcObj ); 
 		}
 	}
-	
 	
 	@Override
 	public int getModID() {
