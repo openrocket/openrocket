@@ -6,7 +6,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 import org.junit.Assert;
 import org.junit.Before;

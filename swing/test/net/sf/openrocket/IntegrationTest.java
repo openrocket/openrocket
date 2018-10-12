@@ -108,7 +108,7 @@ public class IntegrationTest {
 	public void testSimpleRocket() throws SimulationException {
 		System.setProperty("openrocket.unittest", "true");
 		
-		document = loadRocket("simplerocket.ork");
+		document = loadRocket("/simplerocket.ork");
 		
 		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
@@ -265,7 +265,7 @@ public class IntegrationTest {
 	
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		InputStream is = IntegrationTest.class.getResourceAsStream("Estes_A8.rse");
+		InputStream is = IntegrationTest.class.getResourceAsStream("/Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
 			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {

@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 public class FlightConfigurationTest extends BaseTestCase {
 	

@@ -10,7 +10,7 @@ public class TestDirectoryIterator {
 	
 	@Test
 	public void testDirectoryIterator() throws IOException {
-		DirectoryIterator iterator = new DirectoryIterator(new File("test/net/sf/openrocket/file"), new FileFilter() {
+		DirectoryIterator iterator = new DirectoryIterator(new File("src/test/java/net/sf/openrocket/file"), new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().matches("^Test(Directory|File)Iterator.java");

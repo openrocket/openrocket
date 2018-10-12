@@ -65,9 +65,9 @@ public class SwingStartup {
 		checkHead();
 		
 		// If running on a MAC set up OSX UI Elements.
-		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
-			OSXSetup.setupOSX();
-		}
+//		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+//			OSXSetup.setupOSX();
+//		}
 		
 		final SwingStartup runner = new SwingStartup();
 		

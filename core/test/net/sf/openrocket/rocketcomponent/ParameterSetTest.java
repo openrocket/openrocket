@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 
 public class ParameterSetTest extends BaseTestCase {

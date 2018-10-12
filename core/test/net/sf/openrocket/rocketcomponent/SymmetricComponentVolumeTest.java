@@ -3,7 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import static org.junit.Assert.assertEquals;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 import org.junit.Test;
 

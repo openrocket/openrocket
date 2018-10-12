@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 import org.junit.Assert;
 

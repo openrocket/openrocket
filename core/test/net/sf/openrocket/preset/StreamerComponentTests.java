@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.Streamer;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 import org.junit.Before;
 import org.junit.Test;

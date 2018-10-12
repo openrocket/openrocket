@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase;
 
 
 public class RigidBodyTest extends BaseTestCase {

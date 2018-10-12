@@ -7,11 +7,11 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.fixedfunc.GLLightingFunc;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
