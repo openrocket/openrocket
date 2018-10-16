@@ -45,13 +45,7 @@ public class TransitionConfig extends RocketComponentConfig {
 	public TransitionConfig(OpenRocketDocument d, RocketComponent c) {
 		super(d, c);
 		
-		DoubleModel m;
-		JSpinner spin;
-		JCheckBox checkbox;
-		
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-
+		final JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 
 		////  Shape selection
 		//// Transition shape:
@@ -73,108 +67,107 @@ public class TransitionConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(typeBox, "span, split 2");
-		
-		//// Clipped
-		checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
-		//// Clipped
-		checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
-		panel.add(checkbox, "wrap");
-		
 
-		////  Shape parameter:
-		shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
-		panel.add(shapeLabel);
-		
-		m = new DoubleModel(component, "ShapeParameter");
-		
-		shapeSpinner = new JSpinner(m.getSpinnerModel());
-		shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
-		panel.add(shapeSpinner, "growx");
-		
-		DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
-		DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
-		shapeSlider = new BasicSlider(m.getSliderModel(min, max));
-		panel.add(shapeSlider, "skip, w 100lp, wrap");
-		
-		updateEnabled();
-		
+		{//// Clipped
+			final JCheckBox checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
+			checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
+			panel.add(checkbox, "wrap");
 
-		////  Length
-		//// Transition length:
-		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionlength")));
-		
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.3)), "w 100lp, wrap");
-		
+			////  Shape parameter:
+			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
+			panel.add(shapeLabel);
+		}
 
-		//// Transition diameter 1
-		//// Fore diameter:
-		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Forediam")));
-		
-		DoubleModel od = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		// Diameter = 2*Radius
-		
-		spin = new JSpinner(od.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
-		
-		checkbox = new JCheckBox(od.getAutomaticAction());
-		//// Automatic
-		checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-		panel.add(checkbox, "skip, span 2, wrap");
-		
+		{
+			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter");
 
-		//// Transition diameter 2
-		//// Aft diameter:
-		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Aftdiam")));
-		
-		od = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		// Diameter = 2*Radius
-		
-		spin = new JSpinner(od.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
-		
-		checkbox = new JCheckBox(od.getAutomaticAction());
-		//// Automatic
-		checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-		panel.add(checkbox, "skip, span 2, wrap");
-		
+			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
+			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
+			panel.add(shapeSpinner, "growx");
 
-		////  Wall thickness:
-		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Wallthickness")));
-		
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
-		
-		//// Filled
-		checkbox = new JCheckBox(new BooleanModel(component, "Filled"));
-		//// Filled
-		checkbox.setText(trans.get("TransitionCfg.checkbox.Filled"));
-		panel.add(checkbox, "skip, span 2, wrap");
-		
+			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
+			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
+			this.shapeSlider = new BasicSlider(shapeModel.getSliderModel(min, max));
+			panel.add(shapeSlider, "skip, w 100lp, wrap");
 
+			updateEnabled();
+		}
+
+		{/// Transition length:
+
+			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionlength")));
+
+			final DoubleModel lengthModel = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+
+			final JSpinner lengthSpinner = new JSpinner(lengthModel.getSpinnerModel());
+			lengthSpinner.setEditor(new SpinnerEditor(lengthSpinner));
+			panel.add(lengthSpinner, "growx");
+
+			panel.add(new UnitSelector(lengthModel), "growx");
+			panel.add(new BasicSlider(lengthModel.getSliderModel(0, 0.05, 0.3)), "w 100lp, wrap");
+		}
+
+		{ /// Fore diameter:
+			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Forediam")));
+
+			final DoubleModel foreRadiusModel = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			// Diameter = 2*Radius
+			component.addChangeListener(foreRadiusModel );
+
+			final JSpinner foreRadiusSpinner = new JSpinner(foreRadiusModel.getSpinnerModel());
+			foreRadiusSpinner.setEditor(new SpinnerEditor(foreRadiusSpinner));
+			panel.add(foreRadiusSpinner, "growx");
+
+			panel.add(new UnitSelector(foreRadiusModel), "growx");
+			panel.add(new BasicSlider(foreRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
+
+			final JCheckBox checkbox = new JCheckBox(foreRadiusModel.getAutomaticAction());
+			//// Automatic
+			checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+			panel.add(checkbox, "skip, span 2, wrap");
+		}
+
+		{	//// Aft diameter:
+			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Aftdiam")));
+
+			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			// Diameter = 2*Radius
+			component.addChangeListener(aftRadiusModel);
+
+			final JSpinner aftRadiusSpinner = new JSpinner(aftRadiusModel .getSpinnerModel());
+			aftRadiusSpinner.setEditor(new SpinnerEditor(aftRadiusSpinner));
+			panel.add(aftRadiusSpinner, "growx");
+
+			panel.add(new UnitSelector(aftRadiusModel), "growx");
+			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
+
+			final JCheckBox aftRadiusCheckbox = new JCheckBox(aftRadiusModel.getAutomaticAction());
+			//// Automatic
+			aftRadiusCheckbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+			panel.add(aftRadiusCheckbox, "skip, span 2, wrap");
+		}
+
+		{ ///  Wall thickness:
+			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Wallthickness")));
+
+			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			component.addChangeListener(thicknessModel);
+
+			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
+			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
+			panel.add(thicknessSpinner, "growx");
+
+			panel.add(new UnitSelector(thicknessModel), "growx");
+			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
+
+			//// Filled
+			final JCheckBox thicknessCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
+			//// Filled
+			thicknessCheckbox.setText(trans.get("TransitionCfg.checkbox.Filled"));
+			panel.add(thicknessCheckbox, "skip, span 2, wrap");
+		}
 
 		////  Description
-		
 		JPanel panel2 = new JPanel(new MigLayout("ins 0"));
 		
 		description = new DescriptionArea(5);
@@ -184,8 +177,6 @@ public class TransitionConfig extends RocketComponentConfig {
 		
 
 		//// Material
-		
-
 		panel2.add(materialPanel(Material.Type.BULK), "span, wrap");
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
