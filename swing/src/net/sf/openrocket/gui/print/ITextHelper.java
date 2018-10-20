@@ -3,6 +3,7 @@
  */
 package net.sf.openrocket.gui.print;
 
+import com.itextpdf.awt.PdfGraphics2D;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -224,7 +225,9 @@ public final class ITextHelper {
             BufferedImage subImage = ((BufferedImage) image).getSubimage((int) crop.getX(), (int) crop.getY(),
                                                                          (int) crop.getWidth(), (int) crop.getHeight());
 
-            Graphics2D g2 = content.createGraphics(pageSize.getWidth(), pageSize.getHeight());
+            // TODO: Deprecated (External Dependency)
+//            Graphics2D g2 = content.createGraphics(pageSize.getWidth(), pageSize.getHeight());
+            Graphics2D g2 = new PdfGraphics2D(content, pageSize.getWidth(), pageSize.getHeight());
             g2.drawImage(subImage, margin, ymargin, null);
             g2.dispose();
 

@@ -51,6 +51,7 @@ public class ExpressionBuilder {
 			expression = function.deleteCharAt(function.length() - 1).toString() + ")=" + expression;
 		}
 		// create the PostfixExpression and return it as a Calculable
+		// TODO: Deprecated (External Dependency)
 		PostfixExpression delegate = PostfixExpression.fromInfix(expression, customFunctions);
 		for (Variable var : variables ) {			
 			delegate.setVariable(var);	

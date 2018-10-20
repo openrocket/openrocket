@@ -33,6 +33,7 @@ package de.congrace.exp4j;
 public class CommandlineInterpreter {
 	private static void calculateExpression(String string) {
 		try {
+			// TODO: Deprecated (External Dependency)
 			final PostfixExpression pe = PostfixExpression.fromInfix(string);
 			System.out.println(pe.calculate());
 		} catch (UnparsableExpressionException e) {

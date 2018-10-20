@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Set;
 
+import com.itextpdf.awt.PdfGraphics2D;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableComponent;
 
@@ -140,7 +141,9 @@ public class PageFitPrintStrategy {
      * @return a Graphics2D instance
      */
     Graphics2D createGraphics(final float theWPage, final float theHPage, final PdfContentByte theCb) {
-        return theCb.createGraphics(theWPage, theHPage);
+        // TODO: Deprecated (External Dependency)
+//        return theCb.createGraphics(theWPage, theHPage);
+        return new PdfGraphics2D(theCb, theWPage, theHPage);
     }
 
     /**
