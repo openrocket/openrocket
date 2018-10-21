@@ -489,8 +489,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 
 		//// Local wind speed and direction
-		Coordinate windSpeed = modelWindVelocity(status);
-		Coordinate airSpeed = status.getRocketVelocity().add(windSpeed);
+		Coordinate windVelocity = modelWindVelocity(status);
+		store.windSpeed = windVelocity.length();
+		Coordinate airSpeed = status.getRocketVelocity().add(windVelocity);
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
 		
 
