@@ -7,7 +7,6 @@ addons:
     - ant-optional
 jdk:
   - openjdk9
-  - openjdk10
 
 script:
  - "ant -buildfile build.xml clean check jar unittest"
