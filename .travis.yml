@@ -2,10 +2,18 @@ language: java
 dist: trusty
 sudo: false
 addons:
-  apt:
-    packages:
-      - ant-optional
+	apt:
+		packages:
+			- ant-optional
 jdk:
-  - openjdk8
+	- openjdk10
+  
+matrix:
+	include:
+		- jdk: openjdk10
+		  before_install:
+			- rm "${JAVA_HOME}/lib/security/cacerts"
+			- ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
+
 script:
- - "ant -buildfile build.xml clean check jar unittest"
+	- "ant -buildfile build.xml clean check jar unittest"
