@@ -6,6 +6,7 @@ addons:
     packages:
     - ant-optional
 jdk:
+  - openjdk9
   - openjdk10
 
 script:
