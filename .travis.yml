@@ -3,8 +3,8 @@ dist: trusty
 sudo: false
 addons:
   apt:
-	packages:
-	  - ant-optional
+    packages:
+    - ant-optional
 jdk:
   - openjdk10
 
