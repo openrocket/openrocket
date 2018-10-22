@@ -28,9 +28,26 @@ public class JarInJarStarter {
 				System.out.println("   " + u);
 			}
 		}
-		
-		URL[] urlArray = urls.toArray(new URL[0]);
-		ClassLoader loader = new URLClassLoader(urlArray);
+
+        String version = System.getProperty("java.version");
+        int versionI = 0;
+        try {
+            versionI = Integer.parseInt(version);
+        }
+        catch (NumberFormatException nfex) {}
+        if (versionI == 0)
+            throw new RuntimeException("Invalid java.version");
+
+        URL[] urlArray = urls.toArray(new URL[0]);
+        //ClassLoader loader = new URLClassLoader(urlArray, null);
+        ClassLoader loader = null;
+        if (versionI >= 9)
+            loader = new URLClassLoader(urlArray);
+        else
+            loader = new URLClassLoader(urlArray, null);
+        if (loader == null)
+            throw new RuntimeException("Invalid class loader.");
+
 		try {
 			Thread.currentThread().setContextClassLoader(loader);
 			Class<?> c = Class.forName(mainClass, true, loader);
