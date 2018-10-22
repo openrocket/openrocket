@@ -20,7 +20,7 @@ public class PluginTester {
 	
 	
 	public void testPlugins() {
-		assertContains(examplePlugins, ExamplePluginImpl.class, MultiPluginImpl.class); //, JarPluginImpl.class);
+		assertContains(examplePlugins, ExamplePluginImpl.class, MultiPluginImpl.class, JarPluginImpl.class);
 		assertContains(example2Plugins, MultiPluginImpl.class);
 	}
 	
