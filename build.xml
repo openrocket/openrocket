@@ -58,7 +58,7 @@
 
     <!-- TEST -->
 	
-	<target name="unittest" depends="unittest-core"> <!--, unittest-swing-->
+	<target name="unittest" depends="unittest-core, unittest-swing">
 	</target>
 	
 	<target name="unittest-core" depends="jar-core">
