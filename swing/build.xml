@@ -11,6 +11,7 @@
 	<property name="libant.dir"	value="${basedir}/../lib-ant"/>		<!-- Library ant source directory -->
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
+	<property name="resources.test.dir"	value="${basedir}/test/resources"/>		<!-- Resources test directory -->
 	<property name="resources-src.dir"	value="${basedir}/resources-src"/>
         <property name="core.dir" value="${basedir}/../core"/>
 	
@@ -32,6 +33,7 @@
 	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+		<fileset dir="${lib.dir}" includes="./core/libs/**/*.jar"/>
                 <fileset dir="${core.dir}/build/jar" includes="OpenRocket-Core.jar"/>
                 <fileset dir="${core.dir}/lib" includes="**/*.jar"/>
 	</path>
@@ -39,6 +41,7 @@
 	<path id="test-classpath">
 		<path refid="classpath"/>
 		<pathelement location="${resources.dir}"/>
+		<pathelement location="${resources.test.dir}"/>
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${src-test.dir}"/>
@@ -49,6 +52,7 @@
 	<path id="run-classpath">
 		<path refid="classpath"/>
 		<pathelement location="${resources.dir}"/>
+		<pathelement location="${classes.dir}"/>
 		<pathelement location="${classes.dir}"/>
 	</path>
 
@@ -69,9 +73,22 @@
 	
 	<!-- BUILD -->
 	<target name="build">
+		<echo>java.vendor: ${java.vendor}</echo>
+		<echo>java.home: ${java.home}</echo>
+		<echo>java.vm.specification.version: ${java.vm.specification.version}</echo>
+		<echo>java.vm.specification.vendor: ${java.vm.specification.vendor}</echo>
+		<echo>java.vm.specification.name: ${java.vm.specification.name}</echo>
+		<echo>java.vm.version: ${java.vm.version}</echo>
+		<echo>java.vm.vendor: ${java.vm.vendor}</echo>
+		<echo>java.vm.name: ${java.vm.name}</echo>
+		<echo>java.specification.version: ${java.specification.version}</echo>
+		<echo>java.specification.vendor: ${java.specification.vendor}</echo>
+		<echo>java.specification.name: ${java.specification.name}</echo>
+		<echo>java.class.version: ${java.class.version}</echo>
+		<echo>java.class.path: ${java.class.path}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.10" target="1.10"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
@@ -81,37 +98,51 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
+				<!-- <attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" /> -->
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
+			<fileset dir="${core.dir}/build/dist" />
+			<fileset dir="${core.dir}/resources/" />
 			
 			
 			<!-- Libraries to extract into base JAR -->
-			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
-			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
-			<zipfileset src="${core.dir}/lib/guice-3.0.jar" />
-			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
-			<zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/>
-			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
-			<zipfileset src="${core.dir}/lib/javax.inject.jar"/>
-			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
-			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
-			<zipfileset src="${core.dir}/lib/opencsv-2.3.jar"/>
-			<zipfileset src="${lib.dir}/OrangeExtensions-1.2.jar"/>
-			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.2.jar"/>
-			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.5.jar"/>
-			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
-			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
-			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
+			<!-- <zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" /> -->
+			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
+			<zipfileset src="${core.dir}/lib/aopalliance-1.0.jar"/>
+			<zipfileset src="${core.dir}/lib/commons-lang3-3.8.1.jar"/>
+			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
+			<zipfileset src="${core.dir}/lib/guice-4.2.1.jar" />
+			<!-- <zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/> -->
+			<zipfileset src="${core.dir}/lib/istack-commons-runtime-3.0.7.jar" />
+			<zipfileset src="${core.dir}/lib/j2objc-annotations-1.3.jar" />
+			<zipfileset src="${core.dir}/lib/javax.activation-api-1.2.0.jar" />
+			<zipfileset src="${core.dir}/lib/javax.inject-1.jar"/>
+			<zipfileset src="${core.dir}/lib/javax.json-1.1.3.jar"/>
+			<zipfileset src="${core.dir}/lib/javax.json-api-1.1.3.jar"/>
+			<zipfileset src="${core.dir}/lib/jaxb-api-2.3.1.jar"/>
+			<zipfileset src="${core.dir}/lib/jaxb-runtime-2.3.1.jar"/>
+			<zipfileset src="${core.dir}/lib/opencsv-4.3.2.jar"/>
+			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.25.jar"/>
+			<zipfileset src="${lib.dir}/itextpdf-5.5.13.jar"/>
+			<zipfileset src="${lib.dir}/jcommon-1.0.24.jar"/>
+			<zipfileset src="${lib.dir}/jfreechart-1.5.0.jar"/>
+			<zipfileset src="${lib.dir}/logback-classic-1.2.3.jar"/>
+			<zipfileset src="${lib.dir}/logback-core-1.2.3.jar"/>
+			<zipfileset src="${lib.dir}/miglayout-core-5.2.jar" />
+			<zipfileset src="${lib.dir}/miglayout-swing-5.2.jar" />
+			<zipfileset src="${lib.dir}/orange-extensions-1.3.0.jar"/>
+			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.6.1.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all.jar"/>
 									
 			
-			<!-- JOGL libraries need to be jar-in-jar -->
+			<!-- JOGL libraries need to be jar-in-jar
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
-			</zipfileset>
+			</zipfileset> -->
 			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />

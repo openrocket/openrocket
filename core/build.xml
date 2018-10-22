@@ -11,6 +11,7 @@
 	<property name="libextra.dir"	value="${basedir}/lib-extra"/>		<!-- Library extra source directory -->
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
+	<property name="resources.test.dir"	value="${basedir}/test/resources"/>		<!-- Resources test directory -->
 	<property name="resources-src.dir"	value="${basedir}/resources-src"/>	<!-- Resources directory -->
 	
 	<!-- Distribution directory, from which stuff is jar'ed -->
@@ -31,6 +32,7 @@
 	<path id="test-classpath">
 		<path refid="classpath"/>
 		<pathelement location="${resources.dir}"/>
+		<pathelement location="${resources.test.dir}"/>
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${src-test.dir}"/>
@@ -53,9 +55,22 @@
 	
 	<!-- BUILD -->
 	<target name="build">
+		<echo>java.vendor: ${java.vendor}</echo>
+		<echo>java.home: ${java.home}</echo>
+		<echo>java.vm.specification.version: ${java.vm.specification.version}</echo>
+		<echo>java.vm.specification.vendor: ${java.vm.specification.vendor}</echo>
+		<echo>java.vm.specification.name: ${java.vm.specification.name}</echo>
+		<echo>java.vm.version: ${java.vm.version}</echo>
+		<echo>java.vm.vendor: ${java.vm.vendor}</echo>
+		<echo>java.vm.name: ${java.vm.name}</echo>
+		<echo>java.specification.version: ${java.specification.version}</echo>
+		<echo>java.specification.vendor: ${java.specification.vendor}</echo>
+		<echo>java.specification.name: ${java.specification.name}</echo>
+		<echo>java.class.version: ${java.class.version}</echo>
+		<echo>java.class.path: ${java.class.path}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.10" target="1.10"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
