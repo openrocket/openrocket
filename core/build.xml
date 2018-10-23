@@ -70,7 +70,7 @@
 		<echo>java.class.path: ${java.class.path}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.10" target="1.10"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.9" target="1.9"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
