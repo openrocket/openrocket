@@ -76,7 +76,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			final String branchName = simulationConfig.getRocket().getTopmostStage().getName();
 			currentStatus.setFlightData(new FlightDataBranch( branchName, FlightDataType.TYPE_TIME));
 		}
-		toSimulate.add(currentStatus);
+		toSimulate.push(currentStatus);
 		
 		SimulationListenerHelper.fireStartSimulation(currentStatus);
 		do{
@@ -423,7 +423,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
 				// Mark the booster status as only having the booster.
 				boosterStatus.getConfiguration().setOnlyStage(stageNumber);
-				toSimulate.add(boosterStatus);
+				toSimulate.push(boosterStatus);
 				log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
 						currentStatus.getSimulationTime(), 
 						currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
