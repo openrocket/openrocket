@@ -1,5 +1,8 @@
 package net.sf.openrocket.startup.jij;
 
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
+
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -30,18 +33,13 @@ public class JarInJarStarter {
 		}
 
         String version = System.getProperty("java.version");
-        int versionI = 0;
-        try {
-            versionI = Integer.parseInt(version);
-        }
-        catch (NumberFormatException nfex) {}
-        if (versionI == 0)
-            throw new RuntimeException("Invalid java.version");
+        System.out.println(version);
+        boolean result = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_9);
 
         URL[] urlArray = urls.toArray(new URL[0]);
         //ClassLoader loader = new URLClassLoader(urlArray, null);
         ClassLoader loader = null;
-        if (versionI >= 9)
+        if (result)
             loader = new URLClassLoader(urlArray);
         else
             loader = new URLClassLoader(urlArray, null);
