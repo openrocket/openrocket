@@ -43,8 +43,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		buttons.clear();
 		this.removeAll();
 		for(AxialStage stage : configuration.getRocket().getStageList()){
-			int stageNum = stage.getStageNumber(); 
-			JToggleButton button = new JToggleButton(new StageAction(stageNum));
+			JToggleButton button = new JToggleButton(new StageAction(stage));
 			button.setSelected(true);
 			this.add(button);
 			buttons.add(button);
@@ -63,24 +62,24 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	}
 	
 	private class StageAction extends AbstractAction {
-		private final int stageNumber;
+		private final AxialStage stage;
 		
-		public StageAction(final int stage) {
-			this.stageNumber = stage;
+		public StageAction(final AxialStage stage) {
+			this.stage = stage;
 		}
 		
 		@Override
 		public Object getValue(String key) {
 			if (key.equals(NAME)) {
 				// Stage
-				return trans.get("StageAction.Stage") + " " + (stageNumber );
+				return stage.getName();
 			}
 			return super.getValue(key);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			rocket.getSelectedConfiguration().toggleStage(stageNumber);
+			rocket.getSelectedConfiguration().toggleStage(stage.getStageNumber());
 			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE );
 		}
 		
