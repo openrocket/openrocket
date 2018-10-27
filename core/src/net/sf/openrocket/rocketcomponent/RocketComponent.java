@@ -1003,16 +1003,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		}
 		
+		this.axialMethod = AxialMethod.AFTER;
+		this.axialOffset = 0.;
+		
 		// if first component in the stage. => position from the top of the parent
 		final int thisIndex = this.parent.getChildPosition( this );
-		if( 0 < thisIndex ) {
+		if( 0 == thisIndex ) {
+			this.position = this.position.setX(0.);
+		}else if( 0 < thisIndex ) {
 			RocketComponent referenceComponent = parent.getChild( thisIndex - 1 );
 		
 			double refLength = referenceComponent.getLength();
 			double refRelX = referenceComponent.getPosition().x;
 
-			this.axialMethod = AxialMethod.AFTER;
-			this.axialOffset = 0.;
 			this.position = this.position.setX(refRelX + refLength);
 		}
 	}
@@ -1432,8 +1435,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.checkComponentStructure();
 			component.checkComponentStructure();
 			
-			updateBounds();
 			fireAddRemoveEvent(component);
+			updateBounds();
+			
 			return true;
 		}
 		return false;
