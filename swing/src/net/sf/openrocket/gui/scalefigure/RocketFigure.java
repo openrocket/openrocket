@@ -276,6 +276,9 @@ public class RocketFigure extends AbstractScaleFigure {
 			    Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
 //		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
 	        
+		        // rotate by figure's axial rotation:
+		        curMotorLocation = this.axialRotation.transform(curMotorLocation);
+
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
