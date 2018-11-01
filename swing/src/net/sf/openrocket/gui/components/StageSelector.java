@@ -15,6 +15,7 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
@@ -36,15 +37,10 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	}
 	
 	private void updateButtons( final FlightConfiguration configuration ) {
-		int stages = configuration.getStageCount();
-		if (buttons.size() == stages)
-			return;
-		
 		buttons.clear();
 		this.removeAll();
 		for(AxialStage stage : configuration.getRocket().getStageList()){
-			int stageNum = stage.getStageNumber(); 
-			JToggleButton button = new JToggleButton(new StageAction(stageNum));
+			JToggleButton button = new JToggleButton(new StageAction(stage));
 			button.setSelected(true);
 			this.add(button);
 			buttons.add(button);
@@ -56,31 +52,31 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	@Override
 	public void stateChanged(EventObject eo) {
 		Object source = eo.getSource();
-		if( source instanceof Rocket ){
-			Rocket rkt = (Rocket) eo.getSource();
+		if ((source instanceof Rocket) || (source instanceof AxialStage)) {
+			Rocket rkt = (Rocket) ((RocketComponent) source).getRoot();
 			updateButtons( rkt.getSelectedConfiguration() );
 		}
 	}
 	
 	private class StageAction extends AbstractAction {
-		private final int stageNumber;
+		private final AxialStage stage;
 		
-		public StageAction(final int stage) {
-			this.stageNumber = stage;
+		public StageAction(final AxialStage stage) {
+			this.stage = stage;
 		}
 		
 		@Override
 		public Object getValue(String key) {
 			if (key.equals(NAME)) {
 				// Stage
-				return trans.get("StageAction.Stage") + " " + (stageNumber );
+				return stage.getName();
 			}
 			return super.getValue(key);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			rocket.getSelectedConfiguration().toggleStage(stageNumber);
+			rocket.getSelectedConfiguration().toggleStage(stage.getStageNumber());
 			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE );
 		}
 		
