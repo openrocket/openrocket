@@ -29,6 +29,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -363,13 +364,17 @@ public class RocketFigure extends AbstractScaleFigure {
 
 	        Coordinate currentLocation = parentLocation.add( instanceLocations[index] );
 
-	        //            System.err.println(String.format("@%s: %s  --  inst:   [%d/%d]", comp.getClass().getSimpleName(), comp.getName(), index+1, instanceCount));
-	        //            System.err.println(String.format("         --  stage: %d,    active: %b,  config: (%d) %s", comp.getStageNumber(), this.getConfiguration().isComponentActive(comp), this.getConfiguration().instanceNumber, this.getConfiguration().getId()));
-	        //            System.err.println(String.format("         --  %s + %s  = %s", parentLocation.toString(), instanceLocations[index].toString(), currentLocation.toString()));
-	        //            if( 0.00001 < Math.abs( currentAngle )) {
-	        //                System.err.println(String.format("         --  at: %6.4f radians", currentAngle));
-	        //            }
-
+//	        if(FinSet.class.isAssignableFrom(comp.getClass())) {
+//    	        System.err.println(String.format("@%s: %s  --  inst:   [%d/%d]", comp.getClass().getSimpleName(), comp.getName(), index+1, instanceCount));
+//
+//                // FlightConfiguration config = this.rocket.getSelectedConfiguration();
+//                // System.err.println(String.format("         --  stage: %d,    active: %b,  config: (%d) %s", comp.getStageNumber(), config.isComponentActive(comp), config.instanceNumber, config.getId()));
+//                System.err.println(String.format("         --  %s + %s  = %s", parentLocation.toString(), instanceLocations[index].toString(), currentLocation.toString()));
+//                if( 0.00001 < Math.abs( currentAngle )) {
+//                    System.err.println(String.format("         --  at: %6.4f radians", currentAngle));
+//                }
+//	        }
+	        
 	        // generate shape for this component, if active
 	        if( this.rocket.getSelectedConfiguration().isComponentActive( comp )){
 	            allShapes = addThisShape( allShapes, this.currentViewType, comp, currentLocation, currentTransform);

@@ -109,7 +109,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
-        handler.setAxialMethod(AxialMethod.ABSOLUTE);
+        handler.getComponent().setAxialMethod(AxialMethod.ABSOLUTE);
         Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 

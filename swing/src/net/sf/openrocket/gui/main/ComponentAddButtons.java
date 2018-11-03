@@ -128,17 +128,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				//// Transition
 				new BodyComponentButton(Transition.class, trans.get("compaddbuttons.Transition")),
 				//// Trapezoidal
-				new FinButton(TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
+				new ComponentButton(TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
 				//// Elliptical
-				new FinButton(EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
+				new ComponentButton(EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
 				//// Freeform
-				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
+				new ComponentButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
 				//// Freeform
-				new FinButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
-				//// Rail Button // TODO: implement drawing graphics for the component
-				new FinButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
+				new ComponentButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
+				//// Rail Button
+				new ComponentButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
-				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
+				new ComponentButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 			row++;
 		
 		/////////////////////////////////////////////
@@ -627,38 +627,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		}
 		
 	}
-	
-	
 
-	/**
-	 * Class for fin sets, that attach only to BodyTubes.
-	 */
-	private class FinButton extends ComponentButton {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -219204844803871258L;
-
-		public FinButton(Class<? extends RocketComponent> c, String text) {
-			super(c, text);
-		}
-		
-		public FinButton(String text, Icon enabled, Icon disabled) {
-			super(text, enabled, disabled);
-		}
-		
-		public FinButton(String text) {
-			super(text);
-		}
-		
-		@Override
-		public boolean isAddable(RocketComponent c) {
-			if (c == null)
-				return false;
-			return (c.getClass().equals(BodyTube.class));
-		}
-	}
-	
 	
 
 	/////////  Scrolling functionality

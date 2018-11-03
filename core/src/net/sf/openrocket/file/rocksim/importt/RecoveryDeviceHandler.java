@@ -11,7 +11,6 @@ import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.xml.sax.SAXException;
 
@@ -95,18 +94,7 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 		}
 		return result;
 	}
-	
-	/**
-	 * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not
-	 * public in all components.
-	 *
-	 * @param position the OpenRocket position
-	 */
-	@Override
-	public void setAxialMethod( AxialMethod position) {
-		getComponent().setAxialMethod(position);
-	}
-	
+
 	/**
 	 * Get the required type of material for this component.  This is the OpenRocket type, which does NOT always
 	 * correspond to Rocksim.  Some streamer material is defined as BULK in the Rocksim file.  In those cases

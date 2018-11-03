@@ -115,7 +115,7 @@ public class ScaleDialog extends JDialog {
 		addScaler(FinSet.class, "Thickness");
 		addScaler(FinSet.class, "TabHeight");
 		addScaler(FinSet.class, "TabLength");
-		addScaler(FinSet.class, "TabShift");
+		addScaler(FinSet.class, "TabOffset");
 		
 		// TrapezoidFinSet
 		addScaler(TrapezoidFinSet.class, "Sweep");
@@ -623,11 +623,9 @@ public class ScaleDialog extends JDialog {
 			for (int i = 0; i < points.length; i++) {
 				points[i] = points[i].multiply(multiplier);
 			}
-			try {
-				finset.setPoints(points);
-			} catch (IllegalFinPointException e) {
-				throw new BugException("Failed to set points after scaling, original=" + Arrays.toString(finset.getFinPoints()) + " scaled=" + Arrays.toString(points), e);
-			}
+			
+			finset.setPoints(points);
+			
 		}
 		
 	}

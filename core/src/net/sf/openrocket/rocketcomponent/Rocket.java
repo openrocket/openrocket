@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
@@ -74,6 +76,7 @@ public class Rocket extends ComponentAssembly {
 	/////////////  Constructor  /////////////
 	
 	public Rocket() {
+	    super(AxialMethod.ABSOLUTE);
 		modID = UniqueID.next();
 		massModID = modID;
 		aeroModID = modID;
@@ -244,7 +247,18 @@ public class Rocket extends ComponentAssembly {
     /*package-local*/ void forgetStage(final AxialStage oldStage) {
 		this.stageMap.remove(oldStage.getStageNumber());
 	}
-	
+
+	@Override
+	public void setAxialMethod(final AxialMethod newAxialMethod) {
+		this.axialMethod = AxialMethod.ABSOLUTE;
+	}
+
+	@Override
+    public void setAxialOffset( final double requestOffset ) {
+    	this.axialOffset = 0.;
+		this.position = Coordinate.ZERO;
+    }
+
 	public ReferenceType getReferenceType() {
 		checkState();
 		return refType;
@@ -707,9 +721,9 @@ public class Rocket extends ComponentAssembly {
 	 * Return a flight configuration.  If the supplied index is out of bounds, an exception is thrown.
 	 * If the default instance is allowed, the default will be at index 0. 
 	 *
-	 * @param 	includeDefault 	Whether to allow returning the default instance
+	 * @param 	allowDefault 	Whether to allow returning the default instance
 	 * @param 	configIndex 	The flight configuration index number
-	 * @return	a 				FlightConfiguration instance 
+	 * @return	FlightConfiguration instance
 	 */
 	public FlightConfiguration getFlightConfigurationByIndex( int configIndex, final boolean allowDefault ) {
 		if( allowDefault ){

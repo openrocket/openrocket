@@ -246,21 +246,6 @@ public class RingHandlerTest extends RocksimTestBase {
         @SuppressWarnings("unused")
 		CenteringRing component = (CenteringRing) getField(handler, "ring");
     }
-
-    /**
-     * Method: setAxialMethod(AxialMethod position)
-     *
-     * @throws Exception thrown if something goes awry
-     */
-    @org.junit.Test
-    public void testsetAxialMethod() throws Exception {
-        BodyTube tube = new BodyTube();
-        RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
-        handler.setAxialMethod(AxialMethod.ABSOLUTE);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
-    }
-
     
     /**
      * Method: getComponent()

@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.xml.sax.SAXException;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -21,13 +23,10 @@ import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Coordinate;
-
-import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim fin sets.  Because the type of fin may not be known first (in Rocksim file format, the fin
@@ -73,7 +72,7 @@ class FinSetHandler extends AbstractElementHandler {
 	/**
 	 * The length of the mid-chord (aka height).
 	 */
-	@SuppressWarnings("unused")  // spoiler: field IS actually used; eclipse complains anyway.
+	@SuppressWarnings("unused")  // stored from file, but not used.
 	private double midChordLen = 0.0d;
 	
 	/**
@@ -304,11 +303,8 @@ class FinSetHandler extends AbstractElementHandler {
 		else if (shapeCode == 2) {
 			
 			result = new FreeformFinSet();
-			try {
-				((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
-			} catch (IllegalFinPointException e) {
-				warnings.add("Illegal fin point set. " + e.getMessage() + " Ignoring.");
-			}
+			((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
+			
 		}
 		else {
 			return null;
@@ -318,14 +314,15 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setFinCount(finCount);
 		result.setFinish(finish);
 		//All TTW tabs in Rocksim are relative to the front of the fin.
-		result.setTabRelativePosition(FinSet.TabRelativePosition.FRONT);
+		result.setTabOffsetMethod( AxialMethod.TOP);
 		result.setTabHeight(tabDepth);
 		result.setTabLength(tabLength);
-		result.setTabShift(taboffset);
+		result.setTabOffset(taboffset);
 		result.setBaseRotation(radialAngle);
 		result.setCrossSection(convertTipShapeCode(tipShapeCode));
 		result.setAxialMethod(axialMethod);
-		PositionDependentHandler.setLocation(result, axialMethod, location);
+		result.setAxialOffset(location);
+
 		return result;
 		
 	}

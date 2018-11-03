@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.Coordinate;
@@ -134,6 +135,26 @@ public class RocketTest extends BaseTestCase {
 				assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}
 			
+		}
+	}
+	
+	@Test 
+	public void testRemoveReadjustLocation() {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		
+		{
+			BodyTube bodyPrior = (BodyTube)rocket.getChild(0).getChild(1);
+			Coordinate locPrior = bodyPrior.getComponentLocations()[0];
+			assertThat(locPrior.x, equalTo(0.07));
+		}
+		
+		// remove the nose cone, causing the bodytube to reposition:
+		rocket.getChild(0).removeChild(0);
+
+		{
+			BodyTube tubePost = (BodyTube)rocket.getChild(0).getChild(0);
+			Coordinate locPost = tubePost.getComponentLocations()[0];
+			assertThat(locPost.x, equalTo(0.0));
 		}
 	}
 	

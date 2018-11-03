@@ -32,7 +32,11 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	public ComponentAssembly() {
 		super( AxialMethod.AFTER);
 	}
-	
+
+	public ComponentAssembly( final AxialMethod initialAxialMethod) {
+		super(initialAxialMethod);
+	}
+
 	@Override
 	public boolean allowsChildren(){
 		return true;
@@ -40,7 +44,7 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	
 	@Override
 	public double getAxialOffset() {
-		return asPositionValue( this.axialMethod );
+		return getAxialOffset( this.axialMethod );
 	}
 
 	/**
