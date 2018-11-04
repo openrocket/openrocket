@@ -8,12 +8,13 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public class TubeFinSet extends ExternalComponent {
+public class TubeFinSet extends ExternalComponent implements AxialPositionable {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final static double DEFAULT_RADIUS = 0.025;
