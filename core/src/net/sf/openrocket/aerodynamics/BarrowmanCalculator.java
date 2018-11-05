@@ -202,15 +202,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			AerodynamicForces componentForces = new AerodynamicForces().zero();
 			calcObj.calculateNonaxialForces(conditions, componentForces, warnings);
 			
-			Coordinate x_cp_comp = componentForces.getCP();
-			Coordinate x_cp_weighted = x_cp_comp.setWeight(x_cp_comp.weight);
-			Coordinate x_cp_absolute = component.toAbsolute(x_cp_weighted)[0];
-			componentForces.setCP(x_cp_absolute);
+			Coordinate cp_comp = componentForces.getCP();
+			
+			Coordinate cp_weighted = cp_comp.setWeight(cp_comp.weight);
+			Coordinate cp_absolute = component.toAbsolute(cp_weighted)[0];
+			if(1 < component.getInstanceCount()) {
+				cp_absolute = cp_absolute.setY(0.);
+			}
+			
+			componentForces.setCP(cp_absolute);
 			double CN_instanced = componentForces.getCN();
 			componentForces.setCm(CN_instanced * componentForces.getCP().x / conditions.getRefLength());
 		
-//			if( 0.0001 < Math.abs(0 - componentForces.getCNa())){
-//				System.err.println(String.format("%s....Component.CNa: %g   @ CPx: %g", indent, componentForces.getCNa(), componentForces.getCP().x));
+//			if( 0.0001 < Math.abs(componentForces.getCNa())){
+//				System.err.println(String.format("%s....Component.CNa: %g   @ CP: %g, %g", indent, componentForces.getCNa(), componentForces.getCP().x, componentForces.getCP().y));
 //			}
 			
 			assemblyForces.merge(componentForces);

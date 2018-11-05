@@ -86,6 +86,7 @@ public class BarrowmanCalculatorTest {
 		
 		assertEquals(" Estes Alpha III CNa value is incorrect:", exp_cna, cp_calc.weight, EPSILON);
 		assertEquals(" Estes Alpha III cp x value is incorrect:", exp_cpx, cp_calc.x, EPSILON);
+		assertEquals(" Estes Alpha III cp x value is incorrect:", 0.0, cp_calc.y, EPSILON);
 	}
 	
 	@Test
