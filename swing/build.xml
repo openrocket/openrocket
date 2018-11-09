@@ -98,7 +98,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
+				<!--<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />-->
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
@@ -135,14 +135,24 @@
 			<zipfileset src="${lib.dir}/miglayout-swing-5.2.jar" />
 			<zipfileset src="${lib.dir}/orange-extensions-1.3.0.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.6.1.jar"/>
+
 			<zipfileset src="${lib.dir}/jogl/gluegen-rt.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-armv6.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-i586.jar"/>
 			<zipfileset src="${lib.dir}/jogl/jogl-all.jar"/>
-									
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-i586.jar"/>
 			
-			<!-- JOGL libraries need to be jar-in-jar -->
+			<!-- JOGL libraries need to be jar-in-jar
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
-			</zipfileset>
+			</zipfileset> -->
 			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
