@@ -36,7 +36,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
     private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
-    private static final float GRID_LINE_BASE_WIDTH = 0.001f;
+    private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
     private static final int LINE_WIDTH_PIXELS = 1;
     
@@ -89,9 +89,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-
-        // Background grid
-		paintBackgroundGrid( g2);
+		paintBackgroundGrid(g2);
 
 		paintRocketBody(g2);
 		
@@ -99,14 +97,14 @@ public class FinPointFigure extends AbstractScaleFigure {
 		paintFinHandles(g2);	
 	}
 	
-	public void paintBackgroundGrid( Graphics2D g2){
+	public void paintBackgroundGrid( Graphics2D g2) {
 	    Rectangle visible = g2.getClipBounds();
-	    int x0 = visible.x - 3;
-	    int x1 = visible.x + visible.width + 4;
-	    int y0 = visible.y - 3;
-	    int y1 = visible.y + visible.height + 4;
+	    final double x0 = visible.x - 3;
+	    final double x1 = visible.x + visible.width + 4;
+	    final double y0 = visible.y - 3;
+	    final double y1 = visible.y + visible.height + 4;
 
-	    final float grid_line_width = (float)(FinPointFigure.GRID_LINE_BASE_WIDTH/this.scale);
+	    final float grid_line_width = (float)(GRID_LINE_BASE_WIDTH_PIXELS/this.scale);
 	    g2.setStroke(new BasicStroke( grid_line_width,
 	            BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 	    g2.setColor(FinPointFigure.GRID_LINE_COLOR);
