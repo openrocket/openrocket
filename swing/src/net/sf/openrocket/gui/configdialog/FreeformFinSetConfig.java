@@ -416,7 +416,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 		    int mods = event.getModifiersEx();
-			if (dragIndex <= 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
+			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
