@@ -424,6 +424,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			Point2D.Double point = getCoordinates(event);
 			finset.setPoint(dragIndex, point.x, point.y);
 
+			if(0 == dragIndex && 0 > point.x){
+				dragIndex = 1;
+			}
+
 			updateFields();
 		}
 		
