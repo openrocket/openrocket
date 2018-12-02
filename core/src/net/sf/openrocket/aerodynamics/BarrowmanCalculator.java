@@ -712,17 +712,21 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		// Calculate pitch and yaw damping moments
 		double mul = getDampingMultiplier(configuration, conditions,
-				conditions.getPitchCenter().x);
-		double pitch = conditions.getPitchRate();
-		double yaw = conditions.getYawRate();
-		double vel = conditions.getVelocity();
-		
-		vel = MathUtil.max(vel, 1);
+										  conditions.getPitchCenter().x);
+		double pitchRate = conditions.getPitchRate();
+		double yawRate = conditions.getYawRate();
+		double velocity = conditions.getVelocity();
 		
 		mul *= 3; // TODO: Higher damping yields much more realistic apogee turn
 		
-		total.setPitchDampingMoment(mul * MathUtil.sign(pitch) * pow2(pitch / vel));
-		total.setYawDampingMoment(mul * MathUtil.sign(yaw) * pow2(yaw / vel));
+		// find magnitude of damping moments, and clamp so they can't
+		// exceed magnitude of pitch and yaw moments
+		double pitchDampingMomentMagnitude = MathUtil.min(mul * pow2(pitchRate / velocity), total.getCm());
+		double yawDampingMomentMagnitude = MathUtil.min(mul * pow2(yawRate / velocity), total.getCyaw());
+
+		// multiply by sign of pitch and yaw rates
+		total.setPitchDampingMoment(MathUtil.sign(pitchRate) * pitchDampingMomentMagnitude);
+		total.setYawDampingMoment(MathUtil.sign(yawRate) * yawDampingMomentMagnitude);
 	}
 	
 	// TODO: MEDIUM: Are the rotation etc. being added correctly?  sin/cos theta?
