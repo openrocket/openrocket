@@ -102,7 +102,6 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
 
 			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
-			component.addChangeListener(aftRadiusModel);
 			final JSpinner radiusSpinner = new JSpinner(aftRadiusModel.getSpinnerModel());
 			radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
 			panel.add(radiusSpinner, "growx");
@@ -120,7 +119,6 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Wallthickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-			component.addChangeListener(thicknessModel);
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
 			panel.add(thicknessSpinner, "growx");

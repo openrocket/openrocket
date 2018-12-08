@@ -31,8 +31,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 
-
-
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
 
@@ -46,13 +44,11 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(length), "growx");
 		panel.add(new BasicSlider(length.getSliderModel(0, 0.5, maxLength)), "w 100lp, wrap");
 
-
 		//// Body tube diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter")));
 
 		// Diameter = 2*Radius
 		final DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		component.addChangeListener(od);
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -71,8 +67,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		// Diameter = 2*Radius
 		final DoubleModel innerRadiusModel = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		component.addChangeListener(innerRadiusModel);
-
 		spin = new JSpinner(innerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -85,7 +79,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Wallthickness")));
 
 		final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-		component.addChangeListener(thicknessModel);
 		spin = new JSpinner(thicknessModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -112,7 +105,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
-
 
 	}
 

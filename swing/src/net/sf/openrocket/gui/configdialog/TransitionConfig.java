@@ -110,9 +110,8 @@ public class TransitionConfig extends RocketComponentConfig {
 		{ /// Fore diameter:
 			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Forediam")));
 
+	         // Diameter = 2*Radius
 			final DoubleModel foreRadiusModel = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-			// Diameter = 2*Radius
-			component.addChangeListener(foreRadiusModel );
 
 			final JSpinner foreRadiusSpinner = new JSpinner(foreRadiusModel.getSpinnerModel());
 			foreRadiusSpinner.setEditor(new SpinnerEditor(foreRadiusSpinner));
@@ -130,9 +129,8 @@ public class TransitionConfig extends RocketComponentConfig {
 		{	//// Aft diameter:
 			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Aftdiam")));
 
+            // Diameter = 2*Radius
 			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-			// Diameter = 2*Radius
-			component.addChangeListener(aftRadiusModel);
 
 			final JSpinner aftRadiusSpinner = new JSpinner(aftRadiusModel .getSpinnerModel());
 			aftRadiusSpinner.setEditor(new SpinnerEditor(aftRadiusSpinner));
@@ -151,7 +149,6 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Wallthickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-			component.addChangeListener(thicknessModel);
 
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
