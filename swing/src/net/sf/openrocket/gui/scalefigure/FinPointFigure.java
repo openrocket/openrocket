@@ -35,7 +35,7 @@ public class FinPointFigure extends AbstractScaleFigure {
  
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
-    private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
+    private static final Color GRID_LINE_COLOR = new Color( 128, 128, 128);
     private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
     private static final int LINE_WIDTH_PIXELS = 1;
