@@ -348,8 +348,6 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    
         // update subject (i.e. Fin) bounds
 	    finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
-	    // NOTE: the fin's forward root is pinned at 0,0  
-	    finBounds_m.setRect(0, 0, finBounds_m.getWidth(), finBounds_m.getHeight());
 	    
 	    // update to bound the parent body:
 	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
@@ -358,10 +356,12 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
 	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
 	    mountBounds_m = new Rectangle2D.Double( xParent, yParent, parent.getLength(), rParent);
-                
+
+        final double xMinBounds = Math.min(xParent, finBounds_m.getMinX());
+        final double yMinBounds = Math.min(xParent, finBounds_m.getMinY());
 	    final double subjectWidth = Math.max( xFinFront + finBounds_m.getWidth(), parent.getLength());
 	    final double subjectHeight = Math.max( 2*rParent, rParent + finBounds_m.getHeight());
-	    subjectBounds_m = new Rectangle2D.Double( xParent, yParent, subjectWidth, subjectHeight);
+	    subjectBounds_m = new Rectangle2D.Double( xMinBounds, yMinBounds, subjectWidth, subjectHeight);
 	}
 
 	@Override
