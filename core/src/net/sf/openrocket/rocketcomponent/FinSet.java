@@ -439,17 +439,25 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
 	protected Coordinate calculateFilletVolumeCentroid() {
+		if((null == this.parent) || (!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))){
+			return Coordinate.ZERO;
+		}
 		Coordinate[] mountPoints = this.getRootPoints();
-		if( null == mountPoints ){
+//		if( null == mountPoints ){
+//			return Coordinate.ZERO;
+//		}
+
+		final SymmetricComponent sym = (SymmetricComponent) this.parent;
+
+		final Coordinate finLead = getFinFront();
+		final double xFinEnd = finLead.x + getLength();
+		final Coordinate[] rootPoints = getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
+		if (0 == rootPoints.length) {
 			return Coordinate.ZERO;
 		}
 		
-		final SymmetricComponent sym = (SymmetricComponent) this.parent;
-		if (!SymmetricComponent.class.isInstance(this.parent)) {
-			return Coordinate.ZERO;
-		}
-
 		Coordinate filletVolumeCentroid = Coordinate.ZERO;
+
 		Coordinate prev = mountPoints[0];
 		for (int index = 1; index < mountPoints.length; index++) {
 			final Coordinate cur = mountPoints[index];
@@ -470,7 +478,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 
 			prev = cur;
 		}
-		
+
 		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
@@ -496,10 +504,9 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		for( int index = 1; index < points.length; index++){
 			Coordinate cur = points[index];
 
+			// calculate marginal area
 			final double delta_x = (cur.x - prev.x);
 			final double y_avg = (cur.y + prev.y)*0.5;
-			
-			// calculate marginal area
 			double area_increment = delta_x*y_avg;
 			if( MathUtil.equals( 0, area_increment)){
 				prev = cur;
@@ -534,20 +541,17 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		// relto: fin
 		final double xTabFront_fin = getTabFrontEdge();
 		final double xTabTrail_fin = getTabTrailingEdge();
-		
-		final double xFinFront_body = this.getAxialFront();
+
+		final Coordinate finFront = getFinFront();
+		final double xFinFront_body = finFront.x;
 		final double xTabFront_body = xFinFront_body + xTabFront_fin;
 		final double xTabTrail_body = xFinFront_body + xTabTrail_fin;
 				
-		// always returns x coordinates relTo fin front:
-		Coordinate[] upperCurve = getMountInterval( xTabFront_body, xTabTrail_body );
-		// locate relative to fin/body centerline
-		upperCurve = translatePoints( upperCurve, -xFinFront_body, 0.0);
-		
-		Coordinate[] lowerCurve = translateToCenterline( getTabPoints());
-		
+		// get body points, relTo fin front / centerline);
+		final Coordinate[] upperCurve = getMountPoints( xTabFront_body, xTabTrail_body, -xFinFront_body, 0);
+		final Coordinate[] lowerCurve = translateToCenterline( getTabPoints());
 		final Coordinate[] tabPoints = combineCurves( upperCurve, lowerCurve);
-				
+
 		return calculateCurveIntegral( tabPoints );
 	}
 	
@@ -559,27 +563,23 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
-	 * calculates the 2-dimensional area-centroid of a single fin.
-	 *
-	 * Located from the leading end of the fin root.
+	 * The coordinate contains an x,y coordinate of the centroid, relative to the parent-body-centerline
+	 * The weight contains the area of the fin.
 	 *
 	 * @return area centroid coordinates (weight is the area)
 	 */
-
-	/* 
-	 * The coordinate contains an x,y coordinate of the centroid, relative to the parent-body-centerline
-	 */
 	private Coordinate calculateSinglePlanformCentroid(){
-		final Coordinate finFront = getFinFront();
-		
-		final Coordinate[] upperCurve = getFinPoints();
-		final Coordinate[] lowerCurve = getRootPoints();
+		final Coordinate finLead = getFinFront();
+		final double xFinTrail = finLead.x+getLength();
+
+		final Coordinate[] upperCurve = translatePoints(getFinPoints(), 0, finLead.y);
+		final Coordinate[] lowerCurve = getMountPoints( finLead.x, xFinTrail, -finLead.x, 0);
 		final Coordinate[] totalCurve = combineCurves( upperCurve, lowerCurve);
-		
-		Coordinate planformCentroid = calculateCurveIntegral( totalCurve );
+
+		final Coordinate planformCentroid = calculateCurveIntegral( totalCurve );
 
 		// return as a position relative to fin-root
-		return planformCentroid.add(0., finFront.y, 0);
+		return planformCentroid;
 	}
 
 	/** 
@@ -592,15 +592,15 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @return combined curve
 	 */
 	private Coordinate[] combineCurves( final Coordinate[] c1, final Coordinate[] c2){
-		Coordinate[] combined = new Coordinate[ c1.length + c2.length - 1];
+		Coordinate[] combined = new Coordinate[ c1.length + c2.length];
 
 		// copy the first array to the start of the return array...
 		System.arraycopy(c1, 0, combined, 0, c1.length);
 
 		Coordinate[] revCurve = reverse( c2);
 		int writeIndex = c1.length; // start directly after previous array
-		int writeCount = revCurve.length - 1; // write all-but-first
-		System.arraycopy(revCurve, 1, combined, writeIndex, writeCount);
+		int writeCount = revCurve.length;
+		System.arraycopy(revCurve, 0, combined, writeIndex, writeCount);
 			
 		return combined;
 	}
@@ -813,7 +813,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
         // by default, assume a flat base
         return true;
     }
-	
+
+	/**
+	 * Return a copied list of the given input, translated by the delta
+	 *
+	 * @return  List of XY-coordinates.
+	 */
 	protected static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
 		Coordinate[] returnPoints = new Coordinate[inp.length];
 		for( int index=0; index < inp.length; ++index){
@@ -823,8 +828,23 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 		return returnPoints;
 	}
-	
-	
+
+	/**
+	 * Return a copied list of the given input, translated by the delta
+	 *
+	 * @return  List of XY-coordinates.
+	 */
+	protected static ArrayList<Coordinate> translatePoints( final ArrayList<Coordinate> inp, final Coordinate delta){
+		final ArrayList<Coordinate> returnPoints = new ArrayList<>();
+		returnPoints.ensureCapacity(inp.size());
+
+		for( Coordinate c: inp ){
+			returnPoints.add(c.add(delta));
+		}
+
+		return returnPoints;
+	}
+
 	/**
 	 * Return a list of X,Y coordinates defining the geometry of a single fin tab. 
 	 * The origin is the leading root edge, and the tab height (or 'depth') is 
@@ -1037,22 +1057,23 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
+<<<<<<< HEAD
 	 * use this for calculating physical properties, and routine drawing
-	 * 
+	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
 	public Coordinate[] getMountPoints() {
 		if( null == parent){
 			return null;
 		}
-		
-		return getMountInterval(0., parent.getLength());
+
+		return getMountPoints(0., parent.getLength(), 0,0);
 	}
 
 	/**
 	 * used to get body points for the profile design view
 	 * 
-	 * @return points representing the fin-root points, relative to ( x: fin-front, y: fin-root-radius ) 
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
 	public Coordinate[] getRootPoints(){
 		if( null == parent){
@@ -1060,16 +1081,25 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 		
 		final Coordinate finLead = getFinFront();
-		final double finTailX = finLead.x + getLength();
+		final double xFinEnd = finLead.x + getLength();
 
-		final Coordinate[] bodyPoints = getMountInterval( finLead.x, finTailX);
-
-		return translatePoints(bodyPoints, -finLead.x, -finLead.y);
+		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
 	}
 
-	
-	private Coordinate[] getMountInterval(  final double xStart, final double xEnd ) {
-//		System.err.println(String.format("    .... >> mount interval/x: ( %g, %g)]", xStart, xEnd));
+	/**
+	 * used to get calculate body profile points:
+	 *
+	 * @param xStart - xStart, in Mount-frame
+	 * @param xEnd - xEnd, in Mount-frame
+	 * @param xOffset - x-Offset to apply to returned points
+	 * @param yOffset - y-Offset to apply to returned points
+	 *
+	 * @return points representing the mount's points
+	 */
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+		if( null == parent){
+			return new Coordinate[]{Coordinate.ZERO};
+		}
 
 		// for a simple bodies, one increment is perfectly accurate.
 		int divisionCount = 1;
@@ -1104,15 +1134,24 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if( body.getLength()-0.000001 < points[lastIndex].x) {
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
-		
+
+		if( 0.0000001 < (Math.abs(xOffset) + Math.abs(yOffset))){
+			points = translatePoints(points, xOffset, yOffset);
+		}
+
 		return points;
 	}
 
 	// for debugging.  You can safely delete this method
 	public static String getPointDescr( final Coordinate[] points, final String name, final String indent){
-		StringBuilder buf = new StringBuilder(); 
-		
-		buf.append(String.format("%s    >> %s: %d points\n", indent, name, points.length));
+		return getPointDescr(Arrays.asList(points), name, indent);
+	}
+
+	// for debugging.  You can safely delete this method
+	public static String getPointDescr( final List<Coordinate> points, final String name, final String indent){
+		StringBuilder buf = new StringBuilder();
+
+		buf.append(String.format("%s    >> %s: %d points\n", indent, name, points.size()));
 		int index =0;
 		for( Coordinate c : points ){
 			buf.append( String.format( indent+"      ....[%2d] (%6.4g, %6.4g)\n", index, c.x, c.y));
@@ -1128,8 +1167,8 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		buf.append( getPointDescr( this.getFinPoints(), "Fin Points", ""));
 
 		if (null != parent) {
+			buf.append( getPointDescr( this.getMountPoints(0, parent.getLength(), 0, 0), "Body Points", ""));
 			buf.append( getPointDescr( this.getRootPoints(), "Root Points", ""));
-			buf.append( getPointDescr( this.getMountPoints(), "Mount Points", ""));
 		}
 
 		if( ! this.isTabTrivial() ) {

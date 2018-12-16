@@ -108,7 +108,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 			new Coordinate( 0.0, 0.0),
 			new Coordinate( 0.4, 1.0),
 			new Coordinate( 0.6, 1.0),
-			new Coordinate( 0.8, 0.9)   // y-value should be automaticaly adjusted to snap to body
+			new Coordinate( 0.8, 0.788)   // y-value should be automatically adjusted to snap to body
 		};
 		fins.setPoints(points);
 		nose.addChild(fins);
@@ -130,13 +130,12 @@ public class FreeformFinSetTest extends BaseTestCase {
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setName("TubeBodyFins");
 		fins.setFinCount(1);
-		Coordinate[] points = new Coordinate[]{
+		fins.setPoints(new Coordinate[]{
 				new Coordinate(0, 0),
 				new Coordinate(0.5, 1),
 				new Coordinate(1, 1),
 				new Coordinate(1, 0)
-		};
-		fins.setPoints(points);
+		});
 		fins.setAxialOffset( AxialMethod.BOTTOM, 0.0);
 
 		body.addChild(fins);
@@ -318,36 +317,42 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final NoseCone nose = (NoseCone) rkt.getChild(0).getChild(0);
 		final FinSet fins = createFinOnEllipsoidNose(nose);
 
-		// assert preconditions
-		assertEquals(Shape.ELLIPSOID, nose.getType());
-		assertEquals(1.0, nose.getLength(), EPSILON);
-		
-		assertEquals(AxialMethod.TOP, fins.getAxialMethod());
-		assertEquals(0.02, fins.getAxialOffset(), EPSILON);
-		assertEquals(0.8, fins.getLength(), EPSILON);
-		final Coordinate[] finPoints = fins.getFinPoints();
-		assertEquals(4, finPoints.length);
-		assertEquals(finPoints[0], Coordinate.ZERO);
-		assertEquals(finPoints[1], new Coordinate(0.4, 1.0));
-		assertEquals(finPoints[2], new Coordinate(0.6, 1.0));
-        assertEquals(finPoints[3], new Coordinate(0.8, 0.78466912));
-		//              [1]       [2]
-		//                 +======+
-		//               /          \   [3]
-		//            /            ---+----
-		//         /       --------
-		//  [0] /  --------
-		// ---+----
-		//
-		//  [0]  ( 0.0, 0.0)
-		//  [1]  ( 0.4, 1.0)
-		//  [2]  ( 0.6, 1.0)
-		//  [3]  ( 0.8, 0.7847)
+		{  // assert preconditions::Mount
+				assertEquals(Shape.ELLIPSOID, nose.getType());
+				assertEquals(1.0, nose.getLength(), EPSILON);
 
-		final double expectedWettedArea = 0.13397384;
-		final double actualWettedArea = fins.getPlanformArea();
-        Coordinate wcg = fins.getCG(); // relative to parent
-        assertEquals("Calculated fin area is wrong: ", expectedWettedArea, actualWettedArea, EPSILON);
+		}{ // Assert fin shape
+			//              [1]       [2]
+			//                 +======+
+			//               /          \   [3]
+			//            /            ---+----
+			//         /       --------
+			//  [0] /  --------
+			// ---+----
+			//
+			//  [0]  ( 0.0, 0.0)
+			//  [1]  ( 0.4, 1.0)
+			//  [2]  ( 0.6, 1.0)
+			//  [3]  ( 0.8, 0.7847)
+
+			assertEquals(AxialMethod.TOP, fins.getAxialMethod());
+			assertEquals(0.02, fins.getAxialOffset(), EPSILON);
+			assertEquals(0.8, fins.getLength(), EPSILON);
+
+			final Coordinate[] finPoints = fins.getFinPoints();
+			assertEquals(4, finPoints.length);
+			assertEquals(Coordinate.ZERO, finPoints[0]);
+			assertEquals(new Coordinate(0.4, 1.0), finPoints[1]);
+			assertEquals(new Coordinate(0.6, 1.0), finPoints[2]);
+			assertEquals(new Coordinate(0.8, 0.78466912), finPoints[3]);
+		}
+
+		final double expectedPlanformArea = 0.13397384;
+		final double actualPlanformArea = fins.getPlanformArea();
+		assertEquals("Calculated fin planform area is wrong: ", expectedPlanformArea, actualPlanformArea, EPSILON);
+
+		Coordinate wcg = fins.getCG(); // relative to parent
+		assertEquals("Calculated fin weight is wrong! ",   0.2733066, wcg.weight, EPSILON);
         assertEquals("Calculated fin centroid is wrong! ", 0.4793588, wcg.x, EPSILON);
         assertEquals("Calculated fin centroid is wrong! ", 0.996741, wcg.y, EPSILON);
 	}
@@ -428,7 +433,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
     @Test
-    public void testSetFirstPoint() throws IllegalFinPointException {
+    public void testSetFirstPoint() {
     	// more transitions trigger more complicated positioning math:  
 		final Rocket rkt = createTemplateRocket();
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
@@ -446,23 +451,29 @@ public class FreeformFinSetTest extends BaseTestCase {
 		{ // case 1:
 			fins.setAxialOffset( AxialMethod.TOP, 0.1);
 			fins.setPoints(initialPoints);
+			assertEquals(0.1f, fins.getAxialOffset(), EPSILON);
 
 			// vvvv function under test vvvv
 	    	fins.setPoint( 0, 0.2, 0.1f);
             // ^^^^ function under test ^^^^
-			
+
+			assertEquals(0.3f, fins.getAxialOffset(), EPSILON);
+            assertEquals(0.2f, fins.getLength(), EPSILON);
+            
 	    	assertEquals(0.3,  fins.getFinFront().x, EPSILON);
 			assertEquals(0.85, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
-
+         
             // middle point:
             assertEquals(0.2, postPoints[1].x, EPSILON);
             assertEquals(0.3, postPoints[1].y, EPSILON);
-        
-            assertEquals(0.3f, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.2f, fins.getLength(), EPSILON);
+            
+            // final point
+            assertEquals(0.2, postPoints[2].x, EPSILON);
+            assertEquals(-0.1, postPoints[2].y, EPSILON);
+            
 		}{ // case 2:
 			fins.setAxialOffset( AxialMethod.TOP, 0.1);
 			fins.setPoints(initialPoints);
@@ -471,32 +482,35 @@ public class FreeformFinSetTest extends BaseTestCase {
 	    	fins.setPoint( 0, -0.2, 0.1f);
             // ^^^^ function under test ^^^^
 	    	
-            assertEquals(0.0, fins.getFinFront().x, EPSILON);
+            assertEquals(-0.1, fins.getFinFront().x, EPSILON);
 			assertEquals(1.0, fins.getFinFront().y, EPSILON);
 
+			assertEquals(-0.1f, fins.getAxialOffset(), EPSILON);
+            assertEquals(0.6f, fins.getLength(), EPSILON);
+
 			final Coordinate[] postPoints = fins.getFinPoints();
-            assertEquals(postPoints.length, 4);
+            assertEquals(postPoints.length, 3);
 
-            // pseudo-front point
-            assertEquals(-0.1, postPoints[1].x, EPSILON);
-            assertEquals(0.05, postPoints[1].y, EPSILON);
+            assertEquals(0.6, postPoints[1].x, EPSILON);
+            assertEquals(0.15, postPoints[1].y, EPSILON);
             
-            assertEquals(0.5, postPoints[2].x, EPSILON);
-            assertEquals(0.15, postPoints[2].y, EPSILON);
+            assertEquals(0.6, postPoints[2].x, EPSILON);
+            assertEquals(-0.25, postPoints[2].y, EPSILON);
 
-            assertEquals(0.0f, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.5f, fins.getLength(), EPSILON);
 		}{ // case 3:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
 			fins.setPoints(initialPoints);
 			assertEquals(0.3, fins.getFinFront().x, EPSILON);
-			
+
 			// vvvv function under test vvvv
 	    	fins.setPoint( 0, 0.1, 0.1f);
             // ^^^^ function under test ^^^^
-	    	
-            assertEquals(0.4, fins.getFinFront().x, EPSILON);
-			assertEquals(0.8, fins.getFinFront().y, EPSILON);
+
+			assertEquals(0.05, fins.getAxialOffset(), EPSILON);
+			assertEquals(0.3, fins.getLength(), EPSILON);
+
+            assertEquals(0.35, fins.getFinFront().x, EPSILON);
+			assertEquals(0.825, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -507,9 +521,6 @@ public class FreeformFinSetTest extends BaseTestCase {
             
             assertEquals(0.3, postPoints[2].x, EPSILON);
             assertEquals(-0.15, postPoints[2].y, EPSILON);
-
-            assertEquals(0.05f, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.3f, fins.getLength(), EPSILON);
             
 		}{ // case 4:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
@@ -519,8 +530,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 	    	fins.setPoint( 0, -0.1, 0.1f);
             // ^^^^ function under test ^^^^
 
-            assertEquals(0.2, fins.getFinFront().x, EPSILON);
-			assertEquals(0.9, fins.getFinFront().y, EPSILON);
+            assertEquals(0.25, fins.getFinFront().x, EPSILON);
+			assertEquals(0.875, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -537,13 +548,16 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}{ // case 5:
 			fins.setAxialOffset( AxialMethod.BOTTOM, 0.0);
 			fins.setPoints(initialPoints);
+			assertEquals(0.6, fins.getFinFront().x, EPSILON);
 
 			// vvvv function under test vvvv
 	    	fins.setPoint( 0, 0.1, 0.1f);
             // ^^^^ function under test ^^^^
-	    	
+
             assertEquals(0.7, fins.getFinFront().x, EPSILON);
 			assertEquals(0.65, fins.getFinFront().y, EPSILON);
+			assertEquals(0.0, fins.getAxialOffset(), EPSILON);
+			assertEquals(0.3, fins.getLength(), EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -555,34 +569,28 @@ public class FreeformFinSetTest extends BaseTestCase {
             assertEquals(0.3, postPoints[2].x, EPSILON);
             //assertEquals(0.15, postPoints[2].y, EPSILON);
 
-            assertEquals(0.0f, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.3f, fins.getLength(), EPSILON);
 		}{ // case 6:
 			fins.setAxialOffset( AxialMethod.BOTTOM, 0.0);
 			fins.setPoints(initialPoints);
-			assertEquals(3, fins.getPointCount());
-			
+			assertEquals(0.6, fins.getFinFront().x, EPSILON);
+
 			// vvvv function under test vvvv
 	    	fins.setPoint( 0, -0.1, 0.1f);
             // ^^^^ function under test ^^^^
-	    	
+
             assertEquals(0.5, fins.getFinFront().x, EPSILON);
 			assertEquals(0.75, fins.getFinFront().y, EPSILON);
+			assertEquals(0.5, fins.getLength(), EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(3, postPoints.length);
 
-            // mid-point
             assertEquals(0.5, postPoints[1].x, EPSILON);
             assertEquals(0.15, postPoints[1].y, EPSILON);
             
             assertEquals(0.5, postPoints[2].x, EPSILON);
             assertEquals(-0.25, postPoints[2].y, EPSILON);
-
-            assertEquals(0.0f, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.5f, fins.getLength(), EPSILON);
 		}
-
     }
 
     @Test
@@ -593,6 +601,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final Coordinate[] initialPoints = fins.getFinPoints();
 		final int lastIndex = initialPoints.length - 1;
 		final double xf = initialPoints[lastIndex].x;
+		final double yf = initialPoints[lastIndex].y;
 				
 		// assert pre-conditions:
 		assertEquals(0.4, fins.getLength(), EPSILON);
@@ -607,8 +616,12 @@ public class FreeformFinSetTest extends BaseTestCase {
 			fins.setPoints(initialPoints);
 			
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf+0.2, -0.3f);
+	    	fins.setPoint( lastIndex, xf+0.2, yf - 0.3f);
             // ^^^^ function under test ^^^^
+
+            assertEquals(0.1, fins.getFinFront().x, EPSILON);
+			assertEquals(0.95, fins.getFinFront().y, EPSILON);
+			assertEquals(0.6, fins.getLength(), EPSILON);
 	    	
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -621,19 +634,20 @@ public class FreeformFinSetTest extends BaseTestCase {
             assertEquals(0.6, postPoints[2].x, EPSILON);
             assertEquals(-0.3, postPoints[2].y, EPSILON);
 
-            assertEquals(0.1, fins.getFinFront().x, EPSILON);
-			assertEquals(0.95, fins.getFinFront().y, EPSILON);
-			assertEquals(0.6, fins.getLength(), EPSILON);
 			
 		}{ // case 2:
 			fins.setAxialOffset( AxialMethod.TOP, 0.1);
 			fins.setPoints(initialPoints);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf - 0.2, 0.1f);
+	    	fins.setPoint( lastIndex, xf - 0.2, yf + 0.1f);
             // ^^^^ function under test ^^^^
-			
-			final Coordinate[] postPoints = fins.getFinPoints();
+
+            assertEquals(0.1, fins.getFinFront().x, EPSILON);
+			assertEquals(0.95, fins.getFinFront().y, EPSILON);
+			assertEquals(0.2, fins.getLength(), EPSILON);
+
+	    	final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
 
             // middle point:
@@ -643,19 +657,21 @@ public class FreeformFinSetTest extends BaseTestCase {
             // last point:
             assertEquals(0.2, postPoints[2].x, EPSILON);
             assertEquals(-0.1, postPoints[2].y, EPSILON);
-
-            assertEquals(0.1, fins.getFinFront().x, EPSILON);
-			assertEquals(0.95, fins.getFinFront().y, EPSILON);
-			assertEquals(0.2f, fins.getLength(), EPSILON);
 			
 		}{ // case 3:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
 			fins.setPoints(initialPoints);
+			assertEquals(0.3, fins.getFinFront().x, EPSILON);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf + 0.1, 0.1f);
+	    	fins.setPoint( lastIndex, xf + 0.1, yf + 0.1f);
             // ^^^^ function under test ^^^^
-			
+
+			assertEquals(0.3, fins.getFinFront().x, EPSILON);
+			assertEquals(0.85, fins.getFinFront().y, EPSILON);
+			assertEquals(0.5, fins.getLength(), EPSILON);
+			assertEquals(0.05, fins.getAxialOffset(), EPSILON);
+
 	    	final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
 
@@ -667,18 +683,19 @@ public class FreeformFinSetTest extends BaseTestCase {
             assertEquals(0.5, postPoints[2].x, EPSILON);
             assertEquals(-0.25, postPoints[2].y, EPSILON);
 
-            assertEquals(0.3, fins.getFinFront().x, EPSILON);
-			assertEquals(0.85, fins.getFinFront().y, EPSILON);
-			assertEquals(0.05, fins.getAxialOffset(), EPSILON);
-			assertEquals(0.5, fins.getLength(), EPSILON);
-			
 		}{ // case 4:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
 			fins.setPoints(initialPoints);
+			assertEquals(0.3, fins.getFinFront().x, EPSILON);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf - 0.1, 0.1f);
+	    	fins.setPoint( lastIndex, xf - 0.1, yf + 0.1f);
             // ^^^^ function under test ^^^^
+
+            assertEquals(0.3, fins.getFinFront().x, EPSILON);
+			assertEquals(0.85, fins.getFinFront().y, EPSILON);
+			assertEquals(0.3, fins.getLength(), EPSILON);
+			assertEquals(-0.05, fins.getAxialOffset(), EPSILON);
 
 	    	final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -691,21 +708,21 @@ public class FreeformFinSetTest extends BaseTestCase {
             assertEquals(0.3, postPoints[2].x, EPSILON);
             assertEquals(-0.15, postPoints[2].y, EPSILON);
 
-            assertEquals(0.3, fins.getFinFront().x, EPSILON);
-			assertEquals(0.85, fins.getFinFront().y, EPSILON);
-            assertEquals(-0.05, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.3, fins.getLength(), EPSILON);
-            
 		}{ // case 5:
 			fins.setAxialOffset( AxialMethod.BOTTOM, 0.0);
 			fins.setPoints(initialPoints);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf + 0.1, 0.1f);
+	    	fins.setPoint( lastIndex, xf + 0.1, yf + 0.1f);
             // ^^^^ function under test ^^^^
-	    	
+
+            assertEquals(0.6, fins.getFinFront().x, EPSILON);
+			assertEquals(0.7, fins.getFinFront().y, EPSILON);
+            assertEquals(0.1, fins.getAxialOffset(), EPSILON);
+            assertEquals(0.5f, fins.getLength(), EPSILON);
+            
 			final Coordinate[] postPoints = fins.getFinPoints();
-            assertEquals(postPoints.length, 4);
+            assertEquals(postPoints.length, 3);
 			
             // mid-point
             assertEquals(0.4, postPoints[1].x, EPSILON);
@@ -713,25 +730,21 @@ public class FreeformFinSetTest extends BaseTestCase {
             
             // pseudo last point
             assertEquals(0.5, postPoints[2].x, EPSILON);
-            assertEquals(0.1, postPoints[2].y, EPSILON);
+            assertEquals(-0.2, postPoints[2].y, EPSILON);
 
-            // last point
-            assertEquals(0.4, postPoints[3].x, EPSILON);
-            assertEquals(-0.2, postPoints[3].y, EPSILON);
-
-            assertEquals(0.6, fins.getFinFront().x, EPSILON);
-			assertEquals(0.7, fins.getFinFront().y, EPSILON);
-            assertEquals(0.0, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.4f, fins.getLength(), EPSILON);
-            
 		}{ // case 6:
 			fins.setAxialOffset( AxialMethod.BOTTOM, 0.0);
 			fins.setPoints(initialPoints);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( lastIndex, xf - 0.1, 0.1f);
+	    	fins.setPoint( lastIndex, xf - 0.1, yf + 0.1f);
             // ^^^^ function under test ^^^^
 	   
+            assertEquals(0.6, fins.getFinFront().x, EPSILON);
+			assertEquals(0.7, fins.getFinFront().y, EPSILON);
+            assertEquals(-0.1, fins.getAxialOffset(), EPSILON);
+            assertEquals(0.3, fins.getLength(), EPSILON);
+            
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
 
@@ -743,10 +756,6 @@ public class FreeformFinSetTest extends BaseTestCase {
             assertEquals(0.3, postPoints[2].x, EPSILON);
             assertEquals(-0.15, postPoints[2].y, EPSILON);
 
-            assertEquals(0.6, fins.getFinFront().x, EPSILON);
-			assertEquals(0.7, fins.getFinFront().y, EPSILON);
-            assertEquals(-0.1, fins.getAxialOffset(), EPSILON);
-            assertEquals(0.3, fins.getLength(), EPSILON);
 		}
 	}
 
@@ -805,54 +814,57 @@ public class FreeformFinSetTest extends BaseTestCase {
 			assertEquals(0.5, phantomBody.getOuterRadius(), EPSILON);
 			assertEquals(0.0, phantomBody.getLength(), EPSILON);
 		}{
+			//  (1)---------(2)
+			//   |    Fin    |
+			//   |           |
+			//  (0)----+----(3)
+			//         |
+			//       (body)
 			final FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(4);
-			Coordinate[] points = new Coordinate[]{
-					new Coordinate(0.0, 0.0),
-					new Coordinate(-0.0508, 0.007721),
-					new Coordinate(0.0, 0.01544),
-					new Coordinate(0.0254, 0.007721),
-					new Coordinate(1.1e-4, 0.0) // final point is within the testing thresholds :/
-			};
-			fins.setPoints(points);
-
+			fins.setName("SquareFin");
 			phantomBody.addChild(fins);
-			assertEquals(1, phantomBody.getChildCount());
+			fins.setAxialOffset(AxialMethod.MIDDLE, 0.0);
+			fins.setPoints(new Coordinate[]{
+					new Coordinate(-0.5, 0.0),
+					new Coordinate(-0.5, 1.0),
+					new Coordinate(0.5, 1.0),
+					new Coordinate(0.5, 0.0)
+			});
 
 		}{ // postconditions
-			final FreeformFinSet fins = (FreeformFinSet) phantomBody.getChild(0);
+			FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(3).getChild(0);
+
+			assertEquals(AxialMethod.MIDDLE, fins.getAxialMethod());
+			assertEquals(0.0, fins.getAxialOffset(), EPSILON);
+
+			assertEquals(-0.5, fins.getFinFront().x, EPSILON);
+			assertEquals(0.5, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
-            assertEquals(6, postPoints.length);
+			assertEquals(4, postPoints.length);
 
-            // p1
-            assertEquals(-0.0508, postPoints[1].x, EPSILON);
-            assertEquals(0.007721, postPoints[1].y, EPSILON);
+			// p0
+			assertEquals("p0::x", 0.0, postPoints[0].x, EPSILON);
+			assertEquals("p0::y", 0.0, postPoints[0].y, EPSILON);
 
-            // p2
-            assertEquals(0.0, postPoints[2].x, EPSILON);
-            assertEquals(0.01544, postPoints[2].y, EPSILON);
+			// p1
+			assertEquals("p1::x", 0.0, postPoints[1].x, EPSILON);
+			assertEquals("p1::y", 1.0, postPoints[1].y, EPSILON);
 
-            // p3
-            assertEquals(0.0254, postPoints[3].x, EPSILON);
-            assertEquals(0.007721, postPoints[3].y, EPSILON);
+			// p2
+			assertEquals("p2::x", 1.0, postPoints[2].x, EPSILON);
+			assertEquals("p2::y", 1.0, postPoints[2].y, EPSILON);
 
-            // p4
-            assertEquals(0.00011, postPoints[4].x, EPSILON);
-            assertEquals(0.0, postPoints[4].y, EPSILON);
+			// p3 / last
+			assertEquals("p3::x", 1.0, postPoints[3].x, EPSILON);
+			assertEquals("p3::y", 0.0, postPoints[3].y, EPSILON);
 
-            // p/last: generated by loading code:
-            assertEquals(0.0, postPoints[5].x, EPSILON);
-            assertEquals(0.0, postPoints[5].y, EPSILON);
-
-            assertEquals(0.0, fins.getLength(), EPSILON);
-            assertEquals(0.0, fins.getFinFront().x, EPSILON);
-			assertEquals(0.5, fins.getFinFront().y, EPSILON);
+			assertEquals(1.0, fins.getLength(), EPSILON);
 		}
 	}
 
     @Test
-    public void testSetFirstPoint_testNonIntersection() {
+    public void testSetFirstPoint_clampToLast() {
     	final Rocket rkt = createTemplateRocket();
     	final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
@@ -868,22 +880,22 @@ public class FreeformFinSetTest extends BaseTestCase {
 		// vv Test Target vv
 		fins.setPoint( 0, 0.6, 0);
 		// ^^ Test Target ^^
-		
+
         assertEquals(fins.getFinPoints()[ 0], Coordinate.ZERO);
 		
 	    // setting the first point actually offsets the whole fin by that amount:
-		final double expFinOffset = 1.0;
+		final double expFinOffset = 0.8;
 	    assertEquals("Resultant fin offset does not match!", expFinOffset, fins.getAxialOffset(), EPSILON);
 	    
 	    assertEquals( 3, fins.getPointCount());
 	    Coordinate actualLastPoint = fins.getFinPoints()[2];
-		assertEquals("last point did not adjust correctly: ", 0f, actualLastPoint.x, EPSILON);
-		assertEquals("last point did not adjust correctly: ", 0f, actualLastPoint.y, EPSILON);
+		assertEquals(0, actualLastPoint.x, EPSILON);
+		assertEquals(0, actualLastPoint.y, EPSILON);
 		assertEquals("New fin length is wrong: ", 0.0, fins.getLength(), EPSILON);
     }
     
     @Test
-    public void testSetPoint_otherPoint() throws IllegalFinPointException {
+    public void testSetPoint_otherPoint(){
     	// combine the simple case with the complicated to ensure that the simple case is flagged, tested, and debugged before running the more complicated case...
     	{ // setting points on a Tube Body is the simpler case. Test this first: 
 	    	final Rocket rkt = createTemplateRocket();
@@ -917,31 +929,66 @@ public class FreeformFinSetTest extends BaseTestCase {
     	}
     }
 
-    @Test
-    public void testSetOffset_triggerClampCorrection() {
+
+	@Test
+	public void testSetOffset_triggerLeadingClampCorrection() {
 		// test correction of last point due to moving entire fin:
 		final Rocket rkt = createTemplateRocket();
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
-		
+
 		final int lastIndex = fins.getPointCount()-1;
 
-		final double initXOffset = fins.getAxialOffset();
-		assertEquals( 0.4, initXOffset, EPSILON); // pre-condition
-		final double newXTop = 0.85;
-		final double expFinOffset = 0.6;
-		final double expLength = tailCone.getLength() - expFinOffset;
-		fins.setAxialOffset( AxialMethod.TOP, newXTop);
+		{ // pre-condition
+			assertEquals(AxialMethod.TOP, fins.getAxialMethod());
+			assertEquals(0.4, fins.getAxialOffset(), EPSILON);
+			assertEquals(0.4, fins.getLength(), EPSILON);
+		}
+
+		// vv Test Target vv
+		fins.setAxialOffset( -0.2);
+		// ^^ Test Target ^^
+
 		// fin start: 0.4 => 0.8  [body]
-		// fin end:   0.8 => 0.99 [body]  
-	    assertEquals( expFinOffset, fins.getAxialOffset(), EPSILON);
-	    assertEquals( expLength, fins.getLength(), EPSILON);
-	    
-	    // SHOULD DEFINITELY CHANGE
-	    Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
+		// fin end:   0.8 => 1.2 [body]
+		assertEquals( -0.2, fins.getAxialOffset(), EPSILON);
+		assertEquals( 0.4, fins.getLength(), EPSILON);
+
+		// SHOULD DEFINITELY CHANGE
+		Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
 		assertEquals( 0.4, actualLastPoint.x, EPSILON);
-		assertEquals( -0.2, actualLastPoint.y, EPSILON);
-    }
+		assertEquals( -0.1, actualLastPoint.y, EPSILON);
+	}
+
+	@Test
+	public void testSetOffset_triggerTrailingClampCorrection() {
+		// test correction of last point due to moving entire fin:
+		final Rocket rkt = createTemplateRocket();
+		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
+		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
+
+		final int lastIndex = fins.getPointCount()-1;
+
+		{ // pre-condition
+			assertEquals(AxialMethod.TOP, fins.getAxialMethod());
+			assertEquals(0.4, fins.getAxialOffset(), EPSILON);
+			assertEquals(0.4, fins.getLength(), EPSILON);
+		}
+
+		// vv Test Target vv
+		fins.setAxialOffset( 0.8);
+		// ^^ Test Target ^^
+
+		// fin start: 0.4 => 0.8  [body]
+		// fin end:   0.8 => 1.2 [body]
+		assertEquals( 0.8, fins.getAxialOffset(), EPSILON);
+		assertEquals( 0.4, fins.getLength(), EPSILON);
+
+		// SHOULD DEFINITELY CHANGE
+		Coordinate actualLastPoint = fins.getFinPoints()[ lastIndex];
+		assertEquals( 0.4, actualLastPoint.x, EPSILON);
+		assertEquals( -0.1, actualLastPoint.y, EPSILON);
+	}
 
 	@Test
 	public void testComputeCM_mountlessFin(){
@@ -1012,7 +1059,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 			final double x_delta = fin.getAxialOffset(AxialMethod.TOP);
 	           
 	    	final Coordinate[] actualPoints = fin.getFinPoints();
-	                   
+
 	    	final String rawPointDescr = "\n"+fin.toDebugDetail().toString()+"\n>> axial offset: "+x_delta;
 	       
 	    	Coordinate[] displayPoints = FinSet.translatePoints( actualPoints, x_delta, 0);	    
@@ -1164,32 +1211,20 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testGenerateBodyPointsOnBodyTube(){
+	public void testGenerateRootPointsOnBodyTube(){
 		final Rocket rkt = createTemplateRocket();
 		final BodyTube body = (BodyTube) rkt.getChild(0).getChild(1);
 		final FreeformFinSet fins = this.createFinOnTube(body);
 
-		final Coordinate finFront = fins.getFinFront();
-		final Coordinate[] finPoints = fins.getFinPoints();
-		final Coordinate[] finPointsFromBody = FinSet.translatePoints( finPoints, finFront.x, finFront.y);
-
-		{ // body points (relative to body)
-			final Coordinate[] mountPoints = fins.getMountPoints();
-	
-			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, mountPoints.length );
-			assertEquals("incorrect body points! ", finPointsFromBody[0].x, mountPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[0].y, mountPoints[0].y, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].x, mountPoints[1].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].y, mountPoints[1].y, EPSILON);
-		}
 		{ // root points (relative to fin-front)
+			final Coordinate[] finPoints = fins.getFinPoints();
 			final Coordinate[] rootPoints = fins.getRootPoints();
-	
+
 			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, rootPoints.length );
-			assertEquals("incorrect body points! ", finPoints[0].x, rootPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", finPoints[0].y, rootPoints[0].y, EPSILON);
-			assertEquals("incorrect body points! ", finPoints[finPoints.length-1].x, rootPoints[1].x, EPSILON);
-			assertEquals("incorrect body points! ", finPoints[finPoints.length-1].y, rootPoints[1].y, EPSILON);
+			assertEquals("incorrect body point: 0::x ! ", finPoints[0].x, rootPoints[0].x, EPSILON);
+			assertEquals("incorrect body point: 0::y ! ", finPoints[0].y, rootPoints[0].y, EPSILON);
+			assertEquals("incorrect body point: -1::x !", finPoints[finPoints.length-1].x, rootPoints[1].x, EPSILON);
+			assertEquals("incorrect body point: -1::y !", finPoints[finPoints.length-1].y, rootPoints[1].y, EPSILON);
 		}
 	}
 
@@ -1199,18 +1234,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
 		
-		final Coordinate[] finPoints = fins.getFinPoints();
-		
-		{ // body points (relative to body)
-			final Coordinate[] bodyPoints = fins.getMountPoints();
-
-			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, bodyPoints.length );
-			assertEquals("incorrect body points! ", 0.0, bodyPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", 1.0, bodyPoints[0].y, EPSILON);
-			assertEquals("incorrect body points! ", 1.0, bodyPoints[1].x, EPSILON);
-			assertEquals("incorrect body points! ", 0.5, bodyPoints[1].y, EPSILON);
-		}
 		{ // body points (relative to root)
+			final Coordinate[] finPoints = fins.getFinPoints();
 			final Coordinate[] rootPoints = fins.getRootPoints();
 	
 			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, rootPoints.length );
@@ -1233,17 +1258,14 @@ public class FreeformFinSetTest extends BaseTestCase {
 		{ // fin points (relative to fin) // preconditions
 			assertEquals(4, finPoints.length);
 			
-			assertEquals("incorrect body points! ", 0f, finPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", 0f, finPoints[0].y, EPSILON);
+			assertEquals("incorrect fin points! ", 0f, finPoints[0].x, EPSILON);
+			assertEquals("incorrect fin points! ", 0f, finPoints[0].y, EPSILON);
 
-			assertEquals("incorrect body points! ",  0.8, finPoints[3].x, EPSILON);
+			assertEquals("incorrect fin points! ",  0.8, finPoints[3].x, EPSILON);
 
-//			?? SMOKING GUN:
-//			?? is this y-value of the fin not getting snapped to the body?  
-		
 			assertEquals(nose.getRadius(0.8+finFront.x) - finFront.y, finPoints[3].y, EPSILON);
 			
-			assertEquals("incorrect body points! ",  0.78466912, finPoints[3].y, EPSILON);
+			assertEquals("incorrect fin points! ",  0.78466912, finPoints[3].y, EPSILON);
 			
 		}{ // body points (relative to fin)
 			final Coordinate[] rootPoints = fins.getRootPoints();
@@ -1273,38 +1295,14 @@ public class FreeformFinSetTest extends BaseTestCase {
 							nose.getRadius(rootPoints[testIndex].x + finFront.x) - finFront.y, rootPoints[testIndex].y, EPSILON);
 			    }
 			}
-		}{ // body points (relative to body)
-			final Coordinate[] mountPoints = fins.getMountPoints();
-			assertEquals(101, mountPoints.length);
-			
-			// trivial, and uninteresting:
-			assertEquals("incorrect body points! ", 0.0, mountPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", 0.0, mountPoints[0].y, EPSILON);
-	
-			// n.b.: This should match EXACTLY the end point of the fin. (in fin coordinates)
-			assertEquals("incorrect body points! ",  1.0, mountPoints[mountPoints.length-1].x, EPSILON);
-			assertEquals("incorrect body points! ",  1.0, mountPoints[mountPoints.length-1].y, EPSILON);
-	
-			{// the tests within this scope is are rather fragile, and may break for reasons other than bugs :(
-				// the number of points is somewhat arbitrary, but if this test fails, the rest *definitely* will.
-				assertEquals("Method is generating how many points, in general? ", 101, mountPoints.length );
-	
-				final int[] testIndices = {  3,     12,     61,    88};
-				final double[] expectedX = { 0.03,   0.12,   0.61,  0.88};
-
-				for( int testCase = 0; testCase < testIndices.length; testCase++){
-					final int testIndex =  testIndices[testCase];
-					assertEquals(String.format("Body points @ %d :: x coordinate mismatch!", testIndex),
-							expectedX[testCase], mountPoints[testIndex].x, EPSILON);
-					assertEquals(String.format("Body points @ %d :: y coordinate mismatch!", testIndex),
-					nose.getRadius(mountPoints[testIndex].x), mountPoints[testIndex].y, EPSILON);
-			    }
-			}
 		}
 	}
 
 	@Test
 	public void testFreeFormCMWithNegativeY() throws Exception {
+		final Rocket rkt = createTemplateRocket();
+	    final BodyTube body = (BodyTube) rkt.getChild(0).getChild(1);
+
 		// A user submitted an ork file which could not be simulated.
 		// This Fin set is constructed to have the same problem.  It is a square and rectangle
 		// where the two trailing edge corners of the rectangle satisfy y_0 = -y_1
@@ -1323,18 +1321,18 @@ public class FreeformFinSetTest extends BaseTestCase {
 		//         |
 		//         |		
 		FreeformFinSet fins = new FreeformFinSet();
-		fins.setAxialOffset( AxialMethod.BOTTOM, -1.0);
+		body.addChild(fins);
+		fins.setAxialOffset( AxialMethod.TOP, 1.0);
+
 		Coordinate[] points = new Coordinate[] {
-				new Coordinate(0, 0),
-				new Coordinate(0, 1),
-				new Coordinate(2, 1),
-				new Coordinate(2, -1),
-				new Coordinate(1, -1),
-				new Coordinate(1, 0)
+				new Coordinate(0.0, 0),
+				new Coordinate(0.0, 1),
+				new Coordinate(2.0, 1),
+				new Coordinate(2.0, -1),
+				new Coordinate(1.0001, -1),
+				new Coordinate(1.0, 0)
 		};
 		fins.setPoints(points);
-
-		System.err.println(fins.toDebugDetail());
 
 		fins.setPoints( points);
 		fins.setFilletRadius( 0.0);
@@ -1342,14 +1340,80 @@ public class FreeformFinSetTest extends BaseTestCase {
 		fins.setCrossSection( CrossSection.SQUARE );  // to ensure uniform density
 		fins.setMaterial( Material.newMaterial(Type.BULK, "dummy", 1.0, true));
 
-		assertEquals( 3.0, fins.getPlanformArea(), EPSILON);
+		assertEquals( 3.0, fins.getPlanformArea(), 0.0001);
 
 		final Coordinate cg = fins.getCG();
-		assertEquals(3.0, fins.getPlanformArea(), EPSILON);
-		assertEquals(3.5 / 3.0, cg.x, EPSILON);
-		assertEquals(0.5 / 3.0, cg.y, EPSILON);
+		assertEquals(1.1666, cg.x, 0.0001);
+		assertEquals(1.1666, cg.y, 0.0001);
 		assertEquals( 0.0, cg.z, EPSILON);
 		assertEquals( 0.009, cg.weight, EPSILON);
+	}
+
+	@Test
+	public void testFreeFormCMWithTooManyPoints() {
+		final Rocket rkt = createTemplateRocket();
+		final BodyTube phantomBody = (BodyTube) rkt.getChild(0).getChild(3);
+		final FreeformFinSet fins = new FreeformFinSet();
+
+		// fins.setAxialOffset( Position.BOTTOM, 1.0);  // ERROR: no parent!
+		final Coordinate[] setPoints = new Coordinate[] {
+				new Coordinate(0.006349996571001852, 0.0),
+				new Coordinate(0.00635, 0.022224999999999998),
+				new Coordinate(0.0067056, 0.02716387422039681),
+				new Coordinate(0.007619999999999999, 0.03174998285500926),
+				new Coordinate(0.0093472, 0.036159702695982766),
+				new Coordinate(0.0110998, 0.03951108977512263),
+				new Coordinate(0.028134012585410983, 0.06508746485276898),
+				new Coordinate(0.030427066902717206, 0.06843885193190885),
+				new Coordinate(0.03298470441048184, 0.07170204461422924),
+				new Coordinate(0.0351895643309686, 0.073906904534716),
+				new Coordinate(0.03801178502919164, 0.0756707924711054),
+				new Coordinate(0.04101039452105363, 0.07672912523293904),
+				new Coordinate(0.04409719840973508, 0.07743468040749481),
+				new Coordinate(0.04762497428251389, 0.07787565239159215),
+				new Coordinate(0.0511527501552927, 0.07797799999999999),
+				new Coordinate(0.08021280390730812, 0.07797799999999999),
+				new Coordinate(0.08127113666914176, 0.07796384678841163),
+				new Coordinate(0.08206488624051698, 0.07787565239159215),
+				new Coordinate(0.08281453861348248, 0.07747877760590453),
+				new Coordinate(0.08316731620076037, 0.07681731962975852),
+				new Coordinate(0.08325551059757984, 0.07584718126474434),
+				new Coordinate(0.083312, 0.07487704289973017),
+				new Coordinate(0.08329960779598958, 0.033293384799349984),
+				new Coordinate(0.08325551059757984, 0.03254373242638449),
+				new Coordinate(0.08307912180394089, 0.03174998285500926),
+				new Coordinate(0.08263814981984355, 0.031132622077272968),
+				new Coordinate(0.08180030305005857, 0.030691650093175617),
+				new Coordinate(0.0806978730898152, 0.030479999999999997),
+				new Coordinate(0.06178017497203885, 0.030479999999999997),
+				new Coordinate(0.05635621956764143, 0.030479999999999997),
+				new Coordinate(0.05344580447259892, 0.030225999999999996),
+				new Coordinate(0.051461430544160844, 0.0292862),
+				new Coordinate(0.050006222996639586, 0.027711399999999997),
+				new Coordinate(0.04921247342526435, 0.0261112),
+				new Coordinate(0.048683307044347535, 0.024002999999999997),
+				new Coordinate(0.048768, 0.022098),
+				new Coordinate(0.048768, 0.0)
+		};
+		fins.setPoints( setPoints);
+		phantomBody.addChild(fins);
+
+		{ // fin points (relative to fin) // preconditions
+			final Coordinate[] finPoints = fins.getFinPoints();
+			assertEquals(37, finPoints.length);
+
+			// fin root length:
+			assertEquals(0.04241800, fins.length, EPSILON);
+			
+			// p_first
+			assertEquals(0f, finPoints[0].x, EPSILON);
+			assertEquals(0f, finPoints[0].y, EPSILON);
+
+			// p_last
+			assertEquals(0.042418, finPoints[36].x, EPSILON);
+			assertEquals(0., finPoints[36].y, EPSILON);
+
+		}
 	}
 
 }
