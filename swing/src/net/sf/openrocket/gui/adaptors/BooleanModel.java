@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Invalidatable;
@@ -101,8 +102,11 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 		this.valueName = valueName;
 		
 		Method getter = null, setter = null;
-		
-
+	      
+        if(RocketComponent.class.isAssignableFrom(source.getClass())) {
+            ((RocketComponent)source).addChangeListener(this);
+        }
+        
 		// Try get/is and set
 		try {
 			getter = source.getClass().getMethod("is" + valueName);
