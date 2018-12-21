@@ -371,7 +371,6 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    final int finFrontX = (int)(subjectBounds_m.getX()*scale);
 	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 	    
-	    // the negative sign is to compensate for the mount's negative location.
         originLocation_px.width = borderThickness_px.width - finFrontX;
         
         if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {
