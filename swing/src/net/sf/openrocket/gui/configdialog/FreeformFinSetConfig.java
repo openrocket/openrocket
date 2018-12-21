@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -337,7 +338,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
 				CustomFinImporter importer = new CustomFinImporter();
-				List<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
+				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
 				finset.setPoints( points);
 			} catch (IOException e) {

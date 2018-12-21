@@ -4,7 +4,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,8 +18,9 @@ import net.sf.openrocket.util.Coordinate;
 public class FreeformFinSet extends FinSet {
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSet.class);
 	private static final Translator trans = Application.getTranslator();
-	
-	private List<Coordinate> points = new ArrayList<>();
+
+	// this class uses certain features of 'ArrayList' which are not implemented in other 'List' implementations.
+	private ArrayList<Coordinate> points = new ArrayList<>();
 	
 	private static final double SNAP_SMALLER_THAN = 1e-6;
 	private static final double IGNORE_SMALLER_THAN = 1e-12;
@@ -47,8 +47,8 @@ public class FreeformFinSet extends FinSet {
 	public static FreeformFinSet convertFinSet(FinSet finset) {
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
-		List<RocketComponent> toInvalidate = Collections.emptyList();
-		
+		List<RocketComponent> toInvalidate = new ArrayList<>();
+
 		try {
 			if (root instanceof Rocket) {
 				((Rocket) root).freeze();
@@ -67,7 +67,7 @@ public class FreeformFinSet extends FinSet {
 			// Create the freeform fin set
 			Coordinate[] finPoints = finset.getFinPoints();
 			freeform = new FreeformFinSet();
-			freeform.setPoints(Arrays.asList(finPoints));
+			freeform.setPoints(finPoints);
 			freeform.setAxialOffset(finset.getAxialMethod(), finset.getAxialOffset());
 			
 			// Copy component attributes
@@ -130,7 +130,7 @@ public class FreeformFinSet extends FinSet {
 		}
 		
 		// copy the old list in case the operation fails
-		List<Coordinate> copy = new ArrayList<>(this.points);
+		ArrayList<Coordinate> copy = new ArrayList<>(this.points);
 		
 		this.points.remove(index);
 		if (!validate()) {
@@ -163,15 +163,15 @@ public class FreeformFinSet extends FinSet {
 	 * 
 	 * @param newPoints New points to set as the exposed edges of the fin
 	 */
-	public void setPoints( List<Coordinate> newPoints) {
+	public void setPoints( ArrayList<Coordinate> newPoints) {
 		// copy the old points, in case validation fails
-		List<Coordinate> copy = new ArrayList<>(this.points);
+		ArrayList<Coordinate> copy = new ArrayList<>(this.points);
 		this.points = newPoints;
 		this.length = newPoints.get(newPoints.size() -1).x;		
 		
 		update();
 		
-//		StackTraceElement[] stacktrack = Thread.currentThread().getStackTrace();
+		//StackTraceElement[] stacktrack = Thread.currentThread().getStackTrace();
 		if("Canard fins, mounted to transition".equals(this.getName())) {
 			log.error(String.format("starting to set %d points @ %s", newPoints.size(), this.getName()), new NullPointerException());
 			System.err.println( toDebugDetail());
