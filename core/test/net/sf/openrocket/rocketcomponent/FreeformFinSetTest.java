@@ -1179,13 +1179,13 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final Coordinate[] finPointsFromBody = FinSet.translatePoints( finPoints,  0.0, fins.getFinFront().y);
 
 		{ // body points (relative to body)
-			final Coordinate[] bodyPoints = fins.getBodyPoints();
+			final Coordinate[] mountPoints = fins.getMountPoints();
 	
-			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, bodyPoints.length );
-			assertEquals("incorrect body points! ", finPointsFromBody[0].x, bodyPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[0].y, bodyPoints[0].y, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].x, bodyPoints[1].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].y, bodyPoints[1].y, EPSILON);
+			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, mountPoints.length );
+			assertEquals("incorrect body points! ", finPointsFromBody[0].x, mountPoints[0].x, EPSILON);
+			assertEquals("incorrect body points! ", finPointsFromBody[0].y, mountPoints[0].y, EPSILON);
+			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].x, mountPoints[1].x, EPSILON);
+			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].y, mountPoints[1].y, EPSILON);
 		}
 		{ // root points (relative to fin-front)
 			final Coordinate[] rootPoints = fins.getRootPoints();
@@ -1203,18 +1203,16 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final Rocket rkt = createTemplateRocket();
 		final FreeformFinSet fins = (FreeformFinSet) rkt.getChild(0).getChild(2).getChild(0);
 
-		final Coordinate finFront = fins.getFinFront();
 		final Coordinate[] finPoints = fins.getFinPoints();
-		final Coordinate[] finPointsFromBody = FinSet.translatePoints( finPoints,  finFront.x, finFront.y);
-
+		
 		{ // body points (relative to body)
-			final Coordinate[] bodyPoints = fins.getBodyPoints();
+			final Coordinate[] bodyPoints = fins.getMountPoints();
 
 			assertEquals("Method should only generate minimal points for a conical transition fin body! ", 2, bodyPoints.length );
-			assertEquals("incorrect body points! ", finPointsFromBody[0].x, bodyPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[0].y, bodyPoints[0].y, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].x, bodyPoints[1].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[finPoints.length-1].y, bodyPoints[1].y, EPSILON);
+			assertEquals("incorrect body points! ", 0.0, bodyPoints[0].x, EPSILON);
+			assertEquals("incorrect body points! ", 1.0, bodyPoints[0].y, EPSILON);
+			assertEquals("incorrect body points! ", 1.0, bodyPoints[1].x, EPSILON);
+			assertEquals("incorrect body points! ", 0.5, bodyPoints[1].y, EPSILON);
 		}
 		{ // body points (relative to root)
 			final Coordinate[] rootPoints = fins.getRootPoints();
@@ -1235,7 +1233,6 @@ public class FreeformFinSetTest extends BaseTestCase {
 		
 		final Coordinate finFront = fins.getFinFront();
 		final Coordinate[] finPoints = fins.getFinPoints();
-		
 		
 		{ // fin points (relative to fin) // preconditions
 			assertEquals(4, finPoints.length);
@@ -1281,35 +1278,30 @@ public class FreeformFinSetTest extends BaseTestCase {
 			    }
 			}
 		}{ // body points (relative to body)
-			// translate from fin-frame to body-frame
-			final Coordinate[] finPointsFromBody = FinSet.translatePoints( fins.getFinPoints(), finFront.x, finFront.y );
+			final Coordinate[] mountPoints = fins.getMountPoints();
+			assertEquals(101, mountPoints.length);
 			
-			final Coordinate[] bodyPoints = fins.getBodyPoints();
-			assertEquals(101, bodyPoints.length);
-			
-			final Coordinate expectedEndPoint = finPointsFromBody[ finPoints.length-1];
-
 			// trivial, and uninteresting:
-			assertEquals("incorrect body points! ", finPointsFromBody[0].x, bodyPoints[0].x, EPSILON);
-			assertEquals("incorrect body points! ", finPointsFromBody[0].y, bodyPoints[0].y, EPSILON);
+			assertEquals("incorrect body points! ", 0.0, mountPoints[0].x, EPSILON);
+			assertEquals("incorrect body points! ", 0.0, mountPoints[0].y, EPSILON);
 	
 			// n.b.: This should match EXACTLY the end point of the fin. (in fin coordinates)
-			assertEquals("incorrect body points! ",  expectedEndPoint.x, bodyPoints[bodyPoints.length-1].x, EPSILON);
-			assertEquals("incorrect body points! ",  expectedEndPoint.y, bodyPoints[bodyPoints.length-1].y, EPSILON);
+			assertEquals("incorrect body points! ",  1.0, mountPoints[mountPoints.length-1].x, EPSILON);
+			assertEquals("incorrect body points! ",  1.0, mountPoints[mountPoints.length-1].y, EPSILON);
 	
 			{// the tests within this scope is are rather fragile, and may break for reasons other than bugs :(
 				// the number of points is somewhat arbitrary, but if this test fails, the rest *definitely* will.
-				assertEquals("Method is generating how many points, in general? ", 101, bodyPoints.length );
+				assertEquals("Method is generating how many points, in general? ", 101, mountPoints.length );
 	
-				final int[] testIndices = {  2,      5,     61,      88};
-				final double[] expectedX = { 0.036,  0.06,   0.508,   0.724};
-	
+				final int[] testIndices = {  3,     12,     61,    88};
+				final double[] expectedX = { 0.03,   0.12,   0.61,  0.88};
+
 				for( int testCase = 0; testCase < testIndices.length; testCase++){
 					final int testIndex =  testIndices[testCase];
 					assertEquals(String.format("Body points @ %d :: x coordinate mismatch!", testIndex),
-							expectedX[testCase], bodyPoints[testIndex].x, EPSILON);
+							expectedX[testCase], mountPoints[testIndex].x, EPSILON);
 					assertEquals(String.format("Body points @ %d :: y coordinate mismatch!", testIndex),
-							body.getRadius(bodyPoints[testIndex].x), bodyPoints[testIndex].y, EPSILON);
+							body.getRadius(mountPoints[testIndex].x), mountPoints[testIndex].y, EPSILON);
 			    }
 			}
 		}

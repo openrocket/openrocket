@@ -412,8 +412,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 				- outerArcAngle * filletRadius * filletRadius / 2
 				- innerArcAngle * bodyRadius * bodyRadius / 2);
 
-		// each fin has a fillet on each side
-		crossSectionArea *= 2;
+		if(Double.isNaN(crossSectionArea)) {
+			crossSectionArea = 0.;
+		}else {
+			// each fin has a fillet on each side
+			crossSectionArea *= 2;
+		}
 
 		// heuristic, relTo the body center
 		double yCentroid = bodyRadius + filletRadius /5;
@@ -435,28 +439,26 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
 	protected Coordinate calculateFilletVolumeCentroid() {
-		Coordinate[] bodyPoints = this.getBodyPoints();
-		if (0 == bodyPoints.length) {
+		Coordinate[] mountPoints = this.getRootPoints();
+		if( null == mountPoints ){
 			return Coordinate.ZERO;
 		}
-
+		
 		final SymmetricComponent sym = (SymmetricComponent) this.parent;
 		if (!SymmetricComponent.class.isInstance(this.parent)) {
 			return Coordinate.ZERO;
 		}
 
 		Coordinate filletVolumeCentroid = Coordinate.ZERO;
-
-
-		Coordinate prev = bodyPoints[0];
-		for (int index = 1; index < bodyPoints.length; index++) {
-			final Coordinate cur = bodyPoints[index];
+		Coordinate prev = mountPoints[0];
+		for (int index = 1; index < mountPoints.length; index++) {
+			final Coordinate cur = mountPoints[index];
 
 			// cross section at mid-segment
 			final double xAvg = (prev.x + cur.x) / 2;
 			final double bodyRadius = sym.getRadius(xAvg);
 			final Coordinate segmentCrossSection = calculateFilletCrossSection(this.filletRadius, bodyRadius).setX(xAvg);
-
+			
 //			final double xCentroid = xAvg;
 //			final double yCentroid = segmentCrossSection.y; ///< heuristic, not exact
 			final double segmentLength = Point2D.Double.distance(prev.x, prev.y, cur.x, cur.y);
@@ -468,10 +470,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 
 			prev = cur;
 		}
-
-		// translate to be relative to the fin-lead-root
-		filletVolumeCentroid = filletVolumeCentroid.sub(getAxialFront(), 0,0);
-
+		
 		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
@@ -541,7 +540,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		final double xTabTrail_body = xFinFront_body + xTabTrail_fin;
 				
 		// always returns x coordinates relTo fin front:
-		Coordinate[] upperCurve = getBodyPoints( xTabFront_body, xTabTrail_body );
+		Coordinate[] upperCurve = getMountInterval( xTabFront_body, xTabTrail_body );
 		// locate relative to fin/body centerline
 		upperCurve = translatePoints( upperCurve, -xFinFront_body, 0.0);
 		
@@ -572,15 +571,15 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 */
 	private Coordinate calculateSinglePlanformCentroid(){
 		final Coordinate finFront = getFinFront();
-
-		final Coordinate[] upperCurve = translatePoints( getFinPoints(), finFront.x, finFront.y );
-		final Coordinate[] lowerCurve = getBodyPoints();
+		
+		final Coordinate[] upperCurve = getFinPoints();
+		final Coordinate[] lowerCurve = getRootPoints();
 		final Coordinate[] totalCurve = combineCurves( upperCurve, lowerCurve);
-
+		
 		Coordinate planformCentroid = calculateCurveIntegral( totalCurve );
 
 		// return as a position relative to fin-root
-		return planformCentroid.sub(finFront.x,0,0);
+		return planformCentroid.add(0., finFront.y, 0);
 	}
 
 	/** 
@@ -1042,11 +1041,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * 
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
-	public Coordinate[] getBodyPoints() {
-		final double xFinStart = getAxialFront();
-		final double xFinEnd = xFinStart+getLength();
-
-		return getBodyPoints( xFinStart, xFinEnd);
+	public Coordinate[] getMountPoints() {
+		if( null == parent){
+			return null;
+		}
+		
+		return getMountInterval(0., parent.getLength());
 	}
 
 	/**
@@ -1055,19 +1055,22 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: fin-root-radius ) 
 	 */
 	public Coordinate[] getRootPoints(){
-		final Coordinate finLead = getFinFront();
-		final double finTailX = finLead.x + getLength();
-
-		final Coordinate[] bodyPoints = getBodyPoints( finLead.x, finTailX);
-
-		return translatePoints(bodyPoints, -finLead.x, -finLead.y);
-	}
-
-	private Coordinate[] getBodyPoints( final double xStart, final double xEnd ) {
 		if( null == parent){
 			return new Coordinate[]{Coordinate.ZERO};
 		}
 		
+		final Coordinate finLead = getFinFront();
+		final double finTailX = finLead.x + getLength();
+
+		final Coordinate[] bodyPoints = getMountInterval( finLead.x, finTailX);
+
+		return translatePoints(bodyPoints, -finLead.x, -finLead.y);
+	}
+
+	
+	private Coordinate[] getMountInterval(  final double xStart, final double xEnd ) {
+//		System.err.println(String.format("    .... >> mount interval/x: ( %g, %g)]", xStart, xEnd));
+
 		// for a simple bodies, one increment is perfectly accurate.
 		int divisionCount = 1;
 		// cast-assert
@@ -1101,7 +1104,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if( body.getLength()-0.000001 < points[lastIndex].x) {
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
-
+		
 		return points;
 	}
 
@@ -1125,7 +1128,8 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		buf.append( getPointDescr( this.getFinPoints(), "Fin Points", ""));
 
 		if (null != parent) {
-			buf.append( getPointDescr( this.getBodyPoints(), "Body Points", ""));
+			buf.append( getPointDescr( this.getRootPoints(), "Root Points", ""));
+			buf.append( getPointDescr( this.getMountPoints(), "Mount Points", ""));
 		}
 
 		if( ! this.isTabTrivial() ) {
@@ -1146,7 +1150,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		final double tabVolume = tabCentroid.weight * thickness;
 		final double tabMass = tabVolume * material.getDensity();
 		final Coordinate tabCM = tabCentroid.setWeight(tabMass);
-
+		
 		Coordinate filletCentroid = calculateFilletVolumeCentroid();
 		double filletVolume = filletCentroid.weight;
 		double filletMass = filletVolume * filletMaterial.getDensity();
@@ -1156,7 +1160,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 
 		final double eachFinMass = finBulkMass + tabMass + filletMass;
 		final Coordinate eachFinCenterOfMass = wettedCM.average(tabCM).average(filletCM).setWeight(eachFinMass);
-
+		
 		// ^^ per fin
 		// vv per component
 
