@@ -90,7 +90,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		final Rocket rkt = createSimpleTrapezoidalFin();
 		final TrapezoidFinSet fins = (TrapezoidFinSet)rkt.getChild(0).getChild(0).getChild(0);
 
-		// This is a simple square fin with sides of 1.0.
+		// This is a simple square fin with sides of 0.1.
 		fins.setFinShape(0.1, 0.1, 0.0, 0.1, .005);
 
 		// should return a single-fin-planform area
@@ -170,14 +170,14 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		//        /      \
 		//   [0] +--------+ [3]
 		//
+		assertEquals(0.06, fins.getLength(), EPSILON);
 		assertEquals("Body radius doesn't match: ", 0.1, body.getOuterRadius(), EPSILON);
 
 		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
 
-		assertEquals("Line volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
-
-		assertEquals("Line mass center.x doesn't match: ", 0.03, actVolume.x, EPSILON);
-		assertEquals("Line mass center.y doesn't match: ", 0.101, actVolume.y, EPSILON);
+		assertEquals("Fin volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
+		assertEquals("Fin mass center.x doesn't match: ", 0.03, actVolume.x, EPSILON);
+		assertEquals("Fin mass center.y doesn't match: ", 0.101, actVolume.y, EPSILON);
 
 
 		{ // and then, check that the fillet volume feeds into a correct overall CG:
@@ -189,7 +189,6 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 	@Test
 	public void testTrapezoidCGComputation() {
-		
 		{
 			// This is a simple square fin with sides of 1.0.
 			TrapezoidFinSet fins = new TrapezoidFinSet();
@@ -200,9 +199,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals(1.0, fins.getPlanformArea(), 0.001);
 			assertEquals(0.5, coords.x, 0.001);
 			assertEquals(0.5, coords.y, 0.001);
-		}
-		
-		{
+		}{
 			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
 			// It can be decomposed into a rectangle followed by a triangle
 			//  +---+
@@ -218,7 +215,77 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals(0.3889, coords.x, 0.001);
 			assertEquals(0.4444, coords.y, 0.001);
 		}
+	}
+	
+	@Test
+	public void testGetBodyPoints_phantomMount() {
+		final Rocket rkt = createSimpleTrapezoidalFin();
 		
+		// set mount to have zero-dimensions:
+		final BodyTube mount = (BodyTube)rkt.getChild(0).getChild(0);
+		mount.setLength(0.0);
+		mount.setOuterRadius(0.0);
+		assertEquals( 0, mount.getLength(), 0.00001);
+		assertEquals( 0, mount.getOuterRadius(), 0.00001);
+		assertEquals( 0, mount.getInnerRadius(), 0.00001);
+		
+		final TrapezoidFinSet fins = (TrapezoidFinSet)mount.getChild(0);
+		final Coordinate[] mountPoints = fins.getMountPoints();
+		
+		assertEquals(2, mountPoints.length );
+		assertEquals( 0.00, mountPoints[0].x, 0.00001);
+		assertEquals( 0.00, mountPoints[0].y, 0.00001);
+		assertEquals( 0.00, mountPoints[1].x, 0.00001);
+		assertEquals( 0.00, mountPoints[1].y, 0.00001);
+	}
+	
+	@Test
+	public void testGetBodyPoints_zeroLengthMount() {
+		final Rocket rkt = createSimpleTrapezoidalFin();
+		
+		// set mount to have zero-dimensions:
+		final BodyTube mount = (BodyTube)rkt.getChild(0).getChild(0);
+		mount.setLength(0.0);
+		mount.setOuterRadius(0.1);
+		mount.setInnerRadius(0.08);
+		assertEquals( 0, mount.getLength(), 0.00001);
+		assertEquals( 0.1, mount.getOuterRadius(), 0.00001);
+		assertEquals( 0.08, mount.getInnerRadius(), 0.00001);
+		
+		final TrapezoidFinSet fins = (TrapezoidFinSet)mount.getChild(0);
+		final Coordinate[] mountPoints = fins.getMountPoints();
+				
+		assertEquals(2, mountPoints.length );
+		assertEquals( 0.0, mountPoints[0].x, 0.00001);
+		assertEquals( 0.1, mountPoints[0].y, 0.00001);
+		assertEquals( 0.0, mountPoints[1].x, 0.00001);
+		assertEquals( 0.1, mountPoints[1].y, 0.00001);
+	}
+	
+	@Test
+	public void testTrapezoidCGComputation_phantomMount() {
+		final Rocket rkt = createSimpleTrapezoidalFin();
+		
+		// set mount to have zero-dimensions:
+		final BodyTube mount = (BodyTube)rkt.getChild(0).getChild(0);
+		mount.setLength(0.0);
+		mount.setOuterRadius(0.0);
+
+		assertEquals( 0, mount.getLength(), 0.00001);
+		assertEquals( 0, mount.getOuterRadius(), 0.00001);
+		assertEquals( 0, mount.getInnerRadius(), 0.00001);
+		
+		final TrapezoidFinSet fins = (TrapezoidFinSet)mount.getChild(0);
+		
+		assertEquals( 0.06, fins.getLength(), 0.00001);
+		assertEquals( 0.05, fins.getHeight(), 0.00001);
+		assertEquals( 0.06, fins.getRootChord(), 0.00001);
+		assertEquals( 0.02, fins.getTipChord(), 0.00001);
+		
+		final Coordinate coords = fins.getCG();
+		assertEquals(0.002, fins.getPlanformArea(), 0.001);
+		assertEquals(0.03, coords.x, 0.001);
+		assertEquals(0.02, coords.y, 0.001);
 	}
 	
 	@Test
