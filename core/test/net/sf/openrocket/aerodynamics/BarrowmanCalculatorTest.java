@@ -15,12 +15,12 @@ import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TestRockets;
@@ -111,18 +111,38 @@ public class BarrowmanCalculatorTest {
 	
 	@Test
 	public void testCPDoubleStrapOn() {
-		Rocket rocket = TestRockets.makeFalcon9Heavy();
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		BarrowmanCalculator calc = new BarrowmanCalculator();
-		FlightConditions conditions = new FlightConditions(config);
-		WarningSet warnings = new WarningSet();
-		
-		double expCPx = 1.04662388;
-		double expCNa = 21.5111598;
-		Coordinate calcCP = calc.getCP(config, conditions, warnings);
-		
-		assertEquals(" Falcon 9 Heavy CP x value is incorrect:", expCPx, calcCP.x, EPSILON);
-		assertEquals(" Falcon 9 Heavy CNa value is incorrect:", expCNa, calcCP.weight, EPSILON);
+		final Rocket rocket = TestRockets.makeFalcon9Heavy();
+		final ParallelStage boosterStage = (ParallelStage) rocket.getChild(1).getChild(0).getChild(0);
+		final TrapezoidFinSet boosterFins = (TrapezoidFinSet) boosterStage.getChild(1).getChild(1);
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+		final FlightConditions conditions = new FlightConditions(config);
+		final WarningSet warnings = new WarningSet();
+
+		{
+			boosterFins.setFinCount(3);
+			final Coordinate cp_3fin = calc.getCP(config, conditions, warnings);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 21.5111598, cp_3fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 1.04662388, cp_3fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_3fin.y, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_3fin.z, EPSILON);
+		}{
+			boosterFins.setFinCount(2);
+			final Coordinate cp_2fin = calc.getCP(config, conditions, warnings);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711197, cp_2fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.99464238, cp_2fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_2fin.y, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_2fin.z, EPSILON);
+		}{
+			boosterFins.setFinCount(1);
+			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 9.36306412, cp_1fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.87521867, cp_1fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.08564455, cp_1fin.y, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.01766062, cp_1fin.z, EPSILON);
+		}{
+			// absent -- 3.28901627g @[0.31469937,0.05133333,0.00000000]
+		}
 	}
 	
 	@Test
@@ -152,7 +172,6 @@ public class BarrowmanCalculatorTest {
 		assertTrue("Estes Alpha III should be continous: ", calc.isContinuous( rocket));
 	}
 	
-
 	@Test
 	public void testContinuousRocketWithStrapOns() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
