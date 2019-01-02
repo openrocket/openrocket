@@ -97,7 +97,6 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 
-		
 		// calculated from OpenRocket 15.03:
 		//double expCPx = 0.225;
 		// verified from the equations: 
@@ -110,7 +109,7 @@ public class BarrowmanCalculatorTest {
 	}
 	
 	@Test
-	public void testCPDoubleStrapOn() {
+	public void testCPParallelBoosters() {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
 		final ParallelStage boosterStage = (ParallelStage) rocket.getChild(1).getChild(0).getChild(0);
 		final TrapezoidFinSet boosterFins = (TrapezoidFinSet) boosterStage.getChild(1).getChild(1);
@@ -138,8 +137,8 @@ public class BarrowmanCalculatorTest {
 			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
 			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 9.36306412, cp_1fin.weight, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.87521867, cp_1fin.x, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.08564455, cp_1fin.y, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.01766062, cp_1fin.z, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0f, cp_1fin.y, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0f, cp_1fin.z, EPSILON);
 		}{
 			// absent -- 3.28901627g @[0.31469937,0.05133333,0.00000000]
 		}
