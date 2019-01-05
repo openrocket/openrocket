@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
+import net.sf.openrocket.util.Transformation;
 
 
 /**
@@ -36,9 +38,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	protected final Rocket rocket;
 	protected final FlightConfigurationId fcid;
 	
-	private static int instanceCount=0;
+	private static int configurationInstanceCount=0;
     // made public for testing.... there is probably a better way
-	public final int instanceNumber;
+	public final int configurationInstanceId;
 
 	private class StageFlags implements Cloneable {
 		public boolean active = true;
@@ -83,7 +85,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 		this.rocket = rocket;
 		this.configurationName = null;
-		this.instanceNumber = instanceCount++;
+		this.configurationInstanceId = configurationInstanceCount++;
 		
 		updateStages();
 		updateMotors();
@@ -212,6 +214,49 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 		
 		return toReturn;
+	}
+
+	/*
+	 * Generates a read-only, instance-aware collection of the components for this rocket & configuration
+	 * 
+	 *  TODO: swap in this function for the 'getActiveComponents() function, above;  ONLY WHEN READY / MATURE! 
+	 */
+	public InstanceMap getActiveInstances() {
+		InstanceMap contexts = new InstanceMap();
+		getContextListAt( this.rocket, contexts, Transformation.IDENTITY);
+		return contexts;
+	}
+
+	private InstanceMap getContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
+		final int instanceCount = component.getInstanceCount();
+		final Coordinate[] allOffsets = component.getInstanceOffsets();
+		final double[] allAngles = component.getInstanceAngles();
+		final boolean active = this.isComponentActive(component);
+		
+		final Transformation compLocTransform = Transformation.getTranslationTransform( component.getPosition() );
+		final Transformation componentTransform = parentTransform.applyTransformation(compLocTransform);
+
+		// generate the Instance's Context:
+		for(int currentInstanceNumber=0; currentInstanceNumber < instanceCount; currentInstanceNumber++) {
+			
+			final Coordinate instanceOffset = allOffsets[currentInstanceNumber];
+			final Transformation offsetTransform = Transformation.getTranslationTransform( instanceOffset );
+			
+			final double instanceAngle = allAngles[currentInstanceNumber];
+			final Transformation angleTransform = Transformation.getAxialRotation(instanceAngle);
+			
+			final Transformation currentTransform = componentTransform.applyTransformation(offsetTransform)
+																  	  .applyTransformation(angleTransform);
+			
+			// constructs entry in-place 
+			results.emplace(component, active, currentInstanceNumber, currentTransform);
+			
+			for(RocketComponent child : component.getChildren()) {
+				getContextListAt(child, results, currentTransform);
+			}
+		}
+
+		return results;
 	}
 	
 	public List<AxialStage> getActiveStages() {
@@ -554,14 +599,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public String toDebug() {
-		return this.fcid.toDebug()+" (#"+instanceNumber+") "+ getOneLineMotorDescription();
+		return this.fcid.toDebug()+" (#"+configurationInstanceId+") "+ getOneLineMotorDescription();
 	}
 	
 	// DEBUG / DEVEL
 	public String toStageListDetail() {
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping %d stages for config: %s: (%s)(#: %d)\n", 
-				stages.size(), getName(), getId().toShortKey(), instanceNumber));
+				stages.size(), getName(), getId().toShortKey(), configurationInstanceId));
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
@@ -576,7 +621,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public String toMotorDetail(){
 		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping %2d Motors for configuration %s (%s)(#: %s)\n", 
-				motors.size(), getName(), getId().toShortKey(), this.instanceNumber));
+				motors.size(), getName(), getId().toShortKey(), this.configurationInstanceId));
 		
 		for( MotorConfiguration curConfig : this.motors.values() ){
 			boolean active=this.isStageActive( curConfig.getMount().getStage().getStageNumber());
