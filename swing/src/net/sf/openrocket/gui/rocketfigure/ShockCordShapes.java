@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -11,10 +12,8 @@ import java.awt.geom.RoundRectangle2D;
 
 public class ShockCordShapes extends RocketComponentShape {
 
-	public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+
 
 		net.sf.openrocket.rocketcomponent.MassObject massObj = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
@@ -22,8 +21,7 @@ public class ShockCordShapes extends RocketComponentShape {
 		double radius = massObj.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
-		
-		Coordinate start = transformation.transform( componentAbsoluteLocation);
+		Coordinate start = transformation.transform(Coordinate.ZERO);
 		Shape[] s = new Shape[1];
 		s[0] = new RoundRectangle2D.Double(start.x,(start.y-radius),
 					length,2*radius,arc,arc);
@@ -32,17 +30,15 @@ public class ShockCordShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
 		double or = tube.getRadius();
 		
 		Shape[] s = new Shape[1];
-		Coordinate start = componentAbsoluteLocation;
+		Coordinate start = transformation.transform(Coordinate.ZERO);
+		
 		s[0] = new Ellipse2D.Double((start.z-or),(start.y-or),2*or,2*or);
 		
 //		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));

@@ -3,10 +3,8 @@ package net.sf.openrocket.gui.rocketfigure;
 
 import java.awt.Shape;
 
-import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Transformation;
 
@@ -51,20 +49,15 @@ public class RocketComponentShape {
 	}
 
 	
-	public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset) {
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
 		// no-op
 		Application.getExceptionHandler().handleErrorCondition("ERROR:  RocketComponent.getShapesSide called with "
 				+ component);
 		return new RocketComponentShape[0];
 	}
 	
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset) {		// no-op
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+		// no-op
 		Application.getExceptionHandler().handleErrorCondition("ERROR:  RocketComponent.getShapesBack called with "
 				+component);
 		return new RocketComponentShape[0];
