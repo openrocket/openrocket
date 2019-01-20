@@ -620,7 +620,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			length = maxX - minX;
 		}
 
-		for (RocketComponent c : curConfig.getActiveComponents()) {
+		for (RocketComponent c : curConfig.getAllComponents()) {
 			if (c instanceof SymmetricComponent) {
 				double d1 = ((SymmetricComponent) c).getForeRadius() * 2;
 				double d2 = ((SymmetricComponent) c).getAftRadius() * 2;
