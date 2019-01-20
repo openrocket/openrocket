@@ -14,11 +14,8 @@ import net.sf.openrocket.util.Transformation;
 
 public class RailButtonShapes extends RocketComponentShape {
 	
-	public static RocketComponentShape[] getShapesSide(
-			RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceAbsoluteLocation) {
-	
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+
 		RailButton btn = (RailButton)component;
 
 		final double rotation_rad = btn.getAngleOffset();
@@ -36,6 +33,11 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double innerHeightcos = innerHeight*cosr;
 		final double flangeHeightcos = flangeHeight*cosr;
 
+		final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
+
+		System.err.println(String.format("Generating Shapes for RailButtons..."));
+        System.err.println(String.format("           @ %s", instanceAbsoluteLocation));
+        
 		
 		Path2D.Double path = new Path2D.Double();
 		{// central pillar
@@ -51,7 +53,7 @@ public class RailButtonShapes extends RocketComponentShape {
 			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+baseHeightcos), drawWidth, drawHeight), false);
 		}
 		
-		{// inner
+		{// inner flange
 			final double drawWidth = innerDiameter;
 			final double drawHeight = innerDiameter*sinr;
 			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y + baseHeightcos);
@@ -80,12 +82,9 @@ public class RailButtonShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 	
-		net.sf.openrocket.rocketcomponent.RailButton btn = (net.sf.openrocket.rocketcomponent.RailButton)component;
+		RailButton btn = (RailButton)component;
 
 		final double rotation_rad = btn.getAngleOffset();
 		final double sinr = Math.sin(rotation_rad);
@@ -98,7 +97,8 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double outerRadius = outerDiameter/2;
 		final double innerDiameter = btn.getInnerDiameter();
 		final double innerRadius = innerDiameter/2;
-		Coordinate[] inst = transformation.transform( btn.getLocations());
+		
+		Coordinate[] inst = {transformation.transform(Coordinate.ZERO)};
 		
 		Shape[] s = new Shape[inst.length];
 		for (int i=0; i < inst.length; i++) {

@@ -4,18 +4,17 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 
 public class TubeFinSetShapes extends RocketComponentShape {
 	
-	public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
 
-		net.sf.openrocket.rocketcomponent.TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
+		TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
 
 		int fins = finset.getFinCount();
 		double length = finset.getLength();
@@ -47,12 +46,9 @@ public class TubeFinSetShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 			
-		net.sf.openrocket.rocketcomponent.TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
+		TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
 		
 		int fins = finset.getFinCount();
 		double outerradius = finset.getOuterRadius();

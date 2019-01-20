@@ -12,24 +12,20 @@ import java.awt.geom.Path2D;
 
 public class TransitionShapes extends RocketComponentShape {
 
-	// TODO: LOW: Uses only first component of cluster (not currently clusterable).
-
-    public static RocketComponentShape[] getShapesSide(
-                       RocketComponent component,
-                       Transformation transformation,
-                       Coordinate instanceLocation) {
-               return getShapesSide(component, transformation, instanceLocation, 1.0);
+    public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+    	return getShapesSide(component, transformation, 1.0);
     }
 
     public static RocketComponentShape[] getShapesSide(
-                       RocketComponent component,
-                       Transformation transformation,
-                       Coordinate instanceAbsoluteLocation,
-                       final double scaleFactor) {
+    		 final RocketComponent component, 
+    		 final Transformation transformation,
+             final double scaleFactor) {
     
 
 		Transition transition = (Transition)component;
 
+        final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
+        
 		RocketComponentShape[] mainShapes;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
@@ -49,27 +45,28 @@ public class TransitionShapes extends RocketComponentShape {
 			
 			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };
 		} else {
-			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, instanceAbsoluteLocation);
+			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation);
 		}
 		
 		Shape foreShoulder=null, aftShoulder=null;
 		int arrayLength = mainShapes.length;
 		
 		if (transition.getForeShoulderLength() > 0.0005) {
-			Coordinate foreTransitionShoulderCenter = instanceAbsoluteLocation.sub( transition.getForeShoulderLength(), 0, 0);
-			final Coordinate frontCenter = foreTransitionShoulderCenter; //transformation.transform( foreTransitionShoulderCenter);
-			final double length = transition.getForeShoulderLength();
-			final double radius = transition.getForeShoulderRadius();
+			final double shoulderLength = transition.getForeShoulderLength();
+            final double shoulderRadius = transition.getForeShoulderRadius();
+            final Transformation offsetTransform = Transformation.getTranslationTransform(-transition.getForeShoulderLength(), 0, 0);
+            final Transformation foreShoulderTransform = transformation.applyTransformation(offsetTransform);
             
-			foreShoulder = TubeShapes.getShapesSide( transformation, frontCenter, length, radius);
+			foreShoulder = TubeShapes.getShapesSide( foreShoulderTransform, shoulderLength, shoulderRadius);
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
-			Coordinate aftTransitionShoulderCenter = instanceAbsoluteLocation.add( transition.getLength(), 0, 0);
-			final Coordinate frontCenter = aftTransitionShoulderCenter; //transformation.transform( aftTransitionShoulderCenter );
-            final double length = transition.getAftShoulderLength();
-            final double radius = transition.getAftShoulderRadius();
-			aftShoulder = TubeShapes.getShapesSide(transformation, frontCenter, length, radius);
+			final double shoulderLength = transition.getAftShoulderLength();
+            final double shoulderRadius = transition.getAftShoulderRadius();
+            final Transformation offsetTransform = Transformation.getTranslationTransform(transition.getLength(), 0, 0);
+            final Transformation aftShoulderTransform = transformation.applyTransformation(offsetTransform);
+            		
+			aftShoulder = TubeShapes.getShapesSide(aftShoulderTransform, shoulderLength, shoulderRadius);
 			arrayLength++;
 		}
 		if (foreShoulder==null && aftShoulder==null)
@@ -92,17 +89,14 @@ public class TransitionShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 
-		net.sf.openrocket.rocketcomponent.Transition transition = (net.sf.openrocket.rocketcomponent.Transition)component;
+		Transition transition = (net.sf.openrocket.rocketcomponent.Transition)component;
 		
 		double r1 = transition.getForeRadius();
 		double r2 = transition.getAftRadius();
 
-		Coordinate center = componentAbsoluteLocation;
+		final Coordinate center = transformation.transform(Coordinate.ZERO);
 		
 		Shape[] s = new Shape[2];
 		s[0] = new Ellipse2D.Double((center.z-r1),(center.y-r1),2*r1,2*r1);
