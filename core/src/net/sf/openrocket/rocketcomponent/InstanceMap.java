@@ -47,16 +47,16 @@ public class InstanceMap extends HashMap<RocketComponent, ArrayList<InstanceCont
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		int outerIndex = 0;
-		System.err.println(">> Printing InstanceMap:");
+		buffer.append(">> Printing InstanceMap:");
 		for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: entrySet() ) {
 			final RocketComponent key = entry.getKey();
 			final ArrayList<InstanceContext> contexts = entry.getValue();
-			System.err.println(String.format("....[% 2d]:[%s]", outerIndex, key.getName()));
+			buffer.append(String.format("....[% 2d]:[%s]", outerIndex, key.getName()));
 			outerIndex++;
 			
 			int innerIndex = 0;
 			for(InstanceContext ctxt: contexts ) {
-				System.err.println(String.format("........[@% 2d][% 2d]  %s", innerIndex, ctxt.instanceNumber, ctxt.getLocation().toPreciseString()));
+				buffer.append(String.format("........[@% 2d][% 2d]  %s", innerIndex, ctxt.instanceNumber, ctxt.getLocation().toPreciseString()));
 				innerIndex++;
 			}
 		}
