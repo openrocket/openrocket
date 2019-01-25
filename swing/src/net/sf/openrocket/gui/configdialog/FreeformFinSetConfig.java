@@ -424,12 +424,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			
 			Point2D.Double point = getCoordinates(event);
 			finset.setPoint(dragIndex, point.x, point.y);
-
-			final double bodyFront = -finset.getAxialFront();
-			if(0 == dragIndex && bodyFront > point.x){
-				dragIndex = 1;
-			}
-
+			
 			updateFields();
 		}
 		
@@ -447,6 +442,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                 if ( 0 < clickIndex) {
                     // if ctrl+click, delete point
                     try {
+                        Point2D.Double point = getCoordinates(event);
                         finset.removePoint(clickIndex);
                     } catch (IllegalFinPointException ignore) {
                         log.error("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + ".  This is likely an internal error.");

@@ -348,8 +348,10 @@ public class Transition extends SymmetricComponent {
 	 */
 	@Override
 	public double getRadius(double x) {
-		if (x < 0 || x > length)
-			return 0;
+		if ( x < 0 )
+			return getForeRadius();
+		if ( x > length)
+			return getAftRadius();
 
 		double r1 = getForeRadius();
 		double r2 = getAftRadius();

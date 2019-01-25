@@ -22,7 +22,7 @@ public class FreeformFinSet extends FinSet {
 	// this class uses certain features of 'ArrayList' which are not implemented in other 'List' implementations.
 	private ArrayList<Coordinate> points = new ArrayList<>();
 	
-	private static final double SNAP_SMALLER_THAN = 1e-6;
+	private static final double SNAP_SMALLER_THAN = 5e-3;
 	private static final double IGNORE_SMALLER_THAN = 1e-12;
 	
 	public FreeformFinSet() {
@@ -133,7 +133,7 @@ public class FreeformFinSet extends FinSet {
 		ArrayList<Coordinate> copy = new ArrayList<>(this.points);
 		
 		this.points.remove(index);
-		if (!validate()) {
+		if (intersects()) {
 			// if error, rollback.  
 			this.points = copy;
 		}
@@ -149,12 +149,6 @@ public class FreeformFinSet extends FinSet {
 	/** maintained just for backwards compatibility:
 	 */
 	public void setPoints(Coordinate[] newPoints) {
-		// move to zero, if applicable
-		if( ! Coordinate.ZERO.equals(newPoints[0])) {
-			final Coordinate p0 = newPoints[0];
-			newPoints = translatePoints( newPoints, -p0.x, -p0.y);
-		}
-		
 		setPoints(new ArrayList<>(Arrays.asList(newPoints)));
 	}
 	
@@ -164,43 +158,29 @@ public class FreeformFinSet extends FinSet {
 	 * @param newPoints New points to set as the exposed edges of the fin
 	 */
 	public void setPoints( ArrayList<Coordinate> newPoints) {
+
+		final Coordinate delta = newPoints.get(0).multiply(-1);
+		if( IGNORE_SMALLER_THAN < delta.length2()){
+			newPoints = translatePoints( newPoints, delta);
+		}
+
 		// copy the old points, in case validation fails
-		ArrayList<Coordinate> copy = new ArrayList<>(this.points);
+		final ArrayList<Coordinate> pointsCopy = new ArrayList<>(this.points);
+		final double lengthCopy = this.length;
+
 		this.points = newPoints;
-		this.length = newPoints.get(newPoints.size() -1).x;		
-		
+
 		update();
-		
-		//StackTraceElement[] stacktrack = Thread.currentThread().getStackTrace();
-		if("Canard fins, mounted to transition".equals(this.getName())) {
-			log.error(String.format("starting to set %d points @ %s", newPoints.size(), this.getName()), new NullPointerException());
-			System.err.println( toDebugDetail());
-		}
-		
-		if( ! validate()){
+
+		if( intersects()){
 			// on error, reset to the old points
-			this.points = copy;
+			this.points = pointsCopy;
+			this.length = lengthCopy;
 		}
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 	}
-	
-	private double y_body(final double x) {
-		return y_body(x, 0.0);
-	}
-	
-	private double y_body(final double x_target, final double x_ref) {
-		final SymmetricComponent sym = (SymmetricComponent) getParent();
-		return (sym.getRadius(x_target) - sym.getRadius(x_ref));
-	}
-	
-	public void setPointRelToFin(final int index, final double x_request_fin, final double y_request_fin) throws IllegalFinPointException {
-		final double x_finStart_body = getAxialFront(); // x @ fin start, body frame
-		final double y_finStart_body = y_body(x_finStart_body);
-		
-		setPoint(index, x_request_fin + x_finStart_body, y_request_fin + y_finStart_body);
-	}
-	
+
 	/**
 	 * Set the point at position <code>i</code> to coordinates (x,y).
 	 * <p>
@@ -225,19 +205,16 @@ public class FreeformFinSet extends FinSet {
 	public void setPoint(final int index, final double xRequest, final double yRequest) {
 
 		if(null != this.getParent()) {
-			if (0 == index) {
-				clampFirstPoint(new Coordinate(xRequest, yRequest));
-			} else if ((this.points.size() - 1) == index) {
-				Coordinate priorPoint = points.get(index);				
-				points.set(index, new Coordinate(xRequest, yRequest));
-				clampLastPoint(priorPoint);
-			} else {
-				// interior points can never change the 
-				points.set(index, new Coordinate(xRequest, yRequest));
-				clampInteriorPoint(index);
+			final Coordinate prior =  points.get(index);
+			points.set(index, new Coordinate(xRequest, yRequest));
+
+			if((points.size() - 1) == index){
+				clampLastPoint(xRequest-prior.x);
 			}
 		}
-		
+
+		update();
+
 		// this maps the last index and the next-to-last-index to the same 'testIndex'
 		int testIndex = Math.min(index, (points.size() - 2));
 		if (intersects(testIndex)) {
@@ -245,24 +222,24 @@ public class FreeformFinSet extends FinSet {
 			log.error(String.format("ERROR: found an intersection while setting fin point #%d to [%6.4g, %6.4g] <body frame> : ABORTING setPoint(..) !! ", index, xRequest, yRequest));
 			return;
 		}
-		
-		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 	}
 	
 	private void movePoints(final double delta_x, final double delta_y) {
-		// skip 0th index -- it's the local origin and is always (0,0) 
+		// zero-out 0th index -- it's the local origin and is always (0,0)
+		points.set(0, Coordinate.ZERO);
+
 		for (int index = 1; index < points.size(); ++index) {
 			final Coordinate oldPoint = this.points.get(index);
 			final Coordinate newPoint = oldPoint.add(delta_x, delta_y, 0.0f);
 			points.set(index, newPoint);
 		}
 	}
-	
+
 	@Override
 	public Coordinate[] getFinPoints() {
 		return points.toArray(new Coordinate[0]);
 	}
-	
+
 	@Override
 	public double getSpan() {
 		double max = 0;
@@ -287,235 +264,112 @@ public class FreeformFinSet extends FinSet {
 		
 		return c;
 	}
-	
-	@Override
-	public void setAxialOffset(final AxialMethod newAxialMethod, final double newOffsetRequest) {
-		super.setAxialOffset(newAxialMethod, newOffsetRequest);
-		
-		if (null != parent) {
-			// if the new position would cause fin overhang, only allow movement up to the end of the parent component.
-			// N.B. if you want a fin to overhang, add & adjust interior points.
-			final double backOverhang = getAxialOffset(AxialMethod.BOTTOM);
-			if (0 < backOverhang) {
-				final double newOffset = newOffsetRequest - backOverhang;
-				super.setAxialOffset(newAxialMethod, newOffset);
-			}
-			final double frontOverhang = getAxialFront();
-			if (0 > frontOverhang) {
-				final double newOffset = newOffsetRequest - frontOverhang;
-				super.setAxialOffset(newAxialMethod, newOffset);
-			}
-		}
-	}
-	
+
 	@Override
 	public void update() {
+		this.length = points.get(points.size() -1).x - points.get(0).x;
 		this.setAxialOffset(this.axialMethod, this.axialOffset);
-		
+
 		if(null != this.getParent()) {
-			clampFirstPoint(points.get(0));
+			clampFirstPoint();
+
 			for(int i=1; i < points.size()-1; i++) {
 				clampInteriorPoint(i);
 			}
 			
-			clampLastPoint(null);
+			clampLastPoint();
 
 			validateFinTab();
 		}
 	}
-	
-	private void clampFirstPoint(final Coordinate newPoint) {
+
+	private void clampFirstPoint() {
 		final SymmetricComponent body = (SymmetricComponent) getParent();
-		
+
 		final Coordinate finFront = getFinFront();
 		final double xFinFront = finFront.x; // x of fin start, body-frame
 		final double yFinFront = finFront.y; // y of fin start, body-frame
-		final double xBodyStart = -getAxialFront(); // x-offset from start-to-start; fin-frame
+
+		final Coordinate p0 = points.get(0);
 		
-		double xDelta;
-		double yDelta;
+		if( ! Coordinate.ZERO.equals(p0)){
+			double xDelta = p0.x;
+			double xTrail = points.get(points.size() - 1).x;
+			if(xDelta > xTrail){
+				xDelta = xTrail;
+			}
+			double yDelta = body.getRadius(xFinFront + xDelta) - yFinFront;
 
-	    if(IGNORE_SMALLER_THAN > Math.abs(newPoint.x)){
-	    	return;
-	    }else if (xBodyStart > newPoint.x) {
-			// attempt to place point in front of the start of the body
-			
-			// delta for new zeroth point
-			xDelta = xBodyStart;
-			yDelta = body.getForeRadius() - yFinFront;			
-			points.set(0, newPoint);
-			points.add(0, Coordinate.ZERO);
-			movePoints(-xDelta, -yDelta);
-            
-			//System.err.println(String.format(".... @[0]//A: delta= %f, %f", xDelta, yDelta));
-
-		}else if (xFinFront > body.getLength()) {
-			final double xNew = body.getLength();
-			final double yNew = yFinFront - body.getAftRadius(); 
-			points.set(0, points.set(0, new Coordinate(xNew, yNew)));
-			
-			xDelta = xNew - xFinFront;
-			yDelta = yNew - yFinFront;
-			movePoints(-xDelta, -yDelta);
-			//System.err.println(String.format(".... @[0]//B: delta= %f, %f", xDelta, yDelta));
-			
-		}else {
-			// distance to move the entire fin by:
-			xDelta = newPoint.x;
-			yDelta = body.getRadius(xFinFront + xDelta) - yFinFront;
 			movePoints(-xDelta, -yDelta);
 
-			//System.err.println(String.format(".... @[0]//C: delta= %f, %f", xDelta, yDelta));
+			if(AxialMethod.TOP == getAxialMethod()) {
+				this.axialOffset = axialOffset + xDelta;
+				this.position = this.position.add(xDelta, 0, 0);
+            } else if (AxialMethod.MIDDLE == getAxialMethod()) {
+				this.axialOffset = axialOffset + xDelta / 2;
+			}
 		}
-	    
+
 	    final int lastIndex = points.size()-1;
 	    this.length = points.get(lastIndex).x;
-	    
-		if (AxialMethod.TOP == getAxialMethod()) {
-			setAxialOffset(AxialMethod.TOP, getAxialOffset() + xDelta);
-		} else if (AxialMethod.MIDDLE == getAxialMethod()) {
-			setAxialOffset(AxialMethod.MIDDLE, getAxialOffset() + xDelta / 2);
-		}
+
 	}
-	
+
 	private void clampInteriorPoint(final int index) {
 		final SymmetricComponent sym = (SymmetricComponent) this.getParent();
 
-		final double xPrior = points.get(index).x;
-		final double yPrior = points.get(index).y; 
-		
 		final Coordinate finFront = getFinFront();
 		final double xFinFront = finFront.x; // x of fin start, body-frame
 		final double yFinFront = finFront.y; // y of fin start, body-frame
-		
-		final double yBody = sym.getRadius(xPrior + xFinFront) - yFinFront;
-		
-		// ensure that an interior point is outside of its mounting body:
-		if (yBody > yPrior) {
-			points.set(index, points.get(index).setY(yBody));
+
+		final double xBodyFront = -xFinFront;
+		final double xBodyBack = xBodyFront + sym.getLength();
+
+		final double xPrior = points.get(index).x;
+		final double yPrior = points.get(index).y;
+
+		if((xBodyFront <= xPrior ) && ( xPrior <= xBodyBack )) {
+			final double yBody = sym.getRadius(xPrior + xFinFront) - yFinFront;
+
+			// ensure that an interior point is outside of its mounting body:
+			if (yBody > yPrior) {
+				points.set(index, points.get(index).setY(yBody));
+			}
 		}
+
 	}
 	
-	private void clampLastPoint(final Coordinate prior) {
+	private void clampLastPoint() {
+		clampLastPoint(0);
+	}
+			
+	private void clampLastPoint(final double xDelta) {
 		final SymmetricComponent body = (SymmetricComponent) getParent();
-		
-		final double xFinStart = getAxialFront(); // x of fin start, body-frame
-		final double yFinStart = body.getRadius(xFinStart); // y of fin start, body-frame
-		
-		final double xBodyStart = -getAxialFront(); // x-offset from start-to-start; fin-frame
-		final double xBodyEnd = xBodyStart + body.getLength(); /// x-offset from start-to-body; fin-frame
-		 
+
+		final Coordinate finFront = getFinFront();
+		final double xFinStart = finFront.x; // x of fin start, body-frame
+		final double yFinStart = finFront.y; // y of fin start, body-frame
+
 		int lastIndex = points.size() - 1;
-		final Coordinate cur = points.get(lastIndex);
+		final Coordinate last = points.get(lastIndex);
 		
-		double xDelta=0;
+		double yBody = body.getRadius(xFinStart + last.x) - yFinStart;
+		double yDelta = yBody - last.y;
+		if( IGNORE_SMALLER_THAN < Math.abs(yDelta)){
+			// i.e. if it delta is close enough above OR is inside the body.  In either case, snap it to the body.
 
-		if (xBodyEnd < cur.x) {
-			if(SNAP_SMALLER_THAN > Math.abs(xBodyEnd - cur.x)){
-				points.set( lastIndex, new Coordinate(xBodyEnd, body.getAftRadius() - yFinStart));
-			}else {
-				// the last point is placed after the end of the mount-body
-				points.add(new Coordinate(xBodyEnd, body.getAftRadius() - yFinStart));
-			}
-			
-			if(null != prior) {
-				xDelta = xBodyEnd - prior.x;
-			}else{
-				xDelta = xBodyEnd - cur.x;
-			}
-			//System.err.println(String.format(".... @[-1]//A: delta= %f", xDelta));
-			
-		}else if (cur.x < 0) {
-			// the last point is positioned ahead of the first point.
-			points.set(lastIndex, Coordinate.ZERO);
-			
-			xDelta = cur.x;
-			
-			//System.err.println(String.format(".... @[-1]//B: delta= %f", xDelta));
-
-		} else {
-			if(null != prior) {
-				xDelta = cur.x - prior.x;
-			}
-			double yBody = body.getRadius(xFinStart + cur.x) - yFinStart;
-			if(IGNORE_SMALLER_THAN < Math.abs(yBody - cur.y)) {
-				// for the first and last points: set y-value to *exactly* match parent body:
-				points.set(lastIndex, new Coordinate(cur.x, yBody));
-			
-			}
-	    	
-			
-			//System.err.println(String.format(".... @[-1]//C: delta = %f", xDelta));
+			// => set y-value to *exactly* match parent body:
+			points.set(lastIndex, new Coordinate(last.x, yBody));
 		}
-		
-		if(IGNORE_SMALLER_THAN < Math.abs(xDelta)) {
-			lastIndex = points.size()-1;
+
+		if( IGNORE_SMALLER_THAN < Math.abs(xDelta)) {
 			this.length = points.get(lastIndex).x;
-		
 			if (AxialMethod.MIDDLE == getAxialMethod()) {
-				setAxialOffset(AxialMethod.MIDDLE, getAxialOffset() + xDelta / 2);
+				this.axialOffset = axialOffset + xDelta/2;
 			} else if (AxialMethod.BOTTOM == getAxialMethod()) {
-				setAxialOffset(AxialMethod.BOTTOM, getAxialOffset() + xDelta);
+				this.axialOffset = axialOffset + xDelta;
 			}
 		}
-	}
-	
-	private boolean validate() {
-		final Coordinate firstPoint = this.points.get(0);
-		if (firstPoint.x != 0 || firstPoint.y != 0) {
-			log.error("Start point illegal --  not located at (0,0): " + firstPoint + " (" + getName() + ")");
-			return false;
-		}
-		
-		final Coordinate lastPoint = this.points.get(points.size() - 1);
-		if (lastPoint.x < 0) {
-			log.error("End point illegal: end point starts in front of start point: " + lastPoint.x);
-			return false;
-		}
-		
-		// the last point *is* restricted to be on the surface of its owning component:
-		SymmetricComponent symBody = (SymmetricComponent) this.getParent();
-		if (null != symBody) {
-			final double startOffset = this.getAxialFront();
-			final Coordinate finStart = new Coordinate(startOffset, symBody.getRadius(startOffset));
-			
-			// campare x-values 
-			final Coordinate finAtLast = lastPoint.add(finStart);
-			if (symBody.getLength() < finAtLast.x) {
-				log.error("End point falls after parent body ends: [" + symBody.getName() + "].  Exception: ",
-						new IllegalFinPointException("Fin ends after its parent body \"" + symBody.getName() + "\". Ignoring."));
-				log.error(String.format("    ..fin position:    (x: %12.10f   via: %s)", this.axialOffset, this.axialMethod.name()));
-				log.error(String.format("    ..Body Length: %12.10f  finLength: %12.10f", symBody.getLength(), this.getLength()));
-				log.error(String.format("    ..fin endpoint:    (x: %12.10f, y: %12.10f)", finAtLast.x, finAtLast.y));
-				return false;
-			}
-			
-			// compare the y-values
-			final Coordinate bodyAtLast = finAtLast.setY(symBody.getRadius(finAtLast.x));
-			if (0.0001 < Math.abs(finAtLast.y - bodyAtLast.y)) {
-				String numbers = String.format("finStart=(%6.2g,%6.2g) // fin_end=(%6.2g,%6.2g) // body=(%6.2g,%6.2g)", finStart.x, finStart.y, finAtLast.x, finAtLast.y, bodyAtLast.x, bodyAtLast.y);
-				log.error("End point does not touch its parent body [" + symBody.getName() + "].  exception: ",
-						new IllegalFinPointException("End point does not touch its parent body! Expected: " + numbers));
-				log.error("    .." + numbers);
-				return false;
-			}
-		}
-		
-		if (intersects()) {
-			log.error("found intersection in finset points!");
-			return false;
-		}
-		
-		final int lastIndex = points.size() - 1;
-		final List<Coordinate> pts = this.points;
-		for (int i = 0; i < lastIndex; i++) {
-			if (pts.get(i).z != 0) {
-				log.error("z-coordinate not zero");
-				return false;
-			}
-		}
-		
-		return true;
 	}
 	
 	/** 
@@ -541,7 +395,7 @@ public class FreeformFinSet extends FinSet {
 		if ((points.size() - 2) < targetIndex) {
 			throw new IndexOutOfBoundsException("request validate of non-existent fin edge segment: " + targetIndex + "/" + points.size());
 		}
-		
+
 		// (pre-check the indices above.)
 		final Point2D.Double pt1 = new Point2D.Double(points.get(targetIndex).x, points.get(targetIndex).y);
 		final Point2D.Double pt2 = new Point2D.Double(points.get(targetIndex + 1).x, points.get(targetIndex + 1).y);
