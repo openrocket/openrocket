@@ -795,7 +795,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		calcMap = new HashMap<RocketComponent, RocketComponentCalc>();
 
-		for (RocketComponent comp: configuration.getActiveComponents()) {
+		for (RocketComponent comp: configuration.getAllComponents()) {
 			if (!comp.isAerodynamic())
 				continue;
 			

@@ -58,7 +58,7 @@ public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
      */
     @Override
     protected void draw(Graphics2D g2) {
-        RocketComponentShape[] compShapes = TransitionShapes.getShapesSide(target, Transformation.rotate_x(0d), new Coordinate(0,0,0), PrintUnit.METERS.toPoints(1));
+        RocketComponentShape[] compShapes = TransitionShapes.getShapesSide(target, Transformation.IDENTITY, PrintUnit.METERS.toPoints(1));
 
         if (compShapes != null && compShapes.length > 0) {
             Rectangle r = compShapes[0].shape.getBounds();

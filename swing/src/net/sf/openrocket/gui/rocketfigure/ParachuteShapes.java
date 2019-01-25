@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -12,17 +13,14 @@ import java.awt.geom.RoundRectangle2D;
 
 public class ParachuteShapes extends RocketComponentShape {
 
-	public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
 	
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
 		double length = tube.getLength();
 		double radius = tube.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
-		Coordinate[] start = new Coordinate[]{transformation.transform( componentAbsoluteLocation)};
+		Coordinate[] start = new Coordinate[]{transformation.transform( Coordinate.ZERO)};
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {
@@ -32,16 +30,13 @@ public class ParachuteShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
 		double or = tube.getRadius();
 		
-		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
+		Coordinate[] start = transformation.transform(tube.toAbsolute(Coordinate.ZERO));
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {

@@ -32,7 +32,6 @@ import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -862,7 +861,7 @@ public class TestRockets {
 		// ====== Payload Stage ======
 		// ====== ====== ====== ======
 		AxialStage payloadStage = new AxialStage();
-		payloadStage.setName("Payload Fairing");
+		payloadStage.setName("Payload Fairing Stage");
 		rocket.addChild(payloadStage);
 
 		{

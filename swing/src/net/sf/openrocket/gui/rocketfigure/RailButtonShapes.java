@@ -14,11 +14,8 @@ import net.sf.openrocket.util.Transformation;
 
 public class RailButtonShapes extends RocketComponentShape {
 	
-	public static RocketComponentShape[] getShapesSide(
-			RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceAbsoluteLocation) {
-	
+	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+
 		RailButton btn = (RailButton)component;
 
 		final double rotation_rad = btn.getAngleOffset();
@@ -36,6 +33,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double innerHeightcos = innerHeight*cosr;
 		final double flangeHeightcos = flangeHeight*cosr;
 
+		final Coordinate instanceAbsoluteLocation = transformation.linearTransform(Coordinate.ZERO);
 		
 		Path2D.Double path = new Path2D.Double();
 		{// central pillar
@@ -80,10 +78,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset) {
+	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 	
 		net.sf.openrocket.rocketcomponent.RailButton btn = (net.sf.openrocket.rocketcomponent.RailButton)component;
 

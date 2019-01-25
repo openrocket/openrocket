@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -17,10 +18,8 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 	
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable)
 
-    public static RocketComponentShape[] getShapesSide(
-			net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+    public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+
 
 		SymmetricComponent c = (SymmetricComponent) component;
 		
@@ -79,7 +78,7 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 		//System.out.println("here");
 		
 		final int len = points.size();
-		Coordinate nose = componentAbsoluteLocation;
+		Coordinate nose = transformation.transform(Coordinate.ZERO);
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
