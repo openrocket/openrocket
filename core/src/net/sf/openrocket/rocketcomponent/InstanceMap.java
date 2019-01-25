@@ -30,16 +30,16 @@ public class InstanceMap extends HashMap<RocketComponent, ArrayList<InstanceCont
 	public void emplace(final RocketComponent component, boolean active, int number, final Transformation xform) {
 		final RocketComponent key = component;
 		
-		if(!this.containsKey(component)) {
-			this.put(key, new ArrayList<>());
+		if(!containsKey(component)) {
+			put(key, new ArrayList<>());
 		}
 
 		final InstanceContext context = new InstanceContext(component, active, number, xform);
-		this.get(key).add(context);
+		get(key).add(context);
 	}
 
 	public List<InstanceContext> getInstanceContexts(final RocketComponent key) {
-		return this.get(key);
+		return get(key);
 	}
 	
 	// this is primarily for debugging.

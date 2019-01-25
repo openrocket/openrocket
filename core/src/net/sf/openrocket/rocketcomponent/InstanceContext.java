@@ -18,12 +18,12 @@ public class InstanceContext {
 			return true;
 		
 		InstanceContext other = (InstanceContext) obj;
-		return (this.component.equals(other.component) && this.transform.equals(other.transform));
+		return (component.equals(other.component) && transform.equals(other.transform));
 	}
 	
 	@Override
 	public int hashCode() {
-		return (int) (this.component.hashCode());
+		return (int) (component.hashCode());
 	}
 
 	public InstanceContext(final RocketComponent _component, final boolean _active, final int _instanceNumber, final Transformation _transform) {
@@ -36,7 +36,7 @@ public class InstanceContext {
 
 	@Override
 	public String toString() {
-		return String.format("Context for %s #%d", this.component);
+		return String.format("Context for %s #%d", component);
 	}
 
 	public Coordinate getLocation() {
