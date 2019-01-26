@@ -30,7 +30,7 @@ public class FinSetSaver extends ExternalComponentSaver {
 			elements.add("<tablength>" + fins.getTabLength() + "</tablength>");
 			elements.add("<tabposition relativeto=\"" +
 					fins.getTabOffsetMethod().name().toLowerCase(Locale.ENGLISH) + "\">" +
-					fins.getTabFrontEdge() + "</tabposition>");
+					fins.getTabOffset() + "</tabposition>");
 			
 		}
 		
