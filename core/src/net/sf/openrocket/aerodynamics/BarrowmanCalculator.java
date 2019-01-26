@@ -207,7 +207,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			Coordinate cp_weighted = cp_comp.setWeight(cp_comp.weight);
 			Coordinate cp_absolute = component.toAbsolute(cp_weighted)[0];
 			if(1 < component.getInstanceCount()) {
-				cp_absolute = cp_absolute.setY(0.);
+				cp_absolute = cp_absolute.setY(0.).setZ(0.);
 			}
 			
 			componentForces.setCP(cp_absolute);
@@ -215,18 +215,17 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			componentForces.setCm(CN_instanced * componentForces.getCP().x / conditions.getRefLength());
 		
 //			if( 0.0001 < Math.abs(componentForces.getCNa())){
-//				System.err.println(String.format("%s....Component.CNa: %g   @ CP: %g, %g", indent, componentForces.getCNa(), componentForces.getCP().x, componentForces.getCP().y));
+//				final Coordinate cp = assemblyForces.getCP();
+//				System.err.println(String.format("%s....Component.CNa: %g   @ CP: { %f, %f, %f}", indent, componentForces.getCNa(), cp.x, cp.y, cp.z));
 //			}
 			
 			assemblyForces.merge(componentForces);
 		}
 		
 //		if( 0.0001 < Math.abs(0 - assemblyForces.getCNa())){
-//			System.err.println(String.format("%s....Assembly.CNa: %g   @ CPx: %g", indent, assemblyForces.getCNa(), assemblyForces.getCP().x));
+//			final Coordinate cp = assemblyForces.getCP();
+//			System.err.println(String.format("%s....Assembly.CNa: %g   @ CP: { %f, %f, %f}", indent, assemblyForces.getCNa(), cp.x, cp.y, cp.z));
 //		}
-		
-		// fetches instanced versions 
-		// int instanceCount = component.getLocations().length;
 		
 		if( component.allowsChildren() && (component.getInstanceCount() > 1)) {
 			return assemblyForces.multiplex(component.getInstanceCount());
