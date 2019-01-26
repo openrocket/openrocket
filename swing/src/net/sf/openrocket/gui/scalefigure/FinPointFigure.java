@@ -35,7 +35,8 @@ public class FinPointFigure extends AbstractScaleFigure {
  
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
-    private static final Color GRID_LINE_COLOR = new Color( 128, 128, 128);
+    private static final Color GRID_MAJOR_LINE_COLOR = new Color( 64, 64, 128, 128);
+    private static final Color GRID_MINOR_LINE_COLOR = new Color( 64, 64, 128, 32);
     private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
     private static final int LINE_WIDTH_PIXELS = 1;
@@ -45,7 +46,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
     private static final Color POINT_COLOR = new Color(100, 100, 100);
     private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0);
-    private static final double MINOR_TICKS = 0.05;
+    private static final double MINOR_TICKS = 0.01;
     private static final double MAJOR_TICKS = 0.1;
             
     private final FreeformFinSet finset;
@@ -107,7 +108,6 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    final float grid_line_width = (float)(GRID_LINE_BASE_WIDTH_PIXELS/this.scale);
 	    g2.setStroke(new BasicStroke( grid_line_width,
 	            BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-	    g2.setColor(FinPointFigure.GRID_LINE_COLOR);
 
 	    Unit unit;
 	    if (this.getParent() != null && this.getParent().getParent() instanceof ScaleScrollPane) {
@@ -120,19 +120,29 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS, MAJOR_TICKS);
 	    Line2D.Double line = new Line2D.Double();
 	    for (Tick t : verticalTicks) {
-	        if (t.major) {
-	            line.setLine( t.value, y0, t.value, y1);
-	            g2.draw(line);
-	        }
+            if (t.major) {
+                g2.setColor(FinPointFigure.GRID_MAJOR_LINE_COLOR);
+                line.setLine( t.value, y0, t.value, y1);
+                g2.draw(line);
+            }else{
+                g2.setColor(FinPointFigure.GRID_MINOR_LINE_COLOR);
+                line.setLine( t.value, y0, t.value, y1);
+                g2.draw(line);
+            }
 	    }
 
 	    // horizontal
 	    Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS, MAJOR_TICKS);
 	    for (Tick t : horizontalTicks) {
 	        if (t.major) {
-	            line.setLine( x0, t.value, x1, t.value);
-	            g2.draw(line);
-	        }
+                g2.setColor(FinPointFigure.GRID_MAJOR_LINE_COLOR);
+                line.setLine( x0, t.value, x1, t.value);
+                g2.draw(line);
+            }else{
+                g2.setColor(FinPointFigure.GRID_MINOR_LINE_COLOR);
+                line.setLine( x0, t.value, x1, t.value);
+                g2.draw(line);
+            }
 	    }
 	}
 
