@@ -15,22 +15,21 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
-import net.sf.openrocket.gui.scalefigure.RocketPanel.VIEW_TYPE;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -192,8 +191,7 @@ public class RocketFigure extends AbstractScaleFigure {
         updateCanvasSize();
         updateTransform();
         
-        figureShapes.clear();
-        updateShapeTree( this.figureShapes, rocket, this.axialRotation, Coordinate.ZERO);
+        updateShapes(this.figureShapes);
 
 		g2.transform(projection);
 		
@@ -336,60 +334,29 @@ public class RocketFigure extends AbstractScaleFigure {
 		return l.toArray(new RocketComponent[0]);
 	}
 	
-	// NOTE:  Recursive function
-	private ArrayList<RocketComponentShape> updateShapeTree(
-	        ArrayList<RocketComponentShape> allShapes,  // output parameter 
-	        final RocketComponent comp,
-	        final Transformation parentTransform,
-	        final Coordinate parentLocation){
+	private void updateShapes(ArrayList<RocketComponentShape> allShapes) { 
+		// source input
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
 
+		// allShapes is an output buffer -- it stores all the generated shapes
+		allShapes.clear();
+		
+		for(Entry<RocketComponent, ArrayList<InstanceContext>> entry: config.getActiveInstances().entrySet() ) {
+			final RocketComponent comp = entry.getKey();
+			
+			final ArrayList<InstanceContext> contextList = entry.getValue();
 
-	    final int instanceCount = comp.getInstanceCount();
-	    Coordinate[] instanceLocations = comp.getInstanceLocations(); 
-	    instanceLocations = parentTransform.transform( instanceLocations ); 
-	    double[] instanceAngles = comp.getInstanceAngles();
-	    if( instanceLocations.length != instanceAngles.length ){
-	        throw new ArrayIndexOutOfBoundsException(String.format("lengths of location array (%d) and angle arrays (%d) differs! (in: %s) ", instanceLocations.length, instanceAngles.length, comp.getName()));
-	    }
-
-	    // iterate over the aggregated instances *for the whole* tree.
-	    for( int index = 0; instanceCount > index ; ++index ){
-	        final double currentAngle = instanceAngles[index];
-
-	        Transformation currentTransform = parentTransform;
-	        if( 0.00001 < Math.abs( currentAngle )) {
-	            Transformation currentAngleTransform = Transformation.rotate_x( currentAngle );
-	            currentTransform = currentAngleTransform.applyTransformation( parentTransform );
-	        }
-
-	        Coordinate currentLocation = parentLocation.add( instanceLocations[index] );
-
-//	        if(FinSet.class.isAssignableFrom(comp.getClass())) {
-//    	        System.err.println(String.format("@%s: %s  --  inst:   [%d/%d]", comp.getClass().getSimpleName(), comp.getName(), index+1, instanceCount));
-//
-//                // FlightConfiguration config = this.rocket.getSelectedConfiguration();
-//                // System.err.println(String.format("         --  stage: %d,    active: %b,  config: (%d) %s", comp.getStageNumber(), config.isComponentActive(comp), config.instanceNumber, config.getId()));
-//                System.err.println(String.format("         --  %s + %s  = %s", parentLocation.toString(), instanceLocations[index].toString(), currentLocation.toString()));
-//                if( 0.00001 < Math.abs( currentAngle )) {
-//                    System.err.println(String.format("         --  at: %6.4f radians", currentAngle));
-//                }
-//	        }
-	        
-	        // generate shape for this component, if active
-	        if( this.rocket.getSelectedConfiguration().isComponentActive( comp )){
-	            allShapes = addThisShape( allShapes, this.currentViewType, comp, currentLocation, currentTransform);
-	        }
-
-	        // recurse into component's children
-	        for( RocketComponent child: comp.getChildren() ){
-	            // draw a tree for each instance subcomponent
-	            updateShapeTree( allShapes, child, currentTransform, currentLocation );
-	        }
-	    }
-
-	    return allShapes;
+			for(InstanceContext context: contextList ) {
+				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
+				
+		        // generate shape for this component, if active
+		        if( context.active ) {
+		        	allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
+		        }
+			}
+        }
 	}
-
+	
 	/**
 	 * Gets the shapes required to draw the component.
 	 * 
@@ -401,12 +368,11 @@ public class RocketFigure extends AbstractScaleFigure {
 			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter
 			final RocketPanel.VIEW_TYPE viewType, 
 			final RocketComponent component, 
-			final Coordinate instanceOffset, 
 			final Transformation transformation) {
 		Reflection.Method m;
 		
 		if(( component instanceof Rocket)||( component instanceof ComponentAssembly )){
-			// no-op; no shapes here, either.
+			// no-op; no shapes here
 			return allShapes;
 		}
 		
@@ -414,12 +380,12 @@ public class RocketFigure extends AbstractScaleFigure {
 		switch (viewType) {
 		case SideView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesSide",
-					RocketComponent.class, Transformation.class, Coordinate.class);
+					RocketComponent.class, Transformation.class);
 			break;
 		
 		case BackView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesBack",
-					RocketComponent.class, Transformation.class, Coordinate.class);
+					RocketComponent.class, Transformation.class);
 			break;
 		
 		default:
@@ -433,13 +399,12 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 		
 	
-		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation, instanceOffset);
+		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation);
 		for ( RocketComponentShape curShape : returnValue ){
 			allShapes.add( curShape );
 		}
 		return allShapes;
 	}
-	
 	
 
     /**
