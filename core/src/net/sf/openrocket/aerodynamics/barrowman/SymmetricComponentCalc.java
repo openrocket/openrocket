@@ -16,6 +16,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
+import net.sf.openrocket.util.Transformation;
 
 
 
@@ -95,7 +96,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	 * subsonic speeds.
 	 */
 	@Override
-	public void calculateNonaxialForces(FlightConditions conditions,
+	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		
 		// Pre-calculate and store the results

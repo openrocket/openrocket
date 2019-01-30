@@ -23,6 +23,7 @@ import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import net.sf.openrocket.util.Transformation;
 
 public class FreeformFinSetTest extends BaseTestCase {
 
@@ -1203,9 +1204,10 @@ public class FreeformFinSetTest extends BaseTestCase {
 		bt.addChild(fins);
 		FinSetCalc calc = new FinSetCalc(fins);
 		FlightConditions conditions = new FlightConditions(null);
+		Transformation transform = Transformation.IDENTITY;
 		AerodynamicForces forces = new AerodynamicForces();
 		WarningSet warnings = new WarningSet();
-		calc.calculateNonaxialForces(conditions, forces, warnings);
+		calc.calculateNonaxialForces(conditions, transform, forces, warnings);
 		//System.out.println(forces);
 		assertEquals(0.023409, forces.getCP().x, 0.0001);
 	}

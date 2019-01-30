@@ -16,6 +16,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.TestRockets;
+import net.sf.openrocket.util.Transformation;
 
 public class FinSetCalcTest {
 	protected final double EPSILON = 0.0001;
@@ -50,6 +51,7 @@ public class FinSetCalcTest {
 		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
+		Transformation transform = Transformation.IDENTITY;
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces forces = new AerodynamicForces();
@@ -57,7 +59,7 @@ public class FinSetCalcTest {
 		
 		
 		// vvv TEST MEH! vvv 
-		calcObj.calculateNonaxialForces(conditions, forces, warnings);
+		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
 		// ^^^ 
 		
 		double exp_cna_fins = 24.146933;
@@ -84,6 +86,7 @@ public class FinSetCalcTest {
 		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
+		Transformation transform = Transformation.IDENTITY;
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces forces = new AerodynamicForces();
@@ -91,7 +94,7 @@ public class FinSetCalcTest {
 		
 		
 		// vvv TEST MEH! vvv 
-		calcObj.calculateNonaxialForces(conditions, forces, warnings);
+		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
 		// ^^^ 
 		
 		double exp_cna_fins = 32.195911;

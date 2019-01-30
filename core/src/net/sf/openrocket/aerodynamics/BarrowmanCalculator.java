@@ -2,6 +2,7 @@ package net.sf.openrocket.aerodynamics;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +11,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
@@ -17,6 +21,8 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -24,6 +30,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.Transformation;
 
 /**
  * An aerodynamic calculator that uses the extended Barrowman method to 
@@ -35,6 +42,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	private static final String BARROWMAN_PACKAGE = "net.sf.openrocket.aerodynamics.barrowman";
 	private static final String BARROWMAN_SUFFIX = "Calc";
+	
+	private static final Logger log = LoggerFactory.getLogger(BarrowmanCalculator.class);
 	
 	
 	private Map<RocketComponent, RocketComponentCalc> calcMap = null;
@@ -176,64 +185,49 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			warnings.add( Warning.DIAMETER_DISCONTINUITY);
 		}
 		
-		AerodynamicForces total = calculateAssemblyNonAxialForces(configuration.getRocket(), configuration, conditions, calculators, warnings, "");
-		
-		return total;
-	}
-	
-	private AerodynamicForces calculateAssemblyNonAxialForces(  final RocketComponent component,   
-																FlightConfiguration configuration, FlightConditions conditions,
-																Map<RocketComponent, AerodynamicForces> calculators, WarningSet warnings,
-																String indent) {
-		
+		final InstanceMap imap = configuration.getActiveInstances();
+
 		final AerodynamicForces assemblyForces= new AerodynamicForces().zero();
-		
-//		System.err.println(String.format("%s@@ %s <%s>", indent, component.getName(), component.getClass().getSimpleName()));
-		
-		// ==== calculate child forces ==== 
-		for (RocketComponent child: component.getChildren()) {
-			AerodynamicForces childForces = calculateAssemblyNonAxialForces(  child, configuration, conditions, calculators, warnings, indent+"    ");
-			assemblyForces.merge(childForces);
-		}
-		
-		// calculate *this* component's forces
-		RocketComponentCalc calcObj = calcMap.get(component);
-		if(null != calcObj) {
-			AerodynamicForces componentForces = new AerodynamicForces().zero();
-			calcObj.calculateNonaxialForces(conditions, componentForces, warnings);
+
+		// iterate through all components
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent comp = entry.getKey();
+			RocketComponentCalc calcObj = calcMap.get(comp);
+			log.debug("comp=" + comp);
 			
-			Coordinate cp_comp = componentForces.getCP();
-			
-			Coordinate cp_weighted = cp_comp.setWeight(cp_comp.weight);
-			Coordinate cp_absolute = component.toAbsolute(cp_weighted)[0];
-			if(1 < component.getInstanceCount()) {
-				cp_absolute = cp_absolute.setY(0.).setZ(0.);
+			if (null != calcObj) {
+				// iterate across component instances
+				final ArrayList<InstanceContext> contextList = entry.getValue();
+
+				for(InstanceContext context: contextList ) {
+					// since FinSetCalc calculates forces for entire FinSet
+					// only consider first fin in each set (happily,
+					// in each instance of a PodSet or similar
+					// instanceable RocketComponent with childre, the
+					// child FinSets all start numbering with 0
+					if (!(comp instanceof FinSet) || (context.instanceNumber == 0)) {
+						AerodynamicForces instanceForces = new AerodynamicForces().zero();
+						
+						calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
+						log.debug("instanceForces[" + context.instanceNumber + "]=" + instanceForces);
+						Coordinate cp_comp = instanceForces.getCP();
+						
+						Coordinate cp_abs = context.transform.transform(cp_comp);
+						
+						instanceForces.setCP(cp_abs);
+						double CN_instanced = instanceForces.getCN();
+						instanceForces.setCm(CN_instanced * instanceForces.getCP().x / conditions.getRefLength());
+
+						log.debug("instanceForces=" + instanceForces);
+						assemblyForces.merge(instanceForces);
+					}
+				}
 			}
-			
-			componentForces.setCP(cp_absolute);
-			double CN_instanced = componentForces.getCN();
-			componentForces.setCm(CN_instanced * componentForces.getCP().x / conditions.getRefLength());
-		
-//			if( 0.0001 < Math.abs(componentForces.getCNa())){
-//				final Coordinate cp = assemblyForces.getCP();
-//				System.err.println(String.format("%s....Component.CNa: %g   @ CP: { %f, %f, %f}", indent, componentForces.getCNa(), cp.x, cp.y, cp.z));
-//			}
-			
-			assemblyForces.merge(componentForces);
 		}
-		
-//		if( 0.0001 < Math.abs(0 - assemblyForces.getCNa())){
-//			final Coordinate cp = assemblyForces.getCP();
-//			System.err.println(String.format("%s....Assembly.CNa: %g   @ CP: { %f, %f, %f}", indent, assemblyForces.getCNa(), cp.x, cp.y, cp.z));
-//		}
-		
-		if( component.allowsChildren() && (component.getInstanceCount() > 1)) {
-			return assemblyForces.multiplex(component.getInstanceCount());
-		}else {
-			return assemblyForces;
-		}
+
+		log.debug("assemblyForces=" + assemblyForces);
+		return assemblyForces;
 	}
-	
 	
 	@Override
 	public boolean isContinuous( final Rocket rkt){
