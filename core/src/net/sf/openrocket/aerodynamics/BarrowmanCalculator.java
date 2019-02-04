@@ -11,9 +11,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
@@ -42,9 +39,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	private static final String BARROWMAN_PACKAGE = "net.sf.openrocket.aerodynamics.barrowman";
 	private static final String BARROWMAN_SUFFIX = "Calc";
-	
-	private static final Logger log = LoggerFactory.getLogger(BarrowmanCalculator.class);
-	
 	
 	private Map<RocketComponent, RocketComponentCalc> calcMap = null;
 	
@@ -193,8 +187,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent comp = entry.getKey();
 			RocketComponentCalc calcObj = calcMap.get(comp);
-			log.debug("comp=" + comp);
-			
+
+			// System.err.println("comp=" + comp);
 			if (null != calcObj) {
 				// iterate across component instances
 				final ArrayList<InstanceContext> contextList = entry.getValue();
@@ -209,23 +203,23 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						AerodynamicForces instanceForces = new AerodynamicForces().zero();
 						
 						calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
-						log.debug("instanceForces[" + context.instanceNumber + "]=" + instanceForces);
 						Coordinate cp_comp = instanceForces.getCP();
 						
 						Coordinate cp_abs = context.transform.transform(cp_comp);
+						if ((comp instanceof FinSet) && (((FinSet)comp).getFinCount() > 2))
+							cp_abs = cp_abs.setY(0.0).setZ(0.0);
 						
 						instanceForces.setCP(cp_abs);
 						double CN_instanced = instanceForces.getCN();
 						instanceForces.setCm(CN_instanced * instanceForces.getCP().x / conditions.getRefLength());
-
-						log.debug("instanceForces=" + instanceForces);
+						// System.err.println("instanceForces=" + instanceForces);
 						assemblyForces.merge(instanceForces);
 					}
 				}
 			}
 		}
 
-		log.debug("assemblyForces=" + assemblyForces);
+		// System.err.println("assemblyForces=" + assemblyForces);
 		return assemblyForces;
 	}
 	
