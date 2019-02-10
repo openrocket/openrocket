@@ -57,6 +57,8 @@ public class DownloadResponseParser implements ElementHandler {
 			response.add(motorBurnFile);
 		} else if (motor_id_tag.equals(element)) {
 			motorBurnFile.setMotorId(Integer.parseInt(content));
+		} else if (simfile_id_tag.equals(element)) {
+			motorBurnFile.setSimfileId(Integer.parseInt(content));
 		} else if (format_tag.equals(element)) {
 			motorBurnFile.setFiletype(content);
 		} else if (data_tag.equals(element)) {

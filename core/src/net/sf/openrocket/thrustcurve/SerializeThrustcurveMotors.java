@@ -115,36 +115,45 @@ public class SerializeThrustcurveMotors {
 				System.out.println(message);
 				
 				List<MotorBurnFile> b = getThrustCurvesForMotorId(mi.getMotor_id());
-				
 				for (MotorBurnFile burnFile : b) {
-					
-					ThrustCurveMotor.Builder builder = burnFile.getThrustCurveMotor();
-					if (builder == null) {
-						continue;
+					try {
+						ThrustCurveMotor.Builder builder = burnFile.getThrustCurveMotor();
+						if (builder == null) {
+							continue;
+						}
+						if (mi.getTot_mass_g() != null) {
+							builder.setInitialMass(mi.getTot_mass_g() / 1000.0);
+						}
+						if (mi.getProp_mass_g() != null) {
+							// builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
+						}
+						
+						builder.setCaseInfo(mi.getCase_info());
+						builder.setPropellantInfo(mi.getProp_info());
+						builder.setDiameter(mi.getDiameter() / 1000.0);
+						builder.setLength(mi.getLength() / 1000.0);
+						builder.setMotorType(type);
+						
+						if ("OOP".equals(mi.getAvailiability())) {
+							builder.setDesignation(mi.getDesignation());
+							builder.setAvailablity(false);
+						} else if (mi.getDesignation().startsWith("Micro")) {
+							builder.setDesignation(mi.getDesignation());
+						} else {
+							builder.setDesignation(mi.getCommon_name());
+						}
+
+						allMotors.add(builder.build());
+					} catch (IllegalArgumentException e) {
+						System.out.println("\tError in simFile " + burnFile.getSimfileId() + ":  " + e.getMessage() + " (continuing)");
+						try {
+							FileOutputStream out = new FileOutputStream(("simfile-" + burnFile.getSimfileId()).toString());
+							out.write(burnFile.getContents().getBytes());
+							out.close();
+						} catch (IOException i) {
+							System.out.println("unable to write bad file:  " + i.getMessage());
+						}
 					}
-					if (mi.getTot_mass_g() != null) {
-						builder.setInitialMass(mi.getTot_mass_g() / 1000.0);
-					}
-					if (mi.getProp_mass_g() != null) {
-//						builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
-					}
-					
-					builder.setCaseInfo(mi.getCase_info());
-					builder.setPropellantInfo(mi.getProp_info());
-					builder.setDiameter(mi.getDiameter() / 1000.0);
-					builder.setLength(mi.getLength() / 1000.0);
-					builder.setMotorType(type);
-							
-					if ("OOP".equals(mi.getAvailiability())) {
-						builder.setDesignation(mi.getDesignation());
-						builder.setAvailablity(false);
-					} else if (mi.getDesignation().startsWith("Micro")) {
-						builder.setDesignation(mi.getDesignation());
-					} else {
-						builder.setDesignation(mi.getCommon_name());
-					}
-					
-					allMotors.add(builder.build());
 					
 				}
 				
@@ -160,12 +169,12 @@ public class SerializeThrustcurveMotors {
 		try {
 			b.addAll(ThrustCurveAPI.downloadData(motorId, "RockSim"));
 		} catch (Exception ex) {
-			System.out.println("\tError downloading RockSim");
+			System.out.println("\tError downloading RockSim for motorID=" + motorId);
 		}
 		try {
 			b.addAll(ThrustCurveAPI.downloadData(motorId, "RASP"));
 		} catch (Exception ex) {
-			System.out.println("\tError downloading RASP");
+			System.out.println("\tError downloading RASP for motorID=" + motorId);
 		}
 		return b;
 	}
