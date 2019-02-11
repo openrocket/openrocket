@@ -38,6 +38,27 @@ public class FinSetCalcTest {
 //		}
 	}
 
+	private AerodynamicForces sumFins(TrapezoidFinSet fins, Rocket rocket)
+	{
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+		AerodynamicForces assemblyForces = new AerodynamicForces().zero();
+		AerodynamicForces componentForces = new AerodynamicForces();
+
+		FinSetCalc calcObj = new FinSetCalc( fins );
+		
+		// Need to sum forces for fins
+		for (Integer i = 0; i < fins.getFinCount(); i++) {
+			calcObj.calculateNonaxialForces(conditions,
+											Transformation.rotate_x(Math.PI * i / fins.getFinCount()),
+											componentForces, warnings);
+			assemblyForces.merge(componentForces);
+		}
+
+		return assemblyForces;
+	}
+		
 	@Test
 	public void test3Fin() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -49,19 +70,10 @@ public class FinSetCalcTest {
 		assertEquals(" Estes Alpha III fins have wrong tip chord:", 0.03, fins.getTipChord(), EPSILON); 
 		assertEquals(" Estes Alpha III fins have wrong sweep: ", 0.02, fins.getSweep(), EPSILON);
 		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
-		
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		Transformation transform = Transformation.IDENTITY;
-		FlightConditions conditions = new FlightConditions(config);
-		WarningSet warnings = new WarningSet();
-		AerodynamicForces forces = new AerodynamicForces();
-		FinSetCalc calcObj = new FinSetCalc( fins );
-		
-		
-		// vvv TEST MEH! vvv 
-		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
-		// ^^^ 
-		
+
+		// get the forces for the three fins
+		AerodynamicForces forces = sumFins(fins, rocket);
+
 		double exp_cna_fins = 24.146933;
 		double exp_cpx_fins = 0.0193484;
 				
@@ -84,18 +96,9 @@ public class FinSetCalcTest {
 		assertEquals(" Estes Alpha III fins have wrong tip chord:", 0.03, fins.getTipChord(), EPSILON); 
 		assertEquals(" Estes Alpha III fins have wrong sweep: ", 0.02, fins.getSweep(), EPSILON);
 		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
-		
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		Transformation transform = Transformation.IDENTITY;
-		FlightConditions conditions = new FlightConditions(config);
-		WarningSet warnings = new WarningSet();
-		AerodynamicForces forces = new AerodynamicForces();
-		FinSetCalc calcObj = new FinSetCalc( fins );
-		
-		
-		// vvv TEST MEH! vvv 
-		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
-		// ^^^ 
+
+		// get the forces for the four fins
+		AerodynamicForces forces = sumFins(fins, rocket);
 		
 		double exp_cna_fins = 32.195911;
 		double exp_cpx_fins = 0.0193484;

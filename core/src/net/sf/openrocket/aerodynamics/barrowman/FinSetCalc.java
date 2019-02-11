@@ -117,18 +117,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		double angle = baseRotation + transform.getXrotation();
 		
 		// Compute basic CNa without interference effects
-		if (finCount == 1 || finCount == 2) {
-			// Basic CNa from geometry
-			double mul = 0;
-			for (int i = 0; i < finCount; i++) {
-				mul += MathUtil.pow2(Math.sin(theta - angle));
-				angle += 2 * Math.PI / finCount;
-			}
-			cna = cna1 * mul;
-		} else {
-			// Basic CNa assuming full efficiency
-			cna = cna1 * finCount / 2.0;
-		}
+		cna = cna1 * MathUtil.pow2(Math.sin(theta - angle));
 		
 		//		logger.debug("Component cna = {}", cna);
 		

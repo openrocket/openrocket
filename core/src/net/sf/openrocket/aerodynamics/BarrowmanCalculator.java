@@ -194,27 +194,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				final ArrayList<InstanceContext> contextList = entry.getValue();
 
 				for(InstanceContext context: contextList ) {
-					// since FinSetCalc calculates forces for entire FinSet
-					// only consider first fin in each set (happily,
-					// in each instance of a PodSet or similar
-					// instanceable RocketComponent with childre, the
-					// child FinSets all start numbering with 0
-					if (!(comp instanceof FinSet) || (context.instanceNumber == 0)) {
-						AerodynamicForces instanceForces = new AerodynamicForces().zero();
-						
-						calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
-						Coordinate cp_comp = instanceForces.getCP();
-						
-						Coordinate cp_abs = context.transform.transform(cp_comp);
-						if ((comp instanceof FinSet) && (((FinSet)comp).getFinCount() > 2))
-							cp_abs = cp_abs.setY(0.0).setZ(0.0);
-						
-						instanceForces.setCP(cp_abs);
-						double CN_instanced = instanceForces.getCN();
-						instanceForces.setCm(CN_instanced * instanceForces.getCP().x / conditions.getRefLength());
-						// System.err.println("instanceForces=" + instanceForces);
-						assemblyForces.merge(instanceForces);
-					}
+					AerodynamicForces instanceForces = new AerodynamicForces().zero();
+					
+					calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
+					Coordinate cp_comp = instanceForces.getCP();
+					
+					Coordinate cp_abs = context.transform.transform(cp_comp);
+					if ((comp instanceof FinSet) && (((FinSet)comp).getFinCount() > 2))
+						cp_abs = cp_abs.setY(0.0).setZ(0.0);
+					
+					instanceForces.setCP(cp_abs);
+					double CN_instanced = instanceForces.getCN();
+					instanceForces.setCm(CN_instanced * instanceForces.getCP().x / conditions.getRefLength());
+					// System.err.println("instanceForces=" + instanceForces);
+					assemblyForces.merge(instanceForces);
 				}
 			}
 		}
