@@ -33,15 +33,17 @@ import net.sf.openrocket.util.StateChangeListener;
 @SuppressWarnings("serial")
 public class FinPointFigure extends AbstractScaleFigure {
  
-    private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
+    //private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
     private static final Color GRID_MAJOR_LINE_COLOR = new Color( 64, 64, 128, 128);
     private static final Color GRID_MINOR_LINE_COLOR = new Color( 64, 64, 128, 32);
     private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
-    private static final int LINE_WIDTH_PIXELS = 1;
+    private static final int LINE_WIDTH_FIN_PIXELS = 1;
+    private static final int LINE_WIDTH_BODY_PIXELS = 2;
     
     // the size of the boxes around each fin point vertex
+    private static final int LINE_WIDTH_BOX_PIXELS = 1;
     private static final float BOX_WIDTH_PIXELS = 12; 
     private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
     private static final Color POINT_COLOR = new Color(100, 100, 100);
@@ -160,7 +162,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     private void paintBodyTransition( Graphics2D g2){       
     
         // setup lines 
-        final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale ); 
+        final float bodyLineWidth = (float) ( LINE_WIDTH_BODY_PIXELS / scale ); 
         g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         g2.setColor(Color.BLACK);
 
@@ -209,7 +211,7 @@ public class FinPointFigure extends AbstractScaleFigure {
         shape.lineTo( xAft, 0);          // body tube side
         shape.lineTo( xAft, yCenter);    // body tube aft edge
         
-        final float bodyLineWidth = (float) ( LINE_WIDTH_PIXELS / scale ); 
+        final float bodyLineWidth = (float) ( LINE_WIDTH_BODY_PIXELS / scale ); 
         g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         g2.setColor(Color.BLACK);
         g2.draw(shape);
@@ -226,9 +228,9 @@ public class FinPointFigure extends AbstractScaleFigure {
 	        shape.lineTo( drawPoints[i].x, drawPoints[i].y);
 	    }
         
-	    final float finEdgeWidth_m = (float) (LINE_WIDTH_PIXELS / scale  );
+	    final float finEdgeWidth_m = (float) (LINE_WIDTH_FIN_PIXELS / scale  );
 	    g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-	    g2.setColor(Color.BLUE);
+	    g2.setColor(Color.BLACK);
 	    g2.draw(shape);
 	}
 	
@@ -240,7 +242,7 @@ public class FinPointFigure extends AbstractScaleFigure {
         final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
         final float boxHalfWidth = boxWidth/2;
         
-        final float boxEdgeWidth_m = (float) ( LINE_WIDTH_PIXELS / scale );
+        final float boxEdgeWidth_m = (float) ( LINE_WIDTH_BOX_PIXELS / scale );
         g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
         g2.setColor(POINT_COLOR);
         
