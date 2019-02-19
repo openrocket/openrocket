@@ -3,6 +3,7 @@ package net.sf.openrocket.aerodynamics;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class Warning {
@@ -118,6 +119,33 @@ public abstract class Warning {
 			return trans.get("Warning.RECOVERY_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
 		}
 		
+		@Override
+		public boolean replaceBy(Warning other) {
+			return false;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating flight events remain in the event queue on ground hit.
+	 *
+	 */
+	public static class EventRemaining extends Warning {
+		private FlightEvent event;
+		
+		/**
+		 * Sole constructor.  The argument is an event remaining in the queue
+		 *
+		 * @param event the event that caused this warning
+		 */
+		public EventRemaining(FlightEvent _event)  {
+			this.event = _event;
+		}
+
+		@Override
+		public String toString() {
+			return trans.get("Warning.EVENT_REMAINING") + event.getType();
+		}
+
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
@@ -350,5 +378,7 @@ public abstract class Warning {
 	public static final Warning RECOVERY_LAUNCH_ROD = new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
 	
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
+
+	public static final Warning EVENT_REMAINING = new Other(trans.get("Warning.EVENT_REMAINING"));
 	
 }

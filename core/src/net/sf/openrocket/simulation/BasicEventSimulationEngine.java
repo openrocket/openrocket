@@ -487,6 +487,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case GROUND_HIT:
+				// have I hit the ground while I still have events in the queue?
+				for (FlightEvent e : currentStatus.getEventQueue()) {
+					if ((e.getType() != FlightEvent.Type.ALTITUDE) &&
+						(e.getType() != FlightEvent.Type.SIMULATION_END))
+						currentStatus.getWarnings().add(new Warning.EventRemaining(e));
+				}
+
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			
