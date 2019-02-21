@@ -35,9 +35,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private SimulationStepper flightStepper = new RK4SimulationStepper();
+	private SimulationStepper flightStepper  = new RK4SimulationStepper();
 	private SimulationStepper landingStepper = new BasicLandingStepper();
-	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
+	private SimulationStepper tumbleStepper  = new BasicTumbleStepper();
+	private SimulationStepper groundStepper  = new GroundStepper();
 	
 	// Constant holding 20 degrees in radians.  This is the AOA condition
 	// necessary to transition to tumbling.
@@ -107,8 +108,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private FlightDataBranch simulateLoop() {
 		
-		// Initialize the simulation
-		currentStepper = flightStepper;
+		// Initialize the simulation.  We'll use the flight stepper unless we're already on the ground
+		if (currentStatus.isLanded())
+			currentStepper = groundStepper;
+		else
+			currentStepper = flightStepper;
+		
 		currentStatus = currentStepper.initialize(currentStatus);
 		
 		// Get originating position (in case listener has modified launch position)
@@ -138,15 +143,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Check for NaN values in the simulation status
 				checkNaN();
 				
-				// Add altitude event
-				addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
-						currentStatus.getConfiguration().getRocket(),
-						new Pair<Double, Double>(oldAlt, currentStatus.getRocketPosition().z)));
+				// If we haven't hit the ground, add altitude event
+				if (!currentStatus.isLanded())
+					addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
+											 currentStatus.getConfiguration().getRocket(),
+											 new Pair<Double, Double>(oldAlt, currentStatus.getRocketPosition().z)));
 				
 				if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
 					currentStatus.setMaxAlt(currentStatus.getRocketPosition().z);
 				}
-				
 				
 				// Position relative to start location
 				Coordinate relativePosition = currentStatus.getRocketPosition().sub(origin);
@@ -167,10 +172,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				} else {
 					
 					// Check ground hit after liftoff
-					if (currentStatus.getRocketPosition().z < 0) {
-						currentStatus.setRocketPosition(currentStatus.getRocketPosition().setZ(0));
+					if ((currentStatus.getRocketPosition().z < 0) && !currentStatus.isLanded()) {
 						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
-						addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+						
+						// addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 					}
 					
 				}
@@ -228,7 +233,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					}
 					
 				}
-				
+
+				// If I'm on the ground and have no events in the queue, I'm done
+				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty())
+					addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 			}
 			
 		} catch (SimulationException e) {
@@ -254,6 +262,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			log.trace("Obtained event from queue:  " + event.toString());
 			log.trace("Remaining EventQueue = " + currentStatus.getEventQueue().toString());
+
+			// If I get an event other than ALTITUDE and SIMULATION_END after I'm on the ground, there's a problem
+			if (currentStatus.isLanded() &&
+				(event.getType() != FlightEvent.Type.ALTITUDE) &&
+				(event.getType() != FlightEvent.Type.SIMULATION_END))
+				currentStatus.getWarnings().add(new Warning.EventAfterLanding(event));
 			
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
@@ -326,7 +340,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 							event.getTime() + Math.max(0.001, deployConfig.getDeployDelay()), c));
 				}
 			}
-			
+
 			// Handle event
 			log.trace("Handling event " + event);			
 			switch (event.getType()) {
@@ -390,7 +404,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				AxialStage stage = motorState.getMount().getStage();
 				//log.debug( " adding EJECTION_CHARGE event for motor "+motorState.getMotor().getDesignation()+" on stage "+stage.getStageNumber()+": "+stage.getName());
 				log.debug( " detected Motor Burnout for motor "+motorState.getMotor().getDesignation()+"@ "+event.getTime()+"  on stage "+stage.getStageNumber()+": "+stage.getName());
-				
 				
 				double delay = motorState.getEjectionDelay();
 				if ( motorState.hasEjectionCharge() ){
@@ -478,22 +491,23 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
 						currentStatus.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
 					}
-					
-					this.currentStepper = this.landingStepper;
-					this.currentStatus = currentStepper.initialize(currentStatus);
+
+					// switch to landing stepper (unless we're already on the ground)
+					if (!currentStatus.isLanded()) {
+						currentStepper = landingStepper;
+						currentStatus = currentStepper.initialize(currentStatus);
+					}
 					
 					currentStatus.getFlightData().addEvent(event);
 				}
 				break;
 			
 			case GROUND_HIT:
-				// have I hit the ground while I still have events in the queue?
-				for (FlightEvent e : currentStatus.getEventQueue()) {
-					if ((e.getType() != FlightEvent.Type.ALTITUDE) &&
-						(e.getType() != FlightEvent.Type.SIMULATION_END))
-						currentStatus.getWarnings().add(new Warning.EventRemaining(e));
-				}
-
+				currentStatus.setLanded(true);
+				
+				currentStepper = groundStepper;
+				currentStatus = currentStepper.initialize(currentStatus);
+				
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			
@@ -507,8 +521,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case TUMBLE:
-				this.currentStepper = this.tumbleStepper;
-				this.currentStatus = currentStepper.initialize(currentStatus);
+				if (!currentStatus.isLanded()) {
+					currentStepper = tumbleStepper;
+					currentStatus = currentStepper.initialize(currentStatus);
+				}
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			}
@@ -545,7 +561,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	/**
 	 * Return the next flight event to handle, or null if no more events should be handled.
-	 * This method jumps the simulation time forward in case no motors have been ignited.
+	 * This method jumps the simulation time forward in case no motors have been ignited
 	 * The flight event is removed from the event queue.
 	 *
 	 * @return			the flight event to handle, or null
@@ -557,7 +573,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			return null;
 		
 		// Jump to event if no motors have been ignited
-		if (!currentStatus.isMotorIgnited() && event.getTime() > currentStatus.getSimulationTime()) {
+		if (!currentStatus.isMotorIgnited() &&
+			event.getTime() > currentStatus.getSimulationTime()) {
 			currentStatus.setSimulationTime(event.getTime());
 		}
 		if (event.getTime() <= currentStatus.getSimulationTime()) {

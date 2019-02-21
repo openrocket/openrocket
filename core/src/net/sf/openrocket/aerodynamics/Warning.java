@@ -126,24 +126,32 @@ public abstract class Warning {
 	}
 
 	/**
-	 * A <code>Warning</code> indicating flight events remain in the event queue on ground hit.
+	 * A <code>Warning</code> indicating flight events occurred after ground hit
 	 *
 	 */
-	public static class EventRemaining extends Warning {
+	public static class EventAfterLanding extends Warning {
 		private FlightEvent event;
 		
 		/**
-		 * Sole constructor.  The argument is an event remaining in the queue
+		 * Sole constructor.  The argument is an event which has occurred after landing
 		 *
 		 * @param event the event that caused this warning
 		 */
-		public EventRemaining(FlightEvent _event)  {
+		public EventAfterLanding(FlightEvent _event)  {
 			this.event = _event;
 		}
 
+		// I want a warning on every event that occurs after we land,
+		// so severity of problem is clear to the user
+		@Override
+		public boolean equals(Object o) {
+			return false;
+		}
+		
+
 		@Override
 		public String toString() {
-			return trans.get("Warning.EVENT_REMAINING") + event.getType();
+			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
 		}
 
 		@Override
@@ -379,6 +387,6 @@ public abstract class Warning {
 	
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
 
-	public static final Warning EVENT_REMAINING = new Other(trans.get("Warning.EVENT_REMAINING"));
+	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"));
 	
 }
