@@ -34,13 +34,13 @@ public class MassCalculator implements Monitorable {
 	
 	
 	/**
-	 * Calculates mass data of the rocket's burnout mass
+	 * Calculates mass data of the rocket's structure
 	 * - includes structure 
-	 * - includes motors
-	 * - for Black Powder & Composite motors, this generally *excludes* propellant
+	 * - excludes motors
+	 * - excludes propellant
 	 *  
 	 * @param config		the rocket configuration to calculate for
-	 * @return					the MassData struct of the motors at burnout
+	 * @return				the MassData struct of the rocket
 	 */
 	public static RigidBody calculateStructure( final FlightConfiguration config) {
 		return calculate( MassCalculation.Type.STRUCTURE, config, Motor.PSEUDO_TIME_EMPTY );
@@ -53,29 +53,42 @@ public class MassCalculator implements Monitorable {
 	 * - for Black Powder & Composite motors, this generally *excludes* propellant
 	 *  
 	 * @param config		the rocket configuration to calculate for
-	 * @return					the MassData struct of the motors at burnout
+	 * @return				the MassData struct of the rocket at burnout
 	 */
 	public static RigidBody calculateBurnout( final FlightConfiguration config) {
 		return calculate( MassCalculation.Type.BURNOUT, config, Motor.PSEUDO_TIME_BURNOUT );
 	}	
-	
+
+	/**
+	 * Calculates mass data of the rocket's motor(s) at launch
+	 * - excludes structure
+	 * - includes motors
+	 * - includes propellant
+	 *  
+	 * @param config		the rocket configuration to calculate for
+	 * @return				the MassData struct of the motors at launch
+	 */
 	public static RigidBody calculateMotor( final FlightConfiguration config) {
 		return calculate( MassCalculation.Type.MOTOR, config, Motor.PSEUDO_TIME_LAUNCH );
 	}	
 	
 	/**
-	 * Compute the burnout mass properties all motors, given a configuration
-	 * 
-	 * Will calculate data for: MassCalcType.BURNOUT_MASS
+	 * Compute the rocket's launch mass properties, given a configuration
+	 * - includes structure
+	 * - includes motors
+	 * - includes propellant
 	 *  
 	 * @param config             the rocket configuration
-	 * @return					the MassData struct of the motors at burnout
+	 * @return					 the MassData struct of the rocket at launch
 	 */
 	public static RigidBody calculateLaunch( final FlightConfiguration config ){
 		return calculate( MassCalculation.Type.LAUNCH, config, Motor.PSEUDO_TIME_LAUNCH );
 	}
 	
-	/** calculates the massdata for all propellant in the rocket given the simulation status.
+	/** calculates the massdata for all motors in the rocket given the simulation status.
+	 * - excludes structure
+	 * - includes motors
+	 * - includes propellant
 	 * 
 	 * @param status  CurrentSimulation status to calculate data with
 	 * @return  combined mass data for all propellant
