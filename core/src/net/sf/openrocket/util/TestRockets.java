@@ -3,6 +3,7 @@ package net.sf.openrocket.util;
 import java.util.Random;
 
 import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
@@ -39,6 +40,7 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -851,6 +853,14 @@ public class TestRockets {
 	
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	// Comments starting with cp: are center of pressure calculations
+	// for components of the rocket.  Note that a cp: without a weight
+	// has a weight of 0 (see for example body tubes) -- included for
+	// completeness.
+	// Instanced components (ie components on the side boosters) have
+	// a cp: for each instance.
+	// The unit tests change the number of fins on the side boosters;
+	// cp: comments are shown for 1-fin, 2-fin, and 3-fin cases
 	public static Rocket makeFalcon9Heavy() {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
@@ -876,10 +886,12 @@ public class TestRockets {
 	        payloadFairingNoseCone.setAftShoulderThickness( 0.001 );
 	        payloadFairingNoseCone.setAftShoulderCapped( false );
 	        payloadStage.addChild(payloadFairingNoseCone);
+			// cp:(0.05900,0.00000,0.00000,w=2.00000)
 			
 			BodyTube payloadBody = new BodyTube(0.132, 0.052, 0.001);
 			payloadBody.setName("PL Fairing Body");
 			payloadStage.addChild(payloadBody);
+			// cp:(0.18400,0.00000,0.00000)
 			
 			Transition payloadFairingTail = new Transition();
 			payloadFairingTail.setName("PL Fairing Transition");
@@ -888,10 +900,12 @@ public class TestRockets {
 			payloadFairingTail.setForeRadiusAutomatic(true);
 			payloadFairingTail.setAftRadiusAutomatic(true);
 			payloadStage.addChild(payloadFairingTail);
+			// cp:(0.25665,0.00000,0.00000,w=-0.90366)
 			
 			BodyTube upperStageBody= new BodyTube(0.18, 0.0385, 0.001);
 			upperStageBody.setName("Upper Stage Body ");
 			payloadStage.addChild( upperStageBody);
+			// cp:(0.35400,0.00000,0.00000)
 			
 			{
 				// Parachute
@@ -916,6 +930,7 @@ public class TestRockets {
 			BodyTube interstage= new BodyTube(0.12, 0.0385, 0.001);
 			interstage.setName("Interstage");
 			payloadStage.addChild( interstage);
+			// cp:(0.50400,0.00000,0.00000)
 		}
 
 		// ====== Core Stage ====== 
@@ -930,6 +945,7 @@ public class TestRockets {
 			coreBody.setName("Core Stage Body");
 			coreBody.setMotorMount(true);
 			coreStage.addChild( coreBody);
+			// cp:(0.96400,0.00000,0.00000)
 			{
 				MotorConfiguration coreMotorConfig = new MotorConfiguration(coreBody, selFCID);
 				Motor mtr = TestRockets.generateMotor_M1350_75mm();
@@ -961,12 +977,15 @@ public class TestRockets {
 					boosterCone.setAftShoulderThickness( 0.001 );
 					boosterCone.setAftShoulderCapped( false );
 					boosterStage.addChild( boosterCone);
+					// cp:(0.52400,0.07700,0.00000,w=1.09634)
+					// cp:(0.52400,-0.07700,0.00000,w=1.09634)
 					
 					BodyTube boosterBody = new BodyTube(0.8, 0.0385, 0.001);
 					boosterBody.setName("Booster Body");
 					boosterBody.setOuterRadiusAutomatic(true);
 					boosterStage.addChild( boosterBody);
-					
+					// cp:(0.96400,0.07700,0.00000)
+					// cp:(0.96400,-0.07700,0.00000)
 					{
 						InnerTube boosterMotorTubes = new InnerTube();
 						boosterMotorTubes.setName("Booster Motor Tubes");
@@ -997,6 +1016,12 @@ public class TestRockets {
 						boosterFins.setSweep(0.18);
 						boosterFins.setAxialMethod(AxialMethod.BOTTOM);
 						boosterFins.setAxialOffset(0.0);
+						// cp:(1.17873,0.10422,0.02722,w=6.07405) (1 fin case)
+						// cp:(1.17873,-0.10422,-0.02722,w=6.07405) (1 fin case)
+						// cp:(1.17873,0.10422,0.02722,w=12.14810) (2 fin case)
+						// cp:(1.17873,-0.10422,-0.02722,w=12.14810) (2 fin case)
+						// cp:(1.17873,0.00000,0.00000,w=9.11107) (3 fin case)
+						// cp:(1.17873,0.00000,0.00000,w=9.11107) (3 fin case)
 					}
 				}
 				
@@ -1007,6 +1032,128 @@ public class TestRockets {
 		rocket.setSelectedConfiguration( selFCID);
 		rocket.getFlightConfiguration( selFCID).setAllStages();
 		
+		return rocket;
+	}
+
+	// This is a simple four-fin rocket with large endplates on the
+	// fins, for testing CG and CP calculations with fins on pods.
+	// not a complete rocket (no motor mount nor recovery system)
+
+	// it's parameterized to make things easy to change, but be sure
+	// to adjust the unit test to match!
+	public static Rocket makeEndPlateRocket() {
+		
+		// rocket design parameters
+		double radius = 0.01; // note this is diameter/2!
+		int finCount = 4;     // also determines pod count
+		
+		// nose cone
+		double noseThick = 0.002;
+		double noseLength = 0.05;
+		
+		// body tube
+		double bodyWallThick = 0.002;
+		double bodyLength = 0.254;
+
+		// main body tube fins
+		int bodyFinCount = 4;
+		double bodyFinRootChord = 0.05;
+		double bodyFinTipChord = bodyFinRootChord;
+		double bodyFinHeight = 0.025;
+		double bodyFinSweep = 0.0;
+		AxialMethod bodyFinAxialMethod = AxialMethod.BOTTOM;
+		double bodyFinAxialOffset = 0.0;
+		double bodyFinThickness = 0.003;
+				
+		// pods for end plates
+		int podSetCount = bodyFinCount;
+		double podSetOffset = bodyFinHeight;
+		AxialMethod podSetAxialMethod = bodyFinAxialMethod;
+		double podSetAxialOffset = 0.0;
+
+		// "phantom" tube on pods to give us somewhere to connect end
+		// plates
+		double phantomLength = bodyFinTipChord;
+		double phantomRadius = 0;
+		double phantomWallThickness = 0;
+
+		// end plates
+		int endPlateCount = 2;
+		double endPlateRootChord = bodyFinTipChord;
+		double endPlateTipChord = endPlateRootChord;
+		double endPlateSweep = 0.0;
+		double endPlateThickness = bodyFinThickness;
+		double endPlateHeight = bodyFinHeight;
+		double endPlateRotation = Math.PI/2.0;
+		AxialMethod endPlateAxialMethod = AxialMethod.BOTTOM;
+		double endPlateAxialOffset = 0;
+	
+		// create bare rocket
+		Rocket rocket = new Rocket();
+		rocket.enableEvents();
+		rocket.setName("End Plate Test");
+
+		// rocket has one stage
+		AxialStage sustainer = new AxialStage();
+		rocket.addChild(sustainer);
+		sustainer.setName("Sustainer");
+		
+		// nose cone
+		NoseCone noseCone = new NoseCone(Transition.Shape.OGIVE, noseLength, radius);
+		sustainer.addChild(noseCone);
+		noseCone.setName("Nose Cone");
+		// cp:(0.02303,0.00000,0.00000,w=2.00000)
+
+		// body tube
+		BodyTube bodyTube = new BodyTube(bodyLength, radius, bodyWallThick);
+		sustainer.addChild(bodyTube);
+		bodyTube.setName("Body tube");
+		// cp:(0.17700,0.00000,0.00000)
+		
+		// Trapezoidal fin set on body tube
+		TrapezoidFinSet bodyFinSet = new TrapezoidFinSet(bodyFinCount, bodyFinRootChord, bodyFinTipChord, bodyFinSweep, bodyFinHeight);
+		bodyTube.addChild(bodyFinSet);
+		bodyFinSet.setName("Body Tube FinSet");
+		bodyFinSet.setAxialMethod(bodyFinAxialMethod);
+		bodyFinSet.setAxialOffset(bodyFinAxialOffset);
+		bodyFinSet.setThickness(bodyFinThickness);
+		// cp:(0.26650,0.00000,0.00000,w=15.24857)
+
+		// Pod set to put an end plate on each fin
+		PodSet podSet = new PodSet();
+		bodyTube.addChild(podSet);
+		podSet.setName("Pod Set");
+		podSet.setInstanceCount(podSetCount);
+		podSet.setRadiusOffset(podSetOffset);
+		podSet.setAxialMethod(podSetAxialMethod);
+		podSet.setAxialOffset(podSetAxialOffset);
+
+		// 0-diameter "body tube" to give us something to hook the
+		// endplates to.  Note that this causes a "thick fins"
+		// warning.
+		BodyTube phantom = new BodyTube(phantomLength, phantomRadius, phantomWallThickness);
+		podSet.addChild(phantom);
+		phantom.setName("Phantom");
+		// cp:(0.25400,0.03540,0.00000)
+		// cp:(0.25400,0.00000,0.03540)
+		// cp:(0.25400,-0.03540,0.00000)
+		// cp:(0.25400,-0.00000,-0.03540)
+
+		// end plates
+		TrapezoidFinSet endPlate = new TrapezoidFinSet(endPlateCount, endPlateRootChord, endPlateTipChord, endPlateSweep, endPlateHeight);
+		phantom.addChild(endPlate);
+		endPlate.setName("End plates");
+		endPlate.setBaseRotation(endPlateRotation);
+		endPlate.setAxialMethod(endPlateAxialMethod);
+		endPlate.setAxialOffset(endPlateAxialOffset);
+		endPlate.setThickness(endPlateThickness);
+		// cp:(0.26650,0.03540,0.00000,w=0.00000)
+		// cp:(0.26650,0.00000,0.03540,w=11.86000)
+		// cp:(0.26650,-0.03540,0.00000,w=0.00000)
+		// cp:(0.26650,-0.00000,-0.03540,w=11.86000)
+		
+		// Total cp:(0.25461,-0.00000,0.00000,w=40.96857)
+
 		return rocket;
 	}
 	
@@ -1406,6 +1553,7 @@ public class TestRockets {
 	public static OpenRocketDocument makeTestRocket_v108_withBoosters() {
 		Rocket rocket = makeFalcon9Heavy();
 		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+			
 		return document;
 	}
 	

@@ -86,7 +86,7 @@ public class BarrowmanCalculatorTest {
 		
 		assertEquals(" Estes Alpha III CNa value is incorrect:", exp_cna, cp_calc.weight, EPSILON);
 		assertEquals(" Estes Alpha III cp x value is incorrect:", exp_cpx, cp_calc.x, EPSILON);
-		assertEquals(" Estes Alpha III cp x value is incorrect:", 0.0, cp_calc.y, EPSILON);
+		assertEquals(" Estes Alpha III cp y value is incorrect:", 0.0, cp_calc.y, EPSILON);
 	}
 	
 	@Test
@@ -107,7 +107,8 @@ public class BarrowmanCalculatorTest {
 		assertEquals(" Estes Alpha III cp x value is incorrect:", expCPx, calcCP.x, EPSILON);
 		assertEquals(" Estes Alpha III CNa value is incorrect:", exp_cna, calcCP.weight, EPSILON);
 	}
-	
+
+	// Component CP calculations resulting in expected test values are in comments in TestRockets.makeFalcon9Heavy()
 	@Test
 	public void testCPParallelBoosters() {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
@@ -128,20 +129,39 @@ public class BarrowmanCalculatorTest {
 		}{
 			boosterFins.setFinCount(2);
 			final Coordinate cp_2fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711197, cp_2fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.99464238, cp_2fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 27.585207667168696, cp_2fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 1.0757127676940474, cp_2fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_2fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_2fin.z, EPSILON);
 		}{
 			boosterFins.setFinCount(1);
 			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 9.36306412, cp_1fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.87521867, cp_1fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711196967902, cp_1fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.99464, cp_1fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0f, cp_1fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0f, cp_1fin.z, EPSILON);
 		}{
 			// absent -- 3.28901627g @[0.31469937,0.05133333,0.00000000]
 		}
+	}
+
+	// test rocket with endplates on fins.  Comments tracing
+	// calculation of CP are in TestRockets.makeEndPlateRocket().
+	@Test
+	public void testEndPlateCP() {
+		final Rocket rocket = TestRockets.makeEndPlateRocket();
+		final FlightConfiguration config = new FlightConfiguration(rocket, null);
+		//		rocket.setFlightConfiguration(config.getId(), config);
+		//		rocket.setSelectedConfiguration(config.getId());
+		final AerodynamicCalculator calc = new BarrowmanCalculator();
+		final FlightConditions conditions = new FlightConditions(config);
+		final WarningSet warnings = new WarningSet();
+
+		final Coordinate cp = calc.getCP(config, conditions, warnings);
+		assertEquals(" Endplate rocket cp x value is incorrect:", 0.25461, cp.x, EPSILON);
+		assertEquals(" Endplate rocket cp y value is incorrect:", 0.0, cp.y, EPSILON);
+		assertEquals(" Endplate rocket cp z value is incorrect:", 0.0, cp.z, EPSILON);
+		assertEquals(" Endplate rocket CNa value is incorrect:", 40.96857, cp.weight, EPSILON);
 	}
 	
 	@Test

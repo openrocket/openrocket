@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
+import net.sf.openrocket.util.Transformation;
 
 public class SymmetricComponentCalcTest {
 	protected final double EPSILON = MathUtil.EPSILON*1000;
@@ -52,13 +53,14 @@ public class SymmetricComponentCalcTest {
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
+		Transformation transform = Transformation.IDENTITY;
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces forces = new AerodynamicForces();
 		SymmetricComponentCalc calcObj = new SymmetricComponentCalc( nose );
 		
 		conditions.setAOA(0.0);
 		// vvv TEST MEH! vvv 
-		calcObj.calculateNonaxialForces(conditions, forces, warnings);
+		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
 		// ^^^ 
 		
 		double cna_nose = 2;
@@ -82,13 +84,14 @@ public class SymmetricComponentCalcTest {
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
+		Transformation transform = Transformation.IDENTITY;
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces forces = new AerodynamicForces();
 		SymmetricComponentCalc calcObj = new SymmetricComponentCalc( nose );
 		
 		conditions.setAOA(0.0);
 		// vvv TEST vvv 
-		calcObj.calculateNonaxialForces(conditions, forces, warnings);
+		calcObj.calculateNonaxialForces(conditions, transform, forces, warnings);
 		// ^^^      ^^^
 		
 		double l_nose = nose.getLength(); 

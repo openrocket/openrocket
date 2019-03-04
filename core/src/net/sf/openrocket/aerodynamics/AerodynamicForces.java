@@ -392,7 +392,6 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public AerodynamicForces merge(AerodynamicForces other) {
-
 		this.cp = cp.average(other.getCP());
 		this.CNa = CNa + other.getCNa();
 		this.CN = CN + other.getCN();

@@ -6,6 +6,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Transformation;
 
 public class LaunchLugCalc extends RocketComponentCalc {
 
@@ -24,7 +25,7 @@ public class LaunchLugCalc extends RocketComponentCalc {
 	}
 
 	@Override
-	public void calculateNonaxialForces(FlightConditions conditions,
+	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		// Nothing to be done
 	}

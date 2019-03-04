@@ -331,9 +331,9 @@ public final class Coordinate implements Cloneable, Serializable {
 	@Override
 	public String toString() {
 		if (isWeighted())
-			return String.format("(%.3f,%.3f,%.3f,w=%.3f)", x, y, z, weight);
+			return String.format("(%.5f,%.5f,%.5f,w=%.5f)", x, y, z, weight);
 		else
-			return String.format("(%.3f,%.3f,%.3f)", x, y, z);
+			return String.format("(%.5f,%.5f,%.5f)", x, y, z);
 	}
 	
 	// high-precision output, for use with verifying calculations

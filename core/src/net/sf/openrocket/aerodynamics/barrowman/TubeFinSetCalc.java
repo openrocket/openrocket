@@ -17,6 +17,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
+import net.sf.openrocket.util.Transformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 	 * pitch, yaw and roll moments, CP position, CNa).
 	 */
 	@Override
-	public void calculateNonaxialForces(FlightConditions conditions,
+	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		
 		if (span < 0.001) {
@@ -124,7 +125,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		// Multiple fins with fin-fin interference
 		double cna;
 		double theta = conditions.getTheta();
-		double angle = baseRotation;
+		double angle = baseRotation + transform.getXrotation();
 		
 		// Compute basic CNa without interference effects
 		if (finCount == 1 || finCount == 2) {
