@@ -246,6 +246,108 @@ public class MassCalculation {
 	 *
 	 */
 	/* package-scope */ MassCalculation calculateAssembly(){
+		
+		if (this.type.includesStructure) {
+			MassCalculation structureCalc = this.copy(this.root, this.transform);
+			structureCalc.calculateStructure();
+			this.merge(structureCalc);
+		}
+
+		if (this.type.includesMotorCasing || this.type.includesPropellant) {
+			MassCalculation motorCalc = this.copy(this.root, this.transform);
+			motorCalc.calculateMotors();
+			this.merge(motorCalc);
+		}
+
+		return this;
+	}
+
+	MassCalculation calculateStructure() {
+		final RocketComponent component = this.root;
+		final Transformation parentTransform = this.transform;
+		final int instanceCount = component.getInstanceCount();
+		Coordinate[] instanceLocations = component.getInstanceLocations();
+		
+//		// vvv DEBUG
+//		if( this.config.isComponentActive(component) ){
+//			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
+//		}
+		
+		// iterate over the aggregated instances for the whole tree.
+		MassCalculation children = this.copy(component, parentTransform );
+		for( int instanceNumber = 0; instanceNumber < instanceCount; ++instanceNumber) {
+			Coordinate currentLocation = instanceLocations[instanceNumber];
+			Transformation currentTransform = parentTransform.applyTransformation( Transformation.getTranslationTransform( currentLocation ));
+			
+			for (RocketComponent child : component.getChildren()) {
+				// child data, relative to rocket reference frame
+				MassCalculation eachChild = copy( child, currentTransform);
+				
+				eachChild.prefix = prefix + "....";
+				eachChild.calculateStructure(); 
+				
+				// accumulate children's data
+				children.merge( eachChild );
+			}			
+		}
+		
+		if( 0 < children.getMass() ) {
+			this.merge( children );
+//		// vvv DEBUG			
+//			System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
+		}
+		
+		if (this.config.isComponentActive(component) ){
+			Coordinate compCM = component.getComponentCG();
+
+			if (!component.getOverrideSubcomponents()) {
+				if (component.isMassOverridden()) {
+//					System.err.println("mass override=" + component.getOverrideMass());
+					compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
+				}
+				if (component.isCGOverridden())
+					compCM = compCM.setXYZ(component.getOverrideCG());
+			}
+
+			// mass data for *this component only* in the rocket-frame
+			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
+			this.addMass( compCM );
+			
+			double compIx = component.getRotationalUnitInertia() * compCM.weight;
+			double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
+			
+			this.addInertia( componentInertia );
+// vvv DEBUG			
+//			if( 0 < compCM.weight ) {
+//				System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
+//			}
+
+			if (component.getOverrideSubcomponents()) {				
+				if (component.isMassOverridden()) {
+					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
+					Coordinate newCM = this.getCM().setWeight( newMass );
+					this.setCM( newCM );
+				}
+				
+				if (component.isCGOverridden()) {
+					Coordinate newCM = this.getCM().setX( component.getOverrideCGX() ); 
+					this.setCM( newCM );
+				}
+			}
+		}
+		
+//		// vvv DEBUG
+//		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
+//			System.err.println(String.format( "%s....<< return assemblyData:   %s (tree @%s)", prefix, this.toCMDebug(), component.getName() ));
+//		}
+//		// ^^^ DEBUG
+		
+		return this;
+	}
+
+	MassCalculation calculateMotors() {
+	
 		final RocketComponent component = this.root;
 		final Transformation parentTransform = this.transform;
 		
@@ -257,37 +359,14 @@ public class MassCalculation {
 //			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
 //		}
 		
-		if( this.type.includesStructure && this.config.isComponentActive(component) ){
-			Coordinate compCM = component.getCG();
-			double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
-			
-			if (!component.getOverrideSubcomponents()) {
-				if (component.isMassOverridden())
-					compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
-				if (component.isCGOverridden())
-					compCM = compCM.setXYZ(component.getOverrideCG());
-			}
-
-			// mass data for *this component only* in the rocket-frame
-			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
-			this.addMass( compCM );
-			
-			RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
-			this.addInertia( componentInertia );
-			
-//			if( 0 < compCM.weight ) { // vvv DEBUG
-//				System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
-//			}
-		}
-		
-		if( component.isMotorMount() && ( this.type.includesMotorCasing || this.type.includesPropellant )) {
+		if (component.isMotorMount()) {
 			MassCalculation propellant = this.copy(component, parentTransform);
 			
 			propellant.calculateMountData();
 			
 			this.merge( propellant );
-			
+
+//		    // vvv DEBUG			
 //			if( 0 < propellant.getMass() ) {
 //				System.err.println(String.format( "%s........++ propellantData: %s", prefix, propellant.toCMDebug()));
 //			}
@@ -304,7 +383,7 @@ public class MassCalculation {
 				MassCalculation eachChild = copy( child, currentTransform);
 				
 				eachChild.prefix = prefix + "....";
-				eachChild.calculateAssembly(); 
+				eachChild.calculateMotors(); 
 				
 				// accumulate children's data
 				children.merge( eachChild );
@@ -316,25 +395,11 @@ public class MassCalculation {
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
 		}
 		
-		// Override total data
-		if (component.getOverrideSubcomponents()) {				
-			if (component.isMassOverridden()) {
-				double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
-				Coordinate newCM = this.getCM().setWeight( newMass );
-				this.setCM( newCM );
-			}
-			if (component.isCGOverridden()) {
-				Coordinate newCM = this.getCM().setX( component.getOverrideCGX() ); 
-				this.setCM( newCM );
-			}
-		}
-		
-		// vvv DEBUG
-		//if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
-			//System.err.println(String.format( "%s....<< return assemblyData:   %s (tree @%s)", prefix, this.toCMDebug(), component.getName() ));
-			//			System.err.println(String.format( "%s                             Ixx = %.8f     Iyy = %.8f", prefix, getIxx(), getIyy() ));
-		//}
-		// ^^^ DEBUG
+//		// vvv DEBUG
+//		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
+//			System.err.println(String.format( "%s....<< return assemblyData:   %s (tree @%s)", prefix, this.toCMDebug(), component.getName() ));
+//		}
+// ^^^ DEBUG
 		
 		return this;
 	}
@@ -350,11 +415,10 @@ public class MassCalculation {
 		double Ir=0, It=0;
 		for( final RigidBody eachLocal : this.bodies ){
 			final RigidBody eachGlobal = eachLocal.rebase( this.centerOfMass );
-			
 			Ir += eachGlobal.Ixx;
 			It += eachGlobal.Iyy;
 		}
-
+		
 		return new RigidBody( centerOfMass, Ir, It, It );	
 	}
 
