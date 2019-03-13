@@ -247,6 +247,23 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabHeight() {
 		return tabHeight;
 	}
+
+	/**
+	 * Set the fin tab's height as in setTabHeight, but don't validate
+	 * the tab.  For use only when reading a .ork file, since if the
+	 * tab is set up before the fin length, its length will be reduced
+	 * to the default fin length
+	 *
+	 *  @param newHeightRequest how deep the fin tab should project
+	 *  from the fin root, at the reference point
+	 */
+	public void setTabHeightNoValidate(final double newHeightRequest) {
+		if (MathUtil.equals(this.tabHeight, MathUtil.max(newHeightRequest, 0))){
+			return;
+		}
+		
+		this.tabHeight = newHeightRequest;
+	}
 	
 	/**
 	 * Set the height from the fin's base at the reference point -- i.e. where the tab is located from.  If the tab is located via BOTTOM, then the back edge will be 
@@ -273,7 +290,25 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabLength() {
 		return tabLength;
 	}
-	
+
+	/**
+	 * only for use when reading a .ork file, as validation will fail
+	 * if the tab length is set before the fin length is and is longer
+	 * than the default length
+	 *
+	 * @param length new fin tab length
+	 */
+	public void setTabLengthNoValidate(double length) {
+		length = MathUtil.max(length, 0);
+		tabLength = length;
+	}
+
+	/**
+	 * for use in all cases other than reading a .ork file; limits tab
+	 * length to match fin length
+	 *
+	 * @param length new requested fin tab length
+	 */
 	public void setTabLength(double length) {
 		length = MathUtil.max(length, 0);
 		if (MathUtil.equals(this.tabLength, length))
@@ -281,6 +316,19 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		tabLength = length;
 		validateFinTab();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	/** 
+	 * like setTabOffset() below, but doesn't validate the fin tab.
+	 * Only for use when reading a .ork file, since validating the fin
+	 * tab before setting the fin length will reduce its length to the
+	 * default fin length
+	 * 
+	 * @param newOffset new requested shift of tab -- from
+	 */
+	public void setTabOffsetNoValidate( final double newOffset) {
+		this.tabOffset = newOffset;
+		this.tabPosition = this.tabOffsetMethod.getAsPosition( newOffset, this.tabLength, this.length);
 	}
 
 	/** 

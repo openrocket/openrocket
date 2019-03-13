@@ -253,9 +253,9 @@ class DocumentConfig {
 		setters.put("FinSet:cant", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setCantAngle", double.class), Math.PI / 180.0));
 		setters.put("FinSet:tabheight", new DoubleSetter(
-				Reflection.findMethod(FinSet.class, "setTabHeight", double.class)));
+				Reflection.findMethod(FinSet.class, "setTabHeightNoValidate", double.class)));
 		setters.put("FinSet:tablength", new DoubleSetter(
-				Reflection.findMethod(FinSet.class, "setTabLength", double.class)));
+				Reflection.findMethod(FinSet.class, "setTabLengthNoValidate", double.class)));
 		setters.put("FinSet:tabposition", new FinTabPositionSetter());
 		setters.put("FinSet:filletradius", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setFilletRadius", double.class)));
