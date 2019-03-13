@@ -247,6 +247,24 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabHeight() {
 		return tabHeight;
 	}
+
+	/**
+	 * wrapper to call setTabHeight without validating tab.
+	 * This is intended to be used when reading a rocket from a file,
+	 * since if the fin tab is read before the fin, validation will
+	 * reduce the tab length to the default fin length
+	 */
+	public void setTabHeightNoValidate(final double heightRequest) {
+		setTabHeight(heightRequest, false);
+	}
+
+	/**
+	 * wrapper to call setTabHeight and validate tab.
+	 * This is intended to be used from the GUI
+	 */
+	public void setTabHeight(final double heightRequest) {
+		setTabHeight(heightRequest, true);
+	}
 	
 	/**
 	 * Set the height from the fin's base at the reference point -- i.e. where the tab is located from.  If the tab is located via BOTTOM, then the back edge will be 
@@ -258,14 +276,16 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @param newHeightRequest how deep the fin tab should project from the fin root, at the reference point 
 	 * 
 	 */
-	public void setTabHeight(final double newHeightRequest) {
-		if (MathUtil.equals(this.tabHeight, MathUtil.max(newHeightRequest, 0))){
+	private void setTabHeight(final double heightRequest, final boolean validate) {
+		if (MathUtil.equals(this.tabHeight, MathUtil.max(heightRequest, 0))){
 			return;
 		}
 		
-		this.tabHeight = newHeightRequest;
-		
-		validateFinTab();
+		tabHeight = heightRequest;
+
+		if (validate)
+			validateFinTab();
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -273,26 +293,74 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabLength() {
 		return tabLength;
 	}
-	
-	public void setTabLength(double length) {
-		length = MathUtil.max(length, 0);
-		if (MathUtil.equals(this.tabLength, length))
+
+	/**
+	 * Wrapper to call setTabLength with no validation
+	 * This is only intended to be used when reading a
+	 * rocket from a file.  If the fin tab is read before
+	 * the fin, validation will reduce the length of the tab
+	 * to the default length of the fin
+	 */
+	public void setTabLengthNoValidate(final double lengthRequest) {
+		setTabLength(lengthRequest, false);
+	}
+
+	/**
+	 * Wrapper to call full setTabLength function, and validate
+	 * tab length
+	 */
+	public void setTabLength(final double lengthRequest) {
+		setTabLength(lengthRequest, true);
+	}
+
+	/**
+	 * set tab length and optionally validate parameters
+	 */
+	private void setTabLength(final double lengthRequest, final boolean validate) {
+		if (MathUtil.equals(tabLength, MathUtil.max(lengthRequest, 0))) {
 			return;
-		tabLength = length;
-		validateFinTab();
+		}
+		
+		tabLength = lengthRequest;
+		
+		if (validate) {
+			validateFinTab();
+		}
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	/** 
-	 * internally, set the internal  
-	 * 
-	 * @param newOffset new requested shift of tab -- from
+	/**
+	 * wrapper to call setTabOffset without validating tab.
+	 * This is intended to be used when reading a rocket from a file,
+	 * since if the fin tab is read before the fin, validation will
+	 * reduce the tab length to the default fin length
 	 */
-	public void setTabOffset( final double newOffset) {
-		this.tabOffset = newOffset;
-		this.tabPosition = this.tabOffsetMethod.getAsPosition( newOffset, this.tabLength, this.length);
+	public void setTabOffsetNoValidate(final double offsetRequest) {
+		setTabOffset(offsetRequest, false);
+	}
 
-		validateFinTab();
+	/**
+	 * wrapper to call setTabOffset and validate tab.
+	 * This is intended to be used in the gui
+	 */
+	public void setTabOffset(final double offsetRequest) {
+		setTabOffset(offsetRequest, true);
+	}
+	
+	/** 
+	 * internally, set the internal offset and optionally validate tab
+	 * 
+	 * @param offsetRequest new requested shift of tab -- from
+	 * @param validate wehther or not to validate
+	 */
+	private void setTabOffset( final double offsetRequest, final boolean validate) {
+		tabOffset = offsetRequest;
+		tabPosition = tabOffsetMethod.getAsPosition( tabOffset, tabLength, length);
+
+		if (validate) {
+			validateFinTab();
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
