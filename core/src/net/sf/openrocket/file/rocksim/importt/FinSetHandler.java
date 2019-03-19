@@ -315,9 +315,9 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setFinish(finish);
 		//All TTW tabs in Rocksim are relative to the front of the fin.
 		result.setTabOffsetMethod( AxialMethod.TOP);
-		result.setTabHeightNoValidate(tabDepth);
-		result.setTabLengthNoValidate(tabLength);
-		result.setTabOffsetNoValidate(taboffset);
+		result.setTabHeight(tabDepth);
+		result.setTabLength(tabLength);
+		result.setTabOffset(taboffset);
 		result.setBaseRotation(radialAngle);
 		result.setCrossSection(convertTipShapeCode(tipShapeCode));
 		result.setAxialMethod(axialMethod);

@@ -11,7 +11,7 @@ import net.sf.openrocket.util.Reflection;
 class FinTabPositionSetter extends DoubleSetter {
 	
 	public FinTabPositionSetter() {
-		super(Reflection.findMethod(FinSet.class, "setTabOffsetNoValidate", double.class));
+		super(Reflection.findMethod(FinSet.class, "setTabOffset", double.class));
 	}
 	
 	@Override

@@ -247,44 +247,29 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabHeight() {
 		return tabHeight;
 	}
-
-	/**
-	 * wrapper to call setTabHeight without validating tab.
-	 * This is intended to be used when reading a rocket from a file,
-	 * since if the fin tab is read before the fin, validation will
-	 * reduce the tab length to the default fin length
-	 */
-	public void setTabHeightNoValidate(final double heightRequest) {
-		setTabHeight(heightRequest, false);
-	}
-
-	/**
-	 * wrapper to call setTabHeight and validate tab.
-	 * This is intended to be used from the GUI
-	 */
-	public void setTabHeight(final double heightRequest) {
-		setTabHeight(heightRequest, true);
-	}
 	
 	/**
-	 * Set the height from the fin's base at the reference point -- i.e. where the tab is located from.  If the tab is located via BOTTOM, then the back edge will be 
-	 * <code>height</code> deep, and the bottom edge of the tab will be parallel to the stage centerline.  If the tab is located via TOP, the the front edge will have corresponding height/depth. 
+	 * Set the height from the fin's base at the reference point --
+	 * i.e. where the tab is located from.  If the tab is located via
+	 * BOTTOM, then the back edge will be  <code>height</code> deep,
+	 * and the bottom edge of the tab will be parallel to the stage
+	 * centerline.  If the tab is located via TOP, the the front edge
+	 * will have corresponding height/depth.
 	 * If the tab is located via MIDDLE, the tab's midpoint is used.
 	 * 
-	 * Note this function also does bounds checking, and will not set a tab height that passes through it's parent's midpoint.  
+	 * Note this function also does bounds checking, and will not set
+	 * a tab height that passes through it's parent's midpoint.
 	 *  
-	 * @param newHeightRequest how deep the fin tab should project from the fin root, at the reference point 
+	 * @param newHeightRequest how deep the fin tab should project
+	 * from the fin root, at the reference point
 	 * 
 	 */
-	private void setTabHeight(final double heightRequest, final boolean validate) {
+	public void setTabHeight(final double heightRequest) {
 		if (MathUtil.equals(this.tabHeight, MathUtil.max(heightRequest, 0))){
 			return;
 		}
 		
 		tabHeight = heightRequest;
-
-		if (validate)
-			validateFinTab();
 
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -295,57 +280,16 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
-	 * Wrapper to call setTabLength with no validation
-	 * This is only intended to be used when reading a
-	 * rocket from a file.  If the fin tab is read before
-	 * the fin, validation will reduce the length of the tab
-	 * to the default length of the fin
-	 */
-	public void setTabLengthNoValidate(final double lengthRequest) {
-		setTabLength(lengthRequest, false);
-	}
-
-	/**
-	 * Wrapper to call full setTabLength function, and validate
-	 * tab length
+	 * set tab length
 	 */
 	public void setTabLength(final double lengthRequest) {
-		setTabLength(lengthRequest, true);
-	}
-
-	/**
-	 * set tab length and optionally validate parameters
-	 */
-	private void setTabLength(final double lengthRequest, final boolean validate) {
 		if (MathUtil.equals(tabLength, MathUtil.max(lengthRequest, 0))) {
 			return;
 		}
 		
 		tabLength = lengthRequest;
 		
-		if (validate) {
-			validateFinTab();
-		}
-		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-	}
-
-	/**
-	 * wrapper to call setTabOffset without validating tab.
-	 * This is intended to be used when reading a rocket from a file,
-	 * since if the fin tab is read before the fin, validation will
-	 * reduce the tab length to the default fin length
-	 */
-	public void setTabOffsetNoValidate(final double offsetRequest) {
-		setTabOffset(offsetRequest, false);
-	}
-
-	/**
-	 * wrapper to call setTabOffset and validate tab.
-	 * This is intended to be used in the gui
-	 */
-	public void setTabOffset(final double offsetRequest) {
-		setTabOffset(offsetRequest, true);
 	}
 	
 	/** 
@@ -354,13 +298,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * @param offsetRequest new requested shift of tab -- from
 	 * @param validate wehther or not to validate
 	 */
-	private void setTabOffset( final double offsetRequest, final boolean validate) {
+	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
 		tabPosition = tabOffsetMethod.getAsPosition( tabOffset, tabLength, length);
-
-		if (validate) {
-			validateFinTab();
-		}
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
