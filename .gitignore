@@ -40,6 +40,8 @@
 
 /swing/build
 /swing/tmp
+/swing/resources/datafiles/presets/system.ser
+/swing/junittestcases*.properties
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm

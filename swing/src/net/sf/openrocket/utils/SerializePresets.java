@@ -60,5 +60,7 @@ public class SerializePresets extends BasicApplication {
 		
 		ofs.flush();
 		ofs.close();
+		
+		System.out.println("Completed presets, written to = " + outFile.getPath());
 	}
 }
