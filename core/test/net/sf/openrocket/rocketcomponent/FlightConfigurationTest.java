@@ -1,10 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -472,6 +474,77 @@ public class FlightConfigurationTest extends BaseTestCase {
 		}
 	}
 	
+	@Test
+	public void testIterateCoreComponents_AllStagesActive() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration selected = rocket.getSelectedConfiguration();
+
+		selected.setAllStages();
+		
+		// vvvv Test Target vvvv
+		ArrayList<RocketComponent> components = selected.getCoreComponents();
+		// ^^^^ Test Target ^^^^
+		
+		assertThat(components.size(), equalTo(10));
+		
+		final AxialStage payloadStage = (AxialStage)components.get(0);
+		assertThat(payloadStage.getName(), equalTo("Payload Fairing Stage"));
+		
+		final AxialStage coreStage = (AxialStage)components.get(1);
+		assertThat(coreStage.getName(), equalTo("Core Stage"));
+
+		assertThat(components.get(2), instanceOf(NoseCone.class));
+
+		assertThat(components.get(3), instanceOf(BodyTube.class));
+		assertThat(components.get(3).getName(), equalTo("PL Fairing Body"));
+
+		assertThat(components.get(4), instanceOf(Transition.class));
+		
+		assertThat(components.get(5), instanceOf(BodyTube.class));
+		assertThat(components.get(5).getName(), equalTo("Upper Stage Body"));
+
+		assertThat(components.get(6), instanceOf(BodyTube.class));
+		assertThat(components.get(6).getName(), equalTo("Interstage"));
+
+		assertThat(components.get(7), instanceOf(BodyTube.class));
+		assertThat(components.get(7).getName(), equalTo("Core Stage Body"));
+		
+		assertThat(components.get(8), instanceOf(Parachute.class));
+		assertThat(components.get(9), instanceOf(ShockCord.class));
+	}
+	
+	@Test
+	public void testIterateCoreComponents_ActiveOnly() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration selected = rocket.getSelectedConfiguration();
+
+		selected.clearAllStages();
+		selected.toggleStage(2);  // booster only.
+		
+		// vvvv Test Target vvvv
+		ArrayList<RocketComponent> components = selected.getCoreComponents();
+		// ^^^^ Test Target ^^^^
+		
+		assertThat(components.size(), equalTo(0));
+		
+		
+		// =================================
+		selected.clearAllStages();
+		selected.toggleStage(1);  // booster only.
+		
+		// vvvv Test Target vvvv
+		components = selected.getCoreComponents();
+		// ^^^^ Test Target ^^^^
+		
+		assertThat(components.size(), equalTo(2));
+				
+		final AxialStage coreStage = (AxialStage)components.get(0);
+		assertThat(coreStage.getName(), equalTo("Core Stage"));
+		
+		assertThat(components.get(1), instanceOf(BodyTube.class));
+		assertThat(components.get(1).getName(), equalTo("Core Stage Body"));
+		
+	}
 }
 
 

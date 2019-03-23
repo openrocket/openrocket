@@ -903,7 +903,7 @@ public class TestRockets {
 			// cp:(0.25665,0.00000,0.00000,w=-0.90366)
 			
 			BodyTube upperStageBody= new BodyTube(0.18, 0.0385, 0.001);
-			upperStageBody.setName("Upper Stage Body ");
+			upperStageBody.setName("Upper Stage Body");
 			payloadStage.addChild( upperStageBody);
 			// cp:(0.35400,0.00000,0.00000)
 			
