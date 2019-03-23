@@ -136,7 +136,17 @@
 			<zipfileset src="${lib.dir}/orange-extensions-1.3.0.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.6.1.jar"/>
 			<zipfileset src="${lib.dir}/jogl/gluegen-rt.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-armv6.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-i586.jar"/>
 			<zipfileset src="${lib.dir}/jogl/jogl-all.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-i586.jar"/>
 									
 			
 			<!-- JOGL libraries need to be jar-in-jar

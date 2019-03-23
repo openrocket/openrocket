@@ -222,7 +222,7 @@ public class RocksimLoaderTest extends BaseTestCase {
 
     public static OpenRocketDocument loadRocksimSubassemblyRocket(RocksimLoader theLoader) throws IOException, RocketLoadException {
         InputStream stream = RocksimLoaderTest.class.getResourceAsStream("/SubAssemblyTest.rkt");
-/        try {
+        try {
             Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
