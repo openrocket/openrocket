@@ -130,7 +130,7 @@ public abstract class RocksimComponentFileLoader {
 					.withSkipLines(1)
 					.withCSVParser(parser)
 					.build();
-			
+
 			//Read and throw away the header row.
 			parseHeaders(reader.readNext());
 			

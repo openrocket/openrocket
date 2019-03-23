@@ -16,7 +16,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
-
+import net.sf.openrocket.util.Transformation;
 
 public class FinSetCalc extends RocketComponentCalc {
 	
@@ -62,16 +62,19 @@ public class FinSetCalc extends RocketComponentCalc {
 	public FinSetCalc(FinSet component) {
 		super(component);
 		
-		thickness = component.getThickness();
-		bodyRadius = component.getBodyRadius();
-		finCount = component.getFinCount();
-		baseRotation = component.getBaseRotation();
-		cantAngle = component.getCantAngle();
-		span = component.getSpan();
-		finArea = component.getFinArea();
-		crossSection = component.getCrossSection();
+		FinSet fin = (FinSet) component;
+
+		thickness = fin.getThickness();
+		bodyRadius = fin.getFinFront().y;
+		finCount = fin.getFinCount();
 		
-		calculateFinGeometry(component);
+		baseRotation = fin.getBaseRotation();
+		cantAngle = fin.getCantAngle();
+		span = fin.getSpan();
+		finArea = fin.getPlanformArea();
+		crossSection = fin.getCrossSection();
+		
+		calculateFinGeometry(fin);
 		calculatePoly();
 		calculateInterferenceFinCount(component);
 	}
@@ -81,7 +84,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * (normal and side forces, pitch, yaw and roll moments, CP position, CNa).
 	 */
 	@Override
-	public void calculateNonaxialForces(FlightConditions conditions,
+	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		
 		if (span < 0.001) {
@@ -111,21 +114,10 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Multiple fins with fin-fin interference
 		double cna;
 		double theta = conditions.getTheta();
-		double angle = baseRotation;
+		double angle = baseRotation + transform.getXrotation();
 		
 		// Compute basic CNa without interference effects
-		if (finCount == 1 || finCount == 2) {
-			// Basic CNa from geometry
-			double mul = 0;
-			for (int i = 0; i < finCount; i++) {
-				mul += MathUtil.pow2(Math.sin(theta - angle));
-				angle += 2 * Math.PI / finCount;
-			}
-			cna = cna1 * mul;
-		} else {
-			// Basic CNa assuming full efficiency
-			cna = cna1 * finCount / 2.0;
-		}
+		cna = cna1 * MathUtil.pow2(Math.sin(theta - angle));
 		
 		//		logger.debug("Component cna = {}", cna);
 		
@@ -246,7 +238,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected void calculateFinGeometry(FinSet component) {
 		
 		span = component.getSpan();
-		finArea = component.getFinArea();
+		finArea = component.getPlanformArea();
 		ar = 2 * pow2(span) / finArea;
 		
 		Coordinate[] points = component.getFinPoints();
@@ -339,7 +331,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		cosGammaLead = 0;
 		rollSum = 0;
 		double area = 0;
-		double radius = component.getBodyRadius();
+		double radius = component.getFinFront().y;
 		
 		final double dy = span / (DIVISIONS - 1);
 		for (int i = 0; i < DIVISIONS; i++) {

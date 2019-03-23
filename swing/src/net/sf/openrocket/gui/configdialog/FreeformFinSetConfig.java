@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -337,13 +338,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
 				CustomFinImporter importer = new CustomFinImporter();
-				List<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
+				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
 				finset.setPoints( points);
-			} catch (IllegalFinPointException e) {
-				log.warn("Error storing fin points", e);
-				JOptionPane.showMessageDialog(this, trans.get("CustomFinImport.error.badimage"),
-						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
 			} catch (IOException e) {
 				log.warn("Error loading file", e);
 				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
@@ -420,18 +417,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 		    int mods = event.getModifiersEx();
-			if (dragIndex <= 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
+			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
 			
 			Point2D.Double point = getCoordinates(event);
-			try {
-				 finset.setPoint(dragIndex, point.x, point.y);
-			} catch (IllegalFinPointException ignore) {
-				 log.debug("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + " x=" + point.x + " y=" + point.y);
-		    }
-
+			finset.setPoint(dragIndex, point.x, point.y);
+			
 			updateFields();
 		}
 		
@@ -449,6 +442,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                 if ( 0 < clickIndex) {
                     // if ctrl+click, delete point
                     try {
+                        Point2D.Double point = getCoordinates(event);
                         finset.removePoint(clickIndex);
                     } catch (IllegalFinPointException ignore) {
                         log.error("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + ".  This is likely an internal error.");
@@ -581,8 +575,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				updateFields();
 			} catch (NumberFormatException ignore) {
 			    log.warn("ignoring NumberFormatException while editing a Freeform Fin");
-			} catch (IllegalFinPointException ignore) {
-				log.warn("ignoring IllegalFinPointException while editing a Freeform Fin");
 			}
 		}
 	}

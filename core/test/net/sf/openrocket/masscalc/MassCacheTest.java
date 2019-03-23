@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class MassCacheTest extends BaseTestCase {
 	

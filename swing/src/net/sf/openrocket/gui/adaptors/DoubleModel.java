@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -656,6 +657,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		
 		this.minValue = min;
 		this.maxValue = max;
+		
+		if(RocketComponent.class.isAssignableFrom(source.getClass())) {
+		    ((RocketComponent)source).addChangeListener(this);
+		}
 		
 		try {
 			getMethod = source.getClass().getMethod("get" + valueName);

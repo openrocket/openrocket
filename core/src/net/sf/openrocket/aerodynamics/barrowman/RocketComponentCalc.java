@@ -4,6 +4,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.Transformation;
 
 public abstract class RocketComponentCalc {
 
@@ -20,11 +21,12 @@ public abstract class RocketComponentCalc {
 	 * computed around the local origin.
 	 * 
 	 * @param conditions	the flight conditions.
+	 * @param transform     transformation from InstanceMap to get rotations rotations
 	 * @param forces		the object in which to store the values.
 	 * @param warnings		set in which to store possible warnings.
 	 */
-	public abstract void calculateNonaxialForces(FlightConditions conditions, 
-			AerodynamicForces forces, WarningSet warnings);
+	public abstract void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
+												 AerodynamicForces forces, WarningSet warnings);
 
 	
 	/**

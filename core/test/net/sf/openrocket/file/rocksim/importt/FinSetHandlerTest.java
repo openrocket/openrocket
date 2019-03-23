@@ -3,29 +3,77 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+
+import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
 
 /**
  * FinSetHandler Tester.
  *
  */
-public class FinSetHandlerTest extends TestCase {
+public class FinSetHandlerTest {
 
+	final static double EPSILON = MathUtil.EPSILON;
+	
+	@BeforeClass
+	public static void setup() {
+		Module applicationModule = new ServicesForTesting();
+		
+		Module pluginModule = new PluginModule();
+		
+		Module debugTranslator = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(Translator.class).toInstance(new DebugTranslator(null));
+			}
+		};
+				
+		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator), pluginModule);
+		
+		Application.setInjector(injector);
+		
+		File tmpDir = new File("./tmp");
+		if (!tmpDir.exists()) {
+			boolean success = tmpDir.mkdirs();
+			assertTrue("Unable to create core/tmp dir needed for tests.", success);
+		}
+		
+	}
+	
+	
     /**
      * Method: asOpenRocket(WarningSet warnings)
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @Test
     public void testAsOpenRocket() throws Exception {
 
         FinSetHandler dto = new FinSetHandler(null, new BodyTube());
@@ -37,15 +85,15 @@ public class FinSetHandlerTest extends TestCase {
         dto.closeElement("ShapeCode", attributes, "0", warnings);
         dto.closeElement("Xb", attributes, "2", warnings);
         dto.closeElement("FinCount", attributes, "4", warnings);
-        dto.closeElement("RootChord", attributes, "10", warnings);
-        dto.closeElement("TipChord", attributes, "11", warnings);
+        dto.closeElement("RootChord", attributes, "100", warnings);
+        dto.closeElement("TipChord", attributes, "50", warnings);
         dto.closeElement("SemiSpan", attributes, "12", warnings);
         dto.closeElement("MidChordLen", attributes, "13", warnings);
         dto.closeElement("SweepDistance", attributes, "14", warnings);
         dto.closeElement("Thickness", attributes, "200", warnings);
         dto.closeElement("TipShapeCode", attributes, "1", warnings);
-        dto.closeElement("TabLength", attributes, "400", warnings);
-        dto.closeElement("TabDepth", attributes, "500", warnings);
+        dto.closeElement("TabLength", attributes, "40", warnings);
+        dto.closeElement("TabDepth", attributes, "50", warnings);
         dto.closeElement("TabOffset", attributes, "30", warnings);
         dto.closeElement("RadialAngle", attributes, ".123", warnings);
         dto.closeElement("PointList", attributes, "20,0|2,2|0,0", warnings);
@@ -55,34 +103,37 @@ public class FinSetHandlerTest extends TestCase {
         FinSet fins = dto.asOpenRocket(set);
         assertNotNull(fins);
         assertEquals(0, set.size());
+        
+	    String debugInfo = fins.toDebugDetail().toString();
 
         assertEquals("The name", fins.getName());
         assertTrue(fins instanceof TrapezoidFinSet);
-        assertEquals(4, fins.getFinCount());
+        assertEquals("imported fin count does not match.", 4, fins.getFinCount());
 
-        assertEquals(0.012d, ((TrapezoidFinSet) fins).getHeight());
-        assertEquals(0.012d, fins.getSpan());
+        assertEquals("imported fin height does not match.", 0.012d, ((TrapezoidFinSet) fins).getHeight(), EPSILON);
+        assertEquals("imported fin span does not match.", 0.012d, fins.getSpan(), EPSILON);
         
-        assertEquals(0.2d, fins.getThickness());
-        assertEquals(0.4d, fins.getTabLength());
-        assertEquals(0.5d, fins.getTabHeight());
-        assertEquals(0.03d, fins.getTabShift());
-        assertEquals(.123d, fins.getBaseRotation());
+        assertEquals("imported fin thickness does not match.", 0.2d, fins.getThickness(), EPSILON);
+        assertEquals("imported fin tab length does not match: "+debugInfo, 0.04d, fins.getTabLength(), EPSILON);
+        assertEquals("imported fin tab height does not match: "+debugInfo, 0.05d, fins.getTabHeight(), EPSILON);
+        assertEquals("imported fin shift does not match.", 0.03d, fins.getTabOffset(), EPSILON);
+        assertEquals("imported fin rotation does not match.", .123d, fins.getBaseRotation(), EPSILON);
 
         dto.closeElement("ShapeCode", attributes, "1", warnings);
+        
         fins = dto.asOpenRocket(set);
         assertNotNull(fins);
         assertEquals(0, set.size());
 
         assertEquals("The name", fins.getName());
         assertTrue(fins instanceof EllipticalFinSet);
-        assertEquals(4, fins.getFinCount());
+        assertEquals("imported fin count does not match.", 4, fins.getFinCount());
 
-        assertEquals(0.2d, fins.getThickness());
-        assertEquals(0.4d, fins.getTabLength());
-        assertEquals(0.5d, fins.getTabHeight());
-        assertEquals(0.03d, fins.getTabShift());
-        assertEquals(.123d, fins.getBaseRotation());
+        assertEquals("imported fin thickness does not match.", 0.2d, fins.getThickness(), EPSILON);
+        assertEquals("imported fin tab length does not match.", 0.04d, fins.getTabLength(), EPSILON);
+        assertEquals("imported fin tab height does not match.", 0.05d, fins.getTabHeight(), EPSILON);
+        assertEquals("imported fin tab shift does not match.", 0.03d, fins.getTabOffset(), EPSILON);
+        assertEquals("imported fin rotation does not match.", .123d, fins.getBaseRotation(), EPSILON);
     }
 
 

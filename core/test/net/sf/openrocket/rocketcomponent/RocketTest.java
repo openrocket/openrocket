@@ -12,7 +12,7 @@ import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class RocketTest extends BaseTestCase {
 	final double EPSILON = MathUtil.EPSILON;
@@ -34,12 +34,12 @@ public class RocketTest extends BaseTestCase {
 		FlightConfigurationId fcid4 = config4.getId();
 		
 		assertThat("fcids should match: ", config1.getId().key, equalTo(fcid4.key));
-		assertThat("Configurations should be different: "+config1.toDebug()+"=?="+config4.toDebug(), config1.instanceNumber, not( config4.instanceNumber));
+		assertThat("Configurations should be different: "+config1.toDebug()+"=?="+config4.toDebug(), config1.configurationInstanceId, not( config4.configurationInstanceId));
 	
 		FlightConfiguration config5 = rkt2.getFlightConfiguration(config2.getId());
 		FlightConfigurationId fcid5 = config5.getId();
 		assertThat("fcids should match: ", config2.getId(), equalTo(fcid5));
-		assertThat("Configurations should bef different match: "+config2.toDebug()+"=?="+config5.toDebug(), config2.instanceNumber, not( config5.instanceNumber));
+		assertThat("Configurations should bef different match: "+config2.toDebug()+"=?="+config5.toDebug(), config2.configurationInstanceId, not( config5.configurationInstanceId));
 	}
 	
 	
@@ -134,6 +134,26 @@ public class RocketTest extends BaseTestCase {
 				assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 			}
 			
+		}
+	}
+	
+	@Test 
+	public void testRemoveReadjustLocation() {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		
+		{
+			BodyTube bodyPrior = (BodyTube)rocket.getChild(0).getChild(1);
+			Coordinate locPrior = bodyPrior.getComponentLocations()[0];
+			assertThat(locPrior.x, equalTo(0.07));
+		}
+		
+		// remove the nose cone, causing the bodytube to reposition:
+		rocket.getChild(0).removeChild(0);
+
+		{
+			BodyTube tubePost = (BodyTube)rocket.getChild(0).getChild(0);
+			Coordinate locPost = tubePost.getComponentLocations()[0];
+			assertThat(locPost.x, equalTo(0.0));
 		}
 	}
 	
@@ -239,7 +259,7 @@ public class RocketTest extends BaseTestCase {
 			loc = coreBody.getComponentLocations()[0];			
 			assertEquals(coreBody.getName()+" offset is incorrect: ", 0.0, offset.x, EPSILON);
 			assertEquals(coreBody.getName()+" location is incorrect: ", 0.564, loc.x, EPSILON);
-			
+
 			// ====== Booster Set Stage ======
 			// ====== ====== ======
 			ParallelStage boosters = (ParallelStage) coreBody.getChild(0);

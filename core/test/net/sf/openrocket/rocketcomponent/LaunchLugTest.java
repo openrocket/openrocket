@@ -7,7 +7,7 @@ import org.junit.Test;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class LaunchLugTest extends BaseTestCase {
 	protected final double EPSILON = MathUtil.EPSILON;

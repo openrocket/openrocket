@@ -21,7 +21,7 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	private double thickness;
 	
 	private double radialDirection = 0;
-	protected double radialDistance = 0;
+	private double radialDistance = 0;
 	
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
@@ -98,15 +98,7 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	public boolean isAfter() {
 		return false;
 	}
-	
-	
-	@Override
-	public void setAxialMethod( AxialMethod position) {
-		super.setAxialMethod(position);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	
+
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {

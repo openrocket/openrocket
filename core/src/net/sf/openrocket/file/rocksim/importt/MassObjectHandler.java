@@ -17,7 +17,6 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.xml.sax.SAXException;
 
@@ -182,17 +181,6 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 	@Override
 	public MassObject getComponent() {
 		return current;
-	}
-	
-	/**
-	 * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not
-	 * public in all components.
-	 *
-	 * @param position the OpenRocket position
-	 */
-	@Override
-	public void setAxialMethod( AxialMethod position) {
-		current.setAxialMethod(position);
 	}
 	
 	/**

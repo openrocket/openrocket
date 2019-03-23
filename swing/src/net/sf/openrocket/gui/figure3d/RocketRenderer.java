@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -23,6 +24,8 @@ import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
@@ -159,39 +162,29 @@ public abstract class RocketRenderer {
 	
 	private Collection<Geometry> getTreeGeometry( FlightConfiguration config){
 	    System.err.println(String.format("==== Building tree geometry ===="));
-	    return getTreeGeometry("", new ArrayList<Geometry>(), config, config.getRocket(), Transformation.IDENTITY);
-	}
-	
-	private Collection<Geometry> getTreeGeometry(String indent, Collection<Geometry> treeGeometry, FlightConfiguration config, RocketComponent comp, final Transformation parentTransform){
-	    final int instanceCount = comp.getInstanceCount();
-        double[] instanceAngles = comp.getInstanceAngles();
-        Coordinate[] instanceLocations = comp.getInstanceLocations();
 
-        if( instanceLocations.length != instanceAngles.length ){
-            throw new ArrayIndexOutOfBoundsException(String.format("lengths of location array (%d) and angle arrays (%d) differs! (in: %s) ", instanceLocations.length, instanceAngles.length, comp.getName()));
-        }
+	    // input
+	    final InstanceMap imap = config.getActiveInstances();
+	    
+	    // output buffer
+	    final Collection<Geometry> treeGeometry = new ArrayList<Geometry>(); 
+	    
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent comp = entry.getKey();
+			
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			System.err.println(String.format("....[%s]", comp.getName()));
 
-        // iterate over the aggregated instances for the whole tree.
-        for( int instanceNumber = 0; instanceNumber < instanceCount; ++instanceNumber) {
-            Coordinate currentLocation = instanceLocations[instanceNumber];
-            final double currentAngle = instanceAngles[instanceNumber];
-            
-//            System.err.println( String.format("%s[ %s ]", indent, comp.getName()));
-//            System.err.println( String.format("%s  :: %12.8g / %12.8g / %12.8g (m) @ %8.4g (rads) ", indent, currentLocation.x, currentLocation.y, currentLocation.z, currentAngle ));
-            
-            Transformation currentTransform = parentTransform
-                    .applyTransformation( Transformation.getTranslationTransform( currentLocation))
-                    .applyTransformation( Transformation.rotate_x( currentAngle ));
+			for(InstanceContext context: contextList ) {
+				System.err.println(String.format("........[% 2d]  %s", context.instanceNumber, context.getLocation().toPreciseString()));
 
-            
-            // recurse into inactive trees: allow active stages inside inactive stages
-            for(RocketComponent child: comp.getChildren()) {
-                getTreeGeometry(indent+"   ", treeGeometry, config, child, currentTransform );
-            }
+//	            System.err.println( String.format("%s[ %s ]", indent, comp.getName()));
+//	            System.err.println( String.format("%s  :: %12.8g / %12.8g / %12.8g (m) @ %8.4g (rads) ", indent, currentLocation.x, currentLocation.y, currentLocation.z, currentAngle ));
 
-            Geometry geom = cr.getComponentGeometry( comp, currentTransform );
-            geom.active = config.isComponentActive( comp );
-            treeGeometry.add( geom );
+	            Geometry instanceGeometry = cr.getComponentGeometry( comp, context.transform );
+	            instanceGeometry.active = context.active;
+	            treeGeometry.add( instanceGeometry );
+			}
         }
         return treeGeometry;
 	}

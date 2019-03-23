@@ -107,9 +107,9 @@ public class IntegrationTest {
 	@Test
 	public void testSimpleRocket() throws SimulationException {
 		System.setProperty("openrocket.unittest", "true");
-		
+
 		document = loadRocket("/simplerocket.ork");
-		
+
 		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
         FlightConfigurationId fcid = document.getSimulation(0).getFlightConfigurationId();

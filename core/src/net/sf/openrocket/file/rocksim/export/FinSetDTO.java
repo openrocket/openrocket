@@ -64,7 +64,7 @@ public class FinSetDTO extends BasePartDTO {
         setCantAngle(theORFinSet.getCantAngle());
         setTabDepth(theORFinSet.getTabHeight() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setTabLength(theORFinSet.getTabLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setTabOffset(theORFinSet.getTabShift() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setTabOffset(theORFinSet.getTabOffset() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setThickness(theORFinSet.getThickness() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         setRadialAngle(theORFinSet.getBaseRotation());

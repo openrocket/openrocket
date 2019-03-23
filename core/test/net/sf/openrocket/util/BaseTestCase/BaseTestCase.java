@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.util.BaseTestCase;
 
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.l10n.DebugTranslator;

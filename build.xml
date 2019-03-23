@@ -1,5 +1,10 @@
 <project name="OpenRocket" basedir="." default="jar">
 
+	<!-- COMPLETE -->
+	
+	<target name="complete" depends="clean, check, jar, unittest">
+	</target>
+
     <!-- CLEAN -->
 
 	<target name="clean" depends="clean-core, clean-swing">

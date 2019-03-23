@@ -8,12 +8,13 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public class TubeFinSet extends ExternalComponent {
+public class TubeFinSet extends ExternalComponent implements AxialPositionable {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final static double DEFAULT_RADIUS = 0.025;
@@ -268,14 +269,9 @@ public class TubeFinSet extends ExternalComponent {
 		}
 		
 		// translate each to the center of mass.
-		final double hypot = getOuterRadius() + getBodyRadius();
-		final double finrotation = 2 * Math.PI / fins;
-		double angularoffset = 0.0;
 		double totalInertia = 0.0;
 		for (int i = 0; i < fins; i++) {
-			double offset = hypot * Math.cos(angularoffset);
-			totalInertia += inertia + MathUtil.pow2(offset);
-			angularoffset += finrotation;
+			totalInertia += inertia + MathUtil.pow2( this.axialOffset);
 		}
 		return totalInertia;
 	}

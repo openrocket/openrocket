@@ -113,7 +113,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
-        handler.setAxialMethod(AxialMethod.ABSOLUTE);
+        handler.getComponent().setAxialMethod(AxialMethod.ABSOLUTE);
         Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 

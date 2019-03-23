@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class TransitionTest extends BaseTestCase {
 	protected final double EPSILON = MathUtil.EPSILON*1000;

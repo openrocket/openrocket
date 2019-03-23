@@ -23,7 +23,7 @@ import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class MassCalculatorTest extends BaseTestCase {
 	
@@ -318,7 +318,6 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration emptyConfig = rocket.getEmptyConfiguration();
 		rocket.setSelectedConfiguration( emptyConfig.getFlightConfigurationID() ); 
 		
-		
 		double expInertia;
 		RocketComponent cc;
 		double compInertia;
@@ -326,30 +325,24 @@ public class MassCalculatorTest extends BaseTestCase {
 		// ====== Payload Stage ====== 
 		// ====== ====== ====== ======
 		{
-			expInertia = 3.1698055283e-5;
-			cc= rocket.getChild(0).getChild(0);
-			compInertia = cc.getRotationalInertia();
-			assertEquals(cc.getName()+" Rotational MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			expInertia = 1.79275e-5;
-			compInertia = cc.getLongitudinalInertia();
-			assertEquals(cc.getName()+" Longitudinal MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
+			final AxialStage payloadStage = (AxialStage) rocket.getChild(0);
+
+			// Component: Nose Cone			
+			final NoseCone payloadNose = (NoseCone) payloadStage.getChild(0);
+			assertEquals(payloadNose.getName()+" Rotational MOI calculated incorrectly: ", 3.508155e-5, payloadNose.getRotationalInertia(), EPSILON);
+			assertEquals(payloadNose.getName()+" Longitudinal MOI calculated incorrectly: ", 2.0400578477e-6, payloadNose.getLongitudinalInertia(), EPSILON);
+		
+			// Component: Payload BodyTube
+			final BodyTube payloadBody = (BodyTube)payloadStage.getChild(1);
+			assertEquals(payloadBody.getName()+" Rotational MOI calculated incorrectly: ", 7.70416e-5, payloadBody.getRotationalInertia(), EPSILON);
+			assertEquals(payloadBody.getName()+" Longitudinal MOI calculated incorrectly: ", 8.06940e-5, payloadBody.getLongitudinalInertia(), EPSILON);
+		
+			// Component: Payload Trailing Transition
+			final Transition payloadTail = (Transition) payloadStage.getChild(2);
+			assertEquals(payloadTail.getName()+" Rotational MOI calculated incorrectly: ", 1.43691e-5, payloadTail.getRotationalInertia(), EPSILON);
+			assertEquals(payloadTail.getName()+" Longitudinal MOI calculated incorrectly: ", 7.30265e-6, payloadTail.getLongitudinalInertia(), EPSILON);
 			
-			cc= rocket.getChild(0).getChild(1);
-			expInertia = 7.70416e-5;
-			compInertia = cc.getRotationalInertia();
-			assertEquals(cc.getName()+" Rotational MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			expInertia = 8.06940e-5;
-			compInertia = cc.getLongitudinalInertia();
-			assertEquals(cc.getName()+" Longitudinal MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			
-			cc= rocket.getChild(0).getChild(2);
-			expInertia = 1.43691e-5;
-			compInertia = cc.getRotationalInertia();
-			assertEquals(cc.getName()+" Rotational MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			expInertia = 7.30265e-6;
-			compInertia = cc.getLongitudinalInertia();
-			assertEquals(cc.getName()+" Longitudinal MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			
+			// Component: Interstage
 			cc= rocket.getChild(0).getChild(3);
 			expInertia = 4.22073e-5;
 			compInertia = cc.getRotationalInertia();

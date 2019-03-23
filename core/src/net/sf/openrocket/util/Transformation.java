@@ -374,5 +374,25 @@ public class Transformation implements java.io.Serializable {
 	public Coordinate getTranslationVector() {
 		return this.translate;
 	}
+
+	/**
+	 * Calculate X, Y, and Z rotation angles from rotation matrices
+	 */
+	public double getXrotation() {
+		return Math.atan2((rotation[2][1] - rotation[1][2])/2.0,
+						  (rotation[1][1] + rotation[2][2])/2.0);
+	}
+
+	public double getYrotation() {
+		return Math.atan2((rotation[0][2] - rotation[2][0])/2.0,
+						  (rotation[0][0] + rotation[2][2])/2.0);
+	}
+
+	public double getZrotation() {
+		return Math.atan2((rotation[1][0] - rotation[0][1])/2.0,
+						  (rotation[0][0] + rotation[1][1])/2.0);
+
+	}
+
 	
 }

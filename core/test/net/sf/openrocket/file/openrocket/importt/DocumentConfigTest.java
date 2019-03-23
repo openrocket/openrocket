@@ -2,7 +2,7 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import static org.junit.Assert.assertEquals;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 

@@ -45,11 +45,11 @@ import org.jfree.chart.renderer.PaintScale;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.chart.title.PaintScaleLegend;
-import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.TextAnchor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -343,7 +343,6 @@ public class OptimizationPlotDialog extends JDialog {
 		CustomXYToolTipGenerator tooltipGenerator = new CustomXYToolTipGenerator();
 		tooltipGenerator.addToolTipSeries(evalTooltips);
 		shapeRenderer.setDefaultToolTipGenerator(tooltipGenerator);
-		
 
 		shapeRenderer.getLegendItem(0, 0);
 		

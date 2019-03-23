@@ -201,7 +201,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
 		panel.add(label, "gapleft para");
 		
-		final DoubleModel mts = new DoubleModel(component, "TabShift", UnitGroup.UNITS_LENGTH);
+		final DoubleModel mts = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
 		component.addChangeListener( mts);
 		spin = new JSpinner(mts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -215,7 +215,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label, "right, gapright unrel");
 		
 
-		final EnumModel<AxialMethod> em = new EnumModel<>(component, "TabRelativePosition");
+		final EnumModel<AxialMethod> em = new EnumModel<>(component, "TabOffsetMethod");
 		
 		JComboBox<AxialMethod> enumCombo = new JComboBox<>(em);
 		
@@ -257,7 +257,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						if (!rings.isEmpty()) {
 						    AxialMethod temp = (AxialMethod) em.getSelectedItem();
 							em.setSelectedItem(AxialMethod.TOP);
-							double len = computeFinTabLength(rings, component.asPositionValue(AxialMethod.TOP),
+							double len = computeFinTabLength(rings, component.getAxialOffset(AxialMethod.TOP),
 										component.getLength(), mts, parent);
 							mtl.setValue(len);
 							//Be nice to the user and set the tab relative position enum back the way they had it.
@@ -306,8 +306,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			Collections.sort(rings, new Comparator<CenteringRing>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
-					return (int) (1000d * (centeringRing.asPositionValue(AxialMethod.TOP) -
-							centeringRing1.asPositionValue(AxialMethod.TOP)));
+					return (int) (1000d * (centeringRing.getAxialOffset(AxialMethod.TOP) -
+							centeringRing1.getAxialOffset(AxialMethod.TOP)));
 						}
 			});
 			
@@ -316,7 +316,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				//Handle centering rings that overlap or are adjacent by synthetically merging them into one virtual ring.
 				if (!positionsFromTop.isEmpty() &&
 						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >=
-                                centeringRing.asPositionValue(AxialMethod.TOP)) {
+                                centeringRing.getAxialOffset(AxialMethod.TOP)) {
 					SortableRing adjacent = positionsFromTop.get(positionsFromTop.size() - 1);
 					adjacent.merge(centeringRing, relativeTo);
 				} else {
@@ -441,7 +441,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 */
 		SortableRing(CenteringRing r, RocketComponent relativeTo) {
 			thickness = r.getLength();
-			positionFromTop = r.asPositionValue(AxialMethod.TOP);
+			positionFromTop = r.getAxialOffset(AxialMethod.TOP);
 		}
 		
 		/**
@@ -450,7 +450,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 * @param adjacent the adjacent ring
 		 */
 		public void merge(CenteringRing adjacent, RocketComponent relativeTo) {
-			double v = adjacent.asPositionValue(AxialMethod.TOP);
+			double v = adjacent.getAxialOffset(AxialMethod.TOP);
 			if (positionFromTop < v) {
 				thickness = (v + adjacent.getLength()) - positionFromTop;
 			} else {

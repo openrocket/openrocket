@@ -44,104 +44,96 @@ public class NoseConeConfig extends RocketComponentConfig {
 	public NoseConeConfig(OpenRocketDocument d, RocketComponent c) {
 		super(d, c);
 		
-		DoubleModel m;
-		JPanel panel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
+		final JPanel panel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
 		
 		////  Shape selection
-		//// Nose cone shape:
-		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape")));
-		
-		Transition.Shape selected = ((NoseCone) component).getType();
-		Transition.Shape[] typeList = Transition.Shape.values();
-		
-		final JComboBox<Transition.Shape> typeBox = new JComboBox<Transition.Shape>(typeList);
-		typeBox.setEditable(false);
-		typeBox.setSelectedItem(selected);
-		typeBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Transition.Shape s = (Transition.Shape) typeBox.getSelectedItem();
-				((NoseCone) component).setType(s);
-				description.setText(PREDESC + s.getNoseConeDescription());
-				updateEnabled();
-			}
-		});
-		panel.add(typeBox, "span, wrap rel");
-		
+		{//// Nose cone shape:
+			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape")));
+
+			Transition.Shape selected = ((NoseCone) component).getType();
+			Transition.Shape[] typeList = Transition.Shape.values();
+
+			final JComboBox<Transition.Shape> typeBox = new JComboBox<Transition.Shape>(typeList);
+			typeBox.setEditable(false);
+			typeBox.setSelectedItem(selected);
+			typeBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Transition.Shape s = (Transition.Shape) typeBox.getSelectedItem();
+					((NoseCone) component).setType(s);
+					description.setText(PREDESC + s.getNoseConeDescription());
+					updateEnabled();
+				}
+			});
+			panel.add(typeBox, "span, wrap rel");
+
+			////  Shape parameter:
+			this.shapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Shapeparam"));
+			panel.add(shapeLabel);
+
+			final DoubleModel parameterModel = new DoubleModel(component, "ShapeParameter");
+
+			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel());
+			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
+			panel.add(shapeSpinner, "growx");
+
+			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
+			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
+			this.shapeSlider = new BasicSlider(parameterModel.getSliderModel(min, max));
+			panel.add(shapeSlider, "skip, w 100lp, wrap para");
+
+			updateEnabled();
+		}
+
+		{ /// Nose cone length:
+			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength")));
+
+			final DoubleModel lengthModel = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			JSpinner spin = new JSpinner(lengthModel.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			panel.add(spin, "growx");
+
+			panel.add(new UnitSelector(lengthModel), "growx");
+			panel.add(new BasicSlider(lengthModel.getSliderModel(0, 0.1, 0.7)), "w 100lp, wrap");
+		}
+		{
+			/// Base diameter:
+
+			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
+
+			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
+			final JSpinner radiusSpinner = new JSpinner(aftRadiusModel.getSpinnerModel());
+			radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
+			panel.add(radiusSpinner, "growx");
+
+			panel.add(new UnitSelector(aftRadiusModel), "growx");
+			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
+
+			JCheckBox check = new JCheckBox(aftRadiusModel.getAutomaticAction());
+			//// Automatic
+			check.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
+			panel.add(check, "skip, span 2, wrap");
+		}
+
+		{////  Wall thickness:
+			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Wallthickness")));
+
+			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
+			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
+			panel.add(thicknessSpinner, "growx");
+
+			panel.add(new UnitSelector(thicknessModel), "growx");
+			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
 
 
-
-		////  Shape parameter
-		////  Shape parameter:
-		shapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Shapeparam"));
-		panel.add(shapeLabel);
-		
-		m = new DoubleModel(component, "ShapeParameter");
-		
-		shapeSpinner = new JSpinner(m.getSpinnerModel());
-		shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
-		panel.add(shapeSpinner, "growx");
-		
-		DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
-		DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
-		shapeSlider = new BasicSlider(m.getSliderModel(min, max));
-		panel.add(shapeSlider, "skip, w 100lp, wrap para");
-		
-		updateEnabled();
-		
-
-		////  Length
-		//// Nose cone length:
-		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength")));
-		
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-		JSpinner spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.7)), "w 100lp, wrap");
-		
-		////  Diameter
-		//// Base diameter:
-		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
-		
-		m = new DoubleModel(component, "AftRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
-		
-		JCheckBox check = new JCheckBox(m.getAutomaticAction());
-		//// Automatic
-		check.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
-		panel.add(check, "skip, span 2, wrap");
-		
-
-		////  Wall thickness:
-		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Wallthickness")));
-		
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
-		
-
-		check = new JCheckBox(new BooleanModel(component, "Filled"));
-		//// Filled
-		check.setText(trans.get("NoseConeCfg.checkbox.Filled"));
-		panel.add(check, "skip, span 2, wrap");
-		
+			final JCheckBox filledCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
+			//// Filled
+			filledCheckbox .setText(trans.get("NoseConeCfg.checkbox.Filled"));
+			panel.add(filledCheckbox, "skip, span 2, wrap");
+		}
 
 		panel.add(new JLabel(""), "growy");
-		
-
 
 		////  Description
 		
@@ -153,8 +145,6 @@ public class NoseConeConfig extends RocketComponentConfig {
 		
 
 		//// Material
-		
-
 		panel2.add(materialPanel( Material.Type.BULK), "span, wrap");
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		

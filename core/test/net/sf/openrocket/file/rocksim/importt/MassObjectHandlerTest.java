@@ -9,7 +9,6 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import org.junit.Assert;
 
@@ -89,20 +88,6 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
-    }
-    
-    /**
-     * Method: setRelativePosition(AxialMethod position)
-     *
-     * @throws Exception thrown if something goes awry
-     */
-    @org.junit.Test
-    public void testSetRelativePosition() throws Exception {
-        BodyTube tube = new BodyTube();
-        MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
-        MassComponent component = (MassComponent) getField(handler, "mass");
-        handler.setAxialMethod(AxialMethod.ABSOLUTE);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 
     /**

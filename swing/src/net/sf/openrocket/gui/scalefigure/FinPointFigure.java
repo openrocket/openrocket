@@ -35,8 +35,9 @@ public class FinPointFigure extends AbstractScaleFigure {
  
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
-    private static final Color GRID_LINE_COLOR = new Color( 137, 137, 137, 32);
-    private static final float GRID_LINE_BASE_WIDTH = 0.001f;
+    private static final Color GRID_MAJOR_LINE_COLOR = new Color( 64, 64, 128, 128);
+    private static final Color GRID_MINOR_LINE_COLOR = new Color( 64, 64, 128, 32);
+    private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
     private static final int LINE_WIDTH_PIXELS = 1;
     
@@ -45,7 +46,7 @@ public class FinPointFigure extends AbstractScaleFigure {
     private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
     private static final Color POINT_COLOR = new Color(100, 100, 100);
     private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0);
-    private static final double MINOR_TICKS = 0.05;
+    private static final double MINOR_TICKS = 0.01;
     private static final double MAJOR_TICKS = 0.1;
             
     private final FreeformFinSet finset;
@@ -89,9 +90,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-
-        // Background grid
-		paintBackgroundGrid( g2);
+		paintBackgroundGrid(g2);
 
 		paintRocketBody(g2);
 		
@@ -99,17 +98,16 @@ public class FinPointFigure extends AbstractScaleFigure {
 		paintFinHandles(g2);	
 	}
 	
-	public void paintBackgroundGrid( Graphics2D g2){
+	public void paintBackgroundGrid( Graphics2D g2) {
 	    Rectangle visible = g2.getClipBounds();
-	    int x0 = visible.x - 3;
-	    int x1 = visible.x + visible.width + 4;
-	    int y0 = visible.y - 3;
-	    int y1 = visible.y + visible.height + 4;
+	    final double x0 = visible.x - 3;
+	    final double x1 = visible.x + visible.width + 4;
+	    final double y0 = visible.y - 3;
+	    final double y1 = visible.y + visible.height + 4;
 
-	    final float grid_line_width = (float)(FinPointFigure.GRID_LINE_BASE_WIDTH/this.scale);
+	    final float grid_line_width = (float)(GRID_LINE_BASE_WIDTH_PIXELS/this.scale);
 	    g2.setStroke(new BasicStroke( grid_line_width,
 	            BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-	    g2.setColor(FinPointFigure.GRID_LINE_COLOR);
 
 	    Unit unit;
 	    if (this.getParent() != null && this.getParent().getParent() instanceof ScaleScrollPane) {
@@ -122,19 +120,29 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS, MAJOR_TICKS);
 	    Line2D.Double line = new Line2D.Double();
 	    for (Tick t : verticalTicks) {
-	        if (t.major) {
-	            line.setLine( t.value, y0, t.value, y1);
-	            g2.draw(line);
-	        }
+            if (t.major) {
+                g2.setColor(FinPointFigure.GRID_MAJOR_LINE_COLOR);
+                line.setLine( t.value, y0, t.value, y1);
+                g2.draw(line);
+            }else{
+                g2.setColor(FinPointFigure.GRID_MINOR_LINE_COLOR);
+                line.setLine( t.value, y0, t.value, y1);
+                g2.draw(line);
+            }
 	    }
 
 	    // horizontal
 	    Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS, MAJOR_TICKS);
 	    for (Tick t : horizontalTicks) {
 	        if (t.major) {
-	            line.setLine( x0, t.value, x1, t.value);
-	            g2.draw(line);
-	        }
+                g2.setColor(FinPointFigure.GRID_MAJOR_LINE_COLOR);
+                line.setLine( x0, t.value, x1, t.value);
+                g2.draw(line);
+            }else{
+                g2.setColor(FinPointFigure.GRID_MINOR_LINE_COLOR);
+                line.setLine( x0, t.value, x1, t.value);
+                g2.draw(line);
+            }
 	    }
 	}
 
@@ -159,7 +167,7 @@ public class FinPointFigure extends AbstractScaleFigure {
         Transition body = (Transition) finset.getParent();
         final float xResolution_m = 0.01f; // distance between draw points, in meters
 
-        final double xFinStart = finset.asPositionValue(AxialMethod.TOP); //<<  in body frame
+        final double xFinStart = finset.getAxialOffset(AxialMethod.TOP); //<<  in body frame
 
         // vv in fin-frame == draw-frame vv
         final double xOffset = -xFinStart;
@@ -350,20 +358,20 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    
         // update subject (i.e. Fin) bounds
 	    finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
-	    // NOTE: the fin's forward root is pinned at 0,0  
-	    finBounds_m.setRect(0, 0, finBounds_m.getWidth(), finBounds_m.getHeight());
 	    
 	    // update to bound the parent body:
 	    SymmetricComponent parent = (SymmetricComponent)this.finset.getParent(); 
-        final double xFinFront = finset.asPositionValue(AxialMethod.TOP);
+        final double xFinFront = finset.getAxialOffset(AxialMethod.TOP);
         final double xParent = -xFinFront;
 	    final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
 	    final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
 	    mountBounds_m = new Rectangle2D.Double( xParent, yParent, parent.getLength(), rParent);
-                
+
+        final double xMinBounds = Math.min(xParent, finBounds_m.getMinX());
+        final double yMinBounds = Math.min(xParent, finBounds_m.getMinY());
 	    final double subjectWidth = Math.max( xFinFront + finBounds_m.getWidth(), parent.getLength());
 	    final double subjectHeight = Math.max( 2*rParent, rParent + finBounds_m.getHeight());
-	    subjectBounds_m = new Rectangle2D.Double( xParent, yParent, subjectWidth, subjectHeight);
+	    subjectBounds_m = new Rectangle2D.Double( xMinBounds, yMinBounds, subjectWidth, subjectHeight);
 	}
 
 	@Override
@@ -373,7 +381,6 @@ public class FinPointFigure extends AbstractScaleFigure {
 	    final int finFrontX = (int)(subjectBounds_m.getX()*scale);
 	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 	    
-	    // the negative sign is to compensate for the mount's negative location.
         originLocation_px.width = borderThickness_px.width - finFrontX;
         
         if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {

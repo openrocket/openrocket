@@ -19,7 +19,7 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 /**
  * RocksimLoader Tester.
@@ -97,7 +97,7 @@ public class RocksimLoaderTest extends BaseTestCase {
         Assert.assertFalse(stage3.isCGOverridden());
 
         stream = this.getClass().getResourceAsStream("/rocksimTestRocket3.rkt");
-        Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
+       Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         context = new DocumentLoadingContext();
@@ -222,7 +222,7 @@ public class RocksimLoaderTest extends BaseTestCase {
 
     public static OpenRocketDocument loadRocksimSubassemblyRocket(RocksimLoader theLoader) throws IOException, RocketLoadException {
         InputStream stream = RocksimLoaderTest.class.getResourceAsStream("/SubAssemblyTest.rkt");
-        try {
+/        try {
             Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();

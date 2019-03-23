@@ -108,7 +108,6 @@ public class FinMarkingGuideStrategy {
         Dimension d = getPageSize();
         PdfContentByte cb = writer.getDirectContent();
         // TODO: Deprecated (External Dependency)
-        // Graphics2D g2 = cb.createGraphics(d.width, d.height);
         Graphics2D g2 = new PdfGraphics2D(cb, d.width, d.height);
         theMarkingGuide.print(g2);
         g2.dispose();

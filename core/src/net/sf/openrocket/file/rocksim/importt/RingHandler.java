@@ -19,7 +19,6 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
  * A SAX handler for centering rings, tube couplers, and bulkheads.
@@ -178,17 +177,6 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
 		result.setAxialOffset(ring.getAxialOffset());
 		result.setMaterial(ring.getMaterial());
 		result.setThickness(result.getThickness());
-	}
-	
-	/**
-	 * Set the relative position onto the component.  This cannot be done directly because setAxialMethod is not
-	 * public in all components.
-	 *
-	 * @param position the OpenRocket position
-	 */
-	@Override
-	public void setAxialMethod(AxialMethod position) {
-		ring.setAxialMethod(position);
 	}
 	
 	@Override

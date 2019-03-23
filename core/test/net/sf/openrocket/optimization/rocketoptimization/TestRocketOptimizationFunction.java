@@ -20,7 +20,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.BaseTestCase;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 
 @RunWith(JMock.class)
