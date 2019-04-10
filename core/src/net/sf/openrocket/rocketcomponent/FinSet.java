@@ -249,23 +249,28 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	/**
-	 * Set the height from the fin's base at the reference point -- i.e. where the tab is located from.  If the tab is located via BOTTOM, then the back edge will be 
-	 * <code>height</code> deep, and the bottom edge of the tab will be parallel to the stage centerline.  If the tab is located via TOP, the the front edge will have corresponding height/depth. 
+	 * Set the height from the fin's base at the reference point --
+	 * i.e. where the tab is located from.  If the tab is located via
+	 * BOTTOM, then the back edge will be  <code>height</code> deep,
+	 * and the bottom edge of the tab will be parallel to the stage
+	 * centerline.  If the tab is located via TOP, the the front edge
+	 * will have corresponding height/depth.
 	 * If the tab is located via MIDDLE, the tab's midpoint is used.
 	 * 
-	 * Note this function also does bounds checking, and will not set a tab height that passes through it's parent's midpoint.  
+	 * Note this function also does bounds checking, and will not set
+	 * a tab height that passes through it's parent's midpoint.
 	 *  
-	 * @param newHeightRequest how deep the fin tab should project from the fin root, at the reference point 
+	 * @param newHeightRequest how deep the fin tab should project
+	 * from the fin root, at the reference point
 	 * 
 	 */
-	public void setTabHeight(final double newHeightRequest) {
-		if (MathUtil.equals(this.tabHeight, MathUtil.max(newHeightRequest, 0))){
+	public void setTabHeight(final double heightRequest) {
+		if (MathUtil.equals(this.tabHeight, MathUtil.max(heightRequest, 0))){
 			return;
 		}
 		
-		this.tabHeight = newHeightRequest;
-		
-		validateFinTab();
+		tabHeight = heightRequest;
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -273,26 +278,30 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public double getTabLength() {
 		return tabLength;
 	}
-	
-	public void setTabLength(double length) {
-		length = MathUtil.max(length, 0);
-		if (MathUtil.equals(this.tabLength, length))
+
+	/**
+	 * set tab length
+	 */
+	public void setTabLength(final double lengthRequest) {
+		if (MathUtil.equals(tabLength, MathUtil.max(lengthRequest, 0))) {
 			return;
-		tabLength = length;
-		validateFinTab();
+		}
+		
+		tabLength = lengthRequest;
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	/** 
-	 * internally, set the internal  
+	 * internally, set the internal offset and optionally validate tab
 	 * 
-	 * @param newOffset new requested shift of tab -- from
+	 * @param offsetRequest new requested shift of tab -- from
+	 * @param validate wehther or not to validate
 	 */
-	public void setTabOffset( final double newOffset) {
-		this.tabOffset = newOffset;
-		this.tabPosition = this.tabOffsetMethod.getAsPosition( newOffset, this.tabLength, this.length);
-
-		validateFinTab();
+	public void setTabOffset( final double offsetRequest) {
+		tabOffset = offsetRequest;
+		tabPosition = tabOffsetMethod.getAsPosition( tabOffset, tabLength, length);
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
