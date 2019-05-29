@@ -110,7 +110,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		}
 		
 		// Add warnings  (radius/2 == diameter/4)
-		if (thickness > bodyRadius / 2) {
+		if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
 			warnings.add(Warning.THICK_FIN);
 		}
 		warnings.add(new Other("Tube fin support is experimental"));
