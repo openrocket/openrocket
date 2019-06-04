@@ -46,7 +46,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
-	@Override
+	/*	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
 		double x_min = Double.MAX_VALUE;
@@ -71,6 +71,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		
 		return bounds;
 	}
+	*/
 	
 	/**
 	 * Check whether the given type can be added to this component.  A Stage allows

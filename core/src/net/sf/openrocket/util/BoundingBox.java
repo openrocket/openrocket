@@ -17,6 +17,11 @@ public class BoundingBox {
 		this.min = _min.clone();
 		this.max = _max.clone();
 	}
+
+	public BoundingBox(double xmin, double xmax, double rad) {
+		min = new Coordinate(xmin, -rad, -rad);
+		max = new Coordinate(xmax, rad, rad);
+	}
 	
 	public void clear() {
 		min = Coordinate.MAX.setWeight( 0.0);

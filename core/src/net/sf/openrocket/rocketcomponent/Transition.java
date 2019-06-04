@@ -10,6 +10,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -435,7 +436,7 @@ public class Transition extends SymmetricComponent {
 
 
 
-	@Override
+/*	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = super.getComponentBounds();
 		if (foreShoulderLength > 0.001)
@@ -443,6 +444,24 @@ public class Transition extends SymmetricComponent {
 		if (aftShoulderLength > 0.001)
 			addBound(bounds, getLength() + aftShoulderLength, aftShoulderRadius);
 		return bounds;
+	}*/
+
+	/**
+	 * bounding box of transition
+	 *
+	 * It's tempting to ignore the shoulders (if any) on the grounds
+	 * that they will be covered by the fore and aft body tubes, but
+	 * including them won't cause any errors
+	 *
+	 * we will assume the maximum radius will occur at either the fore
+	 * or aft end -- this is true for the transitions that are
+	 * currently allowed, but could conceivably change in the future
+	 */
+	@Override
+	public BoundingBox getBoundingBox() {
+		return new BoundingBox(-getForeShoulderLength(),
+							   getLength() + getAftShoulderLength(),
+							   Math.max(getForeRadius(), getAftRadius()));
 	}
 
 	@Override
