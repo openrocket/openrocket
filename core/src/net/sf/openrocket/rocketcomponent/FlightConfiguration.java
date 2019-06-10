@@ -529,7 +529,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		BoundingBox bounds = new BoundingBox();
 			
 		for (RocketComponent component : this.getActiveComponents()) {
-			BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());
+			BoundingBox componentBounds = new BoundingBox().update(component.getBoundingBox());
 			bounds.update( componentBounds );
 		}
 

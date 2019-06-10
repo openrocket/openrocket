@@ -723,7 +723,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 *
 	 * Currently the points are simply a rectangular box around the body tube.
 	 */
-	@Override
+	/*@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
 		
@@ -756,7 +756,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		addBoundingBox(bounds, x_min, x_max, r_max);
 		return bounds;
-	}
+		}*/
 
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
