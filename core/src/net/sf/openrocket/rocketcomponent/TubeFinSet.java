@@ -305,15 +305,6 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>(2);
-
-		addBoundingBox(bounds, 0, length, outerRadius);
-		
-		return bounds;
-		}*/
 
 	@Override
 	public BoundingBox getBoundingBox() {

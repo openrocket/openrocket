@@ -134,21 +134,6 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();
 	}
-	
-	
-	/**
-	 * Adds component bounds at a number of points between 0...length.
-	 */
-	/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> list = new ArrayList<Coordinate>(20);
-		for (int n = 0; n <= 5; n++) {
-			double x = n * length / 5;
-			double r = getRadius(x);
-			addBound(list, x, r);
-		}
-		return list;
-		}*/
 
 	/**
 	 * Are there any components whose max diameter isn't at either the

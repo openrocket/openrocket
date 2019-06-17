@@ -1,10 +1,10 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Transformation;
 
 

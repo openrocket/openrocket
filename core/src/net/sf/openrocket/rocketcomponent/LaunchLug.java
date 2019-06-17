@@ -187,14 +187,7 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	public double getComponentVolume() {
 		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness));
 	}
-	
-	/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		ArrayList<Coordinate> bounds = new ArrayList<Coordinate>(2);
-		addBoundingBox(bounds, 0, length, radius);
-		return bounds;
-	}
-	*/
+
 	@Override
 	public BoundingBox getBoundingBox() {
 		return new BoundingBox(0, length, radius);

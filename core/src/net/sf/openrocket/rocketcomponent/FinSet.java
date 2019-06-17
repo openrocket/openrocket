@@ -709,54 +709,17 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		BoundingBox singleFinBounds= new BoundingBox().update(getFinPoints());
 		final double finLength = singleFinBounds.max.x;
 		final double finHeight = singleFinBounds.max.y;
-		
+
+		/*
 		BoundingBox compBox = new BoundingBox().update(getComponentLocations());
 		
 		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
 												compBox.max.add( finLength, finHeight, finHeight ));
 		return finSetBox; 
+		*/
+
+		return new BoundingBox(0.0, finLength, finHeight);
 	}
-	
-	/**
-	 * Adds bounding coordinates to the given set.  The body tube will fit within the
-	 * convex hull of the points.
-	 *
-	 * Currently the points are simply a rectangular box around the body tube.
-	 */
-	/*@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		
-		// should simply return this component's bounds in this component's body frame.
-		
-		double x_min = Double.MAX_VALUE;
-		double x_max = Double.MIN_VALUE;
-		double r_max = 0.0;
-		
-		for (Coordinate point : getFinPoints()) {
-			double hypot = MathUtil.hypot(point.y, point.z);
-			double x_cur = point.x;
-			if (x_min > x_cur) {
-				x_min = x_cur;
-			}
-			if (x_max < x_cur) {
-				x_max = x_cur;
-			}
-			if (r_max < hypot) {
-				r_max = hypot;
-			}
-		}
-		
-		Coordinate location = this.getLocations()[0];
-		x_max += location.x;
-		
-		if( parent instanceof SymmetricComponent){
-			r_max += ((SymmetricComponent)parent).getRadius(0);
-		}
-		
-		addBoundingBox(bounds, x_min, x_max, r_max);
-		return bounds;
-		}*/
 
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {

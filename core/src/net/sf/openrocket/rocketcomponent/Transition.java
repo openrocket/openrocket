@@ -434,18 +434,6 @@ public class Transition extends SymmetricComponent {
 		return Math.max(getRadius(x) - thickness, 0);
 	}
 
-
-
-/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = super.getComponentBounds();
-		if (foreShoulderLength > 0.001)
-			addBound(bounds, -foreShoulderLength, foreShoulderRadius);
-		if (aftShoulderLength > 0.001)
-			addBound(bounds, getLength() + aftShoulderLength, aftShoulderRadius);
-		return bounds;
-	}*/
-
 	/**
 	 * bounding box of transition
 	 *

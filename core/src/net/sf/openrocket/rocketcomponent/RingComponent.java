@@ -162,14 +162,6 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
-	/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
-		addBound(bounds, 0, getOuterRadius());
-		addBound(bounds, length, getOuterRadius());
-		return bounds;
-		}*/
-	
 	@Override
 	public Coordinate getComponentCG() {
 		Coordinate cg = Coordinate.ZERO;

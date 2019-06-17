@@ -295,22 +295,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-Line");
 	}
-	/*
-	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		final double r = outerDiameter_m / 2.0;
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
-		set.add(new Coordinate(r, totalHeight_m, r));
-		set.add(new Coordinate(r, totalHeight_m, -r));
-		set.add(new Coordinate(r, 0, r));
-		set.add(new Coordinate(r, 0, -r));
-		set.add(new Coordinate(-r, 0, r));
-		set.add(new Coordinate(-r, 0, -r));
-		set.add(new Coordinate(-r, totalHeight_m, r));
-		set.add(new Coordinate(-r, totalHeight_m, -r));
-		return set;
-	}
-	*/
+	
 	@Override
 	public Coordinate getComponentCG() {
 		// Math.PI and density are assumed constant through calculation, and thus may be factored out. 

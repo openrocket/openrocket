@@ -133,13 +133,4 @@ public abstract class MassObject extends InternalComponent {
 	public final double getRotationalUnitInertia() {
 		return pow2(radius) / 2;
 	}
-	/*
-	@Override
-	public final Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> c = new ArrayList<Coordinate>();
-		addBound(c, 0, radius);
-		addBound(c, length, radius);
-		return c;
-		}*/
-	
 }

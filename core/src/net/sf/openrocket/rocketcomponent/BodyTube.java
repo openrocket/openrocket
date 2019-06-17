@@ -297,22 +297,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	private static double getFilledVolume(double r, double l) {
 		return Math.PI * r * r * l;
 	}
-	
-	
-	/**
-	 * Adds bounding coordinates to the given set.  The body tube will fit within the
-	 * convex hull of the points.
-	 *
-	 * Currently the points are simply a rectangular box around the body tube.
-	 */
-	/*	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(2);
-
-		addBoundingBox(bounds, 0, length, getOuterRadius());
-		
-		return bounds;
-		}*/
 		
 	/**
 	 * Check whether the given type can be added to this component.  BodyTubes allow any
