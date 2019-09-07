@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import com.itextpdf.awt.PdfGraphics2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.DefaultFontMapper;
+import com.itextpdf.awt.DefaultFontMapper;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -283,7 +284,9 @@ public class DesignReport {
 		theFigure.updateFigure();
 		
 		final DefaultFontMapper mapper = new DefaultFontMapper();
-		Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
+		// TODO: Deprecated (External Dependency)
+		//Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
+		Graphics2D g2d = new PdfGraphics2D(theCanvas, thePageImageableWidth, thePageImageableHeight * 2, mapper);
 		final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeightPx() / 2;
 		int y = PrintUnit.POINTS_PER_INCH;
 		//If the y dimension is negative, then it will potentially be drawn off the top of the page.  Move the origin

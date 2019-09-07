@@ -4,11 +4,12 @@ sudo: false
 addons:
   apt:
     packages:
-      - ant-optional
+    - ant-optional
 jdk:
-  - openjdk8
+  - openjdk9
+
 script:
- - "ant -buildfile build.xml clean check jar unittest"
+ - "ant -buildfile build.xml complete"
 
 after_success:
   - ls -lh /home/travis/build/openrocket/openrocket/swing/build/jar/OpenRocket.jar

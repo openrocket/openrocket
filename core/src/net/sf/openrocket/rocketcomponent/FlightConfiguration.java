@@ -173,7 +173,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return stages.get(stageNumber).active;
 	}
-
 	public Collection<RocketComponent> getAllComponents() {
 		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
 		toProcess.offer(this.rocket);
@@ -230,7 +229,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return toReturn;
 	}
-	
+
 	// this method is deprecated because it ignores instancing of parent components (e.g. Strapons or pods )
 	// depending on your context, this may or may not be what you want.
 	// recomend migrating to either: `getAllComponents` or `getActiveInstances`

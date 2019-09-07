@@ -1,0 +1,40 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="71.7" Itot="2.32" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="3.178" burn-time="0.73" cgDiv="10" cgFix="1" cgStep="-1." code="A8" delays="3,5" dia="18." exitDia="0." initWt="16.35" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="20.18" mfg="Estes" peakThrust="9.73" propWt="3.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Estes A8 RASP.ENG file made from NAR published data
+File produced October 3, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="35." f="0." m="3.3" t="0."/>
+<eng-data cg="35." f="0.512" m="3.28507" t="0.041"/>
+<eng-data cg="35." f="2.115" m="3.20474" t="0.084"/>
+<eng-data cg="35." f="4.358" m="3.0068" t="0.127"/>
+<eng-data cg="35." f="6.794" m="2.6975" t="0.166"/>
+<eng-data cg="35." f="8.588" m="2.41309" t="0.192"/>
+<eng-data cg="35." f="9.294" m="2.23506" t="0.206"/>
+<eng-data cg="35." f="9.73" m="1.96448" t="0.226"/>
+<eng-data cg="35." f="8.845" m="1.83238" t="0.236"/>
+<eng-data cg="35." f="7.179" m="1.70703" t="0.247"/>
+<eng-data cg="35." f="5.063" m="1.58515" t="0.261"/>
+<eng-data cg="35." f="3.717" m="1.48525" t="0.277"/>
+<eng-data cg="35." f="3.205" m="1.3425" t="0.306"/>
+<eng-data cg="35." f="2.884" m="1.14764" t="0.351"/>
+<eng-data cg="35." f="2.499" m="0.94092" t="0.405"/>
+<eng-data cg="35." f="2.371" m="0.726196" t="0.467"/>
+<eng-data cg="35." f="2.307" m="0.509957" t="0.532"/>
+<eng-data cg="35." f="2.371" m="0.320333" t="0.589"/>
+<eng-data cg="35." f="2.371" m="0.175326" t="0.632"/>
+<eng-data cg="35." f="2.243" m="0.109701" t="0.652"/>
+<eng-data cg="35." f="1.794" m="0.0637665" t="0.668"/>
+<eng-data cg="35." f="1.153" m="0.0302344" t="0.684"/>
+<eng-data cg="35." f="0.448" m="0.00860204" t="0.703"/>
+<eng-data cg="35." f="0." m="0." t="0.73"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

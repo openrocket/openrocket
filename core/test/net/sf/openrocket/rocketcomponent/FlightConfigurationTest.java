@@ -437,6 +437,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(motorTube3Location.x, 1.214, EPSILON);
 					assertEquals(motorTube3Location.y, -0.062, EPSILON);
 					assertEquals(motorTube3Location.z, 0.015, EPSILON);
+<<<<<<< HEAD
 
 				}{ // Booster::Fins::Instances ( x2 x3)
 					final FinSet fins = (FinSet)boosterBody.getChild(1);
@@ -545,6 +546,45 @@ public class FlightConfigurationTest extends BaseTestCase {
 		assertThat(components.get(1).getName(), equalTo("Core Stage Body"));
 		
 	}
+=======
+
+				}{ // Booster::Fins::Instances ( x2 x3)
+					final FinSet fins = (FinSet)boosterBody.getChild(1);
+					final List<InstanceContext> finContextList = instances.getInstanceContexts(fins);
+					assertEquals(6, finContextList.size());
+					
+					final InstanceContext boosterFinContext0 = finContextList.get(3);
+					assertThat(boosterFinContext0.component.getClass(), equalTo(TrapezoidFinSet.class));
+					assertThat(boosterFinContext0.instanceNumber, equalTo(0));
+					final Coordinate boosterFin0Location = boosterFinContext0.getLocation(); 
+					assertEquals(boosterFin0Location.x,  1.044, EPSILON);
+					assertEquals(boosterFin0Location.y, -0.104223611, EPSILON);
+					assertEquals(boosterFin0Location.z, -0.027223611, EPSILON);
+					
+					final InstanceContext boosterFinContext1 = finContextList.get(4);
+					assertThat(boosterFinContext1.component.getClass(), equalTo(TrapezoidFinSet.class));
+					assertThat(boosterFinContext1.instanceNumber, equalTo(1));
+					final Coordinate boosterFin1Location = boosterFinContext1.getLocation(); 
+					assertEquals(boosterFin1Location.x,  1.044, EPSILON);
+					assertEquals(boosterFin1Location.y, -0.03981186, EPSILON);
+					assertEquals(boosterFin1Location.z, -0.00996453, EPSILON);
+					
+					final InstanceContext boosterFinContext2 = finContextList.get(5);
+					assertThat(boosterFinContext2.component.getClass(), equalTo(TrapezoidFinSet.class));
+					assertThat(boosterFinContext2.instanceNumber, equalTo(2));
+					final Coordinate boosterFin2Location = boosterFinContext2.getLocation(); 
+					assertEquals(boosterFin2Location.x,  1.044, EPSILON);
+					assertEquals(boosterFin2Location.y, -0.08696453, EPSILON);
+					assertEquals(boosterFin2Location.z,  0.03718814, EPSILON);
+					
+				}
+
+			}
+			
+		}
+	}
+	
+>>>>>>> be802882a6f0c8a49cd96890dccf347b80291081
 }
 
 

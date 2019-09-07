@@ -260,7 +260,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Note this function also does bounds checking, and will not set
 	 * a tab height that passes through it's parent's midpoint.
 	 *  
-	 * @param newHeightRequest how deep the fin tab should project
+	 * @param heightRequest how deep the fin tab should project
 	 * from the fin root, at the reference point
 	 * 
 	 */
@@ -270,7 +270,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 		
 		tabHeight = heightRequest;
-
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -296,12 +295,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * internally, set the internal offset and optionally validate tab
 	 * 
 	 * @param offsetRequest new requested shift of tab -- from
-	 * @param validate wehther or not to validate
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
 		tabPosition = tabOffsetMethod.getAsPosition( tabOffset, tabLength, length);
-		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -343,14 +340,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if( tabPosition < 0){
 			this.tabPosition = 0;
 	    }
-		
 		//check tail bounds:
 	    final double xTabBack = getTabTrailingEdge();
 		if( this.length < xTabBack ){
 			this.tabLength -= (xTabBack - this.length);
 		}
-		
-		// check tab height 
+		// check tab height
 		if( null != getParent() ){
 			// pulls the parent-body radius at the fin-tab reference point.
 			final double xLead = this.getTabFrontEdge();
@@ -822,8 +817,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
         // by default, assume a flat base
         return true;
     }
-
-	/**
+    /**
 	 * Return a copied list of the given input, translated by the delta
 	 *
 	 * @return  List of XY-coordinates.
@@ -853,9 +847,8 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 
 		return returnPoints;
 	}
-
 	/**
-	 * Return a list of X,Y coordinates defining the geometry of a single fin tab. 
+	 * Return a list of X,Y coordinates defining the geometry of a single fin tab.
 	 * The origin is the leading root edge, and the tab height (or 'depth') is 
 	 * the radial distance inwards from the reference point, depending on positioning method: 
 	 *      if via TOP:    tab front edge
@@ -1066,7 +1059,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
-<<<<<<< HEAD
 	 * use this for calculating physical properties, and routine drawing
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point

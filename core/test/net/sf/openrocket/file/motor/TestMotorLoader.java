@@ -25,30 +25,30 @@ public class TestMotorLoader {
 	public void testGeneralMotorLoader() throws IOException {
 		MotorLoader loader = new GeneralMotorLoader();
 		
-		test(loader, "test1.eng", DIGEST1);
-		test(loader, "test2.rse", DIGEST2);
-		test(loader, "test.zip", DIGEST2, DIGEST1);
-		test(loader, "test3.rse", DIGEST3);
+		test(loader, "/test1.eng", DIGEST1);
+		test(loader, "/test2.rse", DIGEST2);
+		test(loader, "/test.zip", DIGEST2, DIGEST1);
+		test(loader, "/test3.rse", DIGEST3);
 	}
 	
 	@Test
 	public void testRASPMotorLoader() throws IOException {
-		test(new RASPMotorLoader(), "test1.eng", DIGEST1);
+		test(new RASPMotorLoader(), "/test1.eng", DIGEST1);
 	}
 	
 	@Test
 	public void testRocksimMotorLoader() throws IOException {
-		test(new RockSimMotorLoader(), "test2.rse", DIGEST2);
+		test(new RockSimMotorLoader(), "/test2.rse", DIGEST2);
 	}
 	
 	@Test
 	public void testRocksimMotorLoader3() throws IOException {
-		test(new RockSimMotorLoader(), "test3.rse", DIGEST3);
+		test(new RockSimMotorLoader(), "/test3.rse", DIGEST3);
 	}
 	
 	@Test
 	public void testZipMotorLoader() throws IOException {
-		test(new ZipFileMotorLoader(), "test.zip", DIGEST2, DIGEST1);
+		test(new ZipFileMotorLoader(), "/test.zip", DIGEST2, DIGEST1);
 	}
 	
 	

@@ -52,8 +52,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.text.TextUtilities;
 import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 
 /*
@@ -81,7 +81,7 @@ public class SimulationPlot {
 	
 	void setShowPoints(boolean showPoints) {
 		for (ModifiedXYItemRenderer r : renderers) {
-			r.setBaseShapesVisible(showPoints);
+			r.setDefaultShapesVisible(showPoints);
 		}
 	}
 	
@@ -244,8 +244,8 @@ public class SimulationPlot {
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
 				renderers.add(r);
 				plot.setRenderer(axisno, r);
-				r.setBaseShapesVisible(initialShowPoints);
-				r.setBaseShapesFilled(true);
+				r.setDefaultShapesVisible(initialShowPoints);
+				r.setDefaultShapesFilled(true);
 				for (int j = 0; j < data[i].getSeriesCount(); j++) {
 					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
 					r.setSeriesStroke(j, lineStroke);
@@ -406,7 +406,7 @@ public class SimulationPlot {
 					ycoord = config.getUnit(index).toUnit(ycoord);
 					
 					XYImageAnnotation annotation =
-							new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
+							new XYImageAnnotation(xcoord, ycoord, image, org.jfree.chart.ui.RectangleAnchor.CENTER);
 					annotation.setToolTipText(event);
 					plot.addAnnotation(annotation);
 				}
@@ -597,14 +597,14 @@ public class SimulationPlot {
 			g2.draw(line);
 			
 			String label = marker.getLabel();
-			RectangleAnchor anchor = marker.getLabelAnchor();
+			org.jfree.chart.ui.RectangleAnchor anchor = marker.getLabelAnchor();
 			if (label != null) {
 				Font labelFont = marker.getLabelFont();
 				g2.setFont(labelFont);
 				g2.setPaint(marker.getLabelPaint());
 				Point2D coordinates = calculateDomainMarkerTextAnchorPoint(g2,
 						orientation, dataArea, line.getBounds2D(), marker
-								.getLabelOffset(), LengthAdjustmentType.EXPAND, anchor);
+								.getLabelOffset(), org.jfree.chart.ui.LengthAdjustmentType.EXPAND, anchor);
 				
 				// Changed:
 				TextAnchor textAnchor = TextAnchor.TOP_RIGHT;

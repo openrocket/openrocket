@@ -1,5 +1,16 @@
 <project name="OpenRocket" basedir="." default="jar">
 
+	<!-- COMPLETE -->
+	
+	<target name="complete" depends="clean, check, jar, unittest">
+	</target>
+	
+	<target name="complete-core" depends="clean-core, check, jar-core, unittest-core">
+	</target>
+	
+	<target name="complete-swing" depends="clean-swing, check, jar-swing, unittest-swing">
+	</target>
+
     <!-- CLEAN -->
 
 	<target name="clean" depends="clean-core, clean-swing">
@@ -16,7 +27,23 @@
 
     <!-- BUILD -->
 
-	<target name="build" depends="build-core, build-swing">
+	<target name="build-pre">
+		<echo>java.vendor: ${java.vendor}</echo>
+		<echo>java.home: ${java.home}</echo>
+		<echo>java.vm.specification.version: ${java.vm.specification.version}</echo>
+		<echo>java.vm.specification.vendor: ${java.vm.specification.vendor}</echo>
+		<echo>java.vm.specification.name: ${java.vm.specification.name}</echo>
+		<echo>java.vm.version: ${java.vm.version}</echo>
+		<echo>java.vm.vendor: ${java.vm.vendor}</echo>
+		<echo>java.vm.name: ${java.vm.name}</echo>
+		<echo>java.specification.version: ${java.specification.version}</echo>
+		<echo>java.specification.vendor: ${java.specification.vendor}</echo>
+		<echo>java.specification.name: ${java.specification.name}</echo>
+		<echo>java.class.version: ${java.class.version}</echo>
+		<echo>java.class.path: ${java.class.path}</echo>
+	</target>
+
+	<target name="build" depends="build-pre, build-core, build-swing">
 	</target>
 
 	<target name="build-core">

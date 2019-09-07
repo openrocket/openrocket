@@ -248,7 +248,7 @@ public class OpenRocketSaverTest {
 	
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/net/sf/openrocket/Estes_A8.rse");
+		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
 			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {
