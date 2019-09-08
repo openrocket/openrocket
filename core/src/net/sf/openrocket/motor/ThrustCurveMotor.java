@@ -166,22 +166,30 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				throw new IllegalArgumentException("Too short thrust-curve, length=" + motor.time.length);
 			}
 			for (int i = 0; i < motor.time.length - 1; i++) {
-				if (motor.time[i + 1] < motor.time[i]) {
-					throw new IllegalArgumentException("Time goes backwards, " +
+				if (motor.time[i + 1] <= motor.time[i]) {
+					throw new IllegalArgumentException("Time stalls or goes backwards, " +
 							"time[" + i + "]=" + motor.time[i] + " " +
-							"time[" + (i + 1) + "]=" + motor.time[i + 1]);
+							"time[" + (i + 1) + "]=" + motor.time[i + 1] +
+													   ", thrust=(" + motor.thrust[i] + ", " + motor.thrust[i+1] + ")");
 				}
 			}
 			if (!MathUtil.equals(motor.time[0], 0)) {
 				throw new IllegalArgumentException("Curve starts at time " + motor.time[0]);
 			}
-			if (!MathUtil.equals(motor.thrust[0], 0)) {
-				throw new IllegalArgumentException("Curve starts at thrust " + motor.thrust[0]);
-			}
-			if (!MathUtil.equals(motor.thrust[motor.thrust.length - 1], 0)) {
-				throw new IllegalArgumentException("Curve ends at thrust " +
-						motor.thrust[motor.thrust.length - 1]);
-			}
+			
+			// these conditions actually are error, but quite a few of
+			// the files on thrustcurvemotor.org  have one or the
+			// other of them, and they make less of a difference to
+			// the simulation result than the normal variation between motors.
+			// if (!MathUtil.equals(motor.thrust[0], 0)) {
+			//     throw new IllegalArgumentException("Curve starts at thrust " + motor.thrust[0]);
+			// }
+			//
+			// if (!MathUtil.equals(motor.thrust[motor.thrust.length - 1], 0)) {
+			//     throw new IllegalArgumentException("Curve ends at thrust " +
+			//			motor.thrust[motor.thrust.length - 1]);
+			//}
+
 			for (double t : motor.thrust) {
 				if (t < 0) {
 					throw new IllegalArgumentException("Negative thrust.");
@@ -630,45 +638,51 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				maxThrust = t;
 		}
 		
-		
 		// Burn start time
 		double thrustLimit = maxThrust * MARGINAL_THRUST;
 		double burnStart, burnEnd;
-		
-		int pos;
-		for (pos = 1; pos < thrust.length; pos++) {
-			if (thrust[pos] >= thrustLimit)
-				break;
+
+		if (thrust[0] >= thrustLimit)
+			burnStart = time[0];
+		else {
+			int startPos;
+			for (startPos = 1; startPos < thrust.length; startPos++) {
+				if (thrust[startPos] >= thrustLimit)
+					break;
+			}
+			if (startPos >= thrust.length) {
+				throw new BugException("Could not compute burn start time, maxThrust=" + maxThrust +
+									   " limit=" + thrustLimit + " thrust=" + Arrays.toString(thrust));
+			}
+			if (MathUtil.equals(thrust[startPos - 1], thrust[startPos])) {
+				// For safety
+				burnStart = (time[startPos - 1] + time[startPos]) / 2;
+			} else {
+				burnStart = MathUtil.map(thrustLimit, thrust[startPos - 1], thrust[startPos], time[startPos - 1], time[startPos]);
+			}
 		}
-		if (pos >= thrust.length) {
-			throw new BugException("Could not compute burn start time, maxThrust=" + maxThrust +
-					" limit=" + thrustLimit + " thrust=" + Arrays.toString(thrust));
-		}
-		if (MathUtil.equals(thrust[pos - 1], thrust[pos])) {
-			// For safety
-			burnStart = (time[pos - 1] + time[pos]) / 2;
-		} else {
-			burnStart = MathUtil.map(thrustLimit, thrust[pos - 1], thrust[pos], time[pos - 1], time[pos]);
-		}
-		
-		
+
 		// Burn end time
-		for (pos = thrust.length - 2; pos >= 0; pos--) {
-			if (thrust[pos] >= thrustLimit)
-				break;
+		if (thrust[thrust.length-1] >= thrustLimit)
+			burnEnd = time[time.length-1];
+		else {
+			int endPos;
+			for (endPos = thrust.length - 2; endPos >= 0; endPos--) {
+				if (thrust[endPos] >= thrustLimit)
+					break;
+			}
+			if (endPos < 0) {
+				throw new BugException("Could not compute burn end time, maxThrust=" + maxThrust +
+									   " limit=" + thrustLimit + " thrust=" + Arrays.toString(thrust));
+			}
+			if (MathUtil.equals(thrust[endPos], thrust[endPos + 1])) {
+				// For safety
+				burnEnd = (time[endPos] + time[endPos + 1]) / 2;
+			} else {
+				burnEnd = MathUtil.map(thrustLimit, thrust[endPos], thrust[endPos + 1],
+									   time[endPos], time[endPos + 1]);
+			}
 		}
-		if (pos < 0) {
-			throw new BugException("Could not compute burn end time, maxThrust=" + maxThrust +
-					" limit=" + thrustLimit + " thrust=" + Arrays.toString(thrust));
-		}
-		if (MathUtil.equals(thrust[pos], thrust[pos + 1])) {
-			// For safety
-			burnEnd = (time[pos] + time[pos + 1]) / 2;
-		} else {
-			burnEnd = MathUtil.map(thrustLimit, thrust[pos], thrust[pos + 1],
-					time[pos], time[pos + 1]);
-		}
-		
 		
 		// Burn time
 		burnTimeEstimate = Math.max(burnEnd - burnStart, 0);
@@ -677,12 +691,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		// Total impulse and average thrust
 		totalImpulse = 0;
 		averageThrust = 0;
-		
-		for (pos = 0; pos < time.length - 1; pos++) {
-			double t0 = time[pos];
-			double t1 = time[pos + 1];
-			double f0 = thrust[pos];
-			double f1 = thrust[pos + 1];
+		int impulsePos;
+		for (impulsePos = 0; impulsePos < time.length - 1; impulsePos++) {
+			double t0 = time[impulsePos];
+			double t1 = time[impulsePos + 1];
+			double f0 = thrust[impulsePos];
+			double f1 = thrust[impulsePos + 1];
 			
 			totalImpulse += (t1 - t0) * (f0 + f1) / 2;
 			

@@ -179,7 +179,14 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 			return;
 		
 		// Start
-		if (!MathUtil.equals(time.get(0), 0) || !MathUtil.equals(thrust.get(0), 0)) {
+		// If there is no datapoint at t=0, put one there (this is the
+		// normal case for a RASP file).  If there is a nonzero thrust
+		// at time 0 it's an error, but not one that calls for not
+		// using the file.  We *don't* want to also put a 0-thrust
+		// point at time 0 in that case, as that will cause the
+		// simulation to throw an exception just like in the
+		// commented-out case below.
+		if (!MathUtil.equals(time.get(0), 0)) {
 			time.add(0, 0.0);
 			thrust.add(0, 0.0);
 			for (List l : lists) {
@@ -187,17 +194,33 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 				l.add(0, o);
 			}
 		}
-		
-		// End
-		int n = time.size() - 1;
-		if (!MathUtil.equals(thrust.get(n), 0)) {
-			time.add(time.get(n));
-			thrust.add(0.0);
-			for (List l : lists) {
-				Object o = l.get(n);
-				l.add(o);
-			}
+
+		// Not-uncommon issue at start of thrust curves:  two points
+		// for t=0, one with thrust zero and one non-zero.  We'll throw
+		// out the 0-thrust point and go on.
+		if (MathUtil.equals(time.get(0), 0) && MathUtil.equals(time.get(1), 0)) {
+			time.remove(0);
+			thrust.remove(0);
 		}
+
+		// End
+		// Ah, no, we don't want to do this (I'm leaving the dead code
+		// in case there's a temptation to put it back in).  This ends
+		// up putting the new 0-thrust point at the same time as the
+		// previous last datapoint, which will cause
+		// ThrustCurveMotor.getAverageThrust() to fail when it tries
+		// to interpolate (the exception is actually thrown by
+		// MathUtil.map())
+		//
+		// int n = time.size() - 1;
+		// if (!MathUtil.equals(thrust.get(n), 0)) {
+		//     time.add(time.get(n));
+		//     thrust.add(0.0);
+		//	   for (List l : lists) {
+		//         Object o = l.get(n);
+		//         l.add(o);
+		//     }
+		// }
 	}
 	
 }

@@ -173,7 +173,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return stages.get(stageNumber).active;
 	}
-	
 	public Collection<RocketComponent> getAllComponents() {
 		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
 		toProcess.offer(this.rocket);
@@ -193,7 +192,44 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		return toReturn;
 	}
-	
+
+	/** Returns all the components on core stages (i.e. centerline)
+	 * 
+	 * NOTE: components, NOT instances
+	 */
+	public ArrayList<RocketComponent> getCoreComponents() {
+		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
+		toProcess.offer(this.rocket);
+		
+		ArrayList<RocketComponent> toReturn = new ArrayList<>();
+		
+		while (!toProcess.isEmpty()) {
+			RocketComponent comp = toProcess.poll();
+			
+			if (! comp.getClass().equals(Rocket.class)) {
+				toReturn.add(comp);
+			}
+			
+			for (RocketComponent child : comp.getChildren()) {
+				if (child.getClass().equals(AxialStage.class)) {
+					// recurse through AxialStage -- these are still centerline.
+				    // however -- insist on an exact type match to disallow off-core stages
+					if(isStageActive(child.getStageNumber())){
+						toProcess.offer(child);
+					}
+				}else if( child instanceof ComponentAssembly) {
+					// i.e. ParallelStage or PodSet
+					// pass
+				}else{
+					toProcess.offer(child);
+				}
+				
+			}
+		}
+		
+		return toReturn;
+	}
+
 	// this method is deprecated because it ignores instancing of parent components (e.g. Strapons or pods )
 	// depending on your context, this may or may not be what you want.
 	// recomend migrating to either: `getAllComponents` or `getActiveInstances`

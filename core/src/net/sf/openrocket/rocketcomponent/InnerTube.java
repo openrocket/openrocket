@@ -217,12 +217,15 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public Coordinate[] getInstanceOffsets(){
 		
-		if ( 1 == getInstanceCount())
-			return new Coordinate[] { Coordinate.ZERO };
+		if ( 1 == getInstanceCount()) {
+			double yOffset = this.radialPosition * Math.cos(this.radialDirection);
+			double zOffset = this.radialPosition * Math.sin(this.radialDirection);
+			return new Coordinate[] { Coordinate.ZERO.add(0.0, yOffset, zOffset) };
+		}
 		
 		List<Coordinate> points = getClusterPoints();
 		
-		return points.toArray( new Coordinate[ points.size()]);
+		return points.toArray( new Coordinate[ points.size() ]);
 	}
 	
 //	@Override

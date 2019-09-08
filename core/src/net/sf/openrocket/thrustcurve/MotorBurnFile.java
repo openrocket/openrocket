@@ -11,8 +11,10 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 public class MotorBurnFile {
 	
 	private Integer motorId;
+	private Integer simfileId;
 	private String filetype;
 	private ThrustCurveMotor.Builder thrustCurveMotor;
+	private String data;
 	
 	public void init() {
 		this.motorId = null;
@@ -29,8 +31,9 @@ public class MotorBurnFile {
 		return clone;
 	}
 	
-	public void decodeFile(String data) throws IOException {
-		data = Base64Decoder.decodeData(data);
+	public void decodeFile(String _data) throws IOException {
+		_data = Base64Decoder.decodeData(_data);
+		data = _data;
 		try {
 			if (SupportedFileTypes.RASP_FORMAT.equals(filetype)) {
 				RASPMotorLoader loader = new RASPMotorLoader();
@@ -47,17 +50,31 @@ public class MotorBurnFile {
 	}
 	
 	/**
-	 * @return the motor_id
+	 * @return the motor id
 	 */
 	public Integer getMotorId() {
 		return motorId;
 	}
 	
 	/**
-	 * @param motor_id the motor_id to set
+	 * @param motorId the motor id to set
 	 */
 	public void setMotorId(Integer motorId) {
 		this.motorId = motorId;
+	}
+	
+	/**
+	 * @return the simfile id
+	 */
+	public Integer getSimfileId() {
+		return simfileId;
+	}
+	
+	/**
+	 * @param simfileId the simfileId to set
+	 */
+	public void setSimfileId(Integer simfileId) {
+		this.simfileId = simfileId;
 	}
 	
 	/**
@@ -79,6 +96,13 @@ public class MotorBurnFile {
 	 */
 	public ThrustCurveMotor.Builder getThrustCurveMotor() {
 		return thrustCurveMotor;
+	}
+
+	/**
+	 * @return the file contents
+	 */
+	public String getContents() {
+		return data;
 	}
 	
 }

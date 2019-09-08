@@ -65,7 +65,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		FinSet fin = (FinSet) component;
 
 		thickness = fin.getThickness();
-		bodyRadius = fin.getFinFront().y;
+		bodyRadius = fin.getBodyRadius();
 		finCount = fin.getFinCount();
 		
 		baseRotation = fin.getBaseRotation();
@@ -101,7 +101,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		
 		// Add warnings  (radius/2 == diameter/4)
-		if (thickness > bodyRadius / 2) {
+		if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
 			warnings.add(Warning.THICK_FIN);
 		}
 		warnings.addAll(geometryWarnings);
