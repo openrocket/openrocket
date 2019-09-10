@@ -89,6 +89,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Defaults to (0,0,0)
 	 */
 	protected Coordinate position = new Coordinate();
+
+	// A flag to signal the axial method has changed
+	private boolean axialMethodChange = false;
 	
 	// Color of the component, null means to use the default color
 	private Color color = null;
@@ -104,8 +107,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private boolean cdOverriden = false;
 	
 	private boolean overrideSubcomponents = false;
-	
-	
+
 	// User-given name of the component
 	private String name = null;
 	
@@ -938,6 +940,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// this variable does not change the internal representation
 		// the relativePosition (method) is just the lens through which external code may view this component's position. 
 		this.axialMethod = newAxialMethod;
+		this.axialMethodChange = true;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -1035,6 +1038,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 
 		double newX = Double.NaN;
+		double newOffset = requestedOffset;
 
 		if (null == this.parent) {
 			// best-effort approximation.  this should be corrected later on in the initialization process.
@@ -1045,6 +1049,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		} else if ( this.isAfter()){
 			this.setAfter();
 			return;
+		} else if (axialMethodChange){
+			newX = this.position.x;
+			newOffset = newX - requestedMethod.getAsPosition(0, this.length, this.parent.getLength());
+			axialMethodChange = false;
 		} else {
 			newX = requestedMethod.getAsPosition(requestedOffset, this.length, this.parent.getLength());
 		}
@@ -1058,8 +1066,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		// store for later:
-		this.axialMethod = requestedMethod;
-		this.axialOffset = requestedOffset;
+		this.axialOffset = newOffset;
 		this.position = this.position.setX( newX );
 	}
 	
