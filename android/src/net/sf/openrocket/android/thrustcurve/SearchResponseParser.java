@@ -13,7 +13,7 @@ import android.util.Xml;
 
 public class SearchResponseParser {
 
-	private static final String thrustcurveURI = "http://www.thrustcurve.org/2008/SearchResponse";
+	private static final String thrustcurveURI = "http://www.thrustcurve.org/2015/SearchResponse";
 	/*
 	 * XML Tags in SearchResult xsd
 	 */
