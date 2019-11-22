@@ -23,6 +23,7 @@ public class DefaultSimulationOptionFactory {
 	public static final String SIMCONDITION_ROD_LENGTH = "SimConditionsRodLength";
 	public static final String SIMCONDITION_ROD_ANGLE = "SimConditionsRodAngle";
 	public static final String SIMCONDITION_ROD_DIRECTION = "SimConditionsRodDirection";
+	public static final String SIMCONDITION_LAUNCH_VELOCITY = "SimConditionsLaunchVelocity";
 	
 	public DefaultSimulationOptionFactory(Preferences prefs) {
 		this.prefs = prefs;
@@ -52,6 +53,8 @@ public class DefaultSimulationOptionFactory {
 			defaults.setLaunchRodLength(prefs.getDouble(SIMCONDITION_ROD_LENGTH, defaults.getLaunchRodLength()));
 			defaults.setLaunchRodAngle(prefs.getDouble(SIMCONDITION_ROD_ANGLE, defaults.getLaunchRodAngle()));
 			defaults.setLaunchRodDirection(prefs.getDouble(SIMCONDITION_ROD_DIRECTION, defaults.getLaunchRodDirection()));
+
+			defaults.setLaunchVelocity(prefs.getDouble(SIMCONDITION_LAUNCH_VELOCITY, defaults.getLaunchVelocity()));
 		}
 		return defaults;
 	}
@@ -73,5 +76,7 @@ public class DefaultSimulationOptionFactory {
 		prefs.putDouble(SIMCONDITION_ROD_LENGTH, newDefaults.getLaunchRodLength());
 		prefs.putDouble(SIMCONDITION_ROD_ANGLE, newDefaults.getLaunchRodAngle());
 		prefs.putDouble(SIMCONDITION_ROD_DIRECTION, newDefaults.getLaunchRodDirection());
+
+		prefs.putDouble(SIMCONDITION_LAUNCH_VELOCITY, newDefaults.getLaunchVelocity());
 	}
 }

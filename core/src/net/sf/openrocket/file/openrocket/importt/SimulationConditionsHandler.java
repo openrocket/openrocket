@@ -70,6 +70,12 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 			} else {
 				options.setLaunchRodDirection(d * 2.0 * Math.PI / 360);
 			}
+		} else if (element.equals("launchverticalvelocity")) {
+			if (Double.isNaN(d)) {
+				warnings.add("Illegal launch vertical velocity defined, ignoring.");
+			} else {
+				options.setLaunchVelocity(d);
+			}
 		} else if (element.equals("windaverage")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal average windspeed defined, ignoring.");

@@ -6,6 +6,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
+import net.sf.openrocket.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +19,6 @@ import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.ChangeSource;
-import net.sf.openrocket.util.GeodeticComputationStrategy;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StateChangeListener;
-import net.sf.openrocket.util.WorldCoordinate;
 
 /**
  * A class holding simulation options in basic parameter form and which functions
@@ -56,6 +51,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchRodAngle = preferences.getDouble(Preferences.LAUNCH_ROD_ANGLE, 0);
 	private double windDirection = preferences.getDouble(Preferences.WIND_DIRECTION, Math.PI / 2);
 	private double launchRodDirection = preferences.getDouble(Preferences.LAUNCH_ROD_DIRECTION, Math.PI / 2);
+	private double launchVelocity = preferences.getDouble(Preferences.LAUNCH_VELOCITY, 0);
 	
 	
 	private double windAverage = preferences.getDouble(Preferences.WIND_AVERAGE, 2.0);
@@ -134,8 +130,15 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		this.launchRodDirection = launchRodDirection;
 		fireChangeEvent();
 	}
-	
-	
+
+	public double getLaunchVelocity() { return this.launchVelocity; }
+
+	public void setLaunchVelocity(double launchVelocity) {
+		if (MathUtil.equals(this.launchVelocity, launchVelocity))
+			return;
+		this.launchVelocity = launchVelocity;
+		fireChangeEvent();
+	}
 	
 	public double getWindSpeedAverage() {
 		return windAverage;
@@ -400,6 +403,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		this.launchRodAngle = src.launchRodAngle;
 		this.launchRodDirection = src.launchRodDirection;
 		this.launchRodLength = src.launchRodLength;
+		this.launchVelocity = src.launchVelocity;
 		this.launchTemperature = src.launchTemperature;
 		this.maximumAngle = src.maximumAngle;
 		this.timeStep = src.timeStep;
@@ -443,6 +447,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (this.launchRodLength != src.launchRodLength) {
 			isChanged = true;
 			this.launchRodLength = src.launchRodLength;
+		}
+		if (this.launchVelocity != src.launchVelocity) {
+			isChanged = true;
+			this.launchVelocity = src.launchVelocity;
 		}
 		if (this.launchTemperature != src.launchTemperature) {
 			isChanged = true;
@@ -499,6 +507,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				MathUtil.equals(this.launchRodAngle, o.launchRodAngle) &&
 				MathUtil.equals(this.launchRodDirection, o.launchRodDirection) &&
 				MathUtil.equals(this.launchRodLength, o.launchRodLength) &&
+				MathUtil.equals(this.launchVelocity, o.launchVelocity) &&
 				MathUtil.equals(this.launchTemperature, o.launchTemperature) &&
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
@@ -547,6 +556,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
+		conditions.setLaunchVelocity(new Coordinate(0, 0, getLaunchVelocity()));
 		conditions.setLaunchSite(new WorldCoordinate(getLaunchLatitude(), getLaunchLongitude(), getLaunchAltitude()));
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
