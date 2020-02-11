@@ -10,6 +10,7 @@ import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -304,16 +305,10 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
-		double r = getBodyRadius();
-		
-		addBound(bounds, 0, 2 * (r + outerRadius));
-		addBound(bounds, length, 2 * (r + outerRadius));
-		
-		return bounds;
+	public BoundingBox getBoundingBox() {
+		return new BoundingBox(0, length, outerRadius);
 	}
 	
 	/**

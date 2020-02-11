@@ -25,6 +25,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -121,12 +122,57 @@ public class ComponentRenderer {
 		} else if ( c instanceof ParallelStage ) {
 		} else if ( c instanceof PodSet ) {
 		} else {
-			renderOther(gl, c);
+			renderBoundingBox(gl, c);
 		}
 	
 
 	}
 
+	/**
+	 * If I don't have a method to render an object, I'll render its bounding box
+	 */
+	private void renderBoundingBox(GL2 gl, RocketComponent c) {
+		BoundingBox box = c.getBoundingBox();
+
+		// rectangle at forward end
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.min.x, box.min.y, box.min.z);
+		gl.glVertex3d(box.min.x, box.max.y, box.min.z);
+		gl.glVertex3d(box.min.x, box.max.y, box.max.z);
+		gl.glVertex3d(box.min.x, box.max.x, box.min.z);
+		gl.glEnd();
+
+		// rectangle at aft end
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.max.x, box.min.y, box.min.z);
+		gl.glVertex3d(box.max.x, box.max.y, box.min.z);
+		gl.glVertex3d(box.max.x, box.max.y, box.max.z);
+		gl.glVertex3d(box.max.x, box.max.x, box.min.z);
+		gl.glEnd();
+
+		// connect forward and aft rectangles
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.min.x, box.min.y, box.min.z);
+		gl.glVertex3d(box.max.x, box.min.y, box.min.z);
+		gl.glEnd();
+		
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.min.x, box.max.y, box.min.z);
+		gl.glVertex3d(box.max.x, box.max.y, box.min.z);
+		gl.glEnd();
+		
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.min.x, box.min.y, box.max.z);
+		gl.glVertex3d(box.max.x, box.min.y, box.max.z);
+		gl.glEnd();
+		
+		gl.glBegin(GL.GL_LINES);
+		gl.glVertex3d(box.min.x, box.max.y, box.max.z);
+		gl.glVertex3d(box.max.x, box.max.y, box.max.z);
+		gl.glEnd();
+	}
+		
+	/*
 	private void renderOther(GL2 gl, RocketComponent c) {
 		gl.glBegin(GL.GL_LINES);
 		for (Coordinate cc : c.getComponentBounds()) {
@@ -137,7 +183,7 @@ public class ComponentRenderer {
 		}
 		gl.glEnd();
 	}
-
+	*/
 	private void renderTransition(GL2 gl, Transition t, Surface which) {
 
 		if (which == Surface.OUTSIDE || which == Surface.INSIDE) {

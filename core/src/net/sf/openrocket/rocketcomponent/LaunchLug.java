@@ -8,6 +8,7 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -186,13 +187,10 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	public double getComponentVolume() {
 		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness));
 	}
-	
+
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
-		addBound(set, 0, radius);
-		addBound(set, length, radius);
-		return set;
+	public BoundingBox getBoundingBox() {
+		return new BoundingBox(0, length, radius);
 	}
 	
 	@Override

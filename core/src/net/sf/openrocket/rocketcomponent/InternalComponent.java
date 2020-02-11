@@ -2,6 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
+import net.sf.openrocket.util.BoundingBox;
 
 /**
  * A component internal to the rocket.  Internal components have no effect on the
@@ -33,6 +34,15 @@ public abstract class InternalComponent extends RocketComponent implements Axial
 	@Override
 	public final boolean isAerodynamic() {
 		return false;
+	}
+
+	/**
+	 * An internal component can't extend beyond the bounding box established by external components
+	 * Return an empty bounding box to simplify methods calling us.
+	 */
+	@Override
+	public BoundingBox getBoundingBox() {
+		return new BoundingBox();
 	}
 
 	/**

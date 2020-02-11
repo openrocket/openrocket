@@ -163,14 +163,6 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	}
 	
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
-		addBound(bounds, 0, getOuterRadius());
-		addBound(bounds, length, getOuterRadius());
-		return bounds;
-	}
-	
-	@Override
 	public Coordinate getComponentCG() {
 		Coordinate cg = Coordinate.ZERO;
 		final int instanceCount = getInstanceCount();
@@ -194,7 +186,6 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		return ringMass(getOuterRadius(), getInnerRadius(), getLength(),
 				getMaterial().getDensity()) * getInstanceCount();
 	}
-	
 	
 	@Override
 	public double getLongitudinalUnitInertia() {

@@ -49,6 +49,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -468,64 +469,21 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		redrawExtras = true;
 	}
 	
-	@SuppressWarnings("unused")
-	private static class Bounds {
-		double xMin, xMax, xSize;
-		double yMin, yMax, ySize;
-		double zMin, zMax, zSize;
-		double rMax;
-	}
-	
-	private Bounds cachedBounds = null;
-	
-	/**
-	 * Calculates the bounds for the current configuration
-	 * 
-	 * @return
-	 */
-	private Bounds calculateBounds() {
-		if (cachedBounds != null) {
-			return cachedBounds;
-		} else {
-			final Bounds b = new Bounds();
-			final FlightConfiguration configuration = rkt.getSelectedConfiguration();
-			final Collection<Coordinate> bounds = configuration.getBounds();
-			for (Coordinate c : bounds) {
-				b.xMax = Math.max(b.xMax, c.x);
-				b.xMin = Math.min(b.xMin, c.x);
-				
-				b.yMax = Math.max(b.yMax, c.y);
-				b.yMin = Math.min(b.yMin, c.y);
-				
-				b.zMax = Math.max(b.zMax, c.z);
-				b.zMin = Math.min(b.zMin, c.z);
-				
-				double r = MathUtil.hypot(c.y, c.z);
-				b.rMax = Math.max(b.rMax, r);
-			}
-			b.xSize = b.xMax - b.xMin;
-			b.ySize = b.yMax - b.yMin;
-			b.zSize = b.zMax - b.zMin;
-			cachedBounds = b;
-			return b;
-		}
-	}
-	
 	private void setupView(final GL2 gl, final GLU glu) {
 		gl.glLoadIdentity();
 		
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION,
 				lightPosition, 0);
 		
-		// Get the bounds
-		final Bounds b = calculateBounds();
+		// Get the bounding box
+		final BoundingBox b = rkt.getSelectedConfiguration().getBoundingBox();
 		
 		// Calculate the distance needed to fit the bounds in both the X and Y
 		// direction
 		// Add 10% for space around it.
-		final double dX = (b.xSize * 1.2 / 2.0)
+		final double dX = (b.max.x * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovX / 2.0));
-		final double dY = (b.rMax * 2.0 * 1.2 / 2.0)
+		final double dY = (b.max.y * 2.0 * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovY / 2.0));
 		
 		// Move back the greater of the 2 distances
@@ -535,7 +493,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glRotated(roll * (180.0 / Math.PI), 1, 0, 0);
 		
 		// Center the rocket in the view.
-		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
+		//		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
+		gl.glTranslated((b.min.x - b.max.x) / 2.0, 0, 0);		
 		
 		//Change to LEFT Handed coordinates
 		gl.glScaled(1, 1, -1);
@@ -554,7 +513,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	 */
 	public void updateFigure() {
 		log.debug("3D Figure Updated");
-		cachedBounds = null;
 		if (canvas != null) {
 			((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
 				@Override

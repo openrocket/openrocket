@@ -14,7 +14,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 
@@ -34,6 +33,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;

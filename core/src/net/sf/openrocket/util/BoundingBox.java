@@ -17,6 +17,11 @@ public class BoundingBox {
 		this.min = _min.clone();
 		this.max = _max.clone();
 	}
+
+	public BoundingBox(double xmin, double xmax, double rad) {
+		min = new Coordinate(xmin, -rad, -rad);
+		max = new Coordinate(xmax, rad, rad);
+	}
 	
 	public void clear() {
 		min = Coordinate.MAX.setWeight( 0.0);
@@ -113,8 +118,14 @@ public class BoundingBox {
 		update_z_max(other.max.z);
 		return this;
 	}
-	
-	public Coordinate span() { return max.sub( min ); }
+
+	public Coordinate span() {
+		Coordinate tmp = max.sub( min );
+		return new Coordinate(Math.max(tmp.x, 0.0),
+							  Math.max(tmp.y, 0.0),
+							  Math.max(tmp.z, 0.0),
+							  Math.max(tmp.weight, 0.0));
+	}
 
 	public Coordinate[] toArray() {
 		return new Coordinate[] { this.min, this.max };
