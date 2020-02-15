@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -83,6 +82,9 @@ public class Sleeve extends RingComponent {
 		thickness = t;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
+	
+	
+
 
 	@Override
 	public void setInnerRadiusAutomatic(boolean auto) {

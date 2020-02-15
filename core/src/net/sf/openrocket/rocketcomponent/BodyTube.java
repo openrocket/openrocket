@@ -10,7 +10,6 @@ import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -297,7 +296,52 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	private static double getFilledVolume(double r, double l) {
 		return Math.PI * r * r * l;
 	}
+	
+	
+	/**
+	 * Adds bounding coordinates to the given set.  The body tube will fit within the
+	 * convex hull of the points.
+	 *
+	 * Currently the points are simply a rectangular box around the body tube.
+	 */
+	@Override
+	public Collection<Coordinate> getComponentBounds() {
+		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		double x_min_shape = 0;
+		double x_max_shape = this.length;
+		double r_max_shape = getOuterRadius();
 		
+		Coordinate[] locs = this.getLocations();
+		// not strictly accurate, but this should provide an acceptable estimate for total vehicle size
+		double x_min_inst = Double.MAX_VALUE;
+		double x_max_inst = Double.MIN_VALUE;
+		double r_max_inst = 0.0;
+		
+		// refactor: get component inherent bounds
+		for (Coordinate cur : locs) {
+			double x_cur = cur.x;
+			double r_cur = MathUtil.hypot(cur.y, cur.z);
+			if (x_min_inst > x_cur) {
+				x_min_inst = x_cur;
+			}
+			if (x_max_inst < x_cur) {
+				x_max_inst = x_cur;
+			}
+			if (r_cur > r_max_inst) {
+				r_max_inst = r_cur;
+			}
+		}
+		
+		// combine the position bounds with the inherent shape bounds
+		double x_min = x_min_shape + x_min_inst;
+		double x_max = x_max_shape + x_max_inst;
+		double r_max = r_max_shape + r_max_inst;
+		
+		addBoundingBox(bounds, x_min, x_max, r_max);
+		return bounds;
+	}
+	
+	
 	/**
 	 * Check whether the given type can be added to this component.  BodyTubes allow any
 	 * InternalComponents or ExternalComponents, excluding BodyComponents, to be added.

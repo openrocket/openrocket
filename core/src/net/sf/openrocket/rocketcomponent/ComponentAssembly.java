@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -46,6 +45,14 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	@Override
 	public double getAxialOffset() {
 		return getAxialOffset( this.axialMethod );
+	}
+
+	/**
+	 * Null method (ComponentAssembly has no bounds of itself).
+	 */
+	@Override
+	public Collection<Coordinate> getComponentBounds() {
+		return Collections.emptyList();
 	}
 	
 	/**
@@ -99,17 +106,6 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 			outerRadius = Math.max( outerRadius, thisRadius);
 		}
 		return outerRadius;
-	}
-
-	/**
-	 * We'll find the bounding box of a component by iterating an
-	 * InstanceMap, not by performing a treewalk of the component.
-	 * So, anything subclassed from a ComponentAssembly will just
-	 * return an empty bounding box
-	 */
-	@Override
-	public BoundingBox getBoundingBox() {
-		return new BoundingBox();
 	}
 	
 	/**

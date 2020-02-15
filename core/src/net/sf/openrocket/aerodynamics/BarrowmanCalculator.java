@@ -2,6 +2,7 @@ package net.sf.openrocket.aerodynamics;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,7 +23,6 @@ import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
@@ -95,6 +95,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		// Calculate non-axial force data
 		AerodynamicForces total = calculateNonAxialForces(configuration, conditions, map, warnings);
+		
 		
 		// Calculate friction data
 		total.setFrictionCD(calculateFrictionDrag(configuration, conditions, map, warnings));
@@ -172,6 +173,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
+		
 		
 		if( ! isContinuous(  configuration.getRocket() ) ){
 			warnings.add( Warning.DIAMETER_DISCONTINUITY);

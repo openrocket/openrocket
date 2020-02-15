@@ -56,6 +56,24 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 * not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
+	 */
+	@Override
+	public Collection<Coordinate> getComponentBounds() {
+		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		Coordinate[] instanceLocations = this.getInstanceLocations();
+		double x_min = instanceLocations[0].x;
+		double x_max = x_min + this.length;
+		double r_max = 0;
+		
+		addBound(bounds, x_min, r_max);
+		addBound(bounds, x_max, r_max);
+		
+		return bounds;
+	}
+	
+	/**
 	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
 	 *
