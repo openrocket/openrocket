@@ -52,7 +52,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -93,6 +92,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			@Override
 			public boolean run(final GLAutoDrawable drawable) {
 				PhotoPanel.this.configuration = doc.getSelectedConfiguration();
+				cachedBounds = null;
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);
 
@@ -246,11 +246,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		draw(drawable, 0);
 
 		if (p.isMotionBlurred()) {
-			BoundingBox b = configuration.getBoundingBox();
+			Bounds b = calculateBounds();
 
 			float m = .6f;
 			int c = 10;
-			float d = (float) (b.max.x - b.min.x) / 25.0f;
+			float d = (float) b.xSize / 25.0f;
 
 			gl.glAccum(GL2.GL_LOAD, m);
 
@@ -391,11 +391,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_SPECULAR,
 					new float[] { color[0], color[1], color[2], 1 }, 0);
 
-			BoundingBox b = configuration.getBoundingBox();
+			Bounds b = calculateBounds();
 			gl.glLightf(GLLightingFunc.GL_LIGHT2,
 					GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20f);
 			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_POSITION,
-					new float[] { (float) (b.max.x + .1f), 0, 0, 1 }, 0);
+					new float[] { (float) (b.xMax + .1f), 0, 0, 1 }, 0);
 			gl.glEnable(GLLightingFunc.GL_LIGHT2);
 		} else {
 			gl.glDisable(GLLightingFunc.GL_LIGHT2);
@@ -478,14 +478,56 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		ratio = (double) w / (double) h;
 	}
 
+	@SuppressWarnings("unused")
+	private static class Bounds {
+		double xMin, xMax, xSize;
+		double yMin, yMax, ySize;
+		double zMin, zMax, zSize;
+		double rMax;
+	}
+
+	private Bounds cachedBounds = null;
+
+	/**
+	 * Calculates the bounds for the current configuration
+	 * 
+	 * @return
+	 */
+	private Bounds calculateBounds() {
+		if (cachedBounds != null) {
+			return cachedBounds;
+		} else {
+			final Bounds b = new Bounds();
+			final Collection<Coordinate> bounds = configuration.getBounds();
+			for (Coordinate c : bounds) {
+				b.xMax = Math.max(b.xMax, c.x);
+				b.xMin = Math.min(b.xMin, c.x);
+
+				b.yMax = Math.max(b.yMax, c.y);
+				b.yMin = Math.min(b.yMin, c.y);
+
+				b.zMax = Math.max(b.zMax, c.z);
+				b.zMin = Math.min(b.zMin, c.z);
+
+				double r = MathUtil.hypot(c.y, c.z);
+				b.rMax = Math.max(b.rMax, r);
+			}
+			b.xSize = b.xMax - b.xMin;
+			b.ySize = b.yMax - b.yMin;
+			b.zSize = b.zMax - b.zMin;
+			cachedBounds = b;
+			return b;
+		}
+	}
+
 	private void setupModel(final GL2 gl) {
+		// Get the bounds
+		final Bounds b = calculateBounds();
 		gl.glRotated(-p.getPitch() * (180.0 / Math.PI), 0, 0, 1);
 		gl.glRotated(p.getYaw() * (180.0 / Math.PI), 0, 1, 0);
 		gl.glRotated(p.getRoll() * (180.0 / Math.PI), 1, 0, 0);
-		
 		// Center the rocket in the view.
-		final BoundingBox b = configuration.getBoundingBox();
-		gl.glTranslated((b.min.x - b.max.x) / 2.0, 0, 0);		
+		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
 	}
 
 }

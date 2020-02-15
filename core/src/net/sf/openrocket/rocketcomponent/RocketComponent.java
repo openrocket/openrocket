@@ -19,7 +19,6 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Color;
@@ -223,13 +222,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Return bounding box of component.
+	 * Return a collection of bounding coordinates.  The coordinates must be such that
+	 * the component is fully enclosed in their convex hull.
 	 * 
 	 * Note: this function gets the bounds only for this component.  Subchildren must be called individually.
 	 *
 	 * @return	a collection of coordinates that bound the component.
 	 */
-	public abstract BoundingBox getBoundingBox();
+	public abstract Collection<Coordinate> getComponentBounds();
 	
 	/**
 	 * Return true if the component may have an aerodynamic effect on the rocket.
@@ -1902,9 +1902,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Helper method to add two points on opposite corners of a box
-	 * around the component centerline.  This box will be (x_max -
-	 * x_min) long, and 2*r wide/high.
+	 * Helper method to add two points on opposite corners of a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
 	 */
 	protected static final void addBoundingBox(Collection<Coordinate> bounds, double x_min, double x_max, double r) {
 		bounds.add(new Coordinate(x_min, -r, -r));

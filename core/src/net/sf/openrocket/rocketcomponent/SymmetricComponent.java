@@ -8,7 +8,6 @@ import java.util.List;
 
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -134,17 +133,24 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();
 	}
-
+	
+	
 	/**
-	 * Are there any components whose max diameter isn't at either the
-	 * fore or aft end?  I don't know of any.
+	 * Adds component bounds at a number of points between 0...length.
 	 */
 	@Override
-	public BoundingBox getBoundingBox() {
-		return new BoundingBox(0, getLength(), 
-							   Math.max(getForeRadius(), getAftRadius()));
+	public Collection<Coordinate> getComponentBounds() {
+		List<Coordinate> list = new ArrayList<Coordinate>(20);
+		for (int n = 0; n <= 5; n++) {
+			double x = n * length / 5;
+			double r = getRadius(x);
+			addBound(list, x, r);
+		}
+		return list;
 	}
 	
+	
+
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		if ( preset.has(ComponentPreset.THICKNESS) ) {

@@ -63,7 +63,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	
 	private int boundsModID = -1;
-	private BoundingBox cachedBoundingBox = new BoundingBox();
+	private BoundingBox cachedBounds = new BoundingBox();
 	private double cachedLength = -1;
 	
 	private int refLengthModID = -1;
@@ -501,6 +501,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return isComponentActive( (RocketComponent) c);
 	}
 	
+	/**
+	 * Return the bounds of the current configuration.  The bounds are cached.
+	 * 
+	 * @return	a <code>Collection</code> containing coordinates bounding the rocket.
+	 * 
+	 * @deprecated Migrate to <FlightConfiguration>.getBoundingBox(), when practical.
+	 */
+	@Deprecated 
+	public Collection<Coordinate> getBounds() {
+		return getBoundingBox().toCollection();
+	}
+	
 	/** 
 	 * Return the bounding box of the current configuration.  
 	 * 
@@ -508,34 +520,22 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public BoundingBox getBoundingBox() {
 		if (rocket.getModID() != boundsModID) {
-			calculateBoundingBox();
+			calculateBounds();
 		}
-		return cachedBoundingBox;
+		return cachedBounds;
 	}
 
-	private void calculateBoundingBox(){
+	private void calculateBounds(){
 		BoundingBox bounds = new BoundingBox();
-
-		// iterate through all components
-		final InstanceMap imap = this.getActiveInstances();
-	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
-			final RocketComponent comp = entry.getKey();
-			if (this.isComponentActive(comp)) {
-
-				// iterate across all componenent instances
-				final ArrayList<InstanceContext> contextList = entry.getValue();
-				
-				for(InstanceContext context: contextList ) {
-					BoundingBox instanceBox = new BoundingBox(context.transform.transform(comp.getBoundingBox().min),
-															  context.transform.transform(comp.getBoundingBox().max));
-					bounds.update(instanceBox);
-				}
-			}
+			
+		for (RocketComponent component : this.getActiveComponents()) {
+			BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());
+			bounds.update( componentBounds );
 		}
 
 		boundsModID = rocket.getModID();
 		cachedLength = bounds.span().x;
-		cachedBoundingBox.update( bounds );
+		cachedBounds.update( bounds );
 	}
 	
 	/**
@@ -546,7 +546,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public double getLength() {
 		if (rocket.getModID() != boundsModID) {
-			calculateBoundingBox();
+			calculateBounds();
 		}
 		return cachedLength;
 	}
@@ -567,7 +567,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
 		clone.setName(configurationName);
 		
-        clone.cachedBoundingBox = this.cachedBoundingBox.clone();
+        clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
@@ -594,7 +594,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
             cloneMotor.getMount().setMotorConfig(cloneMotor, copyId);
         }
 
-        copy.cachedBoundingBox = this.cachedBoundingBox.clone();
+        copy.cachedBounds = this.cachedBounds.clone();
         copy.modID = this.modID;
         copy.boundsModID = -1;
         copy.refLengthModID = -1;

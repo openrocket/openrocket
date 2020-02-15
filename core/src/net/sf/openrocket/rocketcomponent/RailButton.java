@@ -11,7 +11,6 @@ import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -233,13 +232,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public Type getPresetType() {
 		return ComponentPreset.Type.RAIL_BUTTON;
 	}
-
-	@Override
-	public BoundingBox getBoundingBox() {
-		final double r = outerDiameter_m / 2.0;
-		return new BoundingBox(new Coordinate(-r, -r, 0),
-							   new Coordinate(r, r, totalHeight_m));
-	}
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -294,6 +286,21 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-Line");
+	}
+
+	@Override
+	public Collection<Coordinate> getComponentBounds() {
+		final double r = outerDiameter_m / 2.0;
+		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		set.add(new Coordinate(r, totalHeight_m, r));
+		set.add(new Coordinate(r, totalHeight_m, -r));
+		set.add(new Coordinate(r, 0, r));
+		set.add(new Coordinate(r, 0, -r));
+		set.add(new Coordinate(-r, 0, r));
+		set.add(new Coordinate(-r, 0, -r));
+		set.add(new Coordinate(-r, totalHeight_m, r));
+		set.add(new Coordinate(-r, totalHeight_m, -r));
+		return set;
 	}
 	
 	@Override

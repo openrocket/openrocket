@@ -130,7 +130,11 @@ public class SimulationStatus implements Monitorable {
 			}
 		}
 		if (!Double.isNaN(lugPosition)) {
-			double maxX = this.configuration.getBoundingBox().max.x;
+			double maxX = 0;
+			for (Coordinate c : this.configuration.getBounds()) {
+				if (c.x > maxX)
+					maxX = c.x;
+			}
 			if (maxX >= lugPosition) {
 				length = Math.max(0, length - (maxX - lugPosition));
 			}

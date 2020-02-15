@@ -61,6 +61,10 @@ public class RocketInfo implements FigureElement {
 	private float line = 0;
 	private float x1, x2, y1, y2;
 	
+	
+	
+	
+	
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);

@@ -44,6 +44,33 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		return trans.get("BoosterSet.BoosterSet");
 	}
 	
+	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
+	@Override
+	public Collection<Coordinate> getComponentBounds() {
+		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		double x_min = Double.MAX_VALUE;
+		double x_max = Double.MIN_VALUE;
+		double r_max = 0;
+		
+		Coordinate[] instanceLocations = this.getComponentLocations();
+		
+		for (Coordinate currentInstanceLocation : instanceLocations) {
+			if (x_min > (currentInstanceLocation.x)) {
+				x_min = currentInstanceLocation.x;
+			}
+			if (x_max < (currentInstanceLocation.x + this.length)) {
+				x_max = currentInstanceLocation.x + this.length;
+			}
+			if (r_max < (this.getRadiusOffset())) {
+				r_max = this.getRadiusOffset();
+			}
+		}
+		addBound(bounds, x_min, r_max);
+		addBound(bounds, x_max, r_max);
+		
+		return bounds;
+	}
+	
 	/**
 	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
