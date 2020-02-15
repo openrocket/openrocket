@@ -70,6 +70,9 @@ public class SimulationStatus implements Monitorable {
 	
 	/** Set to true to indicate the rocket is tumbling. */
 	private boolean tumbling = false;
+
+	/** Set to true to indicate rocket has landed */
+	private boolean landed = false;
 	
 	/** Contains a list of deployed recovery devices. */
 	private MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
@@ -175,6 +178,7 @@ public class SimulationStatus implements Monitorable {
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
 		this.tumbling = orig.tumbling;
+		this.landed = orig.landed;
 		
 		this.configuration.copyStages(orig.configuration);
 		
@@ -391,6 +395,15 @@ public class SimulationStatus implements Monitorable {
 	
 	public boolean isTumbling() {
 		return tumbling;
+	}
+
+	public void setLanded(boolean landed) {
+		this.landed = landed;
+		this.modID++;
+	}
+
+	public boolean isLanded() {
+		return landed;
 	}
 	
 	public double getMaxAlt() {

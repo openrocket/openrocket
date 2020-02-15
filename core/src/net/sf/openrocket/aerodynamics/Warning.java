@@ -3,6 +3,7 @@ package net.sf.openrocket.aerodynamics;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class Warning {
@@ -118,6 +119,41 @@ public abstract class Warning {
 			return trans.get("Warning.RECOVERY_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
 		}
 		
+		@Override
+		public boolean replaceBy(Warning other) {
+			return false;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating flight events occurred after ground hit
+	 *
+	 */
+	public static class EventAfterLanding extends Warning {
+		private FlightEvent event;
+		
+		/**
+		 * Sole constructor.  The argument is an event which has occurred after landing
+		 *
+		 * @param event the event that caused this warning
+		 */
+		public EventAfterLanding(FlightEvent _event)  {
+			this.event = _event;
+		}
+
+		// I want a warning on every event that occurs after we land,
+		// so severity of problem is clear to the user
+		@Override
+		public boolean equals(Object o) {
+			return false;
+		}
+		
+
+		@Override
+		public String toString() {
+			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
+		}
+
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
@@ -350,5 +386,7 @@ public abstract class Warning {
 	public static final Warning RECOVERY_LAUNCH_ROD = new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
 	
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
+
+	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"));
 	
 }
