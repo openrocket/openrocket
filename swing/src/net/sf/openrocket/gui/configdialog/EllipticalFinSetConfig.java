@@ -69,14 +69,14 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(label);
 		
 		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE,
-				-FinSet.MAX_CANT, FinSet.MAX_CANT);
+				-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT, FinSet.MAX_CANT)),
+		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
 				"w 100lp, wrap");
 		
 		

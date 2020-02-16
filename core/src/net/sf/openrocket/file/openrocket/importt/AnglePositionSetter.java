@@ -20,9 +20,9 @@ class AnglePositionSetter implements Setter {
 		
 		double pos;
 		try {
-			pos = Double.parseDouble(value) * Math.PI / 180.0 ;
+			pos = Math.toRadians(Double.parseDouble(value));
 		} catch (NumberFormatException e) {
-			warnings.add(String.format("Warning: invalid value radius position. value=%s    class: %s", value, c.getClass().getCanonicalName() ));
+			warnings.add(String.format("Warning: invalid angle position. value=%s  (degrees)  class: %s", value, c.getClass().getCanonicalName() ));
 			return;
 		}
 

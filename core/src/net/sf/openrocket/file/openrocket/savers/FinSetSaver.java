@@ -20,7 +20,7 @@ public class FinSetSaver extends ExternalComponentSaver {
 		elements.add("<thickness>" + fins.getThickness() + "</thickness>");
 		elements.add("<crosssection>" + fins.getCrossSection().name().toLowerCase(Locale.ENGLISH)
 				+ "</crosssection>");
-		elements.add("<cant>" + (fins.getCantAngle() * 180.0 / Math.PI) + "</cant>");
+		elements.add("<cant>" + Math.toDegrees(fins.getCantAngle()) + "</cant>");
 		
 		// Save fin tabs only if they exist (compatibility with file version < 1.1)
 		if (!MathUtil.equals(fins.getTabHeight(), 0) &&

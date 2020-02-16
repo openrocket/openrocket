@@ -35,7 +35,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Maximum allowed cant of fins.
 	 */
-	public static final double MAX_CANT = (15.0 * Math.PI / 180);
+	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
 	
 	public enum CrossSection {
 		//// Square
@@ -78,13 +78,13 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
 	private AngleMethod angleMethod = AngleMethod.RELATIVE;
-	private double firstFinOffset = 0;
+	private double firstFinOffsetRadians = 0;
 	private Transformation baseRotation = Transformation.IDENTITY;  // initially, rotate by 0 degrees.
 
 	/**
 	 * Cant angle of fins.
 	 */
-	private double cantAngle = 0;
+	private double cantRadians = 0;
 	
 	/* Cached value: */
 	private Transformation cantRotation = null;
@@ -194,26 +194,33 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		setAngleOffset(r);
 	}
 	
+	/**
+	 * @return angle current cant angle, in radians 
+	 */
 	public double getCantAngle() {
-		return cantAngle;
+		return cantRadians;
 	}
 	
-	public void setCantAngle(double cant) {
-		cant = MathUtil.clamp(cant, -MAX_CANT, MAX_CANT);
-		if (MathUtil.equals(cant, cantAngle))
+	/**
+	 * 
+	 * @param cant -- new cant angle, in radians
+	 */
+	public void setCantAngle(final double newCantRadians) {
+		final double clampedCant = MathUtil.clamp(newCantRadians, -MAX_CANT_RADIANS, MAX_CANT_RADIANS);
+		if (MathUtil.equals(clampedCant, this.cantRadians))
 			return;
-		this.cantAngle = cant;
+		this.cantRadians = clampedCant;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	
 	public Transformation getCantRotation() {
 		if (cantRotation == null) {
-			if (MathUtil.equals(cantAngle, 0)) {
+			if (MathUtil.equals(this.cantRadians, 0)) {
 				cantRotation = Transformation.IDENTITY;
 			} else {
 				Transformation t = new Transformation(-length / 2, 0, 0);
-				t = Transformation.rotate_y(cantAngle).applyTransformation(t);
+				t = Transformation.rotate_y(cantRadians).applyTransformation(t);
 				t = new Transformation(length / 2, 0, 0).applyTransformation(t);
 				cantRotation = t;
 			}
@@ -928,16 +935,15 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	@Override
 	public double getAngleOffset() {
-		return firstFinOffset;
+		return firstFinOffsetRadians;
 	}
 
-
 	@Override
-	public void setAngleOffset(double angle) {
-		angle = MathUtil.reduce180(angle);
-		if (MathUtil.equals(angle, firstFinOffset))
+	public void setAngleOffset(final double angleRadians) {
+		final double reducedAngle = MathUtil.reducePI(angleRadians);
+		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
-		firstFinOffset = angle;
+		firstFinOffsetRadians = reducedAngle;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -947,13 +953,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	@Override
-	public double[] getInstanceAngles(){		
-		final double baseAngle = getAngleOffset();
-		final double incrAngle = getInstanceAngleIncrement();
+	public double[] getInstanceAngles() {
+		final double angleIncrementRadians = getInstanceAngleIncrement();
 		
 		double[] result = new double[ getFinCount()]; 
-		for( int i=0; i<getFinCount(); ++i){
-			result[i] = MathUtil.reduce360( baseAngle + incrAngle*i);
+		for( int finNumber=0; finNumber < getFinCount(); ++finNumber ){
+			result[finNumber] = MathUtil.reduce2PI( firstFinOffsetRadians + angleIncrementRadians*finNumber);
 		}
 		
 		return result;
@@ -1020,8 +1025,8 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		FinSet src = (FinSet) c;
 		this.finCount = src.finCount;
 		this.finRotation = src.finRotation;
-		this.firstFinOffset = src.firstFinOffset;
-		this.cantAngle = src.cantAngle;
+		this.firstFinOffsetRadians = src.firstFinOffsetRadians;
+		this.cantRadians = src.cantRadians;
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
 		this.crossSection = src.crossSection;
@@ -1066,7 +1071,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
-<<<<<<< HEAD
 	 * use this for calculating physical properties, and routine drawing
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
