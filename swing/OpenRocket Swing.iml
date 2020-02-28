@@ -35,15 +35,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module-library">
-      <library name="jogl-all.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jogl/jogl-all.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="iText-5.0.2.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/iText-5.0.2.jar!/" />
@@ -74,15 +65,6 @@
       <library name="OrangeExtensions-1.2.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/OrangeExtensions-1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="gluegen-rt.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jogl/gluegen-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -279,5 +261,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="jogl" level="project" />
   </component>
 </module>

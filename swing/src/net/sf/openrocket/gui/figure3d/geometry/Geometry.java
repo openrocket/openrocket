@@ -6,7 +6,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Transformation;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 
 /*

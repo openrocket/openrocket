@@ -14,18 +14,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.GLRunnable;
-import javax.media.opengl.awt.GLCanvas;
-import javax.media.opengl.awt.GLJPanel;
-import javax.media.opengl.fixedfunc.GLLightingFunc;
-import javax.media.opengl.fixedfunc.GLMatrixFunc;
-import javax.media.opengl.glu.GLU;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.GLRunnable;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
+import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+import com.jogamp.opengl.glu.GLU;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -266,7 +266,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			BufferedImage i = (new AWTGLReadBufferUtil(
 					GLProfile.get(GLProfile.GL2), false))
 					.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
-							drawable.getWidth(), drawable.getHeight(), true);
+							drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
 			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
 					imageCallbacks);
 			imageCallbacks.clear();
