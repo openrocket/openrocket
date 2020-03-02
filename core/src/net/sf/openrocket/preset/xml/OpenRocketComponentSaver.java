@@ -198,6 +198,8 @@ public class OpenRocketComponentSaver {
                 return new EngineBlockDTO(thePreset);
             case LAUNCH_LUG:
                 return new LaunchLugDTO(thePreset);
+            case RAIL_BUTTON:
+            	return new RailButtonDTO(thePreset);
             case STREAMER:
                 return new StreamerDTO(thePreset);
             case PARACHUTE:

@@ -5,6 +5,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Transition;
 
 public abstract class ComponentPresetFactory {
@@ -67,6 +68,10 @@ public abstract class ComponentPresetFactory {
 			makeBodyTube(exceptions, preset);
 			break;
 		}
+		case RAIL_BUTTON: {
+			makeRailButton(exceptions, preset);
+			break;
+		}
 		case STREAMER: {
 			makeStreamer(exceptions, preset);
 			break;
@@ -106,6 +111,30 @@ public abstract class ComponentPresetFactory {
 		}
 		
 		
+	}
+	
+	private static void makeRailButton(InvalidComponentPresetException exceptions, ComponentPreset preset) throws InvalidComponentPresetException {
+		
+		checkRequiredFields(exceptions, preset, HEIGHT);
+		checkRequiredFields(exceptions, preset, OUTER_DIAMETER);
+		checkRequiredFields(exceptions, preset, INNER_DIAMETER);
+		checkRequiredFields(exceptions, preset, FLANGE_HEIGHT);
+		checkRequiredFields(exceptions, preset, STANDOFF_HEIGHT);
+		
+		if (preset.has(MASS)) {
+			double mass = preset.get(MASS);
+			RailButton rb = new RailButton();
+			rb.loadPreset(preset);
+			double density = mass / rb.getComponentVolume();
+			
+			String materialName = "RailButtonCustom";
+			if (preset.has(MATERIAL)) {
+				materialName = preset.get(MATERIAL).getName();
+			}
+			
+			Material m = Databases.findMaterial(Material.Type.BULK,  materialName, density);
+			preset.put(MATERIAL, m);
+		}
 	}
 	
 	private static void makeNoseCone(InvalidComponentPresetException exceptions, ComponentPreset preset) {
