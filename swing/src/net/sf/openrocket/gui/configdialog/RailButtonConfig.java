@@ -43,6 +43,9 @@ public class RailButtonConfig extends RocketComponentConfig {
 	}
 	
 	private JPanel buttonTab( final RailButton rbc ){
+		
+		JPanel primary = new JPanel(new MigLayout("fill")); 
+		
 		JPanel panel = new JPanel( new MigLayout());
 		
 			
@@ -75,12 +78,16 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider( angleModel.getSliderModel(-180, 180)), "w 100lp, wrap");
 		}
 		
+		primary.add(panel, "grow, gapright 201p");
+		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
+		
+		
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
 			
 			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 			JComboBox<AxialMethod> relToCombo = new JComboBox<AxialMethod>( methodModel );
-			panel.add( relToCombo, "growx, wrap rel");
+			panel.add( relToCombo, "spanx, growx, wrap");
 		}
 			
 		{ //// plus
@@ -90,20 +97,30 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
 			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
 			panel.add(offsetSpinner, "growx");
-			panel.add(new UnitSelector( offsetModel), "growx");
-			panel.add(new BasicSlider( offsetModel.getSliderModel(0, parentLength)), "w 100lp, wrap para");
+			panel.add(new UnitSelector(offsetModel), "growx");
+			panel.add(new BasicSlider(offsetModel.getSliderModel(
+					new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
+					new DoubleModel(component.getParent(), "Length"))),
+					"w 100lp, wrap para");
 			
 		}
 		
 		//// Material
-		panel.add( instanceablePanel(rbc), "cell 4 0, spany 3, wrap para");
+		/* TODO (wolsen) confirm this removal
+		 * I think the instanceablePanel should be removed and doesn't make much sense. I understand
+		 * the idea that you may want to say "I have 2 rail buttons, 12 inches apart". I think in reality
+		 * that most people would add 2 (or more) individual rail buttons at specific locations on the
+		 * rocket. That will keep consistency with other components such as launch lugs.
+		 */
+		//panel.add( instanceablePanel(rbc), "cell 4 0, spany 3, wrap para");
 		
 		
 		//// Material
-		panel.add(materialPanel(Material.Type.BULK),"cell 4 2, spany 2, gapleft paragraph, aligny 0%, growy");
-				// ... spany");
+		panel.add(materialPanel(Material.Type.BULK),"span, wrap");
 		
-		return panel;
+		primary.add(panel, "grow");
+		
+		return primary;
 	}
 	
 	@Override

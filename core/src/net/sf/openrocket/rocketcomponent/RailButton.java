@@ -16,7 +16,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 /** 
- * WARNING:  This class is only partially implemented.  Recomend a bit of testing before you attach it to the GUI.
+ * WARNING:  This class is only partially implemented.  Recommend a bit of testing before you attach it to the GUI.
  * @author widget (Daniel Williams)
  *
  */
@@ -59,12 +59,12 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	public RailButton(){
 		super(AxialMethod.MIDDLE);
-		this.outerDiameter_m = 1.0;
-		this.totalHeight_m = 1.0;		
-		this.innerDiameter_m = 0.8;
+		this.outerDiameter_m = 0.0097;
+		this.totalHeight_m = 0.0097;		
+		this.innerDiameter_m = 0.008;
 		this.flangeHeight_m = 0.002;
 		this.setStandoff( 0.002);
-		this.setInstanceSeparation( 1.0);
+		this.setInstanceSeparation( this.outerDiameter_m * 6);
 	}
 	
 	public RailButton( final double od, final double ht ) {
