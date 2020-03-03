@@ -200,6 +200,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> LINE_LENGTH = new TypedKey<Double>("LineLength", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Material> LINE_MATERIAL = new TypedKey<Material>("LineMaterial", Material.class);
 	public final static TypedKey<byte[]> IMAGE = new TypedKey<byte[]>("Image", byte[].class);
+	public final static TypedKey<Double> STANDOFF_HEIGHT = new TypedKey<Double>("StandoffHeight", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> FLANGE_HEIGHT = new TypedKey<Double>("FlangeHeight", Double.class, UnitGroup.UNITS_LENGTH);
 
 	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.<TypedKey<?>> asList(
 			MANUFACTURER,
@@ -215,6 +217,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			AFT_SHOULDER_LENGTH,
 			FORE_SHOULDER_DIAMETER,
 			FORE_SHOULDER_LENGTH,
+			STANDOFF_HEIGHT,
+			FLANGE_HEIGHT,
 			SHAPE,
 			THICKNESS,
 			FILLED,

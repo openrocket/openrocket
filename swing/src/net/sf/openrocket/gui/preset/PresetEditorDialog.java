@@ -168,6 +168,17 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private ImageIcon llImage;
 	private JButton llImageBtn;
 	
+	private JTextField rbPartNoTextField;
+	private JTextField rbDescTextField;
+	private DoubleModel rbOuterDia;
+	private DoubleModel rbInnerDia;
+	private DoubleModel rbHeight;
+	private DoubleModel rbStandoffHeight;
+	private DoubleModel rbFlangeHeight;
+	private DoubleModel rbMass;
+	private ImageIcon rbImage;
+	private JButton rbImageBtn;
+	
 	private JTextField stPartNoTextField;
 	private JTextField stDescTextField;
 	private DoubleModel stThickness;
@@ -204,6 +215,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private static final String BULKHEAD_KEY = "Bulkhead.Bulkhead";
 	private static final String EB_KEY = "ComponentIcons.Engineblock";
 	private static final String LAUNCH_LUG_KEY = "ComponentIcons.Launchlug";
+	private static final String RAIL_BUTTON_KEY = "ComponentIcons.RailButton";
 	private static final String STREAMER_KEY = "ComponentIcons.Streamer";
 	private static final String PARACHUTE_KEY = "ComponentIcons.Parachute";
 	
@@ -217,6 +229,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		componentMap.put(trans.get(BULKHEAD_KEY), "BULKHEAD");
 		componentMap.put(trans.get(EB_KEY), "ENGINEBLOCK");
 		componentMap.put(trans.get(LAUNCH_LUG_KEY), "LAUNCHLUG");
+		componentMap.put(trans.get(RAIL_BUTTON_KEY), "RAILBUTTON");
 		componentMap.put(trans.get(PARACHUTE_KEY), "PARACHUTE");
 		componentMap.put(trans.get(STREAMER_KEY), "STREAMER");
 	}
@@ -961,6 +974,103 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			});
 		}
 		
+		// Railbutton
+		{
+			JPanel rbPanel = new JPanel();
+			componentOverlayPanel.add(rbPanel, "RAILBUTTON");
+			rbPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
+			JLabel rbPartNoLabel = new JLabel("Part No:");
+			rbPanel.add(rbPartNoLabel, "cell 0 0,alignx left");
+			
+			rbPartNoTextField = new JTextField();
+			rbPanel.add(rbPartNoTextField, "cell 1 0,growx");
+			rbPartNoTextField.setColumns(10);
+			
+			JLabel rbDescLabel = new JLabel("Description:");
+			rbPanel.add(rbDescLabel, "cell 3 0,alignx left");
+			
+			rbDescTextField = new JTextField();
+			rbPanel.add(rbDescTextField, "cell 4 0,growx");
+			rbDescTextField.setColumns(10);
+			
+			JLabel rbOuterDiaLabel = new JLabel("Outer Dia.:");
+			rbPanel.add(rbOuterDiaLabel, "cell 0 1,alignx left");
+			
+			rbOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
+			JSpinner spin = new JSpinner(rbOuterDia.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 1 1, growx");
+			rbPanel.add(new UnitSelector(rbOuterDia), "growx");
+			
+			JLabel rbMassLabel = new JLabel("Mass:");
+			rbPanel.add(rbMassLabel, "cell 3 1,alignx left");
+			
+			rbMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
+			spin = new JSpinner(rbMass.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 4 1, growx");
+			rbPanel.add(new UnitSelector(llMass), "w 34lp!");
+			
+			JLabel rbInnerDiaLabel = new JLabel("Inner Dia.:");
+			rbPanel.add(rbInnerDiaLabel, "cell 0 2,alignx left");
+			
+			rbInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
+			spin = new JSpinner(rbInnerDia.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 1 2, growx");
+			rbPanel.add(new UnitSelector(rbInnerDia), "growx");
+			
+			JLabel rbHeightLabel = new JLabel("Height:");
+			rbPanel.add(rbHeightLabel, "cell 3 2,alignx left");
+			
+			rbHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
+			spin = new JSpinner(rbHeight.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 4 2, growx");
+			rbPanel.add(new UnitSelector(rbHeight), "w 34lp!");
+			
+			JLabel rbStandoffLabel = new JLabel("Standoff:");
+			rbPanel.add(rbStandoffLabel, "cell 0 3,alignx left");
+			
+			rbStandoffHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
+			spin = new JSpinner(rbStandoffHeight.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 1 3, growx");
+			rbPanel.add(new UnitSelector(rbStandoffHeight), "growx");
+			
+			JLabel rbFlangeLabel = new JLabel("Flange:");
+			rbPanel.add(rbFlangeLabel, "cell 3 3,alignx left");
+			
+			rbFlangeHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
+			spin = new JSpinner(rbFlangeHeight.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			rbPanel.add(spin, "cell 4 3, growx");
+			rbPanel.add(new UnitSelector(rbFlangeHeight), "w 34lp!");
+			
+			JPanel panel = new JPanel();
+			panel.setMinimumSize(new Dimension(200, 200));
+			rbPanel.add(panel, "cell 4 4");
+			panel.setLayout(null);
+			rbImageBtn = new JButton("No Image");
+			rbImageBtn.setMaximumSize(new Dimension(75, 75));
+			rbImageBtn.setMinimumSize(new Dimension(75, 75));
+			panel.add(rbImageBtn);
+			rbImageBtn.setBounds(new Rectangle(6, 6, 132, 145));
+			
+			rbImageBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
+					
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = imageChooser.getSelectedFile();
+						rbImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
+						rbImageBtn.setIcon(rbImage);
+					}
+				}
+			});
+		}
+		
 		{
 			JPanel stPanel = new JPanel();
 			componentOverlayPanel.add(stPanel, "STREAMER");
@@ -1188,6 +1298,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		cb.addItem(trans.get(TRANSITION_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.TRANSITION));
 		cb.addItem(trans.get(TUBE_COUPLER_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.TUBE_COUPLER));
 		cb.addItem(trans.get(LAUNCH_LUG_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.LAUNCH_LUG));
+		cb.addItem(trans.get(RAIL_BUTTON_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.RAIL_BUTTON));
 		cb.addItem(trans.get(PARACHUTE_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.PARACHUTE));
 		cb.addItem(trans.get(STREAMER_KEY), preset != null && !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.STREAMER));
 	}
@@ -1447,6 +1558,41 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				llImageBtn.setIcon(llImage);
 			}
 			break;
+		case RAIL_BUTTON:
+			setMaterial(materialChooser, preset, matHolder, Material.Type.BULK, ComponentPreset.MATERIAL);
+			typeCombo.setSelectedItem(trans.get(RAIL_BUTTON_KEY));
+			rbDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
+			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+				rbInnerDia.setValue(preset.get(ComponentPreset.INNER_DIAMETER));
+				rbInnerDia.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+				rbOuterDia.setValue(preset.get(ComponentPreset.OUTER_DIAMETER));
+				rbOuterDia.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.HEIGHT)) {
+				rbHeight.setValue(preset.get(ComponentPreset.HEIGHT));
+				rbHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.STANDOFF_HEIGHT)) {
+				rbStandoffHeight.setValue(preset.get(ComponentPreset.STANDOFF_HEIGHT));
+				rbStandoffHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
+				rbFlangeHeight.setValue(preset.get(ComponentPreset.FLANGE_HEIGHT));
+				rbFlangeHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.MASS)) {
+				rbMass.setValue(preset.get(ComponentPreset.MASS));
+				rbMass.setCurrentUnit(UnitGroup.UNITS_MASS.getDefaultUnit());
+			}
+
+			rbPartNoTextField.setText(preset.get(ComponentPreset.PARTNO));
+			if (preset.has(ComponentPreset.IMAGE)) {
+				rbImage = new ImageIcon(byteArrayToImage(preset.get(ComponentPreset.IMAGE)));
+				rbImageBtn.setIcon(llImage);
+			}
+			break;
 		case PARACHUTE:
 			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
 			typeCombo.setSelectedItem(trans.get(PARACHUTE_KEY));
@@ -1577,6 +1723,12 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			result = extractLaunchLug();
 			if (result != null) {
 				clearLaunchLug();
+			}
+		}
+		else if (type.equals(trans.get(RAIL_BUTTON_KEY))) {
+			result = extractRailButton();
+			if (result != null) {
+				clearRailButton();
 			}
 		}
 		else if (type.equals(trans.get(PARACHUTE_KEY))) {
@@ -1952,6 +2104,52 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		llMass.setValue(0);
 		llImage = null;
 		llImageBtn.setIcon(null);
+	}
+	
+	public ComponentPreset extractRailButton() {
+		TypedPropertyMap props = new TypedPropertyMap();
+		try {
+			props.put(ComponentPreset.TYPE, ComponentPreset.Type.RAIL_BUTTON);
+			props.put(ComponentPreset.OUTER_DIAMETER, rbOuterDia.getValue());
+			props.put(ComponentPreset.INNER_DIAMETER, rbInnerDia.getValue());
+			props.put(ComponentPreset.STANDOFF_HEIGHT, rbStandoffHeight.getValue());
+			props.put(ComponentPreset.FLANGE_HEIGHT, rbFlangeHeight.getValue());
+			props.put(ComponentPreset.DESCRIPTION, rbDescTextField.getText());
+			props.put(ComponentPreset.PARTNO, rbPartNoTextField.getText());
+			props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(mfgTextField.getText()));
+			props.put(ComponentPreset.HEIGHT, rbHeight.getValue());
+			final Material material = (Material) materialChooser.getSelectedItem();
+			if (material != null) {
+				props.put(ComponentPreset.MATERIAL, material);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+			props.put(ComponentPreset.MASS, rbMass.getValue());
+			if (llImage != null) {
+				props.put(ComponentPreset.IMAGE, imageToByteArray(rbImage.getImage()));
+			}
+			return ComponentPresetFactory.create(props);
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Could not convert rail button attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+		} catch (InvalidComponentPresetException e) {
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory rail button attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
+	}
+	
+	private void clearRailButton() {
+		rbOuterDia.setValue(0);
+		rbInnerDia.setValue(0);
+		rbDescTextField.setText("");
+		rbPartNoTextField.setText("");
+		rbFlangeHeight.setValue(0);
+		rbHeight.setValue(0);
+		rbStandoffHeight.setValue(0);
+		rbMass.setValue(0);
+		rbImage = null;
+		rbImageBtn.setIcon(null);
 	}
 	
 	public ComponentPreset extractParachute() {

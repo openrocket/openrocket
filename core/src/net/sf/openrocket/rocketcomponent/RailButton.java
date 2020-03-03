@@ -3,7 +3,9 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
@@ -16,7 +18,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 /** 
- * WARNING:  This class is only partially implemented.  Recomend a bit of testing before you attach it to the GUI.
+ * WARNING:  This class is only partially implemented.  Recommend a bit of testing before you attach it to the GUI.
  * @author widget (Daniel Williams)
  *
  */
@@ -59,12 +61,13 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	public RailButton(){
 		super(AxialMethod.MIDDLE);
-		this.outerDiameter_m = 1.0;
-		this.totalHeight_m = 1.0;		
-		this.innerDiameter_m = 0.8;
+		this.outerDiameter_m = 0.0097;
+		this.totalHeight_m = 0.0097;		
+		this.innerDiameter_m = 0.008;
 		this.flangeHeight_m = 0.002;
 		this.setStandoff( 0.002);
-		this.setInstanceSeparation( 1.0);
+		this.setInstanceSeparation( this.outerDiameter_m * 6);
+		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
 	}
 	
 	public RailButton( final double od, final double ht ) {
@@ -81,6 +84,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.flangeHeight_m = flangeThickness;
 		this.setStandoff( _standoff);
 		this.setInstanceSeparation( od*2);
+		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
 	}
 	
 	private static final RailButton make1010Button(){
