@@ -77,11 +77,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector( angleModel), "growx");
 			panel.add(new BasicSlider( angleModel.getSliderModel(-180, 180)), "w 100lp, wrap");
 		}
-		
-		primary.add(panel, "grow, gapright 201p");
-		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		
-		
+
 		{ //// Position relative to:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
 			
@@ -103,10 +99,16 @@ public class RailButtonConfig extends RocketComponentConfig {
 					"w 100lp, wrap para");
 			
 		}
-				
+
+		primary.add(panel, "grow, gapright 201p");
+		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
+		
+		//// Instance count
+		panel.add( instanceablePanel(rbc), "span, wrap");
+
 		//// Material
 		panel.add(materialPanel(Material.Type.BULK),"span, wrap");
-		
+
 		primary.add(panel, "grow");
 		
 		return primary;
