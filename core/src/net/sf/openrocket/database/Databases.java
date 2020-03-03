@@ -50,10 +50,12 @@ public class Databases {
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Cardboard", 680));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Carbon fiber", 1780));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Cork", 240));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Delrin", 1420));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Depron (XPS)", 40));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Fiberglass", 1850));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Kraft phenolic", 950));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Maple", 755));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Nylon", 1150));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Paper (office)", 820));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Pine", 530));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Plywood (birch)", 630));

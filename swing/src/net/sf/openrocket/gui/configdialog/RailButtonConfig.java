@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -14,7 +15,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -91,7 +91,6 @@ public class RailButtonConfig extends RocketComponentConfig {
 		}
 			
 		{ //// plus
-			final double parentLength = ((BodyTube)rbc.getParent()).getLength();
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Plus")), "right");
 			DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
@@ -104,17 +103,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 					"w 100lp, wrap para");
 			
 		}
-		
-		//// Material
-		/* TODO (wolsen) confirm this removal
-		 * I think the instanceablePanel should be removed and doesn't make much sense. I understand
-		 * the idea that you may want to say "I have 2 rail buttons, 12 inches apart". I think in reality
-		 * that most people would add 2 (or more) individual rail buttons at specific locations on the
-		 * rocket. That will keep consistency with other components such as launch lugs.
-		 */
-		//panel.add( instanceablePanel(rbc), "cell 4 0, spany 3, wrap para");
-		
-		
+				
 		//// Material
 		panel.add(materialPanel(Material.Type.BULK),"span, wrap");
 		

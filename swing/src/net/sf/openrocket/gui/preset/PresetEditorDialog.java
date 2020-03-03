@@ -1559,6 +1559,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			break;
 		case RAIL_BUTTON:
+			setMaterial(materialChooser, preset, matHolder, Material.Type.BULK, ComponentPreset.MATERIAL);
 			typeCombo.setSelectedItem(trans.get(RAIL_BUTTON_KEY));
 			rbDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
 			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
