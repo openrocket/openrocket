@@ -114,8 +114,8 @@
  */
 package net.sf.openrocket.gui.figure3d.geometry;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import net.sf.openrocket.rocketcomponent.MassObject;
 

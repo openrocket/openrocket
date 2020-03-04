@@ -3,8 +3,8 @@ package net.sf.openrocket.gui.figure3d.geometry;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
 
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
