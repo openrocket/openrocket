@@ -770,6 +770,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		
 		try {
 			setMethod.invoke(source, v / multiplier);
+			// Make sure to notify all the listeners that have registered
+			fireStateChanged();
 		} catch (IllegalArgumentException e) {
 			throw new BugException("Unable to invoke setMethod of " + this, e);
 		} catch (IllegalAccessException e) {
