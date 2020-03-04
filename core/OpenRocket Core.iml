@@ -36,6 +36,24 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OpenRocket Test Libraries" />
     <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/annotation-detector-3.0.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="aopalliance.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/aopalliance.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="RXTXcomm.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib-extra/RXTXcomm.jar!/" />
@@ -48,15 +66,6 @@
       <library name="resources">
         <CLASSES>
           <root url="file://$MODULE_DIR$/resources" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="opencsv-2.3.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/opencsv-2.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -81,24 +90,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="javax.inject.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/javax.inject.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="aopalliance.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/aopalliance.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="slf4j-api-1.7.5.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/slf4j-api-1.7.5.jar!/" />
@@ -107,15 +98,16 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="lib-test" level="project" />
+    <orderEntry type="library" name="javax" level="project" />
     <orderEntry type="module-library">
-      <library name="annotation-detector-3.0.2.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/annotation-detector-3.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/opencsv-4.3.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lib-test" level="project" />
   </component>
 </module>
