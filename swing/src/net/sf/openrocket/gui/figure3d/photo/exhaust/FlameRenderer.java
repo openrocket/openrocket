@@ -114,29 +114,30 @@
  */
 package net.sf.openrocket.gui.figure3d.photo.exhaust;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Color;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureData;
-import com.jogamp.opengl.util.texture.TextureIO;
 
 public final class FlameRenderer {
 
@@ -308,18 +309,14 @@ public final class FlameRenderer {
 	public static void init(GL2 gl) {
 		try {
 			log.debug("Loading Textures");
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(),
-					FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-color.png"), GL.GL_RGBA, GL.GL_RGBA,
-					true, null);
-			smokeT = TextureIO.newTexture(data);
-			data = TextureIO.newTextureData(GLProfile.getDefault(),
-					FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-normal.png"), GL.GL_RGBA, GL.GL_RGBA,
-					true, null);
-			smokeN = TextureIO.newTexture(data);
-			data = TextureIO.newTextureData(GLProfile.getDefault(),
-					FlameRenderer.class.getResourceAsStream("/datafiles/flame/smoke2.png"), GL.GL_RGBA, GL.GL_RGBA,
-					true, null);
-			flameT = TextureIO.newTexture(data);
+			BufferedImage img = ImageIO.read(FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-color.png"));
+			smokeT = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
+
+			img = ImageIO.read(FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-normal.png"));
+			smokeN = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
+
+			img = ImageIO.read(FlameRenderer.class.getResourceAsStream("/datafiles/flame/smoke2.png"));
+			flameT = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
 
 			log.debug("Loading Shader");
 			String line;
