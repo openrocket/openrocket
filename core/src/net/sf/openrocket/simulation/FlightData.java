@@ -101,7 +101,7 @@ public class FlightData {
 		for (FlightDataBranch b : branches)
 			this.addBranch(b);
 		
-		calculateIntrestingValues();
+		calculateInterestingValues();
 	}
 	
 	
@@ -126,7 +126,7 @@ public class FlightData {
 		branches.add(branch);
 		
 		if (branches.size() == 1) {
-			calculateIntrestingValues();
+			calculateInterestingValues();
 		}
 	}
 	
@@ -185,7 +185,7 @@ public class FlightData {
 	 * Calculate the max. altitude/velocity/acceleration, time to apogee, flight time
 	 * and ground hit velocity.
 	 */
-	private void calculateIntrestingValues() {
+	private void calculateInterestingValues() {
 		if (branches.isEmpty())
 			return;
 		
