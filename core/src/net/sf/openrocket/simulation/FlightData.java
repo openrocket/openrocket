@@ -195,13 +195,7 @@ public class FlightData {
 		maxMachNumber = branch.getMaximum(FlightDataType.TYPE_MACH_NUMBER);
 		
 		flightTime = branch.getLast(FlightDataType.TYPE_TIME);
-		if (branch.getLast(FlightDataType.TYPE_ALTITUDE) < 10) {
-			groundHitVelocity = branch.getLast(FlightDataType.TYPE_VELOCITY_TOTAL);
-		} else {
-			groundHitVelocity = Double.NaN;
-		}
 		
-
 		// Time to apogee
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		List<Double> altitude = branch.get(FlightDataType.TYPE_ALTITUDE);
@@ -236,6 +230,10 @@ public class FlightData {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
 				deploymentVelocity = MathUtil.interpolate( time, velocity, t);
+			} else if (event.getType() == FlightEvent.Type.GROUND_HIT) {
+				double t = event.getTime();
+				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				groundHitVelocity = MathUtil.interpolate( time,  velocity, t);
 			}
 		}
 		
