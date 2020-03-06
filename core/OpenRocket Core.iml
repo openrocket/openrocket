@@ -72,18 +72,9 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guice-3.0.jar">
+      <library name="guice-4.2.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/guice-3.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="guice-multibindings-3.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/guice-multibindings-3.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/guice-4.2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -104,6 +95,33 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/opencsv-4.3.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/guava-26.0-jre.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/logback-classic-1.2.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/logback-core-1.2.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

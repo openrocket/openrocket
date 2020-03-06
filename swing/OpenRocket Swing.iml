@@ -90,54 +90,9 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guice-3.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/guice-3.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="guice-multibindings-3.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/guice-multibindings-3.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="javax.inject.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../core/lib/javax.inject.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="opencsv-2.3.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/opencsv-2.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="logback-classic-1.0.12.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/logback-classic-1.0.12.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="logback-core-1.0.12.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/logback-core-1.0.12.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -156,15 +111,6 @@
       <library name="resources">
         <CLASSES>
           <root url="file://$MODULE_DIR$/resources" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="annotation-detector-3.0.2.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/annotation-detector-3.0.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -192,5 +138,41 @@
     </orderEntry>
     <orderEntry type="library" name="jogl" level="project" />
     <orderEntry type="library" name="lib-test" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../core/lib/guice-4.2.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../core/lib/guava-26.0-jre.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../core/lib/logback-classic-1.2.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../core/lib/logback-core-1.2.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
