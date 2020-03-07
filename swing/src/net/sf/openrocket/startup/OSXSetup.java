@@ -2,6 +2,13 @@ package net.sf.openrocket.startup;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.desktop.AboutEvent;
+import java.awt.desktop.AboutHandler;
+import java.awt.desktop.PreferencesEvent;
+import java.awt.desktop.PreferencesHandler;
+import java.awt.desktop.QuitHandler;
+import java.awt.desktop.QuitEvent;
+import java.awt.desktop.QuitResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +18,6 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
-import com.apple.eawt.AppEvent.AboutEvent;
-import com.apple.eawt.AppEvent.PreferencesEvent;
-import com.apple.eawt.AppEvent.QuitEvent;
 
 /**
  * Static code for initialization of OSX UI Elements: Menu, Icon, Name and
@@ -38,6 +38,7 @@ final class OSXSetup {
 	/**
 	 * The handler for the Quit item in the OSX app menu
 	 */
+
 	private static final QuitHandler qh = new QuitHandler() {
 		@Override
 		public void handleQuitRequestWith(final QuitEvent e, final QuitResponse r) {
@@ -96,7 +97,7 @@ final class OSXSetup {
 						+ "Aborting OSX UI Setup.");
 			}
 			
-			// Set handlers
+//			// Set handlers
 			osxApp.setQuitHandler(qh);
 			osxApp.setAboutHandler(ah);
 			osxApp.setPreferencesHandler(ph);
