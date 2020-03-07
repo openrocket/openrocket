@@ -14,7 +14,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StringUtil;
-import com.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Primary entry point for parsing component CSV files that are in Rocksim format.
