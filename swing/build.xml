@@ -95,6 +95,8 @@
 			<zipfileset src="${core.dir}/lib/guice-3.0.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/>
+			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
+			
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/javax.inject.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
