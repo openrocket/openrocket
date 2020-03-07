@@ -97,7 +97,7 @@ final class OSXSetup {
 						+ "Aborting OSX UI Setup.");
 			}
 			
-//			// Set handlers
+			// Set handlers
 			osxApp.setQuitHandler(qh);
 			osxApp.setAboutHandler(ah);
 			osxApp.setPreferencesHandler(ph);
