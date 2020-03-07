@@ -1,7 +1,12 @@
 package net.sf.openrocket.startup;
 
+import java.awt.Desktop;
 import java.awt.Image;
+import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.awt.desktop.AboutHandler;
+import java.awt.desktop.PreferencesHandler;
+import java.awt.desktop.QuitHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +16,6 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
-import com.apple.eawt.AppEvent.AboutEvent;
-import com.apple.eawt.AppEvent.PreferencesEvent;
-import com.apple.eawt.AppEvent.QuitEvent;
 
 /**
  * Static code for initialization of OSX UI Elements: Menu, Icon, Name and
@@ -38,34 +36,21 @@ final class OSXSetup {
 	/**
 	 * The handler for the Quit item in the OSX app menu
 	 */
-	private static final QuitHandler qh = new QuitHandler() {
-		@Override
-		public void handleQuitRequestWith(final QuitEvent e, final QuitResponse r) {
-			BasicFrame.quitAction();
-			// if we get here the user canceled
-			r.cancelQuit();
-		}
+	private static final QuitHandler QUIT_HANDLER = (e, r) -> {
+		BasicFrame.quitAction();
+		// if we get here the user canceled
+		r.cancelQuit();
 	};
 
 	/**
 	 * The handler for the About item in the OSX app menu
 	 */
-	private static final AboutHandler ah = new AboutHandler() {
-		@Override
-		public void handleAbout(final AboutEvent a) {
-			new AboutDialog(null).setVisible(true);
-		}
-	};
+	private static final AboutHandler ABOUT_HANDLER = a -> new AboutDialog(null).setVisible(true);
 
 	/**
 	 * The handler for the Preferences item in the OSX app menu
 	 */
-	private static final PreferencesHandler ph = new PreferencesHandler() {
-		@Override
-		public void handlePreferences(final PreferencesEvent p) {
-			PreferencesDialog.showPreferences(null);
-		}
-	};
+	private static final PreferencesHandler PREFERENCES_HANDLER = p -> PreferencesDialog.showPreferences(null);
 
 	/**
 	 * Sets up the Application's Icon, Name, Menu and some menu item handlers
@@ -87,24 +72,24 @@ final class OSXSetup {
 
 			// This line must come AFTER the above properties are set, otherwise
 			// the name will not appear
-			final com.apple.eawt.Application osxApp = com.apple.eawt.Application.getApplication();
+			final Desktop osxDesktop = Desktop.getDesktop();
 
-			if (osxApp == null) {
-				// Application is null: Something is wrong, give up on OSX
-				// setup.
+			if (osxDesktop == null) {
+				// Application is null: Something is wrong, give up on OS setup
 				throw new NullPointerException("com.apple.eawt.Application.getApplication() returned NULL. "
 						+ "Aborting OSX UI Setup.");
 			}
 			
 			// Set handlers
-			osxApp.setQuitHandler(qh);
-			osxApp.setAboutHandler(ah);
-			osxApp.setPreferencesHandler(ph);
+			osxDesktop.setAboutHandler(ABOUT_HANDLER);
+			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
+			osxDesktop.setQuitHandler(QUIT_HANDLER);
 
 			// Set the dock icon to the largest icon
 			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
 					SwingStartup.class.getResource(ICON_RSRC));
-			osxApp.setDockIconImage(dockIcon);
+			final Taskbar osxTaskbar = Taskbar.getTaskbar();
+			osxTaskbar.setIconImage(dockIcon);
 
 		} catch (final Throwable t) {
 			// None of the preceding is critical to the app,
