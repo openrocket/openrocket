@@ -196,7 +196,7 @@ public class UpdateInfoTest extends BaseTestCase {
 		
 		Random rnd = new Random();
 		for (int i = 0; i < 10; i++) {
-			int size = (int) ((1 + 0.3 * rnd.nextGaussian()) * Math.pow(i, 6));
+			int size = Math.abs((int) ((1 + 0.3 * rnd.nextGaussian()) * Math.pow(i, 6)));
 			byte[] buf = new byte[size];
 			rnd.nextBytes(buf);
 			
