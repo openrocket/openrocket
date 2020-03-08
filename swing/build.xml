@@ -81,21 +81,17 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
 			
-			
 			<!-- Libraries to extract into base JAR -->
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
-			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
 			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
 			<zipfileset src="${core.dir}/lib/guice-4.2.1.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
-			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-runtime.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-tools.jar"/>
 			<zipfileset src="${core.dir}/lib/javax.activation-api-2.3.1.jar"/>
@@ -104,17 +100,35 @@
 			<zipfileset src="${core.dir}/lib/javax.json-api-1.1.3.jar"/>
 			<zipfileset src="${core.dir}/lib/jaxb-api.2.3.1.jar"/>
 			<zipfileset src="${core.dir}/lib/jaxb-runtime.2.3.1.jar"/>
-			
-			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
-			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
 			<zipfileset src="${core.dir}/lib/opencsv-4.3.2.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.5.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.3.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-core-1.2.3.jar"/>
+			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
+			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
+			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
+			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
-									
-			
+			<zipfileset src="${lib.dir}/iText-5.0.2.jar" />
+			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar" />
+			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar" />
+			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
+			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-amd64.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-i586.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-macosx-universal.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-amd64.jar" />
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-i586.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-amd64.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-i586.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-macosx-universal.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-amd64.jar" />
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-i586.jar" />
+
 			<!-- JOGL libraries need to be jar-in-jar -->
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
