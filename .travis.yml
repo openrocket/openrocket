@@ -10,13 +10,3 @@ jdk:
   - openjdk13
 script:
  - "ant -buildfile build.xml clean check jar unittest"
-
-after_success:
-  - ls -lh /home/travis/build/openrocket/openrocket/swing/build/jar/OpenRocket.jar
-  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash upload.sh /home/travis/build/openrocket/openrocket/swing/build/jar/OpenRocket.jar
-
-branches:
-  except:
-    - # Do not build tags that we create when we upload to GitHub Releases
-    - /^(?i:continuous)$/
