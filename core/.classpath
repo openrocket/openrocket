@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/test-plugin.jar"/>
 	<classpathentry kind="lib" path="lib/annotation-detector-3.0.5.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.2.1.jar"/>
