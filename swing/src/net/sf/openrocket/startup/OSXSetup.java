@@ -4,9 +4,13 @@ import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.awt.desktop.AboutEvent;
 import java.awt.desktop.AboutHandler;
+import java.awt.desktop.PreferencesEvent;
 import java.awt.desktop.PreferencesHandler;
+import java.awt.desktop.QuitEvent;
 import java.awt.desktop.QuitHandler;
+import java.awt.desktop.QuitResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,21 +40,34 @@ final class OSXSetup {
 	/**
 	 * The handler for the Quit item in the OSX app menu
 	 */
-	private static final QuitHandler QUIT_HANDLER = (e, r) -> {
-		BasicFrame.quitAction();
-		// if we get here the user canceled
-		r.cancelQuit();
+	private static final QuitHandler QUIT_HANDLER = new QuitHandler() {
+		@Override
+		public void handleQuitRequestWith(final QuitEvent e, final QuitResponse response) {
+			BasicFrame.quitAction();
+			// if we get here the user canceled
+			response.cancelQuit();;
+		}
 	};
 
 	/**
 	 * The handler for the About item in the OSX app menu
 	 */
-	private static final AboutHandler ABOUT_HANDLER = a -> new AboutDialog(null).setVisible(true);
+	private static final AboutHandler ABOUT_HANDLER = new AboutHandler() {
+		@Override
+		public void handleAbout(final AboutEvent e) {
+			new AboutDialog(null).setVisible(true);
+		}
+	};
 
 	/**
 	 * The handler for the Preferences item in the OSX app menu
 	 */
-	private static final PreferencesHandler PREFERENCES_HANDLER = p -> PreferencesDialog.showPreferences(null);
+	private static final PreferencesHandler PREFERENCES_HANDLER = new PreferencesHandler() {
+		@Override
+		public void handlePreferences(final PreferencesEvent e) {
+			PreferencesDialog.showPreferences(null);
+		}
+	};
 
 	/**
 	 * Sets up the Application's Icon, Name, Menu and some menu item handlers

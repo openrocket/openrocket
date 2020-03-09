@@ -71,7 +71,7 @@
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="11" target="11"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
@@ -106,10 +106,6 @@
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.3.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-core-1.2.3.jar"/>
 			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
-			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
-			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
-			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
-			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar" />
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar" />
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar" />
@@ -128,11 +124,6 @@
 			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-macosx-universal.jar" />
 			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-amd64.jar" />
 			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-i586.jar" />
-
-			<!-- JOGL libraries need to be jar-in-jar -->
-			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
-				<include name="*.jar"/>
-			</zipfileset>
 			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
