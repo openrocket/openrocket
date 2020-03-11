@@ -1,10 +1,11 @@
 language: java
-dist: xenial
+dist: bionic
 sudo: false
 addons:
   apt:
     packages:
       - ant
+      - ant-optional
 
 jdk:
   - openjdk11
