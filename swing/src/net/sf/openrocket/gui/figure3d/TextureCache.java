@@ -1,22 +1,22 @@
 package net.sf.openrocket.gui.figure3d;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLProfile;
-
-import net.sf.openrocket.appearance.Decal;
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureData;
-import com.jogamp.opengl.util.texture.TextureIO;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
+import net.sf.openrocket.appearance.Decal;
 
 public class TextureCache {
 	private static final Logger log = LoggerFactory.getLogger(TextureCache.class);
@@ -83,8 +83,8 @@ public class TextureCache {
 		try {
 			log.debug("Loading texture " + uri);
 			InputStream is = uri.openStream();
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, GL.GL_RGBA, GL.GL_RGBA, true, null);
-			tex = TextureIO.newTexture(data);
+			BufferedImage img = ImageIO.read(is);
+			tex = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
 		}
@@ -118,8 +118,8 @@ public class TextureCache {
 		try {
 			log.debug("Loading texture " + decal);
 			InputStream is = decal.getImage().getBytes();
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, GL.GL_RGBA, GL.GL_RGBA, true, null);
-			tex = TextureIO.newTexture(data);
+			BufferedImage img = ImageIO.read(is);
+			tex = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
 		}
