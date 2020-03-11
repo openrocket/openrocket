@@ -1,16 +1,14 @@
 language: java
-dist: trusty
+dist: xenial
 sudo: false
 addons:
   apt:
     packages:
-      - ant-optional
+      - ant
 
 jdk:
-  - openjdk9
   - openjdk11
   - openjdk13
-  - oraclejdk9
   - oraclejdk11
   - oraclejdk13
 
