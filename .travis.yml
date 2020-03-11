@@ -1,12 +1,17 @@
 language: java
-dist: trusty
+dist: bionic
 sudo: false
 addons:
   apt:
     packages:
+      - ant
       - ant-optional
+
 jdk:
   - openjdk11
   - openjdk13
+  - oraclejdk11
+  - oraclejdk13
+
 script:
- - "ant -buildfile build.xml clean check jar unittest"
+  - "ant -buildfile build.xml clean check jar unittest"
