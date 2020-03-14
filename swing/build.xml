@@ -109,12 +109,11 @@
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
 			<zipfileset src="${core.dir}/lib/opencsv-4.3.2.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
-			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.5.jar"/>
+			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.3.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-core-1.2.3.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
-									
-			
+
 			<!-- JOGL libraries need to be jar-in-jar -->
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
