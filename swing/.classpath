@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="lib/OrangeExtensions-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/resources"/>
