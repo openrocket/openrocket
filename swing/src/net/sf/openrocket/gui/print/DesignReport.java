@@ -328,7 +328,7 @@ public class DesignReport {
 		
 		MassCalculator massCalc = new MassCalculator();
 		
-		if( !motorId.hasError() ){
+		if( motorId.hasError() ){
 		    throw new IllegalStateException("Attempted to add motor data with an invalid fcid");
 		}
 		rocket.createFlightConfiguration(motorId);
@@ -349,7 +349,7 @@ public class DesignReport {
 				config.clearAllStages();
 				config.setOnlyStage(stage);
 				stage++;
-				stageMass = massCalc.getCGAnalysis( config).get(stage).weight;
+				stageMass = massCalc.getCGAnalysis(config).get(c).weight;
 				// Calculate total thrust-to-weight from only lowest stage motors
 				totalTTW = 0;
 				topBorder = true;
