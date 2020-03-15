@@ -315,6 +315,12 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 	}
 	
+	@Override
+	public void updateFigure() {
+		updateShapes(this.figureShapes);
+		super.updateFigure();
+	}
+	
 	public RocketComponent[] getComponentsByPoint(double x, double y) {
 		// Calculate point in shapes' coordinates
 		Point2D.Double p = new Point2D.Double(x, y);

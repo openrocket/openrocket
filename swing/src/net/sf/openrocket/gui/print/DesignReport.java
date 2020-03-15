@@ -177,8 +177,8 @@ public class DesignReport {
 		
 		canvas.beginText();
 		canvas.setFontAndSize(ITextHelper.getBaseFont(), PrintUtilities.NORMAL_FONT_SIZE);
-		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getHeight()) * 0.4 * (scale / PrintUnit.METERS
-				.toPoints(1)));
+		double figureHeightInPoints = PrintUnit.METERS.toPoints(figure.getFigureHeight());
+		int figHeightPts = (int) (figureHeightInPoints * SCALE_FUDGE_FACTOR * (scale / PrintUnit.METERS.toPoints(1)));
 		final int diagramHeight = pageImageableHeight * 2 - 70 - (figHeightPts);
 		canvas.moveText(document.leftMargin() + pageSize.getBorderWidthLeft(), diagramHeight);
 		canvas.moveTextWithLeading(0, -16);
@@ -213,7 +213,11 @@ public class DesignReport {
 		canvas.endText();
 		
 		try {
-			//Move the internal pointer of the document below that of what was just written using the direct byte buffer.
+			/*
+			 * Move the internal pointer of the document below the rocket diagram and
+			 * the key attributes. The height of the rocket figure is already calculated
+			 * as diagramHeigt and the height of the attributes text is finalY - initialY.
+			 */
 			Paragraph paragraph = new Paragraph();
 			float finalY = canvas.getYTLM();
 			int heightOfDiagramAndText = (int) (pageSize.getHeight() - (finalY - initialY + diagramHeight));
@@ -223,28 +227,26 @@ public class DesignReport {
 			
 			List<Simulation> simulations = rocketDocument.getSimulations();
 			
-			int motorNumber = 0;
-			for( FlightConfigurationId fcid : rocket.getIds()){
-				
+			boolean firstMotor = true;
+			for (FlightConfigurationId fcid : rocket.getIds()) {
 				PdfPTable parent = new PdfPTable(2);
 				parent.setWidthPercentage(100);
 				parent.setHorizontalAlignment(Element.ALIGN_LEFT);
 				parent.setSpacingBefore(0);
 				parent.setWidths(new int[] { 1, 3 });
 				
-				
-				int leading = 0;
-				//The first motor config is always null.  Skip it and the top-most motor, then set the leading.
-				if ( motorNumber > 1) {
-					leading = 25;
-				}
+				/* The first motor information will get no spacing
+				 * before it, while each subsequent table will need
+				 * a spacing of 25.
+				 */
+				int leading = (firstMotor) ? 0 : 25;
 				
 				FlightData flight = findSimulation( fcid, simulations);
 				addFlightData(flight, rocket, fcid, parent, leading);
 				addMotorData(rocket, fcid, parent);
 				document.add(parent);
 					
-				motorNumber++;
+				firstMotor = false;
 			}
 		} catch (DocumentException e) {
 			log.error("Could not modify document.", e);
@@ -274,21 +276,22 @@ public class DesignReport {
 		theFigure.updateFigure();
 		
 		double scale =
-				(thePageImageableWidth * 2.2) / theFigure.getWidth();
+				(thePageImageableWidth * 2.2) / theFigure.getFigureWidth();
 		theFigure.setScale(scale);
-		/*
-		 * page dimensions are in points-per-inch, which, in Java2D, are the same as pixels-per-inch; thus we don't need any conversion
+		/* Conveniently, page dimensions are in points-per-inch, which, in
+		 * Java2D, are the same as pixels-per-inch; thus we don't need any
+		 * conversion for the figure size.
 		 */
 		theFigure.setSize(thePageImageableWidth, thePageImageableHeight);
 		theFigure.updateFigure();
 		
 		final DefaultFontMapper mapper = new DefaultFontMapper();
 		Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
-		final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeightPx() / 2;
+		final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeight() / 2;
 		int y = PrintUnit.POINTS_PER_INCH;
 		//If the y dimension is negative, then it will potentially be drawn off the top of the page.  Move the origin
 		//to allow for this.
-		if (theFigure.getHeight() < 0.0d) {
+		if (theFigure.getDimensions().getY() < 0.0d) {
 			y += (int) halfFigureHeight;
 		}
 		g2d.translate(20, y);
