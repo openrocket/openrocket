@@ -29,6 +29,7 @@ import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
@@ -162,7 +163,7 @@ public class DesignReport {
 		PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
 		
 		Rocket rocket = rocketDocument.getRocket();
-		final FlightConfiguration configuration = rocket.getSelectedConfiguration();//.clone();
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
 		
@@ -190,8 +191,7 @@ public class DesignReport {
 		canvas.newlineShowText(STAGES);
 		canvas.showText("" + rocket.getStageCount());
 		
-		
-		if ( configuration.hasMotors()){
+		if (configuration.hasMotors()) {
 			if (configuration.getStageCount() > 1) {
 				canvas.newlineShowText(MASS_WITH_MOTORS);
 			} else {
@@ -361,55 +361,62 @@ public class DesignReport {
 			if (c instanceof MotorMount && ((MotorMount) c).isMotorMount()) {
 				MotorMount mount = (MotorMount) c;
 				
-				// TODO: refactor this... it's redundant with containing if, and could probably be simplified 
-				if (mount.isMotorMount() && (mount.getMotorConfig(motorId) != null) &&(null != mount.getMotorConfig(motorId).getMotor())) {
-					Motor motor = mount.getMotorConfig(motorId).getMotor();
-					int motorCount = mount.getMotorCount();
-					
-					
-					int border = Rectangle.NO_BORDER;
-					if (topBorder) {
-						border = Rectangle.TOP;
-						topBorder = false;
-					}
-					
-					String name = motor.getDesignation();
-					if (motorCount > 1) {
-						name += " (" + Chars.TIMES + motorCount + ")";
-					}
-					
-					final PdfPCell motorVCell = ITextHelper.createCell(name, border);
-					motorVCell.setPaddingLeft(mPad);
-					motorTable.addCell(motorVCell);
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getAverageThrustEstimate()), border));
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit().toStringUnit(motor.getBurnTimeEstimate()), border));
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getMaxThrustEstimate()), border));
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(motor.getTotalImpulseEstimate()), border));
-					
-					double ttw = motor.getAverageThrustEstimate() / (stageMass * GRAVITY_CONSTANT);
-					motorTable.addCell(ITextHelper.createCell(
-							ttwFormat.format(ttw) + ":1", border));
-					
-					double propMass = (motor.getLaunchMass() - motor.getBurnoutMass());
-					motorTable.addCell(ITextHelper.createCell(
-							UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
-					
-					final Unit motorUnit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
-					motorTable.addCell(ITextHelper.createCell(motorUnit.toString(motor.getDiameter()) +
-							"/" +
-							motorUnit.toString(motor.getLength()) + " " +
-							motorUnit.toString(), border));
-					
-					// Sum up total count
-					totalMotorCount += motorCount;
-					totalPropMass += propMass * motorCount;
-					totalImpulse += motor.getTotalImpulseEstimate() * motorCount;
-					totalTTW += ttw * motorCount;
+				MotorConfiguration motorConfig = mount.getMotorConfig(motorId);
+				if (null == motorConfig) {
+					log.warn("Unable to find motorConfig for motorId {}", motorId);
+					continue;
 				}
+				
+				Motor motor = motorConfig.getMotor();
+				if (null == motor) {
+					log.warn("Motor instance is null for motorId {}", motorId);
+					continue;
+				}
+				
+				int motorCount = mount.getMotorCount();
+				
+				int border = Rectangle.NO_BORDER;
+				if (topBorder) {
+					border = Rectangle.TOP;
+					topBorder = false;
+				}
+				
+				String name = motor.getDesignation();
+				if (motorCount > 1) {
+					name += " (" + Chars.TIMES + motorCount + ")";
+				}
+				
+				final PdfPCell motorVCell = ITextHelper.createCell(name, border);
+				motorVCell.setPaddingLeft(mPad);
+				motorTable.addCell(motorVCell);
+				motorTable.addCell(ITextHelper.createCell(
+						UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getAverageThrustEstimate()), border));
+				motorTable.addCell(ITextHelper.createCell(
+						UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit().toStringUnit(motor.getBurnTimeEstimate()), border));
+				motorTable.addCell(ITextHelper.createCell(
+						UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getMaxThrustEstimate()), border));
+				motorTable.addCell(ITextHelper.createCell(
+						UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(motor.getTotalImpulseEstimate()), border));
+				
+				double ttw = motor.getAverageThrustEstimate() / (stageMass * GRAVITY_CONSTANT);
+				motorTable.addCell(ITextHelper.createCell(
+						ttwFormat.format(ttw) + ":1", border));
+				
+				double propMass = (motor.getLaunchMass() - motor.getBurnoutMass());
+				motorTable.addCell(ITextHelper.createCell(
+						UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(propMass), border));
+				
+				final Unit motorUnit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
+				motorTable.addCell(ITextHelper.createCell(motorUnit.toString(motor.getDiameter()) +
+						"/" +
+						motorUnit.toString(motor.getLength()) + " " +
+						motorUnit.toString(), border));
+				
+				// Sum up total count
+				totalMotorCount += motorCount;
+				totalPropMass += propMass * motorCount;
+				totalImpulse += motor.getTotalImpulseEstimate() * motorCount;
+				totalTTW += ttw * motorCount;
 			}
 		}
 		
