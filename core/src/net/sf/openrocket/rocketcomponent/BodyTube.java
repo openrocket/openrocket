@@ -372,6 +372,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	@Override
+	public MotorConfigurationSet getMotorConfigurationSet() {
+		return this.motors;
+	}
+	
+	@Override
 	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid){
 		return this.motors.get(fcid);
 	}
@@ -432,7 +437,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		
 	@Override
 	public int getMotorCount() {
-		return this.motors.size();
+		return this.getClusterConfiguration().getClusterCount();
 	}
 		
 	@Override

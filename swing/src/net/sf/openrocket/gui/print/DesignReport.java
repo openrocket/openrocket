@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -329,13 +330,11 @@ public class DesignReport {
 		
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
 		
-		MassCalculator massCalc = new MassCalculator();
-		
 		if( motorId.hasError() ){
 		    throw new IllegalStateException("Attempted to add motor data with an invalid fcid");
 		}
 		rocket.createFlightConfiguration(motorId);
-	    FlightConfiguration config = rocket.getFlightConfiguration( motorId);
+	    FlightConfiguration config = rocket.getFlightConfiguration(motorId);
 		
 		int totalMotorCount = 0;
 		double totalPropMass = 0;
@@ -352,7 +351,8 @@ public class DesignReport {
 				config.clearAllStages();
 				config.setOnlyStage(stage);
 				stage++;
-				stageMass = massCalc.getCGAnalysis(config).get(c).weight;
+				RigidBody launchInfo = MassCalculator.calculateLaunch(config);
+				stageMass = launchInfo.getMass();
 				// Calculate total thrust-to-weight from only lowest stage motors
 				totalTTW = 0;
 				topBorder = true;

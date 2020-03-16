@@ -201,7 +201,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		InnerTube smmt = (InnerTube)rkt.getChild(0).getChild(1).getChild(2);
 
 		int expectedMotorCount = 5;
-		int actualMotorCount = smmt.getMotorCount();
+		int actualMotorCount = smmt.getMotorConfigurationSet().size();
 		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
 
     }
