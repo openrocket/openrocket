@@ -7,18 +7,18 @@ package de.congrace.exp4j;
  * and vice-versa.
  */
 public class Variable {
-	
-	// The primary or preferred representation 
+
+	// The primary or preferred representation
 	public enum Primary {DOUBLE, ARRAY, PLACEHOLDER};
 	private final Primary primary;
-	
+
 	private final String name;
-	
-	private final double doubleValue;  
-	private final double[] arrayValue; 
-	
+
+	private final double doubleValue;
+	private final double[] arrayValue;
+
 	private final double start, step;
-	
+
 	/*
 	 * Initialize a new variable with a name only. This can be used as a place holder
 	 */
@@ -30,7 +30,7 @@ public class Variable {
 		this.start = Double.NaN;
 		this.step = Double.NaN;
 	}
-	
+
 	/*
 	 * Initialize a new double variable
 	 */
@@ -42,7 +42,7 @@ public class Variable {
 		this.start = Double.NaN;
 		this.step = Double.NaN;
 	}
-	
+
 	/*
 	 * Initialize a new array variable
 	 */
@@ -54,7 +54,7 @@ public class Variable {
 		this.start = Double.NaN;
 		this.step = Double.NaN;
 	}
-	
+
 	/*
 	 * Initialize a new array variable, specifying the start and step values
 	 */
@@ -66,35 +66,35 @@ public class Variable {
 		this.start = start;
 		this.step = step;
 	}
-	
+
 	public String getName(){
 		return name;
 	}
-	
+
 	public Primary getPrimary(){
 		return this.primary;
 	}
-	
+
 	public double getDoubleValue(){
 		return doubleValue;
 	}
-	
+
 	public double[] getArrayValue(){
 		return arrayValue;
 	}
-	
+
 	public double getStep(){
 		return step;
 	}
-	
+
 	public double getStart(){
 		return start;
 	}
-	
+
 	@Override
 	public String toString(){
 		if ( arrayValue.length > 1 ){
-			String out = name + " is Array (length " + new Integer(arrayValue.length).toString() + ") : {";
+			String out = name + " is Array (length " + arrayValue.length + ") : {";
 			for (double x : arrayValue){
 				out = out + x + ",";
 			}
@@ -102,7 +102,7 @@ public class Variable {
 			return out + "}";
 		}
 		else{
-			return name + " is double : {" + new Double(doubleValue).toString() + "}";
+			return name + " is double : {" + doubleValue + "}";
 		}
 	}
 }
