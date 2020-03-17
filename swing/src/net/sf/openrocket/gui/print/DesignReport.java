@@ -341,16 +341,13 @@ public class DesignReport {
 		double totalImpulse = 0;
 		double totalTTW = 0;
 		
-		int stage = 0;
 		double stageMass = 0;
 		
 		boolean topBorder = false;
 		for (RocketComponent c : rocket) {
 			
 			if (c instanceof AxialStage) {
-				config.clearAllStages();
-				config.setOnlyStage(stage);
-				stage++;
+				config.activateStagesThrough((AxialStage) c); 
 				RigidBody launchInfo = MassCalculator.calculateLaunch(config);
 				stageMass = launchInfo.getMass();
 				// Calculate total thrust-to-weight from only lowest stage motors
