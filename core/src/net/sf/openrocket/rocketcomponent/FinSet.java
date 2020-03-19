@@ -66,7 +66,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Number of fins.
 	 */
-	private int finCount = 1;
+	private int finCount = 3;
 
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
