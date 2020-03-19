@@ -402,7 +402,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					!(c instanceof FinSet))
 				continue;
 
-				// iterate across component instances
+			// iterate across component instances
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 			
@@ -515,39 +515,46 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		base = calculateBaseCD(conditions.getMach());
 		
 		total = 0;
-		for (RocketComponent c : configuration.getActiveComponents()) {
+		final InstanceMap imap = configuration.getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent c = entry.getKey();
 			if (!c.isAerodynamic())
 				continue;
-			
-			// Pressure fore drag
-			double cd = calcMap.get(c).calculatePressureDragForce(conditions, stagnation, base,
-					warnings);
-			total += cd;
-			
-			if (map != null) {
-				map.get(c).setPressureCD(cd);
-			}
-			
-			if(c.isCDOverridden()) continue;					
 
-	
-			// Stagnation drag
-			if (c instanceof SymmetricComponent) {
-				SymmetricComponent s = (SymmetricComponent) c;
+			// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
 				
-				if (radius < s.getForeRadius()) {
-					double area = Math.PI * (pow2(s.getForeRadius()) - pow2(radius));
-					cd = stagnation * area / conditions.getRefArea();
-					total += cd;
-					if (map != null) {
-						map.get(c).setPressureCD(map.get(c).getPressureCD() + cd);
-					}
+				// Pressure fore drag
+				double cd = calcMap.get(c).calculatePressureDragForce(conditions, stagnation, base,
+																	  warnings);
+				total += cd;
+				
+				if (map != null) {
+					map.get(c).setPressureCD(cd);
 				}
 				
-				radius = s.getAftRadius();
+				if(c.isCDOverridden()) continue;					
+				
+				
+				// Stagnation drag
+				if (c instanceof SymmetricComponent) {
+					SymmetricComponent s = (SymmetricComponent) c;
+					
+					if (radius < s.getForeRadius()) {
+						double area = Math.PI * (pow2(s.getForeRadius()) - pow2(radius));
+						cd = stagnation * area / conditions.getRefArea();
+						total += cd;
+						if (map != null) {
+							map.get(c).setPressureCD(map.get(c).getPressureCD() + cd);
+						}
+					}
+					
+					radius = s.getAftRadius();
+				}
 			}
 		}
-		
+			
 		return total;
 	}
 	
