@@ -16,7 +16,7 @@ public class FinSetTest extends BaseTestCase {
 	@Test
 	public void testMultiplicity() {
 		final EllipticalFinSet fins = new EllipticalFinSet();
-		assertEquals(1, fins.getFinCount());
+		assertEquals(3, fins.getFinCount());
 	}
 
     /**

@@ -1325,6 +1325,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		FreeformFinSet fins = new FreeformFinSet();
 		body.addChild(fins);
 		fins.setAxialOffset( AxialMethod.TOP, 1.0);
+		fins.setFinCount(1);
 
 		Coordinate[] points = new Coordinate[] {
 				new Coordinate(0.0, 0),
