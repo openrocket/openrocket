@@ -392,84 +392,90 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		double[] roughnessLimited = new double[Finish.values().length];
 		Arrays.fill(roughnessLimited, Double.NaN);
-		
-		for (RocketComponent c : configuration.getActiveComponents()) {
+
+		final InstanceMap imap = configuration.getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent c = entry.getKey();
 			
 			// Consider only SymmetricComponents and FinSets:
 			if (!(c instanceof SymmetricComponent) &&
 					!(c instanceof FinSet))
 				continue;
-			
-			// Calculate the roughness-limited friction coefficient
-			Finish finish = ((ExternalComponent) c).getFinish();
-			if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
-				roughnessLimited[finish.ordinal()] =
-						0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
-								roughnessCorrection;
-			}
-			
-			/*
-			 * Actual Cf is maximum of Cf and the roughness-limited value.
-			 * For perfect finish require additionally that Re > 1e6
-			 */
-			double componentCf;
-			if (configuration.getRocket().isPerfectFinish()) {
-				
-				// For perfect finish require Re > 1e6
-				if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
-					componentCf = roughnessLimited[finish.ordinal()];
-				} else {
-					componentCf = Cf;
-				}
-				
-			} else {
-				
-				// For fully turbulent use simple max
-				componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
-				
-			}
-			
-			//Handle Overriden CD for Whole Rocket
-			if(c.isCDOverridden()) {
-				continue;
-			}
-			
-			
-			// Calculate the friction drag:
-			if (c instanceof SymmetricComponent) {
-				
-				SymmetricComponent s = (SymmetricComponent) c;
-				
-				bodyFriction += componentCf * s.getComponentWetArea();
-				
-				if (map != null) {
-					// Corrected later
-					map.get(c).setFrictionCD(componentCf * s.getComponentWetArea()
-							/ conditions.getRefArea());
-				}
-				
-				double r = Math.max(s.getForeRadius(), s.getAftRadius());
-				if (r > maxR)
-					maxR = r;
-				len += c.getLength();
-				
-			} else if (c instanceof FinSet) {
-				
-				FinSet f = (FinSet) c;
-				double mac = ((FinSetCalc) calcMap.get(c)).getMACLength();
-				double cd = componentCf * (1 + 2 * f.getThickness() / mac) *
-						2 * f.getFinCount() * f.getPlanformArea();
-				finFriction += cd;
-				
-				if (map != null) {
-					map.get(c).setFrictionCD(cd / conditions.getRefArea());
-				}
-				
-			}
 
-		
+				// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
 			
+				// Calculate the roughness-limited friction coefficient
+				Finish finish = ((ExternalComponent) c).getFinish();
+				if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
+					roughnessLimited[finish.ordinal()] =
+						0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
+						roughnessCorrection;
+				}
+			
+				/*
+				 * Actual Cf is maximum of Cf and the roughness-limited value.
+				 * For perfect finish require additionally that Re > 1e6
+				 */
+				double componentCf;
+				if (configuration.getRocket().isPerfectFinish()) {
+					
+					// For perfect finish require Re > 1e6
+					if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
+						componentCf = roughnessLimited[finish.ordinal()];
+					} else {
+						componentCf = Cf;
+					}
+					
+				} else {
+					
+					// For fully turbulent use simple max
+					componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
+					
+				}
+			
+				//Handle Overriden CD for Whole Rocket
+				if(c.isCDOverridden()) {
+					continue;
+				}
+			
+			
+				// Calculate the friction drag:
+				if (c instanceof SymmetricComponent) {
+				
+					SymmetricComponent s = (SymmetricComponent) c;
+					
+					bodyFriction += componentCf * s.getComponentWetArea();
+				
+					if (map != null) {
+						// Corrected later
+						map.get(c).setFrictionCD(componentCf * s.getComponentWetArea()
+												 / conditions.getRefArea());
+					}
+				
+					double r = Math.max(s.getForeRadius(), s.getAftRadius());
+					if (r > maxR)
+						maxR = r;
+					len += c.getLength();
+					
+				} else if (c instanceof FinSet) {
+				
+					FinSet f = (FinSet) c;
+					double mac = ((FinSetCalc) calcMap.get(c)).getMACLength();
+					double cd = componentCf * (1 + 2 * f.getThickness() / mac) *
+						2 * f.getPlanformArea();
+					finFriction += cd;
+					
+					if (map != null) {
+						map.get(c).setFrictionCD(cd / conditions.getRefArea());
+					}
+					
+				}
+				
+			}
 		}
+		
 		// fB may be POSITIVE_INFINITY, but that's ok for us
 		double fB = (len + 0.0001) / maxR;
 		double correction = (1 + 1.0 / (2 * fB));
@@ -482,8 +488,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 			}
 		}
-
-               
 		
 		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
 	}
