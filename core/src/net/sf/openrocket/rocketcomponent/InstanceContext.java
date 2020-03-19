@@ -36,7 +36,7 @@ public class InstanceContext {
 
 	@Override
 	public String toString() {
-		return String.format("Context for %s #%d", component);
+		return String.format("Context for %s #%d", component.toString(), instanceNumber);
 	}
 
 	public Coordinate getLocation() {
