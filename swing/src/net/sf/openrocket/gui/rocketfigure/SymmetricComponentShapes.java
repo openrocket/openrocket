@@ -19,6 +19,10 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable)
 
     public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+    	return getShapesSide(component, transformation, 1.0d);
+    }
+    
+    public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation, final double scaleFactor ) {
 
 
 		SymmetricComponent c = (SymmetricComponent) component;
@@ -82,14 +86,14 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo((nose.x + points.get(len - 1).x) , (nose.y+points.get(len - 1).y) );
+		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo((nose.x+points.get(i).x), (nose.y+points.get(i).y) );
+			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y+points.get(i).y) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo((nose.x+points.get(i).x) , (nose.y-points.get(i).y) );
+			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y-points.get(i).y) * scaleFactor);
 		}
-		path.lineTo((nose.x+points.get(len - 1).x) , (nose.y+points.get(len - 1).y) );
+		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor , (nose.y+points.get(len - 1).y) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;
