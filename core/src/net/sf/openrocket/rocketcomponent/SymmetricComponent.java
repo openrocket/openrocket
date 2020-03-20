@@ -566,7 +566,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * 
 	 * @return	the previous SymmetricComponent, or null.
 	 */
-	protected final SymmetricComponent getPreviousSymmetricComponent() {
+	public final SymmetricComponent getPreviousSymmetricComponent() {
 		RocketComponent c;
 		for (c = this.getPreviousComponent(); c != null; c = c.getPreviousComponent()) {
 			if (c instanceof SymmetricComponent) {

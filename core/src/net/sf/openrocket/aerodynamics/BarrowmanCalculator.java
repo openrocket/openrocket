@@ -506,7 +506,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		double stagnation, base, total;
-		double radius = 0;
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
@@ -524,33 +523,36 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			// iterate across component instances
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
-				
+
 				// Pressure fore drag
 				double cd = calcMap.get(c).calculatePressureDragForce(conditions, stagnation, base,
 																	  warnings);
 				total += cd;
-				
+
 				if (map != null) {
 					map.get(c).setPressureCD(cd);
 				}
 				
 				if(c.isCDOverridden()) continue;					
 				
-				
 				// Stagnation drag
 				if (c instanceof SymmetricComponent) {
 					SymmetricComponent s = (SymmetricComponent) c;
+
+					double radius = 0;
+					final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
+					if (prevComponent != null)
+						radius = prevComponent.getAftRadius();
 					
 					if (radius < s.getForeRadius()) {
 						double area = Math.PI * (pow2(s.getForeRadius()) - pow2(radius));
 						cd = stagnation * area / conditions.getRefArea();
 						total += cd;
+						
 						if (map != null) {
 							map.get(c).setPressureCD(map.get(c).getPressureCD() + cd);
 						}
 					}
-					
-					radius = s.getAftRadius();
 				}
 			}
 		}
@@ -558,7 +560,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		return total;
 	}
 	
-	
+
 	/**
 	 * Calculation of drag coefficient due to base
 	 * 
