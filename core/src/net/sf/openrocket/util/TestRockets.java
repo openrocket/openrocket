@@ -28,6 +28,7 @@ import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -66,6 +67,12 @@ import net.sf.openrocket.startup.Application;
 
 public class TestRockets {
 	
+	public final static FlightConfigurationId TEST_FCID_0 = new FlightConfigurationId("d010716e-ce0e-469d-ae46-190f3653ebbf");
+	public final static FlightConfigurationId TEST_FCID_1 = new FlightConfigurationId("f41bee5b-ebb8-4d92-bce7-53001577a313");
+	public final static FlightConfigurationId TEST_FCID_2 = new FlightConfigurationId("3e8d1280-53c2-4234-89a7-de215ef5cd69");
+	public final static FlightConfigurationId TEST_FCID_3 = new FlightConfigurationId("415a5485-f2da-4c2a-8803-394220ae58b8");
+	public final static FlightConfigurationId TEST_FCID_4 = new FlightConfigurationId("5abc18ec-a200-46f1-90c4-60b6995fc933");
+
 	private final String key;
 	private final Random rnd;
 	
@@ -376,15 +383,7 @@ public class TestRockets {
 			
 		return values[rnd.nextInt(values.length)];
 	}
-	
-	final static FlightConfigurationId ESTES_ALPHA_III_FCID[] = { 
-			null, // treat the array as 1-indexed.   
-			new FlightConfigurationId("test_config #1: A8-0"), 
-			new FlightConfigurationId("test_config #2: B4-3"),
-			new FlightConfigurationId("test_config #3: C6-3"),
-			new FlightConfigurationId("test_config #4: C6-5"),
-			new FlightConfigurationId("test_config #5: C6-7"),
-	};
+
 	
 	// This is a Estes Alpha III 
 	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
@@ -392,13 +391,12 @@ public class TestRockets {
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
 	public static final Rocket makeEstesAlphaIII(){
 		Rocket rocket = new Rocket();
-		FlightConfigurationId fcid[] = new FlightConfigurationId[5];
-		fcid[0] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[1] );
-		fcid[1] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[2] );
-		fcid[2] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[3] );
-		fcid[3] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[4] );
-		fcid[4] = rocket.createFlightConfiguration( ESTES_ALPHA_III_FCID[5] );
 		
+		rocket.createFlightConfiguration( TEST_FCID_0 );
+		rocket.createFlightConfiguration( TEST_FCID_1 );
+		rocket.createFlightConfiguration( TEST_FCID_2 );
+		rocket.createFlightConfiguration( TEST_FCID_3 );
+		rocket.createFlightConfiguration( TEST_FCID_4 );
 		
 		rocket.setName("Estes Alpha III / Code Verification Rocket");
 		AxialStage stage = new AxialStage();
@@ -463,41 +461,41 @@ public class TestRockets {
 				thrustBlock.setName("Engine Block");
 				inner.addChild(thrustBlock);
 				inner.setMotorMount( true);
-				
+			
 				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[0]);
+					MotorConfiguration motorConfig = new MotorConfiguration(inner, TEST_FCID_0);
 					Motor mtr =	TestRockets.generateMotor_A8_18mm();
 					motorConfig.setMotor( mtr);
 					motorConfig.setEjectionDelay(0.0);
-					inner.setMotorConfig( motorConfig, fcid[0]);
+					inner.setMotorConfig( motorConfig, TEST_FCID_0);
 				}
 				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[1]);
+					MotorConfiguration motorConfig = new MotorConfiguration(inner,TEST_FCID_1);
 					Motor mtr =	TestRockets.generateMotor_B4_18mm();
 					motorConfig.setMotor( mtr);
 					motorConfig.setEjectionDelay(3.0);
-					inner.setMotorConfig( motorConfig, fcid[1]);
+					inner.setMotorConfig( motorConfig, TEST_FCID_1);
 				}
 				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[2]);
+					MotorConfiguration motorConfig = new MotorConfiguration(inner, TEST_FCID_2);
 					Motor mtr =	TestRockets.generateMotor_C6_18mm();
 					motorConfig.setEjectionDelay(3.0);
 					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[2]);
+					inner.setMotorConfig( motorConfig, TEST_FCID_2);
 				}
 				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[3]);
+					MotorConfiguration motorConfig = new MotorConfiguration(inner,TEST_FCID_3);
 					Motor mtr =	TestRockets.generateMotor_C6_18mm();
 					motorConfig.setEjectionDelay(5.0);
 					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[3]);
+					inner.setMotorConfig( motorConfig, TEST_FCID_3);
 				}
 				{
-					MotorConfiguration motorConfig = new MotorConfiguration(inner,fcid[4]);
+					MotorConfiguration motorConfig = new MotorConfiguration(inner,TEST_FCID_4);
 					Motor mtr =	TestRockets.generateMotor_C6_18mm();
 					motorConfig.setEjectionDelay(7.0);
 					motorConfig.setMotor( mtr);
-					inner.setMotorConfig( motorConfig, fcid[4]);
+					inner.setMotorConfig( motorConfig, TEST_FCID_4);
 				}
 			}
 		
@@ -525,7 +523,6 @@ public class TestRockets {
 		nosecone.setMaterial(material);
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);
-		
 		
 		// preserve default default configuration of rocket -- to test what the default is set to upon initialization.
 		
@@ -586,16 +583,16 @@ public class TestRockets {
 				boosterMMT.setLength(0.05);
 				boosterMMT.setMotorMount(true);
 				{
-					MotorConfiguration motorConfig= new MotorConfiguration(boosterMMT, ESTES_ALPHA_III_FCID[1] );
+					MotorConfiguration motorConfig= new MotorConfiguration(boosterMMT, TEST_FCID_1 );
 					Motor mtr = generateMotor_D21_18mm();
 					motorConfig.setMotor(mtr);
-					boosterMMT.setMotorConfig( motorConfig, ESTES_ALPHA_III_FCID[1]);
+					boosterMMT.setMotorConfig( motorConfig, TEST_FCID_1);
 				}
 				boosterBody.addChild(boosterMMT);
 			}
 		}
 
-		rocket.setSelectedConfiguration( ESTES_ALPHA_III_FCID[1] );
+		rocket.setSelectedConfiguration( TEST_FCID_1 );
 		rocket.getSelectedConfiguration().setAllStages();
 		rocket.enableEvents();
 		
@@ -748,7 +745,7 @@ public class TestRockets {
 		auxfinset.setCrossSection(CrossSection.AIRFOIL);
 		auxfinset.setAxialMethod(AxialMethod.TOP);
 		auxfinset.setAxialOffset(0.28);
-		auxfinset.setBaseRotation(Math.PI / 2);
+		auxfinset.setAngleOffset(Math.PI / 2);
 		tube1.addChild(auxfinset);
 		
 		coupler = new TubeCoupler();
@@ -826,7 +823,7 @@ public class TestRockets {
 		finset.setSweep(0.3);
 		finset.setAxialMethod(AxialMethod.BOTTOM);
 		finset.setAxialOffset(-0.03);
-		finset.setBaseRotation(Math.PI / 2);
+		finset.setAngleOffset(Math.PI / 2);
 		tube3.addChild(finset);
 		
 		finset.setCantAngle(0 * Math.PI / 180);
@@ -1012,7 +1009,7 @@ public class TestRockets {
 						boosterBody.addChild(boosterFins);
 						boosterFins.setName("Booster Fins");
 						boosterFins.setFinCount(3);
-						boosterFins.setBaseRotation( Math.PI / 4);
+						boosterFins.setAngleOffset( Math.PI / 4);
 						boosterFins.setThickness(0.003);
 						boosterFins.setCrossSection(CrossSection.ROUNDED);
 						boosterFins.setRootChord(0.32);
@@ -1148,7 +1145,7 @@ public class TestRockets {
 		TrapezoidFinSet endPlate = new TrapezoidFinSet(endPlateCount, endPlateRootChord, endPlateTipChord, endPlateSweep, endPlateHeight);
 		phantom.addChild(endPlate);
 		endPlate.setName("End plates");
-		endPlate.setBaseRotation(endPlateRotation);
+		endPlate.setAngleOffset(endPlateRotation);
 		endPlate.setAxialMethod(endPlateAxialMethod);
 		endPlate.setAxialOffset(endPlateAxialOffset);
 		endPlate.setThickness(endPlateThickness);
