@@ -49,7 +49,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final double thickness;
 	private final double bodyRadius;
 	private final int finCount;
-	private final double baseRotation;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
 	
@@ -68,7 +67,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		bodyRadius = fin.getBodyRadius();
 		finCount = fin.getFinCount();
 		
-		baseRotation = fin.getBaseRotation();
 		cantAngle = fin.getCantAngle();
 		span = fin.getSpan();
 		finArea = fin.getPlanformArea();
@@ -114,10 +112,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Multiple fins with fin-fin interference
 		double cna;
 		double theta = conditions.getTheta();
-		double angle = baseRotation + transform.getXrotation();
-		
+		double angle = transform.getXrotation();
+
 		// Compute basic CNa without interference effects
 		cna = cna1 * MathUtil.pow2(Math.sin(theta - angle));
+//		final double cna_x = cna1 * MathUtil.pow2(Math.sin(theta - angle));
+//		final double cna_y = cna1 * MathUtil.pow2(Math.sin(theta - angle));
 		
 		//		logger.debug("Component cna = {}", cna);
 		
@@ -166,7 +166,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		// (Barrowman thesis pdf-page 40)
 		
 		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
-		
 		// Calculate CP position
 		double x = macLead + calculateCPPos(conditions) * macLength;
 		//		logger.debug("Component macLead = {}", macLead);

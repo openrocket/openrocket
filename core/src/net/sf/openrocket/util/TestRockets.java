@@ -1036,12 +1036,6 @@ public class TestRockets {
 						boosterFins.setSweep(0.18);
 						boosterFins.setAxialMethod(AxialMethod.BOTTOM);
 						boosterFins.setAxialOffset(0.0);
-						// cp:(1.17873,0.10422,0.02722,w=6.07405) (1 fin case)
-						// cp:(1.17873,-0.10422,-0.02722,w=6.07405) (1 fin case)
-						// cp:(1.17873,0.10422,0.02722,w=12.14810) (2 fin case)
-						// cp:(1.17873,-0.10422,-0.02722,w=12.14810) (2 fin case)
-						// cp:(1.17873,0.00000,0.00000,w=9.11107) (3 fin case)
-						// cp:(1.17873,0.00000,0.00000,w=9.11107) (3 fin case)
 					}
 				}
 				
