@@ -15,6 +15,7 @@ import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -142,6 +143,31 @@ public class BarrowmanCalculatorTest {
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0f, cp_1fin.z, EPSILON);
 		}{
 			// absent -- 3.28901627g @[0.31469937,0.05133333,0.00000000]
+		}
+	}
+
+	@Test
+	public void testCpSplitTripleFin() {
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+		final WarningSet warnings = new WarningSet();
+
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+
+		{
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 26.14693374, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
+		}{
+			final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
+			final FinSet fins = (FinSet)body.getChild(0);
+			fins.setAngleOffset(0);
+			TestRockets.splitRocketFins(body, fins, 3);
+			
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 26.14693374, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
 		}
 	}
 
