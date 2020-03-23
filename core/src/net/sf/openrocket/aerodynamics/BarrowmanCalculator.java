@@ -571,11 +571,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return
 	 */
 	private double calculateBaseDrag(FlightConfiguration configuration, FlightConditions conditions,
-			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
+									 Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		double base, total;
-		double radius = 0;
-		RocketComponent prevComponent = null;
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
@@ -583,36 +581,51 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		base = calculateBaseCD(conditions.getMach());
 		total = 0;
 		
-		for (RocketComponent c : configuration.getActiveComponents()) {
+		final InstanceMap imap = configuration.getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent c = entry.getKey();
+			
 			if (!(c instanceof SymmetricComponent))
 				continue;
 			
 			SymmetricComponent s = (SymmetricComponent) c;
-
-			if(c.isCDOverridden()) {
-				total += c.getOverrideCD();
-				continue;
-			}
 			
-			if (radius > s.getForeRadius()) {
-				double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
-				double cd = base * area / conditions.getRefArea();
-				total += cd;
-				if (map != null) {
-					map.get(prevComponent).setBaseCD(cd);
+			// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
+				if(c.isCDOverridden()) {
+					total += c.getOverrideCD();
+					continue;
 				}
-			}
-			
-			radius = s.getAftRadius();
-			prevComponent = c;
-		}
-		
-		if (radius > 0) {
-			double area = Math.PI * pow2(radius);
-			double cd = base * area / conditions.getRefArea();
-			total += cd;
-			if (map != null) {
-				map.get(prevComponent).setBaseCD(cd);
+				
+				// if aft radius of previous component is greater than my forward radius, set
+				// its aft CD
+				double radius = 0;
+				final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
+				if (prevComponent != null) {
+					radius = prevComponent.getAftRadius();
+				}
+				
+				if (radius > s.getForeRadius()) {
+					double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
+					double cd = base * area / conditions.getRefArea();
+					total += cd;
+					if ((map != null) && (prevComponent != null)) {
+						map.get(prevComponent).setBaseCD(cd);
+					}
+				}
+				
+				// if I'm the last componenet, set my base CD
+				// note I can't depend on the iterator serving up components in order,
+				// so I can't just do this after the last iteration.
+				if (s.getNextSymmetricComponent() == null) {
+					double area = Math.PI * pow2(s.getAftRadius());
+					double cd = base * area / conditions.getRefArea();
+					total += cd;
+					if (map != null) {
+						map.get(s).setBaseCD(cd);
+					}
+				}
 			}
 		}
 		

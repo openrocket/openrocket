@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -561,34 +562,37 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 
 	/**
 	 * Return the previous symmetric component, or null if none exists.
-	 * NOTE: This method currently assumes that there are no external
-	 * "pods".
 	 * 
 	 * @return	the previous SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getPreviousSymmetricComponent() {
 		RocketComponent c;
 		for (c = this.getPreviousComponent(); c != null; c = c.getPreviousComponent()) {
+			if (c instanceof PodSet) {
+				return null;
+			}
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
 			if (!(c instanceof AxialStage) &&
-					(c.axialMethod == AxialMethod.AFTER))
+				(c.axialMethod == AxialMethod.AFTER)) {
 				return null; // Bad component type as "parent"
+			}
 		}
 		return null;
 	}
 	
 	/**
 	 * Return the next symmetric component, or null if none exists.
-	 * NOTE: This method currently assumes that there are no external
-	 * "pods".
 	 * 
 	 * @return	the next SymmetricComponent, or null.
 	 */
-	protected final SymmetricComponent getNextSymmetricComponent() {
+	public final SymmetricComponent getNextSymmetricComponent() {
 		RocketComponent c;
 		for (c = this.getNextComponent(); c != null; c = c.getNextComponent()) {
+			if (c instanceof PodSet) {
+				return null;
+			}
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
