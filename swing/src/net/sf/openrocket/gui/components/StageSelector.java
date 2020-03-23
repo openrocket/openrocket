@@ -10,21 +10,17 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
 
 @SuppressWarnings("serial")
 public class StageSelector extends JPanel implements StateChangeListener {
 
-	private static final Translator trans = Application.getTranslator();
-	
 	private final Rocket rocket;
 	
 	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
@@ -41,7 +37,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		this.removeAll();
 		for(AxialStage stage : configuration.getRocket().getStageList()){
 			JToggleButton button = new JToggleButton(new StageAction(stage));
-			button.setSelected(true);
+			button.setSelected(configuration.isStageActive(stage.getStageNumber()));
 			this.add(button);
 			buttons.add(button);
 		}
