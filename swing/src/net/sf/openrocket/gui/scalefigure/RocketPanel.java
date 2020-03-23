@@ -606,20 +606,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure3d.setCG(cg);
 		figure3d.setCP(cp);
 
-		// Length bound is assumed to be tight
-		double length = 0;
-		Collection<Coordinate> bounds = curConfig.getBounds();
-		if (!bounds.isEmpty()) {
-			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
-			for (Coordinate c : bounds) {
-				if (c.x < minX)
-					minX = c.x;
-				if (c.x > maxX)
-					maxX = c.x;
-			}
-			length = maxX - minX;
-		}
-
+		double length = curConfig.getLength();
+		
 		double diameter = Double.NaN;
 		for (RocketComponent c : curConfig.getCoreComponents()) {
 			if (c instanceof SymmetricComponent) {
