@@ -231,4 +231,50 @@ public class BarrowmanCalculatorTest {
 		
 		assertFalse(" Missed discontinuity in Falcon 9 Heavy:", calc.isContinuous( rocket));
 	}
+
+	@Test
+	public void testPhantomTubes() {
+		Rocket rocketNoPods = TestRockets.make3FNCNoPods();
+		FlightConfiguration configNoPods = rocketNoPods.getSelectedConfiguration();
+		FlightConditions conditionsNoPods = new FlightConditions(configNoPods);
+		WarningSet warningsNoPods = new WarningSet();
+		
+		Rocket rocketWithPods = TestRockets.make3FNCWithPods();
+		FlightConfiguration configPods = rocketWithPods.getSelectedConfiguration();
+		FlightConditions conditionsPods = new FlightConditions(configPods);
+		WarningSet warningsPods = new WarningSet();
+		AerodynamicCalculator calcPods = new BarrowmanCalculator();
+		AerodynamicCalculator calcNoPods = new BarrowmanCalculator();
+
+		final AerodynamicForces forcesNoPods = calcPods.getAerodynamicForces(configNoPods, conditionsNoPods, warningsNoPods);
+		final AerodynamicForces forcesPods = calcPods.getAerodynamicForces(configPods, conditionsPods, warningsPods);
+		assertEquals(" 3FNC With Pods rocket CD value is incorrect:", forcesPods.getCD(), forcesNoPods.getCD(), EPSILON);
+
+		// The "with pods" version has no way of seeing the fins are
+		// on the actual body tube rather than the phantom tubes,
+		// so CD won't take fin-body interference into consideration.
+		// So we'll adjust our CD in these tests.  The magic numbers
+		// in x and w come from temporarily disabling the
+		// interference calculation in FinSetCalc and comparing
+		// results with and without it
+		// cpNoPods (0.34125,0.00000,0.00000,w=16.20502) -- interference disabled
+		// cpNoPods (0.34797,0.00000,0.00000,w=19.34773) -- interference enabled
+
+		// another note:  the fact that this is seen as three one-fin
+		// FinSets instead of a single three-fin FinSet means the CP
+		// will be off-axis (one of the fins is taken as having an
+		// angle of 0 to the airstream, so it has no contribution).
+		// This doesn't turn out to cause a problem in an actual
+		// simulation, so we are just not testing for it.  Test with
+		// correction if we want some time is here but commented out
+		
+		final Coordinate cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
+		final Coordinate cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
+		
+		assertEquals(" 3FNC With Pods rocket cp x value is incorrect:", cpPods.x, cpNoPods.x - 0.00672, EPSILON);
+		// assertEquals(" 3FNC With Pods rocket cp y value is incorrect:", cpPods.y, cpNoPods.y - 0.00548, EPSILON);
+		// assertEquals(" 3FNC With Pods rocket cp z value is incorrect:", cpPods.z, cpNoPods.z, EPSILON);
+		assertEquals(" 3FNC With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.14271, EPSILON);
+	}
+			
 }
