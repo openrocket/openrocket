@@ -1,0 +1,77 @@
+name: openrocket
+adopt-info: openrocket
+grade: stable
+summary: A free, fully featured model rocket simulator.
+description: |
+  OpenRocket is a free, fully featured model rocket simulator that allows you
+  to design and simulate your rockets before actually building and flying them.
+
+  The main features include
+
+    * Six-degree-of-freedom flight simulation
+    * Automatic design optimization
+    * Realtime simulated altitude, velocity and acceleration display
+    * Staging and clustering support
+    * Cross-platform (Java-based)
+    * Read more about it on the OpenRocket.info.
+license: GPL-3.0
+base: core18
+
+grade: stable
+confinement: strict
+
+apps:
+  openrocket:
+    extensions:
+      - gnome-3-28
+    command: bin/launcher
+    plugs:
+      - home
+      - network
+      - cups-control
+      - opengl
+    environment:
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
+
+parts:
+  openrocket:
+    plugin: ant
+    source: .
+    ant-build-targets:
+      - clean
+      - check
+      - unittest
+      - jar
+    override-pull: |
+      # Override the pull in order to set the version and the grade.
+      # In the future, the releases can be annotated tags and snapcraft
+      # will use those for the version numbers.
+      #
+      # This can be extended to other parts of OpenRocket (to use the
+      # git describe --tags command) but the build should be updated at
+      # the same time so its consistent across all artifacts. Will defer
+      # that to a later pull request.
+      #
+      # Until then, just use the build.version value
+      snapcraftctl pull
+      VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
+      snapcraftctl set-version "$VERSION"
+    override-build: |
+      snapcraftctl build
+      mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+    build-packages:
+      - wget
+    stage-packages:
+      - openjdk-11-jre
+      - ca-certificates
+      - ca-certificates-java
+    prime:
+      - -usr/lib/jvm/java-*/lib/security/cacerts
+      - -usr/lib/jvm/java-*/jre/lib/security/cacerts
+
+  launcher:
+    plugin: dump
+    source: snap/local
+    organize:
+      'launcher': 'bin/'
+

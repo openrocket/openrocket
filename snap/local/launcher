@@ -1,0 +1,13 @@
+#!/bin/sh
+
+JAVA_BIN="$JAVA_HOME/bin/java"
+
+export DESKTOP_SESSION=gnome
+export XDG_SESSION_DESKTOP=gnome
+export XDG_CURRENT_DESKTOP=GNOME
+
+# Fix font / theme
+export _JAVA_OPTIONS='-Dsun.java2d.xrender=true -Dprism.useFontConfig=false -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dswing.crossplatformlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel'
+export JAVA_FONTS=$SNAP/usr/share/fonts/truetype
+exec $JAVA_BIN -jar $SNAP/OpenRocket.jar "$@"
+
