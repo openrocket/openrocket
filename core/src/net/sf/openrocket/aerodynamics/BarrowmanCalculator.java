@@ -388,7 +388,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		double finFriction = 0;
 		double bodyFriction = 0;
-		double maxR = 0, len = 0;
+		double maxR = 0, minX = Double.MAX_VALUE, maxX = 0;
 		
 		double[] roughnessLimited = new double[Finish.values().length];
 		Arrays.fill(roughnessLimited, Double.NaN);
@@ -453,11 +453,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						map.get(c).setFrictionCD(componentCf * s.getComponentWetArea()
 												 / conditions.getRefArea());
 					}
-				
-					double r = Math.max(s.getForeRadius(), s.getAftRadius());
-					if (r > maxR)
-						maxR = r;
-					len += c.getLength();
+
+					final double componentMinX = context.getLocation().x;
+					minX = Math.min(minX, componentMinX);
+
+					final double componentMaxX = componentMinX + c.getLength();
+					maxX = Math.max(maxX, componentMaxX);
+
+					final double componentMaxR = Math.max(s.getForeRadius(), s.getAftRadius());
+					maxR = Math.max(maxR, componentMaxR);
 					
 				} else if (c instanceof FinSet) {
 				
@@ -477,7 +481,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		}
 		
 		// fB may be POSITIVE_INFINITY, but that's ok for us
-		double fB = (len + 0.0001) / maxR;
+		double fB = (maxX - minX + 0.0001) / maxR;
 		double correction = (1 + 1.0 / (2 * fB));
 		
 		// Correct body data in map
