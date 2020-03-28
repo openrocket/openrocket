@@ -35,7 +35,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Maximum allowed cant of fins.
 	 */
-	public static final double MAX_CANT = (15.0 * Math.PI / 180);
+	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
 	
 	public enum CrossSection {
 		//// Square
@@ -71,20 +71,20 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/**
 	 * Rotation about the x-axis by 2*PI/fins.
 	 */
-	private Transformation finRotation = Transformation.IDENTITY;
+	private Transformation finRotationIncrement = Transformation.IDENTITY;
 
 
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
 	 */
 	private AngleMethod angleMethod = AngleMethod.RELATIVE;
-	private double firstFinOffset = 0;
+	private double firstFinOffsetRadians = 0;
 	private Transformation baseRotation = Transformation.IDENTITY;  // initially, rotate by 0 degrees.
 
 	/**
 	 * Cant angle of fins.
 	 */
-	private double cantAngle = 0;
+	private double cantRadians = 0;
 	
 	/* Cached value: */
 	private Transformation cantRotation = null;
@@ -164,13 +164,13 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 			n = 8;
 		finCount = n;
 
-		finRotation = Transformation.rotate_x(2 * Math.PI / finCount);
+		finRotationIncrement = Transformation.rotate_x(2 * Math.PI / finCount);
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	public Transformation getFinRotationTransformation() {
-		return finRotation;
+		return finRotationIncrement;
 	}
 
 	@Override
@@ -194,28 +194,32 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		setAngleOffset(r);
 	}
 	
+	/**
+	 * @return angle current cant angle, in radians 
+	 */
 	public double getCantAngle() {
-		return cantAngle;
+		return cantRadians;
 	}
 	
-	public void setCantAngle(double cant) {
-		cant = MathUtil.clamp(cant, -MAX_CANT, MAX_CANT);
-		if (MathUtil.equals(cant, cantAngle))
+	/**
+	 * 
+	 * @param cant -- new cant angle, in radians
+	 */
+	public void setCantAngle(final double newCantRadians) {
+		final double clampedCant = MathUtil.clamp(newCantRadians, -MAX_CANT_RADIANS, MAX_CANT_RADIANS);
+		if (MathUtil.equals(clampedCant, this.cantRadians))
 			return;
-		this.cantAngle = cant;
+		this.cantRadians = clampedCant;
+		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
 	public Transformation getCantRotation() {
-		if (cantRotation == null) {
-			if (MathUtil.equals(cantAngle, 0)) {
+		if( null == cantRotation ) {
+			if (MathUtil.equals(this.cantRadians, 0)) {
 				cantRotation = Transformation.IDENTITY;
 			} else {
-				Transformation t = new Transformation(-length / 2, 0, 0);
-				t = Transformation.rotate_y(cantAngle).applyTransformation(t);
-				t = new Transformation(length / 2, 0, 0).applyTransformation(t);
-				cantRotation = t;
+				cantRotation = Transformation.rotate_y(cantRadians);
 			}
 		}
 		return cantRotation;
@@ -928,16 +932,22 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	@Override
 	public double getAngleOffset() {
-		return firstFinOffset;
+		return firstFinOffsetRadians;
 	}
 
-
 	@Override
-	public void setAngleOffset(double angle) {
-		angle = MathUtil.reduce180(angle);
-		if (MathUtil.equals(angle, firstFinOffset))
+	public void setAngleOffset(final double angleRadians) {
+		final double reducedAngle = MathUtil.reducePI(angleRadians);
+		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
-		firstFinOffset = angle;
+		firstFinOffsetRadians = reducedAngle;
+
+		if (MathUtil.equals(this.firstFinOffsetRadians, 0)) {
+			baseRotation = Transformation.IDENTITY;
+		} else {
+			baseRotation = Transformation.rotate_x(firstFinOffsetRadians);
+		}
+		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -947,13 +957,12 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 	@Override
-	public double[] getInstanceAngles(){		
-		final double baseAngle = getAngleOffset();
-		final double incrAngle = getInstanceAngleIncrement();
+	public double[] getInstanceAngles() {
+		final double angleIncrementRadians = getInstanceAngleIncrement();
 		
 		double[] result = new double[ getFinCount()]; 
-		for( int i=0; i<getFinCount(); ++i){
-			result[i] = MathUtil.reduce360( baseAngle + incrAngle*i);
+		for( int finNumber=0; finNumber < getFinCount(); ++finNumber ){
+			result[finNumber] = MathUtil.reduce2PI( firstFinOffsetRadians + angleIncrementRadians*finNumber);
 		}
 		
 		return result;
@@ -1019,9 +1028,9 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	protected List<RocketComponent> copyFrom(RocketComponent c) {
 		FinSet src = (FinSet) c;
 		this.finCount = src.finCount;
-		this.finRotation = src.finRotation;
-		this.firstFinOffset = src.firstFinOffset;
-		this.cantAngle = src.cantAngle;
+		this.finRotationIncrement = src.finRotationIncrement;
+		this.firstFinOffsetRadians = src.firstFinOffsetRadians;
+		this.cantRadians = src.cantRadians;
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
 		this.crossSection = src.crossSection;
@@ -1066,7 +1075,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/**
-<<<<<<< HEAD
 	 * use this for calculating physical properties, and routine drawing
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
@@ -1226,22 +1234,22 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		checkState();
 
 		final double bodyRadius = this.getBodyRadius();
+		
+		// already includes the base rotation
 		final double[] angles = getInstanceAngles();
 
-		final Transformation localCantRotation = getCantRotation();
-
+		final Transformation localCantRotation = new Transformation(length / 2, 0, 0)
+													.applyTransformation(getCantRotation())
+													.applyTransformation(new Transformation(-length / 2, 0, 0));
+		
 		Coordinate[] toReturn = new Coordinate[finCount];
 		for (int instanceNumber = 0; instanceNumber < finCount; instanceNumber++) {
-			final double curY = bodyRadius * Math.cos(angles[instanceNumber]);
-			final double curZ = bodyRadius * Math.sin(angles[instanceNumber]);
-
-			final Coordinate naiveLocation = new Coordinate(0, curY, curZ);
-
-			final Coordinate adjustedLocation = baseRotation.transform(localCantRotation.transform( naiveLocation));
-
-			toReturn[instanceNumber] = adjustedLocation;
+			final Coordinate raw = new Coordinate( 0, bodyRadius, 0);
+			final Coordinate canted = localCantRotation.transform(raw);
+			final Coordinate rotated = Transformation.rotate_x(angles[instanceNumber]).transform(canted);
+			toReturn[instanceNumber] = rotated;
 		}
-	 		
+		
 		return toReturn;
 	}
 }

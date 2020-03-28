@@ -75,14 +75,14 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			label.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Fincant"));
 			panel.add(label);
 
-			final DoubleModel cantModel = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT, FinSet.MAX_CANT);
+			final DoubleModel cantModel = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
 
 			final JSpinner cantSpinner = new JSpinner(cantModel.getSpinnerModel());
 			cantSpinner.setEditor(new SpinnerEditor(cantSpinner));
 			panel.add(cantSpinner, "growx");
 
 			panel.add(new UnitSelector(cantModel), "growx");
-			panel.add(new BasicSlider(cantModel.getSliderModel(-FinSet.MAX_CANT, FinSet.MAX_CANT)),
+			panel.add(new BasicSlider(cantModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
 					"w 100lp, wrap");
 		}
 
