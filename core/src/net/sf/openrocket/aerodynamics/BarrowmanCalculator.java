@@ -537,7 +537,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					map.get(c).setPressureCD(cd);
 				}
 				
-				if(c.isCDOverridden()) continue;					
+				if(c.isCDOverridden())
+					continue;					
 				
 				// Stagnation drag
 				if (c instanceof SymmetricComponent) {
