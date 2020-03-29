@@ -1,13 +1,16 @@
 package net.sf.openrocket.util;
 
+import java.util.ArrayList;
+import java.io.FileOutputStream;
+import java.util.Map;
 import java.util.Random;
 
 import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
@@ -34,6 +37,8 @@ import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -1629,5 +1634,54 @@ public class TestRockets {
 		rocket.enableEvents();
 		return rocketDoc;
 	}
+
+	// Alpha III modified to put fins on "phantom" pods
+	public static final Rocket makeEstesAlphaIIIWithPods() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+
+		// find the body and fins
+		final InstanceMap imap = rocket.getSelectedConfiguration().getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {		
+			RocketComponent c = entry.getKey();
+			if (c instanceof TrapezoidFinSet) {
+				final TrapezoidFinSet fins = (TrapezoidFinSet) c;
+				final BodyTube body = (BodyTube) fins.getParent();
+				body.removeChild(fins);
+				
+				// create a PodSet to hook the fins to
+				PodSet podset = new PodSet();
+				podset.setInstanceCount(fins.getFinCount());
+				
+				body.addChild(podset);
+				
+				// put a phantom body tube on the pods
+				BodyTube podBody = new BodyTube(fins.getRootChord(), 0);
+				podBody.setName("Pod Body");
+				podset.addChild(podBody);
+				
+				// change the number of fins to 1 and put the revised
+				// finset on the podbody
+				fins.setFinCount(1);
+				podBody.addChild(fins);
+			}
+		}
+
+		return rocket;
+	}
 	
+	/**
+	 * dump a test rocket to a file, so we can open it in OR
+	 */
+	static void dumpRocket(Rocket rocket, String filename) {
+
+		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		OpenRocketSaver saver = new OpenRocketSaver();
+		try {
+			FileOutputStream str = new FileOutputStream(filename);
+			saver.save(str, doc, null);
+		}
+		catch (Exception e) {
+			System.err.println("exception " + e);
+		}
+	}
 }
