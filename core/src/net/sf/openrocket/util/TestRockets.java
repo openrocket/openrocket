@@ -1635,39 +1635,7 @@ public class TestRockets {
 		return rocketDoc;
 	}
 
-	// the following two models are used in testing
-	// otherwise-identical rockets, one created in the obvious way
-	// using a single finset and the other creating three pods, each
-	// with a single fin.
-	public static final Rocket make3FNCNoPods()  {
-
-		Rocket rocket = new Rocket();
-
-		rocket.enableEvents();
-
-		AxialStage stage = new AxialStage();
-		stage.setName("Sustainer");
-		rocket.addChild(stage);
-
-		// shape, length, radius
-		NoseCone nosecone = new NoseCone(Transition.Shape.OGIVE, 0.102, 0.0125);
-		stage.addChild(nosecone);
-
-		// length, outer radius, thickness
-		BodyTube bodytube = new BodyTube(0.305, 0.0125, 0.001);
-		bodytube.setName("Main Body");
-		stage.addChild(bodytube);
-
-		// number of fins, root chord, tip chord, sweep, height
-		TrapezoidFinSet trapezoidfinset = new TrapezoidFinSet(3, 0.051, 0.025, 0.038, 0.044);
-		bodytube.addChild(trapezoidfinset);
-
-		return rocket;
-	}
-
-	// second model used to test with/without pods.  In order to
-	// maintain consistency between the models, we'll create the
-	// no-pods first, and then modify it to make the with-pods version
+	// Alpha III modified to put fins on "phantom" pods
 	public static final Rocket makeEstesAlphaIIIWithPods() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 
