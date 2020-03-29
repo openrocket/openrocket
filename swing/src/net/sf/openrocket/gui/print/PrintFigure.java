@@ -3,6 +3,8 @@
  */
 package net.sf.openrocket.gui.print;
 
+import java.awt.geom.Rectangle2D;
+
 import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
@@ -27,7 +29,15 @@ public class PrintFigure extends RocketFigure {
 		updateFigure();
 	}
 
-    public double getFigureHeightPx() {
-        return this.getSize().height;
+    public double getFigureHeight() {
+        return this.subjectBounds_m.getHeight();
+    }
+    
+    public double getFigureWidth() {
+    	return this.subjectBounds_m.getWidth();
+    }
+    
+    public Rectangle2D getDimensions() {
+    	return this.subjectBounds_m.getBounds2D();
     }
 }

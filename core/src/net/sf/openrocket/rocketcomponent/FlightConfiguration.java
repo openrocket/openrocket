@@ -105,7 +105,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		this._setAllStages(true);
 		this.updateMotors();
 	}
-		
+
 	private void _setAllStages(final boolean _active) {
 		for (StageFlags cur : stages.values()) {
 			cur.active = _active;
@@ -124,6 +124,32 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
+	}
+	
+	/**
+	 * Activates all stages as active starting from the specified component
+	 * to the top-most stage in the rocket. Active stages are those stages
+	 * which contribute to the mass of the rocket. Given a rocket with the
+	 * following stages:
+	 * 
+	 * <ul>
+	 *   <li>StageA - top most stage, containing nose cone etc.</li>
+	 *   <li>StageB - middle stage</li>
+	 *   <li>StageC - bottom stage</li>
+	 * </ul>
+	 * 
+	 * invoking <code>FlightConfiguration.activateStagesThrough(StageB)</code>
+	 * will cause both StageA and StageB to be marked as active, and StageC
+	 * will be marked as inactive.
+	 * 
+	 * @param stage the AxialStage to activate all stages up to (inclusive)
+	 */
+	public void activateStagesThrough(final AxialStage stage) {
+		clearAllStages();
+		for (int i=0; i <= stage.getStageNumber(); i++) {
+			_setStageActive(i, true);
+		}
+		updateMotors();
 	}
 	
 	/** 

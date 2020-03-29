@@ -3,6 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.Iterator;
 
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 
@@ -79,6 +80,13 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	
 	// duplicate of RocketComponent 
 	public Coordinate[] getLocations();
+	
+	/**
+	 * Returns the set of motors configured for flight/simulation in this motor mount.
+	 * @return the MotorConfigurationSet containing the set of motors configured in
+	 *         this motor mount.
+	 */
+	public MotorConfigurationSet getMotorConfigurationSet();
 	
 	/**
 	 * 

@@ -257,6 +257,11 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	public MotorConfiguration getDefaultMotorConfig(){
 		return this.motors.getDefault();
 	}
+	
+	@Override
+	public MotorConfigurationSet getMotorConfigurationSet() {
+		return this.motors;
+	}
 		
 	@Override
 	public MotorConfiguration getMotorConfig( final FlightConfigurationId fcid){
@@ -321,7 +326,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	
 	@Override
 	public int getMotorCount() {
-		return this.motors.size();
+		return this.getClusterConfiguration().getClusterCount();
 	}
 	
 	

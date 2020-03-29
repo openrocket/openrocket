@@ -37,15 +37,15 @@ public class TransitionShapes extends RocketComponentShape {
 			double r2 = transition.getAftRadius();
 					
 			Path2D.Float path = new Path2D.Float();
-			path.moveTo( (frontCenter.x), (frontCenter.y+ r1));
-			path.lineTo( (frontCenter.x+length), (frontCenter.y+r2));
-			path.lineTo( (frontCenter.x+length), (frontCenter.y-r2));
-			path.lineTo( (frontCenter.x), (frontCenter.y-r1));
+			path.moveTo( (frontCenter.x) * scaleFactor, (frontCenter.y+ r1) * scaleFactor);
+			path.lineTo( (frontCenter.x+length) * scaleFactor, (frontCenter.y+r2) * scaleFactor);
+			path.lineTo( (frontCenter.x+length) * scaleFactor, (frontCenter.y-r2) * scaleFactor);
+			path.lineTo( (frontCenter.x) * scaleFactor, (frontCenter.y-r1) * scaleFactor);
 			path.closePath();
 			
 			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };
 		} else {
-			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation);
+			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, scaleFactor);
 		}
 		
 		Shape foreShoulder=null, aftShoulder=null;
@@ -57,7 +57,7 @@ public class TransitionShapes extends RocketComponentShape {
             final Transformation offsetTransform = Transformation.getTranslationTransform(-transition.getForeShoulderLength(), 0, 0);
             final Transformation foreShoulderTransform = transformation.applyTransformation(offsetTransform);
             
-			foreShoulder = TubeShapes.getShapesSide( foreShoulderTransform, shoulderLength, shoulderRadius);
+			foreShoulder = TubeShapes.getShapesSide( foreShoulderTransform, shoulderLength, shoulderRadius, scaleFactor);
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
@@ -66,7 +66,7 @@ public class TransitionShapes extends RocketComponentShape {
             final Transformation offsetTransform = Transformation.getTranslationTransform(transition.getLength(), 0, 0);
             final Transformation aftShoulderTransform = transformation.applyTransformation(offsetTransform);
             		
-			aftShoulder = TubeShapes.getShapesSide(aftShoulderTransform, shoulderLength, shoulderRadius);
+			aftShoulder = TubeShapes.getShapesSide(aftShoulderTransform, shoulderLength, shoulderRadius, scaleFactor);
 			arrayLength++;
 		}
 		if (foreShoulder==null && aftShoulder==null)

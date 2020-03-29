@@ -201,7 +201,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		InnerTube smmt = (InnerTube)rkt.getChild(0).getChild(1).getChild(2);
 
 		int expectedMotorCount = 5;
-		int actualMotorCount = smmt.getMotorCount();
+		int actualMotorCount = smmt.getMotorConfigurationSet().size();
 		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
 
     }
@@ -294,6 +294,21 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		config.toggleStage(0);
 		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
+		
+		AxialStage sustainer = rkt.getTopmostStage();
+		AxialStage booster = rkt.getBottomCoreStage();
+		assertThat(" sustainer stage is stage #0: ", sustainer.getStageNumber(), equalTo(0));
+		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
+		
+		config.clearAllStages();
+		config.activateStagesThrough(sustainer);
+		assertThat(" sustainer stage is active: ", config.isStageActive(sustainer.getStageNumber()), equalTo(true));
+		assertThat(" booster stage is inactive: ", config.isStageActive(booster.getStageNumber()), equalTo(false));
+		
+		config.clearAllStages();
+		config.activateStagesThrough(booster);
+		assertThat(" sustainer stage is active: ", config.isStageActive(sustainer.getStageNumber()), equalTo(true));
+		assertThat(" booster stage is active: ", config.isStageActive(booster.getStageNumber()), equalTo(true));
 
 	}
 
