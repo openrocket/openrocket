@@ -1662,19 +1662,6 @@ public class TestRockets {
 		TrapezoidFinSet trapezoidfinset = new TrapezoidFinSet(3, 0.051, 0.025, 0.038, 0.044);
 		bodytube.addChild(trapezoidfinset);
 
-		// This is how we can dump a test rocket so we can look at it in OR to better
-		// visualize it
-		//
-		// OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
-		// OpenRocketSaver saver = new OpenRocketSaver();
-		// try {
-		//     FileOutputStream str = new FileOutputStream("3fnc.ork");
-		//	   saver.save(str, doc, null);
-		// }
-		// catch (Exception e) {
-		//     System.err.println("exception " + e);
-		// }
-
 		return rocket;
 	}
 
@@ -1710,8 +1697,23 @@ public class TestRockets {
 				podBody.addChild(fins);
 			}
 		}
-		
+
 		return rocket;
 	}
 	
+	/**
+	 * dump a test rocket to a file, so we can open it in OR
+	 */
+	static void dumpRocket(Rocket rocket, String filename) {
+
+		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		OpenRocketSaver saver = new OpenRocketSaver();
+		try {
+			FileOutputStream str = new FileOutputStream(filename);
+			saver.save(str, doc, null);
+		}
+		catch (Exception e) {
+			System.err.println("exception " + e);
+		}
+	}
 }
