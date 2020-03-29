@@ -234,12 +234,12 @@ public class BarrowmanCalculatorTest {
 
 	@Test
 	public void testPhantomTubes() {
-		Rocket rocketNoPods = TestRockets.make3FNCNoPods();
+		Rocket rocketNoPods = TestRockets.makeEstesAlphaIII();
 		FlightConfiguration configNoPods = rocketNoPods.getSelectedConfiguration();
 		FlightConditions conditionsNoPods = new FlightConditions(configNoPods);
 		WarningSet warningsNoPods = new WarningSet();
 		
-		Rocket rocketWithPods = TestRockets.make3FNCWithPods();
+		Rocket rocketWithPods = TestRockets.makeEstesAlphaIIIWithPods();
 		FlightConfiguration configPods = rocketWithPods.getSelectedConfiguration();
 		FlightConditions conditionsPods = new FlightConditions(configPods);
 		WarningSet warningsPods = new WarningSet();
@@ -248,7 +248,7 @@ public class BarrowmanCalculatorTest {
 
 		final AerodynamicForces forcesNoPods = calcPods.getAerodynamicForces(configNoPods, conditionsNoPods, warningsNoPods);
 		final AerodynamicForces forcesPods = calcPods.getAerodynamicForces(configPods, conditionsPods, warningsPods);
-		assertEquals(" 3FNC With Pods rocket CD value is incorrect:", forcesPods.getCD(), forcesNoPods.getCD(), EPSILON);
+		assertEquals(" Estes Alpha III With Pods rocket CD value is incorrect:", forcesPods.getCD(), forcesNoPods.getCD(), EPSILON);
 
 		// The "with pods" version has no way of seeing the fins are
 		// on the actual body tube rather than the phantom tubes,
@@ -265,16 +265,16 @@ public class BarrowmanCalculatorTest {
 		// will be off-axis (one of the fins is taken as having an
 		// angle of 0 to the airstream, so it has no contribution).
 		// This doesn't turn out to cause a problem in an actual
-		// simulation, so we are just not testing for it.  Test with
-		// correction if we want some time is here but commented out
+		// simulation.
 		
 		final Coordinate cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
 		final Coordinate cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
-		
-		assertEquals(" 3FNC With Pods rocket cp x value is incorrect:", cpPods.x, cpNoPods.x - 0.00672, EPSILON);
-		// assertEquals(" 3FNC With Pods rocket cp y value is incorrect:", cpPods.y, cpNoPods.y - 0.00548, EPSILON);
-		// assertEquals(" 3FNC With Pods rocket cp z value is incorrect:", cpPods.z, cpNoPods.z, EPSILON);
-		assertEquals(" 3FNC With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.14271, EPSILON);
+		System.out.printf("with pods %s\n", cpPods.toString());
+		System.out.printf("without pods %s\n", cpNoPods.toString());
+		assertEquals(" Alpha III With Pods rocket cp x value is incorrect:", cpNoPods.x - 0.002788761352, cpPods.x, EPSILON);
+		assertEquals(" Alpha III With Pods rocket cp y value is incorrect:", cpNoPods.y - 0.005460218430206499, cpPods.y, EPSILON);
+		assertEquals(" Alpha III With Pods rocket cp z value is incorrect:", cpNoPods.z, cpPods.z, EPSILON);
+		assertEquals(" Alpha III With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.91572, EPSILON);
 	}
 			
 }

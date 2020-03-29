@@ -1668,8 +1668,8 @@ public class TestRockets {
 	// second model used to test with/without pods.  In order to
 	// maintain consistency between the models, we'll create the
 	// no-pods first, and then modify it to make the with-pods version
-	public static final Rocket make3FNCWithPods() {
-		Rocket rocket = TestRockets.make3FNCNoPods();
+	public static final Rocket makeEstesAlphaIIIWithPods() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
 
 		// find the body and fins
 		final InstanceMap imap = rocket.getSelectedConfiguration().getActiveInstances();
