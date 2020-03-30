@@ -90,8 +90,8 @@ public class RocketComponentSaver {
 			
 			if( c instanceof Clusterable ){
 				; // no-op.  Instance counts are set via named cluster configurations
-			}else if( 1 < instanceCount ) {
-				emitInteger( elements, "instancecount", c.getInstanceCount() );
+			}else {
+				emitInteger(elements, "instancecount", c.getInstanceCount());
 			}
 			
 			if( c instanceof LineInstanceable ){
