@@ -190,7 +190,7 @@ public class BarrowmanCalculatorTest {
 			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
 		}{
 			final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
-			final FinSet fins = (FinSet)body.getChild(0);
+			final TrapezoidFinSet fins = (TrapezoidFinSet)body.getChild(0);
 			fins.setAngleOffset(0);
 			TestRockets.splitRocketFins(body, fins, 3);
 
@@ -216,7 +216,7 @@ public class BarrowmanCalculatorTest {
 			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22724, wholeRocketCP.x, EPSILON);
 		}{
 			final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
-			final FinSet fins = (FinSet)body.getChild(0);
+			final TrapezoidFinSet fins = (TrapezoidFinSet)body.getChild(0);
 			TestRockets.splitRocketFins(body, fins, 4);
 
 			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);

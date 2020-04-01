@@ -530,19 +530,22 @@ public class TestRockets {
 		return rocket;
 	}
 	
-	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	public static final void splitRocketFins( BodyTube body, FinSet fins, int finCount){
+	public static final void splitRocketFins( BodyTube body, TrapezoidFinSet fins, int finCount){
 		// actually remove the fins
 		body.removeChild(fins);
 
-		FinSet template = fins; 
+		TrapezoidFinSet template = fins; 
 		template.setFinCount(1);
-		// and manually add in the equivalent:
-		for(int finNumber=0; finNumber<finCount; ++finNumber){
-			final TrapezoidFinSet singleFin = new TrapezoidFinSet(1, 0.05, 0.03, 0.02, 0.05);
+		// and manually add in the equivalent the others
+		for(int finNumber=1; finNumber<finCount; ++finNumber){
+			final double rootChord = template.getRootChord();
+			final double tipChord = template.getTipChord();
+			final double sweep = template.getSweep();
+			final double height = template.getHeight();
+			final TrapezoidFinSet singleFin = new TrapezoidFinSet(1, rootChord, tipChord, sweep, height);
 			singleFin.setAngleOffset( finNumber * Math.PI * 2.0 / finCount);
-			singleFin.setThickness( 0.0032);
-			singleFin.setAxialMethod(AxialMethod.BOTTOM);
+			singleFin.setThickness( template.getThickness());
+			singleFin.setAxialMethod( template.getAxialMethod());
 			singleFin.setName(String.format("Single Fin #%d", finNumber));
 			body.addChild(singleFin);
 		}
