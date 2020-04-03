@@ -31,7 +31,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-amd64.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-i586.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/annotation-detector-3.0.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guice-4.2.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guice-4.2.3-no_aop.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guava-26.0-jre.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/opencsv-4.3.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/slf4j-api-1.7.30.jar" path-in-jar="/" />

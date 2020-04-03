@@ -22,7 +22,7 @@
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/test-plugin.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.5.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-4.2.1.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-4.2.3-no_aop.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-classic-1.2.3.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-core-1.2.3.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-1.3.jar"/>
