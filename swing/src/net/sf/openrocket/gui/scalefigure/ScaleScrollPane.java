@@ -258,7 +258,7 @@ public class ScaleScrollPane extends JScrollPane
 	////////////////  The view port rulers  ////////////////
 	
 	
-	private class Ruler extends JComponent {
+	private class Ruler extends JComponent implements ChangeListener {
 		public static final int HORIZONTAL = 0;
 		public static final int VERTICAL = 1;
 		
@@ -266,26 +266,23 @@ public class ScaleScrollPane extends JScrollPane
 		
 		public Ruler(int orientation) {
 			this.orientation = orientation;
-			
-			rulerUnit.addChangeListener(new ChangeListener() {
-				@Override
-				public void stateChanged(ChangeEvent e) {
-				    updateSize();
-					Ruler.this.repaint();
-				}
-			});
+			rulerUnit.addChangeListener(this);
+		}
+		
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			updateSize();
+			repaint();
 		}
 		
 		private void updateSize() {
 			if (orientation == HORIZONTAL) {
-			    Ruler.this.setMinimumSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
-			    Ruler.this.setPreferredSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
+			    setMinimumSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
+			    setPreferredSize(new Dimension(component.getWidth() + 10, RULER_SIZE));
 			} else {
-			    Ruler.this.setMinimumSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
-			    Ruler.this.setPreferredSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
+			    setMinimumSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
+			    setPreferredSize(new Dimension(RULER_SIZE, component.getHeight() + 10));
 			}
-			revalidate();
-			repaint();
 		}
 		
         private double fromPx(final int px) {
