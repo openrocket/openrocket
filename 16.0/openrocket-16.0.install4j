@@ -22,7 +22,7 @@
       <executable name="OpenRocket" iconSet="true" executableDir="." executableMode="gui" />
       <java mainClass="net.sf.openrocket.startup.OpenRocket">
         <classPath>
-          <archive location="OpenRocket-16.0.jar" failOnError="false" />
+          <archive location="OpenRocket.jar" failOnError="false" />
         </classPath>
       </java>
       <iconImageFiles>
