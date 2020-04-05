@@ -60,10 +60,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * @param component  Component to configure.
 	 */
 	private void setComponent(OpenRocketDocument document, RocketComponent component) {
-		if (this.document != null) {
-			this.document.getRocket().removeComponentChangeListener(this);
-		}
-		
 		if (configurator != null) {
 			// Remove listeners by setting all applicable models to null
 			GUIUtil.setNullModels(configurator); // null-safe

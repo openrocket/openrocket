@@ -413,7 +413,9 @@ public class Rocket extends ComponentAssembly {
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
-		listenerList.add(l);
+		if( ! listenerList.contains(l)) {
+			listenerList.add(l);
+		}
 		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
