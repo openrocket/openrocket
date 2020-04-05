@@ -2,6 +2,8 @@ package net.sf.openrocket.gui.configdialog;
 
 
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -30,10 +32,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private static final String CONFIGDIALOGPACKAGE = "net.sf.openrocket.gui.configdialog";
 	private static final String CONFIGDIALOGPOSTFIX = "Config";
 	
-
+	// Static Value -- This is a singleton value, and we should only have zero or one active at any time
 	private static ComponentConfigDialog dialog = null;
 	
-
 	private OpenRocketDocument document = null;
 	private RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
@@ -41,8 +42,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
 	
-	private ComponentConfigDialog(Window parent, OpenRocketDocument document,
-			RocketComponent component) {
+	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
 		super(parent);
 		this.parent = parent;
 		
@@ -50,6 +50,22 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
+
+		// overrides common defaults in 'GUIUTIL.setDisposableDialogOptions', above
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			/**
+			 *  Triggered by the 'Close' Button on the ConfigDialogs.  AND Esc. AND the [x] button (on Windows)
+			 *  In fact, it should trigger for any method of closing the dialog.
+			 */
+			public void windowClosed(WindowEvent e){
+				configurator.invalidate();
+				document.getRocket().removeComponentChangeListener(ComponentConfigDialog.this);
+				ComponentConfigDialog.this.dispose();
+			}
+			
+			public void windowClosing(WindowEvent e){}
+		});
 	}
 	
 	
@@ -101,14 +117,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		// components without their own configurator.
 		throw new BugException("Unable to find any configurator for " + component);
 	}
-	
-	
-	private void closeDialog() {
-		this.setVisible(false);
-		this.dispose();
-		this.configurator.invalidateModels();
-	}
-	
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -200,7 +208,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static void hideDialog() {
 		if (dialog != null) {
-			dialog.closeDialog();
+			dialog.setVisible(false);
 		}
 	}
 	
