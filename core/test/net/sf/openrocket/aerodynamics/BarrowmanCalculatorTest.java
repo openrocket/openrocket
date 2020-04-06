@@ -15,6 +15,7 @@ import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -129,22 +130,100 @@ public class BarrowmanCalculatorTest {
 		}{
 			boosterFins.setFinCount(2);
 			final Coordinate cp_2fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 27.585207667168696, cp_2fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 1.0757127676940474, cp_2fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711196967902, cp_2fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.9946423753010524, cp_2fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_2fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_2fin.z, EPSILON);
 		}{
 			boosterFins.setFinCount(1);
 			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711196967902, cp_1fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.99464, cp_1fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 9.36306412, cp_1fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.87521867, cp_1fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0f, cp_1fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0f, cp_1fin.z, EPSILON);
-		}{
-			// absent -- 3.28901627g @[0.31469937,0.05133333,0.00000000]
 		}
 	}
 
+	@Test
+	public void testFinCountEffect() {
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+		final WarningSet warnings = new WarningSet();
+
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+		{
+			((FinSet)rocket.getChild(0).getChild(1).getChild(0)).setFinCount(4);
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 34.19591165, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22724216, wholeRocketCP.x, EPSILON);
+		}{
+			((FinSet)rocket.getChild(0).getChild(1).getChild(0)).setFinCount(3);
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 26.14693374, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
+		}{
+			((FinSet)rocket.getChild(0).getChild(1).getChild(0)).setFinCount(2);
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 2.0, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.032356, wholeRocketCP.x, EPSILON);
+		}{
+			((FinSet)rocket.getChild(0).getChild(1).getChild(0)).setFinCount(1);
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 2.0, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.032356, wholeRocketCP.x, EPSILON);
+		}
+	}
+	
+	@Test
+	public void testCpSplitTripleFin() {
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+		final WarningSet warnings = new WarningSet();
+
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+
+		{
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 26.14693374, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
+		}{
+			final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
+			final TrapezoidFinSet fins = (TrapezoidFinSet)body.getChild(0);
+			fins.setAngleOffset(0);
+			TestRockets.splitRocketFins(body, fins, 3);
+
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 26.14693374, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22351541, wholeRocketCP.x, EPSILON);
+		}
+	}
+
+	@Test
+	public void testCpSplitQuadrupleFin() {
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+		final WarningSet warnings = new WarningSet();
+
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+
+		{
+			((FinSet)rocket.getChild(0).getChild(1).getChild(0)).setFinCount(4);
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 34.19591165, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22724, wholeRocketCP.x, EPSILON);
+		}{
+			final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
+			final TrapezoidFinSet fins = (TrapezoidFinSet)body.getChild(0);
+			TestRockets.splitRocketFins(body, fins, 4);
+
+			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			assertEquals("Split-Fin Rocket CNa value is incorrect:", 34.19591165, wholeRocketCP.weight, EPSILON);
+			assertEquals("Split-Fin Rocket CP x value is incorrect:", 0.22724, wholeRocketCP.x, EPSILON);
+		}
+	}
 	// test rocket with endplates on fins.  Comments tracing
 	// calculation of CP are in TestRockets.makeEndPlateRocket().
 	@Test

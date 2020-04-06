@@ -180,9 +180,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		}
 		
 		final InstanceMap imap = configuration.getActiveInstances();
-
+		
 		final AerodynamicForces assemblyForces= new AerodynamicForces().zero();
 
+//		System.err.println("======================================");
+//		System.err.println("==== Iterating through components ====");
 		// iterate through all components
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent comp = entry.getKey();
@@ -195,24 +197,31 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 				for(InstanceContext context: contextList ) {
 					AerodynamicForces instanceForces = new AerodynamicForces().zero();
+//					System.err.println(String.format("@ [%s]:[%d/%d]", comp.getName(), context.instanceNumber + 1, comp.getInstanceCount()));
+//					System.err.println("_________ inst/ctxt: xrotation: " + context.transform.getXrotation());
 					
 					calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
-					Coordinate cp_comp = instanceForces.getCP();
 					
-					Coordinate cp_abs = context.transform.transform(cp_comp);
+					Coordinate cp_inst = instanceForces.getCP();
+					Coordinate cp_abs = context.transform.transform(cp_inst);
 					if ((comp instanceof FinSet) && (((FinSet)comp).getFinCount() > 2))
 						cp_abs = cp_abs.setY(0.0).setZ(0.0);
+					
+//					if( 1e-6 < cp_inst.weight) {
+//						System.err.println("_________ cp:inst: (rel): " + cp_inst.toString());
+//						System.err.println("_________ cp:inst: (abs): " + cp_abs.toString());
+//					}
 					
 					instanceForces.setCP(cp_abs);
 					double CN_instanced = instanceForces.getCN();
 					instanceForces.setCm(CN_instanced * instanceForces.getCP().x / conditions.getRefLength());
-					// System.err.println("instanceForces=" + instanceForces);
 					assemblyForces.merge(instanceForces);
+					
 				}
 			}
 		}
 
-		// System.err.println("assemblyForces=" + assemblyForces);
+//		System.err.println("____ cp:asbly: " + assemblyForces.getCP().toString());
 		return assemblyForces;
 	}
 	
