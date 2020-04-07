@@ -69,7 +69,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private final FreeformFinSet finset;
 	private JTable table = null;
 	private FinPointTableModel tableModel = null;
 	
@@ -80,7 +79,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component) {
 		super(d, component);
-		this.finset = (FreeformFinSet) component;
 		
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("FreeformFinSetCfg.tab.General"), null, generalPane(), trans.get("FreeformFinSetCfg.tab.ttip.General"), 0);
@@ -205,7 +203,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	// edit fin points directly here
 	private JPanel shapePane() {
 		JPanel panel = new JPanel(null);
-		
+
+		final FreeformFinSet finset = (FreeformFinSet)component; 
 		
 		// Create the figure
 		figure = new FinPointFigure(finset);
@@ -324,6 +323,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 
 	private void importImage() {
+		final FreeformFinSet finset = (FreeformFinSet)component;
+		
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.getImageFileFilter());
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -394,6 +395,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		public void mousePressed(MouseEvent event) {
 			int mods = event.getModifiersEx();
 			
+			final FreeformFinSet finset = (FreeformFinSet)component;
+			
 			final int pressIndex = getPoint(event);
 			if ( pressIndex >= 0) {
 				dragIndex = pressIndex;
@@ -423,6 +426,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 			
 			Point2D.Double point = getCoordinates(event);
+
+			final FreeformFinSet finset = (FreeformFinSet)component;
 			finset.setPoint(dragIndex, point.x, point.y);
 			
 			updateFields();
@@ -443,6 +448,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                     // if ctrl+click, delete point
                     try {
                         Point2D.Double point = getCoordinates(event);
+                        final FreeformFinSet finset = (FreeformFinSet)component;
                         finset.removePoint(clickIndex);
                     } catch (IllegalFinPointException ignore) {
                         log.error("Ignoring IllegalFinPointException while dragging, dragIndex=" + dragIndex + ".  This is likely an internal error.");
@@ -527,12 +533,12 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		@Override
 		public int getRowCount() {
-			return finset.getPointCount();
+			return ((FreeformFinSet)component).getPointCount(); 
 		}
 		
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			return Columns.values()[columnIndex].getValue(finset, rowIndex);
+			return Columns.values()[columnIndex].getValue( (FreeformFinSet)component, rowIndex);
 		}
 		
 		@Override
@@ -553,7 +559,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		public void setValueAt(Object o, int rowIndex, int columnIndex) {
 			if (!(o instanceof String))
 				return;
-			
+
+			final FreeformFinSet finset = (FreeformFinSet)component;
+
 			// bounds check that indices are valid
 			if (rowIndex < 0 || rowIndex >= finset.getFinPoints().length || columnIndex < 0 || columnIndex >= Columns.values().length) {
 				throw new IllegalArgumentException("Index out of bounds, row=" + rowIndex + " column=" + columnIndex + " fin point count=" + finset.getFinPoints().length);

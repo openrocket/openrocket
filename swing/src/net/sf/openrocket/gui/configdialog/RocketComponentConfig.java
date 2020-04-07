@@ -3,10 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,11 +40,8 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.Instanceable;
-import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -111,11 +105,11 @@ public class RocketComponentConfig extends JPanel {
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
-		if (component.isMassive())
-			
+		if (component.isMassive()) {
 			//// Appearance options
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, new AppearancePanel(document, component),
 					"Appearance Tool Tip");
+		}
 		
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
@@ -622,12 +616,12 @@ public class RocketComponentConfig extends JPanel {
 		this.invalidatables.add(model);
 	}
 	
-	public void invalidateModels() {
+	public void invalidate() {
+		super.invalidate();
 		for (Invalidatable i : invalidatables) {
 			i.invalidate();
 		}
 		((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
-		
 	}
 	
 
