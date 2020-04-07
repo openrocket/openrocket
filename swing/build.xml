@@ -93,7 +93,7 @@
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
 			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
 			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
-			<zipfileset src="${core.dir}/lib/guice-4.2.1.jar" />
+			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>

@@ -175,15 +175,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/guice-4.2.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/../core/lib/guava-26.0-jre.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -240,6 +231,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../core/lib/jaxb-runtime.2.3.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../core/lib/guice-4.2.3-no_aop.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
