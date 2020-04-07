@@ -1,11 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +34,7 @@ public class Rocket extends ComponentAssembly {
 	/**
 	 * List of component change listeners.
 	 */
-	private List<EventListener> listenerList = new ArrayList<>();
+	private Set<EventListener> listenerList = new HashSet<>();
 	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
@@ -332,7 +327,7 @@ public class Rocket extends ComponentAssembly {
 		copy.stageMap = new HashMap<Integer, AxialStage>();
 		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet );
 		copy.selectedConfiguration = copy.configSet.get( this.getSelectedConfiguration().getId());
-		copy.listenerList = new ArrayList<EventListener>();
+		copy.listenerList = new HashSet<EventListener>();
 		
 		return copy;
 	}
@@ -397,7 +392,7 @@ public class Rocket extends ComponentAssembly {
 	 */
 	public void resetListeners() {
 		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
-		listenerList = new ArrayList<EventListener>();
+		listenerList = new HashSet<EventListener>();
 	}
 	
 	
@@ -413,18 +408,16 @@ public class Rocket extends ComponentAssembly {
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
-		if( ! listenerList.contains(l)) {
-			listenerList.add(l);
-		}
-		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
+
+		listenerList.add(l);
+
+		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
 		listenerList.remove(l);
-		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
+		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
 	}
 	
 	@Override
