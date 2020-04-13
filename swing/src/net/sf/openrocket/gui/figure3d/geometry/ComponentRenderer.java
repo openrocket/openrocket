@@ -317,7 +317,6 @@ public class ComponentRenderer {
 	private void renderTubeFins(GL2 gl, TubeFinSet fs, Surface which) {
 		gl.glPushMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		System.out.println(fs.getBaseRotation());
 		gl.glRotated(fs.getBaseRotation() * (180.0 / Math.PI), 1, 0, 0);
 		for( int i = 0; i< fs.getFinCount(); i++ ) {
 			gl.glPushMatrix();
