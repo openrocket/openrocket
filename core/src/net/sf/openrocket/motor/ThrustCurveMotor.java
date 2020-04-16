@@ -30,21 +30,21 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	
-	private String digest;
+	private String digest = "";
 	
-	private Manufacturer manufacturer;
-	private String designation;
-	private String description;
-	private Motor.Type type;
-	private double[] delays;
+	private Manufacturer manufacturer = Manufacturer.getManufacturer("UNKNOWN");
+	private String designation = "";
+	private String description = "";
+	private Motor.Type type = Motor.Type.UNKNOWN;
+	private double[] delays = {};
 	private double diameter;
 	private double length;
-	private double[] time;
-	private double[] thrust;
-	private Coordinate[] cg;
+	private double[] time = {};
+	private double[] thrust = {};
+	private Coordinate[] cg = {};
 	
-	private String caseInfo;
-	private String propellantInfo;
+	private String caseInfo = "";
+	private String propellantInfo = "";
 	
 	private double initialMass;
 	private double maxThrust;

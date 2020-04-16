@@ -206,7 +206,7 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		if ( m.getLength() > maximumLength ) {
 			return false;
 		}
-
+		
 		if ( m.getLength() < minimumLength ) {
 			return false;
 		}
