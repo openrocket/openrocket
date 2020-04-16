@@ -32,7 +32,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	private String digest = "";
 	
-	private Manufacturer manufacturer = Manufacturer.getManufacturer("UNKNOWN");
+	private Manufacturer manufacturer = Manufacturer.getManufacturer("Unknown");
 	private String designation = "";
 	private String description = "";
 	private Motor.Type type = Motor.Type.UNKNOWN;
