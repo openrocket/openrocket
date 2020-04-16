@@ -1,16 +1,22 @@
 2015-03-28 Kevin Ruland
-        * Released version 15.03  See Release Notes for changes.
+
+	* Released version 15.03  See Release Notes for changes.
+
 2014-11-02 Kevin Ruland
-        * Released version 14.11  See Release Notes for changes.
+
+	* Released version 14.11  See Release Notes for changes.
 
 2014-06-26 Kevin Ruland
-        * Released version 14.06  See Release Notes for changes.
+
+	* Released version 14.06  See Release Notes for changes.
 
 2014-05-21 Kevin Ruland
-        * Released version 14.05  See Release Notes for changes.
+
+	* Released version 14.05  See Release Notes for changes.
 
 2013-11-07 Kevin Ruland
-        * Released version 13.11
+
+	* Released version 13.11
 
 2013-10-05 Kevin Ruland
 
@@ -21,6 +27,7 @@
 	* Released version 13.09
 
 2013-08-18 Bill Kuker
+
     * Upgraded JOGL to version 2.0.2
 
 2013-05-04 Sampo Niskanen
@@ -28,15 +35,18 @@
 	* Released version 13.05
 
 2013-04-17 Bill Kuker and Kevin Ruland
+
     * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
       apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
       file for writes to update the rocket view.
 
 2013-04-17 Kevin Ruland
+
     * Added simulation of tumble recovery based on experimentation done by Sampo Niskane.  This is particularly useful
       for low power staged flights.
 
 2013-04-17 Kevin Ruland
+
     * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
       allows the user to override stage separation, recovery deployment, and motor ignition per flight configuration.
       These configurations are stored in the ork file with each component.  If no override is specified then the user specified
@@ -45,21 +55,25 @@
       the configuration, the tabbed area below allows the user to change the configuration for this simulation.
 
 2013-04-17 Kevin Ruland
+
     * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
       and booster by tricking OpenRocket using a dummy motor with trivial thrust curve.  Now the user does not need to do this.
       There is an example of this provided in TARC Payloader.ork and Boosted Dart.ork
 
 2013-04-17 Kevin Ruland
+
     * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
       separation.  The data for the boosters begins at t=separation.  The simulation plot allows the user to select
       which stage's data to show (or all).
 
 2013-04-17 Kevin Ruland
+
     * Modified the zoom and pan controls in the simulation plot.  Added zoom in, out, and reset buttons.  Added
       scroll with mouse wheel.  If the alt key is used with either of these, only the domain is zoomed.  Richard
       contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
 
 2012-09-28 Sampo Niskane
+
 	* Released version 12.09.1
 
 2012-09-25 Doug Pedrick
@@ -71,6 +85,7 @@
    * Cleaned up Swing listeners of Configuration (memory leak).
 
 2012-09-16 Sampo Niskanen
+
 	* Released version 12.09
 
 2012-08-28 Bill Kuker
