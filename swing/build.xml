@@ -120,7 +120,7 @@
 			</zipfileset>
 			
 			<!-- Include metafiles about OR -->
-			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
+			<fileset dir="${basedir}/../" includes="README.md ChangeLog ReleaseNotes.md" />
 		</jar>
 	</target>
 	

@@ -21,7 +21,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
 public class LicenseDialog extends JDialog {
-	private static final String LICENSE_FILENAME = "LICENSE.TXT";
+	private static final String LICENSE_FILENAME = "LICENSE";
 	private static final Translator trans = Application.getTranslator();
 
 	private static final String DEFAULT_LICENSE_TEXT =
