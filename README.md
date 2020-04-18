@@ -19,17 +19,20 @@ The main features include:
 
 Read more about it on the [OpenRocket Wiki](http://wiki.openrocket.info).
 
-Running OpenRocket
-------------------
-To start the software from the JAR file run:
-```
-$ java -jar OpenRocket-<VERSION>.jar
-```
+Installers
+----------
+OpenRocket maintains an installer for installing the software and Jave runtime. You can find the installer for Windows at the link below. Installers for macOS and Linux are coming and will be added to this page when ready.
+
+[OpenRocket 15.03 Installer (Windows)](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03-installer.exe)
+
+Release Notes
+-------------
+Release notes for all releases of OpenRocket are available at the following link.
+
+[OpenRocket Release Notes](https://github.com/openrocket/openrocket/wiki/Release-Notes)
 
 License
 -------
-
-Copyright (C) 2007-2020  Sampo Niskanen and others
 
 OpenRocket is an Open Source project licensed under the [GNU GPL](https://www.gnu.org/licenses/gpl-3.0.en.html). This means that the software is free to use for whatever purposes, and the source code is also available for studying and extending.
 
