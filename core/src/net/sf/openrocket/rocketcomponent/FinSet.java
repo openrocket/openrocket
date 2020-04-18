@@ -203,7 +203,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	/**
 	 * 
-	 * @param cant -- new cant angle, in radians
+	 * @param newCantRadians -- new cant angle, in radians
 	 */
 	public void setCantAngle(final double newCantRadians) {
 		final double clampedCant = MathUtil.clamp(newCantRadians, -MAX_CANT_RADIANS, MAX_CANT_RADIANS);
@@ -264,16 +264,16 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Note this function also does bounds checking, and will not set
 	 * a tab height that passes through it's parent's midpoint.
 	 *  
-	 * @param newHeightRequest how deep the fin tab should project
+	 * @param newTabHeight how deep the fin tab should project
 	 * from the fin root, at the reference point
 	 * 
 	 */
-	public void setTabHeight(final double heightRequest) {
-		if (MathUtil.equals(this.tabHeight, MathUtil.max(heightRequest, 0))){
+	public void setTabHeight(final double newTabHeight) {
+		if (MathUtil.equals(this.tabHeight, MathUtil.max(newTabHeight, 0))){
 			return;
 		}
 		
-		tabHeight = heightRequest;
+		tabHeight = newTabHeight;
 
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -300,7 +300,6 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * internally, set the internal offset and optionally validate tab
 	 * 
 	 * @param offsetRequest new requested shift of tab -- from
-	 * @param validate wehther or not to validate
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
@@ -885,24 +884,23 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		final double xTabFront = getTabFrontEdge();
 		final double xTabTrail = getTabTrailingEdge();
-		
-		final double xTabReference = finFront.x + getTabOffset();
-		
-		double yTabFront = 0;
-		double yTabTrail = 0;
-		double yTabBottom = -tabHeight;
+
+		// // limit the new heights to be no greater than the current body radius.
+		double yTabFront = Double.NaN;
+		double yTabTrail = Double.NaN;
+		double yTabBottom = Double.NaN;
 		if( null != body ){
 			yTabFront = body.getRadius( finFront.x + xTabFront ) - finFront.y;
 			yTabTrail = body.getRadius( finFront.x + xTabTrail ) - finFront.y;
-			yTabBottom = body.getRadius( xTabReference ) - tabHeight - finFront.y;
+			yTabBottom = MathUtil.min(yTabFront, yTabTrail) - tabHeight;
 		}
-		
+
 		points[0] = new Coordinate(xTabFront, yTabFront);
 		points[1] = new Coordinate(xTabFront, yTabBottom );
 		points[2] = new Coordinate(xTabTrail, yTabBottom );
 		points[3] = new Coordinate(xTabTrail, yTabTrail);
 
-	    return points;
+		return points;
 	}
 
 	public Coordinate getFinFront() {
