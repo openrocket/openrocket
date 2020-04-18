@@ -326,7 +326,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	 * Return the estimated total impulse for this motor type.
 	 * @return estimated total impulse
 	 */
-	public long getTotalImpuse() {
+	public long getTotalImpulse() {
 		return totalImpulse;
 	}
 	

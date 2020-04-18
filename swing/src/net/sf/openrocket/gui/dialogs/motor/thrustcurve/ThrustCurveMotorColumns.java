@@ -46,7 +46,7 @@ enum ThrustCurveMotorColumns {
 	TOTAL_IMPULSE("TCurveMotorCol.TOTAL_IMPULSE") {
 		@Override
 		public Object getValue(ThrustCurveMotorSet m) {
-			return m.getTotalImpuse();
+			return m.getTotalImpulse();
 		}
 		
 		@Override

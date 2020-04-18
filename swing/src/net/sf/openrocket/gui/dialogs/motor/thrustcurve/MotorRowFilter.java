@@ -206,7 +206,7 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		if ( m.getLength() > maximumLength ) {
 			return false;
 		}
-
+		
 		if ( m.getLength() < minimumLength ) {
 			return false;
 		}
@@ -229,13 +229,13 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 
 	private boolean filterByImpulseClass(ThrustCurveMotorSet m) {
 		if ( minimumImpulse != null ) {
-			if( m.getTotalImpuse() <= minimumImpulse.getLow() ) {
+			if( m.getTotalImpulse() <= minimumImpulse.getLow() ) {
 				return false;
 			}
 		}
 
 		if ( maximumImpulse != null ) {
-			if( m.getTotalImpuse() > maximumImpulse.getHigh() ) {
+			if( m.getTotalImpulse() > maximumImpulse.getHigh() ) {
 				return false;
 			}
 		}
