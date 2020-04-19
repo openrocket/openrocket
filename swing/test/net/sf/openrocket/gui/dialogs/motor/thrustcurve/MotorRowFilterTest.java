@@ -177,8 +177,6 @@ public class MotorRowFilterTest {
 		// create a motor with all fields explicitly defined
 		// This is the Aerotech H123 from thrustcurve.org, motor ID 917
 		final ThrustCurveMotor fullMotor = new ThrustCurveMotor.Builder()
-			.setAverageThrustEstimate(83.5)
-			.setBurnTimeEstimate(2.5)
 			.setCaseInfo("Aerotech 38/240")
 			.setCGPoints(new Coordinate[] {new Coordinate(0.077, 0, 0, 125.0),
 										   new Coordinate(0.077, 0, 0, 109.93),
@@ -199,13 +197,11 @@ public class MotorRowFilterTest {
 			.setInitialMass(293.3)
 			.setLength(0.152)
 			.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
-			.setMaxThrustEstimate(174.2)
 			.setMotorType(Motor.Type.RELOAD)
 			.setPropellantInfo("White Lightning")
 			.setStandardDelays(new double[] {6, 10, 14})
 			.setThrustPoints(new double[] {138.42, 116.45, 116.45, 112.18, 107.82, 86.29, 81.93, 64.72, 47.46, 43.15, 30.2, 0.0})
 			.setTimePoints(new double[] {0.0, 0.2, 0.6, 0.7, 0.8, 1.3, 1.5, 1.8, 2.1, 2.2, 2.3, 2.6})
-			.setTotalThrustEstimate(211.4)
 			.build();
 		
 		// two search terms, both present, one only a substring of a column
