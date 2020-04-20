@@ -565,11 +565,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			List<InstanceContext> contexts = entry.getValue();
 						
 			Collection<Coordinate> coordinates = new ArrayList<Coordinate>();
-			/* FinSets are a bit different in how they store their bounds,
-			 * so we'll use the fin points for calculations. 
+			/* FinSets already provide a bounding box, so let's use that.
 			 */
 			if (component instanceof FinSet) {
-				coordinates.addAll(Arrays.asList(((FinSet) component).getFinPoints()));
+				bounds.update(((FinSet) component).getBoundingBox());
+				continue;
 			} else {
 				coordinates.addAll(component.getComponentBounds());
 			}
@@ -614,7 +614,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently
 		 * so we'll just adjust the length here.  
 		 */
-		if (cachedLength == Double.POSITIVE_INFINITY || cachedLength == Double.NEGATIVE_INFINITY) {
+		if (getActiveStages().isEmpty()) {
 			cachedLength = 0;
 		}
 		cachedBounds.update( bounds );

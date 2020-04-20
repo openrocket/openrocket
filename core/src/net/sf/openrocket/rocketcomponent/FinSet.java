@@ -714,11 +714,32 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		final double finLength = singleFinBounds.max.x;
 		final double finHeight = singleFinBounds.max.y;
 		
-		BoundingBox compBox = new BoundingBox().update(getComponentLocations());
+		Coordinate[] locations = getInstanceLocations();
+		double[] angles = getInstanceAngles();
+		BoundingBox finSetBox = new BoundingBox();
 		
-		BoundingBox finSetBox = new BoundingBox( compBox.min.sub( 0, finHeight, finHeight ), 
-												compBox.max.add( finLength, finHeight, finHeight ));
-		return finSetBox; 
+		/*
+		 * The fins themselves will be offset by the location itself to match
+		 * the outside radius of a body tube. The bounds encapsulate the outer
+		 * portion of all the tips of the fins.
+		 * 
+		 * The height of each fin along the Y axis can be determined by:
+		 * yHeight = cos(angle) * finHeight
+		 * 
+		 * The height (depth?) of each fin along the Z axis can be determined by:
+		 * zHeight = sin(angle) * finHeight
+		 * 
+		 * The boundingBox should be that box which is the smallest box where
+		 * a convex hull will contain all Coordinates.
+		 */
+		for (int i = 0; i < locations.length; i++) {
+			double y = Math.cos(angles[i]) * finHeight;
+			double z = Math.sin(angles[i]) * finHeight;
+			finSetBox.update(locations[i].add(0, y, z));
+			finSetBox.update(locations[i].add(finLength, y, z));
+		}
+		
+		return finSetBox;
 	}
 	
 	/**
