@@ -44,7 +44,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// preconditions
 		assertThat("active stage count doesn't match", config.getActiveStageCount(), equalTo(2));
 
-		final double expectedLength = 0.33;
+		final double expectedLength = 0.335;
 		final double calculatedLength = config.getLength();
 		assertEquals("source config length doesn't match: ", expectedLength, calculatedLength, EPSILON);
 
@@ -70,7 +70,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		int expectedMotorCount = 2;
 		int actualMotorCount = config1.getActiveMotors().size();
 		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
-		double expectedLength = 0.33;
+		double expectedLength = 0.335;
 		assertEquals("source config length doesn't match: ", expectedLength, config1.getLength(), EPSILON);
 		double expectedReferenceLength = 0.024;
 		assertEquals("source config reference length doesn't match: ", expectedReferenceLength, config1.getReferenceLength(), EPSILON);

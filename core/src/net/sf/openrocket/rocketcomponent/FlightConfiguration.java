@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -551,16 +552,71 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return cachedBounds;
 	}
 
+	/**
+	 * Calculates the bounds for all the active component instances
+	 * in the current configuration.
+	 */
 	private void calculateBounds(){
 		BoundingBox bounds = new BoundingBox();
-			
-		for (RocketComponent component : this.getActiveComponents()) {
-			BoundingBox componentBounds = new BoundingBox().update(component.getComponentBounds());
-			bounds.update( componentBounds );
-		}
 
+		InstanceMap map = getActiveInstances();
+		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>>  entry : map.entrySet()) {
+			RocketComponent component = entry.getKey();
+			List<InstanceContext> contexts = entry.getValue();
+						
+			Collection<Coordinate> coordinates = new ArrayList<Coordinate>();
+			/* FinSets already provide a bounding box, so let's use that.
+			 */
+			if (component instanceof FinSet) {
+				bounds.update(((FinSet) component).getBoundingBox());
+				continue;
+			} else {
+				coordinates.addAll(component.getComponentBounds());
+			}
+			BoundingBox componentBox = new BoundingBox();
+			List<Coordinate> transformedCoords = new ArrayList<Coordinate>();
+			for (InstanceContext ctxt : contexts) {
+				/*
+				 * If the instance is not active in the current context, then
+				 * skip the bound calculations. This is mildly confusing since
+				 * getActiveInstances() implies that it will only return the
+				 * instances that are active, but it returns all instances and
+				 * the context indicates if it is active or not.
+				 */
+				if (!ctxt.active) {
+					continue;
+				}
+				for (Coordinate c : coordinates) {
+					Coordinate tc = null;
+					/* These components do not need the transform performed in
+					 * order to provide the proper coordinates for length calculation.
+					 * The transformation will cause the values to be calculated
+					 * incorrectly. This should be fixed in the appropriate places
+					 * not handled as one-offs in here.
+					 */
+					if ((component instanceof AxialStage) || (component instanceof BodyTube) ||
+						(component instanceof PodSet)) {
+						tc = c;
+					} else {
+						tc = ctxt.transform.transform(c);
+					}
+					componentBox.update(tc);
+					transformedCoords.add(tc);
+				}
+			}
+			
+			bounds.update(componentBox);
+		}
+		
 		boundsModID = rocket.getModID();
 		cachedLength = bounds.span().x;
+		/* Special case for the scenario that all of the stages are removed and are
+		 * inactive. Its possible that this shouldn't be allowed, but it is currently
+		 * so we'll just adjust the length here.  
+		 */
+		if (getActiveStages().isEmpty()) {
+			cachedLength = 0;
+		}
 		cachedBounds.update( bounds );
 	}
 	

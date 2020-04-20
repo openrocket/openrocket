@@ -419,13 +419,14 @@ public class RocketFigure extends AbstractScaleFigure {
     protected void updateSubjectDimensions() {
         // calculate bounds, and store in class variables
         final BoundingBox bounds = rocket.getSelectedConfiguration().getBoundingBox();
+        final double maxR = Math.max(Math.hypot(bounds.min.y, bounds.min.z),
+                                     Math.hypot(bounds.max.y, bounds.max.z));
         
         switch (currentViewType) {
         case SideView:
-            subjectBounds_m = new Rectangle2D.Double(bounds.min.x, bounds.min.y, bounds.span().x, bounds.span().y); 
+            subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
             break;
         case BackView:
-            final double maxR = Math.max(Math.hypot(bounds.min.y, bounds.min.z), Math.hypot(bounds.max.y, bounds.max.z));
             subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
             break;
         default:
