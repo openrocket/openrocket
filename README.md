@@ -29,7 +29,7 @@ Release Notes
 -------------
 Release notes for all releases of OpenRocket are available at the following link.
 
-[OpenRocket Release Notes](https://github.com/openrocket/openrocket/wiki/Release-Notes)
+[OpenRocket Release Notes](http://openrocket.info/release_notes.html)
 
 License
 -------
