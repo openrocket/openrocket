@@ -1,12 +1,16 @@
 package net.sf.openrocket.rocketcomponent;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.geom.Point2D;
 
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.*;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
@@ -16,14 +20,13 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
-
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.Transformation;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 public class FreeformFinSetTest extends BaseTestCase {
 
@@ -301,13 +304,14 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			// fin is a simple trapezoid against a linearly changing body...
 			// height is set s.t. the tab trailing edge height == 0
-			final double expectedTabArea = (fins.getTabHeight())*3/4 * fins.getTabLength();
-			final double expectedTotalVolume = (expectedWettedArea + expectedTabArea)*fins.getThickness();
+			final double tabLength = fins.getFinFront().x + fins.getTabOffset();
+			final double expectedTabArea = (fins.getTabHeight()) * 0.5 * tabLength;
+			final double expectedTotalVolume = (expectedWettedArea + expectedTabArea) * fins.getThickness();
 			assertEquals("Calculated fin volume is wrong: ", expectedTotalVolume, fins.getComponentVolume(), EPSILON);
 
 			Coordinate tcg = fins.getCG(); // relative to parent.  also includes fin tab CG.
-			assertEquals("Calculated fin centroid is wrong! ", 0.245454, tcg.x, EPSILON);
-			assertEquals("Calculated fin centroid is wrong! ", 0.75303, tcg.y, EPSILON);
+			assertEquals("Calculated fin centroid is wrong! ", 0.238461, tcg.x, EPSILON);
+			assertEquals("Calculated fin centroid is wrong! ", 0.714102, tcg.y, EPSILON);
 		}
 	}
 
