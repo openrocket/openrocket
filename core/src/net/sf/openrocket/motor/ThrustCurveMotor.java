@@ -60,16 +60,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		ThrustCurveMotor motor = new ThrustCurveMotor();
 		
-		public Builder setAverageThrustEstimate(double v) {
-			motor.averageThrust = v;
-			return this;
-		}
-		
-		public Builder setBurnTimeEstimate(double v) {
-			motor.burnTimeEstimate = v;
-			return this;
-		}
-		
 		public Builder setCaseInfo(String v) {
 			motor.caseInfo = v;
 			return this;
@@ -115,11 +105,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return this;
 		}
 		
-		public Builder setMaxThrustEstimate(double v) {
-			motor.maxThrust = v;
-			return this;
-		}
-		
 		public Builder setMotorType(Motor.Type t) {
 			motor.type = t;
 			return this;
@@ -142,11 +127,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		public Builder setTimePoints(double[] d) {
 			motor.time = d;
-			return this;
-		}
-		
-		public Builder setTotalThrustEstimate(double v) {
-			motor.totalImpulse = v;
 			return this;
 		}
 		
