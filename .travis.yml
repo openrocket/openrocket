@@ -12,6 +12,9 @@ jdk:
   - openjdk13
   - oraclejdk11
   - oraclejdk13
-
+ 
 script:
   - "ant -buildfile build.xml clean check jar unittest"
+
+notifications:
+    webhooks: https://www.travisbuddy.com/
