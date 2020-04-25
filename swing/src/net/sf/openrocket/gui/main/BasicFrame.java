@@ -346,9 +346,6 @@ public class BasicFrame extends JFrame {
 		button = new JButton(actions.getEditAction());
 		panel.add(button, "sizegroup buttons");
 
-		button = new JButton(actions.getNewStageAction());
-		panel.add(button, "sizegroup buttons");
-
 		button = new JButton(actions.getDeleteAction());
 		button.setIcon(null);
 		button.setMnemonic(0);
