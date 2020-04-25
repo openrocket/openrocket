@@ -505,6 +505,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}{ // case 3:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
 			fins.setPoints(initialPoints);
+			assertEquals(0.0, fins.getAxialOffset(), EPSILON);
 			assertEquals(0.3, fins.getFinFront().x, EPSILON);
 
 			// vvvv function under test vvvv
@@ -514,8 +515,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 			assertEquals(0.05, fins.getAxialOffset(), EPSILON);
 			assertEquals(0.3, fins.getLength(), EPSILON);
 
-            assertEquals(0.35, fins.getFinFront().x, EPSILON);
-			assertEquals(0.825, fins.getFinFront().y, EPSILON);
+			assertEquals(0.4, fins.getFinFront().x, EPSILON);
+			assertEquals(0.8, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
@@ -530,13 +531,15 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}{ // case 4:
 			fins.setAxialOffset( AxialMethod.MIDDLE, 0.0);
 			fins.setPoints(initialPoints);
+			assertEquals(0.3, fins.getFinFront().x, EPSILON);
+			assertEquals(0.85, fins.getFinFront().y, EPSILON);
 
 			// vvvv function under test vvvv
-	    	fins.setPoint( 0, -0.1, 0.1f);
+			fins.setPoint( 0, -0.1, 0.1f);
             // ^^^^ function under test ^^^^
 
-            assertEquals(0.25, fins.getFinFront().x, EPSILON);
-			assertEquals(0.875, fins.getFinFront().y, EPSILON);
+			assertEquals(0.2, fins.getFinFront().x, EPSILON);
+			assertEquals(0.9, fins.getFinFront().y, EPSILON);
 
 			final Coordinate[] postPoints = fins.getFinPoints();
             assertEquals(postPoints.length, 3);
