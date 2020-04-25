@@ -222,6 +222,8 @@ public class FreeformFinSet extends FinSet {
 			log.error(String.format("ERROR: found an intersection while setting fin point #%d to [%6.4g, %6.4g] <body frame> : ABORTING setPoint(..) !! ", index, xRequest, yRequest));
 			return;
 		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 	}
 	
 	private void movePoints(final double delta_x, final double delta_y) {
