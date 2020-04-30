@@ -38,6 +38,7 @@ OpenRocket is an Open Source project licensed under the [GNU GPL](https://www.gn
 
 Contributing
 ------------
+[![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/openrocketopenrocket/)
 
 OpenRocket needs help to become even better. Implementing features, writing documentation and creating example designs are just a few ways of helping. If you are interested in helping make OpenRocket the best rocket simulator out there, please [click here for information on how to get involved!](http://openrocket.sourceforge.net/getinvolved.html)
 
