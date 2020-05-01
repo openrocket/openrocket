@@ -145,7 +145,7 @@ public class SerializeThrustcurveMotors {
 
 						allMotors.add(builder.build());
 					} catch (IllegalArgumentException e) {
-						System.out.println("\tError in simFile " + burnFile.getSimfileId() + ":  " + e.getMessage() + " (continuing)");
+						System.out.println("\tError in simFile " + burnFile.getSimfileId() + ":  " + e.getMessage());
 						try {
 							FileOutputStream out = new FileOutputStream(("simfile-" + burnFile.getSimfileId()).toString());
 							out.write(burnFile.getContents().getBytes());
