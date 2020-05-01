@@ -203,6 +203,45 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 			thrust.remove(0);
 		}
 
+		// Very rare but not unheard of issue:  two
+		// data points with identical time and thrust (see KBA K1750).
+		// We'll throw out the second, and hope the data in any other
+		// lists passed in is also duplicated (it *can't* make a big
+		// difference in the simulations)
+		for (int i = 0; i < time.size()-1; i++) {
+			while ((i < time.size()-1) &&
+				   MathUtil.equals(time.get(i), time.get(i+1)) &&
+				   MathUtil.equals(thrust.get(i), thrust.get(i+1))) {
+				System.out.println("\twarning:  deleting duplicate data point time[" + i+1 + "]=" + time.get(i+1) + ", thrust=" + thrust.get(i+1));
+				time.remove(i);
+				thrust.remove(i);
+				for (List l : lists) {
+					l.remove(i);
+				}
+			}
+		}
+
+		// Occasional issue:  two final data points at the same time,
+		// one zero and one not.  We'll throw the 0 point out.
+		int n = time.size() - 1;
+		if (MathUtil.equals(time.get(n-1), time.get(n))) {
+			if (MathUtil.equals(thrust.get(n-1), 0)) {
+				System.out.println("\twarning:  two final data points at time=" + time.get(n) + "; one is 0");
+				time.remove(n-1);
+				thrust.remove(n-1);
+				for (List l : lists) {
+					l.remove(n-1);
+				}
+			} else if (MathUtil.equals(thrust.get(n), 0)) {
+				System.out.println("\twarning:  two final data points at time=" + time.get(n) + "; one is 0");
+				time.remove(n);
+				thrust.remove(n);
+				for (List l : lists) {
+					l.remove(n);
+				}
+			}
+		}
+
 		// End
 		// Ah, no, we don't want to do this (I'm leaving the dead code
 		// in case there's a temptation to put it back in).  This ends
@@ -221,6 +260,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 		//         l.add(o);
 		//     }
 		// }
+
 	}
 	
 }
