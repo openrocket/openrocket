@@ -1630,9 +1630,26 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		return null;
 	}
-	
-	
-	// TODO: Move these methods elsewhere (used only in SymmetricComponent)
+
+	public final RocketComponent getNextComponent() {
+		checkState();
+		if (getChildCount() > 0)
+			return getChild(0);
+
+		RocketComponent current = this;
+		RocketComponent nextParent = this.parent;
+
+		while (nextParent != null) {
+			int pos = nextParent.getChildPosition(current);
+			if (pos < nextParent.getChildCount() - 1)
+				return nextParent.getChild(pos + 1);
+
+			current = nextParent;
+			nextParent = current.parent;
+		}
+		return null;
+	}
+
 	public final RocketComponent getPreviousComponent() {
 		checkState();
 		this.checkComponentStructure();
@@ -1662,28 +1679,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			c = c.getChild(c.getChildCount() - 1);
 		return c;
 	}
-	
-	// TODO: Move these methods elsewhere (used only in SymmetricComponent)
-	public final RocketComponent getNextComponent() {
-		checkState();
-		if (getChildCount() > 0)
-			return getChild(0);
-		
-		RocketComponent current = this;
-		RocketComponent nextParent = this.parent;
-		
-		while (nextParent != null) {
-			int pos = nextParent.getChildPosition(current);
-			if (pos < nextParent.getChildCount() - 1)
-				return nextParent.getChild(pos + 1);
-			
-			current = nextParent;
-			nextParent = current.parent;
-		}
-		return null;
-	}
-	
-	
+
 	///////////  Event handling  //////////
 	//
 	// Listener lists are provided by the root Rocket component,

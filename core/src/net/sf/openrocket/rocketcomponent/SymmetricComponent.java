@@ -566,17 +566,17 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * @return	the previous SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getPreviousSymmetricComponent() {
-		RocketComponent c;
-		for (c = this.getPreviousComponent(); c != null; c = c.getPreviousComponent()) {
-			if (c instanceof PodSet) {
-				return null;
-			}
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-			if (!(c instanceof AxialStage) &&
-				(c.axialMethod == AxialMethod.AFTER)) {
-				return null; // Bad component type as "parent"
+		if(null == this.parent) {
+			return null;
+		}
+
+		int pos = parent.getChildPosition(this);
+		while( 0 < pos ) {
+			--pos;
+			final RocketComponent comp = parent.getChild(pos);
+
+			if (comp instanceof SymmetricComponent) {
+				return (SymmetricComponent) comp;
 			}
 		}
 		return null;
@@ -588,17 +588,19 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * @return	the next SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getNextSymmetricComponent() {
-		RocketComponent c;
-		for (c = this.getNextComponent(); c != null; c = c.getNextComponent()) {
-			if (c instanceof PodSet) {
-				return null;
+		if(null == this.parent) {
+			return null;
+		}
+		
+		int pos = parent.getChildPosition(this);
+		++pos;
+		while( pos < parent.getChildCount() ) {
+			final RocketComponent comp = parent.getChild(pos);
+			++pos;
+
+			if (comp instanceof SymmetricComponent) {
+				return (SymmetricComponent) comp;
 			}
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-			if (!(c instanceof AxialStage) &&
-					(c.axialMethod == AxialMethod.AFTER))
-				return null; // Bad component type as "parent"
 		}
 		return null;
 	}
