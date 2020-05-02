@@ -52,7 +52,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		GUIUtil.rememberWindowPosition(this);
 
 		// overrides common defaults in 'GUIUTIL.setDisposableDialogOptions', above
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			/**
 			 *  Triggered by the 'Close' Button on the ConfigDialogs.  AND Esc. AND the [x] button (on Windows)
