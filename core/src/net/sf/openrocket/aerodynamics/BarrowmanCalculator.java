@@ -629,9 +629,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					}
 				}
 				
-				// if I'm the last componenet, set my base CD
-				// note I can't depend on the iterator serving up components in order,
-				// so I can't just do this after the last iteration.
+				// if I'm the last component, set my base CD
+				// note:  the iterator *should* serve up the next component.... buuuut ....
+				//        this code has is tested, and there's no compelling reason to change. 
 				if (s.getNextSymmetricComponent() == null) {
 					double area = Math.PI * pow2(s.getAftRadius());
 					double cd = base * area / conditions.getRefArea();
