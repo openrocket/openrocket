@@ -2179,7 +2179,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			
 			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
 				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount());
-				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(), this.axialOffset, getLocations()[0]));
+				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(), this.axialOffset, getLocations()[instanceNumber]));
 			}
 		}else{
 			throw new IllegalStateException("This is a developer error! If you implement an instanced class, please subclass the Instanceable interface.");
