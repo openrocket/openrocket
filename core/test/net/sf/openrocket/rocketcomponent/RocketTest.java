@@ -56,6 +56,29 @@ public class RocketTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testAutoAlphaIII() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+
+		AxialStage stage = (AxialStage) rocket.getChild(0);
+
+		BodyTube body = (BodyTube)stage.getChild(1);
+		final double expRadius = 0.012;
+		double actRadius = body.getOuterRadius();
+		assertEquals(" radius match: ", expRadius, actRadius, EPSILON);
+
+		body.setOuterRadiusAutomatic(true);
+		actRadius = body.getOuterRadius();
+		assertEquals(" radius match: ", expRadius, actRadius, EPSILON);
+
+		final Transition transition = new Transition();
+		stage.addChild(transition);
+
+		transition.setForeRadiusAutomatic(true);
+		actRadius = transition.getForeRadius();
+		assertEquals(" trailing transition match: ", expRadius, actRadius, EPSILON);
+	}
+
+	@Test
 	public void testEstesAlphaIII(){
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 			
