@@ -551,7 +551,7 @@ public class TestRockets {
 		}
 	}
 
-	// This is an extra stage tacked onto the end of an Estes Alpha III 
+	// This is an extra stage tacked onto the end of an Estes Alpha III
 	// http://www.rocketreviews.com/alpha-iii---estes-221256.html
 	// 
 	// This function is used for unit, integration tests, DO NOT CHANGE WITHOUT UPDATING TESTS
@@ -586,7 +586,7 @@ public class TestRockets {
 				double finRootChord = .05;
 				double finTipChord = .03;
 				double finSweep = 0.02;
-				double finHeight = 0.05;
+				double finHeight = 0.03;
 				FinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 				finset.setName("Booster Fins");
 				finset.setThickness( 0.0032);
@@ -611,6 +611,14 @@ public class TestRockets {
 				}
 				boosterBody.addChild(boosterMMT);
 			}
+
+			// Tail Cone
+			Transition boosterTail = new Transition();
+			boosterTail.setForeRadius(0.012);
+			boosterTail.setAftRadius(0.01);
+			boosterTail.setLength(0.005);
+			boosterTail.setName("Booster Tail Cone");
+			boosterStage.addChild( boosterTail);
 		}
 
 		rocket.setSelectedConfiguration( TEST_FCID_1 );

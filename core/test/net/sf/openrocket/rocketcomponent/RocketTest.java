@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
@@ -53,29 +54,6 @@ public class RocketTest extends BaseTestCase {
 		// therefore, I'm not convinced it's valuable enough to keep around.
 		//r2.copyFrom(r1);
 		//ComponentCompare.assertDeepEquality(r1, r2);
-	}
-
-	@Test
-	public void testAutoAlphaIII() {
-		Rocket rocket = TestRockets.makeEstesAlphaIII();
-
-		AxialStage stage = (AxialStage) rocket.getChild(0);
-
-		BodyTube body = (BodyTube)stage.getChild(1);
-		final double expRadius = 0.012;
-		double actRadius = body.getOuterRadius();
-		assertEquals(" radius match: ", expRadius, actRadius, EPSILON);
-
-		body.setOuterRadiusAutomatic(true);
-		actRadius = body.getOuterRadius();
-		assertEquals(" radius match: ", expRadius, actRadius, EPSILON);
-
-		final Transition transition = new Transition();
-		stage.addChild(transition);
-
-		transition.setForeRadiusAutomatic(true);
-		actRadius = transition.getForeRadius();
-		assertEquals(" trailing transition match: ", expRadius, actRadius, EPSILON);
 	}
 
 	@Test
@@ -179,7 +157,84 @@ public class RocketTest extends BaseTestCase {
 			assertThat(locPost.x, equalTo(0.0));
 		}
 	}
-	
+
+	@Test
+	public void testAutoSizePreviousComponent() {
+		Rocket rocket = TestRockets.makeBeta();
+
+		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		final AxialStage booster = (AxialStage) rocket.getChild(1);
+		final double expRadius = 0.012;
+
+		{ // test auto-radius within a stage: nose -> body tube
+			final NoseCone nose = (NoseCone) sustainer.getChild(0);
+			assertEquals(" radius match: ", expRadius, nose.getAftRadius(), EPSILON);
+			final BodyTube body = (BodyTube) sustainer.getChild(1);
+			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
+
+			body.setOuterRadiusAutomatic(true);
+			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
+		}
+		{ // test auto-radius within a stage: body tube -> trailing transition
+			final BodyTube body = (BodyTube) booster.getChild(0);
+			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
+			final Transition tailCone = (Transition)booster.getChild(1);
+			assertEquals(" radius match: ", expRadius, tailCone.getForeRadius(), EPSILON);
+
+			tailCone.setForeRadiusAutomatic(true);
+			assertEquals(" trailing transition match: ", expRadius, tailCone.getForeRadius(), EPSILON);
+		}
+		{ // test auto-radius across stages: sustainer body -> booster body
+			BodyTube sustainerBody = (BodyTube) sustainer.getChild(1);
+			assertEquals(" radius match: ", expRadius, sustainerBody.getOuterRadius(), EPSILON);
+			BodyTube boosterBody = (BodyTube) booster.getChild(0);
+			assertEquals(" radius match: ", expRadius, boosterBody.getOuterRadius(), EPSILON);
+
+			boosterBody.setOuterRadiusAutomatic(true);
+			assertEquals(" radius match: ", expRadius, boosterBody.getOuterRadius(), EPSILON);
+		}
+	}
+
+	@Test
+	public void testAutoSizeNextComponent() {
+		Rocket rocket = TestRockets.makeBeta();
+
+		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		final AxialStage booster = (AxialStage) rocket.getChild(1);
+		final double expRadius = 0.012;
+
+		{ // test auto-radius within a stage: nose <- body tube
+			System.err.println("## Testing auto-radius:  sustainer:  nose <- body");
+			final NoseCone nose = (NoseCone) sustainer.getChild(0);
+			assertEquals(" radius match: ", expRadius, nose.getAftRadius(), EPSILON);
+			final BodyTube body = (BodyTube) sustainer.getChild(1);
+			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
+
+			nose.setAftRadiusAutomatic(true);
+			assertEquals(" radius match: ", expRadius, nose.getAftRadius(), EPSILON);
+		}
+		{ // test auto-radius within a stage: body tube <- trailing transition
+			System.err.println("## Testing auto-radius:  booster: body <- tail");
+			final BodyTube boosterBody = (BodyTube) booster.getChild(0);
+			assertEquals(" radius match: ", expRadius, boosterBody.getOuterRadius(), EPSILON);
+			final Transition tailCone = (Transition)booster.getChild(1);
+			assertEquals(" radius match: ", expRadius, tailCone.getForeRadius(), EPSILON);
+
+			boosterBody.setOuterRadiusAutomatic(true);
+			assertEquals(" trailing transition match: ", expRadius, boosterBody.getOuterRadius(), EPSILON);
+		}
+		{ // test auto-radius across stages: sustainer body <- booster body
+			System.err.println("## Testing auto-radius:  booster:body -> sustainer:body");
+			BodyTube sustainerBody = (BodyTube) sustainer.getChild(1);
+			assertEquals(" radius match: ", expRadius, sustainerBody.getOuterRadius(), EPSILON);
+			BodyTube boosterBody = (BodyTube) booster.getChild(0);
+			assertEquals(" radius match: ", expRadius, boosterBody.getOuterRadius(), EPSILON);
+
+			sustainerBody.setOuterRadiusAutomatic(true);
+			assertEquals(" radius match: ", expRadius, sustainerBody.getOuterRadius(), EPSILON);
+		}
+	}
+
 	@Test
 	public void testBeta(){
 		Rocket rocket = TestRockets.makeBeta();
