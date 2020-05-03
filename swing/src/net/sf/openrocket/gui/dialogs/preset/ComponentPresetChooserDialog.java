@@ -172,8 +172,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	
 	private JPanel getFilterCheckboxes() {
-		SymmetricComponent sc;
-		
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
 		
 		/*
@@ -197,37 +195,40 @@ public class ComponentPresetChooserDialog extends JDialog {
 				}
 			});
 		}
-		
-		/*
-		 * Add filter by fore diameter
-		 */
-		foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
-		sc = getPreviousSymmetricComponent();
-		if (sc != null && foreDiameterColumnIndex >= 0) {
-			foreDiameterFilter = new ComponentPresetRowFilter(sc.getAftRadius() * 2.0, foreDiameterColumnIndex);
-			panel.add(foreDiameterFilterCheckBox, "wrap");
-			foreDiameterFilterCheckBox.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					updateFilters();
-				}
-			});
-		}
-		
-		/*
-		 * Add filter by aft diameter
-		 */
-		aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
-		sc = getNextSymmetricComponent();
-		if (sc != null && aftDiameterColumnIndex >= 0) {
-			aftDiameterFilter = new ComponentPresetRowFilter(sc.getForeRadius() * 2.0, aftDiameterColumnIndex);
-			panel.add(aftDiameterFilterCheckBox, "wrap");
-			aftDiameterFilterCheckBox.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					updateFilters();
-				}
-			});
+
+		if(component instanceof SymmetricComponent) {
+			final SymmetricComponent curSym = (SymmetricComponent) component;
+			/*
+			 * Add filter by fore diameter
+			 */
+			foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
+			final SymmetricComponent prevSym = curSym.getPreviousSymmetricComponent();
+			if (prevSym != null && foreDiameterColumnIndex >= 0) {
+				foreDiameterFilter = new ComponentPresetRowFilter(prevSym.getAftRadius() * 2.0, foreDiameterColumnIndex);
+				panel.add(foreDiameterFilterCheckBox, "wrap");
+				foreDiameterFilterCheckBox.addItemListener(new ItemListener() {
+					@Override
+					public void itemStateChanged(ItemEvent e) {
+						updateFilters();
+					}
+				});
+			}
+
+			/*
+			 * Add filter by aft diameter
+			 */
+			aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
+			final SymmetricComponent nextSym = curSym.getNextSymmetricComponent();
+			if (nextSym != null && aftDiameterColumnIndex >= 0) {
+				aftDiameterFilter = new ComponentPresetRowFilter(nextSym.getForeRadius() * 2.0, aftDiameterColumnIndex);
+				panel.add(aftDiameterFilterCheckBox, "wrap");
+				aftDiameterFilterCheckBox.addItemListener(new ItemListener() {
+					@Override
+					public void itemStateChanged(ItemEvent e) {
+						updateFilters();
+					}
+				});
+			}
 		}
 		
 		return panel;
@@ -274,29 +275,5 @@ public class ComponentPresetChooserDialog extends JDialog {
 		}
 		
 		componentSelectionTable.setRowFilter(RowFilter.andFilter(filters));
-	}
-	
-	
-	private SymmetricComponent getPreviousSymmetricComponent() {
-		RocketComponent c = component;
-		while (c != null) {
-			c = c.getPreviousComponent();
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-		}
-		return null;
-	}
-	
-	
-	private SymmetricComponent getNextSymmetricComponent() {
-		RocketComponent c = component;
-		while (c != null) {
-			c = c.getNextComponent();
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-		}
-		return null;
 	}
 }
