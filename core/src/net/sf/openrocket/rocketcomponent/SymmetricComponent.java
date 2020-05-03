@@ -570,14 +570,30 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			return null;
 		}
 
-		int pos = parent.getChildPosition(this);
-		while( 0 < pos ) {
-			--pos;
-			final RocketComponent comp = parent.getChild(pos);
+		// might be: (a) Rocket -- for centerline stages
+		//           (b) BodyTube -- for Parallel Stages
+		final AxialStage stage = this.getStage();
+		final RocketComponent stageParent = stage.getParent();
 
-			if (comp instanceof SymmetricComponent) {
-				return (SymmetricComponent) comp;
+		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
+		int stageIndex = stageParent.getChildPosition(stage);
+		int symmetricIndex = this.parent.getChildPosition(this)-1;
+
+		while( 0 <= stageIndex ) {
+			final RocketComponent prevStage = stageParent.getChild(stageIndex);
+
+			if(prevStage instanceof AxialStage){
+				while (0 <= symmetricIndex) {
+					final RocketComponent previousSymmetric = prevStage.getChild(symmetricIndex);
+
+					if (previousSymmetric instanceof SymmetricComponent) {
+						return (SymmetricComponent) previousSymmetric;
+					}
+					--symmetricIndex;
+				}
 			}
+			--stageIndex;
+			symmetricIndex = prevStage.getChildCount() - 1;
 		}
 		return null;
 	}
@@ -591,16 +607,31 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		if(null == this.parent) {
 			return null;
 		}
-		
-		int pos = parent.getChildPosition(this);
-		++pos;
-		while( pos < parent.getChildCount() ) {
-			final RocketComponent comp = parent.getChild(pos);
-			++pos;
 
-			if (comp instanceof SymmetricComponent) {
-				return (SymmetricComponent) comp;
+		// might be: (a) Rocket -- for centerline stages
+		//           (b) BodyTube -- for Parallel Stages
+		final AxialStage stage = this.getStage();
+		final RocketComponent stageParent = stage.getParent();
+
+		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
+		int stageIndex = stageParent.getChildPosition(stage);
+		int symmetricIndex = this.parent.getChildPosition(this) + 1;
+
+		while(stageIndex < stageParent.getChildCount()) {
+			final RocketComponent nextStage = stageParent.getChild(stageIndex);
+
+			if(nextStage instanceof AxialStage){
+				while (symmetricIndex < nextStage.getChildCount()) {
+					final RocketComponent nextSymmetric = nextStage.getChild(symmetricIndex);
+
+					if (nextSymmetric instanceof SymmetricComponent) {
+						return (SymmetricComponent) nextSymmetric;
+					}
+					++symmetricIndex;
+				}
 			}
+			++stageIndex;
+			symmetricIndex = nextStage.getChildCount() - 1;
 		}
 		return null;
 	}
