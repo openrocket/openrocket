@@ -145,14 +145,15 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			if (motor.time.length < 2) {
 				throw new IllegalArgumentException("Too short thrust-curve, length=" + motor.time.length);
 			}
+			
 			for (int i = 0; i < motor.time.length - 1; i++) {
 				if (motor.time[i + 1] <= motor.time[i]) {
-					throw new IllegalArgumentException("Time stalls or goes backwards, " +
-							"time[" + i + "]=" + motor.time[i] + " " +
-							"time[" + (i + 1) + "]=" + motor.time[i + 1] +
-													   ", thrust=(" + motor.thrust[i] + ", " + motor.thrust[i+1] + ")");
+					throw new IllegalArgumentException("Two thrust values for single time point, " +
+													   "time[" + i + "]=" + motor.time[i] + ", thrust=" + motor.thrust[i] +
+													   "; time[" + (i + 1) + "]=" + motor.time[i + 1] + ", thrust=" + motor.thrust[i+1]);
 				}
 			}
+
 			if (!MathUtil.equals(motor.time[0], 0)) {
 				throw new IllegalArgumentException("Curve starts at time " + motor.time[0]);
 			}
