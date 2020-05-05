@@ -592,7 +592,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		cg = MassCalculator.calculateLaunch( curConfig).getCM();
 
-		if (cp.weight > MassCalculator.MIN_MASS){
+		if (cp.weight > MathUtil.EPSILON){
 			cpx = cp.x;
 		}else{
 			cpx = Double.NaN;
