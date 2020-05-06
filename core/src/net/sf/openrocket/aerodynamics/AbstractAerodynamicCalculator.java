@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -62,7 +63,7 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 		for (int i = 0; i < DIVISIONS; i++) {
 			cond.setTheta(2 * Math.PI * i / DIVISIONS);
 			cp = getCP(configuration, cond, warnings);
-			if (cp.x < worst.x) {
+			if ((cp.weight > MathUtil.EPSILON) && (cp.x < worst.x)) {
 				worst = cp;
 				theta = cond.getTheta();
 			}
