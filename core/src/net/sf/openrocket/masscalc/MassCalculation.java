@@ -54,7 +54,7 @@ public class MassCalculation {
 	// =========== Instance Functions ========================
 	
 	public void merge( final MassCalculation other ) {
-		if( 0 < other.getMass()) {
+		if( MIN_MASS < other.getMass()) {
 			// Adjust Center-of-mass
 			this.addMass( other.getCM() );
 			this.bodies.addAll( other.bodies );
@@ -66,7 +66,7 @@ public class MassCalculation {
 	}
 	
 	public void addMass( final Coordinate pointMass ) {
-		if( 0 == this.centerOfMass.weight ){
+		if( MIN_MASS < this.centerOfMass.weight ){
 		    this.centerOfMass = pointMass;
 		}else {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
@@ -298,7 +298,7 @@ public class MassCalculation {
 			}			
 		}
 		
-		if( 0 < children.getMass() ) {
+		if( MIN_MASS < children.getMass() ) {
 			this.merge( children );
 			// // vvv DEBUG
 			// System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
@@ -398,7 +398,7 @@ public class MassCalculation {
 			}			
 		}
 		
-		if( 0 < children.getMass() ) {
+		if( MIN_MASS < children.getMass() ) {
 			this.merge( children );
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
 		}
