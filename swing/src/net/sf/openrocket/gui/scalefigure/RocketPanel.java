@@ -554,7 +554,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private void updateExtras() {
 		Coordinate cp, cg;
-		double cpx, cgx;
+		double cgx = Double.NaN;
+		double cgy = Double.NaN;
+		double cpx = Double.NaN;
+		double cpy = Double.NaN;
 
 		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
@@ -594,14 +597,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (cp.weight > MathUtil.EPSILON){
 			cpx = cp.x;
-		}else{
-			cpx = Double.NaN;
+			cpy = Math.hypot(cp.y, cp.z);
 		}
 		
 		if (cg.weight > MassCalculator.MIN_MASS){
 			cgx = cg.x;
-		}else{
-			cgx = Double.NaN;
+			cgy = Math.hypot(cg.y, cg.z);
 		}
 
 		figure3d.setCG(cg);
@@ -630,9 +631,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
 
-			// TODO: LOW: Y-coordinate and rotation
-			extraCP.setPosition(cpx, 0);
-			extraCG.setPosition(cgx, 0);
+			extraCP.setPosition(cpx, cpy);
+			extraCG.setPosition(cgx, cgy);
 
 		} else {
 
