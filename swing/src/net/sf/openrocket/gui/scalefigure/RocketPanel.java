@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -121,6 +123,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private TreeSelectionModel selectionModel = null;
 
 	private BasicSlider rotationSlider;
+	private DoubleModel rotationModel;
 	private ScaleSelector scaleSelector;
 
 	/* Calculation of CP and CG */
@@ -323,9 +326,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(configComboBox, "wrap, width 16%, wmin 100");
 
 		// Create slider and scroll pane
-		DoubleModel theta = new DoubleModel(figure, "Rotation",
-				UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-		UnitSelector us = new UnitSelector(theta, true);
+		rotationModel = new DoubleModel(figure, "Rotation", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+		UnitSelector us = new UnitSelector(rotationModel, true);
 		us.setHorizontalAlignment(JLabel.CENTER);
 		add(us, "alignx 50%, growx");
 
@@ -337,8 +339,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel l = new JLabel("360" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 
-		add(rotationSlider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
+		add(rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
 				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
+		rotationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateExtras();
+			}
+		});
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
 		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
@@ -558,6 +566,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		double cgy = Double.NaN;
 		double cpx = Double.NaN;
 		double cpy = Double.NaN;
+		final double rotation = rotationModel.getValue();
 
 		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
@@ -597,12 +606,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (cp.weight > MathUtil.EPSILON){
 			cpx = cp.x;
-			cpy = Math.hypot(cp.y, cp.z);
+			// map the 3D value into the 2D Display Panel
+			cpy = cp.y * Math.cos(rotation) + cp.z*Math.sin(rotation);
 		}
 		
 		if (cg.weight > MassCalculator.MIN_MASS){
 			cgx = cg.x;
-			cgy = Math.hypot(cg.y, cg.z);
+			// map the 3D value into the 2D Display Panel
+			cgy = cg.y * Math.cos(rotation) + cg.z*Math.sin(rotation);
 		}
 
 		figure3d.setCG(cg);
@@ -630,15 +641,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setWarnings(warnings);
 
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
-
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
-
 		} else {
-
 			extraCP.setPosition(Double.NaN, Double.NaN);
 			extraCG.setPosition(Double.NaN, Double.NaN);
-
 		}
 
 		////////  Flight simulation in background
