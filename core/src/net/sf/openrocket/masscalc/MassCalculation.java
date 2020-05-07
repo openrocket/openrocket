@@ -66,7 +66,7 @@ public class MassCalculation {
 	}
 	
 	public void addMass( final Coordinate pointMass ) {
-		if( MIN_MASS < this.centerOfMass.weight ){
+		if( MIN_MASS > this.centerOfMass.weight ){
 		    this.centerOfMass = pointMass;
 		}else {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
