@@ -1207,7 +1207,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		assertEquals(0.03423168, coords.x, EPSILON);
 		assertEquals(0.01427544, coords.y, EPSILON);
 		
-		BodyTube bt = new BodyTube();
+		BodyTube bt = new BodyTube(0.1, 0.1);
 		bt.addChild(fins);
 		FinSetCalc calc = new FinSetCalc(fins);
 		FlightConditions conditions = new FlightConditions(null);

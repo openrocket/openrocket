@@ -566,18 +566,34 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * @return	the previous SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getPreviousSymmetricComponent() {
-		RocketComponent c;
-		for (c = this.getPreviousComponent(); c != null; c = c.getPreviousComponent()) {
-			if (c instanceof PodSet) {
-				return null;
+		if(null == this.parent) {
+			return null;
+		}
+
+		// might be: (a) Rocket -- for centerline stages
+		//           (b) BodyTube -- for Parallel Stages
+		final AxialStage stage = this.getStage();
+		final RocketComponent stageParent = stage.getParent();
+
+		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
+		int stageIndex = stageParent.getChildPosition(stage);
+		int symmetricIndex = this.parent.getChildPosition(this)-1;
+
+		while( 0 <= stageIndex ) {
+			final RocketComponent prevStage = stageParent.getChild(stageIndex);
+
+			if(prevStage instanceof AxialStage){
+				while (0 <= symmetricIndex) {
+					final RocketComponent previousSymmetric = prevStage.getChild(symmetricIndex);
+
+					if (previousSymmetric instanceof SymmetricComponent) {
+						return (SymmetricComponent) previousSymmetric;
+					}
+					--symmetricIndex;
+				}
 			}
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-			if (!(c instanceof AxialStage) &&
-				(c.axialMethod == AxialMethod.AFTER)) {
-				return null; // Bad component type as "parent"
-			}
+			--stageIndex;
+			symmetricIndex = prevStage.getChildCount() - 1;
 		}
 		return null;
 	}
@@ -588,17 +604,34 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * @return	the next SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getNextSymmetricComponent() {
-		RocketComponent c;
-		for (c = this.getNextComponent(); c != null; c = c.getNextComponent()) {
-			if (c instanceof PodSet) {
-				return null;
+		if(null == this.parent) {
+			return null;
+		}
+
+		// might be: (a) Rocket -- for centerline stages
+		//           (b) BodyTube -- for Parallel Stages
+		final AxialStage stage = this.getStage();
+		final RocketComponent stageParent = stage.getParent();
+
+		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
+		int stageIndex = stageParent.getChildPosition(stage);
+		int symmetricIndex = this.parent.getChildPosition(this) + 1;
+
+		while(stageIndex < stageParent.getChildCount()) {
+			final RocketComponent nextStage = stageParent.getChild(stageIndex);
+
+			if(nextStage instanceof AxialStage){
+				while (symmetricIndex < nextStage.getChildCount()) {
+					final RocketComponent nextSymmetric = nextStage.getChild(symmetricIndex);
+
+					if (nextSymmetric instanceof SymmetricComponent) {
+						return (SymmetricComponent) nextSymmetric;
+					}
+					++symmetricIndex;
+				}
 			}
-			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent) c;
-			}
-			if (!(c instanceof AxialStage) &&
-					(c.axialMethod == AxialMethod.AFTER))
-				return null; // Bad component type as "parent"
+			++stageIndex;
+			symmetricIndex = nextStage.getChildCount() - 1;
 		}
 		return null;
 	}

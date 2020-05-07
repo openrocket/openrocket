@@ -462,9 +462,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertThat((Class<TrapezoidFinSet>) boosterFinContext0.component.getClass(), equalTo(TrapezoidFinSet.class));
 					assertThat(boosterFinContext0.instanceNumber, equalTo(0));
 					final Coordinate boosterFin0Location = boosterFinContext0.getLocation();
-					assertEquals(boosterFin0Location.x,  1.044, EPSILON);
-					assertEquals(boosterFin0Location.y, -0.104223611, EPSILON);
-					assertEquals(boosterFin0Location.z, -0.027223611, EPSILON);
+					assertEquals(1.044, boosterFin0Location.x, EPSILON);
+					assertEquals( -0.104223611, boosterFin0Location.y, EPSILON);
+					assertEquals( -0.027223611, boosterFin0Location.z, EPSILON);
 
 					final InstanceContext boosterFinContext1 = finContextList.get(4);
 					assertThat((Class<TrapezoidFinSet>) boosterFinContext1.component.getClass(), equalTo(TrapezoidFinSet.class));
