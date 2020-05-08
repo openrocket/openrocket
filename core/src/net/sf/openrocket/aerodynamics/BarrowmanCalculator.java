@@ -204,8 +204,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					
 					Coordinate cp_inst = instanceForces.getCP();
 					Coordinate cp_abs = context.transform.transform(cp_inst);
-					if ((comp instanceof FinSet) && (((FinSet)comp).getFinCount() > 2))
-						cp_abs = cp_abs.setY(0.0).setZ(0.0);
+					cp_abs = cp_abs.setY(0.0).setZ(0.0);
 					
 //					if( 1e-6 < cp_inst.weight) {
 //						System.err.println("_________ cp:inst: (rel): " + cp_inst.toString());

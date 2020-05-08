@@ -407,24 +407,4 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		return this;
 	}
 	
-	public AerodynamicForces multiplex(final int instanceCount) {
-		
-		this.cp = cp.setWeight(cp.weight*instanceCount);
-		if(1 < instanceCount) {
-			this.cp = cp.setY(0f).setZ(0f);
-		}
-		this.CNa = CNa*instanceCount;
-		this.CN = CN*instanceCount;
-		this.Cm = Cm*instanceCount;
-		this.Cside = Cside*instanceCount;
-		this.Cyaw = Cyaw*instanceCount;
-		this.Croll = Croll*instanceCount;
-		this.CrollDamp = CrollDamp*instanceCount;
-		this.CrollForce = CrollForce*instanceCount;
-	
-		modID++;
-		
-		return this;
-	}
-	
 }

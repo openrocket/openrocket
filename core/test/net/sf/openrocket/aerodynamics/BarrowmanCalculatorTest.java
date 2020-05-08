@@ -338,20 +338,13 @@ public class BarrowmanCalculatorTest {
 		// results with and without it
 		// cpNoPods (0.34125,0.00000,0.00000,w=16.20502) -- interference disabled
 		// cpNoPods (0.34797,0.00000,0.00000,w=19.34773) -- interference enabled
-
-		// another note:  the fact that this is seen as three one-fin
-		// FinSets instead of a single three-fin FinSet means the CP
-		// will be off-axis (one of the fins is taken as having an
-		// angle of 0 to the airstream, so it has no contribution).
-		// This doesn't turn out to cause a problem in an actual
-		// simulation.
 		
 		final Coordinate cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
 		final Coordinate cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
 		System.out.printf("with pods %s\n", cpPods.toString());
 		System.out.printf("without pods %s\n", cpNoPods.toString());
 		assertEquals(" Alpha III With Pods rocket cp x value is incorrect:", cpNoPods.x - 0.002788761352, cpPods.x, EPSILON);
-		assertEquals(" Alpha III With Pods rocket cp y value is incorrect:", cpNoPods.y - 0.005460218430206499, cpPods.y, EPSILON);
+		assertEquals(" Alpha III With Pods rocket cp y value is incorrect:", cpNoPods.y, cpPods.y, EPSILON);
 		assertEquals(" Alpha III With Pods rocket cp z value is incorrect:", cpNoPods.z, cpPods.z, EPSILON);
 		assertEquals(" Alpha III With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.91572, EPSILON);
 	}
