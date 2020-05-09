@@ -941,12 +941,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
-		final Coordinate[] finPoints = getFinPoints();
-		final Coordinate[] tabPoints = getTabPoints();
-		
-		Coordinate[] combinedPoints = Arrays.copyOf(finPoints, finPoints.length + tabPoints.length);
-		System.arraycopy(tabPoints, 0, combinedPoints, finPoints.length, tabPoints.length);
-		return combinedPoints;
+		return combineCurves(getFinPoints(), getTabPoints());
 	}
 	
 	@Override
