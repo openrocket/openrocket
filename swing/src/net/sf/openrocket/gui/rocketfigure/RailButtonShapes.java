@@ -37,10 +37,6 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double innerHeightcos = innerHeight*cosr;
 		final double flangeHeightcos = flangeHeight*cosr;
 
-//		System.err.println(String.format("Generating Shapes for RailButtons..."));
-//		System.err.println(String.format("           @  %s", instanceAbsoluteLocation));
-//		System.err.println(String.format("           angle: %f", view_rotation_rad));
-
 		Path2D.Double path = new Path2D.Double();
 		{// central pillar
 			final double drawWidth = outerDiameter;
@@ -138,8 +134,6 @@ public class RailButtonShapes extends RocketComponentShape {
 		rect.lineTo( (x+radius*cosr+height*sinr), (y-radius*sinr+height*cosr));
 		rect.lineTo( (x+radius*cosr), (y-radius*sinr));
 		rect.closePath();
-		// add points
-		
 		
 		return rect;
 	}
