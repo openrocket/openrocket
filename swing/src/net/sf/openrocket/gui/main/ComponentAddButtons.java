@@ -118,20 +118,19 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		int col = 0;
 
 		////////////////////////////////////////////
-		add(new JLabel(trans.get("compaddbuttons.assembly")), "span, gaptop unrel, wrap");
+		add(new JLabel(trans.get("compaddbuttons.ComponentAssembly")), "span, gaptop 0, wrap");
 
 		//// Component Assembly Components:
 		addButtonGroup(row,
-				new ComponentButton(AxialStage.class, trans.get("RocketActions.NewStageAct.Newstage")),
-				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.newBooster.lbl")),
-				new ComponentButton(PodSet.class, trans.get("compaddbuttons.newPods.lbl")));
-
+				new ComponentButton(AxialStage.class, trans.get("compaddbuttons.AxialStage")),
+				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.ParallelStage")),
+				new ComponentButton(PodSet.class, trans.get("compaddbuttons.Pods")));
 		row++;
 
 		////////////////////////////////////////////
 		
 		//// Body components and fin sets
-		add(new JLabel(trans.get("compaddbuttons.Bodycompandfinsets")), "span, gaptop 0, wrap");
+		add(new JLabel(trans.get("compaddbuttons.Bodycompandfinsets")), "span, gaptop unrel, wrap");
 		addButtonGroup(row, 
 				//// Nose cone
 				new BodyComponentButton(NoseCone.class, trans.get("compaddbuttons.Nosecone")),
@@ -156,7 +155,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		/////////////////////////////////////////////
 		
 		//// Inner component
-		add(new JLabel(trans.get("compaddbuttons.Innercomponent")), "span, gaptop unrel, wrap");
+		add(new JLabel(trans.get("compaddbuttons.InnerComponent")), "span, gaptop unrel, wrap");
 		addButtonGroup(row, 
 				//// Inner tube
 				new ComponentButton(InnerTube.class, trans.get("compaddbuttons.Innertube")),
@@ -172,7 +171,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		row++;
 
 		////////////////////////////////////////////
-		add(new JLabel(trans.get("compaddbuttons.Massobjects")), "span, gaptop unrel, wrap");
+		add(new JLabel(trans.get("compaddbuttons.MassComponents")), "span, gaptop unrel, wrap");
 
 		//// Mass objects
 		// NOTE: These are on the same line as the assemblies above
@@ -186,7 +185,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				//				new ComponentButton("Motor clip"),
 				//				new ComponentButton("Payload"),
 				//// Mass component
-				new ComponentButton(MassComponent.class, trans.get("compaddbuttons.Masscomponent")));
+				new ComponentButton(MassComponent.class, trans.get("compaddbuttons.MassComponent")));
 		
 
 		// Get maximum button size
