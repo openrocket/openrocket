@@ -59,8 +59,6 @@ parts:
     override-build: |
       snapcraftctl build
       mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
-    build-packages:
-      - wget
     stage-packages:
       - openjdk-11-jre
       - ca-certificates
