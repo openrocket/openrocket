@@ -79,7 +79,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAddButtons.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final int ROWS = 3;
+	private static final int ROWS = 4;
 	private static final int MAXCOLS = 6;
 	private static final String BUTTONPARAM = "grow, sizegroup buttons";
 	
@@ -109,13 +109,25 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		this.document = document;
 		this.selectionModel = model;
 		this.viewport = viewport;
-		
+
 		buttons = new ComponentButton[ROWS][];
 		for( int rowCur = 0; rowCur < ROWS; rowCur++){
 			buttons[rowCur]=null;
 		}
 		int row = 0;
 		int col = 0;
+
+		////////////////////////////////////////////
+		add(new JLabel(trans.get("compaddbuttons.assembly")), "span, gaptop unrel, wrap");
+
+		//// Component Assembly Components:
+		addButtonGroup(row,
+				new ComponentButton(AxialStage.class, trans.get("RocketActions.NewStageAct.Newstage")),
+				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.newBooster.lbl")),
+				new ComponentButton(PodSet.class, trans.get("compaddbuttons.newPods.lbl")));
+
+		row++;
+
 		////////////////////////////////////////////
 		
 		//// Body components and fin sets
@@ -139,7 +151,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new ComponentButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
 				new ComponentButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
-			row++;
+		row++;
 		
 		/////////////////////////////////////////////
 		
@@ -158,22 +170,10 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new ComponentButton(EngineBlock.class, trans.get("compaddbuttons.Engineblock")));
 		
 		row++;
-		
+
 		////////////////////////////////////////////
-		add(new JLabel(trans.get("compaddbuttons.assembly")), "span 3");
 		add(new JLabel(trans.get("compaddbuttons.Massobjects")), "span, gaptop unrel, wrap");
 
-//		RocketActions.NewStageAct.ttip.Newstage = Add a new stage to the rocket design.
-//		RocketActions.NewStageAct.ttip.newBooster = Add a new set booster stage to the rocket design.
-//		RocketActions.NewStageAct.ttip.newPods = Add a new set of pods to the rocket design.
-
-		//// Component Assembly Components:
-		ComponentButton[] buttonsToAdd = { 
-				new ComponentButton(AxialStage.class, trans.get("RocketActions.NewStageAct.Newstage")),
-				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.newBooster.lbl")),
-				new ComponentButton(PodSet.class, trans.get("compaddbuttons.newPods.lbl"))};
-		addButtonGroup(row, buttonsToAdd);
-		
 		//// Mass objects
 		// NOTE: These are on the same line as the assemblies above
 		addButtonGroup(row, 
@@ -236,13 +236,13 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	
 	/**
 	 * Adds a buttons to the panel in a row.  Assumes.
-	 * 
+	 *
 	 * @param label  Label placed before the row
 	 * @param row    Row number
 	 * @param b      List of ComponentButtons to place on the row
 	 */
 	private void addButtonGroup(int row, ComponentButton... b) {
-		
+
 		int oldLen=0;
 		if( null == buttons[row] ){
 			buttons[row] = new ComponentButton[b.length];
