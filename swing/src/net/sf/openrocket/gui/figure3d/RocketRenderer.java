@@ -161,77 +161,47 @@ public abstract class RocketRenderer {
 	}
 	
 	private Collection<Geometry> getTreeGeometry( FlightConfiguration config){
-	    System.err.println(String.format("==== Building tree geometry ===="));
+		// input
+		final InstanceMap imap = config.getActiveInstances();
 
-	    // input
-	    final InstanceMap imap = config.getActiveInstances();
-	    
-	    // output buffer
-	    final Collection<Geometry> treeGeometry = new ArrayList<Geometry>(); 
-	    
-	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+		// output buffer
+		final Collection<Geometry> treeGeometry = new ArrayList<Geometry>();
+
+		for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent comp = entry.getKey();
 			
 			final ArrayList<InstanceContext> contextList = entry.getValue();
-			System.err.println(String.format("....[%s]", comp.getName()));
 
 			for(InstanceContext context: contextList ) {
-				System.err.println(String.format("........[% 2d]  %s", context.instanceNumber, context.getLocation().toPreciseString()));
-
-//	            System.err.println( String.format("%s[ %s ]", indent, comp.getName()));
-//	            System.err.println( String.format("%s  :: %12.8g / %12.8g / %12.8g (m) @ %8.4g (rads) ", indent, currentLocation.x, currentLocation.y, currentLocation.z, currentAngle ));
-
-	            Geometry instanceGeometry = cr.getComponentGeometry( comp, context.transform );
-	            instanceGeometry.active = context.active;
-	            treeGeometry.add( instanceGeometry );
+				Geometry instanceGeometry = cr.getComponentGeometry( comp, context.transform );
+				instanceGeometry.active = context.active;
+				treeGeometry.add( instanceGeometry );
 			}
-        }
-        return treeGeometry;
+		}
+		return treeGeometry;
 	}
-	
+
 	private void renderTree( GL2 gl, final Collection<Geometry> geometryList){
-	    //cycle through opaque components first, then transparent to preserve proper depth testing
-	    for(Geometry geom: geometryList ) {
-                if( geom.active ) {
-		    //if not transparent
-                    if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
-                        renderComponent(gl, geom, 1.0f);
-                    }
-                }
-            }
-	    for(Geometry geom: geometryList ) {
-                if( geom.active ) {
-                    if( isDrawnTransparent( (RocketComponent)geom.obj) ){
-                        // Draw T&T front faces blended, without depth test
-                        renderComponent(gl, geom, 0.2f);
-                    }
-                }
-            }
-        }
-	
+		//cycle through opaque components first, then transparent to preserve proper depth testing
+		for(Geometry geom: geometryList ) {
+			if( geom.active ) {
+				//if not transparent
+				if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
+					renderComponent(gl, geom, 1.0f);
+				}
+			}
+		}
+		for(Geometry geom: geometryList ) {
+			if( geom.active ) {
+				if( isDrawnTransparent( (RocketComponent)geom.obj) ){
+					// Draw T&T front faces blended, without depth test
+					renderComponent(gl, geom, 0.2f);
+				}
+			}
+		}
+	}
+
 	private void renderMotors(GL2 gl, FlightConfiguration configuration) {
-//		FlightConfigurationId motorID = configuration.getFlightConfigurationID();
-//		
-//		for( RocketComponent comp : configuration.getActiveComponents()){
-//			if( comp instanceof MotorMount){
-//			
-//				MotorMount mount = (MotorMount) comp;
-//				Motor motor = mount.getMotorInstance(motorID).getMotor();
-//				if( null == motor )???;
-//				double length = motor.getLength();
-//			
-//				Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
-//						.getLength() + mount.getMotorOverhang() - length));
-//			
-//				for (int i = 0; i < position.length; i++) {
-//					gl.glPushMatrix();
-//					gl.glTranslated(position[i].x, position[i].y, position[i].z);
-//					renderMotor(gl, motor);
-//					gl.glPopMatrix();
-//				}
-//			}
-//		}
-		
 		for( MotorConfiguration curMotor : configuration.getActiveMotors()){
 			MotorMount mount = curMotor.getMount();
 			Motor motor = curMotor.getMotor();
