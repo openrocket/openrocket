@@ -4,7 +4,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,27 +30,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.BodyComponent;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
-import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.Parachute;
-import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
-import net.sf.openrocket.rocketcomponent.RingComponent;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.ShockCord;
-import net.sf.openrocket.rocketcomponent.Streamer;
-import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
-import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -81,11 +60,15 @@ public class ScaleDialog extends JDialog {
 			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
 	static {
 		List<Scaler> list;
-		
+
 		// RocketComponent
 		addScaler(RocketComponent.class, "AxialOffset");
 		SCALERS.get(RocketComponent.class).add(new OverrideScaler());
-		
+
+		// ComponentAssembly
+		addScaler(ParallelStage.class, "RadiusOffset");
+		addScaler(PodSet.class, "RadiusOffset");
+
 		// BodyComponent
 		addScaler(BodyComponent.class, "Length");
 		
@@ -258,13 +241,14 @@ public class ScaleDialog extends JDialog {
 		 * If a component is selected, either its diameter (for SymmetricComponents) or length is selected.
 		 * Otherwise the maximum body diameter is selected.  As a fallback DEFAULT_INITIAL_SIZE is used.
 		 */
-		// 
 		double initialSize = 0;
 		if (selection != null) {
 			if (selection instanceof SymmetricComponent) {
 				SymmetricComponent s = (SymmetricComponent) selection;
 				initialSize = s.getForeRadius() * 2;
 				initialSize = MathUtil.max(initialSize, s.getAftRadius() * 2);
+			}else if ((selection instanceof ParallelStage) || (selection instanceof PodSet )) {
+				initialSize = selection.getRadiusOffset();
 			} else {
 				initialSize = selection.getLength();
 			}
@@ -274,6 +258,8 @@ public class ScaleDialog extends JDialog {
 					SymmetricComponent s = (SymmetricComponent) c;
 					initialSize = s.getForeRadius() * 2;
 					initialSize = MathUtil.max(initialSize, s.getAftRadius() * 2);
+				} else if ((selection instanceof ParallelStage) || (selection instanceof PodSet )) {
+					initialSize = selection.getRadiusOffset();
 				}
 			}
 		}
