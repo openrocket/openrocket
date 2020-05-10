@@ -299,7 +299,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/** 
 	 * internally, set the internal offset and optionally validate tab
 	 * 
-	 * @param offsetRequest new requested shift of tab -- from
+	 * @param offsetRequest new requested tob offset
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
@@ -345,14 +345,19 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		//check front bounds:
 		if( tabPosition < 0){
 			this.tabPosition = 0;
-	    }
-		
+		}
+
 		//check tail bounds:
-	    final double xTabBack = getTabTrailingEdge();
+		if (this.length < tabPosition ) {
+			this.tabPosition = length;
+		}
+		final double xTabBack = getTabTrailingEdge();
 		if( this.length < xTabBack ){
 			this.tabLength -= (xTabBack - this.length);
 		}
-		
+
+		tabLength = Math.max(0, tabLength);
+
 		// check tab height 
 		if( null != getParent() ){
 			// pulls the parent-body radius at the fin-tab reference point.
