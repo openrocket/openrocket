@@ -20,6 +20,7 @@ import net.sf.openrocket.gui.print.visitor.PageFitPrintStrategy;
 import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
 import net.sf.openrocket.gui.print.visitor.TransitionStrategy;
 
+import java.awt.Window;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -30,6 +31,33 @@ import java.util.Set;
  * file.
  */
 public class PrintController {
+	
+	/**
+	 * Used for displaying progress information when the Window
+	 * is not null.
+	 */
+	private Window window = null;
+	
+	/**
+	 * Sets the reference Window for displaying progress information
+	 * for long running print operations.
+	 * 
+	 * @param window the reference window
+	 */
+	public void setWindow(final Window window) {
+		this.window = window;
+	}
+	
+	/**
+	 * Returns the reference Window for displaying progress information
+	 * for long running print operations.
+	 * 
+	 * @return the reference Window for displaying progress. May be null
+	 *         if no reference Window has been set.
+	 */
+	public Window getWindow() {
+		return this.window;
+	}
 
     /**
      * Print the selected components to a PDF document.
@@ -39,9 +67,10 @@ public class PrintController {
      * @param outputFile  the file being written to
      * @param settings    the print settings
      * @param rotation    the angle the rocket figure is rotated
+     * @param runSims     determines whether to re-run out of date simulations or not
      */
     public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
-                      PrintSettings settings, double rotation) {
+                      PrintSettings settings, double rotation, boolean runSims) {
 
         Document idoc = new Document(getSize(settings));
         PdfWriter writer = null;
@@ -51,12 +80,7 @@ public class PrintController {
 
             writer.addViewerPreference(PdfName.PRINTSCALING, PdfName.NONE);
             writer.addViewerPreference(PdfName.PICKTRAYBYPDFSIZE, PdfBoolean.PDFTRUE);
-            try {
-                idoc.open();
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e) {
-            }
+            idoc.open();
 
             // Used to combine multiple components onto fewer sheets of paper
             PageFitPrintStrategy pageFitPrint = new PageFitPrintStrategy(idoc, writer);
@@ -70,7 +94,7 @@ public class PrintController {
 
                 switch (printableContext.getPrintable()) {
                     case DESIGN_REPORT:
-                        DesignReport dp = new DesignReport(doc, idoc, rotation);
+                        DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window);
                         dp.writeToDocument(writer);
                         idoc.newPage();
                         break;

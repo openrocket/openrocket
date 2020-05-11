@@ -4,8 +4,15 @@
 package net.sf.openrocket.gui.print;
 
 import java.awt.Graphics2D;
+import java.awt.Window;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +34,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.motor.Motor;
@@ -38,6 +46,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
@@ -107,6 +116,21 @@ public class DesignReport {
 	 */
 	private double rotation = 0d;
 	
+	/**
+	 * Determines whether or not to run out of date simulations.
+	 */
+	private boolean runOutOfDateSimulations = true;
+	
+	/**
+	 * Determines whether or not to update existing simulations.
+	 */
+	private boolean updateExistingSimulations = false;
+	
+	/**
+	 * Parent window for showing simulation run dialog as necessary
+	 */
+	private Window window = null;
+	
 	/** The displayed strings. */
 	private static final String STAGES = "Stages: ";
 	private static final String MASS_WITH_MOTORS = "Mass (with motors): ";
@@ -135,17 +159,45 @@ public class DesignReport {
 	private static final double GRAVITY_CONSTANT = 9.80665d;
 	
 	/**
-	 * Constructor.
+	 * Creates a new DesignReport in the iTextPDF Document based on the
+	 * OpenRocketDocument specified. All out of date simulations will be
+	 * run as part of generating the iTextPDF report.
+	 * 
+	 * This is for backwards API compatibility and will copy existing
+	 * simulations before running them.
+	 * 
+	 * @param theRocDoc the OpenRocketDocument which serves as the source
+	 *                  of the rocket information
+	 * @param theIDoc the iTextPDF Document where the DesignReport is written
+	 * @param figureRotation the rotation of the figure used for displaying
+	 *        the profile view.
+	 */
+	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation) {
+		this(theRocDoc, theIDoc, figureRotation, true, false, null);
+	}
+	
+	/**
+	 * Creates a new DesignReport in the iTextPDF Document based on the
+	 * OpenRocketDocument specified. Out of date simulations will be run
+	 * when the runOutOfDateSims parameter is set to true.
 	 *
 	 * @param theRocDoc the OR document
 	 * @param theIDoc   the iText document
 	 * @param figureRotation the angle the figure is rotated on the screen; printed report will mimic
+	 * @param runOutOfDateSims whether or not to run simulations that are not up to date.
+	 * @param updateExistingSims whether or not to update existing simulations or to copy the simulations.
+	 *                           Previous behavior was to copy existing simulations.
+	 * @param window the base AWT window to use 
 	 */
-	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation) {
+	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation,
+	                    boolean runOutOfDateSims, boolean updateExistingSims, Window window) {
 		document = theIDoc;
 		rocketDocument = theRocDoc;
 		panel = new RocketPanel(rocketDocument);
 		rotation = figureRotation;
+		this.runOutOfDateSimulations = runOutOfDateSims;
+		this.updateExistingSimulations = updateExistingSims;
+		this.window = window;
 	}
 	
 	/**
@@ -226,7 +278,7 @@ public class DesignReport {
 			paragraph.setSpacingAfter(heightOfDiagramAndText);
 			document.add(paragraph);
 			
-			List<Simulation> simulations = rocketDocument.getSimulations();
+			List<Simulation> simulations = getSimulations();
 			
 			boolean firstMotor = true;
 			for (FlightConfigurationId fcid : rocket.getIds()) {
@@ -242,7 +294,7 @@ public class DesignReport {
 				 */
 				int leading = (firstMotor) ? 0 : 25;
 				
-				FlightData flight = findSimulation( fcid, simulations);
+				FlightData flight = findSimulation(fcid, simulations);
 				addFlightData(flight, rocket, fcid, parent, leading);
 				addMotorData(rocket, fcid, parent);
 				document.add(parent);
@@ -456,6 +508,10 @@ public class DesignReport {
 		// Output the flight data
 		if (flight != null) {
 			try {
+				FlightDataBranch branch = new FlightDataBranch();
+				if (flight.getBranchCount() > 0) {
+					branch = flight.getBranch(0);
+				}
 				final Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
 				final Unit velocityUnit = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
 				final Unit flightTimeUnit = UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit();
@@ -482,7 +538,7 @@ public class DesignReport {
 				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getTimeToApogee()), 2, 2));
 				
 				labelTable.addCell(ITextHelper.createCell(OPTIMUM_DELAY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getBranch(0).getOptimumDelay()), 2, 2));
+				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(branch.getOptimumDelay()), 2, 2));
 				
 				labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getLaunchRodVelocity()), 2, 2));
@@ -520,20 +576,158 @@ public class DesignReport {
 	private FlightData findSimulation(final FlightConfigurationId motorId, List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
-		try {
-			for (int i = 0; i < simulations.size(); i++) {
-				Simulation simulation = simulations.get(i);
-				if (Utils.equals(simulation.getId(), motorId)) {
-					simulation = simulation.copy();
-					simulation.simulate();
-					flight = simulation.getSimulatedData();
-					break;
-				}
+		for (int i = 0; i < simulations.size(); i++) {
+			Simulation simulation = simulations.get(i);
+			if (Utils.equals(simulation.getId(), motorId)) {
+				flight = simulation.getSimulatedData();
+				break;
 			}
-		} catch (SimulationException e1) {
-			// Ignore
 		}
 		return flight;
+	}
+	
+	/**
+	 * Returns a list of Simulations to use for printing the design report
+	 * for the rocket and optionally re-run out of date simulations.
+	 * 
+	 * If the user has selected to not run any simulations, this method will
+	 * simply return the simulations found in the OpenRocketDocument.
+	 * 
+	 * If the user has selected to run simulations, this method will identify
+	 * any simulations which are not up to date and re-run them.
+	 * 
+	 * @return a list of Simulations to include in the DesignReport.
+	 */
+	protected List<Simulation> getSimulations() {
+		List<Simulation> simulations = rocketDocument.getSimulations();
+		if (!runOutOfDateSimulations) {
+			log.debug("Using current simulations for rocket.");
+			return simulations;
+		}
+		
+		ArrayList<Simulation> simulationsToRun = new ArrayList<Simulation>();
+		ArrayList<Simulation> upToDateSimulations = new ArrayList<Simulation>();
+		for (Simulation simulation : simulations) {
+			boolean simulate = false;
+			boolean copy = !this.updateExistingSimulations;
+
+			switch (simulation.getStatus()) {
+			case CANT_RUN:
+				log.warn("Simulation " + simulation.getId() + " has no motors, skipping");
+				// Continue so we don't simulate
+				continue;
+			case UPTODATE:
+				log.trace("Simulation " + simulation.getId() + "is up to date, not running simulation");
+				simulate = false;
+				break;
+			case NOT_SIMULATED:
+			case OUTDATED:
+			case LOADED:
+				log.trace("Running simulation for " + simulation.getId());
+				simulate = true;
+				break;
+			case EXTERNAL:
+				log.trace("Simulation " + simulation.getId() + " is external. Using data provided");
+				simulate = false;
+				break;
+			default:
+				log.trace("Running simulation for " + simulation.getId());
+				simulate = true;
+				copy = true;
+				break;
+			}
+			
+			if (!simulate) {
+				upToDateSimulations.add(simulation);
+			} else if (copy) {
+				simulationsToRun.add(simulation.copy());
+			} else {
+				simulationsToRun.add(simulation);
+			}
+		}
+		
+		/* Run any simulations that are pending a run. This is done via the
+		 * SimulationRunDialog in order to provide user feedback.
+		 */
+		if (!simulationsToRun.isEmpty()) {
+			runSimulations(simulationsToRun);
+			upToDateSimulations.addAll(simulationsToRun);
+		}
+		
+		return upToDateSimulations;
+	}
+	
+	/**
+	 * Runs the selected set of simulations. If a valid Window was provided when
+	 * creating this DesignReport, this method will run simulations using the
+	 * SimulationRunDialog in order to present status to the user.
+	 * 
+	 * @param simulations a list of Simulations to run
+	 */
+	protected void runSimulations(List<Simulation> simulations) {
+		if (window != null) {
+			log.debug("Updating " + simulations.size() + "simulations using SimulationRunDialog");
+			Simulation[] runMe = simulations.toArray(new Simulation[simulations.size()]);
+			new SimulationRunDialog(window, rocketDocument, runMe).setVisible(true);
+		} else {
+			/* This code is left for compatibility with any developers who are
+			 * using the API to generate design reports. This may not be running
+			 * graphically and the SimulationRunDialog may not be available for
+			 * displaying progress information/updating simulations.
+			 */
+			log.debug("Updating simulations using thread pool");
+			int cores = Runtime.getRuntime().availableProcessors();
+			ThreadPoolExecutor executor = new ThreadPoolExecutor(cores, cores, 0L, TimeUnit.MILLISECONDS,
+			                                                     new LinkedBlockingQueue<Runnable>(),
+			                                                     new SimulationRunnerThreadFactory());
+			for (Simulation simulation : simulations) {
+				executor.execute(new RunSimulationTask(simulation));
+			}
+			executor.shutdown();
+			try {
+				/* Arbitrarily wait for at most 5 minutes for the simulation
+				 * to complete. This seems like a long time, but in case there
+				 * is a really long running simulation
+				 */
+				executor.awaitTermination(5, TimeUnit.MINUTES);
+			} catch (InterruptedException ie) {
+				
+			}
+		}
+	}
+	
+	private static class SimulationRunnerThreadFactory implements ThreadFactory {
+		private ThreadFactory factory = Executors.defaultThreadFactory();
+		
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = factory.newThread(r);
+			t.setDaemon(true);
+			return t;
+		}
+	}
+	
+	/**
+	 * The RunSimulationTask is responsible for running simulations within the
+	 * DesignReport when run outside of the SimulationRunDialog.
+	 */
+	private static class RunSimulationTask implements Runnable {
+
+		private final Simulation simulation;
+		
+		public RunSimulationTask(final Simulation simulation) {
+			this.simulation = simulation;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				simulation.simulate();
+			} catch (SimulationException ex) {
+				log.error("Error simulating " + simulation.getId(), ex);
+			}
+		}
+		
 	}
 	
 	/**
