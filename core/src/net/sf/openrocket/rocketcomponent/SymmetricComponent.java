@@ -608,21 +608,21 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			return null;
 		}
 
+		final ComponentAssembly assembly = this.getAssembly();
 		// might be: (a) Rocket -- for centerline stages
 		//           (b) BodyTube -- for Parallel Stages
-		final AxialStage stage = this.getStage();
-		final RocketComponent stageParent = stage.getParent();
+		final RocketComponent assemblyParent = assembly.getParent();
 
 		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
-		int stageIndex = stageParent.getChildPosition(stage);
+		int assemblyIndex = assemblyParent.getChildPosition(assembly);
 		int symmetricIndex = this.parent.getChildPosition(this) + 1;
 
-		while(stageIndex < stageParent.getChildCount()) {
-			final RocketComponent nextStage = stageParent.getChild(stageIndex);
+		while(assemblyIndex < assemblyParent.getChildCount()) {
+			final RocketComponent searchAssembly = assemblyParent.getChild(assemblyIndex);
 
-			if(nextStage instanceof AxialStage){
-				while (symmetricIndex < nextStage.getChildCount()) {
-					final RocketComponent nextSymmetric = nextStage.getChild(symmetricIndex);
+			if(searchAssembly instanceof ComponentAssembly){
+				while (symmetricIndex < searchAssembly.getChildCount()) {
+					final RocketComponent nextSymmetric = searchAssembly.getChild(symmetricIndex);
 
 					if (nextSymmetric instanceof SymmetricComponent) {
 						return (SymmetricComponent) nextSymmetric;
@@ -630,8 +630,8 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 					++symmetricIndex;
 				}
 			}
-			++stageIndex;
-			symmetricIndex = nextStage.getChildCount() - 1;
+			++assemblyIndex;
+			symmetricIndex = searchAssembly.getChildCount() - 1;
 		}
 		return null;
 	}
