@@ -299,7 +299,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	/** 
 	 * internally, set the internal offset and optionally validate tab
 	 * 
-	 * @param offsetRequest new requested tob offset
+	 * @param offsetRequest new requested tab offset
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
