@@ -1,6 +1,7 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
 import static java.lang.Math.pow;
+import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
@@ -48,6 +49,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	
 	private final double thickness;
 	private final double bodyRadius;
+	private final double bodyLength;
 	private final int finCount;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
@@ -64,6 +66,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		FinSet fin = (FinSet) component;
 
 		thickness = fin.getThickness();
+		bodyLength = component.getParent().getLength();
 		bodyRadius = fin.getBodyRadius();
 		finCount = fin.getFinCount();
 		
@@ -97,9 +100,15 @@ public class FinSetCalc extends RocketComponentCalc {
 			forces.setCyaw(0);
 			return;
 		}
-		
-		// Add warnings  (radius/2 == diameter/4)
-		if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
+
+		if((EPSILON > bodyLength)) {
+			// Add warnings: Phantom Body
+			warnings.add(Warning.ZERO_LENGTH_BODY);
+		}else if((EPSILON > bodyRadius)){
+				// Add warnings: Phantom Body
+				warnings.add(Warning.ZERO_RADIUS_BODY);
+		}else if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
+			// Add warnings  (radius/2 == diameter/4)
 			warnings.add(Warning.THICK_FIN);
 		}
 		warnings.addAll(geometryWarnings);
