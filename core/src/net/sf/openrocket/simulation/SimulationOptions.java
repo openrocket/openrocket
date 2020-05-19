@@ -574,5 +574,28 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		
 		return conditions;
 	}
+
+	public String toString() {
+		return "SimulationOptions [\n"
+			.concat("    AtmosphericModel: " + getAtmosphericModel().toString() + "\n")
+			.concat(String.format("    launchRodLength:  %f\n", launchRodLength))
+			.concat(String.format("    launchIntoWind: %b\n", launchIntoWind))
+			.concat(String.format("    launchRodAngle:  %f\n", launchRodAngle))
+			.concat(String.format("    windDirection:  %f\n", windDirection))
+			.concat(String.format("    launchRodDirection:  %f\n", launchRodDirection))
+			.concat(String.format("    windAverage:  %f\n", windAverage))
+			.concat(String.format("    windTurbulence:  %f\n", windTurbulence))
+			.concat(String.format("    launchAltitude:  %f\n", launchAltitude))
+			.concat(String.format("    launchLatitude:  %f\n", launchLatitude))
+			.concat(String.format("    launchLongitude:  %f\n", launchLongitude))
+			.concat("    geodeticComputation:  " + geodeticComputation.toString() + "\n")
+			.concat(String.format("    useISA:  %b\n", useISA))
+			.concat(String.format("    launchTemperature:  %f\n", launchTemperature))
+			.concat(String.format("    launchPressure:  %f\n", launchPressure))
+			.concat(String.format("    timeStep:  %f\n", timeStep))
+			.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
+			.concat(String.format("    calculateExtras:  %b\n", calculateExtras))
+			.concat("]\n");
+	}
 	
 }
