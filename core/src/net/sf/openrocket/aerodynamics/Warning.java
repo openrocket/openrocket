@@ -380,7 +380,7 @@ public abstract class Warning {
 	public static final Warning FILE_INVALID_PARAMETER = new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
 	
 	public static final Warning PARALLEL_FINS = new Other(trans.get("Warning.PARALLEL_FINS"));
-	
+
 	public static final Warning SUPERSONIC = new Other(trans.get("Warning.SUPERSONIC"));
 	
 	public static final Warning RECOVERY_LAUNCH_ROD = new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
@@ -388,5 +388,8 @@ public abstract class Warning {
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
 
 	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"));
-	
+
+	public static final Warning ZERO_LENGTH_BODY = new Other(trans.get("Warning.ZERO_LENGTH_BODY"));
+	public static final Warning ZERO_RADIUS_BODY = new Other(trans.get("Warning.ZERO_RADIUS_BODY"));
+
 }
