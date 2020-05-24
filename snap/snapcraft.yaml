@@ -20,6 +20,20 @@ base: core18
 grade: stable
 confinement: strict
 
+plugs:
+  preferences:
+    interface: personal-files
+    read:
+      - $HOME/.java
+    write:
+      - $HOME/.java
+  openrocket-db:
+    interface: personal-files
+    read:
+      - $HOME/.openrocket
+    write:
+      - $HOME/.openrocket
+
 apps:
   openrocket:
     extensions:
@@ -30,6 +44,8 @@ apps:
       - network
       - cups-control
       - opengl
+      - preferences
+      - openrocket-db
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
 
