@@ -41,7 +41,24 @@ public class SystemInfo {
 		}
 	}
 	
-	
+	/**
+	 * Returns true if the OpenRocket is running a confined manner that may
+	 * require alternative behaviors and experiences.
+	 * 
+	 * Note: future versions may return further confinement information and
+	 * this interface is subject to change.
+	 * 
+	 * @return true if the system is running in a confined manner, false
+	 *         otherwise
+	 */
+	public static boolean isConfined() {
+		switch (getPlatform()) {
+		case UNIX:
+			return (System.getenv("SNAP_VERSION") != null);
+		default:
+			return false;
+		}
+	}
 	
 	
 	/**

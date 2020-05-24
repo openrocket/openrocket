@@ -8,9 +8,12 @@ import java.awt.Desktop;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Iterator;
 
@@ -31,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.print.PrintController;
 import net.sf.openrocket.gui.print.PrintSettings;
@@ -321,7 +326,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
 				File f = generateReport(settings);
-				desktop.open(f);
+				openPreviewHelper(f);
 			} catch (IOException e) {
 				log.error("Could not open preview.", e);
 				JOptionPane.showMessageDialog(this, new String[] {
@@ -336,6 +341,20 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 					trans.get("error.preview.desc2") },
 					trans.get("error.preview.title"),
 					JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	private void openPreviewHelper(final File f) throws IOException {
+		if (SystemInfo.getPlatform() == Platform.UNIX && SystemInfo.isConfined()) {
+			/* When installed via a snap package on Linux, the default option
+			 * to open PDF options using java.awt.Desktop.open() doesn't work
+			 * due to using . Instead, use the xdg-open command
+			 * which will work for URLs.
+			 */
+			String command = "xdg-open " + f.getAbsolutePath();
+			Runtime.getRuntime().exec(command);
+		} else {
+			desktop.open(f);
 		}
 	}
 	
