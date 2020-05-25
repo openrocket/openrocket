@@ -19,7 +19,6 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -54,21 +53,22 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.masscalc.CMAnalysisEntry;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
+	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisDialog.class);
+
 	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
 	private static final Translator trans = Application.getTranslator();
@@ -80,18 +80,16 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
-	private final MassCalculator massCalculator = new MassCalculator();
 
-	private final ColumnTableModel cpTableModel;
+	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
 	private final ColumnTableModel rollTableModel;
 
 	private final JList<Object> warningList;
 
 
-	private final List<Object[]> cgData = new ArrayList<Object[]>();
+	private final List<LongitudinalStabilityRow> stabData = new ArrayList<>();
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
-	private double totalCD = 0;
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
 
 
@@ -186,69 +184,59 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		panel.add(tabbedPane, "spanx, growx, growy");
 
 
-		// Create the CP data table
-		cpTableModel = new ColumnTableModel(
+		// Create the Longitudinal Stability (CM vs CP) data table
+		longitudeStabilityTableModel = new ColumnTableModel(
 
 				//// Component
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.Component")) {
 					@Override
 					public Object getValueAt(int row) {
-						Object c = cgData.get(row)[0];
-						if (c instanceof Rocket) {
-							return trans.get("componentanalysisdlg.TOTAL");
-						}
+						Object c = stabData.get(row).name;
 						return c.toString();
 					}
-					
+
 					@Override
 					public int getDefaultWidth() {
 						return 200;
 					}
 				},
-				new Column(trans.get("componentanalysisdlg.TabStability.Col.CG") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
-					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-					
+				 // would be per-instance mass
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.EachMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
+
 					@Override
 					public Object getValueAt(int row) {
-						Coordinate cg = (Coordinate) cgData.get(row)[1];
-						if ( cg == null ) {
-							return null;
-						}
-						return unit.toString(cg.x);
+						return unit.toString(stabData.get(row).eachMass);
 					}
 				},
-				new Column(trans.get("componentanalysisdlg.TabStability.Col.Mass") + " / " + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit()) {
-					private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
-					
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.AllMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
+
 					@Override
 					public Object getValueAt(int row) {
-						Coordinate cg = (Coordinate) cgData.get(row)[1];
-						if ( cg == null ) {
-							return null;
-						}
-						return unit.toString(cg.weight);
+						return unit.toString(stabData.get(row).cm.weight);
 					}
 				},
-				new Column(trans.get("componentanalysisdlg.TabStability.Col.CP") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
-					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.CG") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 					
 					@Override
 					public Object getValueAt(int row) {
-						AerodynamicForces forces = (AerodynamicForces) cgData.get(row)[2];
-						if ( forces == null ) {
-							return null;
-						}
-						return unit.toString(forces.getCP().x);
+						return unit.toString(stabData.get(row).cm.x);
+					}
+				},
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.CP") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+					
+					@Override
+					public Object getValueAt(int row) {
+						return NOUNIT.toString(stabData.get(row).cpx);
 					}
 				},
 				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
 					@Override
 					public Object getValueAt(int row) {
-						AerodynamicForces forces = (AerodynamicForces) cgData.get(row)[2];
-						if ( forces == null ) {
-							return null;
-						}
-						return NOUNIT.toString(forces.getCP().weight);
+						return NOUNIT.toString(stabData.get(row).cna);
 					}
 				}
 	
@@ -261,15 +249,15 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 			@Override
 			public int getRowCount() {
-				return cgData.size();
+				return stabData.size();
 			}
 		};
 
-		table = new ColumnTable(cpTableModel);
+		table = new ColumnTable(longitudeStabilityTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);
-		cpTableModel.setColumnWidths(table.getColumnModel());
+		longitudeStabilityTableModel.setColumnWidths(table.getColumnModel());
 
 		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
 		//		table.setShowHorizontalLines(false);
@@ -425,8 +413,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 
-
-
 		// Add the data updater to listen to changes in aoa and theta
 		mach.addChangeListener(this);
 		theta.addChangeListener(this);
@@ -534,79 +520,96 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 		}
 
-		Map<RocketComponent, AerodynamicForces> aeroData =
-				aerodynamicCalculator.getForceAnalysis(configuration, conditions, set);
-		Map<RocketComponent, Coordinate> massData =
-				massCalculator.getCGAnalysis(configuration);
+		// key is the comp.hashCode() or motor.getDesignation().hashCode()
+		Map<Integer, CMAnalysisEntry> cmMap= MassCalculator.getCMAnalysis(configuration);
 
+		Map<RocketComponent, AerodynamicForces> aeroData = aerodynamicCalculator.getForceAnalysis(configuration, conditions, set);
 
-		cgData.clear();
+		stabData.clear();
 		dragData.clear();
 		rollData.clear();
-		for (RocketComponent c : configuration.getActiveComponents()) {
-			if ( c instanceof AxialStage ) {
-				continue;
-			}
-			Object[] data = new Object[3];
-			cgData.add(data);
-			data[0] = c;
 
-			Coordinate cg = massData.get(c);
-			data[1] = cg;
-			
-			forces = aeroData.get(c);
-			if (forces == null) {
+		for(final RocketComponent comp: configuration.getAllComponents()) {
+			// // this is actually redundant, because the analysis will not contain inactive stages.
+			// if (!configuration.isComponentActive(comp)) {
+			// 	continue;
+			// }
+
+			CMAnalysisEntry cmEntry = cmMap.get(comp.hashCode());
+			if (null == cmEntry) {
+				log.warn("Could not find massData entry for component: " + comp.getName());
 				continue;
 			}
-			if (forces.getCP() != null) {
-				data[2] = forces;
+
+			if ((comp instanceof ComponentAssembly) && !(comp instanceof Rocket)){
+				continue;
 			}
-			
+
+			LongitudinalStabilityRow row = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source);
+			stabData.add(row);
+
+			row.source = cmEntry.source;
+			row.eachMass = cmEntry.eachMass;
+			row.cm = cmEntry.totalCM;
+
+			forces = aeroData.get(comp);
+			if (forces == null) {
+				// DEBUG / trace level
+				System.err.println("Could not find aeroData entry for component: " + comp.getName());
+				row.cpx = 0.0;
+				row.cna = 0.0;
+				continue;
+			}
+
+//			System.err.println(String.format("        .CP = %s", forces.getCP()));
+			if (forces.getCP() != null) {
+				row.cpx = forces.getCP().x;
+				row.cna = forces.getCNa();
+			}
+
+//			System.err.println(String.format("        .CD = %s", forces.getCD()));
 			if (!Double.isNaN(forces.getCD())) {
 				dragData.add(forces);
 			}
-			if (c instanceof FinSet) {
+
+			if (comp instanceof FinSet) {
 				rollData.add(forces);
 			}
+			// // We _would_ check this, except TubeFinSet doesn't implement cant angles... so they can't impart any roll torque
+			// // If this is ever implemented, uncomment this block:
+			// else if(comp instanceof TubeFinSet){
+			// 	rollData.add(forces)
+			// }
 		}
 
-		for ( MotorConfiguration motorConfig : configuration.getActiveMotors()) {
-		
-			Object [] data = new Object[3];
-			cgData.add(data);
-			
-			data[0] = motorConfig.getMotor().getDesignation();
-			data[1] = motorConfig.getMotor().getLaunchMass(); 
-		}
-		
-		forces = aeroData.get(rkt);
-		if (forces != null) {
-			Object[] data = new Object[3];
-			cgData.add(data);
-			data[0] = rkt;
-			data[1] = massData.get(rkt);
-			data[2] = forces;
-			dragData.add(forces);
-			rollData.add(forces);
-			totalCD = forces.getCD();
-		} else {
-			totalCD = 0;
+		for(final MotorConfiguration config: configuration.getActiveMotors()) {
+			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation());
+			if (null == cmEntry) {
+				continue;
+			}
+
+			LongitudinalStabilityRow row = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source);
+			stabData.add(row);
+
+			row.source = cmEntry.source;
+			row.eachMass = cmEntry.eachMass;
+			row.cm = cmEntry.totalCM;
+			row.cpx = 0.0;
+			row.cna = 0.0;
 		}
 
 		// Set warnings
 		if (set.isEmpty()) {
-			warningList.setListData(new String[] {
-					trans.get("componentanalysisdlg.noWarnings")
+			warningList.setListData(new String[] {trans.get("componentanalysisdlg.noWarnings")
 			});
 		} else {
 			warningList.setListData(new Vector<Warning>(set));
 		}
 
-		cpTableModel.fireTableDataChanged();
+		longitudeStabilityTableModel.fireTableDataChanged();
 		dragTableModel.fireTableDataChanged();
 		rollTableModel.fireTableDataChanged();
 	}
-
 
 	private class CustomCellRenderer extends JLabel implements TableCellRenderer {
 		/**
@@ -628,10 +631,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 			this.setText(value == null ? null : value.toString());
 
-			if ((row < 0) || (row >= cgData.size()))
+			if ((row < 0) || (row >= stabData.size()))
 				return this;
 
-			if (cgData.get(row)[0] instanceof Rocket) {
+			if ( 0 == row ) {
 				this.setFont(boldFont);
 			} else {
 				this.setFont(normalFont);
@@ -662,6 +665,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				boolean isSelected, boolean hasFocus, int row, int column) {
 
 			if (value instanceof Double) {
+				final double totalCD = dragData.get(0).getCD();
 
 				// A drag coefficient
 				double cd = (Double) value;
@@ -698,6 +702,25 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		}
 	}
 
+	private class LongitudinalStabilityRow {
+
+		public String name;
+		public Object source;
+		public double eachMass;
+		public Coordinate cm;
+		public double cpx;
+		public double cna;
+
+		public LongitudinalStabilityRow(final String _name, final Object _source){
+			name = _name;
+			source = _source;
+			eachMass = Double.NaN;
+			cm = Coordinate.NaN;
+			cpx = Double.NaN;
+			cna = Double.NaN;
+		}
+
+	}
 
 	/////////  Singleton implementation
 

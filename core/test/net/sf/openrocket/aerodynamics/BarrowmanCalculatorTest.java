@@ -341,12 +341,9 @@ public class BarrowmanCalculatorTest {
 		
 		final Coordinate cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
 		final Coordinate cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
-		System.out.printf("with pods %s\n", cpPods.toString());
-		System.out.printf("without pods %s\n", cpNoPods.toString());
 		assertEquals(" Alpha III With Pods rocket cp x value is incorrect:", cpNoPods.x - 0.002788761352, cpPods.x, EPSILON);
 		assertEquals(" Alpha III With Pods rocket cp y value is incorrect:", cpNoPods.y, cpPods.y, EPSILON);
 		assertEquals(" Alpha III With Pods rocket cp z value is incorrect:", cpNoPods.z, cpPods.z, EPSILON);
 		assertEquals(" Alpha III With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.91572, EPSILON);
 	}
-			
 }

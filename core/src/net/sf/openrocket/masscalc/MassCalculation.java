@@ -1,12 +1,11 @@
 package net.sf.openrocket.masscalc;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -73,8 +72,8 @@ public class MassCalculation {
 		}
 	}
 	
-	public MassCalculation copy( final RocketComponent _root, final Transformation _transform ){
-		return new MassCalculation( this.type, this.config, this.simulationTime, _root, _transform );
+	public MassCalculation copy( final RocketComponent _root, final Transformation _transform){
+		return new MassCalculation( this.type, this.config, this.simulationTime, _root, _transform, this.analysisMap);
 	}
 		
 	public Coordinate getCM() {
@@ -110,13 +109,17 @@ public class MassCalculation {
 		return (int) (this.centerOfMass.hashCode());
 	}
 
-	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time, final RocketComponent _root, final Transformation _transform) {
+	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time,
+							final RocketComponent _root, final Transformation _transform,
+							Map<Integer, CMAnalysisEntry> _map)
+	{
 		type = _type;
 		config = _config;
 		simulationTime = _time;
 		root = _root;
 		transform = _transform;
-		
+		analysisMap = _map;
+
 		reset();
 	}
 	
@@ -167,8 +170,10 @@ public class MassCalculation {
 	
 	// center-of-mass AND moment-of-inertia data.
 	final ArrayList<RigidBody> bodies = new ArrayList<RigidBody>();
-	
-	String prefix = "";		
+
+	String prefix = "";
+
+	Map<Integer, CMAnalysisEntry> analysisMap;
 
 	// =========== Private Instance Functions ========================
 
@@ -183,8 +188,8 @@ public class MassCalculation {
 		if( motorConfig.isEmpty() ){
 			return this;
 		}
-		
-		
+
+
 		final double mountXPosition = root.getPosition().x;
 		
 		final int instanceCount = root.getInstanceCount();
@@ -210,10 +215,10 @@ public class MassCalculation {
 			eachMass = eachMotorMass - eachCasingMass;
 			eachCMx = (eachMotorCMx*eachMotorMass - eachCasingCMx*eachCasingMass)/eachMass;
 		}
-		
+
 //		System.err.println(String.format("%-40s|Motor: %s....  Mass @%f = %.6f", prefix, motorConfig.toDescription(), simulationTime, eachMass ));
-		
-		
+
+
 		// coordinates in rocket frame; Ir, It about CoM.
 		final Coordinate clusterLocalCM = new Coordinate( mountXPosition + motorXPosition + eachCMx, 0, 0, eachMass*instanceCount);
 		
@@ -232,7 +237,17 @@ public class MassCalculation {
 		
 		final Coordinate clusterCM = transform.transform( clusterLocalCM  );
 		addMass( clusterCM );
-		
+
+		if(null != this.analysisMap) {
+			CMAnalysisEntry entry = analysisMap.get(motor.getDesignation());
+			if (null == entry){
+				entry = new CMAnalysisEntry(motor);
+				analysisMap.put(motor.getDesignation().hashCode(), entry);
+			}
+			entry.updateEachMass(eachMass);
+			entry.updateAverageCM(clusterCM);
+		}
+
 		RigidBody clusterMOI = new RigidBody( clusterCM, clusterIr, clusterIt, clusterIt );
 		addInertia( clusterMOI );
 		
@@ -273,7 +288,14 @@ public class MassCalculation {
 		// if( this.config.isComponentActive(component) ){
 		// 	System.err.println(String.format( "%s>>[%s]....", prefix, component.getName()));
 		// }
-		
+
+		if(null != analysisMap) {
+			if (this.config.isComponentActive(component) && (! analysisMap.containsKey(component.hashCode()))){
+				CMAnalysisEntry entry = new CMAnalysisEntry(component);
+				analysisMap.put(component.hashCode(), entry);
+			}
+		}
+
 		// iterate over the aggregated instances for the whole tree.
 		MassCalculation children = this.copy(component, parentTransform );
 		for( int currentInstanceNumber = 0; currentInstanceNumber < instanceCount; ++currentInstanceNumber) {
@@ -288,14 +310,14 @@ public class MassCalculation {
 
 			for (RocketComponent child : component.getChildren()) {
 				// child data, relative to rocket reference frame
-				MassCalculation eachChild = copy( child, currentTransform);
+				MassCalculation eachChild = copy(child, currentTransform);
 				
 				eachChild.prefix = prefix + "....";
 				eachChild.calculateStructure(); 
 				
 				// accumulate children's data
 				children.merge( eachChild );
-			}			
+			}
 		}
 		
 		if( MIN_MASS < children.getMass() ) {
@@ -320,6 +342,20 @@ public class MassCalculation {
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
 			this.addMass( compCM );
+
+			if(null != analysisMap){
+				if( component instanceof ComponentAssembly) {
+					// For ComponentAssemblies, record the _assembly_ information
+					CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+					entry.updateEachMass(children.getMass() / component.getInstanceCount());
+					entry.updateAverageCM(this.centerOfMass);
+				}else{
+					// For actual components, record the mass of the component, and disregard children
+					CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+					entry.updateEachMass(compCM.weight);
+					entry.updateAverageCM(compCM);
+				}
+			}
 			
 			double compIx = component.getRotationalUnitInertia() * compCM.weight;
 			double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
@@ -331,7 +367,7 @@ public class MassCalculation {
 			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
 			// }
 
-			if (component.getOverrideSubcomponents()) {				
+			if (component.getOverrideSubcomponents()) {
 				if (component.isMassOverridden()) {
 					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
 					Coordinate newCM = this.getCM().setWeight( newMass );
@@ -355,29 +391,29 @@ public class MassCalculation {
 	}
 
 	MassCalculation calculateMotors() {
-	
 		final RocketComponent component = this.root;
 		final Transformation parentTransform = this.transform;
 		
 		final int instanceCount = component.getInstanceCount();
 		Coordinate[] instanceLocations = component.getInstanceLocations();
-		
+
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) ){
 //			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
 //		}
-		
+
 		if (component.isMotorMount()) {
 			MassCalculation propellant = this.copy(component, parentTransform);
 			
 			propellant.calculateMountData();
-			
+
 			this.merge( propellant );
 
-//		    // vvv DEBUG			
+//			// vvv DEBUG
 //			if( 0 < propellant.getMass() ) {
 //				System.err.println(String.format( "%s........++ propellantData: %s", prefix, propellant.toCMDebug()));
 //			}
+
 		}
 		
 		// iterate over the aggregated instances for the whole tree.
@@ -395,7 +431,7 @@ public class MassCalculation {
 				
 				// accumulate children's data
 				children.merge( eachChild );
-			}			
+			}
 		}
 		
 		if( MIN_MASS < children.getMass() ) {
@@ -407,7 +443,7 @@ public class MassCalculation {
 //		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
 //			System.err.println(String.format( "%s....<< return assemblyData:   %s (tree @%s)", prefix, this.toCMDebug(), component.getName() ));
 //		}
-// ^^^ DEBUG
+//      // ^^^ DEBUG
 		
 		return this;
 	}
@@ -427,9 +463,8 @@ public class MassCalculation {
 			It += eachGlobal.Iyy;
 		}
 		
-		return new RigidBody( centerOfMass, Ir, It, It );	
+		return new RigidBody( centerOfMass, Ir, It, It );
 	}
 
-	
 }
 
