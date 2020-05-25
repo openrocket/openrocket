@@ -88,6 +88,10 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		}
 	}
 
+	public int getColumnIndex(FlightConfigurableComponent comp) {
+		return components.indexOf(comp);
+	}
+
 	@Override
 	public String getColumnName(int column) {
 		switch (column) {
