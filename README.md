@@ -20,7 +20,7 @@ Read more about it on the [OpenRocket Wiki](http://wiki.openrocket.info).
 
 Installers
 ----------
-OpenRocket maintains an installer for installing the software and Jave runtime. You can find the installer for Windows at the link below. Installers for macOS and Linux are coming and will be added to this page when ready.
+OpenRocket maintains an installer for installing the software and Java runtime. You can find the installer for Windows at the link below. Installers for macOS and Linux are coming and will be added to this page when ready.
 
 [OpenRocket 15.03 Installer (Windows)](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03-installer.exe)
 
