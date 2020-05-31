@@ -16,11 +16,8 @@ import javax.swing.SwingUtilities;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -82,6 +79,18 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 				}
 			}
 		});
+		rocket.addComponentChangeListener(cce -> {
+			final RocketComponent source = cce.getSource();
+			if(source instanceof FlightConfigurableComponent) {
+				final int index = recoveryTableModel.getColumnIndex((FlightConfigurableComponent) source);
+				recoveryTable.getColumnModel().getColumn(index).setHeaderValue(source.getName());
+
+				// you would think this would be enough by itself, but it requires an nudge from the above lines to
+				// actually update.
+				recoveryTable.getTableHeader().resizeAndRepaint();
+			}
+		});
+//		recoveryTable.setColumnModel(recoveryTableModel);
 		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 
 		return recoveryTable;
