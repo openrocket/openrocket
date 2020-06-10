@@ -83,14 +83,14 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			final RocketComponent source = cce.getSource();
 			if(source instanceof FlightConfigurableComponent) {
 				final int index = recoveryTableModel.getColumnIndex((FlightConfigurableComponent) source);
-				recoveryTable.getColumnModel().getColumn(index).setHeaderValue(source.getName());
-
+				if (index >= 0) {
+					recoveryTable.getColumnModel().getColumn(index).setHeaderValue(source.getName());
+				}
 				// you would think this would be enough by itself, but it requires an nudge from the above lines to
 				// actually update.
 				recoveryTable.getTableHeader().resizeAndRepaint();
 			}
 		});
-//		recoveryTable.setColumnModel(recoveryTableModel);
 		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 
 		return recoveryTable;
