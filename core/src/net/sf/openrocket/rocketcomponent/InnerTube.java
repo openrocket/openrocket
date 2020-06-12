@@ -306,6 +306,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
     	if (this.isActingMount == _active)
     		return;
     	this.isActingMount = _active;
+		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
