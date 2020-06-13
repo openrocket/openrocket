@@ -75,6 +75,9 @@ parts:
     override-build: |
       snapcraftctl build
       mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+    build-packages:
+      # Add gcc as a build package due to bug https://bugs.launchpad.net/snapcraft/+bug/1883392
+      - gcc
     stage-packages:
       - openjdk-11-jre
       - ca-certificates
