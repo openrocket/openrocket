@@ -7,7 +7,7 @@ import java.util.Collection;
 public class BoundingBox {
 	public Coordinate min;
 	public Coordinate max;
-	
+
 	public BoundingBox() {
 	    clear();
 	}
@@ -27,8 +27,25 @@ public class BoundingBox {
 	public BoundingBox clone() {
 		return new BoundingBox( this.min, this.max );
 	}
-	
-	
+
+	public boolean isEmpty(){
+		if( (min.x > max.x) ||
+			(min.y > max.y) ||
+			(min.z > max.z)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * return a copy of this bounding box, transformed by the given transformation matrix
+ 	 * @return
+	 */
+	public BoundingBox transform(Transformation transform){
+		return new BoundingBox(transform.transform(this.min), transform.transform(this.max));
+	}
+
 	private void update_x_min( final double xVal) {
 		if( min.x > xVal)
 			min = min.setX( xVal );
@@ -104,6 +121,9 @@ public class BoundingBox {
     }
 	
 	public BoundingBox update( BoundingBox other ) {
+		if(other.isEmpty()){
+			return this;
+		}
 		update_x_min(other.min.x);
 		update_y_min(other.min.y);
 		update_z_min(other.min.y);
@@ -121,7 +141,7 @@ public class BoundingBox {
 	}
 	
 	public Collection<Coordinate> toCollection(){
-		Collection<Coordinate> toReturn = new ArrayList<Coordinate>();
+		Collection<Coordinate> toReturn = new ArrayList<>();
 		toReturn.add( this.max);
 		toReturn.add( this.min);
 		return toReturn;

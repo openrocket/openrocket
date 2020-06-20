@@ -19,7 +19,7 @@ public class FinRenderer {
 	
 	public void renderFinSet(final GL2 gl, FinSet finSet ) {
 		
-	    BoundingBox bounds = finSet.getBoundingBox();
+	    BoundingBox bounds = finSet.getInstanceBoundingBox();
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
 		gl.glScaled(1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
