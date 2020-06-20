@@ -25,12 +25,8 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public abstract class FinSet extends ExternalComponent implements RingInstanceable, AxialPositionable {
+public abstract class FinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
 	private static final Translator trans = Application.getTranslator();
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
-	
 
 	/**
 	 * Maximum allowed cant of fins.
@@ -735,13 +731,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 
-	public BoundingBox getBoundingBox() {
+	public BoundingBox getInstanceBoundingBox(){
 		BoundingBox singleFinBounds= new BoundingBox().update(getFinPoints());
 		final double finLength = singleFinBounds.max.x;
 		final double finHeight = singleFinBounds.max.y;
 		
 		Coordinate[] locations = getInstanceLocations();
 		double[] angles = getInstanceAngles();
+
 		BoundingBox finSetBox = new BoundingBox();
 		
 		/*
