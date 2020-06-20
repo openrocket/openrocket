@@ -588,7 +588,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					}
 					componentBounds = instanceBounds.transform(context.transform);
 				}
-			}else if ((component instanceof AxialStage) || (component instanceof BodyTube) || (component instanceof PodSet)) {
+			}else if (component instanceof BodyTube) {
 				// Legacy Case #1:
 				// These components do not need the transform performed in
 				// order to provide the proper coordinates for length calculation.
@@ -600,7 +600,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				// Legacy Case #2:
 				// These components do not implement
 				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
-
 				for (InstanceContext context : contexts) {
 					/*
 					 * If the instance is not active in the current context, then
