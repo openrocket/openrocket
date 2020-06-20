@@ -588,17 +588,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					}
 					componentBounds = instanceBounds.transform(context.transform);
 				}
-			}else if (component instanceof BodyTube) {
-				// Legacy Case #1:
-				// These components do not need the transform performed in
-				// order to provide the proper coordinates for length calculation.
-				// The transformation will cause the values to be calculated
-				// incorrectly. This should be fixed in the appropriate places
-				// not handled as one-offs in here.
-				componentBounds.update(component.getComponentBounds());
 			} else {
-				// Legacy Case #2:
-				// These components do not implement
+				// Legacy Case: These components do not implement the BoxBounded Interface.
 				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
 				for (InstanceContext context : contexts) {
 					/*
