@@ -85,30 +85,28 @@ public abstract class AbstractScaleFigure extends JPanel {
         return originLocation_px;
     }
     
-    /**
-     * Set the scale level of the figure.  A scale value of 1.0 is equivalent to 100 % scale. 
-     * Smaller scales display the subject smaller.
-     * 
-     *  If the figure would be smaller than the 'visibleBounds', then the figure is grown to match, 
-     *  and the figures internal contents are centered according to the figure's origin.
-     * 
-     * @param newScaleRequest the scale level
-     * @param visibleBounds the visible bounds upon the Figure
-     */
+	/**
+	 * Set the scale level of the figure.  A scale value of 1.0 is equivalent to 100 % scale.
+	 * Smaller scales display the subject smaller.
+	 *
+	 *  If the figure would be smaller than the 'visibleBounds', then the figure is grown to match,
+	 *  and the figures internal contents are centered according to the figure's origin.
+	 * 
+	 * @param newScaleRequest the scale level
+	 * @param visibleBounds the visible bounds upon the Figure
+	 */
 	public void scaleTo(final double newScaleRequest, final Dimension visibleBounds) {
-	    if (MathUtil.equals(this.userScale, newScaleRequest, 0.01)){
-            return;}
-        if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest)) {
-		    return;}
-		
-        log.warn(String.format("scaling Request from %g => %g  @%s\n", this.userScale, newScaleRequest, this.getClass().getSimpleName()), new Throwable());
-        
-        this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
-	    this.scale = baseScale * userScale;
-	    
-	    this.visibleBounds_px = visibleBounds; 
-	    
-        this.fireChangeEvent(); 
+		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01)){
+			return;}
+		if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest)) {
+			return;}
+
+		this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		this.scale = baseScale * userScale;
+
+		this.visibleBounds_px = visibleBounds;
+
+		this.fireChangeEvent();
 	}
 	
 	/**
