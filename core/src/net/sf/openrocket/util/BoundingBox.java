@@ -97,9 +97,8 @@ public class BoundingBox {
 		update_z_max(val);
 		return this;
 	}
-	
 
-	public void update( Coordinate c ) {
+	public BoundingBox update( Coordinate c ) {
 		update_x_min(c.x);
 		update_y_min(c.y);
 		update_z_min(c.z);
@@ -107,6 +106,8 @@ public class BoundingBox {
 		update_x_max(c.x);
 		update_y_max(c.y);
 		update_z_max(c.z);
+
+		return this;
 	}
 
     public BoundingBox update( Rectangle2D rect ) {
