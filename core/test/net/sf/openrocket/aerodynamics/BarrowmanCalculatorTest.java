@@ -123,22 +123,23 @@ public class BarrowmanCalculatorTest {
 		{
 			boosterFins.setFinCount(3);
 			final Coordinate cp_3fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 21.5111598, cp_3fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 1.04662388, cp_3fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 16.51651439, cp_3fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 1.00667319, cp_3fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_3fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_3fin.z, EPSILON);
 		}{
 			boosterFins.setFinCount(2);
+			boosterFins.setAngleOffset(Math.PI/4);
 			final Coordinate cp_2fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 15.43711196967902, cp_2fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.9946423753010524, cp_2fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 12.1073483560, cp_2fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.9440139181, cp_2fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0.0, cp_2fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0.0, cp_2fin.z, EPSILON);
 		}{
 			boosterFins.setFinCount(1);
 			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
-			assertEquals(" Falcon 9 Heavy CNa value is incorrect:", 9.36306412, cp_1fin.weight, EPSILON);
-			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.87521867, cp_1fin.x, EPSILON);
+			assertEquals(" Falcon 9 Heavy CNa value is incorrect:",  7.6981823141, cp_1fin.weight, EPSILON);
+			assertEquals(" Falcon 9 Heavy CP x value is incorrect:", 0.8095779106, cp_1fin.x, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP y value is incorrect:", 0f, cp_1fin.y, EPSILON);
 			assertEquals(" Falcon 9 Heavy CP z value is incorrect:", 0f, cp_1fin.z, EPSILON);
 		}

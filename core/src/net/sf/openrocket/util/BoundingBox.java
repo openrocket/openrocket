@@ -39,11 +39,22 @@ public class BoundingBox {
 	}
 
 	/**
-	 * return a copy of this bounding box, transformed by the given transformation matrix
- 	 * @return
+	 * Generate a new bounding box, transformed by the given transformation matrix
+	 *
+	 * Note: This implementation is not _exact_!  Do not use this for Aerodynamic, Mass or Simulation calculations....
+	 *       But it will be sufficiently close for UI purposes.
+	 *
+ 	 * @return a new box, transform by the given transform
 	 */
 	public BoundingBox transform(Transformation transform){
-		return new BoundingBox(transform.transform(this.min), transform.transform(this.max));
+		final Coordinate p1 = transform.transform(this.min);
+		final Coordinate p2 = transform.transform(this.max);
+
+		final BoundingBox newBox = new BoundingBox();
+		newBox.update(p1);
+		newBox.update(p2);
+
+		return newBox;
 	}
 
 	private void update_x_min( final double xVal) {
@@ -92,7 +103,7 @@ public class BoundingBox {
 		update_x_min(c.x);
 		update_y_min(c.y);
 		update_z_min(c.z);
-		
+
 		update_x_max(c.x);
 		update_y_max(c.y);
 		update_z_max(c.z);
@@ -126,7 +137,7 @@ public class BoundingBox {
 		}
 		update_x_min(other.min.x);
 		update_y_min(other.min.y);
-		update_z_min(other.min.y);
+		update_z_min(other.min.z);
 		
 		update_x_max(other.max.x);
 		update_y_max(other.max.y);

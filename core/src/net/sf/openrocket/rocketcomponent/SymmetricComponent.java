@@ -9,6 +9,7 @@ import java.util.List;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -20,7 +21,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public abstract class SymmetricComponent extends BodyComponent implements RadialParent {
+public abstract class SymmetricComponent extends BodyComponent implements BoxBounded, RadialParent {
 	public static final double DEFAULT_RADIUS = 0.025;
 	public static final double DEFAULT_THICKNESS = 0.002;
 	
@@ -40,13 +41,23 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	private double rotationalInertia = -1;
 	private Coordinate cg = null;
 	
-	
 
 	public SymmetricComponent() {
 		super();
 	}
-	
-	
+
+	public BoundingBox getInstanceBoundingBox(){
+		BoundingBox instanceBounds = new BoundingBox();
+
+		instanceBounds.update(new Coordinate(this.getLength(), 0,0));
+
+		final double r = Math.max(getForeRadius(), getAftRadius());
+		instanceBounds.update(new Coordinate(0,r,r));
+		instanceBounds.update(new Coordinate(0,-r,-r));
+
+		return instanceBounds;
+	}
+
 	/**
 	 * Return the component radius at position x.
 	 * @param x Position on x-axis.
