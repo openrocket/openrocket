@@ -565,9 +565,20 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			BoundingBox componentBounds = new BoundingBox();
 			List<InstanceContext> contexts = entry.getValue();
 
-			/* FinSets already provide a bounding box, so let's use that.
-			 */
+			if( ! component.isAerodynamic()){
+				// all non-aerodynamic components should be surrounded by aerodynamic ones
+				continue;
+			}
+
+			// FinSets already provide a bounding box, so let's use that.
+//			System.err.println(String.format("@[%s]: (#%d)", component.getName(), contexts.size()));
 			if (component instanceof BoxBounded) {
+				final BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
+				if(instanceBounds.isEmpty()) {
+					// this component is probably non-physical (like an assembly) or has invalid bounds.  Skip.
+					continue;
+				}
+
 				for (InstanceContext context : contexts) {
 					/*
 					 * If the instance is not active in the current context, then
@@ -577,16 +588,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					 * the context indicates if it is active or not.
 					 */
 					if (!context.active) {
-						continue;
-					}
-
-					BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
-					if(instanceBounds.isEmpty()) {
-						// this component is probably non-physical (like an assembly) or has invalid bounds.  Skip.
-						// i.e. 'break' out of the per-instance-context loop, and let the per-component loop continue
+						// break out of per-instance loop.
 						break;
 					}
-					componentBounds = instanceBounds.transform(context.transform);
+
+					componentBounds.update(instanceBounds.transform(context.transform));
 				}
 			} else {
 				// Legacy Case: These components do not implement the BoxBounded Interface.
@@ -613,7 +619,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 			}
 
+//			System.err.println(String.format("    << global: %s", componentBounds.toString()));
 			rocketBounds.update(componentBounds);
+//			System.err.println(String.format("<<++ rocket: %s", rocketBounds.toString()));
 		}
 		
 		boundsModID = rocket.getModID();

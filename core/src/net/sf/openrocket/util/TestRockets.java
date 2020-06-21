@@ -1038,12 +1038,11 @@ public class TestRockets {
 						boosterBody.addChild(boosterFins);
 						boosterFins.setName("Booster Fins");
 						boosterFins.setFinCount(3);
-						boosterFins.setAngleOffset( Math.PI / 4);
 						boosterFins.setThickness(0.003);
 						boosterFins.setCrossSection(CrossSection.ROUNDED);
 						boosterFins.setRootChord(0.32);
 						boosterFins.setTipChord(0.12);
-						boosterFins.setHeight(0.12);
+						boosterFins.setHeight(0.10);
 						boosterFins.setSweep(0.18);
 						boosterFins.setAxialMethod(AxialMethod.BOTTOM);
 						boosterFins.setAxialOffset(0.0);
