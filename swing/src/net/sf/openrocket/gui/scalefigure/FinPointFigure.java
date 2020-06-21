@@ -54,10 +54,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private final FreeformFinSet finset;
 	private int modID = -1;
 	
-	protected Rectangle2D finBounds_m = null;
-	protected Rectangle2D mountBounds_m = null;
-	
-	protected final List<StateChangeListener> listeners = new LinkedList<StateChangeListener>();
+	protected BoundingBox finBounds_m = null;
+	protected BoundingBox mountBounds_m = null;
+
+	protected final List<StateChangeListener> listeners = new LinkedList<>();
 
 	private Rectangle2D.Double[] finPointHandles = null;
 	private int selectedIndex = -1;
@@ -199,11 +199,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private void paintBodyTube( Graphics2D g2){
 		// in-figure left extent
-		final double xFore = mountBounds_m.getMinX();
+		final double xFore = mountBounds_m.min.x;
 		// in-figure right extent
-		final double xAft = mountBounds_m.getMaxX();
+		final double xAft = mountBounds_m.max.x;
 		// in-figure right extent
-		final double yCenter = mountBounds_m.getMinY();
+		final double yCenter = mountBounds_m.min.y;
 
 		Path2D.Double shape = new Path2D.Double();
 		shape.moveTo( xFore, yCenter );
@@ -357,29 +357,29 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	protected void updateSubjectDimensions(){
-
 		// update subject (i.e. Fin) bounds
-		finBounds_m = new BoundingBox().update(finset.getFinPoints()).toRectangle();
+		finBounds_m = new BoundingBox().update(finset.getFinPoints());
 
 		// update to bound the parent body:
 		SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
 		final double xFinFront = finset.getAxialOffset(AxialMethod.TOP);
 		final double xParent = -xFinFront;
-		final double yParent = -parent.getRadius(xParent); // from parent centerline to fin front.
+		final double yParent = -parent.getRadius(xParent); // from fin-front to parent centerline
 		final double rParent = Math.max(parent.getForeRadius(), parent.getAftRadius());
-		mountBounds_m = new Rectangle2D.Double( xParent, yParent, parent.getLength(), rParent);
 
-		final double xMinBounds = Math.min(xParent, finBounds_m.getMinX());
-		final double yMinBounds = Math.min(xParent, finBounds_m.getMinY());
-		final double subjectWidth = Math.max( xFinFront + finBounds_m.getWidth(), parent.getLength());
-		final double subjectHeight = Math.max( 2*rParent, rParent + finBounds_m.getHeight());
-		subjectBounds_m = new Rectangle2D.Double( xMinBounds, yMinBounds, subjectWidth, subjectHeight);
+		mountBounds_m = new BoundingBox()
+				.update(new Coordinate(xParent, yParent, 0))
+				.update(new Coordinate(xParent + parent.getLength(), yParent + rParent));
+
+		final BoundingBox combinedBounds = new BoundingBox().update(finBounds_m).update(mountBounds_m);
+
+		subjectBounds_m = combinedBounds.toRectangle();
 	}
 
 	@Override
 	protected void updateCanvasOrigin() {
-		final int finHeight = (int)(finBounds_m.getHeight()*scale);
-		final int mountHeight = (int)(mountBounds_m.getHeight()*scale);
+		final int finHeight = (int)(finBounds_m.span().y*scale);
+		final int mountHeight = (int)(mountBounds_m.span().y*scale);
 		final int finFrontX = (int)(subjectBounds_m.getX()*scale);
 		final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 
