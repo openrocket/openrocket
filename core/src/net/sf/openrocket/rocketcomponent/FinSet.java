@@ -670,14 +670,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 			h2 = h * singlePlanformArea / w;
 		}
 		
-		double inertia = (h2 + 2 * w2) / 24;
+		final double inertia = (h2 + 2 * w2) / 24;
 		
 		if (finCount == 1)
 			return inertia;
 		
 		final double rFront = this.getFinFront().y;
 		
-		return finCount * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + rFront));
+		return inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + rFront);
 	}
 	
 	
@@ -707,9 +707,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 			h = MathUtil.safeSqrt(h * singlePlanformArea/ w);
 		}
 
+		final double inertia = h * h / 12;
+
+		if (finCount == 1)
+			return inertia;
+
 		final double rFront = this.getFinFront().y;
 
-		return finCount * (h * h / 12 + MathUtil.pow2(h / 2 + rFront));
+		return inertia + MathUtil.pow2(h / 2 + rFront);
 	}
 	
 
