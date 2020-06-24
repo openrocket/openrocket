@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=openrocket
+Comment=Design and simulate model rockets
+Icon=${SNAP}/meta/gui/openrocket.png
+Exec=openrocket
+Terminal=false
+Categories=Utility;

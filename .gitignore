@@ -89,3 +89,5 @@ crashlytics-build.properties
 fabric.properties
 
 openrocket.log
+
+*.snap

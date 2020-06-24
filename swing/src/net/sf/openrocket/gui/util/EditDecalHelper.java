@@ -74,15 +74,17 @@ public class EditDecalHelper {
 		
 		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
 		int usageCount = doc.countDecalUsage(decal);
+		boolean isSnapConfined = (SystemInfo.getPlatform() == Platform.UNIX && SystemInfo.isConfined());
 		
 		//First Check preferences
-		if (sysPrefSet && usageCount == 1) {
-			
-			launchEditor(prefs.isDecalEditorPreferenceSystem(), prefs.getDecalEditorCommandLine(), decal);
+		if (usageCount == 1 && (sysPrefSet || isSnapConfined)) {
+			String commandLine = isSnapConfined ? "xdg-open %%" : prefs.getDecalEditorCommandLine();
+			launchEditor(prefs.isDecalEditorPreferenceSystem(), commandLine, decal);
 			return decal;
 		}
 		
-		EditDecalDialog dialog = new EditDecalDialog(parent, !sysPrefSet, usageCount);
+		boolean promptForEditor = (!sysPrefSet && !isSnapConfined);
+		EditDecalDialog dialog = new EditDecalDialog(parent, promptForEditor, usageCount);
 		dialog.setVisible(true);
 		
 		if (dialog.isCancel()) {
@@ -93,7 +95,10 @@ public class EditDecalHelper {
 		boolean useSystemEditor = false;
 		String commandLine = "";
 		
-		if (sysPrefSet) {
+		if (isSnapConfined) {
+			useSystemEditor = false;
+			commandLine = "xdg-open %%";
+		} else if (sysPrefSet) {
 			useSystemEditor = prefs.isDecalEditorPreferenceSystem();
 			commandLine = prefs.getDecalEditorCommandLine();
 		} else {

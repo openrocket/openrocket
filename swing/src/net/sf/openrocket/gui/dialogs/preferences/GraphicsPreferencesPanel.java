@@ -23,6 +23,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -37,7 +39,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 	public GraphicsPreferencesPanel(JDialog parent) {
 		super(parent, new MigLayout("fillx"));
 		
-		this.add(new JPanel(new MigLayout("fill, ins n n n")) {
+		JPanel editorPrefPanel = new JPanel(new MigLayout("fill, ins n n n")) {
 			{ //Editor Options		
 				TitledBorder border = BorderFactory.createTitledBorder(trans.get("pref.dlg.lbl.DecalEditor"));
 				GUIUtil.changeFontStyle(border, Font.BOLD);
@@ -135,7 +137,16 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					
 				});
 			}
-		}, "growx, span");
+		};
+		
+		/* Don't show the editor preferences panel when confined in a snap on Linux.
+		 * The snap confinement doesn't allow to run any edit commands, and instead
+		 * we will rely on using the xdg-open command which allows the user to pick
+		 * their preferred application.
+		 */
+		if (SystemInfo.getPlatform() != Platform.UNIX && !SystemInfo.isConfined()) {
+			this.add(editorPrefPanel, "growx, span");
+		}
 		
 		this.add(new JPanel(new MigLayout("fill, ins n n n")) {
 			{/////GL Options
