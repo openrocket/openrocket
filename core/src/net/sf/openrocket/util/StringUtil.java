@@ -8,8 +8,10 @@ public class StringUtil {
 	 * This is implemented without using String.isEmpty() because that method
 	 * is not available in Froyo.
 	 * 
-	 * @param s
-	 * @return
+	 * @param s string to check
+	 * @return true iff s is null or trims to
+	 * an empty string, where trim is defined
+	 * by {@link java.lang.String#trim}
 	 */
 	public static boolean isEmpty( String s ) {
 		if ( s == null ) {
