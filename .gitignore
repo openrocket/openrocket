@@ -15,3 +15,6 @@
 
 # Install4j media
 media/
+
+# macOS files
+.DS_Store

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="8.0.4" transformSequenceNumber="8">
-  <directoryPresets config="/Users/jhanney/Code/openrocket/core/resources-src/pix/icon" />
+  <directoryPresets config="/Users/jhanney/Code/openrocket-installer-files/20.x" />
   <application name="OpenRocket 20.x" applicationId="8434-9327-1469-6373" mediaDir="media" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="20.x" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11.0" javaMaxVersion="11.0" jdkMode="jdk" jdkName="JDK 11.0">
     <jreBundles jdkProviderId="AdoptOpenJDK" release="openjdk11/jdk-11.0.6+10">
       <modules>
@@ -18,7 +18,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 20.x" id="59">
+    <launcher name="OpenRocket 20.x" id="59" icnsFile="/Users/jhanney/Code/openrocket-installer-files/20.x/OpenRocket.icns">
       <executable name="OpenRocket" iconSet="true" executableDir="." executableMode="gui" />
       <java mainClass="net.sf.openrocket.startup.OpenRocket">
         <classPath>
@@ -134,6 +134,33 @@ return console.askOkCancel(message, true);
                 </serializedBean>
                 <externalParametrizationPropertyNames>
                   <propertyName>selectionChangedScript</propertyName>
+                </externalParametrizationPropertyNames>
+              </formComponent>
+            </formComponents>
+          </screen>
+          <screen id="164" beanClass="com.install4j.runtime.beans.screens.FileAssociationsScreen" rollbackBarrierExitCode="0">
+            <actions>
+              <action id="167" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="description" type="string">OpenRocket Rocket Files</property>
+                  <property name="extension" type="string">ork</property>
+                  <property name="launcherId" type="string">59</property>
+                </serializedBean>
+              </action>
+            </actions>
+            <formComponents>
+              <formComponent id="165" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
+                <serializedBean>
+                  <property name="labelText" type="string">${i18n:SelectAssociationsLabel}</property>
+                </serializedBean>
+              </formComponent>
+              <formComponent id="166" beanClass="com.install4j.runtime.beans.formcomponents.FileAssociationsComponent" useExternalParametrization="true" externalParametrizationName="File Associations" externalParametrizationMode="include">
+                <serializedBean>
+                  <property name="fillVertical" type="boolean" value="true" />
+                </serializedBean>
+                <externalParametrizationPropertyNames>
+                  <propertyName>showSelectionButtons</propertyName>
+                  <propertyName>selectionButtonPosition</propertyName>
                 </externalParametrizationPropertyNames>
               </formComponent>
             </formComponents>
@@ -451,12 +478,8 @@ return console.askYesNo(message, true);
         </modules>
       </jreBundle>
     </windows>
-    <macosFolder name="macOS Folder" id="155">
-      <jreBundle jreBundleSource="generated" includedJre="macos-amd64-11.0.6">
-        <modules>
-          <module name="java.scripting" />
-        </modules>
-      </jreBundle>
-    </macosFolder>
+    <macos name="macOS Single Bundle" id="159" launcherId="59">
+      <jreBundle jreBundleSource="preCreated" includedJre="macos-amd64-11.0.6" />
+    </macos>
   </mediaSets>
 </install4j>
