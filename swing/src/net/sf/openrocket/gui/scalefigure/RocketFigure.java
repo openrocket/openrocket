@@ -407,33 +407,36 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 
-    /**
-     * Gets the bounds of the drawn subject in Model-Space
-     * 
-     *  i.e. the maximum extents in the selected dimensions.
-     * The bounds are stored in the variables minX, maxX and maxR.
-     * 
-     * @return
-     */
-    @Override
-    protected void updateSubjectDimensions() {
-        // calculate bounds, and store in class variables
-        final BoundingBox bounds = rocket.getSelectedConfiguration().getBoundingBox();
-        final double maxR = Math.max(Math.hypot(bounds.min.y, bounds.min.z),
-                                     Math.hypot(bounds.max.y, bounds.max.z));
-        
-        switch (currentViewType) {
-        case SideView:
-            subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
-            break;
-        case BackView:
-            subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
-            break;
-        default:
-            throw new BugException("Illegal figure type = " + currentViewType);
-        }
-    }
-    
+	/**
+	 * Gets the bounds of the drawn subject in Model-Space
+	 *
+	 *  i.e. the maximum extents in the selected dimensions.
+	 * The bounds are stored in the variables minX, maxX and maxR.
+	 *
+	 * @return
+	 */
+	@Override
+	protected void updateSubjectDimensions() {
+		// calculate bounds, and store in class variables
+		BoundingBox newBounds = rocket.getSelectedConfiguration().getBoundingBox();
+		if(newBounds.isEmpty())
+			newBounds = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
+
+		final double maxR = Math.max(Math.hypot(newBounds.min.y, newBounds.min.z),
+				Math.hypot(newBounds.max.y, newBounds.max.z));
+
+		switch (currentViewType) {
+			case SideView:
+				subjectBounds_m = new Rectangle2D.Double(newBounds.min.x, -maxR, newBounds.span().x, 2 * maxR);
+				break;
+			case BackView:
+				subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
+				break;
+			default:
+				throw new BugException("Illegal figure type = " + currentViewType);
+		}
+	}
+
 	/**
 	 * Calculates the necessary size of the figure and set the PreferredSize 
 	 * property accordingly.
