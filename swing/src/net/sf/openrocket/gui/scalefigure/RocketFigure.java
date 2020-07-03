@@ -1,14 +1,7 @@
 package net.sf.openrocket.gui.scalefigure;
 
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -361,7 +354,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * Gets the shapes required to draw the component.
 	 * 
 	 * @param component
-	 * @param params
+	 *
 	 * @return the <code>ArrayList</code> containing all the shapes to draw.
 	 */
 	private static ArrayList<RocketComponentShape> addThisShape(
@@ -425,6 +418,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		final double maxR = Math.max(Math.hypot(newBounds.min.y, newBounds.min.z),
 				Math.hypot(newBounds.max.y, newBounds.max.z));
 
+
 		switch (currentViewType) {
 			case SideView:
 				subjectBounds_m = new Rectangle2D.Double(newBounds.min.x, -maxR, newBounds.span().x, 2 * maxR);
@@ -451,12 +445,11 @@ public class RocketFigure extends AbstractScaleFigure {
 	        final int newOriginX = borderThickness_px.width + Math.max(getWidth(), subjectWidth + 2*borderThickness_px.width)/ 2;	        
 	        final int newOriginY = borderThickness_px.height + getHeight() / 2;
 	        
-	        originLocation_px = new Dimension(newOriginX, newOriginY);
+	        originLocation_px = new Point(newOriginX, newOriginY);
     	}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
             final int newOriginX = borderThickness_px.width - subjectFront;
     	    final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
-            
-    	    originLocation_px = new Dimension(newOriginX, newOriginY);
+    	    originLocation_px = new Point(newOriginX, newOriginY);
     	}
 	}
 

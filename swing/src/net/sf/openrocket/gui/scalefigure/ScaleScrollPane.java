@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
@@ -34,7 +35,7 @@ import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
- * A scroll pane that holds a {@link ScaleFigure} and includes rulers that show
+ * A scroll pane that holds a {@link AbstractScaleFigure} and includes rulers that show
  * natural units.  The figure can be moved by dragging on the figure.
  * <p>
  * This class implements both <code>MouseListener</code> and 
@@ -68,7 +69,6 @@ public class ScaleScrollPane extends JScrollPane
 	 * Create a scale scroll pane.
 	 * 
 	 * @param component		the component to contain (must implement ScaleFigure)
-	 * @param allowFit		whether automatic fitting of the figure is allowed
 	 */
 	public ScaleScrollPane(final JComponent component) {
 		super(component);
@@ -148,12 +148,12 @@ public class ScaleScrollPane extends JScrollPane
 		this.fit = shouldFit;
 		if (shouldFit) {
 			validate();
-			
-	        Dimension view = viewport.getExtentSize();
-            figure.scaleTo(view);
-            this.firePropertyChange( USER_SCALE_PROPERTY, 1.0, figure.getUserScale());
 
-            revalidate();
+			Dimension view = viewport.getExtentSize();
+			figure.scaleTo(view);
+
+			this.firePropertyChange( USER_SCALE_PROPERTY, 1.0, figure.getUserScale());
+			revalidate();
 		}
 	}
 	
@@ -286,23 +286,23 @@ public class ScaleScrollPane extends JScrollPane
 		}
 		
         private double fromPx(final int px) {
-            Dimension origin = figure.getSubjectOrigin();
+            final Point origin = figure.getSubjectOrigin();
             double realValue = Double.NaN;
             if (orientation == HORIZONTAL) {
-                realValue = px - origin.width;
+                realValue = px - origin.x;
             } else {
-                realValue = origin.height - px;
+                realValue = origin.y - px;
             }
             return realValue / figure.getAbsoluteScale();
 		}
 		
 		private int toPx(final double value) {
-			final Dimension origin = figure.getSubjectOrigin();
+			final Point origin = figure.getSubjectOrigin();
 			final int px = (int) (value * figure.getAbsoluteScale() + 0.5);
 			if (orientation == HORIZONTAL) {
-				return (px + origin.width);
+				return (px + origin.x);
 			} else {
-				return (origin.height - px);
+				return (origin.y - px);
 			}
 		}
 		

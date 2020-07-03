@@ -2,9 +2,9 @@ package net.sf.openrocket.gui.scalefigure;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
@@ -347,12 +347,12 @@ public class FinPointFigure extends AbstractScaleFigure {
 		return p;
 	}
 
-	public Dimension getSubjectOrigin() {
+	public Point getSubjectOrigin() {
 		if (modID != finset.getRocket().getAerodynamicModID()) {
 			modID = finset.getRocket().getAerodynamicModID();
 			updateTransform();
 		}
-		return new Dimension(originLocation_px.width, originLocation_px.height);
+		return new Point(originLocation_px.x, originLocation_px.y);
 	}
 
 	@Override
@@ -383,12 +383,12 @@ public class FinPointFigure extends AbstractScaleFigure {
 		final int finFrontPx = (int)(subjectBounds_m.getX()*scale);
 		final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 
-		originLocation_px.width = borderThickness_px.width - finFrontPx;
+		originLocation_px.x = borderThickness_px.width - finFrontPx;
 
 		if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {
-			originLocation_px.height = getHeight() - mountHeight - borderThickness_px.height;
+			originLocation_px.y = getHeight() - mountHeight - borderThickness_px.height;
 		}else {
-			originLocation_px.height = borderThickness_px.height + finHeight;
+			originLocation_px.y = borderThickness_px.height + finHeight;
 		}
 	}
 

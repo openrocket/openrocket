@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.Point;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.LinkedList;
@@ -40,7 +41,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 	
 	protected static final Dimension borderThickness_px = new Dimension(DEFAULT_BORDER_PIXELS_WIDTH, DEFAULT_BORDER_PIXELS_HEIGHT);
 	// pixel offset from the the subject's origin to the canvas's upper-left-corner. 
-	protected Dimension originLocation_px = new Dimension(0,0);
+	protected Point originLocation_px = new Point(0,0);
 	
 	// size of the visible region
 	protected Dimension visibleBounds_px = new Dimension(0,0);
@@ -81,7 +82,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		return scale;
 	}
 
-	public Dimension getSubjectOrigin() {
+	public Point getSubjectOrigin() {
         return originLocation_px;
     }
 
@@ -162,7 +163,7 @@ public abstract class AbstractScaleFigure extends JPanel {
         // Calculate and store the transformation used
         // (inverse is used in detecting clicks on objects)
         projection = new AffineTransform();
-        projection.translate(this.originLocation_px.width, originLocation_px.height);
+        projection.translate(this.originLocation_px.x, originLocation_px.y);
         // Mirror position Y-axis upwards
         projection.scale(scale, -scale);
     }
