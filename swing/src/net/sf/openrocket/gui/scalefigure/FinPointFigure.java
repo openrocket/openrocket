@@ -380,10 +380,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 	protected void updateCanvasOrigin() {
 		final int finHeight = (int)(finBounds_m.span().y*scale);
 		final int mountHeight = (int)(mountBounds_m.span().y*scale);
-		final int finFrontX = (int)(subjectBounds_m.getX()*scale);
+		final int finFrontPx = (int)(subjectBounds_m.getX()*scale);
 		final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
 
-		originLocation_px.width = borderThickness_px.width - finFrontX;
+		originLocation_px.width = borderThickness_px.width - finFrontPx;
 
 		if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {
 			originLocation_px.height = getHeight() - mountHeight - borderThickness_px.height;
