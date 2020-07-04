@@ -554,20 +554,16 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 			forces = aeroData.get(comp);
 			if (forces == null) {
-				// DEBUG / trace level
-				System.err.println("Could not find aeroData entry for component: " + comp.getName());
 				row.cpx = 0.0;
 				row.cna = 0.0;
 				continue;
 			}
 
-//			System.err.println(String.format("        .CP = %s", forces.getCP()));
 			if (forces.getCP() != null) {
 				row.cpx = forces.getCP().x;
 				row.cna = forces.getCNa();
 			}
 
-//			System.err.println(String.format("        .CD = %s", forces.getCD()));
 			if (!Double.isNaN(forces.getCD())) {
 				dragData.add(forces);
 			}
