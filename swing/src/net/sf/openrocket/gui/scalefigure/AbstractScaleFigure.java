@@ -47,7 +47,10 @@ public abstract class AbstractScaleFigure extends JPanel {
 	protected Dimension visibleBounds_px = new Dimension(0,0);
 	
 	// ======= whatever this figure is drawing, in real-space coordinates:  meters
-	protected Rectangle2D subjectBounds_m = null;
+	//     all drawable content
+	protected Rectangle2D contentBounds_m = new Rectangle2D.Double(0,0,0,0);
+	//     the content we should focus on (this is the auto-zoom subject)
+	protected Rectangle2D subjectBounds_m = new Rectangle2D.Double(0,0,0,0);
 
 	// combines the translation and scale in one place:
 	// which frames does this transform between ?
@@ -83,8 +86,13 @@ public abstract class AbstractScaleFigure extends JPanel {
 	}
 
 	public Point getSubjectOrigin() {
-        return originLocation_px;
-    }
+		return originLocation_px;
+	}
+
+	public Point getAutoZoomPoint(){
+		return new Point(Math.max(0, originLocation_px.x - borderThickness_px.width),
+						 Math.max(0, - borderThickness_px.height));
+	}
 
 	/**
 	 * Set the scale level of the figure.  A scale value of 1.0 is equivalent to 100 % scale.
@@ -149,9 +157,9 @@ public abstract class AbstractScaleFigure extends JPanel {
      */
     protected void updateCanvasSize() {
          final int desiredWidth = Math.max((int)this.visibleBounds_px.getWidth(),
-                                          (int)(subjectBounds_m.getWidth()*scale) + 2*borderThickness_px.width);
+                                          (int)(contentBounds_m.getWidth()*scale) + 2*borderThickness_px.width);
         final int desiredHeight = Math.max((int)this.visibleBounds_px.getHeight(),
-                                          (int)(subjectBounds_m.getHeight()*scale) + 2*borderThickness_px.height); 
+                                          (int)(contentBounds_m.getHeight()*scale) + 2*borderThickness_px.height);
 
         Dimension preferredFigureSize_px = new Dimension(desiredWidth, desiredHeight);
         
@@ -172,7 +180,7 @@ public abstract class AbstractScaleFigure extends JPanel {
      * Updates the figure shapes and figure size.
      */
     public void updateFigure() {
-        log.debug(String.format("____ Updating %s to: %g user scale, %g overall scale", this.getClass().getSimpleName(), this.getAbsoluteScale(), this.scale));
+        log.trace(String.format("____ Updating %s to: %g user scale, %g overall scale", this.getClass().getSimpleName(), this.getAbsoluteScale(), this.scale));
         
         updateSubjectDimensions();
         updateCanvasSize();
@@ -182,10 +190,6 @@ public abstract class AbstractScaleFigure extends JPanel {
         revalidate();
         repaint();
     }
-    
-	protected Dimension getBorderPixels() {
-		return borderThickness_px;
-	}
 
 	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(0, listener);

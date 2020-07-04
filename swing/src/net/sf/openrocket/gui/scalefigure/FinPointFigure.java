@@ -15,7 +15,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.*;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -69,7 +68,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		setBackground(Color.WHITE);
 		setOpaque(true);
 
-		updateFigure();        
+		updateFigure();
 	}
 
 	@Override
@@ -359,6 +358,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	protected void updateSubjectDimensions(){
 		// update subject (i.e. Fin) bounds
 		finBounds_m = new BoundingBox().update(finset.getFinPoints());
+		subjectBounds_m = finBounds_m.toRectangle();
 
 		// update to bound the parent body:
 		SymmetricComponent parent = (SymmetricComponent)this.finset.getParent();
@@ -373,22 +373,22 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final BoundingBox combinedBounds = new BoundingBox().update(finBounds_m).update(mountBounds_m);
 
-		subjectBounds_m = combinedBounds.toRectangle();
+		contentBounds_m = combinedBounds.toRectangle();
 	}
 
 	@Override
 	protected void updateCanvasOrigin() {
-		final int finHeight = (int)(finBounds_m.span().y*scale);
-		final int mountHeight = (int)(mountBounds_m.span().y*scale);
-		final int finFrontPx = (int)(subjectBounds_m.getX()*scale);
-		final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
+		final int finHeightPx = (int)(finBounds_m.span().y*scale);
+		final int mountHeightPx = (int)(mountBounds_m.span().y*scale);
+		final int finFrontPx = (int)(contentBounds_m.getX()*scale);
+		final int contentHeightPx = (int)(contentBounds_m.getHeight()*scale);
 
 		originLocation_px.x = borderThickness_px.width - finFrontPx;
 
-		if( visibleBounds_px.height > (subjectHeight+ 2*borderThickness_px.height)) {
-			originLocation_px.y = getHeight() - mountHeight - borderThickness_px.height;
+		if( visibleBounds_px.height > (contentHeightPx + 2*borderThickness_px.height)) {
+			originLocation_px.y = getHeight() - mountHeightPx - borderThickness_px.height;
 		}else {
-			originLocation_px.y = borderThickness_px.height + finHeight;
+			originLocation_px.y = borderThickness_px.height + finHeightPx;
 		}
 	}
 

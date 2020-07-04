@@ -58,7 +58,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	public static final double SELECTED_WIDTH = 2.0;
 	
 
-	private Rocket rocket;
+	final private Rocket rocket;
 	
 	private RocketComponent[] selection = new RocketComponent[0];
 	
@@ -86,7 +86,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		this.rotation = 0.0;
 		this.axialRotation = Transformation.rotate_x(0.0);
-		
+
 		updateFigure();
 	}
 	
@@ -415,9 +415,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		if(newBounds.isEmpty())
 			newBounds = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
 
-		final double maxR = Math.max(Math.hypot(newBounds.min.y, newBounds.min.z),
-				Math.hypot(newBounds.max.y, newBounds.max.z));
-
+		final double maxR = Math.max( Math.hypot(newBounds.min.y, newBounds.min.z),
+									  Math.hypot(newBounds.max.y, newBounds.max.z));
 
 		switch (currentViewType) {
 			case SideView:
@@ -429,6 +428,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			default:
 				throw new BugException("Illegal figure type = " + currentViewType);
 		}
+		// for a rocket, these are the same
+		contentBounds_m = subjectBounds_m;
 	}
 
 	/**
@@ -444,7 +445,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	    if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 	        final int newOriginX = borderThickness_px.width + Math.max(getWidth(), subjectWidth + 2*borderThickness_px.width)/ 2;	        
 	        final int newOriginY = borderThickness_px.height + getHeight() / 2;
-	        
+
 	        originLocation_px = new Point(newOriginX, newOriginY);
     	}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
             final int newOriginX = borderThickness_px.width - subjectFront;

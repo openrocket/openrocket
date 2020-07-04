@@ -14,6 +14,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
 import java.util.EventObject;
 
 import javax.swing.BorderFactory;
@@ -151,6 +152,11 @@ public class ScaleScrollPane extends JScrollPane
 
 			Dimension view = viewport.getExtentSize();
 			figure.scaleTo(view);
+
+			final Point zoomPoint = figure.getAutoZoomPoint();
+
+			viewport.scrollRectToVisible( new Rectangle(
+							zoomPoint.x, zoomPoint.y, (int)(view.getWidth()), (int)(view.getHeight())));
 
 			this.firePropertyChange( USER_SCALE_PROPERTY, 1.0, figure.getUserScale());
 			revalidate();

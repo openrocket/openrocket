@@ -30,14 +30,14 @@ public class PrintFigure extends RocketFigure {
 	}
 
     public double getFigureHeight() {
-        return this.subjectBounds_m.getHeight();
+        return this.contentBounds_m.getHeight();
     }
     
     public double getFigureWidth() {
-    	return this.subjectBounds_m.getWidth();
+    	return this.contentBounds_m.getWidth();
     }
     
     public Rectangle2D getDimensions() {
-    	return this.subjectBounds_m.getBounds2D();
+    	return this.contentBounds_m.getBounds2D();
     }
 }
