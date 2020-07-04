@@ -7,10 +7,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.SimulationStatus;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Monitorable;
-import net.sf.openrocket.util.Transformation;
+import net.sf.openrocket.util.*;
 
 public class MassCalculator implements Monitorable {
 	
@@ -104,7 +101,7 @@ public class MassCalculator implements Monitorable {
 	public static RigidBody calculate( final MassCalculation.Type _type, final SimulationStatus status ){
 		final FlightConfiguration config = status.getConfiguration();
 		final double time = status.getSimulationTime();
-		MassCalculation calculation= new MassCalculation( _type, config, time, config.getRocket(), Transformation.IDENTITY);
+		MassCalculation calculation= new MassCalculation( _type, config, time, config.getRocket(), Transformation.IDENTITY, null);
 		
 		calculation.calculateAssembly();
 		RigidBody result = calculation.calculateMomentOfInertia();
@@ -112,55 +109,51 @@ public class MassCalculator implements Monitorable {
 	}
 	
 	// convenience wrapper -- use this to implicitly create a plain MassCalculation object with common parameters 
-	public static RigidBody calculate( final MassCalculation.Type _type, final FlightConfiguration _config,  double _time ){
-		MassCalculation calculation = new MassCalculation( _type, _config, _time, _config.getRocket(), Transformation.IDENTITY);
+	public static RigidBody calculate( final MassCalculation.Type _type, final FlightConfiguration _config,  double _time){
+		MassCalculation calculation = new MassCalculation( _type, _config, _time, _config.getRocket(), Transformation.IDENTITY, null);
 		calculation.calculateAssembly();
 		return calculation.calculateMomentOfInertia();
 	}
 
-	
 	/**
 	 * Compute an analysis of the per-component CG's of the provided configuration.
 	 * The returned map will contain an entry for each physical rocket component (not stages)
 	 * with its corresponding (best-effort) CG.  Overriding of subcomponents is ignored.
 	 * The CG of the entire configuration with motors is stored in the entry with the corresponding
 	 * Rocket as the key.
-	 * 
+	 *
 	 * Deprecated:
-	 * This function is fundamentally broken, because it asks for a calculation which ignores instancing.  
+	 * This function is fundamentally broken, because it asks for a calculation which ignores instancing.
 	 * This function will work with simple rockets, but will be misleading or downright wrong for others.
-	 * 
-	 * This is a problem with using a single-typed map:  
+	 *
+	 * This is a problem with using a single-typed map:
 	 * [1] multiple instances of components are not allowed, and must be merged.
 	 * [2] propellant / motor data does not have a corresponding RocketComponent.
-	 *     ( or mount-data collides with motor-data )  
+	 *     ( or mount-data collides with motor-data )
 	 *
-	 * @param configuration		the rocket configuration
-	 * @return					a map from each rocket component to its corresponding CG.
+	 * @return a list of CG coordinates for every instance of this component
 	 */
-	@Deprecated
-	public Map<RocketComponent, Coordinate> getCGAnalysis(FlightConfiguration configuration) {
-		//		revalidateCache(configuration);
-		
-		Map<RocketComponent, Coordinate> map = new HashMap<RocketComponent, Coordinate>();
-		
-		Coordinate rocketCG = Coordinate.ZERO;
-		for (RocketComponent comp : configuration.getActiveComponents()) {
-			Coordinate[] cgs = comp.toAbsolute(comp.getCG());
-			Coordinate stageCG = Coordinate.NUL;
-			for (Coordinate cg : cgs) {
-				stageCG = stageCG.average(cg);
-			}
-			map.put(comp, stageCG);
-			
-			rocketCG.average( stageCG);
-		}
-		
-		map.put(configuration.getRocket(), rocketCG );
-		
-		return map;
-	}
+	public static Map<Integer,CMAnalysisEntry> getCMAnalysis(FlightConfiguration config) {
 
+		Map<Integer,CMAnalysisEntry> analysisMap = new HashMap<>();
+
+		MassCalculation calculation = new MassCalculation(
+				MassCalculation.Type.LAUNCH,
+				config,
+				Motor.PSEUDO_TIME_LAUNCH,
+				config.getRocket(),
+				Transformation.IDENTITY,
+				analysisMap);
+
+		calculation.calculateAssembly();
+
+		CMAnalysisEntry totals = new CMAnalysisEntry(config.getRocket());
+		totals.totalCM = calculation.centerOfMass;
+		totals.eachMass = calculation.centerOfMass.weight;
+		analysisMap.put(config.getRocket().hashCode(), totals);
+
+		return analysisMap;
+	}
 	
 	////////////////// Mass property calculations  ///////////////////
 	@Override

@@ -202,23 +202,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
-		toProcess.offer(this.rocket);
-		
-		ArrayList<RocketComponent> toReturn = new ArrayList<>();
-		
-		while (!toProcess.isEmpty()) {
-			RocketComponent comp = toProcess.poll();
-			
-			toReturn.add(comp);
-			for (RocketComponent child : comp.getChildren()) {
-				if (!(child instanceof AxialStage)) {
-					toProcess.offer(child);
-				}
-			}
+		List<RocketComponent> traversalOrder = new ArrayList<RocketComponent>();
+		recurseAllComponentsDepthFirst(this.rocket,traversalOrder);
+		return traversalOrder;
+	}
+
+	private void recurseAllComponentsDepthFirst(RocketComponent comp, List<RocketComponent> traversalOrder){
+		traversalOrder.add(comp);
+		for( RocketComponent child : comp.getChildren()){
+			recurseAllComponentsDepthFirst(child, traversalOrder);
 		}
-		
-		return toReturn;
 	}
 
 	/** Returns all the components on core stages (i.e. centerline)
@@ -401,10 +394,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	private void updateStages() {
-        if (this.rocket.getStageCount() == this.stages.size()) {
-            return;
-        }
-	                		
+		if (this.rocket.getStageCount() == this.stages.size()) {
+			return;
+		}
+
 		this.stages.clear();
 		for (AxialStage curStage : this.rocket.getStageList()) {
 			
