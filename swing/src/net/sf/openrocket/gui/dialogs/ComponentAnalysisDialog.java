@@ -579,7 +579,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		}
 
 		for(final MotorConfiguration config: configuration.getActiveMotors()) {
-			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation());
+			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation().hashCode());
 			if (null == cmEntry) {
 				continue;
 			}
