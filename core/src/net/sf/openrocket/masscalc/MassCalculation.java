@@ -239,7 +239,7 @@ public class MassCalculation {
 		addMass( clusterCM );
 
 		if(null != this.analysisMap) {
-			CMAnalysisEntry entry = analysisMap.get(motor.getDesignation());
+			CMAnalysisEntry entry = analysisMap.get(motor.getDesignation().hashCode());
 			if (null == entry){
 				entry = new CMAnalysisEntry(motor);
 				analysisMap.put(motor.getDesignation().hashCode(), entry);
