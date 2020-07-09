@@ -642,14 +642,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
      *
 	 * The process is the following:
 	 * 
-	 * 1. Approximate a fin with a rectangular fin
+	 * 1. Approximate a fin with a rectangular thin plate
 	 * 
 	 * 2. The unitary moment of inertia of one fin is taken as the average
 	 *    of the unitary moments of inertia through its center perpendicular
 	 *    to the plane (Izz/M), and through its center parallel to the plane (Iyy/M)
 	 *    
 	 * 3. If there are multiple fins, the inertia is shifted to the center of the
-	 *    FinSet.
+	 *    FinSet using the Parallel Axis Theorem
 	 */
 	@Override
 	public double getLongitudinalUnitInertia() {
@@ -684,10 +684,11 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if (finCount == 1)
 			return inertia;
 
-		// Move axis to center of FinSet.  We need to apply parallel axis theorem
+		// Move axis to center of FinSet.  We need to apply the Parallel Axis Theorem
 		// to Izz, but not to Iyy (as the displacement as we move to the new axis
-		// is along Y).  Since our moment of inertial is the average of Iyy and Izz,
-		// this is accomplished by just weighting the transformation from the theorem by 1/2
+		// is along Y).  Since our moment of inertia is the average of Iyy and Izz,
+		// this is accomplished by just weighting the transformation from the theorem
+		// by 1/2
 		return inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) / 2 + getBodyRadius()) / 2;
 	}
 	
@@ -696,9 +697,10 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Return an approximation of the rotational unitary inertia of the fin set.
 	 * The process is the following:
 	 * 
-	 * 1. Approximate the fin with a rectangular fin and calculate the
-	 *    unitary rotational inertia (Ixx/M) of the rectangular approximation,
-	 *    about the center of the approximated fin.
+	 * 1. Approximate the fin with a rectangular thin plate
+	 *
+	 * 2. calculate the unitary rotational inertia (Ixx/M) of the
+	 *    rectangular approximation, about the center of the approximated fin.
 	 *    
 	 * 2. If there are multiple fins, shift the inertia axis to the center
 	 *    of the Finset.
@@ -728,6 +730,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		if (finCount == 1)
 			return inertia;
 
+		// Move axis to center of FinSet using Parallel Axis Theorem
 		return inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) / 2 + getBodyRadius());
 	}
 	
