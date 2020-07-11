@@ -638,17 +638,18 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	/*
-	 * Return an approximation of the longitudinal unitary inertia of the fin set.
+	 * Return an approximation of the longitudinal unitary moment of inertia
+     *
 	 * The process is the following:
 	 * 
-	 * 1. Approximate the fin with a rectangular fin
+	 * 1. Approximate a fin with a rectangular thin plate
 	 * 
-	 * 2. The inertia of one fin is taken as the average of the moments of inertia
-	 *    through its center perpendicular to the plane, and the inertia through
-	 *    its center parallel to the plane
+	 * 2. The unitary moment of inertia of one fin is taken as the average
+	 *    of the unitary moments of inertia through its center perpendicular
+	 *    to the plane (Izz/M), and through its center parallel to the plane (Iyy/M)
 	 *    
-	 * 3. If there are multiple fins, the inertia is shifted to the center of the fin
-	 *    set and multiplied by the number of fins.
+	 * 3. If there are multiple fins, the inertia is shifted to the center of the
+	 *    FinSet using the Parallel Axis Theorem
 	 */
 	@Override
 	public double getLongitudinalUnitInertia() {
@@ -661,23 +662,34 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		double w = getLength();
 		double h = getSpan();
 		double w2, h2;
-		
-		if (MathUtil.equals(w * h, 0)) {
+
+		// If either h or w is 0, we punt and treat the fin as square
+		if (MathUtil.equals(h * w, 0)) {
 			w2 = singlePlanformArea;
 			h2 = singlePlanformArea;
 		} else {
 			w2 = w * singlePlanformArea / h;
 			h2 = h * singlePlanformArea / w;
 		}
-		
-		double inertia = (h2 + 2 * w2) / 24;
+
+		// Iyy = h * w^3 / 12, so Iyy/M = w^2 / 12
+		// Izz = h * w * (h^2 + w^2) / 12, so Izz/M = (h^2 + w^2) / 12
+		// (Iyy / M + Izz / M) / 2 = (h^2 + 2 * w^2)/24
+		final double inertia = (h2 + 2 * w2) / 24;
+
+		System.out.println("component " + this);
+		System.out.println("finCount " + finCount);
+		System.out.println("inertia " + inertia);
 		
 		if (finCount == 1)
 			return inertia;
-		
-		final double rFront = this.getFinFront().y;
-		
-		return finCount * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + rFront));
+
+		// Move axis to center of FinSet.  We need to apply the Parallel Axis Theorem
+		// to Izz, but not to Iyy (as the displacement as we move to the new axis
+		// is along Y).  Since our moment of inertia is the average of Iyy and Izz,
+		// this is accomplished by just weighting the transformation from the theorem
+		// by 1/2
+		return inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) / 2 + getBodyRadius()) / 2;
 	}
 	
 	
@@ -685,11 +697,13 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 * Return an approximation of the rotational unitary inertia of the fin set.
 	 * The process is the following:
 	 * 
-	 * 1. Approximate the fin with a rectangular fin and calculate the inertia of the
-	 *    rectangular approximate
+	 * 1. Approximate the fin with a rectangular thin plate
+	 *
+	 * 2. calculate the unitary rotational inertia (Ixx/M) of the
+	 *    rectangular approximation, about the center of the approximated fin.
 	 *    
-	 * 2. If there are multiple fins, shift the inertia center to the fin set center
-	 *    and multiply with the number of fins.
+	 * 2. If there are multiple fins, shift the inertia axis to the center
+	 *    of the Finset.
 	 */
 	@Override
 	public double getRotationalUnitInertia() {
@@ -698,18 +712,26 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		}
 
 		// Approximate fin with a rectangular fin
+		// h2 is square of fin height
 		double w = getLength();
 		double h = getSpan();
-
+		double h2;
+		
+		// If either h or w is 0, punt and treat it as a square fin
 		if (MathUtil.equals(w * h, 0)) {
-			h = MathUtil.safeSqrt(singlePlanformArea);
+			h2 = singlePlanformArea;
 		} else {
-			h = MathUtil.safeSqrt(h * singlePlanformArea/ w);
+			h2 = h * singlePlanformArea / w;
 		}
 
-		final double rFront = this.getFinFront().y;
+		// Ixx = w * h^3 / 12, so Ixx / M = h^2 / 12
+		final double inertia = h2 / 12;
 
-		return finCount * (h * h / 12 + MathUtil.pow2(h / 2 + rFront));
+		if (finCount == 1)
+			return inertia;
+
+		// Move axis to center of FinSet using Parallel Axis Theorem
+		return inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) / 2 + getBodyRadius());
 	}
 	
 
