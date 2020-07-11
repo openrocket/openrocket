@@ -72,6 +72,24 @@ public class FinPointFigure extends AbstractScaleFigure {
 	}
 
 	@Override
+	public Point getAutoZoomPoint(){
+		final int finFrontLocationPx = originLocation_px.x + (int)(subjectBounds_m.getX()*scale);
+
+		// from canvas top/left
+		final Point zoomPointPx = new Point( Math.max(0, originLocation_px.x + (int)(subjectBounds_m.getX()*scale)),
+											 0 );
+
+		System.err.println("==>> FinPointFigure.getAutoZoomPoint ==>> " + finset.getName() );
+		System.err.println(String.format("     ::ContentBounds:      %6.4f, %6.4f", contentBounds_m.getX(), contentBounds_m.getY()));
+		System.err.println(String.format("     ::SubjectBounds:      %6.4f, %6.4f", subjectBounds_m.getX(), subjectBounds_m.getY()));
+//		System.err.println(String.format("     ::finRootOffset:       %d, %d", finFrontOffsetPx, finBottomOffsetPx));
+//		System.err.println(String.format("     ::finRootLocation:     %d, %d", finFrontLocationPx, 0));
+		System.err.println(String.format("     ::ZoomPoint:           %d, %d", zoomPointPx.x, zoomPointPx.y));
+
+		return zoomPointPx;
+	}
+
+	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g.create();
@@ -378,8 +396,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	protected void updateCanvasOrigin() {
-		final int finHeightPx = (int)(finBounds_m.span().y*scale);
+		final int finHeightPx = (int)(finBounds_m.max.y*scale);
 		final int mountHeightPx = (int)(mountBounds_m.span().y*scale);
+		// this is non-intuitive: it's an offset _from_ the origin(0,0) _to_ the lower-left of the content --
+		// because the canvas is drawn from that lower-left corner of the content, and the fin-front
+		// is fixed-- by definition-- to the origin.
 		final int finFrontPx = (int)(contentBounds_m.getX()*scale);
 		final int contentHeightPx = (int)(contentBounds_m.getHeight()*scale);
 

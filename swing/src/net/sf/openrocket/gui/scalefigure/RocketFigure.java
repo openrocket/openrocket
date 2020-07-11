@@ -89,7 +89,12 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		updateFigure();
 	}
-	
+
+	public Point getAutoZoomPoint(){
+		return new Point( Math.max(0, originLocation_px.x - borderThickness_px.width),
+						  Math.max(0, - borderThickness_px.height));
+	}
+
 	public RocketComponent[] getSelection() {
 		return selection;
 	}

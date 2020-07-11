@@ -89,10 +89,14 @@ public abstract class AbstractScaleFigure extends JPanel {
 		return originLocation_px;
 	}
 
-	public Point getAutoZoomPoint(){
-		return new Point(Math.max(0, originLocation_px.x - borderThickness_px.width),
-						 Math.max(0, - borderThickness_px.height));
-	}
+	/**
+	 * Calculate a point for auto-zooming from a scale-to-fit request.
+	 *
+	 * The return point is intended for a $ScaleScrollPane call to "viewport.scrollRectToVisible(...)"
+	 *
+	 * @return the offset, in pixels, from the (top left) corner of the figure's canvas
+	 */
+	public abstract Point getAutoZoomPoint();
 
 	/**
 	 * Set the scale level of the figure.  A scale value of 1.0 is equivalent to 100 % scale.
