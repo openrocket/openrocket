@@ -100,8 +100,13 @@ public class ScaleScrollPane extends JScrollPane
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
 		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        
+		getHorizontalScrollBar().setUnitIncrement(50);
+		//getHorizontalScrollBar().setBlockIncrement(viewport.getWidth());  // the default value is good
+
+		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		getVerticalScrollBar().setUnitIncrement(50);
+		//getVerticalScrollBar().setBlockIncrement(viewport.getHeight());  // the default value is good
+
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		
@@ -322,9 +327,8 @@ public class ScaleScrollPane extends JScrollPane
 			
 			// this function doesn't reliably update all the time, so we'll draw everything for the entire canvas, 
 			// and let the JVM drawing algorithms figure out what should be drawn.
-			//
-			Rectangle area = ScaleScrollPane.this.getViewport().getViewRect();
-			 
+			Rectangle area = viewport.getViewRect();
+
 			// Fill area with background color
 			g2.setColor(getBackground());
 			g2.fillRect(area.x, area.y, area.width, area.height + 100);
