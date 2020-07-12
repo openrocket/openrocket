@@ -159,11 +159,11 @@ public class ScaleScrollPane extends JScrollPane
 			figure.scaleTo(view);
 
 			final Point zoomPoint = figure.getAutoZoomPoint();
+			final Rectangle zoomRectangle = new Rectangle(zoomPoint.x, zoomPoint.y, (int)(view.getWidth()), (int)(view.getHeight()));
+//			System.err.println(String.format("::zoom:  @ %d, %d [ %d x %d ]", zoomRectangle.x, zoomRectangle.y, zoomRectangle.width, zoomRectangle.height));
+			figure.scrollRectToVisible(zoomRectangle);
 
-			viewport.scrollRectToVisible( new Rectangle(
-							zoomPoint.x, zoomPoint.y, (int)(view.getWidth()), (int)(view.getHeight())));
-
-			this.firePropertyChange( USER_SCALE_PROPERTY, 1.0, figure.getUserScale());
+			figure.invalidate();
 			revalidate();
 		}
 	}
@@ -177,13 +177,13 @@ public class ScaleScrollPane extends JScrollPane
         if( MathUtil.equals(newScale, figure.getUserScale(), 0.01)){ 
             return;
         }
-        
+
         // if explicitly setting a zoom level, turn off fitting
-		this.fit = false;	
+		this.fit = false;
 		Dimension view = viewport.getExtentSize();
-        figure.scaleTo(newScale, view);
-             
-        revalidate();    
+		figure.scaleTo(newScale, view);
+
+		revalidate();
 	}
 	
 	
@@ -244,7 +244,7 @@ public class ScaleScrollPane extends JScrollPane
 		
 		dragStartX = e.getX();
 		dragStartY = e.getY();
-		
+
 		viewport.scrollRectToVisible(dragRectangle);
 	}
 	

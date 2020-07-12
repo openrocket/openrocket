@@ -33,14 +33,14 @@ public abstract class AbstractScaleFigure extends JPanel {
 	// Number of pixels to leave at edges when fitting figure
 	private static final int DEFAULT_BORDER_PIXELS_WIDTH = 30;
 	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
-	
-	// constant factor that scales screen real-estate to rocket-space 
-	private final double baseScale;
-    private double userScale = 1.0;
-	protected double scale = -1;
-	
 	protected static final Dimension borderThickness_px = new Dimension(DEFAULT_BORDER_PIXELS_WIDTH, DEFAULT_BORDER_PIXELS_HEIGHT);
-	// pixel offset from the the subject's origin to the canvas's upper-left-corner. 
+
+	// constant factor that scales screen real-estate to rocket-space
+	protected final double baseScale;
+	protected double userScale = 1.0;
+	protected double scale = -1;
+
+	// pixel offset from the the subject's origin to the canvas's upper-left-corner.
 	protected Point originLocation_px = new Point(0,0);
 	
 	// size of the visible region
@@ -109,10 +109,15 @@ public abstract class AbstractScaleFigure extends JPanel {
 	 * @param visibleBounds the visible bounds upon the Figure
 	 */
 	public void scaleTo(final double newScaleRequest, final Dimension visibleBounds) {
-		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01)){
+//		System.err.println(String.format("     ::scaleTo:    %6.4f  ==>> %6.4f,     %d x %d", userScale, newScaleRequest, visibleBounds.width, visibleBounds.height));
+		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01) &&
+			(visibleBounds_px.width == visibleBounds.width) &&
+			(visibleBounds_px.height == visibleBounds.height) )
+		{
 			return;}
 		if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest) || 0 > newScaleRequest) {
 			return;}
+//		System.err.println(String.format("         => continue"));
 
 		this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 		this.scale = baseScale * userScale;
@@ -128,22 +133,19 @@ public abstract class AbstractScaleFigure extends JPanel {
      * @param visibleBounds the visible bounds to scale this figure to.  
      */
 	public void scaleTo(Dimension visibleBounds) {
-		if( 0 == visibleBounds.getWidth() || 0 == visibleBounds.getHeight())
+//		System.err.println(String.format("     ::scaleTo:    %d x %d", visibleBounds.width, visibleBounds.height));
+		if( 0 >= visibleBounds.getWidth() || 0 >= visibleBounds.getHeight())
 			return;
 
 		updateSubjectDimensions();
+		updateCanvasSize();
+		updateCanvasOrigin();
 
-		// dimensions within the viewable area, which are available to draw
-		final int drawable_width_px = visibleBounds.width - 2 * borderThickness_px.width;
-		final int drawable_height_px = visibleBounds.height - 2 * borderThickness_px.height;
+		final double width_scale = (visibleBounds.width) / ((subjectBounds_m.getWidth() * baseScale) + 2 * borderThickness_px.width);
+		final double height_scale = (visibleBounds.height) / ((subjectBounds_m.getHeight() * baseScale) + 2 * borderThickness_px.height);
+		final double newScale = Math.min(height_scale, width_scale);
 
-		if(( 0 < drawable_width_px ) && ( 0 < drawable_height_px)) {
-			final double width_scale = (drawable_width_px) / ( subjectBounds_m.getWidth() * baseScale);
-			final double height_scale = (drawable_height_px) / ( subjectBounds_m.getHeight() * baseScale);
-			final double minScale = Math.min(height_scale, width_scale);
-
-			scaleTo(minScale, visibleBounds);
-		}
+		scaleTo(newScale, visibleBounds);
 	}
 	
     /**

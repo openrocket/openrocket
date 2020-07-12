@@ -73,18 +73,15 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	public Point getAutoZoomPoint(){
-		final int finFrontLocationPx = originLocation_px.x + (int)(subjectBounds_m.getX()*scale);
-
 		// from canvas top/left
-		final Point zoomPointPx = new Point( Math.max(0, originLocation_px.x + (int)(subjectBounds_m.getX()*scale)),
-											 0 );
+		final Point zoomPointPx = new Point( Math.max(0, (originLocation_px.x - borderThickness_px.width)), 0);
 
-		System.err.println("==>> FinPointFigure.getAutoZoomPoint ==>> " + finset.getName() );
-		System.err.println(String.format("     ::ContentBounds:      %6.4f, %6.4f", contentBounds_m.getX(), contentBounds_m.getY()));
-		System.err.println(String.format("     ::SubjectBounds:      %6.4f, %6.4f", subjectBounds_m.getX(), subjectBounds_m.getY()));
-//		System.err.println(String.format("     ::finRootOffset:       %d, %d", finFrontOffsetPx, finBottomOffsetPx));
-//		System.err.println(String.format("     ::finRootLocation:     %d, %d", finFrontLocationPx, 0));
-		System.err.println(String.format("     ::ZoomPoint:           %d, %d", zoomPointPx.x, zoomPointPx.y));
+//		System.err.println("==>> FinPointFigure.getAutoZoomPoint ==>> " + finset.getName() );
+//		System.err.println(String.format("     ::scale(overall):    %6.4f   ==  %6.4f  x %6.4f", scale, userScale, baseScale));
+//		System.err.println(String.format("     ::ContentBounds(px):   @ %d, %d  [ %d x %d ]", (int)(contentBounds_m.getX()*scale), (int)(contentBounds_m.getY()*scale), (int)(contentBounds_m.getWidth()*scale), (int)(contentBounds_m.getHeight()*scale)));
+//		System.err.println(String.format("     ::SubjectBounds(px):   @ %d, %d  [ %d x %d ]", (int)(subjectBounds_m.getX()*scale), (int)(subjectBounds_m.getY()*scale), (int)(subjectBounds_m.getWidth()*scale), (int)(subjectBounds_m.getHeight()*scale)));
+//		System.err.println(String.format("     ::origin:          @ %d, %d", originLocation_px.x, originLocation_px.y));
+//		System.err.println(String.format("     ::ZoomPoint:       @ %d, %d", zoomPointPx.x, zoomPointPx.y));
 
 		return zoomPointPx;
 	}
@@ -401,12 +398,12 @@ public class FinPointFigure extends AbstractScaleFigure {
 		// this is non-intuitive: it's an offset _from_ the origin(0,0) _to_ the lower-left of the content --
 		// because the canvas is drawn from that lower-left corner of the content, and the fin-front
 		// is fixed-- by definition-- to the origin.
-		final int finFrontPx = (int)(contentBounds_m.getX()*scale);
+		final int finFrontPx = -(int)(contentBounds_m.getX()*scale);  // pixels from left-border to fin-front
 		final int contentHeightPx = (int)(contentBounds_m.getHeight()*scale);
 
-		originLocation_px.x = borderThickness_px.width - finFrontPx;
+		originLocation_px.x = borderThickness_px.width + finFrontPx;
 
-		if( visibleBounds_px.height > (contentHeightPx + 2*borderThickness_px.height)) {
+		if( visibleBounds_px.height > (contentHeightPx + 2*borderThickness_px.height)){
 			originLocation_px.y = getHeight() - mountHeightPx - borderThickness_px.height;
 		}else {
 			originLocation_px.y = borderThickness_px.height + finHeightPx;
