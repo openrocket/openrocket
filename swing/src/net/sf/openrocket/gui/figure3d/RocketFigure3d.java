@@ -317,7 +317,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			
 			gl.glClearColor(1, 1, 1, 1);
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-			
+
+			gl.glEnable(GL.GL_MULTISAMPLE);
 			gl.glEnable(GLLightingFunc.GL_LIGHTING);
 		}
 		rr.render(drawable, configuration, selection);
@@ -325,7 +326,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		drawExtras(gl, glu);
 		drawCarets(gl, glu);
 		
-		//GLJPanel with GLSL Flipper relies on this:
+		// GLJPanel with GLSL Flipper relies on this:
 		gl.glFrontFace(GL.GL_CCW);
 		
 	}

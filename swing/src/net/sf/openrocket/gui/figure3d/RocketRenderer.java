@@ -76,24 +76,16 @@ public abstract class RocketRenderer {
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
 
-		gl.glDisable(GLLightingFunc.GL_LIGHTING);
-
-//		System.err.println(String.format("Picking component at: %d, %d   on canvas: %d", p.x, p.y, drawable.hashCode()));
-
 		// Store a vector of pickable parts.
 		final Map<Integer, RocketComponent> selectionMap = new HashMap<>();
 
-		{
+		Collection<Geometry> geometryList = getTreeGeometry( configuration);
+		for(Geometry geom: geometryList ) {
+			final RocketComponent comp = geom.getComponent();
+			if (ignore != null && ignore.contains(comp))
+				continue;
 
-			// source for components + instances
-			final InstanceMap pickParts = configuration.getActiveInstances();
-			for(final RocketComponent comp : pickParts.keySet() ) {
-
-				if (ignore != null && ignore.contains(comp))
-					continue;
-
-				// Encode the hashCode of the component as a color:
-				// we don't actually care which instance this is, because they all select the same RocketComponent
+			if( geom.active ) {
 				final int hashCode = comp.hashCode();
 
 				selectionMap.put(hashCode, comp);
@@ -103,18 +95,11 @@ public abstract class RocketRenderer {
 							  (byte) ((hashCode >> 8) & 0xFF),  // blue channel
 							  (byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
 
-				// DEBUG
-//				System.err.println(String.format( "        [component: %s]: %s", Integer.toHexString(hashCode), comp.getName()));
-
 				if (isDrawnTransparent(comp)) {
-					cr.getComponentGeometry(comp).render(gl, Surface.INSIDE);
+					geom.render(gl, Surface.INSIDE);
 				} else {
-					cr.getComponentGeometry(comp).render(gl, Surface.ALL);
+					geom.render(gl, Surface.ALL);
 				}
-
-//				for (InstanceContext context : pickParts.getInstanceContexts(comp)) {
-//					System.err.println(String.format("        Instance: %s ", context.instanceNumber, Integer.toHexString(hashCode).toUpperCase()));
-//				}
 			}
 		}
 
@@ -128,13 +113,6 @@ public abstract class RocketRenderer {
 						buffer);  // output buffer
 		final int pixelValue = buffer.getInt();
 		final RocketComponent selected = selectionMap.get(pixelValue);
-
-		// DEBUG
-//		if(null == selected){
-//			System.err.println(String.format("<< read pixel value: %s  ==>>  select: <none>", Integer.toHexString(pixelValue)));
-//		}else{
-//			System.err.println(String.format("<< read pixel value: %s  ==>>  select: %s", Integer.toHexString(pixelValue), selected.getName()));
-//		}
 
 		return selected;
 	}
