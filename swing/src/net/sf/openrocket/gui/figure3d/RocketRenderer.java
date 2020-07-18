@@ -4,9 +4,9 @@ import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -59,50 +59,84 @@ public abstract class RocketRenderer {
 	public abstract boolean isDrawnTransparent(RocketComponent c);
 	
 	public abstract void flushTextureCache(GLAutoDrawable drawable);
-	
-	public RocketComponent pick(GLAutoDrawable drawable, FlightConfiguration configuration, Point p,
-			Set<RocketComponent> ignore) {
+
+	/**
+	 * This function is a bit.... unusual.  Instead of computing an inverse transform from the UI window into design-space,
+	 * this renders each component with a unique identifiable color ... to a dummy, throwaway canvas:
+	 *
+	 * Then, we read the pixel (RGB) color value at a point on the canvas, and use that color to identify the component
+	 *
+	 * @param drawable canvas to draw to
+	 * @param configuration active configuration
+	 * @param p point to select at
+	 * @param ignore list of ignore components
+	 * @return optional (nullable) component selection result
+	 */
+	public RocketComponent pick(GLAutoDrawable drawable, FlightConfiguration configuration, Point p, Set<RocketComponent> ignore) {
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
-		
+
+		gl.glDisable(GLLightingFunc.GL_LIGHTING);
+
+//		System.err.println(String.format("Picking component at: %d, %d   on canvas: %d", p.x, p.y, drawable.hashCode()));
+
 		// Store a vector of pickable parts.
-		final Vector<RocketComponent> pickParts = new Vector<RocketComponent>();
-		
-		for (RocketComponent c : configuration.getActiveComponents()) {
-			if (ignore != null && ignore.contains(c))
-				continue;
-			
-			// Encode the index of the part as a color
-			// if index is 0x0ABC the color ends up as
-			// 0xA0B0C000 with each nibble in the coresponding
-			// high bits of the RG and B channels.
-			gl.glColor4ub((byte) ((pickParts.size() >> 4) & 0xF0), (byte) ((pickParts.size() << 0) & 0xF0),
-					(byte) ((pickParts.size() << 4) & 0xF0), (byte) 1);
-			pickParts.add(c);
-			
-			if (isDrawnTransparent(c)) {
-			    cr.getComponentGeometry(c).render(gl, Surface.INSIDE);
-			} else {
-			    cr.getComponentGeometry(c).render(gl, Surface.ALL);
+		final Map<Integer, RocketComponent> selectionMap = new HashMap<>();
+
+		{
+
+			// source for components + instances
+			final InstanceMap pickParts = configuration.getActiveInstances();
+			for(final RocketComponent comp : pickParts.keySet() ) {
+
+				if (ignore != null && ignore.contains(comp))
+					continue;
+
+				// Encode the hashCode of the component as a color:
+				// we don't actually care which instance this is, because they all select the same RocketComponent
+				final int hashCode = comp.hashCode();
+
+				selectionMap.put(hashCode, comp);
+
+				gl.glColor4ub((byte) ((hashCode >> 24) & 0xFF),  // red channel (LSB)
+							  (byte) ((hashCode >> 16) & 0xFF),  // green channel
+							  (byte) ((hashCode >> 8) & 0xFF),  // blue channel
+							  (byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
+
+				// DEBUG
+//				System.err.println(String.format( "        [component: %s]: %s", Integer.toHexString(hashCode), comp.getName()));
+
+				if (isDrawnTransparent(comp)) {
+					cr.getComponentGeometry(comp).render(gl, Surface.INSIDE);
+				} else {
+					cr.getComponentGeometry(comp).render(gl, Surface.ALL);
+				}
+
+//				for (InstanceContext context : pickParts.getInstanceContexts(comp)) {
+//					System.err.println(String.format("        Instance: %s ", context.instanceNumber, Integer.toHexString(hashCode).toUpperCase()));
+//				}
 			}
 		}
-		
-		ByteBuffer bb = ByteBuffer.allocateDirect(4);
 
 		if (p == null)
 			return null; //Allow pick to be called without a point for debugging
-			
-		gl.glReadPixels(p.x, p.y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, bb);
-		
-		final int pickColor = bb.getInt();
-		final int pickIndex = ((pickColor >> 20) & 0xF00) | ((pickColor >> 16) & 0x0F0) | ((pickColor >> 12) & 0x00F);
-		
-		log.trace("Picked pixel color is {} index is {}", pickColor, pickIndex);
-		
-		if (pickIndex < 0 || pickIndex > pickParts.size() - 1)
-			return null;
-		
-		return pickParts.get(pickIndex);
+
+		final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+		gl.glReadPixels(p.x, p.y, // coordinates of "first" pixel to read
+						1, 1, // width, height of rectangle to read
+						GL.GL_RGBA, GL.GL_UNSIGNED_BYTE,
+						buffer);  // output buffer
+		final int pixelValue = buffer.getInt();
+		final RocketComponent selected = selectionMap.get(pixelValue);
+
+		// DEBUG
+//		if(null == selected){
+//			System.err.println(String.format("<< read pixel value: %s  ==>>  select: <none>", Integer.toHexString(pixelValue)));
+//		}else{
+//			System.err.println(String.format("<< read pixel value: %s  ==>>  select: %s", Integer.toHexString(pixelValue), selected.getName()));
+//		}
+
+		return selected;
 	}
 	
 	public void render(GLAutoDrawable drawable, FlightConfiguration configuration, Set<RocketComponent> selection) {

@@ -285,9 +285,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void display(final GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
-		
-		gl.glEnable(GL.GL_MULTISAMPLE);
-		
+
 		gl.glClearColor(1, 1, 1, 1);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
@@ -295,6 +293,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 		if (pickPoint != null) {
+			gl.glDisable(GL.GL_MULTISAMPLE);
 			gl.glDisable(GLLightingFunc.GL_LIGHTING);
 			
 			final RocketComponent picked = rr.pick(drawable, configuration,
