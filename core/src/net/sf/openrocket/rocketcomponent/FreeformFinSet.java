@@ -203,7 +203,7 @@ public class FreeformFinSet extends FinSet {
 	 * @param yRequest the y-coordinate.
 	 */
 	public void setPoint(final int index, final double xRequest, final double yRequest) {
-
+		final Coordinate revertPoint = points.get(index);
 		if(null != this.getParent()) {
 			final Coordinate prior =  points.get(index);
 			points.set(index, new Coordinate(xRequest, yRequest));
@@ -215,11 +215,9 @@ public class FreeformFinSet extends FinSet {
 
 		update();
 
-		// this maps the last index and the next-to-last-index to the same 'testIndex'
-		int testIndex = Math.min(index, (points.size() - 2));
-		if (intersects(testIndex)) {
+		if (intersects()) {
 			// intersection found!  log error and abort!
-			log.error(String.format("ERROR: found an intersection while setting fin point #%d to [%6.4g, %6.4g] <body frame> : ABORTING setPoint(..) !! ", index, xRequest, yRequest));
+			points.set(index, revertPoint);
 			return;
 		}
 
@@ -395,7 +393,8 @@ public class FreeformFinSet extends FinSet {
 	 */
 	private boolean intersects(final int targetIndex) {
 		if ((points.size() - 2) < targetIndex) {
-			throw new IndexOutOfBoundsException("request validate of non-existent fin edge segment: " + targetIndex + "/" + points.size());
+			log.error("request validation of non-existent fin edge segment: " + targetIndex + "/" + points.size());
+			// throw new IndexOutOfBoundsException("request validate of non-existent fin edge segment: " + targetIndex + "/" + points.size());
 		}
 
 		// (pre-check the indices above.)
@@ -419,9 +418,9 @@ public class FreeformFinSet extends FinSet {
 			
 			final Line2D.Double comparisonLine = new Line2D.Double(pc1, pc2);
 			if (targetLine.intersectsLine(comparisonLine)) {
-				log.error(String.format("Found intersection at %d-%d and %d-%d", targetIndex, targetIndex+1, comparisonIndex, comparisonIndex+1)); 
-				log.error(String.format("                   between (%g, %g) => (%g, %g)", pt1.x, pt1.y, pt2.x, pt2.y)); 
-				log.error(String.format("                       and (%g, %g) => (%g, %g)", pc1.x, pc1.y, pc2.x, pc2.y));
+				log.warn(String.format("Found intersection at %d-%d and %d-%d", targetIndex, targetIndex+1, comparisonIndex, comparisonIndex+1));
+				log.warn(String.format("                   between (%g, %g) => (%g, %g)", pt1.x, pt1.y, pt2.x, pt2.y));
+				log.warn(String.format("                       and (%g, %g) => (%g, %g)", pc1.x, pc1.y, pc2.x, pc2.y));
 				return true;
 			}
 		}

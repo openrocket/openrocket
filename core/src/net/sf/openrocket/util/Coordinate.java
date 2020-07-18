@@ -62,8 +62,8 @@ public final class Coordinate implements Cloneable, Serializable {
 	public static final Coordinate ZERO = new Coordinate(0, 0, 0, 0);
 	public static final Coordinate NUL = new Coordinate(0, 0, 0, 0);
 	public static final Coordinate NaN = new Coordinate(Double.NaN, Double.NaN,Double.NaN, Double.NaN);
-	public static final Coordinate MAX = new Coordinate(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-	public static final Coordinate MIN = new Coordinate(Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE);
+	public static final Coordinate MAX = new Coordinate( Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE,Double.MAX_VALUE);
+	public static final Coordinate MIN = new Coordinate(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE,0.0);
 
 	public static final Coordinate X_UNIT = new Coordinate(1, 0, 0);
 	public static final Coordinate Y_UNIT = new Coordinate(0, 1, 0);

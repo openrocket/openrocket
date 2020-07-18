@@ -550,59 +550,75 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * in the current configuration.
 	 */
 	private void calculateBounds(){
-		BoundingBox bounds = new BoundingBox();
+		BoundingBox rocketBounds = new BoundingBox();
 
 		InstanceMap map = getActiveInstances();
 		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>>  entry : map.entrySet()) {
 			RocketComponent component = entry.getKey();
+			BoundingBox componentBounds = new BoundingBox();
 			List<InstanceContext> contexts = entry.getValue();
-						
-			Collection<Coordinate> coordinates = new ArrayList<Coordinate>();
-			/* FinSets already provide a bounding box, so let's use that.
-			 */
-			if (component instanceof FinSet) {
-				bounds.update(((FinSet) component).getBoundingBox());
+
+			if( ! component.isAerodynamic()){
+				// all non-aerodynamic components should be surrounded by aerodynamic ones
 				continue;
-			} else {
-				coordinates.addAll(component.getComponentBounds());
 			}
-			BoundingBox componentBox = new BoundingBox();
-			List<Coordinate> transformedCoords = new ArrayList<Coordinate>();
-			for (InstanceContext ctxt : contexts) {
-				/*
-				 * If the instance is not active in the current context, then
-				 * skip the bound calculations. This is mildly confusing since
-				 * getActiveInstances() implies that it will only return the
-				 * instances that are active, but it returns all instances and
-				 * the context indicates if it is active or not.
-				 */
-				if (!ctxt.active) {
+
+			// FinSets already provide a bounding box, so let's use that.
+//			System.err.println(String.format("@[%s]: (#%d)", component.getName(), contexts.size()));
+			if (component instanceof BoxBounded) {
+				final BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
+				if(instanceBounds.isEmpty()) {
+					// this component is probably non-physical (like an assembly) or has invalid bounds.  Skip.
 					continue;
 				}
-				for (Coordinate c : coordinates) {
-					Coordinate tc = null;
-					/* These components do not need the transform performed in
-					 * order to provide the proper coordinates for length calculation.
-					 * The transformation will cause the values to be calculated
-					 * incorrectly. This should be fixed in the appropriate places
-					 * not handled as one-offs in here.
+
+				for (InstanceContext context : contexts) {
+					/*
+					 * If the instance is not active in the current context, then
+					 * skip the bound calculations. This is mildly confusing since
+					 * getActiveInstances() implies that it will only return the
+					 * instances that are active, but it returns all instances and
+					 * the context indicates if it is active or not.
 					 */
-					if ((component instanceof AxialStage) || (component instanceof BodyTube) ||
-						(component instanceof PodSet)) {
-						tc = c;
-					} else {
-						tc = ctxt.transform.transform(c);
+					if (!context.active) {
+						// break out of per-instance loop.
+						break;
 					}
-					componentBox.update(tc);
-					transformedCoords.add(tc);
+
+					componentBounds.update(instanceBounds.transform(context.transform));
+				}
+			} else {
+				// Legacy Case: These components do not implement the BoxBounded Interface.
+				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
+				for (InstanceContext context : contexts) {
+					/*
+					 * If the instance is not active in the current context, then
+					 * skip the bound calculations. This is mildly confusing since
+					 * getActiveInstances() implies that it will only return the
+					 * instances that are active, but it returns all instances and
+					 * the context indicates if it is active or not.
+					 */
+					if (!context.active) {
+						continue;
+					}
+
+					Collection<Coordinate> transformedCoords = new ArrayList<>(instanceCoordinates);
+					// mutating.  Transforms coordinates in place.
+					context.transform.transform(instanceCoordinates);
+
+					for (Coordinate tc : transformedCoords) {
+						componentBounds.update(tc);
+					}
 				}
 			}
-			
-			bounds.update(componentBox);
+
+//			System.err.println(String.format("    << global: %s", componentBounds.toString()));
+			rocketBounds.update(componentBounds);
+//			System.err.println(String.format("<<++ rocket: %s", rocketBounds.toString()));
 		}
 		
 		boundsModID = rocket.getModID();
-		cachedLength = bounds.span().x;
+		cachedLength = rocketBounds.span().x;
 		/* Special case for the scenario that all of the stages are removed and are
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently
 		 * so we'll just adjust the length here.  
@@ -610,7 +626,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (getActiveStages().isEmpty()) {
 			cachedLength = 0;
 		}
-		cachedBounds.update( bounds );
+		cachedBounds.update( rocketBounds );
 	}
 	
 	/**

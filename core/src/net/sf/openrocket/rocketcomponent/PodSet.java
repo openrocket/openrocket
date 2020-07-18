@@ -3,11 +3,13 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import jdk.jshell.spi.ExecutionControl;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
@@ -43,35 +45,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		//// Stage
 		return trans.get("PodSet.PodSet");
 	}
-	
-	
-	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
-	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		double x_min = Double.MAX_VALUE;
-		double x_max = Double.MIN_VALUE;
-		double r_max = 0;
-		
-		Coordinate[] instanceLocations = this.getComponentLocations();
-		
-		for (Coordinate currentInstanceLocation : instanceLocations) {
-			if (x_min > (currentInstanceLocation.x)) {
-				x_min = currentInstanceLocation.x;
-			}
-			if (x_max < (currentInstanceLocation.x + this.length)) {
-				x_max = currentInstanceLocation.x + this.length;
-			}
-			if (r_max < (this.getRadiusOffset())) {
-				r_max = this.getRadiusOffset();
-			}
-		}
-		addBound(bounds, x_min, r_max);
-		addBound(bounds, x_max, r_max);
-		
-		return bounds;
-	}
-	
+
 	/**
 	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
@@ -85,7 +59,6 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		return BodyComponent.class.isAssignableFrom(type);
 	}
 
-		
 	@Override
 	public double getInstanceAngleIncrement(){
 		return angleSeparation;

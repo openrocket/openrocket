@@ -25,12 +25,8 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public abstract class FinSet extends ExternalComponent implements RingInstanceable, AxialPositionable {
+public abstract class FinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
 	private static final Translator trans = Application.getTranslator();
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
-	
 
 	/**
 	 * Maximum allowed cant of fins.
@@ -735,37 +731,15 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 	
 
-	public BoundingBox getBoundingBox() {
-		BoundingBox singleFinBounds= new BoundingBox().update(getFinPoints());
-		final double finLength = singleFinBounds.max.x;
-		final double finHeight = singleFinBounds.max.y;
-		
-		Coordinate[] locations = getInstanceLocations();
-		double[] angles = getInstanceAngles();
-		BoundingBox finSetBox = new BoundingBox();
-		
-		/*
-		 * The fins themselves will be offset by the location itself to match
-		 * the outside radius of a body tube. The bounds encapsulate the outer
-		 * portion of all the tips of the fins.
-		 * 
-		 * The height of each fin along the Y axis can be determined by:
-		 * yHeight = cos(angle) * finHeight
-		 * 
-		 * The height (depth?) of each fin along the Z axis can be determined by:
-		 * zHeight = sin(angle) * finHeight
-		 * 
-		 * The boundingBox should be that box which is the smallest box where
-		 * a convex hull will contain all Coordinates.
-		 */
-		for (int i = 0; i < locations.length; i++) {
-			double y = Math.cos(angles[i]) * finHeight;
-			double z = Math.sin(angles[i]) * finHeight;
-			finSetBox.update(locations[i].add(0, y, z));
-			finSetBox.update(locations[i].add(finLength, y, z));
-		}
-		
-		return finSetBox;
+	public BoundingBox getInstanceBoundingBox(){
+		final BoundingBox singleFinBounds = new BoundingBox();
+
+		singleFinBounds.update(getFinPoints());
+
+		singleFinBounds.update(new Coordinate( 0, 0, -this.thickness/2));
+		singleFinBounds.update(new Coordinate( 0, 0,  this.thickness/2));
+
+		return singleFinBounds;
 	}
 	
 	/**
@@ -776,7 +750,7 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		Collection<Coordinate> bounds = new ArrayList<>(8);
 		
 		// should simply return this component's bounds in this component's body frame.
 		

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import net.sf.openrocket.util.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ import net.sf.openrocket.util.Coordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class ComponentAssembly extends RocketComponent implements  AxialPositionable {
+public abstract class ComponentAssembly extends RocketComponent implements AxialPositionable, BoxBounded {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAssembly.class);
 	
 	/**
@@ -54,7 +55,7 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	public Collection<Coordinate> getComponentBounds() {
 		return Collections.emptyList();
 	}
-	
+
 	/**
 	 * Null method (ComponentAssembly has no mass of itself).
 	 */
@@ -70,7 +71,9 @@ public abstract class ComponentAssembly extends RocketComponent implements  Axia
 	public double getComponentMass() {
 		return 0;
 	}
-	
+
+	public BoundingBox getInstanceBoundingBox (){ return new BoundingBox(); }
+
 	/**
 	 * Null method (ComponentAssembly has no mass of itself).
 	 */

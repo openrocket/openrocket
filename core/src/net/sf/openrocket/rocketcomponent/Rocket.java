@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -83,7 +83,16 @@ public class Rocket extends ComponentAssembly {
 		configSet = new FlightConfigurableParameterSet<>( defaultConfig );
 		this.selectedConfiguration = defaultConfig;
 	}
-	
+
+	/**
+	 * Return a bounding box enveloping the rocket.  By definition, the bounding box is a convex hull.
+	 *
+	 * Note: this function gets the bounding box for the entire rocket.
+	 *
+	 * @return    Return a bounding box enveloping the rocket
+	 */
+	public BoundingBox getBoundingBox (){ return selectedConfiguration.getBoundingBox(); }
+
 	public String getDesigner() {
 		checkState();
 		return designer;

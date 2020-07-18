@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.util.BoundingBox;
 import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
@@ -58,10 +59,10 @@ public class RocketTest extends BaseTestCase {
 
 	@Test
 	public void testEstesAlphaIII(){
-		Rocket rocket = TestRockets.makeEstesAlphaIII();
-			
-		AxialStage stage= (AxialStage)rocket.getChild(0);
-		
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+
+		final AxialStage stage= (AxialStage)rocket.getChild(0);
+
 		Coordinate expLoc;
 		Coordinate actLoc;
 		{
@@ -136,6 +137,15 @@ public class RocketTest extends BaseTestCase {
 			}
 			
 		}
+
+		final BoundingBox bounds = rocket.getBoundingBox();
+		assertEquals(bounds.min.x, 0.0,  EPSILON);
+		assertEquals(bounds.max.x, 0.27, EPSILON);
+
+		assertEquals( -0.032385640, bounds.min.y, EPSILON);
+		assertEquals( -0.054493575, bounds.min.z, EPSILON);
+		assertEquals(  0.062000000,  bounds.max.y, EPSILON);
+		assertEquals(  0.052893575, bounds.max.z, EPSILON);
 	}
 	
 	@Test 
@@ -270,6 +280,15 @@ public class RocketTest extends BaseTestCase {
 				assertThat(mmt.getName()+" not positioned correctly: ", actLoc, equalTo( expLoc ));
 			}
 		}
+
+		final BoundingBox bounds = rocket.getBoundingBox();
+		assertEquals( bounds.min.x, 0.0,  EPSILON);
+		assertEquals( bounds.max.x, 0.335, EPSILON);
+
+		assertEquals( -0.032385640, bounds.min.y, EPSILON);
+		assertEquals( -0.054493575, bounds.min.z, EPSILON);
+		assertEquals(  0.062000000,  bounds.max.y, EPSILON);
+		assertEquals(  0.052893575, bounds.max.z, EPSILON);
 	}
 	
 	@Test
@@ -389,8 +408,20 @@ public class RocketTest extends BaseTestCase {
 					assertEquals(coreFins.getName()+" location is incorrect: ", 1.044, loc.x, EPSILON);
 				}
 			}
-			
 		}
+
+		// DEBUG
+		System.err.println(rocket.toDebugTree());
+
+		final BoundingBox bounds = rocket.getBoundingBox();
+		assertEquals( 0.0,   bounds.min.x,  EPSILON);
+		assertEquals( 1.364, bounds.max.x, EPSILON);
+
+		assertEquals( -0.215500, bounds.min.y, EPSILON);
+		assertEquals(  0.215500, bounds.max.y, EPSILON);
+
+		assertEquals( -0.12069451, bounds.min.z, EPSILON);
+		assertEquals(  0.12069451, bounds.max.z, EPSILON);
 	}
 
 }
