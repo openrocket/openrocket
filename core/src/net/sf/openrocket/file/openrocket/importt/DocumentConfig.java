@@ -294,6 +294,10 @@ class DocumentConfig {
 				Reflection.findMethod(TubeFinSet.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(TubeFinSet.class, "setOuterRadiusAutomatic", boolean.class)));
+		setters.put("TubeFinSet:instancecount", new IntSetter(
+				Reflection.findMethod(TubeFinSet.class,  "setInstanceCount", int.class)));
+		setters.put("TubeFinSet:angleoffset", new AnglePositionSetter() );
+		setters.put("TubeFinSet:radiusoffset", new RadiusPositionSetter() );
 		
 		// InternalComponent - nothing
 		

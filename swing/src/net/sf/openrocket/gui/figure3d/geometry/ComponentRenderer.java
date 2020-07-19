@@ -318,13 +318,8 @@ public class ComponentRenderer {
 		gl.glPushMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		gl.glRotated(fs.getBaseRotation() * (180.0 / Math.PI), 1, 0, 0);
-		for( int i = 0; i< fs.getFinCount(); i++ ) {
-			gl.glPushMatrix();
-			gl.glTranslated(0, fs.getOuterRadius() + fs.getBodyRadius(), 0);
-			renderTube(gl, which, fs.getOuterRadius(), fs.getInnerRadius(), fs.getLength());
-			gl.glPopMatrix();
-			gl.glRotated(360.0 / fs.getFinCount(), 1, 0, 0);
-		}
+		gl.glTranslated(0, fs.getOuterRadius(), 0);
+		renderTube(gl, which, fs.getOuterRadius(), fs.getInnerRadius(), fs.getLength());
 		gl.glPopMatrix();
 	}
 

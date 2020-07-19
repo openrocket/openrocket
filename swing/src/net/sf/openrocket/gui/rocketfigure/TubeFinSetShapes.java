@@ -35,13 +35,10 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		final double outerRadius = finSet.getOuterRadius();
 		final double length = finSet.getLength();
 		Coordinate[] locations = transformLocations(finSet, transformation);
-		Transformation finRotation = finSet.getFinRotationTransformation();
 
-		Shape[] shapes = new Shape[finSet.getFinCount()];
-		for (int i=0; i < shapes.length; i++) {
-			shapes[i] = new Rectangle2D.Double(locations[0].x, (locations[0].y-outerRadius), length, 2*outerRadius);
-			locations = finRotation.transform(locations);
-		}
+		Shape[] shapes = new Shape[] {
+				new Rectangle2D.Double(locations[0].x, (locations[0].y-outerRadius), length, 2*outerRadius)
+			};
 		
 		return RocketComponentShape.toArray(shapes, component);
 	}
@@ -62,13 +59,10 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		
 		final double outerRadius = finSet.getOuterRadius();
 		Coordinate[] locations = transformLocations(finSet, transformation);
-		Transformation finRotation = finSet.getFinRotationTransformation();
 
-		Shape[] shapes = new Shape[finSet.getFinCount()];
-		for (int i=0; i < shapes.length; i++) {
-			shapes[i] = new Ellipse2D.Double((locations[0].z - outerRadius), (locations[0].y - outerRadius), (2 * outerRadius), (2 * outerRadius));
-			locations = finRotation.transform(locations);
-		}
+		Shape[] shapes = new Shape[] {
+				new Ellipse2D.Double((locations[0].z - outerRadius), (locations[0].y - outerRadius), (2 * outerRadius), (2 * outerRadius))
+			};
 		
 		return RocketComponentShape.toArray(shapes, component);
 	}
@@ -95,13 +89,12 @@ public class TubeFinSetShapes extends RocketComponentShape {
 	private static Coordinate[] transformLocations(final TubeFinSet finSet, final Transformation transformation) {
 		final double outerRadius = finSet.getOuterRadius();
 		final double bodyRadius = finSet.getBodyRadius();
-        Coordinate[] locations = finSet.getComponentLocations();
-		Transformation baseRotation = finSet.getBaseRotationTransformation();
+		Coordinate[] locations = finSet.getInstanceLocations();
 		
 		for (int i=0; i < locations.length; i++) {
-			Coordinate c = locations[i].add(0, (bodyRadius + outerRadius), 0);
-			c = transformation.linearTransform(c);
-			c = baseRotation.transform(c);
+			Coordinate c = locations[i].setX(0.);
+			c = c.sub(0, (bodyRadius - outerRadius), 0);
+			c = transformation.transform(c);
 			locations[i] = c;
 		}
 		
