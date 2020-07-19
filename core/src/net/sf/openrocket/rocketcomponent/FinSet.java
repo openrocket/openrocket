@@ -673,9 +673,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		// (Iyy / M + Izz / M) / 2 = (h^2 + 2 * w^2)/24
 		final double inertia = (h2 + 2 * w2) / 24;
 
-		System.out.println("component " + this);
-		System.out.println("finCount " + finCount);
-		System.out.println("inertia " + inertia);
 		
 		if (finCount == 1)
 			return inertia;
