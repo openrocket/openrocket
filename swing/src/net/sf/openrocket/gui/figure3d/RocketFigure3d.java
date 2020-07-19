@@ -305,7 +305,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 					@Override
 					public void run() {
 						if (picked == null) {
-							log.debug("unselecting");
 							csl.componentClicked(new RocketComponent[] {}, e);
 						} else {
 							csl.componentClicked(new RocketComponent[] { picked }, e);
@@ -566,14 +565,14 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private void setRoll(final double rot) {
 		if (MathUtil.equals(roll, rot))
 			return;
-		this.roll = MathUtil.reduce360(rot);
+		this.roll = MathUtil.reduce2PI(rot);
 		internalRepaint();
 	}
 	
 	private void setYaw(final double rot) {
 		if (MathUtil.equals(yaw, rot))
 			return;
-		this.yaw = MathUtil.reduce360(rot);
+		this.yaw = MathUtil.reduce2PI(rot);
 		internalRepaint();
 	}
 	
