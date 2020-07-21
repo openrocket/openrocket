@@ -312,8 +312,11 @@ public class GUIUtil {
 		window.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				log.debug("Storing size of " + window.getClass().getName() + ": " + window.getSize());
-				((SwingPreferences) Application.getPreferences()).setWindowSize(window.getClass(), window.getSize());
+				final Dimension previousWindowSize = ((SwingPreferences)Application.getPreferences()).getWindowSize(window.getClass());
+				if( ! window.getSize().equals(previousWindowSize)) {
+					log.debug("Storing size of " + window.getClass().getName() + ": " + window.getSize());
+					((SwingPreferences) Application.getPreferences()).setWindowSize(window.getClass(), window.getSize());
+				}
 				if (window instanceof JFrame) {
 					if ((((JFrame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
 						log.debug("Storing maximized state of " + window.getClass().getName());

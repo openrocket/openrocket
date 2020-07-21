@@ -51,6 +51,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.BoundingBox;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
@@ -285,9 +286,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void display(final GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
-		
-		gl.glEnable(GL.GL_MULTISAMPLE);
-		
+
 		gl.glClearColor(1, 1, 1, 1);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
@@ -295,6 +294,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
 		if (pickPoint != null) {
+			gl.glDisable(GL.GL_MULTISAMPLE);
 			gl.glDisable(GLLightingFunc.GL_LIGHTING);
 			
 			final RocketComponent picked = rr.pick(drawable, configuration,
@@ -305,7 +305,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 					@Override
 					public void run() {
 						if (picked == null) {
-							log.debug("unselecting");
 							csl.componentClicked(new RocketComponent[] {}, e);
 						} else {
 							csl.componentClicked(new RocketComponent[] { picked }, e);
@@ -318,7 +317,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			
 			gl.glClearColor(1, 1, 1, 1);
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-			
+
+			gl.glEnable(GL.GL_MULTISAMPLE);
 			gl.glEnable(GLLightingFunc.GL_LIGHTING);
 		}
 		rr.render(drawable, configuration, selection);
@@ -326,7 +326,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		drawExtras(gl, glu);
 		drawCarets(gl, glu);
 		
-		//GLJPanel with GLSL Flipper relies on this:
+		// GLJPanel with GLSL Flipper relies on this:
 		gl.glFrontFace(GL.GL_CCW);
 		
 	}
@@ -468,47 +468,19 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		redrawExtras = true;
 	}
 	
-	@SuppressWarnings("unused")
-	private static class Bounds {
-		double xMin, xMax, xSize;
-		double yMin, yMax, ySize;
-		double zMin, zMax, zSize;
-		double rMax;
-	}
-	
-	private Bounds cachedBounds = null;
+	private BoundingBox cachedBounds = null;
 	
 	/**
 	 * Calculates the bounds for the current configuration
 	 * 
 	 * @return
 	 */
-	private Bounds calculateBounds() {
-		if (cachedBounds != null) {
-			return cachedBounds;
-		} else {
-			final Bounds b = new Bounds();
+	private BoundingBox calculateBounds() {
+		if (cachedBounds == null) {
 			final FlightConfiguration configuration = rkt.getSelectedConfiguration();
-			final Collection<Coordinate> bounds = configuration.getBounds();
-			for (Coordinate c : bounds) {
-				b.xMax = Math.max(b.xMax, c.x);
-				b.xMin = Math.min(b.xMin, c.x);
-				
-				b.yMax = Math.max(b.yMax, c.y);
-				b.yMin = Math.min(b.yMin, c.y);
-				
-				b.zMax = Math.max(b.zMax, c.z);
-				b.zMin = Math.min(b.zMin, c.z);
-				
-				double r = MathUtil.hypot(c.y, c.z);
-				b.rMax = Math.max(b.rMax, r);
-			}
-			b.xSize = b.xMax - b.xMin;
-			b.ySize = b.yMax - b.yMin;
-			b.zSize = b.zMax - b.zMin;
-			cachedBounds = b;
-			return b;
+			cachedBounds = configuration.getBoundingBox();
 		}
+		return cachedBounds;
 	}
 	
 	private void setupView(final GL2 gl, final GLU glu) {
@@ -516,16 +488,16 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION,
 				lightPosition, 0);
-		
+
 		// Get the bounds
-		final Bounds b = calculateBounds();
+		final BoundingBox b = calculateBounds();
 		
 		// Calculate the distance needed to fit the bounds in both the X and Y
 		// direction
 		// Add 10% for space around it.
-		final double dX = (b.xSize * 1.2 / 2.0)
+		final double dX = (b.span().x * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovX / 2.0));
-		final double dY = (b.rMax * 2.0 * 1.2 / 2.0)
+		final double dY = (b.span().y * 2.0 * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovY / 2.0));
 		
 		// Move back the greater of the 2 distances
@@ -535,7 +507,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glRotated(roll * (180.0 / Math.PI), 1, 0, 0);
 		
 		// Center the rocket in the view.
-		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
+		gl.glTranslated(-b.min.x - b.span().x / 2.0, 0, 0);
 		
 		//Change to LEFT Handed coordinates
 		gl.glScaled(1, 1, -1);
@@ -593,14 +565,14 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private void setRoll(final double rot) {
 		if (MathUtil.equals(roll, rot))
 			return;
-		this.roll = MathUtil.reduce360(rot);
+		this.roll = MathUtil.reduce2PI(rot);
 		internalRepaint();
 	}
 	
 	private void setYaw(final double rot) {
 		if (MathUtil.equals(yaw, rot))
 			return;
-		this.yaw = MathUtil.reduce360(rot);
+		this.yaw = MathUtil.reduce2PI(rot);
 		internalRepaint();
 	}
 	
