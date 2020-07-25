@@ -68,7 +68,7 @@ public class TubeFinSet extends ExternalComponent implements RingInstanceable, A
 	}
 	
 	/**
-	 * Return the outer radius of the body tube.
+	 * Return the outer radius of the tube-fin
 	 *
 	 * @return  the outside radius of the tube
 	 */
@@ -104,7 +104,7 @@ public class TubeFinSet extends ExternalComponent implements RingInstanceable, A
 	}
 	
 	/**
-	 * Set the outer radius of the body tube.  If the radius is less than the wall thickness,
+	 * Set the outer radius of the tube-fin.  If the radius is less than the wall thickness,
 	 * the wall thickness is decreased accordingly of the value of the radius.
 	 * This method sets the automatic radius off.
 	 *
