@@ -63,13 +63,13 @@ public class ScaleScrollPane extends JScrollPane
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
 
-	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
-	// n.b. the ruler widths == 20 px
-	private static final int viewportMarginPx = 22;
-
 	// is the subject *currently* being fitting
 	private boolean fit = false;
-	
+
+	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
+    // n.b. it is slightly large than the ruler.width + scrollbar.width
+	final Dimension viewportMarginPx = new Dimension( 40, 40);
+
 	/**
 	 * Create a scale scroll pane.
 	 * 
@@ -103,22 +103,22 @@ public class ScaleScrollPane extends JScrollPane
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
-		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		getHorizontalScrollBar().setUnitIncrement(50);
 		//getHorizontalScrollBar().setBlockIncrement(viewport.getWidth());  // the default value is good
 
-		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		getVerticalScrollBar().setUnitIncrement(50);
 		//getVerticalScrollBar().setBlockIncrement(viewport.getHeight());  // the default value is good
 
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
-		
+
 		figure.addChangeListener( e -> {
 			horizontalRuler.updateSize();
 			verticalRuler.updateSize();
 			if(fit) {
-				final java.awt.Dimension calculatedViewSize = new java.awt.Dimension(getWidth() - viewportMarginPx, getHeight() - viewportMarginPx);
+				final java.awt.Dimension calculatedViewSize = new java.awt.Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
 				figure.scaleTo(calculatedViewSize);
 			}
 		});
@@ -127,7 +127,7 @@ public class ScaleScrollPane extends JScrollPane
 			@Override
 			public void componentResized(ComponentEvent e) {
 				if(fit) {
-					final Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx, getHeight() - viewportMarginPx);
+					final Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
 					figure.scaleTo(calculatedViewSize);
 				}
 				figure.updateFigure();
