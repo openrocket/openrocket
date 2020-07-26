@@ -10,72 +10,55 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 
+/**
+ * The TubeFinSetShapes is used for retrieving shapes of the TubeFins on a
+ * Rocket from multiple view points. The returned shapes will be translated
+ * and transformed to the correct locations for rendering the rocket in the
+ * 2D view space.
+ */
 public class TubeFinSetShapes extends RocketComponentShape {
 	
+	/**
+	 * Returns an array of RocketcomponentShapes that describe the shape of
+	 * the TubeFinSet when viewed from the side of the rocket. TubeFins will
+	 * appear as a Rectangle from the side view
+	 * 
+	 * @param component the TubeFinSet to get the shapes for
+	 * @param transformation the transformation to apply to the shapes
+	 * @return an array of RocketComponentShapes that are used to draw the TubeFinSet from the side.
+	 */
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+		final TubeFinSet finSet = (TubeFinSet) component;
+		final double outerRadius = finSet.getOuterRadius();
+		final double length = finSet.getLength();
+		final Coordinate location = transformation.transform(new Coordinate(0, outerRadius, 0));
 
-		TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
-
-		int fins = finset.getFinCount();
-		double length = finset.getLength();
-		double outerRadius = finset.getOuterRadius();
-		double bodyRadius = finset.getBodyRadius();
-		// old version - Oct, 19 2015
-		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
+		final Shape[] shapes = new Shape[] {
+				new Rectangle2D.Double(location.x, (location.y-outerRadius), length, 2*outerRadius)
+			};
 		
-		// new version
-		Coordinate[] start = transformation.transform( component.getLocations());
-
-		Transformation baseRotation = finset.getBaseRotationTransformation();
-		Transformation finRotation = finset.getFinRotationTransformation();
-
-		// Translate & rotate the coordinates
-		for (int i=0; i<start.length; i++) {
-			start[i] = baseRotation.transform(transformation.transform(start[i].add(0,bodyRadius+outerRadius,0)));
-		}
-
-		//start = baseRotation.transform(start);
-		
-		Shape[] s = new Shape[fins];
-		for (int i=0; i<fins; i++) {
-			s[i] = new Rectangle2D.Double(start[0].x,(start[0].y-outerRadius),length,2*outerRadius);
-			start = finRotation.transform(start);
-		}
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShape.toArray(shapes, component);
 	}
-	
 
+	/**
+	 * Returns an array of RocketComponentShapes that describe the shape of
+	 * the TubeFinSet when viewed from the rear or the rocket. TubeFins will
+	 * appear as an Ellipse/Circle from the back view.
+	 * 
+	 * @param component the TubeFinSet to get the shapes for
+	 * @param transformation the transformation to apply to the shapes
+	 * @return an array of RocketComponentShapes that are used to draw the
+	 *         TubeFinSet from the back
+	 */
 	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
-			
-		TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
-		
-		int fins = finset.getFinCount();
-		double outerradius = finset.getOuterRadius();
-		double bodyradius = finset.getBodyRadius();
-		
-		// old version - Oct, 19 2015
-		//Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
-		//instanceOffsets = component.shiftCoordinates(instanceOffsets);
-		
-		// new version
-		Coordinate[] start = transformation.transform( component.getLocations());
+		final TubeFinSet finSet = (TubeFinSet) component;
+		final double outerRadius = finSet.getOuterRadius();
+		final Coordinate location = transformation.transform(new Coordinate(0, outerRadius, 0));
 
-		Transformation baseRotation = finset.getBaseRotationTransformation();
-		Transformation finRotation = finset.getFinRotationTransformation();
+		final Shape[] shapes = new Shape[] {
+				new Ellipse2D.Double((location.z - outerRadius), (location.y - outerRadius), (2 * outerRadius), (2 * outerRadius))
+			};
 		
-		// Translate & rotate the coordinates
-		for (int i=0; i<start.length; i++) {
-			start[i] = baseRotation.transform(transformation.transform(start[i].add(0,bodyradius+outerradius,0)));
-		}
-
-		Shape[] s = new Shape[fins];
-		for (int i=0; i < fins; i++) {
-			s[i] = new Ellipse2D.Double((start[0].z-outerradius),(start[0].y-outerradius),2*outerradius,2*outerradius);
-			start = finRotation.transform(start);
-		}
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShape.toArray(shapes, component);
 	}
-	
-	
 }
