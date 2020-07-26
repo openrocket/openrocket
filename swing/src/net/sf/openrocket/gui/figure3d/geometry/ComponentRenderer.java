@@ -317,7 +317,6 @@ public class ComponentRenderer {
 	private void renderTubeFins(GL2 gl, TubeFinSet fs, Surface which) {
 		gl.glPushMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		gl.glRotated(fs.getBaseRotation() * (180.0 / Math.PI), 1, 0, 0);
 		gl.glTranslated(0, fs.getOuterRadius(), 0);
 		renderTube(gl, which, fs.getOuterRadius(), fs.getInnerRadius(), fs.getLength());
 		gl.glPopMatrix();
