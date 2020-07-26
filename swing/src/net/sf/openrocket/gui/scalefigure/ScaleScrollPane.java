@@ -62,7 +62,11 @@ public class ScaleScrollPane extends JScrollPane
 	private DoubleModel rulerUnit;
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
-	
+
+	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
+	// n.b. the ruler widths == 20 px
+	private static final int viewportMarginPx = 22;
+
 	// is the subject *currently* being fitting
 	private boolean fit = false;
 	
@@ -110,27 +114,26 @@ public class ScaleScrollPane extends JScrollPane
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		
-		figure.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-			    horizontalRuler.updateSize();
-				verticalRuler.updateSize();
-				if(fit) { 
-                    figure.scaleTo(viewport.getExtentSize());
-			    }
+		figure.addChangeListener( e -> {
+			horizontalRuler.updateSize();
+			verticalRuler.updateSize();
+			if(fit) {
+				final java.awt.Dimension calculatedViewSize = new java.awt.Dimension(getWidth() - viewportMarginPx, getHeight() - viewportMarginPx);
+				figure.scaleTo(calculatedViewSize);
 			}
 		});
 		
 		viewport.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-			    if(fit) {
-                    figure.scaleTo(viewport.getExtentSize());
-			    }
-                figure.updateFigure();
-			    
-			    horizontalRuler.updateSize();
-                verticalRuler.updateSize();
+				if(fit) {
+					final Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx, getHeight() - viewportMarginPx);
+					figure.scaleTo(calculatedViewSize);
+				}
+				figure.updateFigure();
+
+				horizontalRuler.updateSize();
+				verticalRuler.updateSize();
 			}
 		});
 		
@@ -160,10 +163,8 @@ public class ScaleScrollPane extends JScrollPane
 
 			final Point zoomPoint = figure.getAutoZoomPoint();
 			final Rectangle zoomRectangle = new Rectangle(zoomPoint.x, zoomPoint.y, (int)(view.getWidth()), (int)(view.getHeight()));
-//			System.err.println(String.format("::zoom:  @ %d, %d [ %d x %d ]", zoomRectangle.x, zoomRectangle.y, zoomRectangle.width, zoomRectangle.height));
 			figure.scrollRectToVisible(zoomRectangle);
 
-			figure.invalidate();
 			revalidate();
 		}
 	}
