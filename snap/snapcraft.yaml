@@ -21,13 +21,13 @@ grade: stable
 confinement: strict
 
 plugs:
-  preferences:
+  dot-java-user-prefs:
     interface: personal-files
     read:
-      - $HOME/.java
+      - $HOME/.java/.userPrefs/OpenRocket
     write:
-      - $HOME/.java
-  openrocket-db:
+      - $HOME/.java/.userPrefs/OpenRocket
+  dot-openrocket-db:
     interface: personal-files
     read:
       - $HOME/.openrocket
@@ -44,8 +44,8 @@ apps:
       - network
       - cups-control
       - opengl
-      - preferences
-      - openrocket-db
+      - dot-java-user-prefs
+      - dot-openrocket-db
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
 
@@ -75,9 +75,6 @@ parts:
     override-build: |
       snapcraftctl build
       mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
-    build-packages:
-      # Add gcc as a build package due to bug https://bugs.launchpad.net/snapcraft/+bug/1883392
-      - gcc
     stage-packages:
       - openjdk-11-jre
       - ca-certificates
