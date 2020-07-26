@@ -908,6 +908,8 @@ public class GeneralOptimizationDialog extends JDialog {
 				src.removeChild(0);
 				dest.addChild(c);
 			}
+
+			figure.repaint();
 			
 		} finally {
 			dest.thaw();
