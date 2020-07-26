@@ -12,11 +12,12 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public class TubeFinSet extends ExternalComponent implements RingInstanceable, AxialPositionable {
+public class TubeFinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final static double DEFAULT_RADIUS = 0.025;
@@ -312,6 +313,14 @@ public class TubeFinSet extends ExternalComponent implements RingInstanceable, A
 		addBound(bounds, length, 2 * (r + outerRadius));
 		
 		return bounds;
+	}
+	
+	@Override
+	public BoundingBox getInstanceBoundingBox() {
+		BoundingBox box = new BoundingBox();
+		box.update(new Coordinate(0, -outerRadius, -outerRadius));
+		box.update(new Coordinate(length, outerRadius, outerRadius));
+		return box;
 	}
 	
 	/**
