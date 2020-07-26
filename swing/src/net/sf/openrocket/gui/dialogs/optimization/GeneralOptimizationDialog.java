@@ -249,7 +249,8 @@ public class GeneralOptimizationDialog extends JDialog {
 				return selectedModifiers.get(row).getUnitGroup();
 			}
 		});
-		
+		selectedModifierTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
 		disableComponents.add(selectedModifierTable);
 		
 		selectedModifierTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -291,6 +292,9 @@ public class GeneralOptimizationDialog extends JDialog {
 				} else {
 					log.error("Attempting to add simulation modifier when none is selected");
 				}
+				if (selectedModifierTable.isEditing()) {
+					selectedModifierTable.getCellEditor().stopCellEditing();
+				}
 			}
 		});
 		disableComponents.add(addButton);
@@ -306,6 +310,11 @@ public class GeneralOptimizationDialog extends JDialog {
 					log.error("Attempting to remove simulation modifier when none is selected");
 					return;
 				}
+
+				if (selectedModifierTable.isEditing()) {
+					selectedModifierTable.getCellEditor().stopCellEditing();
+				}
+
 				removeModifier(mod);
 				clearHistory();
 			}
