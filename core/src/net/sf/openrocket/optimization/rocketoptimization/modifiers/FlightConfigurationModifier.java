@@ -70,8 +70,8 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 					+ " with correct ID");
 		}
 		
-		FlightConfigurableParameterSet<E> configs = (FlightConfigurableParameterSet<E>) configGetter.invoke(c);
-		return configs.get(simulation.getRocket().getSelectedConfiguration().getFlightConfigurationID());
+		FlightConfigurableParameterSet<E> configSet = (FlightConfigurableParameterSet<E>) configGetter.invoke(c);
+		return configSet.get(simulation.getRocket().getSelectedConfiguration().getFlightConfigurationID());
 	}
 	
 }

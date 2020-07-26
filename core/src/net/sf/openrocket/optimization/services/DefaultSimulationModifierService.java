@@ -215,7 +215,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						trans.get("optimization.modifier.internalcomponent.position"),
 						trans.get("optimization.modifier.internalcomponent.position.desc"),
 						c, UnitGroup.UNITS_LENGTH,
-						1.0, c.getClass(), c.getID(), "AxialMethod");
+						1.0, c.getClass(), c.getID(), "AxialOffset");
 				mod.setMinValue(0);
 				mod.setMaxValue(parent.getLength());
 				modifiers.add(mod);
@@ -229,7 +229,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						trans.get("optimization.modifier.finset.position"),
 						trans.get("optimization.modifier.finset.position.desc"),
 						c, UnitGroup.UNITS_LENGTH,
-						1.0, c.getClass(), c.getID(), "AxialMethod");
+						1.0, c.getClass(), c.getID(), "AxialOffset");
 				mod.setMinValue(0);
 				mod.setMaxValue(parent.getLength());
 				modifiers.add(mod);
@@ -243,7 +243,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						trans.get("optimization.modifier.launchlug.position"),
 						trans.get("optimization.modifier.launchlug.position.desc"),
 						c, UnitGroup.UNITS_LENGTH,
-						1.0, c.getClass(), c.getID(), "AxialMethod");
+						1.0, c.getClass(), c.getID(), "AxialOffset");
 				mod.setMinValue(0);
 				mod.setMaxValue(parent.getLength());
 				modifiers.add(mod);
@@ -260,7 +260,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						1.0,
 						c.getClass(),
 						c.getID(),
-						"DeploymentConfiguration",
+						"DeploymentConfigurations",
 						DeploymentConfiguration.class,
 						"DeployDelay");
 				
@@ -276,7 +276,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						1.0,
 						c.getClass(),
 						c.getID(),
-						"DeploymentConfiguration",
+						"DeploymentConfigurations",
 						DeploymentConfiguration.class,
 						"DeployAltitude") {
 					

@@ -84,7 +84,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
+
 	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {
 		return deploymentConfigurations;
 	}

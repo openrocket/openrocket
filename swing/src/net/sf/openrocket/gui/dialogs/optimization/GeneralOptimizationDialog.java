@@ -138,7 +138,7 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final DescriptionArea selectedModifierDescription;
 	private final SimulationModifierTree availableModifierTree;
 	
-	private final JComboBox<String> simulationSelectionCombo;
+	private final JComboBox<Named<Simulation>> simulationSelectionCombo;
 	private final JComboBox<Named<OptimizableParameter>> optimizationParameterCombo;
 	
 	private final JComboBox<?> optimizationGoalCombo;
@@ -378,7 +378,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		simulationSelectionCombo = new JComboBox<String>();
+		simulationSelectionCombo = new JComboBox<Named<Simulation>>();
 		simulationSelectionCombo.setToolTipText(tip);
 		populateSimulations();
 		simulationSelectionCombo.addActionListener(clearHistoryActionListener);
@@ -976,9 +976,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		Simulation sim = new Simulation(rocket);
 		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
 		simulations.add(new Named<Simulation>(sim, name));
-		
-		
-		simulationSelectionCombo.setModel(new DefaultComboBoxModel<String>((String[])simulations.toArray()));
+
+		simulationSelectionCombo.setModel(new DefaultComboBoxModel<Named<Simulation>>(new Vector<>(simulations)));
 		simulationSelectionCombo.setSelectedIndex(0);
 		if (current != null) {
 			for (int i = 0; i < simulations.size(); i++) {

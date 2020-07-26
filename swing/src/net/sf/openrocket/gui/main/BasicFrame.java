@@ -708,18 +708,17 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-// TODO: reimplement this dialog
-//		//// Optimize
-//		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
-//		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
-//		item.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				log.info(Markers.USER_MARKER, "Rocket optimization selected");
-//				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
-//			}
-//		});
-//		menu.add(item);
+		//// Optimize
+		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Rocket optimization selected");
+				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
 
 		//// Custom expressions
 		item = new JMenuItem(trans.get("main.menu.analyze.customExpressions"), KeyEvent.VK_E);
