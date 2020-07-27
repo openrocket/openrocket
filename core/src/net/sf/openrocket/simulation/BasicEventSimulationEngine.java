@@ -162,6 +162,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// Avoid sinking into ground before liftoff
 					if (relativePosition.z < 0) {
 						currentStatus.setRocketPosition(origin);
+						relativePosition = Coordinate.ZERO;
 						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
@@ -181,7 +182,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				
 				// Check for launch guide clearance
-				if (!currentStatus.isLaunchRodCleared() &&
+				if (currentStatus.isLiftoff() &&
+					!currentStatus.isLaunchRodCleared() &&
 						relativePosition.length() > currentStatus.getSimulationConditions().getLaunchRodLength()) {
 					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
 				}
