@@ -564,7 +564,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			}
 
 			// FinSets already provide a bounding box, so let's use that.
-//			System.err.println(String.format("@[%s]: (#%d)", component.getName(), contexts.size()));
 			if (component instanceof BoxBounded) {
 				final BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
 				if(instanceBounds.isEmpty()) {
@@ -612,9 +611,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 			}
 
-//			System.err.println(String.format("    << global: %s", componentBounds.toString()));
 			rocketBounds.update(componentBounds);
-//			System.err.println(String.format("<<++ rocket: %s", rocketBounds.toString()));
 		}
 		
 		boundsModID = rocket.getModID();
@@ -623,7 +620,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently
 		 * so we'll just adjust the length here.  
 		 */
-		if (getActiveStages().isEmpty()) {
+		if (rocketBounds.isEmpty()) {
 			cachedLength = 0;
 		}
 		cachedBounds.update( rocketBounds );
