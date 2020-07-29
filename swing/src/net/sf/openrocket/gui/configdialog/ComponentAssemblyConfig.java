@@ -18,7 +18,6 @@ import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
@@ -85,7 +84,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		JLabel countLabel = new JLabel(trans.get("StageConfig.parallel.count"));
 		motherPanel.add( countLabel, "align left");
 		
-		IntegerModel countModel = new IntegerModel( boosters, "InstanceCount", 2);
+		IntegerModel countModel = new IntegerModel( boosters, "InstanceCount", 1);
 		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
 		countSpinner.setEditor(new SpinnerEditor(countSpinner));
 		motherPanel.add(countSpinner, "growx 1, wrap");
