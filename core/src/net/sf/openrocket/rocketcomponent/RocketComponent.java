@@ -1930,7 +1930,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	protected static final double ringMass(double outerRadius, double innerRadius,
 			double length, double density) {
-		return Math.PI * (MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius)) *
+		return Math.PI * Math.max(MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius),0) *
 				length * density;
 	}
 	
