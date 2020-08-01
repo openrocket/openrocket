@@ -71,7 +71,8 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
-		setLayout(new MigLayout("fill, gap 5!, ins panel", "[]:5[]", "[growprio 10]10![fill, grow, growprio 500]10![growprio 10]"));
+		setLayout(new MigLayout("fill, gap 4!, ins panel", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
+
 		this.document = document;
 		this.component = component;
 		
@@ -79,7 +80,7 @@ public class RocketComponentConfig extends JPanel {
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
 		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(label, "spanx, height 50!, split");
+		this.add(label, "spanx, height 32!, split");
 		
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
@@ -126,8 +127,8 @@ public class RocketComponentConfig extends JPanel {
 			this.remove(buttonPanel);
 		}
 		
-		buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
-		
+		buttonPanel = new JPanel(new MigLayout("fillx, ins 5"));
+
 		//// Mass:
 		infoLabel = new StyledLabel(" ", -1);
 		buttonPanel.add(infoLabel, "growx");
@@ -148,7 +149,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		updateFields();
 		
-		this.add(buttonPanel, "newline, spanx, growx, height 50!");
+		this.add(buttonPanel, "newline, spanx, growx, height 32!");
 	}
 	
 	
