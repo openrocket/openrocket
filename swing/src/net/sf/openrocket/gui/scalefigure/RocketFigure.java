@@ -1,7 +1,14 @@
 package net.sf.openrocket.gui.scalefigure;
 
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -443,17 +450,17 @@ public class RocketFigure extends AbstractScaleFigure {
 	 */
 	@Override
 	protected void updateCanvasOrigin() {
-	    final int subjectFront = (int)(subjectBounds_m.getMinX()*scale);
-	    final int subjectWidth = (int)(subjectBounds_m.getWidth()*scale);
+		final int subjectWidth = (int)(subjectBounds_m.getWidth()*scale);
 	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
+	    final int mid_x = (Math.max(getWidth(), subjectWidth) / 2);
 	    
 	    if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
-	        final int newOriginX = borderThickness_px.width + Math.max(getWidth(), subjectWidth + 2*borderThickness_px.width)/ 2;	        
+	        final int newOriginX = mid_x;
 	        final int newOriginY = borderThickness_px.height + getHeight() / 2;
 
 	        originLocation_px = new Point(newOriginX, newOriginY);
     	}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
-            final int newOriginX = borderThickness_px.width - subjectFront;
+    		final int newOriginX = mid_x - (int) ((subjectBounds_m.getWidth() * scale) / 2);
     	    final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
     	    originLocation_px = new Point(newOriginX, newOriginY);
     	}

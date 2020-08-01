@@ -14,13 +14,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Rectangle2D;
-import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -29,9 +26,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StateChangeListener;
 
 
 
