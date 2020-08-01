@@ -934,11 +934,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// no change.
 			return;
 		}
-		
-		// this variable does not change the internal representation
+
+		// this variable changes the internal representation, but not the physical position
 		// the relativePosition (method) is just the lens through which external code may view this component's position. 
 		this.axialMethod = newAxialMethod;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		this.axialOffset = getAxialOffset(newAxialMethod);
+
+		// // this doesn't cause any physical change-- just how it's described.
+		// fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	/**

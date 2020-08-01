@@ -55,8 +55,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		sourceSet.setOverrideCGX(0.012);
 		sourceSet.setOverrideMass(0.0123);
 		sourceSet.setOverrideSubcomponents(true);
-		sourceSet.setAxialOffset(0.1);
 		sourceSet.setAxialMethod(AxialMethod.ABSOLUTE);
+		sourceSet.setAxialOffset(0.1);
 		sourceSet.setTabHeight(0.01);
 		sourceSet.setTabLength(0.02);
 		sourceSet.setTabOffsetMethod(AxialMethod.BOTTOM);

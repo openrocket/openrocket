@@ -2,15 +2,18 @@ package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.BoundingBox;
+
+import net.sf.openrocket.util.ArrayList;
 import org.junit.Test;
 
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
@@ -146,6 +149,63 @@ public class RocketTest extends BaseTestCase {
 		assertEquals( -0.054493575, bounds.min.z, EPSILON);
 		assertEquals(  0.062000000,  bounds.max.y, EPSILON);
 		assertEquals(  0.052893575, bounds.max.z, EPSILON);
+	}
+
+
+	@Test
+	public void testChangeAxialMethod(){
+		class AxialPositionTestCase {
+			final public AxialMethod beginMethod;
+			final public double beginOffset;
+			final public AxialMethod endMethod;
+			final public double endOffset;
+			final public double endPosition;
+
+			public AxialPositionTestCase( AxialMethod _begMeth, double _begOffs, AxialMethod _endMeth, double _endOffs, double _endPos){
+				beginMethod = _begMeth;  beginOffset = _begOffs; endMethod = _endMeth; endOffset = _endOffs; endPosition = _endPos;
+			}
+		}
+
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage= (AxialStage)rocket.getChild(0);
+		final BodyTube body = (BodyTube)stage.getChild(1);
+		final FinSet fins = (FinSet) body.getChild(0);
+
+		{ // verify construction:
+			assertEquals("incorrect body length:", 0.20, body.getLength(), EPSILON);
+			assertEquals("incorrect fin length:", 0.05, fins.getLength(), EPSILON);
+			{ // fin #1
+				final Coordinate expLoc = new Coordinate(0.22, 0.012, 0);
+				final Coordinate actLocs[] = fins.getComponentLocations();
+				assertThat(fins.getName() + " not positioned correctly: ", actLocs[0], equalTo(expLoc));
+			}
+		}
+
+		final ArrayList<AxialPositionTestCase> allTestCases = new ArrayList<>(10);
+		allTestCases.add(0, new AxialPositionTestCase(AxialMethod.BOTTOM, 0.0, AxialMethod.TOP,  0.15, 0.15));
+		allTestCases.add(1, new AxialPositionTestCase(AxialMethod.TOP, 0.0, AxialMethod.BOTTOM, -0.15, 0.0));
+		allTestCases.add(2, new AxialPositionTestCase(AxialMethod.BOTTOM, -0.03, AxialMethod.TOP, 0.12, 0.12));
+		allTestCases.add(3, new AxialPositionTestCase(AxialMethod.BOTTOM, 0.03, AxialMethod.TOP, 0.18, 0.18));
+		allTestCases.add(4, new AxialPositionTestCase(AxialMethod.BOTTOM, 0.03, AxialMethod.MIDDLE, 0.105, 0.18));
+		allTestCases.add(5, new AxialPositionTestCase(AxialMethod.MIDDLE, 0.0, AxialMethod.TOP, 0.075, 0.075));
+		allTestCases.add(6, new AxialPositionTestCase(AxialMethod.MIDDLE, 0.0, AxialMethod.BOTTOM, -0.075, 0.075));
+		allTestCases.add(7, new AxialPositionTestCase(AxialMethod.MIDDLE, 0.005, AxialMethod.TOP, 0.08, 0.08));
+
+		for( int caseIndex=0; caseIndex < allTestCases.size(); ++caseIndex ){
+			final AxialPositionTestCase cur = allTestCases.get(caseIndex);
+			// test repositioning
+			fins.setAxialOffset(cur.beginMethod, cur.beginOffset);
+			assertEquals(fins.getName() + " incorrect start axial-position-method: ", fins.getAxialMethod(), cur.beginMethod);
+			assertEquals(fins.getName() + " incorrect start axial-position-value: ", cur.beginOffset, fins.getAxialOffset(), EPSILON);
+
+			{
+				// System.err.println(String.format("## Running Test case # %d :", caseIndex));
+				fins.setAxialMethod(cur.endMethod);
+				assertEquals(String.format(" Test Case # %d // offset doesn't match!", caseIndex), cur.endOffset, fins.getAxialOffset(), EPSILON);
+				assertEquals(String.format(" Test Case # %d // position doesn't match!", caseIndex), cur.endPosition, fins.getPosition().x, EPSILON);
+			}
+		}
+
 	}
 	
 	@Test 
