@@ -1,6 +1,9 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.EventObject;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -123,20 +126,27 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
 		//// Position relative to:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));  // (note re-uses the label from LaunchLug, because they're the same
 		
-	      final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-	      final JComboBox<AxialMethod> methodCombo = new JComboBox<AxialMethod>( methodModel );
-		panel.add(methodCombo, "spanx, growx, wrap");
-		
+		final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
+		panel.add(axialMethodCombo, "spanx, growx, wrap");
+
 		//// plus
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.plus")), "right");
 		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
+		final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+		spin = new JSpinner(axialOffsetModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-		
+
+		axialMethodCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				axialOffsetModel.stateChanged(new EventObject(e));
+			}
+		});
+
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
