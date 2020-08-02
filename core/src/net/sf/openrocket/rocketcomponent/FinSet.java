@@ -6,9 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 
@@ -949,7 +946,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	@Override
 	public void setAngleOffset(final double angleRadians) {
-		final double reducedAngle = MathUtil.reducePI(angleRadians);
+		final double reducedAngle = MathUtil.reducePi(angleRadians);
 		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
 		firstFinOffsetRadians = reducedAngle;
@@ -974,7 +971,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 		double[] result = new double[ getFinCount()]; 
 		for( int finNumber=0; finNumber < getFinCount(); ++finNumber ){
-			result[finNumber] = MathUtil.reduce2PI( firstFinOffsetRadians + angleIncrementRadians*finNumber);
+			result[finNumber] = MathUtil.reduce2Pi( firstFinOffsetRadians + angleIncrementRadians*finNumber);
 		}
 		
 		return result;

@@ -22,7 +22,7 @@ public class WorldCoordinate {
 	 */
 	public WorldCoordinate(double lat, double lon, double alt) {
 		this.lat = MathUtil.clamp(Math.toRadians(lat), -Math.PI / 2, Math.PI / 2);
-		this.lon = MathUtil.reduce180(Math.toRadians(lon));
+		this.lon = MathUtil.reducePi(Math.toRadians(lon));
 		this.alt = alt;
 	}
 	

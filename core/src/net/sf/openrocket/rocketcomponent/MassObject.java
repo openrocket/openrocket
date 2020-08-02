@@ -96,7 +96,7 @@ public abstract class MassObject extends InternalComponent {
 	}
 	
 	public final void setRadialDirection(double radialDirection) {
-		radialDirection = MathUtil.reduce180(radialDirection);
+		radialDirection = MathUtil.reducePi(radialDirection);
 		if (MathUtil.equals(this.radialDirection, radialDirection)) {
 			return;
 		}

@@ -100,7 +100,7 @@ public class CompassSelectionButton extends FlatButton implements Resettable {
 	private String getLabel(double value) {
 		String str;
 		
-		value = MathUtil.reduce360(value);
+		value = MathUtil.reduce2Pi(value);
 		value = Math.toDegrees(value);
 		str = "" + Math.round(value) + Chars.DEGREE + " (";
 		

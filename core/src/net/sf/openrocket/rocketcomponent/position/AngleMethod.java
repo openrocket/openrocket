@@ -35,7 +35,7 @@ public enum AngleMethod implements DistanceMethod {
 		
 		@Override
 		public double getAngle( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
-			double combinedAngle = MathUtil.reduce2PI( parentComponent.getAngleOffset() + requestedOffset );
+			double combinedAngle = MathUtil.reduce2Pi( parentComponent.getAngleOffset() + requestedOffset );
 			
 			if( Math.PI > combinedAngle ) {
 				combinedAngle = - ( combinedAngle - Math.PI); 

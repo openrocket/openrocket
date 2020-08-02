@@ -77,7 +77,7 @@ public class CompassSelector extends CompassPointer {
 		double distance = Math.hypot(x, y);
 		
 		double theta = Math.atan2(y, x);
-		theta = MathUtil.reduce360(theta + Math.PI / 2);
+		theta = MathUtil.reduce2Pi(theta + Math.PI / 2);
 		
 		// Round the value appropriately
 		theta = Math.toDegrees(theta);
