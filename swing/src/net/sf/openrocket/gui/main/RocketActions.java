@@ -311,6 +311,8 @@ public class RocketActions {
 			if (isDeletable(c)) {
 				ComponentConfigDialog.hideDialog();
 
+				c.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
+
 				document.addUndoPosition("Delete " + c.getComponentName());
 				delete(c);
 			}
