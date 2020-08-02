@@ -203,24 +203,11 @@ public class MathUtil {
 	 * @param x  Original angle.
 	 * @return   The equivalent angle in the range 0 ... 2*PI.
 	 */
-    public static double reduce2PI(double x) {
-    	double d = Math.floor(x / (2 * Math.PI));
-    	return x - d * 2 * Math.PI;
-    }
-	
-
-	/**
-	 * Reduce the angle x to the range 0 - 2*PI.
-	 * 
-	 * @deprecated function refers to units:degrees, but operates in units:radians. Please use 'MathUtil.reduce2PI'
-     * @param x  Original angle.
-	 * @return   The equivalent angle in the range 0 ... 2*PI.
-	 */
-    @Deprecated
-    public static double reduce360(double x) {
+	public static double reduce2Pi(double x) {
 		double d = Math.floor(x / (2 * Math.PI));
 		return x - d * 2 * Math.PI;
 	}
+
 
 	/**
 	 * Return the square root of a value.  If the value is negative, zero is returned.

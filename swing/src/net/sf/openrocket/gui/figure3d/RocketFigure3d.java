@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -565,14 +564,14 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private void setRoll(final double rot) {
 		if (MathUtil.equals(roll, rot))
 			return;
-		this.roll = MathUtil.reduce2PI(rot);
+		this.roll = MathUtil.reduce2Pi(rot);
 		internalRepaint();
 	}
 	
 	private void setYaw(final double rot) {
 		if (MathUtil.equals(yaw, rot))
 			return;
-		this.yaw = MathUtil.reduce2PI(rot);
+		this.yaw = MathUtil.reduce2Pi(rot);
 		internalRepaint();
 	}
 	

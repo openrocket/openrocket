@@ -233,7 +233,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	public void setLaunchRodDirection(double launchRodDirection) {
-		launchRodDirection = MathUtil.reduce360(launchRodDirection);
+		launchRodDirection = MathUtil.reduce2Pi(launchRodDirection);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_DIRECTION, Math.PI / 2.0), launchRodDirection))
 			return;
 		this.putDouble(LAUNCH_ROD_DIRECTION, launchRodDirection);
@@ -267,7 +267,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	public void setWindDirection(double direction) {
-		direction = MathUtil.reduce360(direction);
+		direction = MathUtil.reduce2Pi(direction);
 		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
 			this.setLaunchRodDirection(direction);
 		}

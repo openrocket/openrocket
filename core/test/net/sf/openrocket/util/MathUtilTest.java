@@ -71,11 +71,11 @@ public class MathUtilTest {
 	
 	@Test
 	public void reduceTest() {
-		
+
 		for (int i = -1000; i < 1000; i++) {
 			double angle = Math.random() * 2 * PI;
 			double shift = angle + i * 2 * PI;
-			assertEquals(angle, MathUtil.reduce360(shift), EPS);
+			assertEquals(angle, MathUtil.reduce2Pi(shift), EPS);
 		}
 		
 		for (int i = -1000; i < 1000; i++) {

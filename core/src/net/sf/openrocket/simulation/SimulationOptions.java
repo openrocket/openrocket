@@ -128,7 +128,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	public void setLaunchRodDirection(double launchRodDirection) {
-		launchRodDirection = MathUtil.reduce360(launchRodDirection);
+		launchRodDirection = MathUtil.reduce2Pi(launchRodDirection);
 		if (MathUtil.equals(this.launchRodDirection, launchRodDirection))
 			return;
 		this.launchRodDirection = launchRodDirection;
@@ -189,7 +189,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	
 	public void setWindDirection(double direction) {
-		direction = MathUtil.reduce360(direction);
+		direction = MathUtil.reduce2Pi(direction);
 		if (launchIntoWind) {
 			this.setLaunchRodDirection(direction);
 		}
