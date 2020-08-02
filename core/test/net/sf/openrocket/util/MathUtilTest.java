@@ -81,7 +81,7 @@ public class MathUtilTest {
 		for (int i = -1000; i < 1000; i++) {
 			double angle = Math.random() * 2 * PI - PI;
 			double shift = angle + i * 2 * PI;
-			assertEquals(angle, MathUtil.reduce180(shift), EPS);
+			assertEquals(angle, MathUtil.reducePi(shift), EPS);
 		}
 		
 	}

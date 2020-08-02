@@ -192,7 +192,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setAngleOffset(final double angle_rad) {
 		mutex.verify();
-		this.angleOffset_rad = MathUtil.reduce180( angle_rad);
+		this.angleOffset_rad = MathUtil.reducePi( angle_rad);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 		

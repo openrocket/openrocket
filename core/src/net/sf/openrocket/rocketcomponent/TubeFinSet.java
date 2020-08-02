@@ -373,7 +373,7 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 
 	@Override
 	public void setAngleOffset(double angleRadians) {
-		final double reducedAngle = MathUtil.reducePI(angleRadians);
+		final double reducedAngle = MathUtil.reducePi(angleRadians);
 		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
 		firstFinOffsetRadians = reducedAngle;

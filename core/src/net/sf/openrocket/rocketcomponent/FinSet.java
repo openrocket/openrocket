@@ -949,7 +949,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	@Override
 	public void setAngleOffset(final double angleRadians) {
-		final double reducedAngle = MathUtil.reducePI(angleRadians);
+		final double reducedAngle = MathUtil.reducePi(angleRadians);
 		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
 		firstFinOffsetRadians = reducedAngle;
