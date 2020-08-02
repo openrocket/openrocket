@@ -185,7 +185,7 @@ public abstract class AbstractScaleFigure extends JPanel {
      * Updates the figure shapes and figure size.
      */
     public void updateFigure() {
-        log.trace(String.format("____ Updating %s to: %g user scale, %g overall scale", this.getClass().getSimpleName(), this.getAbsoluteScale(), this.scale));
+        log.trace(String.format("____ Updating %s to: %g user scale, %g overall scale", this.getClass().getSimpleName(), this.userScale, this.scale));
         
         updateSubjectDimensions();
         updateCanvasSize();

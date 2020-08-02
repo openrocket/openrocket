@@ -392,7 +392,11 @@ public class ScaleDialog extends JDialog {
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				final Rocket rocket = document.getRocket();
+				rocket.enableEvents(false);
 				doScale();
+				rocket.enableEvents(true);
 
 				ScaleDialog.this.document.getRocket().fireComponentChangeEvent( ComponentChangeEvent.AEROMASS_CHANGE);
 

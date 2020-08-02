@@ -179,8 +179,7 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		if (1 == instanceCount ) {
 			cg = new Coordinate( length/2, 0, 0, instanceMass );
 		}else{
-			Coordinate offsets[] = getInstanceOffsets();
-			for( Coordinate c : offsets) {
+			for( Coordinate c : getInstanceOffsets() ) {
 				c = c.setWeight( instanceMass );
 				cg = cg.average(c); 
 			}
