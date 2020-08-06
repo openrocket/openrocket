@@ -12,10 +12,8 @@ public class GroundStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(GroundStepper.class);
 	
 	@Override
-	public SimulationStatus initialize(SimulationStatus original) {
+	public SimulationStatus initialize(SimulationStatus status) {
 		log.trace("initializing GroundStepper");
-		SimulationStatus status = new SimulationStatus(original);
-
 		return status;
 	}
 
