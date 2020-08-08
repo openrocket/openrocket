@@ -45,30 +45,31 @@ public abstract class MotorFilterPanel extends JPanel {
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static Hashtable<Integer,JLabel> diameterLabels = new Hashtable<Integer,JLabel>();
-	private static double[] diameterValues = new double[] {
-		0,
-		.013,
-		.018,
-		.024,
-		.029,
-		.038,
-		.054,
-		.075,
-		.098,
+	private static final Hashtable<Integer,JLabel> diameterLabels = new Hashtable<Integer,JLabel>();
+	private static final double[] motorDiameters = new double[] {
+		0.0,
+		0.013,
+		0.018,
+		0.024,
+		0.029,
+		0.038,
+		0.054,
+		0.075,
+		0.098,
 		1.000
 	};
-	static {
-		for( int i = 0; i< diameterValues.length; i++ ) {
-			if( i == diameterValues.length-1) {
-				diameterLabels.put( i, new JLabel("+"));
-			} else {
-				diameterLabels.put( i, new JLabel(UnitGroup.UNITS_MOTOR_DIMENSIONS.toString(diameterValues[i])));
-			}
+
+	/**
+	 * updates: motorDiameters, diameterLabels
+	 */
+	private static void scaleDiameterLabels(){
+		for( int i = 0; i < motorDiameters.length; i++ ) {
+			diameterLabels.put( i, new JLabel(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toString(motorDiameters[i])));
 		}
+		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
 
-	private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<Integer,JLabel>();
+	final private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<Integer,JLabel>();
 	static {
 		int i =0;
 		for( ImpulseClass impulseClass : ImpulseClass.values() ) {
@@ -87,9 +88,16 @@ public abstract class MotorFilterPanel extends JPanel {
 	private Double mountLength = null;
 	
 	private final JCheckBox limitDiameterCheckBox;
+	final DoubleModel minLengthModel;
+	final JSpinner minLengthSpinner;
+	final UnitSelector minLengthUnitSelect;
+	final DoubleModel maxLengthModel;
+	final JSpinner maxLengthSpinner;
+	final UnitSelector maxLengthUnitSelect;
 	private boolean limitDiameter = false;
 	private Double mountDiameter = null;
-	
+
+
 	// Things we change the label on based on the MotorMount.
 	private final JLabel motorMountDimension;
 	private final MultiSlider lengthSlider;
@@ -97,7 +105,9 @@ public abstract class MotorFilterPanel extends JPanel {
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
 		super(new MigLayout("fill", "[grow]"));
-		this.filter = filter; 
+		this.filter = filter;
+
+		scaleDiameterLabels();
 
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
@@ -187,7 +197,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		this.add(sub,"grow, wrap");
 
-		// Impulse selection
+		// Total Impulse selection
 		{
 			sub = new JPanel(new MigLayout("fill"));
 			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
@@ -225,7 +235,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		GUIUtil.changeFontSize(motorMountDimension, -1);
 		sub.add(motorMountDimension,"growx,wrap");
 
-		// Diameter selection
+		// Motor Dimension selection
 		{
 			sub.add( new JLabel(trans.get("TCMotorSelPan.Diameter")), "split 2, wrap");
 			limitDiameterCheckBox = new JCheckBox( trans.get("TCMotorSelPan.checkbox.limitdiameter"));
@@ -241,7 +251,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			});
 			sub.add( limitDiameterCheckBox, "gapleft para, spanx, growx, wrap" );
 
-			diameterSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, diameterValues.length-1, 0, diameterValues.length-1);
+			diameterSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, diameterLabels.size()-1, 0, diameterLabels.size()-1);
 			diameterSlider.setBounded(true); // thumbs cannot cross
 			diameterSlider.setMajorTickSpacing(1);
 			diameterSlider.setPaintTicks(true);
@@ -250,13 +260,13 @@ public abstract class MotorFilterPanel extends JPanel {
 			diameterSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					int minDiameter = diameterSlider.getValueAt(0);
-					MotorFilterPanel.this.filter.setMinimumDiameter(diameterValues[minDiameter]);
+					final int minDiameter = diameterSlider.getValueAt(0);
+					MotorFilterPanel.this.filter.setMinimumDiameter(motorDiameters[minDiameter]);
 					int maxDiameter = diameterSlider.getValueAt(1);
-					if( maxDiameter == diameterValues.length-1 ) {
+					if( maxDiameter == motorDiameters.length-1 ) {
 						MotorFilterPanel.this.filter.setMaximumDiameter(null);
 					} else {
-						MotorFilterPanel.this.filter.setMaximumDiameter(diameterValues[maxDiameter]);
+						MotorFilterPanel.this.filter.setMaximumDiameter(motorDiameters[maxDiameter]);
 					}
 					onSelectionChanged();
 				}
@@ -284,32 +294,34 @@ public abstract class MotorFilterPanel extends JPanel {
 			sub.add( limitByLengthCheckBox, "gapleft para, spanx, growx, wrap" );
 			
 			
-			final DoubleModel minimumLength = new DoubleModel(filter, "MinimumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
-			final DoubleModel maximumLength = new DoubleModel(filter, "MaximumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
+			minLengthModel = new DoubleModel(filter, "MinimumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
+			maxLengthModel = new DoubleModel(filter, "MaximumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
 
-			JSpinner spin = new JSpinner(minimumLength.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			minimumLength.addChangeListener( new ChangeListener() {
+			minLengthSpinner = new JSpinner(minLengthModel.getSpinnerModel());
+			minLengthSpinner.setEditor(new SpinnerEditor(minLengthSpinner));
+			minLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(0, (int)(1000* minimumLength.getValue())); 
+					lengthSlider.setValueAt(0, (int)(1000* minLengthModel.getValue()));
 				}
 			});
-			sub.add(spin, "split 5, growx");
-			limitByLengthModel.addEnableComponent(spin,false);
-			sub.add(new UnitSelector(minimumLength), "");
+			sub.add(minLengthSpinner, "split 5, growx");
+			limitByLengthModel.addEnableComponent(minLengthSpinner,false);
+			minLengthUnitSelect = new UnitSelector(minLengthModel);
+			sub.add(minLengthUnitSelect, "");
 			
-			spin = new JSpinner(maximumLength.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			maximumLength.addChangeListener( new ChangeListener() {
+			maxLengthSpinner = new JSpinner(maxLengthModel.getSpinnerModel());
+			maxLengthSpinner.setEditor(new SpinnerEditor(maxLengthSpinner));
+			maxLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(1, (int) (1000* maximumLength.getValue()));
+					lengthSlider.setValueAt(1, (int) (1000* maxLengthModel.getValue()));
 				}
 			});
-			sub.add(spin, "growx");
-			limitByLengthModel.addEnableComponent(spin,false);
-			sub.add(new UnitSelector(maximumLength), "wrap");
+			sub.add(maxLengthSpinner, "growx");
+			limitByLengthModel.addEnableComponent(maxLengthSpinner,false);
+			maxLengthUnitSelect = new UnitSelector(maxLengthModel);
+			sub.add(maxLengthUnitSelect, "wrap");
 			
 			lengthSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, 1000, 0, 1000);
 			lengthSlider.setBounded(true); // thumbs cannot cross
@@ -321,9 +333,9 @@ public abstract class MotorFilterPanel extends JPanel {
 				public void stateChanged(ChangeEvent e) {
 					
 					int minLength = lengthSlider.getValueAt(0);
-					minimumLength.setValue(minLength/1000.0);
+					minLengthModel.setValue(minLength/1000.0);
 					int maxLength = lengthSlider.getValueAt(1);
-					maximumLength.setValue(maxLength/1000.0);
+					maxLengthModel.setValue(maxLength/1000.0);
 					onSelectionChanged();
 				}
 			});
@@ -355,6 +367,9 @@ public abstract class MotorFilterPanel extends JPanel {
 	}
 
 	private void setLimitLength( ) {
+		minLengthUnitSelect.setSelectedUnit(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit());
+		maxLengthUnitSelect.setSelectedUnit(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit());
+
 		boolean limitByLength = limitByLengthCheckBox.isSelected();
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
 		if ( mountLength != null  & limitByLength ) {
@@ -364,15 +379,20 @@ public abstract class MotorFilterPanel extends JPanel {
 	
 	private void setLimitDiameter( ) {
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitDiameter", limitDiameter);
+
+		//  motorDiameters, diameterLabels =
+		scaleDiameterLabels();
+		diameterSlider.setLabelTable(diameterLabels);
+
 		if ( limitDiameter && mountDiameter != null) {
 			// find the next largest diameter
 			int i;
-			for( i =0; i< diameterValues.length; i++ ) {
-				if ( mountDiameter< diameterValues[i] - 0.0005 ) {
+			for( i =0; i < motorDiameters.length; i++ ) {
+				if ( mountDiameter < motorDiameters[i] - 0.0005 ) {
 					break;
 				}
 			}
-			if (i >= diameterValues.length ) {
+			if (i >= motorDiameters.length ) {
 				i--;
 			}
 			diameterSlider.setValueAt(1, i-1);

@@ -93,7 +93,12 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		
 		this.pack();
 	}
-	
+
+	public static ComponentConfigDialog getDialog() {
+		return dialog;
+	}
+
+	/**
 	/**
 	 * Return the configurator panel of the current component.
 	 */
