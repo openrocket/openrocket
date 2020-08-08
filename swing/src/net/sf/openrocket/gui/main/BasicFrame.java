@@ -282,6 +282,9 @@ public class BasicFrame extends JFrame {
 
 		tree = new ComponentTree(document);
 		tree.setSelectionModel(componentSelectionModel);
+		if( tree.isSelectionEmpty() ){
+			tree.setSelectionRow(1);
+		}
 
 		// Remove JTree key events that interfere with menu accelerators
 		InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
