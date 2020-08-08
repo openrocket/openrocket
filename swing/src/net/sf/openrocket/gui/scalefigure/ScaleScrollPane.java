@@ -60,11 +60,11 @@ public class ScaleScrollPane extends JScrollPane
 	private Ruler verticalRuler;
 
 	// is the subject *currently* being fitting
-	private boolean fit = false;
+	protected boolean fit = false;
 
 	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
     // n.b. it is slightly large than the ruler.width + scrollbar.width
-	final Dimension viewportMarginPx = new Dimension( 40, 40);
+	final protected Dimension viewportMarginPx = new Dimension( 40, 40);
 
 	private Point2D.Double viewCenter_frac = new Point2D.Double(0.5f, 0.5f);
 

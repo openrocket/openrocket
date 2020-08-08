@@ -76,7 +76,10 @@ public abstract class AbstractScaleFigure extends JPanel {
 		setBackground(Color.WHITE);
 		setOpaque(true);
 	}
-	
+
+	public int getBorderHeight(){ return borderThickness_px.height; }
+	public int getBorderWidth(){ return borderThickness_px.width; }
+
 	public double getUserScale(){
 		return userScale;
 	}

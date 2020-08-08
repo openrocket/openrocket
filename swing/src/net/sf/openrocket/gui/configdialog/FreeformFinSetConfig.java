@@ -1,8 +1,11 @@
 package net.sf.openrocket.gui.configdialog;
 
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -32,6 +35,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import net.sf.openrocket.util.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +78,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private FinPointTableModel tableModel = null;
 	
 	private int dragIndex = -1;
-	
+	private Point dragPoint = null;
+
 	private FinPointFigure figure = null;
-	
+	private ScaleSelector selector;
 	
 	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component) {
 		super(d, component);
@@ -226,11 +231,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		table.addMouseListener(new MouseAdapter() {
 		    @Override
             public void mouseClicked(MouseEvent ev) {
-                figure.setSelectedIndex(table.getSelectedRow());
-                figure.updateFigure();
-            }
+				figure.setSelectedIndex(table.getSelectedRow());
+				figure.updateFigure();
+			}
 
-	    });
+		});
 		JScrollPane tablePane = new JScrollPane(table);
 		
 		JButton scaleButton = new JButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
@@ -270,7 +275,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                     importImage();
                 }
             });
-        ScaleSelector selector = new ScaleSelector(figurePane);
+        selector = new ScaleSelector(figurePane);
         // fit on first start-up
         figurePane.setFitting(true);
         
@@ -390,58 +395,134 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private class FinPointScrollPane extends ScaleScrollPane {
 
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
-		
-		
-		
-		private FinPointScrollPane( final FinPointFigure _figure) {
-			super( _figure);
+
+
+		private FinPointScrollPane(final FinPointFigure _figure) {
+			super(_figure);
 		}
-		
+
 		@Override
 		public void mousePressed(MouseEvent event) {
 			int mods = event.getModifiersEx();
-			
-			final FreeformFinSet finset = (FreeformFinSet)component;
-			
+
+			final FreeformFinSet finset = (FreeformFinSet) component;
+
 			final int pressIndex = getPoint(event);
-			if ( pressIndex >= 0) {
+			if (pressIndex >= 0) {
 				dragIndex = pressIndex;
+				dragPoint = event.getPoint();
+
 				updateFields();
 				return;
 			}
-			
+
 			final int segmentIndex = getSegment(event);
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
 				finset.addPoint(segmentIndex, point);
 
 				dragIndex = segmentIndex;
+				dragPoint = event.getPoint();
+
 				updateFields();
 				return;
 			}
-			
+
 			super.mousePressed(event);
 		}
-		
+
 		@Override
 		public void mouseDragged(MouseEvent event) {
-		    int mods = event.getModifiersEx();
+			int mods = event.getModifiersEx();
 			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
-			
-			Point2D.Double point = getCoordinates(event);
 
-			final FreeformFinSet finset = (FreeformFinSet)component;
+			Point2D.Double point = getCoordinates(event);
+			final FreeformFinSet finset = (FreeformFinSet) component;
 			finset.setPoint(dragIndex, point.x, point.y);
-			
+
+			dragPoint.x = event.getX();
+			dragPoint.y = event.getY();
+
 			updateFields();
+
+			// if point is within borders of figure _AND_ outside borders of the ScrollPane's view:
+			final Rectangle dragRectangle = viewport.getViewRect();
+			final Point canvasPoint = new Point( dragPoint.x + dragRectangle.x, dragPoint.y + dragRectangle.y);
+			if( (figure.getBorderWidth() < canvasPoint.x) && (canvasPoint.x < (figure.getWidth() - figure.getBorderWidth()))
+			    && (figure.getBorderHeight() < canvasPoint.y) && (canvasPoint.y < (figure.getHeight() - figure.getBorderHeight())))
+			{
+				boolean hitBorder = false;
+				if(dragPoint.x < figure.getBorderWidth()){
+					hitBorder = true;
+					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
+				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
+					hitBorder = true;
+					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
+				}
+
+				if (dragPoint.y<figure.getBorderHeight()) {
+					hitBorder = true;
+					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
+				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
+					hitBorder = true;
+					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
+				}
+
+				if (hitBorder) {
+					super.setFitting(false);
+					selector.update();
+					figure.scrollRectToVisible(dragRectangle);
+					revalidate();
+				}
+			}
 		}
-		
+
+		@Override
+		public void componentResized(ComponentEvent e) {
+			if (fit) {
+				// if we're fitting the whole figure in the ScrollPane, the parent behavior is fine
+				super.componentResized(e);
+			} else if (0 > dragIndex) {
+				// if we're not _currently_ dragging a point, the parent behavior is fine
+				super.componentResized(e);
+			} else {
+				// currently dragging a point.
+				// ... and if we drag out-of-bounds, we want to move the viewport to keep up
+				boolean hitBorder = false;
+				final Rectangle dragRectangle = viewport.getViewRect();
+
+				if(dragPoint.x<figure.getBorderWidth()){
+					hitBorder = true;
+					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
+				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
+					hitBorder = true;
+					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
+				}
+
+				if (dragPoint.y<figure.getBorderHeight()) {
+					hitBorder = true;
+					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
+				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
+					hitBorder = true;
+					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
+				}
+
+				if (hitBorder) {
+					super.setFitting(false);
+					selector.update();
+					figure.scrollRectToVisible(dragRectangle);
+					revalidate();
+				}
+			}
+		}
+
 		@Override
 		public void mouseReleased(MouseEvent event) {
 			dragIndex = -1;
+			dragPoint = null;
 			super.mouseReleased(event);
 		}
 		
@@ -453,7 +534,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
                 if ( 0 < clickIndex) {
                     // if ctrl+click, delete point
                     try {
-                        Point2D.Double point = getCoordinates(event);
                         final FreeformFinSet finset = (FreeformFinSet)component;
                         finset.removePoint(clickIndex);
                     } catch (IllegalFinPointException ignore) {
