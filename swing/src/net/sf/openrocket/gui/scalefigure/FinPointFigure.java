@@ -73,17 +73,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	public Point getAutoZoomPoint(){
-		// from canvas top/left
-		final Point zoomPointPx = new Point( Math.max(0, (originLocation_px.x - borderThickness_px.width)), 0);
-
-//		System.err.println("==>> FinPointFigure.getAutoZoomPoint ==>> " + finset.getName() );
-//		System.err.println(String.format("     ::scale(overall):    %6.4f   ==  %6.4f  x %6.4f", scale, userScale, baseScale));
-//		System.err.println(String.format("     ::ContentBounds(px):   @ %d, %d  [ %d x %d ]", (int)(contentBounds_m.getX()*scale), (int)(contentBounds_m.getY()*scale), (int)(contentBounds_m.getWidth()*scale), (int)(contentBounds_m.getHeight()*scale)));
-//		System.err.println(String.format("     ::SubjectBounds(px):   @ %d, %d  [ %d x %d ]", (int)(subjectBounds_m.getX()*scale), (int)(subjectBounds_m.getY()*scale), (int)(subjectBounds_m.getWidth()*scale), (int)(subjectBounds_m.getHeight()*scale)));
-//		System.err.println(String.format("     ::origin:          @ %d, %d", originLocation_px.x, originLocation_px.y));
-//		System.err.println(String.format("     ::ZoomPoint:       @ %d, %d", zoomPointPx.x, zoomPointPx.y));
-
-		return zoomPointPx;
+		return new Point( Math.max(0, (originLocation_px.x - borderThickness_px.width)), 0);
 	}
 
 	@Override

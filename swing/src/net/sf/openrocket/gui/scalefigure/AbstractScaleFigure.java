@@ -106,12 +106,12 @@ public abstract class AbstractScaleFigure extends JPanel {
 	 *  and the figures internal contents are centered according to the figure's origin.
 	 *
 	 * @param newScaleRequest the scale level
-	 * @param visibleBounds the visible bounds upon the Figure
+	 * @param newVisibleBounds the visible bounds upon the Figure
 	 */
-	public void scaleTo(final double newScaleRequest, final Dimension visibleBounds) {
+	public void scaleTo(final double newScaleRequest, final Dimension newVisibleBounds) {
 		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01) &&
-			(visibleBounds_px.width == visibleBounds.width) &&
-			(visibleBounds_px.height == visibleBounds.height) )
+			(visibleBounds_px.width == newVisibleBounds.width) &&
+			(visibleBounds_px.height == newVisibleBounds.height) )
 		{
 			return;}
 		if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest) || 0 > newScaleRequest) {
@@ -119,8 +119,10 @@ public abstract class AbstractScaleFigure extends JPanel {
 
 		this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 		this.scale = baseScale * userScale;
+		updateCanvasOrigin();
 
-		this.visibleBounds_px = visibleBounds;
+		this.visibleBounds_px = newVisibleBounds;
+		updateCanvasSize();
 
 		this.fireChangeEvent();
 	}
@@ -135,8 +137,6 @@ public abstract class AbstractScaleFigure extends JPanel {
 			return;
 
 		updateSubjectDimensions();
-		updateCanvasSize();
-		updateCanvasOrigin();
 
 		final double width_scale = (visibleBounds.width - 2 * borderThickness_px.width) / (subjectBounds_m.getWidth() * baseScale);
 		final double height_scale = (visibleBounds.height - 2 * borderThickness_px.height) / (subjectBounds_m.getHeight() * baseScale);
