@@ -1,6 +1,9 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.EventObject;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -161,17 +164,25 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		{//// Position relative to:
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
 
-			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods);
-			final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>(methodModel);
+			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
+			panel.add(axialMethodCombo, "spanx, growx, wrap");
 
-			panel.add(positionCombo, "spanx, growx, wrap");
 			//// plus
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
 
 			final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 			final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
 			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
+
 			panel.add(axialOffsetSpinner, "growx");
+
+			axialMethodCombo.addActionListener(new ActionListener() {
+												@Override
+												public void actionPerformed(ActionEvent e) {
+													axialOffsetModel.stateChanged(new EventObject(e));
+												}
+											});
 
 			panel.add(new UnitSelector(axialOffsetModel), "growx");
 			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(

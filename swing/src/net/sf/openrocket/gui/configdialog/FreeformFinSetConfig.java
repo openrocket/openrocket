@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -93,106 +94,111 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	private JPanel generalPane() {
 		
-		DoubleModel m;
-		JSpinner spin;
-		
+
 		JPanel mainPanel = new JPanel(new MigLayout("fill"));
 		
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-		
-		
-		////  Number of fins:
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Numberoffins")));
-		
-		IntegerModel im = new IntegerModel(component, "FinCount", 1, 8);
-		
-		spin = new JSpinner(im.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx, wrap");
-		
-		
-		////  Base rotation
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Finrotation")));
-		
-		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
-		
-		
-		
-		////  Fin cant
-		JLabel label = new JLabel(trans.get("FreeformFinSetCfg.lbl.Fincant"));
-		//// The angle that the fins are canted with respect to the rocket body.
-		label.setToolTipText(trans.get("FreeformFinSetCfg.lbl.ttip.Fincant"));
-		panel.add(label);
-		
-		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 40lp");
-		
-		
-		
-		////  Position
-		//// Position relative to:
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
-		
-		JComboBox<AxialMethod> positionCombo = new JComboBox<>( new EnumModel<>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
-		panel.add(positionCombo, "spanx 3, growx, wrap");
-		//// plus
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
-		
-	
+
+		{ ////  Number of fins:
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Numberoffins")));
+
+			final IntegerModel finCountModel = new IntegerModel(component, "FinCount", 1, 8);
+
+			JSpinner spin = new JSpinner(finCountModel.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			panel.add(spin, "growx, wrap");
+		}
+
+		{ ////  Base rotation
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Finrotation")));
+
+			DoubleModel m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+
+			JSpinner spin = new JSpinner(m.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			panel.add(spin, "growx");
+
+			panel.add(new UnitSelector(m), "growx");
+			panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		}
+
+
+		{ ////  Fin cant
+			JLabel label = new JLabel(trans.get("FreeformFinSetCfg.lbl.Fincant"));
+			//// The angle that the fins are canted with respect to the rocket body.
+			label.setToolTipText(trans.get("FreeformFinSetCfg.lbl.ttip.Fincant"));
+			panel.add(label);
+
+			final DoubleModel cantAngleModel = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
+
+			final JSpinner cantAngleSpinner = new JSpinner(cantAngleModel.getSpinnerModel());
+			cantAngleSpinner.setEditor(new SpinnerEditor(cantAngleSpinner));
+			panel.add(cantAngleSpinner, "growx");
+
+			panel.add(new UnitSelector(cantAngleModel), "growx");
+			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 40lp");
+		}
+
+
+		{ ////  Position
+			//// Position relative to:
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
+
+
+			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods);
+			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>(axialMethodModel);
+			panel.add(axialMethodCombo, "spanx 3, growx, wrap");
+
+			//// plus
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
+
+			final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+			final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
+			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
+			panel.add(axialOffsetSpinner, "growx");
+
+			panel.add(new UnitSelector(axialOffsetModel), "growx");
+			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
+
+			axialMethodCombo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					axialOffsetModel.stateChanged(new EventObject(e));
+				}
+			});
+		}
+
 		mainPanel.add(panel, "aligny 20%");
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, height 150lp");
 		
 		
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-		
-		////  Cross section
-		//// Fin cross section:
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
-		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add(sectionCombo, "growx, wrap unrel");
-		
-		
-		////  Thickness:
-		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Thickness")));
-		
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
-		
-		
-		//// Material
-		panel.add(materialPanel(Material.Type.BULK), "span, wrap");
-		
-		panel.add(filletMaterialPanel(), "span, wrap");
 
+
+		{ ////  Cross section
+			//// Fin cross section:
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
+			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+			panel.add(sectionCombo, "growx, wrap unrel");
+
+
+			////  Thickness:
+			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Thickness")));
+
+			final DoubleModel m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+
+			final JSpinner spin = new JSpinner(m.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			panel.add(spin, "growx");
+
+			panel.add(new UnitSelector(m), "growx");
+			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
+		}
+
+		{ //// Material
+			panel.add(materialPanel(Material.Type.BULK), "span, wrap");
+			panel.add(filletMaterialPanel(), "span, wrap");
+		}
 		
 		mainPanel.add(panel, "aligny 20%");
 		

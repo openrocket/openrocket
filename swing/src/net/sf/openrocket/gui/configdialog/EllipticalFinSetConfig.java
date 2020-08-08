@@ -1,6 +1,9 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.EventObject;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -110,25 +113,32 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		////  Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Positionrelativeto")));
-		
-		JComboBox<AxialMethod> positionCombo= new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
-		panel.add(positionCombo, "spanx, growx, wrap");
+
+		final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
+		panel.add(axialMethodCombo, "spanx, growx, wrap");
 		
 		//// plus
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.plus")), "right");
 		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
+		final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+		spin = new JSpinner(axialOffsetModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+
+		axialMethodCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				axialOffsetModel.stateChanged(new EventObject(e));
+			}
+		});
+
+		panel.add(new UnitSelector(axialOffsetModel), "growx");
+		panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
-		
-		
+
 		
 		//// Right portion
 		mainPanel.add(panel, "aligny 20%");
