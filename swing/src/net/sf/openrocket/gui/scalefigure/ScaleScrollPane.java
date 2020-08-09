@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.scalefigure;
 
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -10,12 +9,12 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Point2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -66,6 +65,8 @@ public class ScaleScrollPane extends JScrollPane
 	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
     // n.b. it is slightly large than the ruler.width + scrollbar.width
 	final Dimension viewportMarginPx = new Dimension( 40, 40);
+
+	private Point2D.Double viewCenter_frac = new Point2D.Double(0.5f, 0.5f);
 
 	/**
 	 * Create a scale scroll pane.
@@ -153,12 +154,16 @@ public class ScaleScrollPane extends JScrollPane
 	}
 	
 	public void setScaling(final double newScale) {
-        // match if closer than 1%:
-        if( MathUtil.equals(newScale, figure.getUserScale(), 0.01)){ 
-            return;
-        }
+		// match if closer than 1%:
+		if( MathUtil.equals(newScale, figure.getUserScale(), 0.01)){
+			return;
+		}
 
-        // if explicitly setting a zoom level, turn off fitting
+		final Rectangle viewRect = viewport.getViewRect();
+		viewCenter_frac = new Point2D.Double( (viewRect.getX() + viewRect.getWidth()/2) / figure.getWidth(),
+											 (viewRect.getY() + viewRect.getHeight()/2) / figure.getHeight() );
+
+		// if explicitly setting a zoom level, turn off fitting
 		this.fit = false;
 		Dimension view = viewport.getExtentSize();
 		figure.scaleTo(newScale, view);
@@ -253,11 +258,16 @@ public class ScaleScrollPane extends JScrollPane
 			final Point zoomPoint = figure.getAutoZoomPoint();
 			final Rectangle zoomRectangle = new Rectangle(zoomPoint.x, zoomPoint.y, viewport.getWidth(), viewport.getHeight() );
 			figure.scrollRectToVisible(zoomRectangle);
+		}else{
+			final Rectangle scrollRectangle = viewport.getViewRect();
+			scrollRectangle.x = (int)(viewCenter_frac.x * figure.getWidth()) - (scrollRectangle.width/2);
+			scrollRectangle.y = (int)(viewCenter_frac.y * figure.getHeight()) - (scrollRectangle.height/2);
 
-			revalidate();
+			figure.scrollRectToVisible(scrollRectangle);
 		}
-//				figure.updateFigure();
 
+
+		revalidate();
 		horizontalRuler.updateSize();
 		verticalRuler.updateSize();
 	}
