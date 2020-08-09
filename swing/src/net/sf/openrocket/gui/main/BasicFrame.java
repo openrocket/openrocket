@@ -60,6 +60,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -263,6 +264,18 @@ public class BasicFrame extends JFrame {
 		});
 
 		frames.add(this);
+		if( componentSelectionModel.isSelectionEmpty() ){
+			final Rocket rocket = document.getRocket();
+			if( rocket != null ) {
+				final AxialStage topStage = (AxialStage) rocket.getChild(0);
+				if (topStage != null) {
+					final TreePath selectionPath = new TreePath(topStage);
+					componentSelectionModel.setSelectionPath(selectionPath);
+					tree.setSelectionRow(1);
+					log.debug("... Setting Initial Selection: " + tree.getSelectionPath() );
+				}
+			}
+		}
 		log.debug("BasicFrame instantiation complete");
 	}
 
@@ -282,9 +295,6 @@ public class BasicFrame extends JFrame {
 
 		tree = new ComponentTree(document);
 		tree.setSelectionModel(componentSelectionModel);
-		if( tree.isSelectionEmpty() ){
-			tree.setSelectionRow(1);
-		}
 
 		// Remove JTree key events that interfere with menu accelerators
 		InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
