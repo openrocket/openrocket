@@ -52,7 +52,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private final FreeformFinSet finset;
 	private int modID = -1;
-	
+
 	protected BoundingBox finBounds_m = null;
 	protected BoundingBox mountBounds_m = null;
 
@@ -346,8 +346,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 			assert (false) : "Should not occur";
 			return new Point2D.Double(0, 0);
 		}
-		
-		p.setLocation(p.x, p.y);
+
+		p.x = MathUtil.clamp(p.x, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+		p.y = MathUtil.clamp(p.y, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+
 		return p;
 	}
 
