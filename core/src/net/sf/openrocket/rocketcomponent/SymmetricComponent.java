@@ -577,17 +577,16 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return	the previous SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getPreviousSymmetricComponent() {
-		if(null == this.parent) {
+		if((null == this.parent) || (null == this.parent.getParent())){
 			return null;
 		}
 
-		final ComponentAssembly assembly = this.getAssembly();
 		// might be: (a) Rocket -- for Centerline/Axial stages
 		//           (b) BodyTube -- for Parallel Stages & PodSets
-		final RocketComponent grandParent = assembly.getParent();
+		final RocketComponent grandParent = this.parent.getParent();
 
 		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
-		int searchParentIndex = grandParent.getChildPosition(assembly);       // position of stage w/in parent
+		int searchParentIndex = grandParent.getChildPosition(this.parent);       // position of stage w/in parent
 		int searchSiblingIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous stage
 
 		while( 0 <= searchParentIndex ) {
@@ -615,17 +614,16 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return	the next SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getNextSymmetricComponent() {
-		if(null == this.parent) {
+		if((null == this.parent) || (null == this.parent.getParent())){
 			return null;
 		}
 
-		final ComponentAssembly assembly = this.getAssembly();
 		// might be: (a) Rocket -- for centerline stages
 		//           (b) BodyTube -- for Parallel Stages
-		final RocketComponent grandParent = assembly.getParent();
+		final RocketComponent grandParent = this.parent.getParent();
 
 		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
-		int searchParentIndex = grandParent.getChildPosition(assembly);
+		int searchParentIndex = grandParent.getChildPosition(this.parent);
 		int searchSiblingIndex = this.parent.getChildPosition(this) + 1;
 
 		while(searchParentIndex < grandParent.getChildCount()) {
