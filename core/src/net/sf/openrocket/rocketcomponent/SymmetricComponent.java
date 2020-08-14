@@ -584,27 +584,27 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		final ComponentAssembly assembly = this.getAssembly();
 		// might be: (a) Rocket -- for Centerline/Axial stages
 		//           (b) BodyTube -- for Parallel Stages & PodSets
-		final RocketComponent assemblyParent = assembly.getParent();
+		final RocketComponent grandParent = assembly.getParent();
 
 		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
-		int assemblyIndex = assemblyParent.getChildPosition(assembly);       // position of stage w/in parent
-		int symmetricIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous stage
+		int searchParentIndex = grandParent.getChildPosition(assembly);       // position of stage w/in parent
+		int searchSiblingIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous stage
 
-		while( 0 <= assemblyIndex ) {
-			final RocketComponent searchAssembly = assemblyParent.getChild(assemblyIndex);
+		while( 0 <= searchParentIndex ) {
+			final RocketComponent searchParent = grandParent.getChild(searchParentIndex);
 
-			if(searchAssembly instanceof ComponentAssembly){
-				while (0 <= symmetricIndex) {
-					final RocketComponent previousSymmetric = searchAssembly.getChild(symmetricIndex);
+			if(searchParent instanceof ComponentAssembly){
+				while (0 <= searchSiblingIndex) {
+					final RocketComponent searchSibling = searchParent.getChild(searchSiblingIndex);
 
-					if (previousSymmetric instanceof SymmetricComponent) {
-						return (SymmetricComponent) previousSymmetric;
+					if (searchSibling instanceof SymmetricComponent) {
+						return (SymmetricComponent) searchSibling;
 					}
-					--symmetricIndex;
+					--searchSiblingIndex;
 				}
 			}
-			--assemblyIndex;
-			symmetricIndex = searchAssembly.getChildCount() - 1;
+			--searchParentIndex;
+			searchSiblingIndex = searchParent.getChildCount() - 1;
 		}
 		return null;
 	}
@@ -622,27 +622,27 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		final ComponentAssembly assembly = this.getAssembly();
 		// might be: (a) Rocket -- for centerline stages
 		//           (b) BodyTube -- for Parallel Stages
-		final RocketComponent assemblyParent = assembly.getParent();
+		final RocketComponent grandParent = assembly.getParent();
 
 		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
-		int assemblyIndex = assemblyParent.getChildPosition(assembly);
-		int symmetricIndex = this.parent.getChildPosition(this) + 1;
+		int searchParentIndex = grandParent.getChildPosition(assembly);
+		int searchSiblingIndex = this.parent.getChildPosition(this) + 1;
 
-		while(assemblyIndex < assemblyParent.getChildCount()) {
-			final RocketComponent searchAssembly = assemblyParent.getChild(assemblyIndex);
+		while(searchParentIndex < grandParent.getChildCount()) {
+			final RocketComponent searchParent = grandParent.getChild(searchParentIndex);
 
-			if(searchAssembly instanceof ComponentAssembly){
-				while (symmetricIndex < searchAssembly.getChildCount()) {
-					final RocketComponent nextSymmetric = searchAssembly.getChild(symmetricIndex);
+			if(searchParent instanceof ComponentAssembly){
+				while (searchSiblingIndex < searchParent.getChildCount()) {
+					final RocketComponent searchSibling = searchParent.getChild(searchSiblingIndex);
 
-					if (nextSymmetric instanceof SymmetricComponent) {
-						return (SymmetricComponent) nextSymmetric;
+					if (searchSibling instanceof SymmetricComponent) {
+						return (SymmetricComponent) searchSibling;
 					}
-					++symmetricIndex;
+					++searchSiblingIndex;
 				}
 			}
-			++assemblyIndex;
-			symmetricIndex = searchAssembly.getChildCount() - 1;
+			++searchParentIndex;
+			searchSiblingIndex = searchParent.getChildCount() - 1;
 		}
 		return null;
 	}
