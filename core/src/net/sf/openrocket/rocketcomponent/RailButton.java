@@ -62,7 +62,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public RailButton(){
 		super(AxialMethod.MIDDLE);
 		this.outerDiameter_m = 0.0097;
-		this.totalHeight_m = 0.0097;		
+		this.totalHeight_m = 0.0097;
 		this.innerDiameter_m = 0.008;
 		this.flangeHeight_m = 0.002;
 		this.setStandoff( 0.002);
@@ -156,21 +156,13 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 	public void setOuterDiameter( final double newOD ){
 		this.outerDiameter_m = newOD;
-		
-		// devel
-		this.innerDiameter_m = newOD*0.8;
-		this.setInstanceSeparation( newOD*6);
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public void setTotalHeight( final double newHeight ) {
 		this.totalHeight_m = newHeight;
-		
-		// devel
-		this.flangeHeight_m = newHeight*0.25;
-		this.setStandoff( newHeight*0.25);
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
