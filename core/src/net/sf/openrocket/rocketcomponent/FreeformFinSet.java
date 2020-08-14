@@ -24,7 +24,10 @@ public class FreeformFinSet extends FinSet {
 	
 	private static final double SNAP_SMALLER_THAN = 5e-3;
 	private static final double IGNORE_SMALLER_THAN = 1e-12;
-	
+
+	// attempts to set a fin value any larger than this will be snapped to this max value
+	public static final double SNAP_LARGER_THAN = 2.5; // in meters
+
 	public FreeformFinSet() {
 		points.add(Coordinate.ZERO);
 		points.add(new Coordinate(0.025, 0.05));
@@ -164,6 +167,16 @@ public class FreeformFinSet extends FinSet {
 			newPoints = translatePoints( newPoints, delta);
 		}
 
+		for ( int i =0; i < newPoints.size(); ++i ) {
+			final Coordinate p = newPoints.get(i);
+			if( p.x > SNAP_LARGER_THAN){
+				newPoints.set(i, p.setX(SNAP_LARGER_THAN));
+			}
+			if( p.y > SNAP_LARGER_THAN){
+				newPoints.set(i, p.setY(SNAP_LARGER_THAN));
+			}
+		}
+
 		// copy the old points, in case validation fails
 		final ArrayList<Coordinate> pointsCopy = new ArrayList<>(this.points);
 		final double lengthCopy = this.length;
@@ -203,14 +216,39 @@ public class FreeformFinSet extends FinSet {
 	 * @param yRequest the y-coordinate.
 	 */
 	public void setPoint(final int index, final double xRequest, final double yRequest) {
-		final Coordinate revertPoint = points.get(index);
-		if(null != this.getParent()) {
-			final Coordinate prior =  points.get(index);
-			points.set(index, new Coordinate(xRequest, yRequest));
+		if(null == this.getParent()) {
+			return;
+		}
 
-			if((points.size() - 1) == index){
-				clampLastPoint(xRequest-prior.x);
+		// if the new x,y would cause a fin larger than our max-size, limit the new request:
+		double xAccept = xRequest;
+		double yAccept = yRequest;
+		if(0 == index) {
+			final Coordinate cl = points.get(points.size() - 1);
+			double newLength = cl.x - xRequest;
+			if (newLength > SNAP_LARGER_THAN) {
+				xAccept = SNAP_LARGER_THAN - cl.x;
 			}
+		}else{
+			if (xAccept > SNAP_LARGER_THAN) {
+				xAccept = SNAP_LARGER_THAN;
+			}
+			if (yAccept > SNAP_LARGER_THAN) {
+				yAccept = SNAP_LARGER_THAN;
+			}
+		}
+
+		final Coordinate revertPoint = points.get(index);
+
+		points.set(index, new Coordinate(xAccept, yAccept));
+
+		if( IGNORE_SMALLER_THAN > Math.abs(revertPoint.x - xAccept) && IGNORE_SMALLER_THAN > Math.abs(revertPoint.y - yAccept) ){
+			// no-op. ignore
+			return;
+		}
+
+		if ((points.size() - 1) == index) {
+			clampLastPoint(xAccept - revertPoint.x);
 		}
 
 		update();

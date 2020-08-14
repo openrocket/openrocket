@@ -90,7 +90,7 @@ public class ScaleSelector extends JPanel {
 		scrollPane.getFigure().addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				setZoomText();
+				update();
 			}
 		});
 		add(scaleSelector, "gap rel");
@@ -103,7 +103,7 @@ public class ScaleSelector extends JPanel {
 				double scale = scrollPane.getUserScale();
 				scale = getNextSmallerScale(scale);
 				scrollPane.setScaling(scale);
-				setZoomText();
+				update();
 			}
 		});
 		add(button, "gapleft rel");
@@ -155,6 +155,10 @@ public class ScaleSelector extends JPanel {
 			c.setEnabled(b);
 		}
 		super.setEnabled(b);
+	}
+
+	public void update(){
+		setZoomText();
 	}
 
 }

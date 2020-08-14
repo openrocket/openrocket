@@ -52,7 +52,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private final FreeformFinSet finset;
 	private int modID = -1;
-	
+
 	protected BoundingBox finBounds_m = null;
 	protected BoundingBox mountBounds_m = null;
 
@@ -73,17 +73,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	public Point getAutoZoomPoint(){
-		// from canvas top/left
-		final Point zoomPointPx = new Point( Math.max(0, (originLocation_px.x - borderThickness_px.width)), 0);
-
-//		System.err.println("==>> FinPointFigure.getAutoZoomPoint ==>> " + finset.getName() );
-//		System.err.println(String.format("     ::scale(overall):    %6.4f   ==  %6.4f  x %6.4f", scale, userScale, baseScale));
-//		System.err.println(String.format("     ::ContentBounds(px):   @ %d, %d  [ %d x %d ]", (int)(contentBounds_m.getX()*scale), (int)(contentBounds_m.getY()*scale), (int)(contentBounds_m.getWidth()*scale), (int)(contentBounds_m.getHeight()*scale)));
-//		System.err.println(String.format("     ::SubjectBounds(px):   @ %d, %d  [ %d x %d ]", (int)(subjectBounds_m.getX()*scale), (int)(subjectBounds_m.getY()*scale), (int)(subjectBounds_m.getWidth()*scale), (int)(subjectBounds_m.getHeight()*scale)));
-//		System.err.println(String.format("     ::origin:          @ %d, %d", originLocation_px.x, originLocation_px.y));
-//		System.err.println(String.format("     ::ZoomPoint:       @ %d, %d", zoomPointPx.x, zoomPointPx.y));
-
-		return zoomPointPx;
+		return new Point( Math.max(0, (originLocation_px.x - borderThickness_px.width)), 0);
 	}
 
 	@Override
@@ -356,8 +346,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 			assert (false) : "Should not occur";
 			return new Point2D.Double(0, 0);
 		}
-		
-		p.setLocation(p.x, p.y);
+
+		p.x = MathUtil.clamp(p.x, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+		p.y = MathUtil.clamp(p.y, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+
 		return p;
 	}
 
