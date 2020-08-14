@@ -585,7 +585,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		//           (b) BodyTube -- for Parallel Stages & PodSets
 		final RocketComponent grandParent = this.parent.getParent();
 
-		// note:  this is not guaranteed to _contain_ a stage... but that we're _searching_ for one.
 		int searchParentIndex = grandParent.getChildPosition(this.parent);       // position of stage w/in parent
 		int searchSiblingIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous stage
 
@@ -595,7 +594,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			if(searchParent instanceof ComponentAssembly){
 				while (0 <= searchSiblingIndex) {
 					final RocketComponent searchSibling = searchParent.getChild(searchSiblingIndex);
-
 					if (searchSibling instanceof SymmetricComponent) {
 						return (SymmetricComponent) searchSibling;
 					}
@@ -603,7 +601,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 				}
 			}
 			--searchParentIndex;
-			searchSiblingIndex = searchParent.getChildCount() - 1;
+			if( 0 <= searchParentIndex){
+				searchSiblingIndex = grandParent.getChild(searchParentIndex).getChildCount() - 1;
+			}
 		}
 		return null;
 	}
@@ -640,7 +640,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 				}
 			}
 			++searchParentIndex;
-			searchSiblingIndex = searchParent.getChildCount() - 1;
+			searchSiblingIndex = 0;
 		}
 		return null;
 	}
