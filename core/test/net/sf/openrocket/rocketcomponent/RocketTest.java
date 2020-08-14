@@ -245,7 +245,7 @@ public class RocketTest extends BaseTestCase {
 			body.setOuterRadiusAutomatic(true);
 			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
 		}
-		{ // test auto-radius within a stage: body tube -> trailing transition
+		{ // test auto-radius within a stage: tail cone -> body tube
 			final BodyTube body = (BodyTube) booster.getChild(0);
 			assertEquals(" radius match: ", expRadius, body.getOuterRadius(), EPSILON);
 			final Transition tailCone = (Transition)booster.getChild(1);
