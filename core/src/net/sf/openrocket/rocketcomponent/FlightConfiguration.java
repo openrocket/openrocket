@@ -295,19 +295,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		// generate the Instance's Context:
 		for(int currentInstanceNumber=0; currentInstanceNumber < instanceCount; currentInstanceNumber++) {
-			
-			final Coordinate instanceOffset = allOffsets[currentInstanceNumber];
-			final Transformation offsetTransform = Transformation.getTranslationTransform( instanceOffset );
-			
-			final double instanceAngle = allAngles[currentInstanceNumber];
-			final Transformation angleTransform = Transformation.getAxialRotation(instanceAngle);
-			
+			final Transformation offsetTransform = Transformation.getTranslationTransform( allOffsets[currentInstanceNumber] );
+			final Transformation angleTransform = Transformation.getAxialRotation(allAngles[currentInstanceNumber]);
 			final Transformation currentTransform = componentTransform.applyTransformation(offsetTransform)
-																  	  .applyTransformation(angleTransform);
-			
-			// constructs entry in-place 
+																	  .applyTransformation(angleTransform);
+
+			// constructs entry in-place
 			results.emplace(component, active, currentInstanceNumber, currentTransform);
-			
+
 			for(RocketComponent child : component.getChildren()) {
 				getContextListAt(child, results, currentTransform);
 			}
