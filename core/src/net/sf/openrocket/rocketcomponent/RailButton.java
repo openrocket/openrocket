@@ -237,8 +237,10 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		double parentRadius=0;
 		
 		for (body = this.getParent(); body != null; body = body.getParent()) {
-			if (body instanceof BodyTube)
+			if (body instanceof BodyTube) {
 				parentRadius = ((BodyTube) body).getOuterRadius();
+				break;
+			}
 		}
 		
 		this.radialDistance_m = parentRadius;
