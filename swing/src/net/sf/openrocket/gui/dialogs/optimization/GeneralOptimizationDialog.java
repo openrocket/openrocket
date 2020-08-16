@@ -39,10 +39,7 @@ import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -118,12 +115,11 @@ public class GeneralOptimizationDialog extends JDialog {
 	private static final String START_TEXT = trans.get("btn.start");
 	private static final String STOP_TEXT = trans.get("btn.stop");
 	
-	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	
-	private final List<OptimizableParameter> optimizationParameters = new ArrayList<OptimizableParameter>();
-	private final Map<Object, List<SimulationModifier>> simulationModifiers =
-			new HashMap<Object, List<SimulationModifier>>();
+	private final List<OptimizableParameter> optimizationParameters = new ArrayList<>();
+	private final Map<Object, List<SimulationModifier>> simulationModifiers = new HashMap<>();
 	
 	
 	private final OpenRocketDocument baseDocument;
@@ -146,8 +142,8 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final UnitSelector optimizationGoalUnitSelector;
 	private final DoubleModel optimizationSeekValue;
 	
-	private DoubleModel minimumStability;
-	private DoubleModel maximumStability;
+	private final DoubleModel minimumStability;
+	private final DoubleModel maximumStability;
 	private final JCheckBox minimumStabilitySelected;
 	private final JSpinner minimumStabilitySpinner;
 	private final UnitSelector minimumStabilityUnitSelector;
@@ -165,14 +161,10 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final JButton plotButton;
 	private final JButton saveButton;
 	
-	private final JButton applyButton;
-	private final JButton resetButton;
-	private final JButton closeButton;
-	
-	private final List<SimulationModifier> selectedModifiers = new ArrayList<SimulationModifier>();
+	private final List<SimulationModifier> selectedModifiers = new ArrayList<>();
 	
 	/** List of components to disable while optimization is running */
-	private final List<JComponent> disableComponents = new ArrayList<JComponent>();
+	private final List<JComponent> disableComponents = new ArrayList<>();
 	
 	/** Whether optimization is currently running or not */
 	private boolean running = false;
@@ -185,8 +177,8 @@ public class GeneralOptimizationDialog extends JDialog {
 	private int evaluationCount = 0;
 	private double stepSize = 0;
 	
-	private final Map<Point, FunctionEvaluationData> evaluationHistory = new LinkedHashMap<Point, FunctionEvaluationData>();
-	private final List<Point> optimizationPath = new LinkedList<Point>();
+	private final Map<Point, FunctionEvaluationData> evaluationHistory = new LinkedHashMap<>();
+	private final List<Point> optimizationPath = new LinkedList<>();
 	
 	private boolean updating = false;
 	
@@ -212,21 +204,10 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		ChangeListener clearHistoryChangeListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				clearHistory();
-			}
-		};
-		ActionListener clearHistoryActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				clearHistory();
-			}
-		};
+		ChangeListener clearHistoryChangeListener = e -> clearHistory();
+		ActionListener clearHistoryActionListener = e -> clearHistory();
 		
 		// // Selected modifiers table
-		
 		selectedModifierTableModel = new ParameterSelectionTableModel();
 		selectedModifierTable = new JTable(selectedModifierTableModel);
 		selectedModifierTable.setDefaultRenderer(Double.class, new DoubleCellRenderer());
@@ -253,12 +234,7 @@ public class GeneralOptimizationDialog extends JDialog {
 
 		disableComponents.add(selectedModifierTable);
 		
-		selectedModifierTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				updateComponents();
-			}
-		});
+		selectedModifierTable.getSelectionModel().addListSelectionListener(e -> updateComponents());
 		
 		// Set column widths
 		TableColumnModel columnModel = selectedModifierTable.getColumnModel();
@@ -282,19 +258,16 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		addButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
 		addButton.setToolTipText(trans.get("btn.add.ttip"));
-		addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SimulationModifier mod = getSelectedAvailableModifier();
-				if (mod != null) {
-					addModifier(mod);
-					clearHistory();
-				} else {
-					log.error("Attempting to add simulation modifier when none is selected");
-				}
-				if (selectedModifierTable.isEditing()) {
-					selectedModifierTable.getCellEditor().stopCellEditing();
-				}
+		addButton.addActionListener(e -> {
+			SimulationModifier mod = getSelectedAvailableModifier();
+			if (mod != null) {
+				addModifier(mod);
+				clearHistory();
+			} else {
+				log.error("Attempting to add simulation modifier when none is selected");
+			}
+			if (selectedModifierTable.isEditing()) {
+				selectedModifierTable.getCellEditor().stopCellEditing();
 			}
 		});
 		disableComponents.add(addButton);
@@ -302,22 +275,19 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		removeButton = new JButton("   " + trans.get("btn.remove") + " " + Chars.RIGHT_ARROW);
 		removeButton.setToolTipText(trans.get("btn.remove.ttip"));
-		removeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SimulationModifier mod = getSelectedModifier();
-				if (mod == null) {
-					log.error("Attempting to remove simulation modifier when none is selected");
-					return;
-				}
-
-				if (selectedModifierTable.isEditing()) {
-					selectedModifierTable.getCellEditor().stopCellEditing();
-				}
-
-				removeModifier(mod);
-				clearHistory();
+		removeButton.addActionListener(e -> {
+			SimulationModifier mod = getSelectedModifier();
+			if (mod == null) {
+				log.error("Attempting to remove simulation modifier when none is selected");
+				return;
 			}
+
+			if (selectedModifierTable.isEditing()) {
+				selectedModifierTable.getCellEditor().stopCellEditing();
+			}
+
+			removeModifier(mod);
+			clearHistory();
 		});
 		disableComponents.add(removeButton);
 		sub.add(removeButton, "wrap para*2, sg button");
@@ -387,7 +357,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		simulationSelectionCombo = new JComboBox<Named<Simulation>>();
+		simulationSelectionCombo = new JComboBox<>();
 		simulationSelectionCombo.setToolTipText(tip);
 		populateSimulations();
 		simulationSelectionCombo.addActionListener(clearHistoryActionListener);
@@ -401,7 +371,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationParameterCombo = new JComboBox<Named<OptimizableParameter>>();
+		optimizationParameterCombo = new JComboBox<>();
 		optimizationParameterCombo.setToolTipText(tip);
 		populateParameters();
 		optimizationParameterCombo.addActionListener(clearHistoryActionListener);
@@ -415,7 +385,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(label);
 		sub.add(label, "");
 		
-		optimizationGoalCombo = new JComboBox<String>(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
+		optimizationGoalCombo = new JComboBox<>(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
 		optimizationGoalCombo.setToolTipText(tip);
 		optimizationGoalCombo.setEditable(false);
 		optimizationGoalCombo.addActionListener(clearHistoryActionListener);
@@ -459,12 +429,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		minimumStabilitySelected = new JCheckBox(trans.get("lbl.requireMinStability"));
 		minimumStabilitySelected.setSelected(true);
 		minimumStabilitySelected.setToolTipText(tip);
-		minimumStabilitySelected.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateComponents();
-			}
-		});
+		minimumStabilitySelected.addActionListener(e -> updateComponents());
 		disableComponents.add(minimumStabilitySelected);
 		sub.add(minimumStabilitySelected);
 		
@@ -560,51 +525,42 @@ public class GeneralOptimizationDialog extends JDialog {
 		// // Start/Stop button
 		
 		startButton = new JToggleButton(START_TEXT);
-		startButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (updating) {
-					log.debug("Updating, ignoring event");
-					return;
-				}
-				if (running) {
-					log.info(Markers.USER_MARKER, "Stopping optimization");
-					stopOptimization();
-				} else {
-					log.info(Markers.USER_MARKER, "Starting optimization");
-					startOptimization();
-				}
+		startButton.addActionListener(e -> {
+			if (updating) {
+				log.debug("Updating, ignoring event");
+				return;
+			}
+			if (running) {
+				log.info(Markers.USER_MARKER, "Stopping optimization");
+				stopOptimization();
+			} else {
+				log.info(Markers.USER_MARKER, "Starting optimization");
+				startOptimization();
 			}
 		});
 		sub.add(startButton, "span, growx, wrap para*2");
 		
 		plotButton = new JButton(trans.get("btn.plotPath"));
 		plotButton.setToolTipText(trans.get("btn.plotPath.ttip"));
-		plotButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
-				OptimizationPlotDialog dialog = new OptimizationPlotDialog(
-						Collections.unmodifiableList(optimizationPath),
-						Collections.unmodifiableMap(evaluationHistory),
-						Collections.unmodifiableList(selectedModifiers),
-						getSelectedParameter(),
-						UnitGroup.stabilityUnits(getSelectedSimulation().getRocket()),
-						GeneralOptimizationDialog.this);
-				dialog.setVisible(true);
-			}
+		plotButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
+			OptimizationPlotDialog dialog = new OptimizationPlotDialog(
+					Collections.unmodifiableList(optimizationPath),
+					Collections.unmodifiableMap(evaluationHistory),
+					Collections.unmodifiableList(selectedModifiers),
+					getSelectedParameter(),
+					UnitGroup.stabilityUnits(getSelectedSimulation().getRocket()),
+					GeneralOptimizationDialog.this);
+			dialog.setVisible(true);
 		});
 		disableComponents.add(plotButton);
 		sub.add(plotButton, "span, growx, wrap");
 		
 		saveButton = new JButton(trans.get("btn.save"));
 		saveButton.setToolTipText(trans.get("btn.save.ttip"));
-		saveButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "User selected save path");
-				savePath();
-			}
+		saveButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "User selected save path");
+			savePath();
 		});
 		disableComponents.add(saveButton);
 		sub.add(saveButton, "span, growx");
@@ -612,32 +568,25 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "wrap para*2");
 		
 		// // Bottom buttons
-		
-		applyButton = new JButton(trans.get("btn.apply"));
+		final JButton applyButton = new JButton(trans.get("btn.apply"));
 		applyButton.setToolTipText(trans.get("btn.apply.ttip"));
-		applyButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Applying optimization changes");
-				applyDesign();
-			}
+		applyButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Applying optimization changes");
+			applyDesign();
 		});
 		disableComponents.add(applyButton);
 		panel.add(applyButton, "span, split, gapright para, right");
-		
-		resetButton = new JButton(trans.get("btn.reset"));
+
+		final JButton resetButton = new JButton(trans.get("btn.reset"));
 		resetButton.setToolTipText(trans.get("btn.reset.ttip"));
-		resetButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Resetting optimization design");
-				resetDesign();
-			}
+		resetButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Resetting optimization design");
+			resetDesign();
 		});
 		disableComponents.add(resetButton);
 		panel.add(resetButton, "gapright para, right");
-		
-		closeButton = new JButton(trans.get("btn.close"));
+
+		final JButton closeButton = new JButton(trans.get("btn.close"));
 		closeButton.setToolTipText(trans.get("btn.close.ttip"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
@@ -744,9 +693,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		SimulationModifier[] modifiers = selectedModifiers.toArray(new SimulationModifier[0]);
-		
-		// Check for DeploymentAltitude modifier, if it's there, we want to make certain the DeploymentEvent
-		// is ALTITUDE:
+
 		for (SimulationModifier mod : modifiers) {
 			
 			try {
@@ -926,7 +873,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		loadSimulationModifiers();
 		
 		// Replace selected modifiers with corresponding new modifiers
-		List<SimulationModifier> newSelected = new ArrayList<SimulationModifier>();
+		List<SimulationModifier> newSelected = new ArrayList<>();
 		for (SimulationModifier original : selectedModifiers) {
 			List<SimulationModifier> newModifiers = simulationModifiers.get(original.getRelatedObject());
 			if (newModifiers != null) {
@@ -962,15 +909,14 @@ public class GeneralOptimizationDialog extends JDialog {
 			current = selection.toString();
 		}
 		
-		List<Named<Simulation>> simulations = new ArrayList<Named<Simulation>>();
+		List<Named<Simulation>> simulations = new ArrayList<>();
 		Rocket rocket = documentCopy.getRocket();
 		
 		for (Simulation s : documentCopy.getSimulations()) {
-			//FlightConfigurationID id = s.getConfiguration().getFlightConfigurationID();
 			FlightConfigurationId id = new FlightConfigurationId( "stub id value - General Optimizer");
 			
 			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
-			simulations.add(new Named<Simulation>(s, name));
+			simulations.add(new Named<>(s, name));
 		}
 		
 		for (FlightConfigurationId curId: rocket.getIds() ){
@@ -981,14 +927,14 @@ public class GeneralOptimizationDialog extends JDialog {
 			
 			Simulation sim = new Simulation(rocket);
 			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, curId));
-			simulations.add(new Named<Simulation>(sim, name));
+			simulations.add(new Named<>(sim, name));
 		}
 		
 		Simulation sim = new Simulation(rocket);
 		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
-		simulations.add(new Named<Simulation>(sim, name));
+		simulations.add(new Named<>(sim, name));
 
-		simulationSelectionCombo.setModel(new DefaultComboBoxModel<Named<Simulation>>(new Vector<>(simulations)));
+		simulationSelectionCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(simulations)));
 		simulationSelectionCombo.setSelectedIndex(0);
 		if (current != null) {
 			for (int i = 0; i < simulations.size(); i++) {
@@ -1010,12 +956,12 @@ public class GeneralOptimizationDialog extends JDialog {
 			current = trans.get("MaximumAltitudeParameter.name");
 		}
 		
-		Vector<Named<OptimizableParameter>> parameters = new Vector<Named<OptimizableParameter>>();
+		Vector<Named<OptimizableParameter>> parameters = new Vector<>();
 		for (OptimizableParameter p : optimizationParameters) {
-			parameters.add(new Named<OptimizableParameter>(p, p.getName()));
+			parameters.add(new Named<>(p, p.getName()));
 		}
 		
-		optimizationParameterCombo.setModel(new DefaultComboBoxModel<Named<OptimizableParameter>>( parameters ));
+		optimizationParameterCombo.setModel(new DefaultComboBoxModel<>( parameters ));
 		
 		for (int i = 0; i < parameters.size(); i++) {
 			if (parameters.get(i).toString().equals(current)) {
@@ -1039,13 +985,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		if (optimizationParameters.isEmpty()) {
 			throw new BugException("No rocket optimization parameters found, distribution built wrong.");
 		}
-		
-		Collections.sort(optimizationParameters, new Comparator<OptimizableParameter>() {
-			@Override
-			public int compare(OptimizableParameter o1, OptimizableParameter o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
+
+		optimizationParameters.sort(Comparator.comparing(OptimizableParameter::getName));
 	}
 	
 	private void loadSimulationModifiers() {
@@ -1055,7 +996,7 @@ public class GeneralOptimizationDialog extends JDialog {
 			Object key = m.getRelatedObject();
 			List<SimulationModifier> list = simulationModifiers.get(key);
 			if (list == null) {
-				list = new ArrayList<SimulationModifier>();
+				list = new ArrayList<>();
 				simulationModifiers.put(key, list);
 			}
 			list.add(m);
@@ -1063,12 +1004,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		for (Object key : simulationModifiers.keySet()) {
 			List<SimulationModifier> list = simulationModifiers.get(key);
-			Collections.sort(list, new Comparator<SimulationModifier>() {
-				@Override
-				public int compare(SimulationModifier o1, SimulationModifier o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-			});
+			list.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 		}
 		
 	}
@@ -1238,9 +1174,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			
 			for (FunctionEvaluationData data : evaluationHistory.values()) {
 				Value[] state = data.getState();
-				
-				for (int i = 0; i < state.length; i++) {
-					writer.write(TextUtil.doubleToString(state[i].getUnitValue()));
+
+				for (Value value : state) {
+					writer.write(TextUtil.doubleToString(value.getUnitValue()));
 					writer.write(fieldSeparator);
 				}
 				
@@ -1290,12 +1226,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		/* This is to debug a NPE where the returned selected item is null. */
 		Object item = simulationSelectionCombo.getSelectedItem();
 		if (item == null) {
-			String s = "Selected simulation is null:";
-			s = s + " item count=" + simulationSelectionCombo.getItemCount();
+			StringBuilder s = new StringBuilder("Selected simulation is null:");
+			s.append(" item count=").append(simulationSelectionCombo.getItemCount());
 			for (int i = 0; i < simulationSelectionCombo.getItemCount(); i++) {
-				s = s + " [" + i + "]=" + simulationSelectionCombo.getItemAt(i);
+				s.append(" [").append(i).append("]=").append(simulationSelectionCombo.getItemAt(i));
 			}
-			throw new BugException(s);
+			throw new BugException(s.toString());
 		}
 		return ((Named<Simulation>) item).get();
 	}

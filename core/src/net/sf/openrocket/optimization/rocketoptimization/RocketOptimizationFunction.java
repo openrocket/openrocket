@@ -38,7 +38,7 @@ public class RocketOptimizationFunction implements Function {
 	private final SimulationModifier[] modifiers;
 	
 
-	private final List<RocketOptimizationListener> listeners = new ArrayList<RocketOptimizationListener>();
+	private final List<RocketOptimizationListener> listeners = new ArrayList<>();
 	
 	
 	/**
@@ -141,8 +141,7 @@ public class RocketOptimizationFunction implements Function {
 	Simulation newSimulationInstance(Simulation simulation) {
 		synchronized (baseSimulation) {
 			Rocket newRocket = simulation.getRocket().copyWithOriginalID();
-			Simulation newSimulation = simulation.duplicateSimulation(newRocket);
-			return newSimulation;
+			return simulation.duplicateSimulation(newRocket);
 		}
 	}
 	
