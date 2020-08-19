@@ -293,8 +293,15 @@ public class FinSetCalc extends RocketComponentCalc {
 			
 			for (int i = i1; i <= i2; i++) {
 				// Intersection point (x,y)
+				// Note that y can be outside the bounds of the line
+				// defined by (x1, y1) (x2 y2) so x can similarly be outside
+				// the bounds.  If the line is nearly horizontal, it can be
+				// 'way outside.  We want to get the whole "strip", so we
+				// don't clamp y; however, we do clamp x to avoid numerical
+				// instabilities
 				double y = i * span / (DIVISIONS - 1);
-				double x = (y - y2) / (y1 - y2) * x1 + (y1 - y) / (y1 - y2) * x2;
+				double x = MathUtil.clamp((y - y2) / (y1 - y2) * x1 + (y1 - y) / (y1 - y2) * x2,
+										  Math.min(x1, x2), Math.max(x1, x2));
 				if (x < chordLead[i])
 					chordLead[i] = x;
 				if (x > chordTrail[i])
