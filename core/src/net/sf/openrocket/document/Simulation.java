@@ -497,6 +497,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			Simulation copy = new Simulation(newRocket);
 			
 			copy.name = this.name;
+			copy.configId = this.configId;
 			copy.options.copyFrom(this.options);
 			copy.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
