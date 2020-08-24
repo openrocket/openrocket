@@ -71,7 +71,7 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 		}
 		
 		FlightConfigurableParameterSet<E> configSet = (FlightConfigurableParameterSet<E>) configGetter.invoke(c);
-		return configSet.get(simulation.getRocket().getSelectedConfiguration().getFlightConfigurationID());
+		return configSet.get(simulation.getFlightConfigurationId());
 	}
 	
 }

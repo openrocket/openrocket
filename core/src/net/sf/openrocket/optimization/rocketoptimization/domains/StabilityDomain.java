@@ -63,7 +63,7 @@ public class StabilityDomain implements SimulationDomain {
 		 */
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
 		
-		FlightConfiguration configuration = simulation.getRocket().getSelectedConfiguration();
+		FlightConfiguration configuration = simulation.getActiveConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);
