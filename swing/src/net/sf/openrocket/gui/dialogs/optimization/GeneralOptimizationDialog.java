@@ -602,6 +602,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		clearHistory();
 		updateComponents();
 		GUIUtil.setDisposableDialogOptions(this, null);
+
+		// seem like a reasonable defaults
+		this.setSize(1200, 600);
+		// System.err.println("OptimizationDialog.size:     " + this.getSize());
+		this.setLocation(100, 100);
+		// System.err.println("OptimizationDialog.location: " + this.getLocation());
 	}
 	
 	private void startOptimization() {
