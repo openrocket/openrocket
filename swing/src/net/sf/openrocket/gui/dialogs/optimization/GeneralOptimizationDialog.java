@@ -48,6 +48,9 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import net.sf.openrocket.optimization.rocketoptimization.modifiers.GenericComponentModifier;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -635,13 +638,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		updating = false;
 		
 		
-		// Create a copy of the simulation (we're going to modify the original in the current thread)
-		Simulation simulation = getSelectedSimulation();
-		Rocket rocketCopy = simulation.getRocket().copyWithOriginalID();
-		simulation = simulation.duplicateSimulation(rocketCopy);
-		
-		OptimizableParameter parameter = getSelectedParameter();
-		
+		// Create a copy of the simulation (we'll modify the copy here)
+		final Simulation simulation = getSelectedSimulation();
+		final OptimizableParameter parameter = getSelectedParameter();
 		OptimizationGoal goal;
 		String value = (String) optimizationGoalCombo.getSelectedItem();
 		if (GOAL_MAXIMIZE.equals(value)) {
@@ -701,7 +700,6 @@ public class GeneralOptimizationDialog extends JDialog {
 		SimulationModifier[] modifiers = selectedModifiers.toArray(new SimulationModifier[0]);
 
 		for (SimulationModifier mod : modifiers) {
-			
 			try {
 				mod.initialize(simulation);
 			} catch (OptimizationException ex) {
@@ -784,8 +782,8 @@ public class GeneralOptimizationDialog extends JDialog {
 					try {
 						selectedModifiers.get(i).modify(sim, newPoint.get(i));
 					} catch (OptimizationException e) {
-						throw new BugException("Simulation modifier failed to modify the base simulation " +
-								"modifier=" + selectedModifiers.get(i), e);
+						throw new BugException( "Simulation modifier failed to modify the base simulation " +
+												"modifier=" + selectedModifiers.get(i), e);
 					}
 				}
 				figure.updateFigure();
@@ -916,30 +914,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		List<Named<Simulation>> simulations = new ArrayList<>();
-		Rocket rocket = documentCopy.getRocket();
-		
-		for (Simulation s : documentCopy.getSimulations()) {
-			FlightConfigurationId id = new FlightConfigurationId( "stub id value - General Optimizer");
-			
-			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
-			simulations.add(new Named<>(s, name));
+		for (Simulation s : documentCopy.getSimulations()){
+			final FlightConfiguration config = s.getActiveConfiguration();
+			final String optionName = createSimulationName(s.getName(), config.getName() );
+			simulations.add(new Named<>(s, optionName));
 		}
 		
-		for (FlightConfigurationId curId: rocket.getIds() ){
-			if ( curId== null) {
-				// this is now *extremely* unlikely
-				throw new NullPointerException(" flightconfiguration has a null id... bug.");
-			}
-			
-			Simulation sim = new Simulation(rocket);
-			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, curId));
-			simulations.add(new Named<>(sim, name));
-		}
-		
-		Simulation sim = new Simulation(rocket);
-		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
-		simulations.add(new Named<>(sim, name));
-
 		simulationSelectionCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(simulations)));
 		simulationSelectionCombo.setSelectedIndex(0);
 		if (current != null) {
@@ -1229,8 +1209,9 @@ public class GeneralOptimizationDialog extends JDialog {
 	 */
 	@SuppressWarnings("unchecked")
 	private Simulation getSelectedSimulation() {
-		/* This is to debug a NPE where the returned selected item is null. */
 		Object item = simulationSelectionCombo.getSelectedItem();
+
+		/* This is to debug a NPE where the returned selected item is null. */
 		if (item == null) {
 			StringBuilder s = new StringBuilder("Selected simulation is null:");
 			s.append(" item count=").append(simulationSelectionCombo.getItemCount());
@@ -1239,6 +1220,7 @@ public class GeneralOptimizationDialog extends JDialog {
 			}
 			throw new BugException(s.toString());
 		}
+
 		return ((Named<Simulation>) item).get();
 	}
 	
