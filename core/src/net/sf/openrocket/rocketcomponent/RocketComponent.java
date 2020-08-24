@@ -1627,7 +1627,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		Iterator<RocketComponent> iter = this.iterator(true);
 		while (iter.hasNext()) {
-			RocketComponent c = iter.next();
+			final RocketComponent c = iter.next();
 			if (c.getID().equals(idToFind))
 				return c;
 		}
