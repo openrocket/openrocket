@@ -39,7 +39,8 @@ public class GenericComponentModifier extends GenericModifier<RocketComponent> {
 	
 	@Override
 	protected RocketComponent getModifiedObject(Simulation simulation) throws OptimizationException {
-		RocketComponent c = simulation.getRocket().findComponent(componentId);
+		final RocketComponent c = simulation.getRocket().findComponent(componentId);
+
 		if (c == null) {
 			throw new OptimizationException("Could not find component of type " + componentClass.getSimpleName()
 					+ " with correct ID");
