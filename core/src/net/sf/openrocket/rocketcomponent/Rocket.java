@@ -79,7 +79,7 @@ public class Rocket extends ComponentAssembly {
 		functionalModID = modID;
 
 		// must be after the hashmaps :P 
-        FlightConfiguration defaultConfig = new FlightConfiguration(this, FlightConfigurationId.DEFAULT_VALUE_FCID);
+		final FlightConfiguration defaultConfig = new FlightConfiguration(this, FlightConfigurationId.DEFAULT_VALUE_FCID);
 		configSet = new FlightConfigurableParameterSet<>( defaultConfig );
 		this.selectedConfiguration = defaultConfig;
 	}
@@ -330,15 +330,26 @@ public class Rocket extends ComponentAssembly {
 	 */
 	@Override
 	public Rocket copyWithOriginalID() {
-		Rocket copy = (Rocket) super.copyWithOriginalID();
-		
+		final Rocket copyRocket = (Rocket) super.copyWithOriginalID();
+
 		// Rocket copy is cloned, so non-trivial members must be cloned as well:
-		copy.stageMap = new HashMap<Integer, AxialStage>();
-		copy.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( this.configSet );
-		copy.selectedConfiguration = copy.configSet.get( this.getSelectedConfiguration().getId());
-		copy.listenerList = new HashSet<EventListener>();
+		copyRocket.stageMap = new HashMap<>();
+		for( Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
+			final AxialStage stage = (AxialStage)copyRocket.findComponent(entry.getValue().getID());
+			copyRocket.stageMap.put(entry.getKey(), stage);
+		}
+
+		// these flight configurations need to reference the _new_ Rocket copy
+		// the default value needs to be explicitly set, because it has different semantics
+		copyRocket.configSet = new FlightConfigurableParameterSet<>(new FlightConfiguration(copyRocket));
+		for (FlightConfigurationId key : this.configSet.getIds()) {
+			copyRocket.configSet.set(key, new FlightConfiguration(copyRocket, key));
+		}
+
+		copyRocket.selectedConfiguration = copyRocket.configSet.get( this.getSelectedConfiguration().getId());
+		copyRocket.listenerList = new HashSet<>();
 		
-		return copy;
+		return copyRocket;
 	}
 	
 	public int getFlightConfigurationCount() {
@@ -376,8 +387,13 @@ public class Rocket extends ComponentAssembly {
 		this.functionalModID = r.functionalModID;
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
-		this.configSet = new FlightConfigurableParameterSet<FlightConfiguration>( r.configSet );
-		
+
+		// these flight configurations need to reference the _this_ Rocket:
+		this.configSet.setDefault(new FlightConfiguration(this));
+		for (FlightConfigurationId key : r.configSet.map.keySet()) {
+			this.configSet.set(key, new FlightConfiguration(this, key));
+		}
+
 		this.perfectFinish = r.perfectFinish;
 		
 		this.checkComponentStructure();

@@ -164,7 +164,12 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 		
 	}
-	
+
+	public FlightConfiguration getActiveConfiguration() {
+		mutex.verify();
+		return rocket.getFlightConfiguration(this.configId);
+	}
+
 	/**
 	 * Return the rocket associated with this simulation.
 	 *
@@ -185,7 +190,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	/**
 	 * Set the motor configuration ID.  If this id does not yet exist, it will be created.
 	 * 
-	 * @param id	the configuration to set.
+	 * @param fcid	the configuration to set.
 	 */
 	public void setFlightConfigurationId(FlightConfigurationId fcid) {
 		if ( null == fcid ){
@@ -487,25 +492,29 @@ public class Simulation implements ChangeSource, Cloneable {
 	/**
 	 * Create a duplicate of this simulation with the specified rocket.  The new
 	 * simulation is in non-simulated state.
+	 * This methods performs
+	 * synchronization on the simulation for thread protection.
+	 * <p>
+	 * Note:  This method is package-private for unit testing purposes.
 	 *
 	 * @param newRocket		the rocket for the new simulation.
-	 * @return				a new simulation with the same conditions and properties.
+	 * @return	a new deep copy of the simulation and rocket with the same conditions and properties.
 	 */
 	public Simulation duplicateSimulation(Rocket newRocket) {
 		mutex.lock("duplicateSimulation");
 		try {
-			Simulation copy = new Simulation(newRocket);
-			
-			copy.name = this.name;
-			copy.options.copyFrom(this.options);
-			copy.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
+			final Simulation newSim = new Simulation(newRocket);
+			newSim.name = this.name;
+			newSim.configId = this.configId;
+			newSim.options.copyFrom(this.options);
+			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
-				copy.simulationExtensions.add(c.clone());
+				newSim.simulationExtensions.add(c.clone());
 			}
-			copy.simulationStepperClass = this.simulationStepperClass;
-			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+			newSim.simulationStepperClass = this.simulationStepperClass;
+			newSim.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 			
-			return copy;
+			return newSim;
 		} finally {
 			mutex.unlock("duplicateSimulation");
 		}

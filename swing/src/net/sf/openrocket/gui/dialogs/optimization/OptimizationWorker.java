@@ -61,12 +61,9 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 	private final SimulationModifier[] modifiers;
 	
 	private final ParallelFunctionCache cache;
-	
 
-	private final LinkedBlockingQueue<FunctionEvaluationData> evaluationQueue =
-			new LinkedBlockingQueue<FunctionEvaluationData>();
-	private final LinkedBlockingQueue<OptimizationStepData> stepQueue =
-			new LinkedBlockingQueue<OptimizationStepData>();
+	private final LinkedBlockingQueue<FunctionEvaluationData> evaluationQueue = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<OptimizationStepData> stepQueue = new LinkedBlockingQueue<>();
 	private volatile long lastPurge = 0;
 	
 	private OptimizationException optimizationException = null;
@@ -115,13 +112,10 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 		} catch (OptimizationException e) {
 			this.optimizationException = e;
 		} finally {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					lastPurge = System.currentTimeMillis() + 24L * 3600L * 1000L;
-					processQueue();
-					done(optimizationException);
-				}
+			SwingUtilities.invokeLater(() -> {
+				lastPurge = System.currentTimeMillis() + 24L * 3600L * 1000L;
+				processQueue();
+				done(optimizationException);
 			});
 		}
 	}
@@ -157,7 +151,6 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 	/**
 	 * Publishes data to the listeners.  The queue is purged every PURGE_TIMEOUT milliseconds.
 	 * 
-	 * @param data	the data to publish to the listeners
 	 */
 	private synchronized void publish(FunctionEvaluationData evaluation, OptimizationStepData step) {
 		
@@ -172,12 +165,7 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 		long now = System.currentTimeMillis();
 		if (lastPurge + PURGE_TIMEOUT <= now) {
 			lastPurge = now;
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					processQueue();
-				}
-			});
+			SwingUtilities.invokeLater(this::processQueue);
 		}
 		
 	}
@@ -193,14 +181,14 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 		}
 		
 
-		List<FunctionEvaluationData> evaluations = new ArrayList<FunctionEvaluationData>();
+		List<FunctionEvaluationData> evaluations = new ArrayList<>();
 		evaluationQueue.drainTo(evaluations);
 		if (!evaluations.isEmpty()) {
 			functionEvaluated(evaluations);
 		}
 		
 
-		List<OptimizationStepData> steps = new ArrayList<OptimizationStepData>();
+		List<OptimizationStepData> steps = new ArrayList<>();
 		stepQueue.drainTo(steps);
 		if (!steps.isEmpty()) {
 			optimizationStepTaken(steps);

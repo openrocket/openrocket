@@ -71,7 +71,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private double cachedRefLength = -1;
 	
 	private int modID = 0;
-	
+
+	/**
+	 * Create a Default configuration with the specified <code>Rocket</code>.
+	 *
+	 * @param rocket  the rocket
+	 */
+	public FlightConfiguration(final Rocket rocket) {
+		this(rocket, FlightConfigurationId.DEFAULT_VALUE_FCID);
+	}
+
 	/**
 	 * Create a new configuration with the specified <code>Rocket</code>.
 	 * 
