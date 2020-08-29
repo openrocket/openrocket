@@ -543,9 +543,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @return the rocket's bounding box (under the selected configuration)
 	 */
 	public BoundingBox getBoundingBox() {
-		if (rocket.getModID() != boundsModID) {
-			calculateBounds();
-		}
+//		if (rocket.getModID() != boundsModID) {
+		calculateBounds();
+//		}
 		return cachedBounds;
 	}
 
@@ -558,11 +558,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		InstanceMap map = getActiveInstances();
 		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>>  entry : map.entrySet()) {
-			RocketComponent component = entry.getKey();
-			BoundingBox componentBounds = new BoundingBox();
-			List<InstanceContext> contexts = entry.getValue();
-
+			final RocketComponent component = entry.getKey();
+			final BoundingBox componentBounds = new BoundingBox();
+			final List<InstanceContext> contexts = entry.getValue();
+			
 			if( ! component.isAerodynamic()){
+//				System.err.println("    << non-aerodynamic");
 				// all non-aerodynamic components should be surrounded by aerodynamic ones
 				continue;
 			}
@@ -571,6 +572,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			if (component instanceof BoxBounded) {
 				final BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
 				if(instanceBounds.isEmpty()) {
+					// probably redundant
 					// this component is probably non-physical (like an assembly) or has invalid bounds.  Skip.
 					continue;
 				}
@@ -627,7 +629,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (rocketBounds.isEmpty()) {
 			cachedLength = 0;
 		}
-		cachedBounds.update( rocketBounds );
+		cachedBounds = rocketBounds;
 	}
 	
 	/**
