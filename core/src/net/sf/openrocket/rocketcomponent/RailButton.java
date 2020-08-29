@@ -13,6 +13,7 @@ import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -22,7 +23,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author widget (Daniel Williams)
  *
  */
-public class RailButton extends ExternalComponent implements AnglePositionable, AxialPositionable, LineInstanceable {
+public class RailButton extends ExternalComponent implements AnglePositionable, AxialPositionable, BoxBounded, LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -208,6 +209,18 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public void setAxialMethod( AxialMethod position) {
 		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+	}
+	
+	public BoundingBox getInstanceBoundingBox(){
+		BoundingBox instanceBounds = new BoundingBox();
+		
+		instanceBounds.update(new Coordinate(0, this.getTotalHeight(), 0));
+		
+		final double r = this.getOuterDiameter();
+		instanceBounds.update(new Coordinate(r,r,0));
+		instanceBounds.update(new Coordinate(-r,-r,0));
+		
+		return instanceBounds;
 	}
 	
 	@Override
