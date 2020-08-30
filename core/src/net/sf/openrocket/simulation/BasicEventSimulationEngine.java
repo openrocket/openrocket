@@ -466,7 +466,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// Check whether any motor in the active stages is active anymore
 					for (MotorClusterState state : currentStatus.getActiveMotors() ) {
-						if ( state.isSpent() ) {
+						if (state.isDelaying() || state.isSpent()) {
 							continue;
 						}
 						currentStatus.getWarnings().add(Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING);

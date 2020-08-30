@@ -162,6 +162,10 @@ public class MotorClusterState {
 		return ! isPlugged();
 	}
 
+	public boolean isDelaying() {
+		return currentState == ThrustState.DELAYING;
+	}
+
 	public boolean isSpent(){
 		return currentState == ThrustState.SPENT;
 	}
