@@ -229,7 +229,7 @@ public class SimulationStatus implements Monitorable {
 	public Collection<MotorClusterState> getActiveMotors() {
 		List<MotorClusterState> activeList = new ArrayList<MotorClusterState>();
 		for( MotorClusterState state: this.motorStateList ){
-			if (this.configuration.isComponentActive( state.getMount() {
+			if (this.configuration.isComponentActive( state.getMount())) {
 				activeList.add( state );
 			}
 		}
