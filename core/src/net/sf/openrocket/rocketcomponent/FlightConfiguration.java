@@ -546,6 +546,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 //		if (rocket.getModID() != boundsModID) {
 		calculateBounds();
 //		}
+		
+		if(cachedBounds.isEmpty())
+			cachedBounds = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
+		
 		return cachedBounds;
 	}
 
