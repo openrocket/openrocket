@@ -173,12 +173,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	}
 	
 	@Override
-	public boolean isAerodynamic(){
-		// TODO: implement aerodynamics
-		return false;
-	}
-	
-	@Override
 	public double getAngleOffset(){
 		return angle_rad;
 	}
