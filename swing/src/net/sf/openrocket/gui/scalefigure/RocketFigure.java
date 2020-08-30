@@ -423,10 +423,12 @@ public class RocketFigure extends AbstractScaleFigure {
 	@Override
 	protected void updateSubjectDimensions() {
 		// calculate bounds, and store in class variables
-		BoundingBox newBounds = rocket.getSelectedConfiguration().getBoundingBox();
-		if(newBounds.isEmpty())
-			newBounds = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
-
+		
+		final FlightConfiguration config = rocket.getSelectedConfiguration().clone();
+		// Explicitly zoom & draw at a scale to fit the entire rocket, but only show the selected stages.
+		config.setAllStages();
+		final BoundingBox newBounds = config.getBoundingBox();
+		
 		final double maxR = Math.max( Math.hypot(newBounds.min.y, newBounds.min.z),
 									  Math.hypot(newBounds.max.y, newBounds.max.z));
 
@@ -451,19 +453,19 @@ public class RocketFigure extends AbstractScaleFigure {
 	@Override
 	protected void updateCanvasOrigin() {
 		final int subjectWidth = (int)(subjectBounds_m.getWidth()*scale);
-	    final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
-	    final int mid_x = (Math.max(getWidth(), subjectWidth) / 2);
-	    
-	    if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
-	        final int newOriginX = mid_x;
-	        final int newOriginY = borderThickness_px.height + getHeight() / 2;
-
-	        originLocation_px = new Point(newOriginX, newOriginY);
-    	}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
-    		final int newOriginX = mid_x - (int) ((subjectBounds_m.getWidth() * scale) / 2);
-    	    final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
-    	    originLocation_px = new Point(newOriginX, newOriginY);
-    	}
+		final int subjectHeight = (int)(subjectBounds_m.getHeight()*scale);
+		final int mid_x = (Math.max(getWidth(), subjectWidth) / 2);
+		
+		if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
+			final int newOriginX = mid_x;
+			final int newOriginY = borderThickness_px.height + getHeight() / 2;
+			
+			originLocation_px = new Point(newOriginX, newOriginY);
+		}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
+			final int newOriginX = mid_x - (subjectWidth / 2);
+			final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
+			originLocation_px = new Point(newOriginX, newOriginY);
+		}
 	}
 
 }
