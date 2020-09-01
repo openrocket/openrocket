@@ -556,12 +556,13 @@ public class TestRockets {
 	// 
 	// This function is used for unit, integration tests, DO NOT CHANGE WITHOUT UPDATING TESTS
 	public static final Rocket makeBeta(){
-		Rocket rocket = makeEstesAlphaIII();
+		final Rocket rocket = makeEstesAlphaIII();
 		rocket.setName("Kit-bash Beta");
 		
-		AxialStage sustainerStage = (AxialStage)rocket.getChild(0);
+		final AxialStage sustainerStage = (AxialStage)rocket.getChild(0);
 		sustainerStage.setName( "Sustainer Stage");
-		BodyTube sustainerBody = (BodyTube)sustainerStage.getChild(1);
+		final BodyTube sustainerBody = (BodyTube)sustainerStage.getChild(1);
+		sustainerBody.setName("Sustainer Body Tube");
 		final double sustainerRadius = sustainerBody.getAftRadius();
 		final double sustainerThickness = sustainerBody.getThickness();
 		
@@ -586,7 +587,7 @@ public class TestRockets {
 				double finRootChord = .05;
 				double finTipChord = .03;
 				double finSweep = 0.02;
-				double finHeight = 0.03;
+				double finHeight = 0.05;
 				FinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 				finset.setName("Booster Fins");
 				finset.setThickness( 0.0032);
@@ -610,6 +611,15 @@ public class TestRockets {
 					boosterMMT.setMotorConfig( motorConfig, TEST_FCID_1);
 				}
 				boosterBody.addChild(boosterMMT);
+				
+				LaunchLug lug = new LaunchLug();
+				lug.setName("Launch Lugs");
+				lug.setAxialMethod(AxialMethod.TOP);
+				lug.setAxialOffset(0.0);
+				lug.setLength(0.050);
+				lug.setOuterRadius(0.0022);
+				lug.setInnerRadius(0.0020);
+				boosterBody.addChild(lug);
 			}
 
 			// Tail Cone

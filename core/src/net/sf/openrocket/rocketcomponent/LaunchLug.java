@@ -8,12 +8,13 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 
 
-public class LaunchLug extends ExternalComponent implements AnglePositionable, Coaxial, LineInstanceable {
+public class LaunchLug extends ExternalComponent implements AnglePositionable, BoxBounded, Coaxial, LineInstanceable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -252,7 +253,20 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	public int getInstanceCount(){
 		return this.instanceCount;
 	}
-
+	
+	@Override
+	public BoundingBox getInstanceBoundingBox() {
+		BoundingBox instanceBounds = new BoundingBox();
+		
+		instanceBounds.update(new Coordinate(this.getLength(), 0,0));
+		
+		final double r = getOuterRadius();
+		instanceBounds.update(new Coordinate(0,r,r));
+		instanceBounds.update(new Coordinate(0,-r,-r));
+		
+		return instanceBounds;
+	}
+	
 	@Override
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-Line");
@@ -281,5 +295,4 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, C
 	public void setAngleMethod(AngleMethod newMethod) {
 		// no-op
 	}
-
 }
