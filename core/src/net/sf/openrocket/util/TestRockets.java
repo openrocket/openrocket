@@ -638,6 +638,41 @@ public class TestRockets {
 		return rocket;
 	}
 	
+	// This is not a production rocket -- it is construction, purely for testing Mass Overrides
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	public static final Rocket makeSimple2Stage(){
+		Rocket rocket = new Rocket();
+		rocket.createFlightConfiguration( TEST_FCID_0 );
+		rocket.setName("Simple 2-Stage Rocket");
+		
+		final double bodytubeLength = 0.10;
+		final double bodytubeRadius = 0.01;
+		final double bodytubeThickness = 0.001;
+		{
+			final AxialStage sustainerStage = new AxialStage();
+			sustainerStage.setName("Sustainer Stage");
+			rocket.addChild(sustainerStage);
+			
+			final BodyTube bodytube = new BodyTube(bodytubeLength, bodytubeRadius, bodytubeThickness);
+			bodytube.setName("Sustainer Body Tube");
+			sustainerStage.addChild(bodytube);
+		}{
+			final AxialStage boosterStage = new AxialStage();
+			boosterStage.setName("Booster Stage");
+			rocket.addChild(boosterStage);
+			
+			final BodyTube boosterBody = new BodyTube(bodytubeLength, bodytubeRadius, bodytubeThickness);
+			boosterBody.setName("Booster Body Tube");
+			boosterStage.addChild(boosterBody);
+		}
+		
+		rocket.setSelectedConfiguration( TEST_FCID_0 );
+		rocket.getSelectedConfiguration().setAllStages();
+		
+		rocket.enableEvents();
+		return rocket;
+	}
+	
 	public static Rocket makeBigBlue() {
 		Rocket rocket;
 		AxialStage stage;

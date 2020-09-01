@@ -341,6 +341,17 @@ public class MassCalculation {
 
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
+			if (component.getOverrideSubcomponents()) {
+				if (component.isMassOverridden()) {
+					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
+					Coordinate newCM = this.getCM().setWeight( newMass );
+					this.setCM( newCM );
+				}
+				
+				if (component.isCGOverridden()) {
+					this.setCM( this.getCM().setX( compCM.x + component.getOverrideCGX()));
+				}
+			}
 			this.addMass( compCM );
 
 			if(null != analysisMap){
@@ -357,28 +368,14 @@ public class MassCalculation {
 				}
 			}
 			
-			double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
-			RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
-			
+			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
+			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			final RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
 			this.addInertia( componentInertia );
 			// // vvv DEBUG
 			// if( 0 < compCM.weight ) {
 			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
 			// }
-
-			if (component.getOverrideSubcomponents()) {
-				if (component.isMassOverridden()) {
-					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
-					Coordinate newCM = this.getCM().setWeight( newMass );
-					this.setCM( newCM );
-				}
-				
-				if (component.isCGOverridden()) {
-					Coordinate newCM = this.getCM().setX( component.getOverrideCGX() ); 
-					this.setCM( newCM );
-				}
-			}
 		}
 		
 		// // vvv DEBUG
