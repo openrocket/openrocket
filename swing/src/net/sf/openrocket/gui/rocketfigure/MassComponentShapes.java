@@ -19,19 +19,23 @@ import net.sf.openrocket.util.Transformation;
 public class MassComponentShapes extends RocketComponentShape {
 	
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
-
-		MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
+		final MassComponent massObj = (MassComponent)component;
 		
-		MassComponent.MassComponentType type = ((MassComponent)component).getMassComponentType();
-
-		double length = tube.getLength();
-		double radius = tube.getRadius();
-		double arc = Math.min(length, 2*radius) * 0.7;
+		final double length = massObj.getLength();
+		final double radius = massObj.getRadius(); // radius of the object, itself
+		// magic number, but it's only cosmetic -- it just has to look pretty
+		final double arc = Math.min(length, 2*radius) * 0.7;
+		final double radialDistance = massObj.getRadialPosition();
+		final double radialAngleRadians = massObj.getRadialDirection();
 		
-		final Coordinate start = transformation.transform(Coordinate.ZERO);
+		final Coordinate localPosition = new Coordinate(0,
+														radialDistance * Math.cos(radialAngleRadians),
+														radialDistance * Math.sin(radialAngleRadians));
+		final Coordinate renderPosition = transformation.transform(localPosition);
 		
-		Shape[] s = {new RoundRectangle2D.Double(start.x, (start.y-radius), length, 2*radius, arc, arc)};
-
+		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x - radius, renderPosition.y - radius, length, 2*radius, arc, arc)};
+		
+		final MassComponent.MassComponentType type = ((MassComponent)component).getMassComponentType();
 		switch (type) {
 		case ALTIMETER:
 			s = addAltimeterSymbol(s);

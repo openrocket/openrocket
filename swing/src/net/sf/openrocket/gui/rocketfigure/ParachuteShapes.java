@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
@@ -14,18 +15,21 @@ import java.awt.geom.RoundRectangle2D;
 public class ParachuteShapes extends RocketComponentShape {
 
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
-	
-		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
+		final MassObject massObj = (MassObject)component;
 		
-		double length = tube.getLength();
-		double radius = tube.getRadius();
-		double arc = Math.min(length, 2*radius) * 0.7;
+		final double length = massObj.getLength();
+		final double radius = massObj.getRadius(); // radius of the object, itself
+		// magic number, but it's only cosmetic -- it just has to look pretty
+		final double arc = Math.min(length, 2*radius) * 0.7;
+		final double radialDistance = massObj.getRadialPosition();
+		final double radialAngleRadians = massObj.getRadialDirection();
 		
-		Coordinate start = transformation.transform( Coordinate.ZERO);
-
-		Shape[] s = new Shape[1];
+		final Coordinate localPosition = new Coordinate(0,
+														radialDistance * Math.cos(radialAngleRadians),
+														radialDistance * Math.sin(radialAngleRadians));
+		final Coordinate renderPosition = transformation.transform(localPosition);
 		
-		s[0] = new RoundRectangle2D.Double(start.x, (start.y-radius), length, 2*radius, arc, arc);
+		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x - radius, renderPosition.y - radius, length, 2*radius, arc, arc)};
 		
 		return RocketComponentShape.toArray( addSymbol(s), component);
 	}
