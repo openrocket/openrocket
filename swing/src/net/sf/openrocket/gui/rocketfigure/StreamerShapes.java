@@ -35,21 +35,20 @@ public class StreamerShapes extends RocketComponentShape {
 	
 
 	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
-
-		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
+		final MassObject massObj = (MassObject)component;
 		
-		double or = tube.getRadius();
-		Shape[] s = new Shape[1];
-		Coordinate center = transformation.transform(Coordinate.ZERO);
+		final double radius = massObj.getRadius(); // radius of the object, itself
+		final double diameter = 2*radius;
+		final double radialDistance = massObj.getRadialPosition();
+		final double radialAngleRadians = massObj.getRadialDirection();
 		
-		s[0] = new Ellipse2D.Double((center.z-or),(center.y-or),2*or,2*or);
-		 
-//		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
-//
-//		Shape[] s = new Shape[start.length];
-//		for (int i=0; i < start.length; i++) {
-//			s[i] = new Ellipse2D.Double((start[i].z-or),(start[i].y-or),2*or,2*or);
-//		}
+		final Coordinate localPosition = new Coordinate(0,
+														radialDistance * Math.cos(radialAngleRadians),
+														radialDistance * Math.sin(radialAngleRadians));
+		final Coordinate renderPosition = transformation.transform(localPosition);
+		
+		final Shape[] s = {new Ellipse2D.Double(renderPosition.z - radius, renderPosition.y - radius, diameter, diameter)};
+		
 		return RocketComponentShape.toArray(s, component);
 	}
 	
