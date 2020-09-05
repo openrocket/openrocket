@@ -53,11 +53,9 @@ public class MassCalculation {
 	// =========== Instance Functions ========================
 	
 	public void merge( final MassCalculation other ) {
-		if( MIN_MASS < other.getMass()) {
-			// Adjust Center-of-mass
-			this.addMass( other.getCM() );
-			this.bodies.addAll( other.bodies );
-		}
+		// Adjust Center-of-mass
+		this.addMass( other.getCM() );
+		this.bodies.addAll( other.bodies );
 	}
 
 	public void addInertia( final RigidBody data ) {
@@ -320,53 +318,13 @@ public class MassCalculation {
 			}
 		}
 		
-		if( MIN_MASS < children.getMass() ) {
-			this.merge( children );
-			// // vvv DEBUG
-			// System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
-		}
+		this.merge( children );
 		
 		if (this.config.isComponentActive(component) ){
 			Coordinate compCM = component.getComponentCG();
-
-			if (!component.getOverrideSubcomponents()) {
-				if (component.isMassOverridden()) {
-					compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
-					// // vvv DEBUG
-					// System.err.println(String.format( "%s....mass overridden to:  %s", prefix, compCM.toPreciseString()));
-				}
-				if (component.isCGOverridden())
-					compCM = compCM.setXYZ(component.getOverrideCG());
-			}
-
+			
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
-			this.addMass( compCM );
-
-			if(null != analysisMap){
-				if( component instanceof ComponentAssembly) {
-					// For ComponentAssemblies, record the _assembly_ information
-					CMAnalysisEntry entry = analysisMap.get(component.hashCode());
-					entry.updateEachMass(children.getMass() / component.getInstanceCount());
-					entry.updateAverageCM(this.centerOfMass);
-				}else{
-					// For actual components, record the mass of the component, and disregard children
-					CMAnalysisEntry entry = analysisMap.get(component.hashCode());
-					entry.updateEachMass(compCM.weight);
-					entry.updateAverageCM(compCM);
-				}
-			}
-			
-			double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
-			RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
-			
-			this.addInertia( componentInertia );
-			// // vvv DEBUG
-			// if( 0 < compCM.weight ) {
-			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
-			// }
-
 			if (component.getOverrideSubcomponents()) {
 				if (component.isMassOverridden()) {
 					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
@@ -375,10 +333,39 @@ public class MassCalculation {
 				}
 				
 				if (component.isCGOverridden()) {
-					Coordinate newCM = this.getCM().setX( component.getOverrideCGX() ); 
-					this.setCM( newCM );
+					this.setCM( this.getCM().setX( compCM.x + component.getOverrideCGX()));
+				}
+			}else {
+				if (component.isMassOverridden()) {
+					compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
+				}
+				if (component.isCGOverridden()) {
+					compCM = compCM.setXYZ(component.getOverrideCG());
+				}
+				this.addMass( compCM );
+			}
+			
+			if(null != analysisMap){
+				final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+				if( component instanceof ComponentAssembly) {
+					// For ComponentAssemblies, record the _assembly_ information
+					entry.updateEachMass(children.getMass() / component.getInstanceCount());
+					entry.updateAverageCM(this.centerOfMass);
+				}else{
+					// For actual components, record the mass of the component, and disregard children
+					entry.updateEachMass(compCM.weight);
+					entry.updateAverageCM(compCM);
 				}
 			}
+			
+			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
+			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			final RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
+			this.addInertia( componentInertia );
+			// // vvv DEBUG
+			// if( 0 < compCM.weight ) {
+			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
+			// }
 		}
 		
 		// // vvv DEBUG
