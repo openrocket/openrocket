@@ -390,15 +390,15 @@ public class MassCalculation {
 //		}
 
 		if (component.isMotorMount()) {
-			MassCalculation propellant = this.copy(component, parentTransform);
+			MassCalculation motor = this.copy(component, parentTransform);
 			
-			propellant.calculateMountData();
+			motor.calculateMountData();
 
-			this.merge( propellant );
+			this.merge( motor );
 
 //			// vvv DEBUG
-//			if( 0 < propellant.getMass() ) {
-//				System.err.println(String.format( "%s........++ propellantData: %s", prefix, propellant.toCMDebug()));
+//			if( 0 < motor.getMass() ) {
+//				System.err.println(String.format( "%s........++ motorData: %s", prefix, propellant.toCMDebug()));
 //			}
 
 		}

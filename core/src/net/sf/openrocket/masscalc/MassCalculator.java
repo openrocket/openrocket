@@ -19,7 +19,7 @@ public class MassCalculator implements Monitorable {
 	 */
 	//	private HashMap< Integer, MassData> stageMassCache = new HashMap<Integer, MassData >();
 	//	private MassData rocketSpentMassCache;
-	//	private MassData propellantMassCache;
+	//	private MassData motorMassCache;
 
 	private int modId = 0;
 	

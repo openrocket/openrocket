@@ -145,7 +145,7 @@ public class DesignReport {
 	private static final String MAX_THRUST = "Max Thrust";
 	private static final String TOTAL_IMPULSE = "Total Impulse";
 	private static final String THRUST_TO_WT = "Thrust to Wt";
-	private static final String PROPELLANT_WT = "Propellant Wt";
+	private static final String MOTOR_WT = "Motor Wt";
 	private static final String SIZE = "Size";
 	private static final String ALTITUDE = "Altitude";
 	private static final String FLIGHT_TIME = "Flight Time";
@@ -377,7 +377,7 @@ public class DesignReport {
 		motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM, PrintUtilities.SMALL));
 		motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
 		motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
-		motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(MOTOR_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
 		motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
 		
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
