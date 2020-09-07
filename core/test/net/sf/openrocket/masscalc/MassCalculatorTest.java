@@ -2,6 +2,8 @@ package net.sf.openrocket.masscalc;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -9,6 +11,7 @@ import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import org.junit.Test;
 
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.util.Coordinate;
@@ -135,26 +138,31 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		// this is probably not enough for a full-up simulation, but it IS enough for a motor-mass calculation.
 		SimulationStatus status = new SimulationStatus(config, new SimulationConditions());
-
+		
+		// Ignite motor at 1.0 seconds
+		MotorClusterState currentMotorState = ((List<MotorClusterState>) status.getMotors()).get(0);
+		final double ignitionTime = 1.0;
+		currentMotorState.ignite(ignitionTime);
+		
 		{
-			final double simTime = 0.03; // almost launch
+			final double simTime = 1.03; // almost launch
 			status.setSimulationTime(simTime);
 			RigidBody actualMotorData = MassCalculator.calculateMotor(status);
-			double expMass = activeMotor.getTotalMass(simTime);
+			double expMass = activeMotor.getTotalMass(simTime - ignitionTime);
 			assertEquals(" Motor Mass " + desig + " is incorrect: ", expMass, actualMotorData.getMass(), EPSILON);
 		}
 		{
-			final double simTime = 1.03; // middle
+			final double simTime = 2.03; // middle
 			status.setSimulationTime(simTime);
 			RigidBody actualMotorData = MassCalculator.calculateMotor(status);
-			double expMass = activeMotor.getTotalMass(simTime);
+			double expMass = activeMotor.getTotalMass(simTime - ignitionTime);
 			assertEquals(" Motor Mass " + desig + " is incorrect: ", expMass, actualMotorData.getMass(), EPSILON);
 		}
 		{
-			final double simTime = 2.03; // after burnout
+			final double simTime = 3.03; // after burnout
 			status.setSimulationTime(simTime);
 			RigidBody actualMotorData = MassCalculator.calculateMotor(status);
-			double expMass = activeMotor.getTotalMass(simTime);
+			double expMass = activeMotor.getTotalMass(simTime - ignitionTime);
 			assertEquals(" Motor Mass " + desig + " is incorrect: ", expMass, actualMotorData.getMass(), EPSILON);
 		}
 	}
