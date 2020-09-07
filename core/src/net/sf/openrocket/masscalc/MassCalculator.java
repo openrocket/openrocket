@@ -1,11 +1,13 @@
 package net.sf.openrocket.masscalc;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.util.*;
 
@@ -97,20 +99,23 @@ public class MassCalculator implements Monitorable {
 	////////////////// Mass property Wrappers  ///////////////////
 	// all mass calculation calls should probably call through one of these two wrappers. 
 	
-	// convenience wrapper -- use this to implicitly create a plain MassCalculation object with common parameters
+	// convenience wrapper -- use this to implicitly create a plain MassCalculation object with common parameters,
+	// for calculations in the course of a simulation
 	public static RigidBody calculate( final MassCalculation.Type _type, final SimulationStatus status ){
 		final FlightConfiguration config = status.getConfiguration();
 		final double time = status.getSimulationTime();
-		MassCalculation calculation= new MassCalculation( _type, config, time, config.getRocket(), Transformation.IDENTITY, null);
+		final Collection<MotorClusterState> activeMotorList = status.getMotors();
+		MassCalculation calculation= new MassCalculation( _type, config, time, activeMotorList, config.getRocket(), Transformation.IDENTITY, null);
 		
 		calculation.calculateAssembly();
 		RigidBody result = calculation.calculateMomentOfInertia();
 		return result;
 	}
 	
-	// convenience wrapper -- use this to implicitly create a plain MassCalculation object with common parameters 
+	// convenience wrapper -- use this to implicitly create a plain MassCalculation object with common parameters,
+	// for static mass calculations
 	public static RigidBody calculate( final MassCalculation.Type _type, final FlightConfiguration _config,  double _time){
-		MassCalculation calculation = new MassCalculation( _type, _config, _time, _config.getRocket(), Transformation.IDENTITY, null);
+		MassCalculation calculation = new MassCalculation( _type, _config, _time, null, _config.getRocket(), Transformation.IDENTITY, null);
 		calculation.calculateAssembly();
 		return calculation.calculateMomentOfInertia();
 	}
@@ -141,6 +146,7 @@ public class MassCalculator implements Monitorable {
 				MassCalculation.Type.LAUNCH,
 				config,
 				Motor.PSEUDO_TIME_LAUNCH,
+				null,
 				config.getRocket(),
 				Transformation.IDENTITY,
 				analysisMap);

@@ -115,7 +115,7 @@ public class MotorClusterState {
 	}
 
 	public double getMotorTime( final double _simulationTime ){
-		return _simulationTime - this.getIgnitionTime();
+		return Math.max(_simulationTime - this.getIgnitionTime(), 0.0);
 	}
 	
 	/**
