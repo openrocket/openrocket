@@ -1,11 +1,13 @@
 package net.sf.openrocket.masscalc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.simulation.MotorClusterState;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -71,7 +73,7 @@ public class MassCalculation {
 	}
 	
 	public MassCalculation copy( final RocketComponent _root, final Transformation _transform){
-		return new MassCalculation( this.type, this.config, this.simulationTime, _root, _transform, this.analysisMap);
+		return new MassCalculation( this.type, this.config, this.simulationTime, this.activeMotorList, _root, _transform, this.analysisMap);
 	}
 		
 	public Coordinate getCM() {
@@ -108,12 +110,14 @@ public class MassCalculation {
 	}
 
 	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time,
+							final Collection<MotorClusterState> _activeMotorList,
 							final RocketComponent _root, final Transformation _transform,
 							Map<Integer, CMAnalysisEntry> _map)
 	{
 		type = _type;
 		config = _config;
 		simulationTime = _time;
+		activeMotorList = _activeMotorList;
 		root = _root;
 		transform = _transform;
 		analysisMap = _map;
@@ -156,6 +160,7 @@ public class MassCalculation {
 	// === package-private ===
 	final FlightConfiguration config;
 	final double simulationTime;
+	final Collection<MotorClusterState> activeMotorList;
 	final RocketComponent root;
 	final Transformation transform;
 	final Type type;
@@ -182,11 +187,24 @@ public class MassCalculation {
 		
 		final MotorMount mount = (MotorMount)root;
 		MotorConfiguration motorConfig = mount.getMotorConfig( config.getId() );
-		final Motor motor = motorConfig.getMotor();
 		if( motorConfig.isEmpty() ){
 			return this;
 		}
+		final Motor motor = motorConfig.getMotor();
 
+		// If we don't have any MotorClusterStates,
+		// we're using a synthetic time to do a static analysis.
+		// If we do have MotorClusterStates, we need to adjust
+		// time according to motor ignition time.
+		double motorTime = simulationTime;
+		if (activeMotorList != null) {
+			for (MotorClusterState currentMotorState : activeMotorList ) {
+				if (currentMotorState.getMotor() == motor) {
+					motorTime = currentMotorState.getMotorTime(simulationTime);
+					break;
+				}
+			}
+		}
 
 		final double mountXPosition = root.getPosition().x;
 		
@@ -199,14 +217,14 @@ public class MassCalculation {
 		double eachCMx;  // CoM from beginning of motor
 		
 		if ( this.type.includesMotorCasing && this.type.includesPropellant ){
-			eachMass = motor.getTotalMass( simulationTime );
-			eachCMx = motor.getCMx( simulationTime);
+			eachMass = motor.getTotalMass( motorTime );
+			eachCMx = motor.getCMx( motorTime);
 		}else if( this.type.includesMotorCasing ) {
 			eachMass = motor.getTotalMass( Motor.PSEUDO_TIME_BURNOUT );
 			eachCMx = motor.getCMx( Motor.PSEUDO_TIME_BURNOUT );
 		} else {
-			final double eachMotorMass = motor.getTotalMass( simulationTime );
-			final double eachMotorCMx = motor.getCMx( simulationTime); // CoM from beginning of motor
+			final double eachMotorMass = motor.getTotalMass( motorTime );
+			final double eachMotorCMx = motor.getCMx( motorTime ); // CoM from beginning of motor
 			final double eachCasingMass = motor.getBurnoutMass();
 			final double eachCasingCMx = motor.getBurnoutCGx();
 			
@@ -214,7 +232,7 @@ public class MassCalculation {
 			eachCMx = (eachMotorCMx*eachMotorMass - eachCasingCMx*eachCasingMass)/eachMass;
 		}
 
-//		System.err.println(String.format("%-40s|Motor: %s....  Mass @%f = %.6f", prefix, motorConfig.toDescription(), simulationTime, eachMass ));
+//		System.err.println(String.format("%-40s|Motor: %s....  Mass @%f = %.6f", prefix, motorConfig.toDescription(), motorTime, eachMass ));
 
 
 		// coordinates in rocket frame; Ir, It about CoM.
@@ -390,15 +408,15 @@ public class MassCalculation {
 //		}
 
 		if (component.isMotorMount()) {
-			MassCalculation propellant = this.copy(component, parentTransform);
+			MassCalculation motor = this.copy(component, parentTransform);
 			
-			propellant.calculateMountData();
+			motor.calculateMountData();
 
-			this.merge( propellant );
+			this.merge( motor );
 
 //			// vvv DEBUG
-//			if( 0 < propellant.getMass() ) {
-//				System.err.println(String.format( "%s........++ propellantData: %s", prefix, propellant.toCMDebug()));
+//			if( 0 < motor.getMass() ) {
+//				System.err.println(String.format( "%s........++ motorData: %s", prefix, propellant.toCMDebug()));
 //			}
 
 		}

@@ -613,9 +613,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 
 		if( null != store.motorMass ){
-			data.setValue(FlightDataType.TYPE_PROPELLANT_MASS, store.motorMass.getMass());
-			//data.setValue(FlightDataType.TYPE_PROPELLANT_LONGITUDINAL_INERTIA, store.propellantMassData.getLongitudinalInertia());
-			//data.setValue(FlightDataType.TYPE_PROPELLANT_ROTATIONAL_INERTIA, store.propellantMassData.getRotationalInertia());
+			data.setValue(FlightDataType.TYPE_MOTOR_MASS, store.motorMass.getMass());
+			//data.setValue(FlightDataType.TYPE_MOTOR_LONGITUDINAL_INERTIA, store.motorMassData.getLongitudinalInertia());
+			//data.setValue(FlightDataType.TYPE_MOTOR_ROTATIONAL_INERTIA, store.motorMassData.getRotationalInertia());
 		}
 		if (store.rocketMass != null) {
 			// N.B.: These refer to total mass

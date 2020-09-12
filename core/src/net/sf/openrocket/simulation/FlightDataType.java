@@ -91,8 +91,8 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Stability information
 	//// Mass
 	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), "m", UnitGroup.UNITS_MASS, 50);
-	//// Propellant mass
-	public static final FlightDataType TYPE_PROPELLANT_MASS = newType(trans.get("FlightDataType.TYPE_PROPELLANT_MASS"), "mp", UnitGroup.UNITS_MASS, 51);
+	//// Motor mass
+	public static final FlightDataType TYPE_MOTOR_MASS = newType(trans.get("FlightDataType.TYPE_MOTOR_MASS"), "mp", UnitGroup.UNITS_MASS, 51);
 	//// Longitudinal moment of inertia
 	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType(trans.get("FlightDataType.TYPE_LONGITUDINAL_INERTIA"), "Il", UnitGroup.UNITS_INERTIA, 52);
 	//// Rotational moment of inertia
@@ -209,7 +209,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		TYPE_PITCH_RATE,
 		TYPE_YAW_RATE,
 		TYPE_MASS,
-		TYPE_PROPELLANT_MASS,
+		TYPE_MOTOR_MASS,
 		TYPE_LONGITUDINAL_INERTIA,
 		TYPE_ROTATIONAL_INERTIA,
 		TYPE_CP_LOCATION,

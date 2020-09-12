@@ -41,7 +41,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		// dm/dt = (thrust - ma)/v
 		FlightDataBranch data = status.getFlightData();
 		
-		List<Double> mpAll = data.get(FlightDataType.TYPE_PROPELLANT_MASS);
+		List<Double> mpAll = data.get(FlightDataType.TYPE_MOTOR_MASS);
 		List<Double> time = data.get(FlightDataType.TYPE_TIME);
 		if (mpAll == null || time == null) {
 			return Double.NaN;

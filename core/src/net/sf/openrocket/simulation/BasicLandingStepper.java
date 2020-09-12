@@ -122,7 +122,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
 		
 		data.setValue(FlightDataType.TYPE_MASS, mass);
-		data.setValue(FlightDataType.TYPE_PROPELLANT_MASS, 0.0); // Is this a reasonable assumption? Probably.
+		data.setValue(FlightDataType.TYPE_MOTOR_MASS, 0.0); // Is this a reasonable assumption? Probably.
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
