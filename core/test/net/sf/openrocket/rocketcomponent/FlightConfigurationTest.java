@@ -350,6 +350,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		FlightConfiguration selected = rocket.getSelectedConfiguration();
 
 		selected.clearAllStages();
+		selected.toggleStage(1);
 		selected.toggleStage(2);
 
 		// vvvv Test Target vvvv
