@@ -289,11 +289,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public InstanceMap getActiveInstances() {
 		InstanceMap contexts = new InstanceMap();
-		getContextListAt( this.rocket, contexts, Transformation.IDENTITY);
+		getActiveContextListAt( this.rocket, contexts, Transformation.IDENTITY);
 		return contexts;
 	}
 
-	private InstanceMap getContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
+	private InstanceMap getActiveContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
 		final boolean active = this.isComponentActive(component);
 		if (!active)
 			return results;
@@ -315,7 +315,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			results.emplace(component, active, currentInstanceNumber, currentTransform);
 
 			for(RocketComponent child : component.getChildren()) {
-				getContextListAt(child, results, currentTransform);
+				getActiveContextListAt(child, results, currentTransform);
 			}
 		}
 
