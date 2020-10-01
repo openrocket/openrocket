@@ -641,7 +641,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			if (!(c instanceof SymmetricComponent))
 				continue;
-			
+
 			SymmetricComponent s = (SymmetricComponent) c;
 			
 			// iterate across component instances
@@ -671,8 +671,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 				// if I'm the last component, set my base CD
 				// note:  the iterator *should* serve up the next component.... buuuut ....
-				//        this code has is tested, and there's no compelling reason to change. 
-				if (s.getNextSymmetricComponent() == null) {
+				//        this code has is tested, and there's no compelling reason to change.
+				final SymmetricComponent n = s.getNextSymmetricComponent();
+				if ((n == null) ||
+					!configuration.isStageActive(n.getStageNumber())) {
 					double area = Math.PI * pow2(s.getAftRadius());
 					double cd = base * area / conditions.getRefArea();
 					total += cd;
