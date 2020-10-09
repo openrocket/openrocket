@@ -15,24 +15,26 @@ import net.sf.openrocket.util.Transformation;
 public class RailButtonShapes extends RocketComponentShape {
 	
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+		final RailButton btn = (RailButton)component;
 
-		RailButton btn = (RailButton)component;
-
-		final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
-		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
-
-		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
-		final double angle_offset_rad = btn.getAngleOffset();
 		final double baseHeight = btn.getStandoff();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
+		
 		final double outerDiameter = btn.getOuterDiameter();
 		final double outerRadius = outerDiameter/2;
 		final double innerDiameter = btn.getInnerDiameter();
 		final double innerRadius = innerDiameter/2;
-	
+		
+		// instance absolute location
+		final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
+		
+		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
+		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
+		final double angle_offset_rad = btn.getAngleOffset();
 		final double sinr = Math.abs(Math.sin(angle_offset_rad + view_rotation_rad));
 		final double cosr = Math.cos(angle_offset_rad + view_rotation_rad);
+		
 		final double baseHeightcos = baseHeight*cosr;
 		final double innerHeightcos = innerHeight*cosr;
 		final double flangeHeightcos = flangeHeight*cosr;
@@ -81,12 +83,8 @@ public class RailButtonShapes extends RocketComponentShape {
 	
 
 	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
-	
-		RailButton btn = (RailButton)component;
+		final RailButton btn = (RailButton)component;
 
-		final double rotation_rad = btn.getAngleOffset();
-		final double sinr = Math.sin(rotation_rad);
-		final double cosr = Math.cos(rotation_rad);
 		final double baseHeight = btn.getStandoff();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
@@ -96,30 +94,36 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double innerDiameter = btn.getInnerDiameter();
 		final double innerRadius = innerDiameter/2;
 		
-		Coordinate[] inst = {transformation.transform(Coordinate.ZERO)};
+		// instance absolute location
+		final Coordinate loc = transformation.transform(Coordinate.ZERO);
 		
-		Shape[] s = new Shape[inst.length];
-		for (int i=0; i < inst.length; i++) {
-			Path2D.Double compound = new Path2D.Double();
-			s[i] = compound;
-			// base
-			compound.append( getRotatedRectangle( inst[i].z, inst[i].y, outerRadius, baseHeight, rotation_rad), false );
-			
-			{// inner
-				final double delta_r = baseHeight;
-				final double delta_y = delta_r*cosr;
-				final double delta_z = delta_r*sinr;
-				compound.append( getRotatedRectangle( inst[i].z+delta_z, inst[i].y+delta_y, innerRadius, innerHeight, rotation_rad ), false);
-			}
-			{// outer flange
-				final double delta_r = baseHeight + innerHeight;
-				final double delta_y = delta_r*cosr;
-				final double delta_z = delta_r*sinr;
-				compound.append( getRotatedRectangle( inst[i].z+delta_z, inst[i].y+delta_y, outerRadius, flangeHeight, rotation_rad ), false);
-			}
+		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
+		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
+		final double angle_offset_rad = btn.getAngleOffset();
+		final double combined_angle_rad = angle_offset_rad + view_rotation_rad;
+
+		final double sinr = Math.sin(combined_angle_rad);
+		final double cosr = Math.cos(combined_angle_rad);
+		
+		Path2D.Double path = new Path2D.Double();
+
+		// base
+		path.append( getRotatedRectangle( loc.z, loc.y, outerRadius, baseHeight, combined_angle_rad), false );
+		
+		{// inner
+			final double delta_r = baseHeight;
+			final double delta_y = delta_r*cosr;
+			final double delta_z = delta_r*sinr;
+			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, innerRadius, innerHeight, combined_angle_rad), false);
+		}
+		{// outer flange
+			final double delta_r = baseHeight + innerHeight;
+			final double delta_y = delta_r*cosr;
+			final double delta_z = delta_r*sinr;
+			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
 		}
 
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShape.toArray( new Shape[]{ path }, component);
 	}
 	
 	
