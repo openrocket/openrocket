@@ -300,10 +300,10 @@ public class MassCalculation {
 		final Coordinate[] allInstanceOffsets = component.getInstanceLocations();
 		final double[] allInstanceAngles = component.getInstanceAngles();
 
-		// // vvv DEBUG
-		// if( this.config.isComponentActive(component) ){
-		// 	System.err.println(String.format( "%s>>[%s]....", prefix, component.getName()));
-		// }
+		// vvv DEBUG
+		//if( this.config.isComponentActive(component) ){
+		//	System.err.println(String.format( "%s>>[%s]....", prefix, component.getName()));
+		//}
 
 		if(null != analysisMap) {
 			if (this.config.isComponentActive(component) && (! analysisMap.containsKey(component.hashCode()))){
@@ -355,10 +355,11 @@ public class MassCalculation {
 				}
 			}else {
 				if (component.isMassOverridden()) {
-					compCM = compCM.setWeight(MathUtil.max(component.getOverrideMass(), MIN_MASS));
+					compCM = compCM.setWeight( component.getOverrideMass() );
 				}
 				if (component.isCGOverridden()) {
-					compCM = compCM.setXYZ(component.getOverrideCG());
+					final Coordinate compZero = parentTransform.transform( Coordinate.ZERO );
+					compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
 				}
 				this.addMass( compCM );
 			}
