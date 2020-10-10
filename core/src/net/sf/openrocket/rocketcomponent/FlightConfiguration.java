@@ -182,6 +182,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private void _setStageActive(final int stageNumber, final boolean _active ) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
+			fireChangeEvent();
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);

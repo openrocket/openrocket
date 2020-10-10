@@ -4,6 +4,9 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
@@ -29,6 +32,7 @@ import net.sf.openrocket.util.Reflection;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
+	private static final Logger log = LoggerFactory.getLogger(BarrowmanCalculator.class);
 	
 	private static final String BARROWMAN_PACKAGE = "net.sf.openrocket.aerodynamics.barrowman";
 	private static final String BARROWMAN_SUFFIX = "Calc";
@@ -328,7 +332,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
-		
+
 		Re = conditions.getVelocity() * configuration.getLength() /
 				conditions.getAtmosphericConditions().getKinematicViscosity();
 		
@@ -637,7 +641,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			if (!(c instanceof SymmetricComponent))
 				continue;
-			
+
 			SymmetricComponent s = (SymmetricComponent) c;
 			
 			// iterate across component instances
@@ -667,8 +671,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 				// if I'm the last component, set my base CD
 				// note:  the iterator *should* serve up the next component.... buuuut ....
-				//        this code has is tested, and there's no compelling reason to change. 
-				if (s.getNextSymmetricComponent() == null) {
+				//        this code has is tested, and there's no compelling reason to change.
+				final SymmetricComponent n = s.getNextSymmetricComponent();
+				if ((n == null) ||
+					!configuration.isStageActive(n.getStageNumber())) {
 					double area = Math.PI * pow2(s.getAftRadius());
 					double cd = base * area / conditions.getRefArea();
 					total += cd;
