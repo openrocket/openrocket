@@ -344,12 +344,13 @@ public class MassCalculation {
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
 			if (component.getOverrideSubcomponents()) {
-				if (component.isMassOverridden()) {
-					double newMass = MathUtil.max(component.getOverrideMass(), MIN_MASS);
-					Coordinate newCM = this.getCM().setWeight( newMass );
-					this.setCM( newCM );
+				if( component.isMassive() ){
+					// if this component mass, merge it in before overriding:
+					this.addMass( compCM );
 				}
-				
+				if (component.isMassOverridden()) {
+					this.setCM( this.getCM().setWeight(component.getOverrideMass()) );
+				}
 				if (component.isCGOverridden()) {
 					this.setCM( this.getCM().setX( compCM.x + component.getOverrideCGX()));
 				}
