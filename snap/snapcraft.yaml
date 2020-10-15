@@ -21,7 +21,7 @@ grade: stable
 confinement: strict
 
 plugs:
-  dot-java-user-prefs:
+  dot-java-user-prefs-openrocket:
     interface: personal-files
     read:
       - $HOME/.java/.userPrefs/OpenRocket
@@ -44,7 +44,7 @@ apps:
       - network
       - cups-control
       - opengl
-      - dot-java-user-prefs
+      - dot-java-user-prefs-openrocket
       - dot-openrocket-db
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
