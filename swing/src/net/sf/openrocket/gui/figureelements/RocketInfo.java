@@ -41,12 +41,12 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private final FlightConfiguration configuration;
 	private final UnitGroup stabilityUnits;
 	
+	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
 	private double length = 0, diameter = 0;
-	private double mass = 0;
+	private double massWithMotors = 0;
 	private double aoa = Double.NaN;
 	private double theta = Double.NaN;
 	private double mach = Application.getPreferences().getDefaultMach();
@@ -111,11 +111,11 @@ public class RocketInfo implements FigureElement {
 	public void setDiameter(double diameter) {
 		this.diameter = diameter;
 	}
-
-	public void setMass(double mass) {
-		this.mass = mass;
+	
+	public void setMassWithMotors(double mass) {
+		this.massWithMotors = mass;
 	}
-
+	
 	public void setMassWithoutMotors(double mass) {
 		this.massWithoutMotors = mass;
 	}
@@ -175,11 +175,10 @@ public class RocketInfo implements FigureElement {
 		if( configuration.hasMotors() ) {
 			//// Mass with motors
 			massTextWithMotors = trans.get("RocketInfo.massWithMotors") + " ";
-			massTextWithMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
+			massTextWithMotors += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(massWithMotors);
 			GlyphVector massLineWithMotors = createText(massTextWithMotors);
 			g2.drawGlyphVector(massLineWithMotors, x1, y1+3*line);
 		}
-
 	}
 	
 	
@@ -254,8 +253,8 @@ public class RocketInfo implements FigureElement {
      * 
      * @return the mass
      */
-    public double getMass() {
-        return mass;
+    public double getMassWithMotors() {
+        return massWithMotors;
     }
 
     /**
@@ -265,8 +264,8 @@ public class RocketInfo implements FigureElement {
      * 
      * @return the mass
      */
-    public String getMass(Unit u) {
-        return u.toStringUnit(mass);
+    public String getMassWithMotors(Unit u) {
+        return u.toStringUnit(massWithMotors);
     }
     
     /**
@@ -450,5 +449,8 @@ public class RocketInfo implements FigureElement {
 		float size=(float) (Application.getPreferences().getRocketInfoFontSize()-2.0);
 		return (SMALLFONT.deriveFont(size)).createGlyphVector(g2.getFontRenderContext(), text);
 	}
-
+	
+	public void setCurrentConfig(FlightConfiguration newConfig) {
+		this.configuration = newConfig;
+	}
 }

@@ -573,6 +573,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		FlightConditions conditions = new FlightConditions(curConfig);
 		warnings.clear();
 
+		extraText.setCurrentConfig(curConfig);
+
 		if (!Double.isNaN(cpMach)) {
 			conditions.setMach(cpMach);
 			extraText.setMach(cpMach);
@@ -601,15 +603,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cp = aerodynamicCalculator.getWorstCP(curConfig, conditions, warnings);
 		}
 		extraText.setTheta(cpTheta);
-
-		cg = MassCalculator.calculateLaunch( curConfig).getCM();
-
 		if (cp.weight > MathUtil.EPSILON){
 			cpx = cp.x;
 			// map the 3D value into the 2D Display Panel
 			cpy = cp.y * Math.cos(rotation) + cp.z*Math.sin(rotation);
 		}
 		
+		cg = MassCalculator.calculateLaunch( curConfig).getCM();
 		if (cg.weight > MassCalculator.MIN_MASS){
 			cgx = cg.x;
 			// map the 3D value into the 2D Display Panel
@@ -636,7 +636,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setCP(cpx);
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
-		extraText.setMass(cg.weight);
+		extraText.setMassWithMotors(cg.weight);
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
 		extraText.setWarnings(warnings);
 
