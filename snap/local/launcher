@@ -8,11 +8,33 @@ export XDG_CURRENT_DESKTOP=GNOME
 
 JAVA_OPTS="-Dsun.java2d.xrender=true -Dprism.useFontConfig=false -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dswing.crossplatformlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.io.tmpdir=$SNAP_USER_COMMON"
 
-if ! snapctl is-connected dot-java-user-prefs-openrocket; then
-    JAVA_OPTS="$JAVA_OPTS -Djava.util.prefs.userRoot=$SNAP_USER_COMMON/"
+#
+# Determine if we need to migrate user preferences from a previous
+# installation or not. This will be determined if the dot-java-user-prefs
+# interface is connected (should be autoconnected via the installation)
+# and the user's $HOME/.java/.userPrefs/OpenRocket directory exists.
+# Note, $HOME is remapped within a snap so it is necessary to use
+# SNAP_REAL_HOME instead.
+#
+if snapctl is-connected dot-java-user-prefs-openrocket; then
+    SRC_PREFS=$SNAP_REAL_HOME/.java/.userPrefs/OpenRocket
+    TGT_PREFS=$SNAP_USER_COMMON/.java/.userPrefs/
+    if [[ -d $SRC_PREFS && ! -d "$TGT_PREFS" ]]; then
+        echo "Migrating user preferences from $SRC_PREFS to $TGT_PREFS"
+        mkdir -p $TGT_PREFS
+        cp -r "$SRC_PREFS" "$TGT_PREFS"
+    fi
 fi
 
-if ! snapctl is-connected dot-openrocket-db; then
+# Configure the preferences to use $SNAP_USER_COMMON
+# rather than the standard $HOME/.java/.userPrefs directory
+# For security reasons, the Snap store team will not grant
+# write access generically to the java user preferences storage
+# as it would allow the app to read any data stored in the java
+# user prefs dir. So we'll force it to use the snap.
+JAVA_OPTS="$JAVA_OPTS -Djava.util.prefs.userRoot=$SNAP_USER_COMMON/"
+
+if ! snapctl is-connected dot-openrocket; then
     JAVA_OPTS="$JAVA_OPTS -Duser.home=$SNAP_USER_COMMON/"
 fi
 
