@@ -91,3 +91,4 @@ fabric.properties
 openrocket.log
 
 *.snap
+prime/*

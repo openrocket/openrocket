@@ -1,6 +1,6 @@
 name: openrocket
 adopt-info: openrocket
-grade: stable
+grade: devel
 summary: A free, fully featured model rocket simulator.
 description: |
   OpenRocket is a free, fully featured model rocket simulator that allows you
@@ -16,8 +16,6 @@ description: |
     * Read more about it on the OpenRocket.info.
 license: GPL-3.0
 base: core18
-
-grade: stable
 confinement: strict
 
 plugs:
@@ -25,12 +23,8 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.java/.userPrefs/OpenRocket
-    write:
-      - $HOME/.java/.userPrefs/OpenRocket
-  dot-openrocket-db:
+  dot-openrocket:
     interface: personal-files
-    read:
-      - $HOME/.openrocket
     write:
       - $HOME/.openrocket
 
@@ -45,7 +39,7 @@ apps:
       - cups-control
       - opengl
       - dot-java-user-prefs-openrocket
-      - dot-openrocket-db
+      - dot-openrocket
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
 
