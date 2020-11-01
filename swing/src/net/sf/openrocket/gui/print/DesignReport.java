@@ -253,7 +253,7 @@ public class DesignReport {
 		} else {
 			canvas.newlineShowText(MASS_EMPTY);
 		}
-		canvas.showText(text.getMass(UnitGroup.UNITS_MASS.getDefaultUnit()));
+		canvas.showText(text.getMassWithMotors(UnitGroup.UNITS_MASS.getDefaultUnit()));
 		
 		canvas.newlineShowText(STABILITY);
 		canvas.showText(text.getStability());
