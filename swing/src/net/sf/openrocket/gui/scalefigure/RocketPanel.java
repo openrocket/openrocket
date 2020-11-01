@@ -682,9 +682,27 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			extraText.setCalculatingData(true);
 
 			Rocket duplicate = (Rocket) document.getRocket().copy();
-			Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-			simulation.setFlightConfigurationId( document.getSelectedConfiguration().getId());
 
+			// find a Simulation based on the current flight configuration
+			FlightConfigurationId curID = curConfig.getFlightConfigurationID();
+			Simulation simulation = null;
+			for (Simulation sim : document.getSimulations()) {
+				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
+					simulation = sim;
+					break;
+				}
+			}
+
+			// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
+			// if there isn't one we'll create a new simulation to update the statistics in the panel using the
+			// default simulation conditions
+			if (simulation == null) {
+				System.out.println("creating new simulation");
+				simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
+				simulation.setFlightConfigurationId( document.getSelectedConfiguration().getId());
+			} else
+				System.out.println("using pre-existing simulation");
+			
 			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
 			backgroundSimulationExecutor.execute(backgroundSimulationWorker);
 		}
