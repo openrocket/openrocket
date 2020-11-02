@@ -92,7 +92,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		
 		////  Radial position:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Radialpos")));
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Angle")));
 		
 		m = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, 180);
 		
