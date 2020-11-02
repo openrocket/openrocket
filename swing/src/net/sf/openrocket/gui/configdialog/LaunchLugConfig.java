@@ -101,7 +101,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-180, 180) ), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI) ), "w 100lp, wrap");
 		
 		// finish up the left column
 		primary.add(panel, "grow, gapright 20lp");
