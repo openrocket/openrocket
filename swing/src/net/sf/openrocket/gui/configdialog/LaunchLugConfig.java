@@ -94,8 +94,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		////  Radial position:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Radialpos")));
 		
-		m = new DoubleModel(component, "AngularOffset", UnitGroup.UNITS_ANGLE, -180, 180);
-
+		m = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, 180);
+		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -103,11 +103,11 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-180, 180) ), "w 100lp, wrap");
 		
-		
+		// finish up the left column
 		primary.add(panel, "grow, gapright 20lp");
+		
+		// create a new panel for the right column
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		
-		
 		
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));		

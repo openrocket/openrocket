@@ -35,7 +35,7 @@ public class LaunchLugDTO extends BasePartDTO {
         super(theORLaunchLug);
         setId(theORLaunchLug.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setOd(theORLaunchLug.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRadialAngle(theORLaunchLug.getAngularOffset());
+        setRadialAngle(theORLaunchLug.getAngleOffset());
     }
 
     public double getOd() {

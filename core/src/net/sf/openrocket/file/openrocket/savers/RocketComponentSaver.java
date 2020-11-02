@@ -88,31 +88,30 @@ public class RocketComponentSaver {
 		if ( c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
 			
-			if( c instanceof Clusterable ){
+			if (c instanceof Clusterable) {
 				; // no-op.  Instance counts are set via named cluster configurations
-			}else {
+			} else {
 				emitInteger(elements, "instancecount", c.getInstanceCount());
 			}
 			
-			if( c instanceof LineInstanceable ){
-				LineInstanceable line = (LineInstanceable)c;
-				emitDouble( elements, "instanceseparation", line.getInstanceSeparation());
+			if (c instanceof LineInstanceable) {
+				LineInstanceable line = (LineInstanceable) c;
+				emitDouble(elements, "instanceseparation", line.getInstanceSeparation());
 			}
-			if( c instanceof RadiusPositionable ){
-				final RadiusPositionable radPos = (RadiusPositionable)c;
-				// The type names are currently equivalent to the enum names except for case.
-				final String radiusMethod = radPos.getRadiusMethod().name().toLowerCase(Locale.ENGLISH);
-				final double radiusOffset = radPos.getRadiusOffset();
-				elements.add("<radiusoffset method=\"" + radiusMethod + "\">" + radiusOffset + "</radiusoffset>");
-			}
-			if( c instanceof AnglePositionable ) { 
-				final AnglePositionable anglePos= (AnglePositionable)c; 
-				// The type names are currently equivalent to the enum names except for case.
-				final String angleMethod = anglePos.getAngleMethod().name().toLowerCase(Locale.ENGLISH);
-				final double angleOffset = anglePos.getAngleOffset()*180.0/Math.PI ;
-				elements.add("<angleoffset method=\"" + angleMethod + "\">" + angleOffset + "</angleoffset>");
-				
-			}
+		}
+		if( c instanceof RadiusPositionable ){
+			final RadiusPositionable radPos = (RadiusPositionable)c;
+			// The type names are currently equivalent to the enum names except for case.
+			final String radiusMethod = radPos.getRadiusMethod().name().toLowerCase(Locale.ENGLISH);
+			final double radiusOffset = radPos.getRadiusOffset();
+			elements.add("<radiusoffset method=\"" + radiusMethod + "\">" + radiusOffset + "</radiusoffset>");
+		}
+		if( c instanceof AnglePositionable ) {
+			final AnglePositionable anglePos = (AnglePositionable)c;
+			// The type names are currently equivalent to the enum names except for case.
+			final String angleMethod = anglePos.getAngleMethod().name().toLowerCase(Locale.ENGLISH);
+			final double angleOffset = anglePos.getAngleOffset()*180.0/Math.PI;
+			elements.add("<angleoffset method=\"" + angleMethod + "\">" + angleOffset + "</angleoffset>");
 		}
 		
 		// Save position unless "AFTER"

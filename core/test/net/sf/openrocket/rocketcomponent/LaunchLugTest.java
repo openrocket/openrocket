@@ -42,7 +42,7 @@ public class LaunchLugTest extends BaseTestCase {
 		BodyTube body= (BodyTube)rocket.getChild(0).getChild(1);
 		LaunchLug lug = (LaunchLug)rocket.getChild(0).getChild(1).getChild(1);
 		double startAngle = Math.PI/2;
-		lug.setAngularOffset( startAngle );
+		lug.setAngleOffset( startAngle );
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
 

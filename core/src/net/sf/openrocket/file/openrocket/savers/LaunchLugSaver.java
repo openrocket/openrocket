@@ -28,7 +28,6 @@ public class LaunchLugSaver extends ExternalComponentSaver {
 		elements.add("<radius>" + lug.getOuterRadius() + "</radius>");
 		elements.add("<length>" + lug.getLength() + "</length>");
 		elements.add("<thickness>" + lug.getThickness() + "</thickness>");
-		elements.add("<radialdirection>" + (lug.getAngularOffset()*180.0/Math.PI)+ "</radialdirection>");
 	}
 
 
