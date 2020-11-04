@@ -134,7 +134,7 @@ public class RocksimLoaderTest extends BaseTestCase {
 
         BodyTube bt = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt.getChild(6);
-        Assert.assertEquals(1.22d, ll.getAngularOffset(), 0.001);
+        Assert.assertEquals(1.22d, ll.getAngleOffset(), 0.001);
 
         Assert.assertEquals(2, stage3.getChildCount());
         Assert.assertEquals("Transition", stage3.getChild(0).getName());

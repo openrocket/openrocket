@@ -21,13 +21,11 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	private double radius;
 	private double thickness;
 	
-	private double radialDirection = 0;
-	private double radialDistance = 0;
+	private double angleOffsetRadians = 0;
+	private double radialOffset = 0;
 	
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
-	
-	private double angle_rad = 0;
 	
 	public LaunchLug() {
 		super(AxialMethod.MIDDLE);
@@ -75,15 +73,17 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	public double getAngularOffset() {
-		return this.radialDirection;
+	@Override
+	public double getAngleOffset() {
+		return this.angleOffsetRadians;
 	}
-
-	public void setAngularOffset(final double newAngle_rad){
-		double clamped_rad = MathUtil.clamp( newAngle_rad, -Math.PI, Math.PI);
-		if (MathUtil.equals(this.radialDirection, clamped_rad))
+	
+	@Override
+	public void setAngleOffset(double newAngleRadians) {
+		double clamped_rad = MathUtil.clamp( newAngleRadians, -Math.PI, Math.PI);
+		if (MathUtil.equals(this.angleOffsetRadians, clamped_rad))
 			return;
-		this.radialDirection = clamped_rad;
+		this.angleOffsetRadians = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -93,7 +93,6 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 		this.length = length;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
 	
 	@Override
 	public boolean isAfter() {
@@ -126,8 +125,8 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double yOffset = Math.cos(radialDirection) * (radialDistance);
-		final double zOffset = Math.sin(radialDirection) * (radialDistance);
+		final double yOffset = Math.cos(angleOffsetRadians) * (radialOffset);
+		final double zOffset = Math.sin(angleOffsetRadians) * (radialOffset);
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
 			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
@@ -177,11 +176,8 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
 		}
 		
-		this.radialDistance = parentRadius + radius;
+		this.radialOffset = parentRadius + radius;
 	}
-	
-	
-	
 	
 	@Override
 	public double getComponentVolume() {
@@ -270,18 +266,6 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	@Override
 	public String getPatternName(){
 		return (this.getInstanceCount() + "-Line");
-	}
-
-
-	@Override
-	public double getAngleOffset() {
-		return this.angle_rad;
-	}
-
-
-	@Override
-	public void setAngleOffset(double newAngle) {
-		this.angle_rad = newAngle;
 	}
 
 
