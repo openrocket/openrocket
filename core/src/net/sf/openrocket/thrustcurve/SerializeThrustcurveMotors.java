@@ -161,20 +161,20 @@ public class SerializeThrustcurveMotors {
 				
 			}
 		}
-		
 	}
 	
 	private static List<MotorBurnFile> getThrustCurvesForMotorId(int motorId) {
+		String formats[] = new String[] {"RASP", "RockSim"};
 		List<MotorBurnFile> b = new ArrayList<>();
-		try {
-			b.addAll(ThrustCurveAPI.downloadData(motorId, "RockSim"));
-		} catch (Exception ex) {
-			System.out.println("\tError downloading RockSim for motorID=" + motorId);
-		}
-		try {
-			b.addAll(ThrustCurveAPI.downloadData(motorId, "RASP"));
-		} catch (Exception ex) {
-			System.out.println("\tError downloading RASP for motorID=" + motorId);
+		for (String format : formats) {
+			try {
+				List<MotorBurnFile> motorData = ThrustCurveAPI.downloadData(motorId, format);
+				if (motorData != null) {
+					b.addAll(motorData);
+				}
+			} catch (Exception ex) {
+				System.out.println("\tError downloading " + format + " for motorID=" + motorId + ": " + ex.getLocalizedMessage());
+			}
 		}
 		return b;
 	}
