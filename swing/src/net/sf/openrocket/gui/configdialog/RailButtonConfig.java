@@ -75,7 +75,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 			panel.add(angleSpinner, "growx");
 			panel.add(new UnitSelector( angleModel), "growx");
-			panel.add(new BasicSlider( angleModel.getSliderModel(-180, 180)), "w 100lp, wrap");
+			panel.add(new BasicSlider( angleModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		}
 
 		{ //// Position relative to:
