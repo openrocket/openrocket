@@ -79,31 +79,32 @@ class RememberFilenamePropertyListener implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event){
-		if( JFileChooser.SELECTED_FILE_CHANGED_PROPERTY == event.getPropertyName()){
+		if( JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(event.getPropertyName())){
 			if(null != event.getOldValue()){
 				this.oldFileName = ((File)event.getOldValue()).getName();
 			}
-			return;
-		}else if(JFileChooser.FILE_FILTER_CHANGED_PROPERTY == event.getPropertyName()){
-			JFileChooser chooser = (JFileChooser)event.getSource();	
-			SimpleFileFilter filter = (SimpleFileFilter)(chooser.getFileFilter());
-			String desiredExtension = filter.getExtensions()[0];
-
-			if( null == this.oldFileName){
-				return;
-			}
-			String thisFileName = this.oldFileName;
-
-			if ( filter.accept( new File(thisFileName))){
-				// nop 
-				return;
-			}else{
-				String[] splitResults = thisFileName.split("\\.");
-				if(0 < splitResults.length){
-					thisFileName = splitResults[0];
+		}else if(JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(event.getPropertyName())) {
+			JFileChooser chooser = (JFileChooser)event.getSource();
+			if( chooser.getFileFilter() instanceof SimpleFileFilter) {
+				SimpleFileFilter filter = (SimpleFileFilter) (chooser.getFileFilter());
+				String desiredExtension = filter.getExtensions()[0];
+				
+				if (null == this.oldFileName) {
+					return;
 				}
-				chooser.setSelectedFile(new File( thisFileName+desiredExtension));
-				return;
+				String thisFileName = this.oldFileName;
+				
+				if (filter.accept(new File(thisFileName))) {
+					// nop
+					return;
+				} else {
+					String[] splitResults = thisFileName.split("\\.");
+					if (0 < splitResults.length) {
+						thisFileName = splitResults[0];
+					}
+					chooser.setSelectedFile(new File(thisFileName + desiredExtension));
+					return;
+				}
 			}
 		}
 	}
