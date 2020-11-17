@@ -54,14 +54,7 @@ public class DatabaseMotorFinder implements MotorFinder {
 		
 		List<? extends Motor> motors;
 		
-		{
-			Motor m = Application.getMotorSetDatabase().findMotor(digest);
-			if (m != null) {
-				motors = Collections.<Motor> singletonList(m);
-			} else {
-				motors = Application.getMotorSetDatabase().findMotors(type, manufacturer, designation, diameter, length);
-			}
-		}
+		motors = Application.getMotorSetDatabase().findMotors(digest, type, manufacturer, designation, diameter, length);
 		
 		// No motors
 		if (motors.size() == 0) {

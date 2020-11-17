@@ -17,10 +17,7 @@ public interface MotorDatabase {
 	 * @param length		the length, or NaN.
 	 * @return				a list of all the matching motors.
 	 */
-	public List<? extends Motor> findMotors(Motor.Type type,
+	public List<? extends Motor> findMotors(String digest, Motor.Type type,
 			String manufacturer, String designation, double diameter,
 			double length);
-			
-	public Motor findMotor(String digest);
-	
 }
