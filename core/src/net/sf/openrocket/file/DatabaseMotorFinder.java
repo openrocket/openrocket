@@ -3,6 +3,9 @@ package net.sf.openrocket.file;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.motor.Motor;
@@ -16,6 +19,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class DatabaseMotorFinder implements MotorFinder {
+	private static final Logger log = LoggerFactory.getLogger(DatabaseMotorFinder.class);
 	
 	/**
 	 * Do something when a missing motor is found.
@@ -40,6 +44,8 @@ public class DatabaseMotorFinder implements MotorFinder {
 	
 	@Override
 	public Motor findMotor(Type type, String manufacturer, String designation, double diameter, double length, String digest, WarningSet warnings) {
+
+		log.debug("type " + type + ", manufacturer " + manufacturer + ", designation " + designation + ", diameter " +  diameter + ", length " + length + ", digest " +  digest + ", warnings " +  warnings);
 		
 		if (designation == null) {
 			warnings.add(Warning.fromString("No motor specified, ignoring."));
@@ -48,14 +54,7 @@ public class DatabaseMotorFinder implements MotorFinder {
 		
 		List<? extends Motor> motors;
 		
-		{
-			Motor m = Application.getMotorSetDatabase().findMotor(digest);
-			if (m != null) {
-				motors = Collections.<Motor> singletonList(m);
-			} else {
-				motors = Application.getMotorSetDatabase().findMotors(type, manufacturer, designation, diameter, length);
-			}
-		}
+		motors = Application.getMotorSetDatabase().findMotors(digest, type, manufacturer, designation, diameter, length);
 		
 		// No motors
 		if (motors.size() == 0) {
@@ -65,6 +64,9 @@ public class DatabaseMotorFinder implements MotorFinder {
 		// One motor
 		if (motors.size() == 1) {
 			Motor m = motors.get(0);
+			
+			log.debug("motor is " + m.getDesignation());
+
 			if (digest != null && !digest.equals(m.getDigest())) {
 				String str = "Motor with designation '" + designation + "'";
 				if (manufacturer != null)
