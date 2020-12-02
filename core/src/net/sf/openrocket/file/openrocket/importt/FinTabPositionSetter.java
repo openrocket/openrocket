@@ -2,6 +2,9 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -9,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.util.Reflection;
 
 class FinTabPositionSetter extends DoubleSetter {
+	private static final Logger log = LoggerFactory.getLogger(FinTabPositionSetter.class);
 	
 	public FinTabPositionSetter() {
 		super(Reflection.findMethod(FinSet.class, "setTabOffset", double.class));

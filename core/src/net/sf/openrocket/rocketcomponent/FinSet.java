@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 
@@ -23,6 +27,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
+	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
 	private static final Translator trans = Application.getTranslator();
 
 	/**
