@@ -305,6 +305,7 @@ public class FreeformFinSet extends FinSet {
 
 	@Override
 	public void update() {
+		final double oldLength = this.length;
 		this.length = points.get(points.size() -1).x - points.get(0).x;
 		this.setAxialOffset(this.axialMethod, this.axialOffset);
 
@@ -317,7 +318,8 @@ public class FreeformFinSet extends FinSet {
 			
 			clampLastPoint();
 
-			validateFinTab();
+			if (oldLength != this.length)
+				validateFinTab();
 		}
 	}
 
