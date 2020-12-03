@@ -33,7 +33,7 @@ public class MassComponentShapes extends RocketComponentShape {
 														radialDistance * Math.sin(radialAngleRadians));
 		final Coordinate renderPosition = transformation.transform(localPosition);
 		
-		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x - radius, renderPosition.y - radius, length, 2*radius, arc, arc)};
+		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x, renderPosition.y - radius, length, 2*radius, arc, arc)};
 		
 		final MassComponent.MassComponentType type = ((MassComponent)component).getMassComponentType();
 		switch (type) {
