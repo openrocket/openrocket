@@ -616,9 +616,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cgy = cg.y * Math.cos(rotation) + cg.z*Math.sin(rotation);
 		}
 
-		figure3d.setCG(cg);
-		figure3d.setCP(cp);
-
 		double length = curConfig.getLength();
 		
 		double diameter = Double.NaN;
@@ -640,6 +637,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
 		extraText.setWarnings(warnings);
 
+		if (length > 0) {
+			figure3d.setCG(cg);
+			figure3d.setCP(cp);
+		} else {
+			figure3d.setCG(new Coordinate(Double.NaN, Double.NaN));
+			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
+		}
+		
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
