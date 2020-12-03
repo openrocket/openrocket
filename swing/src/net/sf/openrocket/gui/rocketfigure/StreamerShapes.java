@@ -28,7 +28,7 @@ public class StreamerShapes extends RocketComponentShape {
 														radialDistance * Math.sin(radialAngleRadians));
 		final Coordinate renderPosition = transformation.transform(localPosition);
 		
-		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x - radius, renderPosition.y - radius, length, 2*radius, arc, arc)};
+		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x, renderPosition.y - radius, length, 2*radius, arc, arc)};
 		
 		return RocketComponentShape.toArray(addSymbol(s), component);
 	}
