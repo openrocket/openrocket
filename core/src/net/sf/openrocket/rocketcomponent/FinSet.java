@@ -317,6 +317,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	public void setTabOffsetMethod(final AxialMethod newPositionMethod) {
 		this.tabOffsetMethod = newPositionMethod;
 		this.tabOffset = tabOffsetMethod.getAsOffset( tabPosition, tabLength, length);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	/**
