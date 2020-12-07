@@ -22,7 +22,7 @@ public abstract class InternalComponent extends RocketComponent implements Axial
 	@Override
 	public void setAxialMethod(final AxialMethod newAxialMethod) {
 		super.setAxialMethod(newAxialMethod);
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 

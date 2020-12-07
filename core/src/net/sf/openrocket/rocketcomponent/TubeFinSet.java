@@ -225,7 +225,7 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	@Override
 	public void setAxialMethod(AxialMethod position) {
 		super.setAxialMethod(position);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	@Override
