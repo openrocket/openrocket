@@ -181,7 +181,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		
 		super.setAxialMethod(_newPosition);
 		
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	@Override

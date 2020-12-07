@@ -119,7 +119,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	@Override
 	public void setAxialMethod( final AxialMethod newMethod ) {
 		super.setAxialMethod( newMethod );
-		fireComponentChangeEvent( ComponentChangeEvent.BOTH_CHANGE );
+		fireComponentChangeEvent( ComponentChangeEvent.NONFUNCTIONAL_CHANGE );
 	}
 	
 	@Override

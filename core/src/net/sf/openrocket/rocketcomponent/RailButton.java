@@ -208,7 +208,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public void setAxialMethod( AxialMethod position) {
 		super.setAxialMethod(position);
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	public BoundingBox getInstanceBoundingBox(){
