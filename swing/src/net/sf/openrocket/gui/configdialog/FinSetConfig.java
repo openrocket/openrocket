@@ -35,9 +35,12 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.MathUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,7 +234,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 				double inRad = 0.0;
 				RocketComponent parent = component.getParent();
-				if (parent instanceof Coaxial) {
+				if (parent instanceof SymmetricComponent){
 					try {
 						document.startUndo("Compute fin tabs");
 						
@@ -263,7 +266,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						}
 
 						// compute tab height
-						double height = ((Coaxial) parent).getOuterRadius() - inRad;
+						double height = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
+													 ((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge())) - inRad;
+						// double height = ((Coaxial) parent).getOuterRadius() - inRad;
 						//Set fin tab height
 						if (height >= 0.0d) {
 							tabHeightModel.setValue(height);
