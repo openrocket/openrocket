@@ -333,7 +333,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
-	private double getTabTrailingEdge() {
+	public double getTabTrailingEdge() {
 		return tabPosition + tabLength;
 	}
 	
