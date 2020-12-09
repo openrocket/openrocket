@@ -99,7 +99,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 
 	@Override
 	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types ) {
-		return listForTypes( (ComponentPreset.Type[]) types.toArray() );
+		return listForTypes( types.toArray(new ComponentPreset.Type[0]) );
 	}
 
 	@Override
