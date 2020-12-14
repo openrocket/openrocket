@@ -34,8 +34,8 @@ public class FinPointFigure extends AbstractScaleFigure {
  
 	//private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
 
-	private static final Color GRID_MAJOR_LINE_COLOR = new Color( 64, 64, 128, 128);
-	private static final Color GRID_MINOR_LINE_COLOR = new Color( 64, 64, 128, 32);
+	private static final Color GRID_MAJOR_LINE_COLOR = new Color( 0, 0, 255, 80);
+	private static final Color GRID_MINOR_LINE_COLOR = new Color( 0, 0, 255, 30);
 	private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
 	private static final int LINE_WIDTH_FIN_PIXELS = 1;
@@ -45,10 +45,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private static final int LINE_WIDTH_BOX_PIXELS = 1;
 	private static final float BOX_WIDTH_PIXELS = 12;
 	private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
-	private static final Color POINT_COLOR = new Color(100, 100, 100);
-	private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0);
-	private static final double MINOR_TICKS = 0.01;
-	private static final double MAJOR_TICKS = 0.1;
+	private static final Color POINT_COLOR = new Color(100, 100, 100, 255);
+	private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0, 255);
+	private static final double MINOR_TICKS = 10.0;
+	private static final double MAJOR_TICKS = 100.0;
 
 	private final FreeformFinSet finset;
 	private int modID = -1;
@@ -123,7 +123,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		}
 
 		// vertical
-		Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS, MAJOR_TICKS);
+		Tick[] verticalTicks = unit.getTicks(x0, x1, MINOR_TICKS / this.scale, MAJOR_TICKS / this.scale);
 		Line2D.Double line = new Line2D.Double();
 		for (Tick t : verticalTicks) {
 			if (t.major) {
@@ -138,7 +138,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		}
 
 		// horizontal
-		Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS, MAJOR_TICKS);
+		Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS / this.scale, MAJOR_TICKS / this.scale);
 		for (Tick t : horizontalTicks) {
 			if (t.major) {
 				g2.setColor(FinPointFigure.GRID_MAJOR_LINE_COLOR);
