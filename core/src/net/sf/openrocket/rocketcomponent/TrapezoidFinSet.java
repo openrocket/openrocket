@@ -39,7 +39,7 @@ public class TrapezoidFinSet extends FinSet {
 	
 	
 	public TrapezoidFinSet() {
-		this(1, 0.05, 0.05, 0.025, 0.03);
+		this(3, 0.05, 0.05, 0.025, 0.03);
 	}
 	
 	// TODO: HIGH:  height=0 -> CP = NaN

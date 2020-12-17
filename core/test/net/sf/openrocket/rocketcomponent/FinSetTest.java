@@ -17,6 +17,12 @@ public class FinSetTest extends BaseTestCase {
 	public void testMultiplicity() {
 		final EllipticalFinSet fins = new EllipticalFinSet();
 		assertEquals(3, fins.getFinCount());
+		
+		final FreeformFinSet freeFins = new FreeformFinSet();
+		assertEquals(3, freeFins.getFinCount());
+		
+		final TrapezoidFinSet trapFins = new TrapezoidFinSet();
+		assertEquals(3, trapFins.getFinCount());
 	}
 
     /**
