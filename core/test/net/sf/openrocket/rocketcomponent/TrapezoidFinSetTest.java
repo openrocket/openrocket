@@ -55,7 +55,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 	@Test
 	public void testMultiplicity() {
 		final TrapezoidFinSet trapFins = new TrapezoidFinSet();
-		assertEquals(1, trapFins.getFinCount());
+		assertEquals(3, trapFins.getFinCount());
 	}
 
 	@Test
