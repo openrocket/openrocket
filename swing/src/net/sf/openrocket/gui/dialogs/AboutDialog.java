@@ -24,7 +24,7 @@ import net.sf.openrocket.util.Chars;
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
 	
-	public static final String OPENROCKET_URL = "http://openrocket.sourceforge.net/";
+	public static final String OPENROCKET_URL = "http://openrocket.info/";
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final String CREDITS = "<html><center>" +
@@ -35,15 +35,21 @@ public class AboutDialog extends JDialog {
 			"Bill Kuker (3D visualization)<br>" +
 			"Boris du Reau (internationalization, translation lead)<br>" +
 			"Richard Graham (geodetic computations)<br>" +
-			"Jason Blood (finset import)<br><br>" +
+			"Jason Blood (finset import)<br>" +
+			"Daniel Williams (pod support, maintainer)<br>" +
+			"Joe Pfeiffer (maintainer)<br>" +
+			"Billy Olsen (maintainer)<br>" +
+			"Neil Weinstock (tester, forum support)<br>" +
+			"H. Craig Miller (tester)<br><br>" +
 			"<b>Translations by:</b><br><br>" +
 			"Tripoli France (French)<br>" +
 			"Stefan Lobas / ERIG e.V. (German)<br>" +
 			"Tripoli Spain (Spanish)<br>" +
 			"Sky Dart Team (Russian)<br>" +
-			"Mauro Biasutti (Italian)<br><br>" +
-			"Vladimir Beran  (Czech)<br><br>" +
-			"Polish Rocketry Society / \u0141ukasz & Alex kazanski  (Polish)<br><br>" +
+			"Mauro Biasutti (Italian)<br>" +
+			"Vladimir Beran (Czech)<br>" +
+			"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br><br>" +
+			"See all contributors at <br>https://github.com/openrocket/openrocket/graphs/contributors<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
@@ -51,11 +57,11 @@ public class AboutDialog extends JDialog {
 			"exp4j (http://projects.congrace.de/exp4j/index.html)<br>" +
 			"JOGL (http://jogamp.org/jogl/www/)";
 	
-	
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
 		
 		final String version = BuildProperties.getVersion();
+		final String copyrightYear = BuildProperties.getCopyrightYear();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub;
@@ -70,7 +76,8 @@ public class AboutDialog extends JDialog {
 		
 		sub.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
 		sub.add(new StyledLabel(trans.get("lbl.version").trim() + " " + version, 3), "ax 50%, growy, wrap rel");
-		sub.add(new StyledLabel("Copyright " + Chars.COPY + " 2007-2013 Sampo Niskanen and others"), "ax 50%, growy, wrap para");
+		String copyright = String.format("Copyright %c 2007-%s Sampo Niskanen and others", Chars.COPY, copyrightYear);
+		sub.add(new StyledLabel(copyright), "ax 50%, growy, wrap para");
 		
 		sub.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");
 		panel.add(sub, "grow");
@@ -131,5 +138,4 @@ public class AboutDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
 	}
-	
 }
