@@ -45,7 +45,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private static final int LINE_WIDTH_BOX_PIXELS = 1;
 	private static final float BOX_WIDTH_PIXELS = 12;
 	private static final float SELECTED_BOX_WIDTH_PIXELS = BOX_WIDTH_PIXELS + 4;
-	private static final Color POINT_COLOR = new Color(100, 100, 100, 255);
+	private static final Color POINT_COLOR = new Color(200, 0, 0, 255);
 	private static final Color SELECTED_POINT_COLOR = new Color(200, 0, 0, 255);
 	private static final double MINOR_TICKS = 10.0;
 	private static final double MAJOR_TICKS = 100.0;
