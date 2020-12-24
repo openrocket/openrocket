@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -157,12 +158,14 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			}
 			
 			if (Application.getPreferences().getBoolean(Preferences.OPENGL_USE_FBO, false)) {
-				log.trace("GL - Creating GLJPanel");
-				canvas = new GLJPanel(caps);
+				log.trace("GL - enabling FBO");
+				caps.setFBO(true);
 			} else {
-				log.trace("GL - Creating GLCanvas");
-				canvas = new GLCanvas(caps);
+				log.trace("GL - disabling FBO");
+				caps.setFBO(false);
 			}
+			log.trace("GL - Creating GLJPanel");
+			canvas = new GLJPanel(caps);
 			
 			log.trace("GL - Registering as GLEventListener on canvas");
 			((GLAutoDrawable) canvas).addGLEventListener(this);
@@ -330,10 +333,27 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 	}
 	
+	/**
+	 * Creates a Graphics2D object for the overlay. The resultant Graphics2D
+	 * object has the rendering hints set and the transform to match the
+	 * current GraphicsConfiguration this component is rendered on. This takes
+	 * into account things such as DPI Scaling.
+	 *
+	 * @param overlay the overlay to use when creating the Graphics2D object.
+	 * @return Graphics2D a Graphics2D object for the overlay
+	 */
+	private Graphics2D createOverlayGraphics(final Overlay overlay) {
+		final Graphics2D og2d = overlay.createGraphics();
+		setRenderingHints(og2d);
+		GraphicsConfiguration gconf = getGraphicsConfiguration();
+		if (gconf != null) {
+			og2d.setTransform(gconf.getDefaultTransform());
+		}
+		return og2d;
+	}
 	
 	private void drawCarets(final GL2 gl, final GLU glu) {
-		final Graphics2D og2d = caretOverlay.createGraphics();
-		setRenderingHints(og2d);
+		final Graphics2D og2d = createOverlayGraphics(caretOverlay);
 		
 		og2d.setBackground(new Color(0, 0, 0, 0));
 		og2d.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -344,28 +364,27 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		Coordinate pCG = project(cg, gl, glu);
 		
 		final int d = CARET_SIZE / 2;
+		double height = canvas.getHeight();
+		
+		/* Need to take the displayScaling into account. If the scaling is not
+		 * taken into account here, the CG and CP carets are placed in the wrong
+		 * location. I *think* that's because the Coordinates returned by project(...)
+		 * are already appropriately scaled - but not 100% certain on that. The
+		 * following does work though.
+		 */
+		double displayScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+		AffineTransform cgTransform = AffineTransform.getTranslateInstance(((pCG.x / displayScale) - d), height - ((pCG.y / displayScale) + d));
+		AffineTransform cpTransform = AffineTransform.getTranslateInstance(((pCP.x / displayScale) - d), height - ((pCP.y / displayScale) + d));
 		
 		//z order the carets 
 		if (pCG.z < pCP.z) {
 			//Subtract half of the caret size, so they are centered ( The +/- d in each translate)
 			//Flip the sense of the Y coordinate from GL to normal (Y+ up/down)
-			og2d.drawRenderedImage(
-					cpCaretRaster,
-					AffineTransform.getTranslateInstance((pCP.x - d),
-							canvas.getHeight() - (pCP.y + d)));
-			og2d.drawRenderedImage(
-					cgCaretRaster,
-					AffineTransform.getTranslateInstance((pCG.x - d),
-							canvas.getHeight() - (pCG.y + d)));
+			og2d.drawRenderedImage(cpCaretRaster, cpTransform);
+			og2d.drawRenderedImage(cgCaretRaster, cgTransform);
 		} else {
-			og2d.drawRenderedImage(
-					cgCaretRaster,
-					AffineTransform.getTranslateInstance((pCG.x - d),
-							canvas.getHeight() - (pCG.y + d)));
-			og2d.drawRenderedImage(
-					cpCaretRaster,
-					AffineTransform.getTranslateInstance((pCP.x - d),
-							canvas.getHeight() - (pCP.y + d)));
+			og2d.drawRenderedImage(cgCaretRaster, cgTransform);
+			og2d.drawRenderedImage(cpCaretRaster, cpTransform);
 		}
 		og2d.dispose();
 		
@@ -388,8 +407,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		if (redrawExtras || extrasOverlay.contentsLost()) {
 			log.debug("Redrawing Overlay");
 			
-			final Graphics2D og2d = extrasOverlay.createGraphics();
-			setRenderingHints(og2d);
+			final Graphics2D og2d = createOverlayGraphics(extrasOverlay);
 			
 			og2d.setBackground(new Color(0, 0, 0, 0));
 			og2d.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
