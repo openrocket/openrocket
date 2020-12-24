@@ -264,6 +264,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		rotationSlider.setEnabled(true);
 		scaleSelector.setEnabled(true);
 		scrollPane.revalidate();
+		scrollPane.repaint();
 		revalidate();
 		figureHolder.revalidate();
 		figure.repaint();
