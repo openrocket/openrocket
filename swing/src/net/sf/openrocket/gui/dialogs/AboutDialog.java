@@ -55,7 +55,10 @@ public class AboutDialog extends JDialog {
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
 			"iText (http://www.itextpdf.com/)<br>" +
 			"exp4j (http://projects.congrace.de/exp4j/index.html)<br>" +
-			"JOGL (http://jogamp.org/jogl/www/)";
+			"JOGL (http://jogamp.org/jogl/www/)<br>" +
+			"Guava (https://github.com/google/guava)<br>" +
+			"Opencsv (http://opencsv.sourceforge.net/)<br>" +
+			"Simple Logging Facade for Java (http://www.slf4j.org/)";
 	
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
