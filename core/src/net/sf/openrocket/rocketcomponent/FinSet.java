@@ -274,7 +274,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		}
 		
 		tabHeight = newTabHeight;
-
+		validateFinTabHeight();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -293,7 +293,13 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 		tabLength = lengthRequest;
 		
+		setTabPosition();
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
+	protected void setTabPosition(){
+		this.tabPosition = this.tabOffsetMethod.getAsPosition(tabOffset, tabLength, length);
 	}
 	
 	/** 
@@ -303,7 +309,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
-		tabPosition = tabOffsetMethod.getAsPosition( tabOffset, tabLength, length);
+		setTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -318,7 +324,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
      */
 	public void setTabOffsetMethod(final AxialMethod newPositionMethod) {
 		this.tabOffsetMethod = newPositionMethod;
-		this.tabOffset = tabOffsetMethod.getAsOffset( tabPosition, tabLength, length);
+		this.tabOffset = this.tabOffsetMethod.getAsOffset(tabPosition, tabLength, length);
+		
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
@@ -340,25 +347,32 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return tabPosition + tabLength;
 	}
 	
-	public void validateFinTab(){
-		this.tabPosition = this.tabOffsetMethod.getAsPosition(tabOffset, tabLength, length);
-
+	public void validateFinTabPosition() {
 		//check front bounds:
-		if( tabPosition < 0){
+		if (tabPosition < 0) {
 			this.tabPosition = 0;
 		}
 
 		//check tail bounds:
-		if (this.length < tabPosition ) {
+		if (this.length < tabPosition) {
 			this.tabPosition = length;
 		}
+	}
+	
+	public void validateFinTabLength() {
+		//System.err.println(String.format("    >> Fin Tab Length: %.6f @ %.6f", tabLength, tabOffset));
+		
 		final double xTabBack = getTabTrailingEdge();
-		if( this.length < xTabBack ){
+		if (this.length < xTabBack) {
 			this.tabLength -= (xTabBack - this.length);
 		}
-
+		
 		tabLength = Math.max(0, tabLength);
-
+		
+		//System.err.println(String.format("    << Fin Tab Length: %.6f @ %.6f", tabLength, tabOffset));
+	}
+	
+	public void validateFinTabHeight(){
 		// check tab height 
 		if( null != getParent() ){
 			// pulls the parent-body radius at the fin-tab reference point.
@@ -792,7 +806,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			this.centerOfMass = Coordinate.NaN;
 			this.totalVolume = Double.NaN;
 			this.cantRotation = null;
-			validateFinTab();
 		}
 		
 		super.componentChanged(e);

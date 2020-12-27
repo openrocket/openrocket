@@ -93,7 +93,7 @@ public class FinSetTest extends BaseTestCase {
 			fins.setTabOffsetMethod( methods[caseIndex]);
 
 			//query
-			double actShift = fins.getTabOffset();
+			final double actShift = fins.getTabOffset();
 			assertEquals(String.format("Offset doesn't match for: %s \n", methods[caseIndex].name()), expShift[caseIndex], actShift, EPSILON);
 		}
 	}
@@ -148,7 +148,11 @@ public class FinSetTest extends BaseTestCase {
 		{   // MIDDLE -> native
 			fins.setTabOffsetMethod(AxialMethod.MIDDLE);
 			fins.setTabOffset(0.0);
-			fins.setTabHeight(0.02);
+			
+			assertEquals("Setting by MIDDLE method failed!", 0.015, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabLength(), EPSILON);
+			
 			fins.setTabLength(0.04);
 			
 			assertEquals("Setting by MIDDLE method failed!", 0.005, fins.getTabFrontEdge(), EPSILON);
@@ -171,9 +175,9 @@ public class FinSetTest extends BaseTestCase {
 		assertEquals("Setting by TOP method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
 
 		((TrapezoidFinSet)fins).setRootChord(0.08);
-
-		assertEquals("Front edge doesn't match after adjusting root chord...", 0.03, fins.getTabFrontEdge(), EPSILON);
+		
 		assertEquals("Offset doesn't match after adjusting root chord....", 0.0, fins.getTabOffset(), EPSILON);
+		assertEquals("Front edge doesn't match after adjusting root chord...", 0.03, fins.getTabFrontEdge(), EPSILON);
 	}
 
 	@Test
