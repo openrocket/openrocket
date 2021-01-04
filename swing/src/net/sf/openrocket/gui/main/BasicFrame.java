@@ -1369,7 +1369,7 @@ public class BasicFrame extends JFrame {
 
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
-		file = FileHelper.forceExtension(file, "ork");
+		file = FileHelper.forceExtension(file, "rkt");
 		if (FileHelper.confirmWrite(file, this) ) {
 			return saveAsRocksim(file);
 		}
