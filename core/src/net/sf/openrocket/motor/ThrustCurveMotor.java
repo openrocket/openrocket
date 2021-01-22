@@ -563,11 +563,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return cg[ (int)upperIndex ];
 		}
 		
+		// return simple linear interpolation
 		final Coordinate lowerValue = cg[lowerIndex].multiply(lowerFrac);
 		final Coordinate upperValue = cg[upperIndex].multiply(upperFrac);
 		
-		// return simple linear interpolation
-		return lowerValue.average( upperValue );
+		return lowerValue.add( upperValue );
 	}
 	
 	public int getDataSize() {
