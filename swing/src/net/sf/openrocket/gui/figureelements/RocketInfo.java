@@ -5,6 +5,7 @@ import static net.sf.openrocket.util.Chars.THETA;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
@@ -34,9 +35,8 @@ public class RocketInfo implements FigureElement {
 	private static final int MARGIN = 8;
 
 	// Font to use
-	private static final Font FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-	private static final Font SMALLFONT = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
-
+	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
+	private Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
 	
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
@@ -62,9 +62,6 @@ public class RocketInfo implements FigureElement {
 	private float x1, x2, y1, y2;
 	
 	
-	
-	
-	
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
@@ -79,9 +76,12 @@ public class RocketInfo implements FigureElement {
 	@Override
 	public void paint(Graphics2D myG2, double scale, Rectangle visible) {
 		this.g2 = myG2;
-		this.line = FONT.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+		
+		this.updateFontSizes();
+		
+		this.line = font.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 				myG2.getFontRenderContext()).getHeight() + 
-				FONT.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+				font.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 						myG2.getFontRenderContext()).getDescent();
 		
 		x1 = visible.x + MARGIN;
@@ -145,9 +145,6 @@ public class RocketInfo implements FigureElement {
 		this.calculatingData = calc;
 	}
 	
-	
-	
-	
 	private void drawMainInfo() {
 		GlyphVector name = createText(configuration.getRocket().getName());
 		GlyphVector lengthLine = createText(
@@ -193,19 +190,21 @@ public class RocketInfo implements FigureElement {
 			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
 		}
 		
-		GlyphVector cgValue = createText(
-                getCg());
-		GlyphVector cpValue = createText(
-                getCp());
-		GlyphVector stabValue = createText(
-                getStability());
+		GlyphVector cgValue = createText(getCg());
+		GlyphVector cpValue = createText(getCp());
+		GlyphVector stabValue = createText(getStability());
+		
 		//// CG:		
-		GlyphVector cgText = createText(trans.get("RocketInfo.cgText") +"  ");
+		GlyphVector cgText = createText(trans.get("RocketInfo.cgText"));
 		//// CP:
-		GlyphVector cpText = createText(trans.get("RocketInfo.cpText") +"  ");
+		GlyphVector cpText = createText(trans.get("RocketInfo.cpText"));
 		//// Stability:
-		GlyphVector stabText = createText(trans.get("RocketInfo.stabText") + "  ");
+		GlyphVector stabText = createText(trans.get("RocketInfo.stabText"));
 		GlyphVector atText = createSmallText(at);
+		
+		// GlyphVector visual bounds drops the spaces, so we'll add them
+		FontMetrics fontMetrics = g2.getFontMetrics(cgText.getFont());
+		int spaceWidth = fontMetrics.stringWidth(" ");
 
 		Rectangle2D cgRect = cgValue.getVisualBounds();
 		Rectangle2D cpRect = cpValue.getVisualBounds();
@@ -215,10 +214,11 @@ public class RocketInfo implements FigureElement {
 		Rectangle2D stabTextRect = stabText.getVisualBounds();
 		Rectangle2D atTextRect = atText.getVisualBounds();
 		
-		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth(),
-				stabRect.getWidth());
+		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth(), stabRect.getWidth());
 		double textWidth = Math.max(cpTextRect.getWidth(), cgTextRect.getWidth());
 		
+		// Add an extra space worth of width so the text doesn't run into the values
+		unitWidth = unitWidth + spaceWidth;
 
 		g2.setColor(Color.BLACK);
 
@@ -438,16 +438,23 @@ public class RocketInfo implements FigureElement {
 		return 3*line;
 	}
 	
-	
-	
+	private synchronized void updateFontSizes() {
+		float size = Application.getPreferences().getRocketInfoFontSize();
+		// No change necessary as the font is the same size, just use the existing version
+		if (font.getSize2D() == size) {
+			return;
+		}
+		// Update the font sizes to whatever the currently selected font size is
+		font = font.deriveFont(size);
+		smallFont = smallFont.deriveFont((float)(size - 2.0));
+	}
+		
 	private GlyphVector createText(String text) {
-		float size=Application.getPreferences().getRocketInfoFontSize();
-		return (FONT.deriveFont(size)).createGlyphVector(g2.getFontRenderContext(), text);
+		return font.createGlyphVector(g2.getFontRenderContext(), text);
 	}
 
 	private GlyphVector createSmallText(String text) {
-		float size=(float) (Application.getPreferences().getRocketInfoFontSize()-2.0);
-		return (SMALLFONT.deriveFont(size)).createGlyphVector(g2.getFontRenderContext(), text);
+		return smallFont.createGlyphVector(g2.getFontRenderContext(), text);
 	}
 	
 	public void setCurrentConfig(FlightConfiguration newConfig) {
