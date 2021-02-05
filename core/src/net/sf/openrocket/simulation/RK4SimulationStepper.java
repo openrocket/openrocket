@@ -204,10 +204,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			}
 		}
 		
-		// Store data
-		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
-		storeData(status, store);
-		
 
 		//// Second position, k2 = f(t + h/2, y + k1*h/2)
 		
@@ -269,6 +265,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
 		
 		status.setPreviousTimeStep(store.timestep);
+		
+		// Store data
+		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
+		storeData(status, store);
 		
 		// Verify that values don't run out of range
 		if (status.getRocketVelocity().length2() > 1e18 ||
