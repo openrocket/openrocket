@@ -1,18 +1,12 @@
 package net.sf.openrocket.gui.dialogs;
 
-import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -21,31 +15,31 @@ import java.util.TreeSet;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.jogamp.opengl.JoglVersion;
+
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.communication.BugReporter;
-import net.sf.openrocket.gui.components.SelectableLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
 import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.JarUtil;
-
-import com.jogamp.opengl.JoglVersion;
 
 @SuppressWarnings("serial")
 public class BugReportDialog extends JDialog {
 	
+	private static final String NEW_ISSUES_URL = "https://github.com/openrocket/openrocket/issues/new";
 	private static final String REPORT_EMAIL = "openrocket-bugs@lists.sourceforge.net";
+	private static final String REPORT_EMAIL_URL = "mailto:" + REPORT_EMAIL;
+	
 	private static final Translator trans = Application.getTranslator();
 	
 	
@@ -65,25 +59,21 @@ public class BugReportDialog extends JDialog {
 		//// <html>If connected to the Internet, you can simply click 
 		//// <em>Send bug report</em>.
 		label = new JLabel(trans.get("bugreport.dlg.connectedInternet"));
-		d = label.getPreferredSize();
-		d.width = 100000;
-		label.setMaximumSize(d);
-		panel.add(label, "gapleft para, wrap");
+		panel.add(label, "gapleft para, split 2, gapright rel");
+		
+		panel.add(new URLLabel(NEW_ISSUES_URL), "growx, wrap para");
 		
 		//// Otherwise, send the text below to the address:
 		panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") + " "),
-				"gapleft para, split 2, gapright rel");
-		panel.add(new SelectableLabel(REPORT_EMAIL), "growx, wrap para");
+				  "gapleft para, split 2, gapright rel");
+		panel.add(new URLLabel(REPORT_EMAIL_URL, REPORT_EMAIL), "growx, wrap para");
 		
 		
 		final JTextArea textArea = new JTextArea(message, 20, 70);
 		textArea.setEditable(true);
 		panel.add(new JScrollPane(textArea), "grow, wrap");
 		
-		
 		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
-		
-		
 		
 		////Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -95,67 +85,6 @@ public class BugReportDialog extends JDialog {
 		});
 		panel.add(close, "right, sizegroup buttons, split");
 		
-		
-		////  Mail button
-		//		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Action.MAIL)) {
-		//			JButton mail = new JButton("Open email");
-		//			mail.setToolTipText("Open email client with the suitable email ready.");
-		//			mail.addActionListener(new ActionListener() {
-		//				@Override
-		//				public void actionPerformed(ActionEvent e) {
-		//					String text = textArea.getText();
-		//					openEmail(text);
-		//				}
-		//			});
-		//			panel.add(mail, "right, sizegroup buttons");
-		//		}
-		
-		
-		////  Send bug report button
-		JButton send = new JButton(trans.get("bugreport.dlg.but.Sendbugreport"));
-		////  Automatically send the bug report to the OpenRocket developers.
-		send.setToolTipText(trans.get("bugreport.dlg.but.Sendbugreport.Ttip"));
-		send.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String text = textArea.getText();
-				if (text.equals(message) && !sendIfUnchanged) {
-					JOptionPane.showMessageDialog(BugReportDialog.this,
-							trans.get("bugreport.dlg.provideDescription"),
-							trans.get("bugreport.dlg.provideDescription.title"), JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				try {
-					
-					BugReporter.sendBugReport(text);
-					
-					// Success if we came here
-					//bugreport.dlg.successmsg
-					/*JOptionPane.showMessageDialog(BugReportDialog.this,
-							new Object[] { "Bug report successfully sent.",
-									"Thank you for helping make OpenRocket better!" },
-							"Bug report sent", JOptionPane.INFORMATION_MESSAGE);*/
-					JOptionPane.showMessageDialog(BugReportDialog.this,
-							new Object[] { trans.get("bugreport.dlg.successmsg1"),
-									trans.get("bugreport.dlg.successmsg2") },
-							trans.get("bugreport.dlg.successmsg3"), JOptionPane.INFORMATION_MESSAGE);
-					
-				} catch (Exception ex) {
-					// Sending the message failed.
-					JOptionPane.showMessageDialog(BugReportDialog.this,
-							//// OpenRocket was unable to send the bug report:
-							new Object[] { trans.get("bugreport.dlg.failedmsg1"),
-									ex.getClass().getSimpleName() + ": " + ex.getMessage(), " ",
-									//// Please send the report manually to 
-									trans.get("bugreport.dlg.failedmsg2") + " " + REPORT_EMAIL },
-							//// Error sending report
-							trans.get("bugreport.dlg.failedmsg3"), JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-		panel.add(send, "right, sizegroup buttons");
-		
 		this.add(panel);
 		
 		this.validate();
@@ -163,10 +92,8 @@ public class BugReportDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(parent);
 		
-		GUIUtil.setDisposableDialogOptions(this, send);
+		GUIUtil.setDisposableDialogOptions(this, close);
 	}
-	
-	
 	
 	/**
 	 * Show a general bug report dialog allowing the user to input information about
@@ -272,7 +199,6 @@ public class BugReportDialog extends JDialog {
 		reportDialog.setVisible(true);
 	}
 	
-	
 	private static void addSystemInformation(StringBuilder sb) {
 		sb.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
 		sb.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
@@ -301,58 +227,12 @@ public class BugReportDialog extends JDialog {
 		}
 	}
 	
-	
 	private static void addErrorLog(StringBuilder sb) {
 		LogLevelBufferLogger buffer = LoggingSystemSetup.getBufferLogger();
 		List<LogLine> logs = buffer.getLogs();
 		for (LogLine l : logs) {
 			sb.append(l.toString()).append('\n');
 		}
-	}
-	
-	
-	
-	/**
-	 * Open the default email client with the suitable bug report.
-	 * Note that this does not work on some systems even if Desktop.isSupported()
-	 * claims so.
-	 * 
-	 * @param text	the bug report text.
-	 * @return		whether opening the client succeeded.
-	 */
-	@SuppressWarnings("unused")
-	private boolean openEmail(String text) {
-		String version;
-		
-		try {
-			text = URLEncoder.encode(text, "UTF-8");
-			version = URLEncoder.encode(BuildProperties.getVersion(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new BugException(e);
-		}
-		
-		
-		
-		String mailto = "mailto:" + REPORT_EMAIL
-				+ "?subject=Bug%20report%20for%20OpenRocket%20" + version
-				+ "?body=" + text;
-		URI uri;
-		try {
-			uri = new URI(mailto);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		Desktop desktop = Desktop.getDesktop();
-		try {
-			desktop.mail(uri);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		return true;
 	}
 	
 }
