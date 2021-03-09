@@ -273,7 +273,7 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getBurnoutMass()));
 		caseInfoLabel.setText(selectedMotor.getCaseInfo());
 		propInfoLabel.setText(selectedMotor.getPropellantInfo());
-		compatibleCasesLabel.setText( StringUtils.join(",",selectedMotor.getCompatibleCases()));
+		compatibleCasesLabel.setText("<html>" + StringUtils.join(", ",selectedMotor.getCompatibleCases()) + "<html>");
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
 
 		if (digestLabel != null) {
@@ -308,6 +308,7 @@ class MotorInformationPanel extends JPanel {
 
 		plot.setDataset(dataset);
 
+		invalidate();
 	}
 	
 	private void setComment(String s) {
