@@ -75,7 +75,9 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 
 		// Create the plot data set
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		
+
+		// Add data series for selected curve first, so it will
+		// render "on top" of the other curves
 		// Selected thrust curve
 		int n = 0;
 		if (selected >= 0) {
@@ -91,7 +93,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 				continue;
 			
 			ThrustCurveMotor m = motors.get(i);
-			dataset.addSeries(generateSeries(m, i));
+			dataset.addSeries(generateSeries(m, n));
 			renderer.setSeriesStroke(n, new BasicStroke(1.5f));
 			renderer.setSeriesPaint(n, ThrustCurveMotorSelectionPanel.getColor(i));
 			renderer.setSeriesShape(n, new Rectangle());
