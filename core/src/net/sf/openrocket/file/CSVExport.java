@@ -3,6 +3,7 @@ package net.sf.openrocket.file;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +19,10 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.TextUtil;
 
 public class CSVExport {
-	
+
 	/**
 	 * Exports the specified flight data branch into a CSV file.
-	 * 
+	 *
 	 * @param stream				the stream to write to.
 	 * @param simulation			the simulation being exported.
 	 * @param branch				the branch to export.
@@ -38,27 +39,27 @@ public class CSVExport {
 			FlightDataBranch branch, FlightDataType[] fields, Unit[] units,
 			String fieldSeparator, String commentStarter, boolean simulationComments,
 			boolean fieldComments, boolean eventComments) throws IOException {
-		
+
 		if (fields.length != units.length) {
 			throw new IllegalArgumentException("fields and units lengths must be equal " +
 					"(" + fields.length + " vs " + units.length + ")");
 		}
-		
+
 
 		PrintWriter writer = null;
 		try {
-			
-			writer = new PrintWriter(stream);
-			
+
+			writer = new PrintWriter(stream, false, Charset.forName("UTF-8"));
+
 			// Write the initial comments
 			if (simulationComments) {
 				writeSimulationComments(writer, simulation, branch, fields, commentStarter);
 			}
-			
+
 			if (simulationComments && fieldComments) {
 				writer.println(commentStarter);
 			}
-			
+
 			if (fieldComments) {
 				writer.print(commentStarter + " ");
 				for (int i = 0; i < fields.length; i++) {
@@ -69,10 +70,10 @@ public class CSVExport {
 				}
 				writer.println();
 			}
-			
+
 			writeData(writer, branch, fields, units, fieldSeparator,
 					eventComments, commentStarter);
-			
+
 
 		} finally {
 			if (writer != null) {
@@ -84,25 +85,25 @@ public class CSVExport {
 			}
 		}
 	}
-	
+
 	private static void writeData(PrintWriter writer, FlightDataBranch branch,
 			FlightDataType[] fields, Unit[] units, String fieldSeparator, boolean eventComments,
 			String commentStarter) {
-		
+
 		// Number of data points
 		int n = branch.getLength();
-		
+
 		// Flight events in occurrance order
 		List<FlightEvent> events = branch.getEvents();
 		Collections.sort(events);
 		int eventPosition = 0;
-		
+
 		// List of field values
 		List<List<Double>> fieldValues = new ArrayList<List<Double>>();
 		for (FlightDataType t : fields) {
 			fieldValues.add(branch.get(t));
 		}
-		
+
 		// Time variable
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		if (eventComments && time == null) {
@@ -112,22 +113,22 @@ public class CSVExport {
 			}
 			eventPosition = events.size();
 		}
-		
+
 
 		// Loop over all data points
 		for (int pos = 0; pos < n; pos++) {
-			
+
 			// Check for events to store
 			if (eventComments && time != null) {
 				double t = time.get(pos);
-				
+
 				while ((eventPosition < events.size()) &&
 						(events.get(eventPosition).getTime() <= t)) {
 					printEvent(writer, events.get(eventPosition), commentStarter);
 					eventPosition++;
 				}
 			}
-			
+
 			// Store CSV line
 			for (int i = 0; i < fields.length; i++) {
 				double value = fieldValues.get(i).get(pos);
@@ -137,9 +138,9 @@ public class CSVExport {
 				}
 			}
 			writer.println();
-			
+
 		}
-		
+
 		// Store any remaining events
 		if (eventComments && time != null) {
 			while (eventPosition < events.size()) {
@@ -147,61 +148,61 @@ public class CSVExport {
 				eventPosition++;
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	private static void printEvent(PrintWriter writer, FlightEvent e,
 			String commentStarter) {
 		writer.println(commentStarter + " Event " + e.getType().name() +
 				" occurred at t=" + TextUtil.doubleToString(e.getTime()) + " seconds");
 	}
-	
+
 	private static void writeSimulationComments(PrintWriter writer,
 			Simulation simulation, FlightDataBranch branch, FlightDataType[] fields,
 			String commentStarter) {
-		
+
 		String line;
-		
+
 		line = simulation.getName();
-		
+
 		FlightData data = simulation.getSimulatedData();
-		
+
 		switch (simulation.getStatus()) {
 		case UPTODATE:
 			line += " (Up to date)";
 			break;
-		
+
 		case LOADED:
 			line += " (Data loaded from a file)";
 			break;
-		
+
 		case OUTDATED:
 			line += " (Data is out of date)";
 			break;
-		
+
 		case EXTERNAL:
 			line += " (Imported data)";
 			break;
-		
+
 		case NOT_SIMULATED:
 			line += " (Not simulated yet)";
 			break;
 		}
-		
+
 		writer.println(commentStarter + " " + line);
-		
+
 
 		writer.println(commentStarter + " " + branch.getLength() + " data points written for "
 				+ fields.length + " variables.");
-		
+
 
 		if (data == null) {
 			writer.println(commentStarter + " No simulation data available.");
 			return;
 		}
 		WarningSet warnings = data.getWarningSet();
-		
+
 		if (!warnings.isEmpty()) {
 			writer.println(commentStarter + " Simulation warnings:");
 			for (Warning w : warnings) {
@@ -209,5 +210,5 @@ public class CSVExport {
 			}
 		}
 	}
-	
+
 }
