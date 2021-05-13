@@ -92,3 +92,4 @@ openrocket.log
 
 *.snap
 prime/*
+swing/resources/datafiles/presets/system.ser
