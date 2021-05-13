@@ -3,7 +3,7 @@ package net.sf.openrocket.rocketcomponent.position;
 import net.sf.openrocket.startup.Application;
 
 public enum AxialMethod implements DistanceMethod {
-	// subject component is simply located absolutely, from the origin (tip-of-rocket) 
+	// subject component is simply located absolutely, from the origin (tip-of-rocket)
 	ABSOLUTE (Application.getTranslator().get("RocketComponent.Position.Method.Axial.ABSOLUTE")){
 		@Override
 		public boolean clampToZero() { return false; }
@@ -18,8 +18,8 @@ public enum AxialMethod implements DistanceMethod {
 			return position;
 		}
 	},
-		
-	// subject component will trail the target component, in the increasing coordinate direction 
+
+	// subject component will trail the target component, in the increasing coordinate direction
 	AFTER (Application.getTranslator().get("RocketComponent.Position.Method.Axial.AFTER")){
 		@Override
 		public boolean clampToZero() { return false; }
@@ -51,7 +51,7 @@ public enum AxialMethod implements DistanceMethod {
 			return position;
 		}
 	},
-	
+
 	// This coordinate is measured from the middle of the parent component to the middle of this component
 	MIDDLE (Application.getTranslator().get("RocketComponent.Position.Method.Axial.MIDDLE")) {
 		@Override
@@ -70,7 +70,7 @@ public enum AxialMethod implements DistanceMethod {
 			return position + (innerLength - outerLength) / 2;
 		}
 	},
-	
+
 	// This coordinate is measured from the bottom of the parent component to the bottom of this component
 	BOTTOM (Application.getTranslator().get("RocketComponent.Position.Method.Axial.BOTTOM")){
 		@Override
@@ -94,15 +94,15 @@ public enum AxialMethod implements DistanceMethod {
 
 	// just as a reminder:
 	// public T[] getEnumConstants()
-	
-	public static final AxialMethod[] axialOffsetMethods = { TOP, MIDDLE, BOTTOM };
-	
+
+	public static final AxialMethod[] axialOffsetMethods = { ABSOLUTE, TOP, MIDDLE, BOTTOM };
+
 	public final String description;
-	
+
 	AxialMethod( final String newDescription ) {
 		this.description=newDescription;
 	}
-	
+
 	public abstract boolean clampToZero();
 
 	public abstract double getAsOffset(double position, double innerLength, double outerLength);
@@ -113,5 +113,5 @@ public enum AxialMethod implements DistanceMethod {
 	public String toString() {
 		return description;
 	}
-	
+
 }
