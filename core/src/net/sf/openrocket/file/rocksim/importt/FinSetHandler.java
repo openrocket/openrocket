@@ -39,7 +39,7 @@ class FinSetHandler extends AbstractElementHandler {
 	 * The parent component.
 	 */
 	private final RocketComponent component;
-	
+
 	/**
 	 * The name of the fin.
 	 */
@@ -68,13 +68,13 @@ class FinSetHandler extends AbstractElementHandler {
 	 * The length of the tip chord.
 	 */
 	private double tipChord = 0.0d;
-	
+
 	/**
 	 * The length of the mid-chord (aka height).
 	 */
 	@SuppressWarnings("unused")  // stored from file, but not used.
 	private double midChordLen = 0.0d;
-	
+
 	/**
 	 * The distance of the leading edge from root to top.
 	 */
@@ -143,9 +143,9 @@ class FinSetHandler extends AbstractElementHandler {
 	 * The Rocksim calculated cg.
 	 */
 	private Double calcCg = 0d;
-	
+
 	private final RockSimAppearanceBuilder appearanceBuilder;
-	
+
 	/**
 	 * Constructor.
 	 *
@@ -160,12 +160,12 @@ class FinSetHandler extends AbstractElementHandler {
 		appearanceBuilder = new RockSimAppearanceBuilder(context);
 		component = c;
 	}
-	
+
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
 		return PlainTextHandler.INSTANCE;
 	}
-	
+
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
 			throws SAXException {
@@ -180,7 +180,9 @@ class FinSetHandler extends AbstractElementHandler {
 				finish = RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket();
 			}
 			if (RocksimCommonConstants.XB.equals(element)) {
-				location = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				// Opposite value accounts for the different relative distance directions used
+				// Issue Ref: https://github.com/openrocket/openrocket/issues/881
+				location = -Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 			if (RocksimCommonConstants.LOCATION_MODE.equals(element)) {
 				axialMethod = RocksimLocationMode.fromCode(Integer.parseInt(content)).asOpenRocket();
@@ -245,21 +247,21 @@ class FinSetHandler extends AbstractElementHandler {
 			if (RocksimCommonConstants.CALC_CG.equals(element)) {
 				calcCg = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
-			
+
 			appearanceBuilder.processElement(element, content, warnings);
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
 		}
 	}
-	
+
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		//Create the fin set and correct for overrides and actual material densities
 		final FinSet finSet = asOpenRocket(warnings);
-		
+
 		finSet.setAppearance(appearanceBuilder.getAppearance());
-		
+
 		if (component.isCompatible(finSet)) {
 			BaseHandler.setOverride(finSet, override, mass, cg);
 			if (!override && finSet.getCrossSection().equals(FinSet.CrossSection.AIRFOIL)) {
@@ -277,8 +279,8 @@ class FinSetHandler extends AbstractElementHandler {
 					+ component.getComponentName() + ", ignoring component.");
 		}
 	}
-	
-	
+
+
 	/**
 	 * Convert the parsed Rocksim data values in this object to an instance of OpenRocket's FinSet.
 	 *
@@ -288,7 +290,7 @@ class FinSetHandler extends AbstractElementHandler {
 	 */
 	public FinSet asOpenRocket(WarningSet warnings) {
 		FinSet result;
-		
+
 		if (shapeCode == 0) {
 			//Trapezoidal
 			result = new TrapezoidFinSet();
@@ -301,10 +303,10 @@ class FinSetHandler extends AbstractElementHandler {
 			((EllipticalFinSet) result).setLength(rootChord);
 		}
 		else if (shapeCode == 2) {
-			
+
 			result = new FreeformFinSet();
 			((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
-			
+
 		}
 		else {
 			return null;
@@ -324,9 +326,9 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setAxialOffset(location);
 
 		return result;
-		
+
 	}
-	
+
 	/**
 	 * Convert a Rocksim string that represents fin plan points into an array of OpenRocket coordinates.
 	 *
@@ -368,8 +370,8 @@ class FinSetHandler extends AbstractElementHandler {
 		final Coordinate[] coords = new Coordinate[result.size()];
 		return result.toArray(coords);
 	}
-	
-	
+
+
 	/**
 	 * Convert a Rocksim tip shape to an OpenRocket CrossSection.
 	 *
@@ -389,7 +391,7 @@ class FinSetHandler extends AbstractElementHandler {
 			return FinSet.CrossSection.SQUARE;
 		}
 	}
-	
+
 	public static int convertTipShapeCode(FinSet.CrossSection cs) {
 		if (FinSet.CrossSection.ROUNDED.equals(cs)) {
 			return 1;
@@ -399,5 +401,5 @@ class FinSetHandler extends AbstractElementHandler {
 		}
 		return 0;
 	}
-	
+
 }
