@@ -1,6 +1,6 @@
 OpenRocket
 ==========
-[![Build Status](https://travis-ci.org/openrocket/openrocket.png) ](https://travis-ci.org/openrocket/openrocket)
+![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
 [![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/openrocketopenrocket/)
 
 Overview
