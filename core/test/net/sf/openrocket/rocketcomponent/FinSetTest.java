@@ -83,7 +83,7 @@ public class FinSetTest extends BaseTestCase {
 
 		final double expFront = 0.02;
 		final AxialMethod[] methods = AxialMethod.axialOffsetMethods;
-		final double[] expShift = {0.02, 0.0, -0.02};
+		final double[] expShift = {0.02, 0.02, 0.0, -0.02};
 		for( int caseIndex=0; caseIndex < methods.length; ++caseIndex ){
 			double actFront = fins.getTabFrontEdge();
 			assertEquals(" Front edge doesn't match!", expFront, actFront, EPSILON);
