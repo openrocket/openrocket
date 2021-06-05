@@ -7,9 +7,10 @@ package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -174,7 +175,6 @@ public class ParameterSetTest extends BaseTestCase {
 		refList.add(fcid2);
 		refList.add(fcid3);
 		refList.add(fcid4);
-	    Collections.sort(refList); 		// Java 1.7:
 	    
 		//assertThat
 	    assertThat("retrieve-by-index broken!\n"+testSet.toDebug(), testSet.get(0), equalTo( testSet.get( refList.get(0))));
@@ -241,6 +241,33 @@ public class ParameterSetTest extends BaseTestCase {
 		assertThat("set stores default value correctly: ", testSet.get(fcid3), not( testSet.getDefault() )); 
 	}
 	
-	
-	
+	/**
+	 * Confirms the ordering of the flights are as inserted.
+	 */
+	@Test
+	public void testOrdering() {
+		TestParameter tp1 = new TestParameter();
+		FlightConfigurationId fcid1 = new FlightConfigurationId();
+		testSet.set(fcid1, tp1);
+		
+		TestParameter tp2 = new TestParameter();
+		FlightConfigurationId fcid2 = new FlightConfigurationId();
+		testSet.set(fcid2, tp2);
+		
+		TestParameter tp3 = new TestParameter();
+		FlightConfigurationId fcid3 = new FlightConfigurationId();
+		testSet.set(fcid3, tp3);
+		
+		TestParameter tp4 = new TestParameter();
+		FlightConfigurationId fcid4 = new FlightConfigurationId();
+		testSet.set(fcid4, tp4);
+		
+		List<FlightConfigurationId> refList = new ArrayList<FlightConfigurationId>();
+		refList.add(fcid1);
+		refList.add(fcid2);
+		refList.add(fcid3);
+		refList.add(fcid4);
+		
+		assertEquals(refList, testSet.getIds());
+	}
 }
