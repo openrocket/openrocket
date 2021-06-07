@@ -158,14 +158,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			}
 			
 			if (Application.getPreferences().getBoolean(Preferences.OPENGL_USE_FBO, false)) {
-				log.trace("GL - enabling FBO");
-				caps.setFBO(true);
+				log.trace("GL - Creating GLJPanel");
+				canvas = new GLJPanel(caps);
 			} else {
-				log.trace("GL - disabling FBO");
-				caps.setFBO(false);
+				log.trace("GL - Creating GLCanvas");
+				canvas = new GLCanvas(caps);
 			}
-			log.trace("GL - Creating GLJPanel");
-			canvas = new GLJPanel(caps);
 			
 			log.trace("GL - Registering as GLEventListener on canvas");
 			((GLAutoDrawable) canvas).addGLEventListener(this);
