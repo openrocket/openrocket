@@ -1,8 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -21,7 +20,7 @@ import net.sf.openrocket.util.Utils;
 public class FlightConfigurableParameterSet<E extends FlightConfigurableParameter<E>> implements Iterable<E> {
 	
 	//private static final Logger log = LoggerFactory.getLogger(ParameterSet.class);
-	protected final HashMap<FlightConfigurationId, E> map = new HashMap<FlightConfigurationId, E>();
+	protected final LinkedHashMap<FlightConfigurationId, E> map = new LinkedHashMap<FlightConfigurationId, E>();
 
 	/**
 	 * Construct a FlightConfiguration that has no overrides.
@@ -155,11 +154,6 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 
         toReturn.addAll( this.map.keySet() );
         toReturn.remove( FlightConfigurationId.DEFAULT_VALUE_FCID );
-        // Java 1.8:
-        //toReturn.sort( null );
-
-        // Java 1.7:
-        Collections.sort(toReturn);
 
         return toReturn;
 	}
