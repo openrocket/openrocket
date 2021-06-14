@@ -1,14 +1,17 @@
 package net.sf.openrocket.gui.components;
 
+import java.util.EventObject;
+
 import javax.swing.JComboBox;
 import javax.swing.MutableComboBoxModel;
-import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.ListDataListener;
+import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.util.StateChangeListener;
 
 // combobox for flight configurations
 // this is insane -- it appears the only way to reconstruct a
@@ -17,7 +20,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 // to the combobox or to its model) is to reconstruct the model.  This
 // is done quickly enough I might as well just do it every time the
 // combobox is opened, rather than trying to watch and see if it's needed.
-public class ConfigurationComboBox extends JComboBox<FlightConfiguration> {
+public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implements StateChangeListener {
     public class ConfigurationModel implements MutableComboBoxModel<FlightConfiguration> {
 		
 		private final Rocket rkt;
@@ -77,20 +80,25 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> {
     private final Rocket rkt;
 
     public ConfigurationComboBox(Rocket _rkt) {
-	rkt = _rkt;
-	setModel(new ConfigurationModel(rkt));
-
-	addPopupMenuListener(new PopupMenuListener()
-	    {
-		public void popupMenuCanceled(PopupMenuEvent e) {}
-		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
-		
-		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-		{
-		    setModel(new ConfigurationModel(rkt));		    
-		}
-		
-	    });
+		rkt = _rkt;
+		setModel(new ConfigurationModel(rkt));
+		rkt.addChangeListener(this);
 	
+		addPopupMenuListener(new PopupMenuListener() {
+			public void popupMenuCanceled(PopupMenuEvent e) {}
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+			
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			    setModel(new ConfigurationModel(rkt));		    
+			}
+			
+		});
+	
+    }
+    
+    @Override
+    public void stateChanged(EventObject e) {
+    	this.repaint();
+    	this.revalidate();
     }
 }
