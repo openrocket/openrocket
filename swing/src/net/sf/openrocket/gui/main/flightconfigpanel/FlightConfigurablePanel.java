@@ -8,6 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -24,6 +25,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -32,7 +34,7 @@ import net.sf.openrocket.util.Pair;
 
 
 @SuppressWarnings("serial")
-public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel {
+public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel implements ComponentChangeListener {
 
 	protected static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurablePanel.class);
@@ -46,7 +48,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		super(new MigLayout("fill"));
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
-		table = initializeTable();
+		table = doTableInitialization();
 
 		installTableListener();
 		synchronizeConfigurationSelection();
@@ -54,7 +56,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 	public void fireTableDataChanged() {
 		int selectedRow = table.getSelectedRow();
-		int selectedColumn = table.getSelectedColumn();	
+		int selectedColumn = table.getSelectedColumn();
 		this.rocket.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		((AbstractTableModel)table.getModel()).fireTableDataChanged();
 		restoreSelection(selectedRow,selectedColumn);
@@ -62,15 +64,41 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	protected abstract void updateButtonState();
+	
+	@Override
+	public void componentChanged(ComponentChangeEvent e) {
+		this.synchronizeConfigurationSelection();
+	}
+	
+	/**
+	 * Initialize the table using the specific implementation's initializeTable
+	 * method and then select the row to match what the rocket's current selected
+	 * configuration is.
+	 * 
+	 * @return the JTable created
+	 */
+	private final JTable doTableInitialization() {
+		JTable table = this.initializeTable();
+		FlightConfigurationId current = this.rocket.getSelectedConfiguration().getFlightConfigurationID();
+		int col = (table.getColumnCount() > 1) ? 1 : 0;
+		for (int row = 0; row < table.getRowCount(); row++) {
+			FlightConfigurationId rowFCID = rocket.getId(row);
+			if (rowFCID.equals(current)) {
+				table.changeSelection(row, col, false, false);
+				break;
+			}
+		}
+		return table;
+	}
 
 	protected final void synchronizeConfigurationSelection() {
-		FlightConfigurationId defaultFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		FlightConfigurationId currentRocketFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
-		if ( selectedFCID == null ) {
+		if ( currentRocketFCID == FlightConfigurationId.DEFAULT_VALUE_FCID ) {
 			// need to unselect
 			table.clearSelection();
-		} else if ( !defaultFCID.equals(selectedFCID)){			
+		} else if ( !currentRocketFCID.equals(selectedFCID)){			
 			// Need to change selection
 			// We'll select the correct row, in the currently selected column.
 			int col = table.getSelectedColumn();
@@ -80,8 +108,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
 				FlightConfigurationId rowFCID = rocket.getId(rowNum );
-				if ( rowFCID.equals(selectedFCID) ) {
-					table.changeSelection(rowNum, col, true, false);
+				if ( rowFCID.equals(currentRocketFCID) ) {
+					table.changeSelection(rowNum, col, false, false);
 					break;
 				}
 			}
@@ -108,16 +136,21 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if ( e.getValueIsAdjusting() ) {
 					return;
 				}
-//				int firstrow = e.getFirstIndex();
-//				int lastrow = e.getLastIndex();
-//				ListSelectionModel model = (ListSelectionModel) e.getSource();
-//				for( int row = firstrow; row <= lastrow; row ++) {
-//					if ( model.isSelectedIndex(row) ) {
-//						FlightConfigurationID fcid = (FlightConfigurationID) table.getValueAt(row, table.convertColumnIndexToView(0));
-//						FlightConfiguration config = rocket.getConfigurationSet().get(fcid);
-//						return;
-//					}
-//				}
+				
+				/* Find the selected row and set it as the current selected configuration
+				 * for the rocket. This will propagate the event to ensure that other
+				 * pieces of the UI are updated and match the table selection.
+				 */
+				int firstrow = e.getFirstIndex();
+				int lastrow = e.getLastIndex();
+				ListSelectionModel model = (ListSelectionModel) e.getSource();
+				for( int row = firstrow; row <= lastrow; row ++) {
+					if ( model.isSelectedIndex(row) ) {
+						FlightConfigurationId fcid = (FlightConfigurationId) table.getValueAt(row, table.convertColumnIndexToView(0));
+						rocket.setSelectedConfiguration(fcid);
+						return;
+					}
+				}
 			}
 
 		});
