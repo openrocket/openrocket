@@ -45,11 +45,16 @@ public class DeploymentSelectionDialog extends JDialog {
 	private final JSpinner altSpinner;
 	private final UnitSelector altUnit;
 	private final JSlider altSlider;
-	
-	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component) {
+
+	/**
+	 * Dialog for configuring the parachute deployment
+	 * @param parent: window from which the dialog window is called
+	 * @param rocket: current rocket
+	 * @param component: current recovery device
+	 * @param id: flight configuration id of the currently selected item in the recovery table
+	 */
+	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component, FlightConfigurationId id) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		
-		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = component.getDeploymentConfigurations().get(id).clone();
 		

@@ -67,18 +67,18 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		FlightConfigurationId defaultFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
-		if ( selectedFCID == null ) {
-			// need to unselect
+		if (selectedFCID == null) {
+			// Need to unselect
 			table.clearSelection();
-		} else if ( !defaultFCID.equals(selectedFCID)){			
+		} else if (!defaultFCID.equals(selectedFCID)){
 			// Need to change selection
 			// We'll select the correct row, in the currently selected column.
 			int col = table.getSelectedColumn();
-			if ( col < 0 ) {
+			if (col < 0) {
 				col = (table.getColumnCount() > 1) ? 1 : 0;
 			}
 			
-			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {
+			for (int rowNum = 0; rowNum < table.getRowCount(); rowNum++) {
 				FlightConfigurationId rowFCID = rocket.getId(rowNum );
 				if ( rowFCID.equals(selectedFCID) ) {
 					table.changeSelection(rowNum, col, true, false);
@@ -88,12 +88,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 	}
 
-	protected void restoreSelection( int row, int col ) {
-		if ( row <= 0 || col <= 0 ) {
+	protected void restoreSelection(int row, int col) {
+		if (row <= 0 || col <= 0) {
 			synchronizeConfigurationSelection();
 			return;
 		}
-		if ( row >= table.getRowCount() || col >= table.getColumnCount() ) {
+		if (row >= table.getRowCount() || col >= table.getColumnCount()) {
 			synchronizeConfigurationSelection();
 			return;
 		}
@@ -105,9 +105,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				if ( e.getValueIsAdjusting() ) {
-					return;
-				}
+				if (e.getValueIsAdjusting()) return;
+
 //				int firstrow = e.getFirstIndex();
 //				int lastrow = e.getLastIndex();
 //				ListSelectionModel model = (ListSelectionModel) e.getSource();
@@ -134,9 +133,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		if ( row < 0 || col < 0 ) {
-			return null;
-		}
+		if (row < 0 || col < 0) return null;
+
 		Object tableValue = table.getModel().getValueAt(row, col);
 		if ( tableValue instanceof Pair ) {
 			@SuppressWarnings("unchecked")
@@ -146,19 +144,18 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return null;
 	}
 
-	protected FlightConfigurationId  getSelectedConfigurationId() {
+	protected FlightConfigurationId getSelectedConfigurationId() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		if ( row < 0 || col < 0 || row >= table.getRowCount() || col >= table.getColumnCount() ) {
-			return null;
-		}
+		if (row < 0 || col < 0 || row >= table.getRowCount() || col >= table.getColumnCount()) return null;
+
 		Object tableValue = table.getModel().getValueAt(row, col);
-		if ( tableValue instanceof Pair ) {
+		if (tableValue instanceof Pair) {
 			@SuppressWarnings("unchecked")
 			Pair<FlightConfigurationId,T> selectedComponent = (Pair<FlightConfigurationId,T>) tableValue;
 			FlightConfigurationId fcid = selectedComponent.getU();
 			return fcid;
-		} else if ( tableValue instanceof FlightConfigurationId ){
+		} else if (tableValue instanceof FlightConfigurationId) {
 			return (FlightConfigurationId) tableValue;
 		}
 		return FlightConfigurationId.ERROR_FCID;
@@ -191,7 +188,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				@SuppressWarnings("unchecked")
 				Pair<FlightConfigurationId, T> v = (Pair<FlightConfigurationId, T>) oldValue;
 				
-				if(v!=null){
+				if (v!=null){
 					FlightConfigurationId fcid = v.getU();
 					T component = v.getV();
 					label = format(component, fcid, label );
@@ -204,13 +201,13 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		private final void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
 			c.setOpaque(true);
-			if ( isSelected) {
+			if (isSelected) {
 				c.setBackground(table.getSelectionBackground());
 			} else {
 				c.setBackground(table.getBackground());
 			}
 			Border b = null;
-			if ( hasFocus ) {
+			if (hasFocus) {
 				if (isSelected) {
 					b = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
 				} else {
