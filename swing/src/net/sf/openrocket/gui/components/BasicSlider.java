@@ -5,7 +5,7 @@ import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 /**
- * A simple slider that does not show the current value.  GTK l&f shows the value, and cannot 
+ * A simple slider that does not show the current value. GTK l&f shows the value, and cannot
  * be configured otherwise(!).
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>

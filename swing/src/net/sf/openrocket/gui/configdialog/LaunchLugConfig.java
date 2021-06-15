@@ -20,6 +20,9 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 @SuppressWarnings("serial")
 public class LaunchLugConfig extends RocketComponentConfig {
 	
@@ -27,10 +30,9 @@ public class LaunchLugConfig extends RocketComponentConfig {
 	
 	public LaunchLugConfig(OpenRocketDocument d, RocketComponent c) {
 		super(d, c);
-		
+
 		JPanel primary = new JPanel(new MigLayout("fill"));
-		
-		
+
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
 		////  Body tube length
@@ -101,39 +103,47 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI) ), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
 		// finish up the left column
 		primary.add(panel, "grow, gapright 20lp");
 		
 		// create a new panel for the right column
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		
+
+		// This is the component which controls the offset of the lug
+		final DoubleModel mAxOff = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));		
-		EnumModel<AxialMethod> positionModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( positionModel );
-		panel.add( positionCombo, "spanx, growx, wrap");
+		EnumModel<AxialMethod> positionModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods);
+		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>(positionModel);
+		panel.add(positionCombo, "spanx, growx, wrap");
 		
 		//// plus
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
+
+		spin = new JSpinner(mAxOff.getSpinnerModel());			// Plus quantity input
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+		panel.add(new UnitSelector(mAxOff), "growx");	// Unity selection
+		panel.add(new BasicSlider(mAxOff.getSliderModel(			// Slider
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap para");
-		
-		
+
+		// Add an action listener to update the plus quantity, based on the selected reference point
+		positionCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mAxOff.stateChanged(e);
+			}
+		});
+
 		
 		//// Material
-		panel.add(materialPanel( Material.Type.BULK), "span, wrap");
-		
+		panel.add(materialPanel(Material.Type.BULK), "span, wrap");
 		
 		primary.add(panel, "grow");
 		

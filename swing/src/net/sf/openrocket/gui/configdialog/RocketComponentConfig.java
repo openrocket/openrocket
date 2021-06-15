@@ -205,7 +205,7 @@ public class RocketComponentConfig extends JPanel {
 				"Material");
 	}
 	
-	protected JPanel materialPanel(Material.Type type, String partName){
+	protected JPanel materialPanel(Material.Type type, String partName) {
 		return materialPanel(type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
 			trans.get("RocketCompCfg.lbl.Componentfinish"), partName);
 	    	}
@@ -270,7 +270,7 @@ public class RocketComponentConfig extends JPanel {
 		return subPanel;
 	}
 	
-	protected JPanel instanceablePanel( Instanceable inst ){
+	protected JPanel instanceablePanel(Instanceable inst) {
 		JPanel panel = new JPanel( new MigLayout("fill"));
 		{ // Instance Count
 			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
