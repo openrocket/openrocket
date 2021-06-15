@@ -44,11 +44,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private final static int RECOVERY_TAB_INDEX = 1;
 	private final static int SEPARATION_TAB_INDEX = 2;
 
-	@Override
-	public void stateChanged(EventObject e) {
-		updateButtonState();
-	}
-
 	public FlightConfigurationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill","[grow][][][][][grow]"));
 		
@@ -77,7 +72,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				addOrCopyConfiguration(false);
+				int lastRow = motorConfigurationPanel.table.getRowCount() - 1;
+				int lastCol = motorConfigurationPanel.table.getColumnCount() - 1;
+				motorConfigurationPanel.table.setRowSelectionInterval(lastRow, lastRow);
+				motorConfigurationPanel.table.setColumnSelectionInterval(lastCol, lastCol);
 				configurationChanged();
 			}
 			
@@ -146,7 +146,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			newConfig = new FlightConfiguration(rocket, null);
 			newId = newConfig.getId();
 		}
-
+		
 		// associate configuration with Id and select it
 		rocket.setFlightConfiguration(newId, newConfig);
 		rocket.setSelectedConfiguration(newId);
@@ -216,4 +216,11 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 	}
 	
+	@Override
+	public void stateChanged(EventObject e) {
+		updateButtonState();
+		motorConfigurationPanel.synchronizeConfigurationSelection();
+		recoveryConfigurationPanel.synchronizeConfigurationSelection();
+		separationConfigurationPanel.synchronizeConfigurationSelection();
+	}
 }
