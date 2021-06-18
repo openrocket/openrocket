@@ -19,6 +19,9 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.colorchooser.ColorSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.Appearance;
@@ -101,40 +104,79 @@ public class AppearancePanel extends JPanel {
 			this.o = o;
 		}
 
+		/**
+		 Changes the color of the selected color to <color>
+		 @param color: color to change the component to
+		 */
+		private void changeComponentColor(Color color) {
+			try {
+				final Method setMethod = o.getClass().getMethod(
+						"set" + valueName, net.sf.openrocket.util.Color.class);
+				if (color == null)
+					return;
+				try {
+					setMethod.invoke(o, ColorConversion
+							.fromAwtColor(color));
+				} catch (Throwable e1) {
+					Application.getExceptionHandler()
+							.handleErrorCondition(e1);
+				}
+			} catch (Throwable e1) {
+				Application.getExceptionHandler().handleErrorCondition(e1);
+			}
+
+		}
+
+		/**
+		 * Change the component's preview color upon a change in color pick. If the user clicks 'OK' in the
+		 * dialog window, the selected color is assigned to the component. If 'Cancel' was clicked, the component's
+		 * color will be reverted to its initial color (color before the appearance editor opened).
+		 */
 		@Override
 		public void actionPerformed(ActionEvent colorClickEvent) {
 			try {
 				final Method getMethod = o.getClass().getMethod(
 						"get" + valueName);
-				final Method setMethod = o.getClass().getMethod(
-						"set" + valueName, net.sf.openrocket.util.Color.class);
 				net.sf.openrocket.util.Color c = (net.sf.openrocket.util.Color) getMethod
 						.invoke(o);
+
 				Color awtColor = ColorConversion.toAwtColor(c);
 				colorChooser.setColor(awtColor);
+
+				// Bind a change of color selection to a change in the components color
+				ColorSelectionModel model = colorChooser.getSelectionModel();
+				ChangeListener changeListener = new ChangeListener() {
+					public void stateChanged(ChangeEvent changeEvent) {
+						Color selected = colorChooser.getColor();
+						changeComponentColor(selected);
+					}
+				};
+				model.addChangeListener(changeListener);
+
 				JDialog d = JColorChooser.createDialog(AppearancePanel.this,
 						trans.get("RocketCompCfg.lbl.Choosecolor"), true,
 						colorChooser, new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent okEvent) {
-								Color selected = colorChooser.getColor();
-								if (selected == null)
-									return;
-								try {
-									setMethod.invoke(o, ColorConversion
-											.fromAwtColor(selected));
-								} catch (Throwable e1) {
-									Application.getExceptionHandler()
-											.handleErrorCondition(e1);
-								}
+								changeComponentColor(colorChooser.getColor());
+								// Unbind listener to avoid the current component's appearance to change with other components
+								model.removeChangeListener(changeListener);
 							}
-						}, null);
+						}, new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent cancelEvent) {
+								changeComponentColor(awtColor);
+								// Unbind listener to avoid the current component's appearance to change with other components
+								model.removeChangeListener(changeListener);
+							}
+						});
 				d.setVisible(true);
 			} catch (Throwable e1) {
 				Application.getExceptionHandler().handleErrorCondition(e1);
 			}
 		}
 	}
+
 
 	public AppearancePanel(final OpenRocketDocument document,
 			final RocketComponent c) {
