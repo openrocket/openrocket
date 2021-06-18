@@ -21,7 +21,7 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	private double radius;
 	private double thickness;
 	
-	private double angleOffsetRadians = 0;
+	private double angleOffsetRadians = Math.PI;
 	private double radialOffset = 0;
 	
 	private int instanceCount = 1;
