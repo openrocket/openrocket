@@ -22,7 +22,7 @@ public class LaunchLugTest extends BaseTestCase {
 		lug.setInstanceCount(2);
 		
 		double expX = 0.111 + body.getLocations()[0].x;
-		double expR = body.getOuterRadius()+lug.getOuterRadius();
+		double expR = -(body.getOuterRadius()+lug.getOuterRadius());
 		Coordinate expPos = new Coordinate( expX, expR, 0, 0);
 		Coordinate actPos[] = lug.getLocations();
 		assertEquals(" LaunchLug has the wrong x value: ", expPos.x, actPos[0].x, EPSILON);
