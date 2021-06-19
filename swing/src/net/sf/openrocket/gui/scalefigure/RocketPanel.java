@@ -66,7 +66,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
-import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
+import net.sf.openrocket.simulation.listeners.system.GroundHitListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -770,7 +770,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		protected SimulationListener[] getExtraListeners() {
 			return new SimulationListener[] {
 					InterruptListener.INSTANCE,
-					ApogeeEndListener.INSTANCE,
+					GroundHitListener.INSTANCE,
 					exprListener };
 
 		}

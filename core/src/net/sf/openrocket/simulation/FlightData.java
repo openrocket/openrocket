@@ -220,7 +220,7 @@ public class FlightData {
 			timeToApogee = Double.NaN;
 		
 
-		// Launch rod velocity
+		// Launch rod velocity + deployment velocity + ground hit velocity
 		for (FlightEvent event : branch.getEvents()) {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();
