@@ -533,7 +533,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 		}
-		
+
+		// TODO : FUTURE : do not hard code the 1200 (maybe even make it configurable by the user)
 		if( 1200 < currentStatus.getSimulationTime() ){
 			ret = false;
 			log.error("Simulation hit max time (1200s): aborting.");

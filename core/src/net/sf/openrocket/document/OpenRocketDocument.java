@@ -791,7 +791,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		listeners.remove(listener);
 	}
 	
-	protected void fireDocumentChangeEvent(DocumentChangeEvent event) {
+	public void fireDocumentChangeEvent(DocumentChangeEvent event) {
 		DocumentChangeListener[] array = listeners.toArray(new DocumentChangeListener[0]);
 		for (DocumentChangeListener l : array) {
 			l.documentChanged(event);
