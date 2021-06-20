@@ -38,6 +38,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
@@ -216,6 +217,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		rkt.addComponentChangeListener(new ComponentChangeListener() {
 			@Override
 			public void componentChanged(ComponentChangeEvent e) {
+				updateExtras();
 				if (is3d) {
 					if (e.isTextureChange()) {
 						figure3d.flushTextureCaches();
@@ -557,7 +559,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Updates the extra data included in the figure.  Currently this includes
-	 * the CP and CG carets.
+	 * the CP and CG carets. Also start the background simulator.
 	 */
 	private WarningSet warnings = new WarningSet();
 
@@ -708,7 +710,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				simulation.setFlightConfigurationId( document.getSelectedConfiguration().getId());
 			} else
 				System.out.println("using pre-existing simulation");
-			
+
 			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
 			backgroundSimulationExecutor.execute(backgroundSimulationWorker);
 		}
@@ -758,12 +760,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			// Do nothing if cancelled
 			if (isCancelled() || backgroundSimulationWorker != this)
 				return;
-
 			backgroundSimulationWorker = null;
 			extraText.setFlightData(simulation.getSimulatedData());
 			extraText.setCalculatingData(false);
 			figure.repaint();
 			figure3d.repaint();
+			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 		}
 
 		@Override
