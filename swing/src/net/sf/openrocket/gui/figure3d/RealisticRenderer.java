@@ -101,15 +101,23 @@ public class RealisticRenderer extends RocketRenderer {
 		render(gl, geom, Surface.EDGES, app, false, alpha);
 	}
 	
+	protected float[] convertColor(Appearance a, float alpha) {
+		float[] color = new float[4];
+		convertColor(a.getPaint(), color);
+		return color;
+	}
+
 	private void render(GL2 gl, Geometry g, Surface which, Appearance a, boolean decals, float alpha) {
 		final Decal t = a.getTexture();
 		final Texture tex = textures.getTexture(t);
 		
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
+		float[] convertedColor = this.convertColor(a, alpha);
+		for (int i=0; i < convertedColor.length; i++) {
+			color[i] = convertedColor[i];
+		}
 		
-		convertColor(a.getPaint(), color);
-		color[3] = alpha;//re-set to "alpha" so that Unfinished renderer will show interior parts.
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
 		
@@ -149,6 +157,7 @@ public class RealisticRenderer extends RocketRenderer {
 			
 			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 			gl.glEnable(GL.GL_BLEND);
+			gl.glEnable(GL2.GL_COLOR_MATERIAL);
 			gl.glDepthFunc(GL.GL_LEQUAL);
 			
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
@@ -167,6 +176,7 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glPopMatrix();
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 			
+			gl.glDisable(GL2.GL_COLOR_MATERIAL);
 			tex.disable(gl);
 		}
 		

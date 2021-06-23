@@ -21,4 +21,12 @@ public class UnfinishedRenderer extends RealisticRenderer {
 	protected Appearance getAppearance(RocketComponent c) {
 		return DefaultAppearance.getDefaultAppearance(c);
 	}
+
+	@Override
+	protected float[] convertColor(final Appearance a, float alpha) {
+		float[] color = new float[4];
+		convertColor(a.getPaint(), color);
+		color[3] = alpha;//re-set to "alpha" so that Unfinished renderer will show interior parts.
+		return color;
+	}
 }
