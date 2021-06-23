@@ -91,12 +91,7 @@ public class RealisticRenderer extends RocketRenderer {
 	@Override
 	public void renderComponent(final GL2 gl, Geometry geom, final float alpha) {
 	    Appearance app = getAppearance( geom.getComponent() );
-	    if (app.getPaint().getAlpha()<255){
-			// if transparent, draw inside the same as the outside so we dont get a cardboard interior on a clear payload bay
-			render(gl, geom, Surface.INSIDE, app, true, alpha);
-		}else{
-			render(gl, geom, Surface.INSIDE, DefaultAppearance.getDefaultAppearance(geom.getComponent()), true, 1.0f);
-		}
+		render(gl, geom, Surface.INSIDE, app, true, alpha);
 		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
 		render(gl, geom, Surface.EDGES, app, false, alpha);
 	}
