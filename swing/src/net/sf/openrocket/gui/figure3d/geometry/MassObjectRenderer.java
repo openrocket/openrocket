@@ -124,12 +124,20 @@ final class MassObjectRenderer {
 	
 	private MassObjectRenderer() {
 	}
-	
+
+	/**
+	 * Draw the mass object as a 3D figure.
+	 *
+	 * @param gl OpenGL object
+	 * @param o mass object to draw (e.g. Parachute or Mass Component)
+	 * @param slices number of slices for the 3D object (kind of like subdivision surface)
+	 * @param stacks number of stacks for the 3D object (kind of like subdivision surface)
+	 */
 	static final void drawMassObject(final GL2 gl, final MassObject o,
 			final int slices, final int stacks) {
-		
-		double da, r, dz;
-		double x, y, z;
+
+		double da, r, dz;	// Axial length per slice, radius & length per stack
+		double x, y, z;		// X-, y- and z-position
 		int i, j;
 		
 		da = 2.0f * PI / slices;
@@ -156,20 +164,24 @@ final class MassObjectRenderer {
 					x = sin((i * da));
 					y = cos((i * da));
 				}
-				
+
+				// Add radial offset
+				double xOffset = o.getRadialPosition() * sin(o.getRadialDirection());
+				double yOffset = o.getRadialPosition() * cos(o.getRadialDirection());
+
 				if (r == 0)
 					normal3d(gl, 0, 0, 1);
 				else
 					normal3d(gl, x, y, z);
 				TXTR_COORD(gl, s, t);
-				glVertex3d(gl, (x * r), (y * r), z);
+				glVertex3d(gl, (x * r) + xOffset, (y * r) + yOffset, z);
 				
 				if (rNext == 0)
 					normal3d(gl, 0, 0, -1);
 				else
 					normal3d(gl, x, y, z);
 				TXTR_COORD(gl, s, t + dt);
-				glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
+				glVertex3d(gl, (x * rNext) + xOffset, (y * rNext) + yOffset, (z + dz));
 				
 				s += ds;
 			} // for slices
