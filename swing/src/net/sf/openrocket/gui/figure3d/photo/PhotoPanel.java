@@ -75,6 +75,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 	private List<ImageCallback> imageCallbacks = new java.util.Vector<PhotoPanel.ImageCallback>();
 
+	private RocketRenderer rr;
+	private PhotoSettings p;
+	private OpenRocketDocument document;
+	private DocumentChangeListener changeListener;
+	
 	interface ImageCallback {
 		public void performAction(BufferedImage i);
 	}
@@ -84,32 +89,38 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		repaint();
 	}
 
-	private RocketRenderer rr;
-	private PhotoSettings p;
-
 	void setDoc(final OpenRocketDocument doc) {
+		document = doc;
+		cachedBounds = null;
+		this.configuration = doc.getSelectedConfiguration();
+		
+		changeListener = new DocumentChangeListener() {
+			@Override
+			public void documentChanged(DocumentChangeEvent event) {
+				log.debug("Repainting on document change");
+				needUpdate = true;
+				PhotoPanel.this.repaint();
+			}
+		};
+		document.addDocumentChangeListener(changeListener);
+
 		((GLAutoDrawable) canvas).invoke(false, new GLRunnable() {
 			@Override
 			public boolean run(final GLAutoDrawable drawable) {
-				PhotoPanel.this.configuration = doc.getSelectedConfiguration();
-				cachedBounds = null;
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);
-
-				doc.addDocumentChangeListener(new DocumentChangeListener() {
-					@Override
-					public void documentChanged(DocumentChangeEvent event) {
-						log.debug("Repainting on document change");
-						needUpdate = true;
-						PhotoPanel.this.repaint();
-					}
-				});
 
 				return false;
 			}
 		});
 	}
 
+	void clearDoc() {
+		document.removeDocumentChangeListener(changeListener);
+		changeListener = null;
+		document = null;
+	}
+	
 	PhotoSettings getSettings() {
 		return p;
 	}
