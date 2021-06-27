@@ -89,7 +89,7 @@ public class RocketTest extends BaseTestCase {
 				}
 
 				LaunchLug lugs = (LaunchLug)body.getChild(1);
-				expLoc = new Coordinate(0.181, 0.015, 0);
+				expLoc = new Coordinate(0.181, -0.015, 0);
 				assertThat(lugs.getName()+" have incorrect count: ", lugs.getInstanceCount(), equalTo(1));
 				actLocs = lugs.getComponentLocations();
 				{ // singular instance:

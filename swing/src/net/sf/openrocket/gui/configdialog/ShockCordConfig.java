@@ -1,10 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
+import javax.swing.*;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -15,10 +12,15 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 @SuppressWarnings("serial")
 public class ShockCordConfig extends RocketComponentConfig {
@@ -114,11 +116,56 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 
 		//// General and General properties
-		tabbedPane.insertTab(trans.get("ShockCordCfg.tab.General"), null, panel, trans.get("ShockCordCfg.tab.ttip.General"), 0);
-		//		tabbedPane.insertTab("Radial position", null, positionTab(), 
-		//				"Radial position configuration", 1);
+		tabbedPane.insertTab(trans.get("ShockCordCfg.tab.General"), null, panel,
+				trans.get("ShockCordCfg.tab.ttip.General"), 0);
+		//// Radial position and Radial position configuration
+		tabbedPane.insertTab(trans.get("ShockCordCfg.tab.Radialpos"), null, positionTab(),
+				trans.get("ShockCordCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
-	
 
+	// TODO: LOW: there is a lot of duplicate code here with other mass components... (e.g. in MassComponentConfig or ParachuteConfig)
+	protected JPanel positionTab() {
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+
+		////  Radial position
+		//// Radial distance:
+		panel.add(new JLabel(trans.get("ShockCordCfg.lbl.Radialdistance")));
+
+		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+
+		JSpinner spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+
+
+		//// Radial direction:
+		panel.add(new JLabel(trans.get("ShockCordCfg.lbl.Radialdirection")));
+
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+
+
+		//// Reset button
+		JButton button = new JButton(trans.get("ShockCordCfg.but.Reset"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((ShockCord) component).setRadialDirection(0.0);
+				((ShockCord) component).setRadialPosition(0.0);
+			}
+		});
+		panel.add(button, "spanx, right");
+
+		return panel;
+	}
 }
