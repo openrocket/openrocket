@@ -46,6 +46,7 @@ import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -417,7 +418,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		rr.render(drawable, configuration, new HashSet<RocketComponent>());
 		
 		//Figure out the lowest stage shown
-		final int bottomStageNumber = configuration.getBottomStage().getStageNumber();
+
+		AxialStage bottomStage = configuration.getBottomStage();
+		int bottomStageNumber = 0;
+		if (bottomStage != null)
+			bottomStage.getStageNumber();
 		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
 		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
 		
