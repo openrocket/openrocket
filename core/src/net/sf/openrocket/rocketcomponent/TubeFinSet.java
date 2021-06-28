@@ -2,8 +2,11 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventObject;
 import java.util.List;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
@@ -12,12 +15,9 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Transformation;
+import net.sf.openrocket.util.*;
 
-public class TubeFinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
+public class TubeFinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final static double DEFAULT_RADIUS = 0.025;
@@ -27,6 +27,11 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	protected double thickness = 0.002;
 	private AngleMethod angleMethod = AngleMethod.FIXED;
 	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
+
+	// Settings for inside/edge appearance
+	private Appearance insideAppearance = null;
+	private boolean insideSameAsOutside = true;
+	private boolean edgesSameAsInside = true;
 	
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
@@ -451,6 +456,51 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	public void setRadiusMethod(RadiusMethod method) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Appearance getInsideAppearance() {
+		return this.insideAppearance;
+	}
+
+	@Override
+	public void setInsideAppearance(Appearance appearance) {
+		this.insideAppearance = appearance;
+		if (this.insideAppearance != null) {
+			Decal d = this.insideAppearance.getTexture();
+			if (d != null) {
+				d.getImage().addChangeListener(new StateChangeListener() {
+
+					@Override
+					public void stateChanged(EventObject e) {
+						fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
+					}
+
+				});
+			}
+		}
+		// CHECK - should this be a TEXTURE_CHANGE and not NONFUNCTIONAL_CHANGE?
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	@Override
+	public boolean isEdgesSameAsInside() {
+		return this.edgesSameAsInside;
+	}
+
+	@Override
+	public void setEdgesSameAsInside(boolean newState) {
+		this.edgesSameAsInside = newState;
+	}
+
+	@Override
+	public boolean isInsideSameAsOutside() {
+		return this.insideSameAsOutside;
+	}
+
+	@Override
+	public void setInsideSameAsOutside(boolean newState) {
+		this.insideSameAsOutside = newState;
 	}
 	
 }

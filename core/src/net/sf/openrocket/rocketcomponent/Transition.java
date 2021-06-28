@@ -5,16 +5,20 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import static net.sf.openrocket.util.MathUtil.pow3;
 
 import java.util.Collection;
+import java.util.EventObject;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
 
-public class Transition extends SymmetricComponent {
+public class Transition extends SymmetricComponent implements InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	private static final double CLIP_PRECISION = 0.0001;
 
@@ -39,6 +43,11 @@ public class Transition extends SymmetricComponent {
 
 	// Used to cache the clip length
 	private double clipLength = -1;
+
+	// Settings for inside/edge appearance
+	private Appearance insideAppearance = null;
+	private boolean insideSameAsOutside = true;
+	private boolean edgesSameAsInside = true;
 
 	public Transition() {
 		super();
@@ -938,4 +947,48 @@ public class Transition extends SymmetricComponent {
         }
 	}
 
+	@Override
+	public Appearance getInsideAppearance() {
+		return this.insideAppearance;
+	}
+
+	@Override
+	public void setInsideAppearance(Appearance appearance) {
+		this.insideAppearance = appearance;
+		if (this.insideAppearance != null) {
+			Decal d = this.insideAppearance.getTexture();
+			if (d != null) {
+				d.getImage().addChangeListener(new StateChangeListener() {
+
+					@Override
+					public void stateChanged(EventObject e) {
+						fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
+					}
+
+				});
+			}
+		}
+		// CHECK - should this be a TEXTURE_CHANGE and not NONFUNCTIONAL_CHANGE?
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	@Override
+	public boolean isEdgesSameAsInside() {
+		return this.edgesSameAsInside;
+	}
+
+	@Override
+	public void setEdgesSameAsInside(boolean newState) {
+		this.edgesSameAsInside = newState;
+	}
+
+	@Override
+	public boolean isInsideSameAsOutside() {
+		return this.insideSameAsOutside;
+	}
+
+	@Override
+	public void setInsideSameAsOutside(boolean newState) {
+		this.insideSameAsOutside = newState;
+	}
 }
