@@ -16,6 +16,7 @@ import net.sf.openrocket.gui.watcher.FileWatcher;
 import net.sf.openrocket.gui.watcher.WatchEvent;
 import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 import com.google.inject.Inject;
@@ -67,10 +68,12 @@ public class EditDecalHelper {
 	 * @param doc
 	 * @param component
 	 * @param decal
+	 * @param insideApp flag to check whether it is the inside appearance that is edited
 	 * @return
 	 * @throws EditDecalHelperException
 	 */
-	public DecalImage editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
+	public DecalImage editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal,
+								boolean insideApp) throws EditDecalHelperException {
 		
 		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
 		int usageCount = doc.countDecalUsage(decal);
@@ -111,7 +114,10 @@ public class EditDecalHelper {
 		}
 		
 		if (dialog.isEditOne()) {
-			decal = makeDecalUnique(doc, component, decal);
+			if (insideApp)
+				decal = makeDecalUnique(doc, component, decal);
+			else
+				decal = makeDecalUniqueInside(doc, component, decal);
 		}
 		
 		launchEditor(useSystemEditor, commandLine, decal);
@@ -129,6 +135,21 @@ public class EditDecalHelper {
 		
 		component.setAppearance(appearanceBuilder.getAppearance());
 		
+		return newImage;
+	}
+
+	private static DecalImage makeDecalUniqueInside(OpenRocketDocument doc, RocketComponent component, DecalImage decal) {
+
+		DecalImage newImage = doc.makeUniqueDecal(decal);
+
+		if (component instanceof InsideColorComponent) {
+			InsideColorComponent c = ((InsideColorComponent)component);
+			AppearanceBuilder appearanceBuilder = new AppearanceBuilder(c.getInsideAppearance());
+			appearanceBuilder.setImage(newImage);
+
+			c.setInsideAppearance(appearanceBuilder.getAppearance());
+		}
+
 		return newImage;
 	}
 	

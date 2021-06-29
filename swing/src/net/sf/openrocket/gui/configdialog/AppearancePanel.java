@@ -442,7 +442,7 @@ public class AppearancePanel extends JPanel {
 					DecalImage newImage = editDecalHelper.editDecal(
 							SwingUtilities
 									.getWindowAncestor(panel),
-							document, c, builder.getImage());
+							document, c, builder.getImage(), insideBuilder);
 					builder.setImage(newImage);
 				} catch (EditDecalHelperException ex) {
 					JOptionPane.showMessageDialog(panel,
