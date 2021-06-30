@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
+import net.sf.openrocket.document.PhotoSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,20 +117,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		});
 	}
 
-	void clearDoc() {
-		document.removeDocumentChangeListener(changeListener);
-		changeListener = null;
-		document = null;
-	}
-	
-	PhotoSettings getSettings() {
-		return p;
-	}
-
-	PhotoPanel() {
+	PhotoPanel(OpenRocketDocument document) {
 		this.setLayout(new BorderLayout());
+		PhotoPanel.this.configuration = document.getSelectedConfiguration();
 
-		p = new PhotoSettings();
+		p = document.getPhotoSettings();
 
 		// Fixes a linux / X bug: Splash must be closed before GL Init
 		SplashScreen splash = Splash.getSplashScreen();

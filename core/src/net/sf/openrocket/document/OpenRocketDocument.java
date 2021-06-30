@@ -60,6 +60,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+
+	private PhotoSettings photoSettings = new PhotoSettings();
 	
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
@@ -831,7 +833,12 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		return str.toString();
 	}
-	
-	
-	
+
+	public PhotoSettings getPhotoSettings() {
+		return photoSettings;
+	}
+
+	public void setPhotoSettings(PhotoSettings photoSettings) {
+		this.photoSettings = photoSettings;
+	}
 }

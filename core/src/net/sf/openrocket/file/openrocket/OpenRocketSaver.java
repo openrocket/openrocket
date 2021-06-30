@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.document.PhotoSettings;
+import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +104,9 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		indent--;
 		writeln("</simulations>");
+
+		// Save PhotoSettings
+		savePhotoSettings(document.getPhotoSettings());
 		
 		indent--;
 		writeln("</openrocket>");
@@ -420,6 +425,12 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</simulation>");
 		
+	}
+
+	private void savePhotoSettings(PhotoSettings p) throws IOException {
+		log.debug("Saving Photo Settings");
+		for (String s : PhotoStudioSaver.getElements(p))
+			writeln(s);
 	}
 	
 	

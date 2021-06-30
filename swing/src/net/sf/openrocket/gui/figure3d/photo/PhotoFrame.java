@@ -62,15 +62,15 @@ public class PhotoFrame extends JFrame {
 	private final JDialog settings;
 
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
-		this(false);
+		this(false, document);
 		setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
-		photoPanel.setDoc(document);
 	}
 
-	public PhotoFrame(boolean app) {
+	public PhotoFrame(boolean app, OpenRocketDocument document) {
 		setSize(1024, 768);
 		this.setMinimumSize(new Dimension(160, 150));
-		photoPanel = new PhotoPanel();
+		photoPanel = new PhotoPanel(document);
+		photoPanel.setDoc(document);
 		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
 
@@ -92,7 +92,7 @@ public class PhotoFrame extends JFrame {
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
 			{
-				setContentPane(new PhotoSettingsConfig(photoPanel.getSettings()));
+				setContentPane(new PhotoSettingsConfig(document.getPhotoSettings()));
 				pack();
 				this.setLocationByPlatform(true);
 				GUIUtil.rememberWindowSize(this);
@@ -353,14 +353,15 @@ public class PhotoFrame extends JFrame {
 
 		Databases.fakeMethod();
 
-		PhotoFrame pa = new PhotoFrame(true);
+		GeneralRocketLoader grl = new GeneralRocketLoader(new File(
+				"/Users/bkuker/git/openrocket/swing/resources/datafiles/examples/A simple model rocket.ork"));
+		OpenRocketDocument doc = grl.load();
+
+		PhotoFrame pa = new PhotoFrame(true, doc);
 		pa.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pa.setTitle("OpenRocket - Photo Studio Alpha");
 		pa.setVisible(true);
 
-		GeneralRocketLoader grl = new GeneralRocketLoader(new File(
-				"/Users/bkuker/git/openrocket/swing/resources/datafiles/examples/A simple model rocket.ork"));
-		OpenRocketDocument doc = grl.load();
 		pa.photoPanel.setDoc(doc);
 	}
 
