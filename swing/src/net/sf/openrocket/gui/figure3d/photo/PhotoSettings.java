@@ -1,4 +1,4 @@
-package net.sf.openrocket.document;
+package net.sf.openrocket.gui.figure3d.photo;
 
 import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer.FlameSettings;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky;

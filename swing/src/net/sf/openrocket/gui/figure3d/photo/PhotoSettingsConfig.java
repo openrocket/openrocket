@@ -25,7 +25,6 @@ import javax.swing.event.ChangeListener;
 
 import com.jogamp.opengl.GL2;
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.document.PhotoSettings;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.ColorIcon;

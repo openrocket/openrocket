@@ -1,6 +1,5 @@
 package net.sf.openrocket.file.openrocket.savers;
-
-import net.sf.openrocket.document.PhotoSettings;
+import
 import net.sf.openrocket.util.Color;
 
 import java.util.ArrayList;
