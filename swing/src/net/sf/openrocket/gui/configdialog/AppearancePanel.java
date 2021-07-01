@@ -389,6 +389,9 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 			DoubleModel shineModel = new DoubleModel(ab, "Shine",
 					UnitGroup.UNITS_RELATIVE);
+			// Set the initial value to the reset state, not the shine value of the default appearance of this component
+			if (mDefault.getValue() && previousUserSelectedAppearance != null)
+				shineModel.setValue(previousUserSelectedAppearance.getShine());
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
