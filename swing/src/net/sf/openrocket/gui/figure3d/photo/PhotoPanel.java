@@ -31,7 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
-import net.sf.openrocket.document.PhotoSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
