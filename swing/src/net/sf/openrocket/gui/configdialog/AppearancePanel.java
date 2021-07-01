@@ -315,6 +315,7 @@ public class AppearancePanel extends JPanel {
 						previousUserSelectedAppearance = (ab == null) ? null
 								: ab.getAppearance();
 						ab.setAppearance(defaultAppearance);
+						c.setAppearance(null);
 					} else {
 						ab.setAppearance(previousUserSelectedAppearance);
 					}
