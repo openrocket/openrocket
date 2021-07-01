@@ -112,9 +112,7 @@ public class ComponentRenderer {
 				renderMassObject(gl, (MassObject) c);
 		} else if (c instanceof FinSet) {
 		    FinSet fins = (FinSet) c;
-			if (which == Surface.OUTSIDE) {
-			    fr.renderFinSet(gl, fins);
-			}
+			fr.renderFinSet(gl, fins, which);
 		} else if (c instanceof TubeFinSet) {
 			renderTubeFins( gl, (TubeFinSet) c, which);
 		} else if ( c instanceof AxialStage ) {
