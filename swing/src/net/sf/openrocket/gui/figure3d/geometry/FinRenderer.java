@@ -13,11 +13,12 @@ import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 
 public class FinRenderer {
 	private GLUtessellator tobj = GLU.gluNewTess();
 	
-	public void renderFinSet(final GL2 gl, FinSet finSet ) {
+	public void renderFinSet(final GL2 gl, FinSet finSet, Surface which) {
 		
 	    BoundingBox bounds = finSet.getInstanceBoundingBox();
 		gl.glMatrixMode(GL.GL_TEXTURE);
@@ -61,51 +62,57 @@ public class FinRenderer {
 			GLU.gluTessCallback(tobj, GLU.GLU_TESS_END, cb);
 			
 			// fin side: +z
-			GLU.gluTessBeginPolygon(tobj, null);
-			GLU.gluTessBeginContour(tobj);
-			gl.glNormal3f(0, 0, 1);
-			for (int i = finPoints.length - 1; i >= 0; i--) {
-				Coordinate c = finPoints[i];
-				double[] p = new double[] { c.x, c.y + finSet.getBodyRadius(),
-						c.z + finSet.getThickness() / 2.0 };
-				GLU.gluTessVertex(tobj, p, 0, p);
-				
+			if (which == Surface.OUTSIDE) {
+				GLU.gluTessBeginPolygon(tobj, null);
+				GLU.gluTessBeginContour(tobj);
+				gl.glNormal3f(0, 0, 1);
+				for (int i = finPoints.length - 1; i >= 0; i--) {
+					Coordinate c = finPoints[i];
+					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
+							c.z + finSet.getThickness() / 2.0};
+					GLU.gluTessVertex(tobj, p, 0, p);
+
+				}
+				GLU.gluTessEndContour(tobj);
+				GLU.gluTessEndPolygon(tobj);
 			}
-			GLU.gluTessEndContour(tobj);
-			GLU.gluTessEndPolygon(tobj);
 			
 	         // fin side: -z
-			GLU.gluTessBeginPolygon(tobj, null);
-			GLU.gluTessBeginContour(tobj);
-			gl.glNormal3f(0, 0, -1);
-			for (int i = 0; i < finPoints.length; i++) {
-				Coordinate c = finPoints[i];
-				double[] p = new double[] { c.x, c.y + finSet.getBodyRadius(),
-						c.z - finSet.getThickness() / 2.0 };
-				GLU.gluTessVertex(tobj, p, 0, p);
-				
+			if (which == Surface.INSIDE) {
+				GLU.gluTessBeginPolygon(tobj, null);
+				GLU.gluTessBeginContour(tobj);
+				gl.glNormal3f(0, 0, -1);
+				for (int i = 0; i < finPoints.length; i++) {
+					Coordinate c = finPoints[i];
+					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
+							c.z - finSet.getThickness() / 2.0};
+					GLU.gluTessVertex(tobj, p, 0, p);
+
+				}
+				GLU.gluTessEndContour(tobj);
+				GLU.gluTessEndPolygon(tobj);
 			}
-			GLU.gluTessEndContour(tobj);
-			GLU.gluTessEndPolygon(tobj);
 			
 			// Strip around the edge
-			if (!(finSet instanceof EllipticalFinSet))
-				gl.glShadeModel(GLLightingFunc.GL_FLAT);
-			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int i = 0; i <= finPoints.length; i++) {
-				Coordinate c = finPoints[i % finPoints.length];
-				// if ( i > 1 ){
-				Coordinate c2 = finPoints[(i - 1 + finPoints.length)
-						% finPoints.length];
-				gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
-				// }
-				gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
-				gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-						c.z - finSet.getThickness() / 2.0);
-				gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-						c.z + finSet.getThickness() / 2.0);
+			if (which == Surface.EDGES) {
+				if (!(finSet instanceof EllipticalFinSet))
+					gl.glShadeModel(GLLightingFunc.GL_FLAT);
+				gl.glBegin(GL.GL_TRIANGLE_STRIP);
+				for (int i = 0; i <= finPoints.length; i++) {
+					Coordinate c = finPoints[i % finPoints.length];
+					// if ( i > 1 ){
+					Coordinate c2 = finPoints[(i - 1 + finPoints.length)
+							% finPoints.length];
+					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					// }
+					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
+					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
+							c.z - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
+							c.z + finSet.getThickness() / 2.0);
+				}
+				gl.glEnd();
 			}
-			gl.glEnd();
 			if (!(finSet instanceof EllipticalFinSet))
 				gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
 			

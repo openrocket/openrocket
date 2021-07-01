@@ -34,6 +34,7 @@ import net.sf.openrocket.gui.util.EditDecalHelper.EditDecalHelperException;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.InsideColorComponentHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -309,17 +310,32 @@ public class AppearancePanel extends JPanel {
 			appearanceSection(document, c, false, outsidePanel);
 			appearanceSection(document, c, true, insidePanel);
 
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Outside"), null, outsidePanel,
+			// Get translator keys
+			String tr_outside, tr_inside, tr_edges, tr_edges_ttip;
+			if (c instanceof FinSet) {
+				tr_outside = "RocketCompCfg.tab.RightSide";
+				tr_inside = "RocketCompCfg.tab.LeftSide";
+				tr_edges = "AppearanceCfg.lbl.EdgesSameAsLeftSide";
+				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsLeftSide";
+			}
+			else {
+				tr_outside = "RocketCompCfg.tab.Outside";
+				tr_inside = "RocketCompCfg.tab.Inside";
+				tr_edges = "AppearanceCfg.lbl.EdgesSameAsInside";
+				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsInside";
+			}
+
+			tabbedPane.addTab(trans.get(tr_outside), null, outsidePanel,
 					"Outside Tool Tip");
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Inside"), null, insidePanel,
+			tabbedPane.addTab(trans.get(tr_inside), null, insidePanel,
 					"Inside Tool Tip");
 			add(tabbedPane, "span 4, growx, wrap");
 
 			// Checkbox to set edges the same as inside/outside
 			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
 			JCheckBox edges = new JCheckBox(b);
-			edges.setText(trans.get("AppearanceCfg.lbl.EdgesSameAsInside"));
-			edges.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.EdgesSameAsInside"));
+			edges.setText(trans.get(tr_edges));
+			edges.setToolTipText(trans.get(tr_edges_ttip));
 			add(edges, "wrap");
 
 			edges.addActionListener(new ActionListener() {
@@ -406,13 +422,24 @@ public class AppearancePanel extends JPanel {
 		else
 			panel.add(materialDefault, "wrap");
 
+		// Get translation keys
+		String tr_insideOutside, tr_insideOutside_ttip;
+		if (c instanceof FinSet) {
+			tr_insideOutside = "AppearanceCfg.lbl.LeftSideSameAsRightSide";
+			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.LeftSideSameAsRightSide";
+		}
+		else {
+			tr_insideOutside = "AppearanceCfg.lbl.InsideSameAsOutside";
+			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.InsideSameAsOutside";
+		}
+
 		// Custom inside color
 		if (insideBuilder) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
 			JCheckBox customInside = new JCheckBox(b);
-			customInside.setText(trans.get("AppearanceCfg.lbl.InsideSameAsOutside"));
-			customInside.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.InsideSameAsOutside"));
+			customInside.setText(trans.get(tr_insideOutside));
+			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
 			customInside.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
