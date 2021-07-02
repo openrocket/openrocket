@@ -5,12 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-import net.sf.openrocket.document.PhotoSettings;
 import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -427,7 +423,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 	}
 
-	private void savePhotoSettings(PhotoSettings p) throws IOException {
+	private void savePhotoSettings(Map<String, String> p) throws IOException {
 		log.debug("Saving Photo Settings");
 		for (String s : PhotoStudioSaver.getElements(p))
 			writeln(s);

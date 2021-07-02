@@ -1,13 +1,7 @@
 package net.sf.openrocket.document;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import net.sf.openrocket.rocketcomponent.*;
 import org.slf4j.Logger;
@@ -61,7 +55,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 
-	private PhotoSettings photoSettings = new PhotoSettings();
+	// The Photo Settings will be saved in the core module as a map of key values with corresponding content
+	private Map<String, String> photoSettings = new HashMap<>();
 	
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
@@ -834,11 +829,11 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return str.toString();
 	}
 
-	public PhotoSettings getPhotoSettings() {
+	public Map<String, String> getPhotoSettings() {
 		return photoSettings;
 	}
 
-	public void setPhotoSettings(PhotoSettings photoSettings) {
+	public void setPhotoSettings(Map<String, String> photoSettings) {
 		this.photoSettings = photoSettings;
 	}
 }
