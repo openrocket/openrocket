@@ -110,11 +110,10 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		});
 	}
 
-	PhotoPanel(OpenRocketDocument document) {
+	PhotoPanel(OpenRocketDocument document, PhotoSettings p) {
+		this.p = p;
 		this.setLayout(new BorderLayout());
 		PhotoPanel.this.configuration = document.getSelectedConfiguration();
-
-		p = document.getPhotoSettings();
 
 		// Fixes a linux / X bug: Splash must be closed before GL Init
 		SplashScreen splash = Splash.getSplashScreen();

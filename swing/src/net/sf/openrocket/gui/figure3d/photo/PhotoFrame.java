@@ -12,6 +12,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.EventObject;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -30,6 +32,8 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.photo.PhotoStudioGetter;
+import net.sf.openrocket.file.photo.PhotoStudioSetter;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -43,6 +47,7 @@ import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.GuiModule;
 
+import net.sf.openrocket.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,9 +70,20 @@ public class PhotoFrame extends JFrame {
 	}
 
 	public PhotoFrame(boolean app, OpenRocketDocument document) {
+		PhotoSettings p = new PhotoStudioGetter(document.getPhotoSettings()).getPhotoSettings();
+
+		// Send the new PhotoSetting to the core module
+		p.addChangeListener(new StateChangeListener() {
+			@Override
+			public void stateChanged(EventObject e) {
+				Map<String, String> par = PhotoStudioSetter.getPhotoSettings(p);
+				document.setPhotoSettings(par);
+			}
+		});
+
 		setSize(1024, 768);
 		this.setMinimumSize(new Dimension(160, 150));
-		photoPanel = new PhotoPanel(document);
+		photoPanel = new PhotoPanel(document, p);
 		photoPanel.setDoc(document);
 		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
@@ -79,7 +95,7 @@ public class PhotoFrame extends JFrame {
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
 			{
-				setContentPane(new PhotoSettingsConfig(document.getPhotoSettings()));
+				setContentPane(new PhotoSettingsConfig(p));
 				pack();
 				this.setLocationByPlatform(true);
 				GUIUtil.rememberWindowSize(this);
