@@ -31,7 +31,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private Color flameColor = new Color(255, 100, 50);
 	private boolean smoke = false;
 	private Color smokeColor = new Color(230, 230, 230, 102);
-	private double smokeOpacity = 40;
+	private double smokeOpacity = 0.4;
 	private boolean sparks = false;
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
