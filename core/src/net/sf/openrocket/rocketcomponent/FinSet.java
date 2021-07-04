@@ -134,6 +134,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	public FinSet() {
 		super( AxialMethod.BOTTOM);
 		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
+		super.displayOrder = 4;		// Order for displaying the component in the 2D view
 	}
 	
 	@Override

@@ -37,6 +37,7 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 		radius = 0.01 / 2;
 		thickness = 0.001;
 		length = 0.03;
+		super.displayOrder = 6;		// Order for displaying the component in the 2D view
 	}
 	
 	

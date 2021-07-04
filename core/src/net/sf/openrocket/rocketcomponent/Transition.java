@@ -58,6 +58,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		this.type = Shape.CONICAL;
 		this.shapeParameter = 0;
 		this.clipped = true;
+
+		super.displayOrder = 2;		// Order for displaying the component in the 2D view
 	}
 
 	////////  Length  ////////

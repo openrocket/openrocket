@@ -23,6 +23,7 @@ public class Parachute extends RecoveryDevice {
 		this.diameter = 0.3;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
 		this.lineLength = 0.3;
+		super.displayOrder = 12;		// Order for displaying the component in the 2D view
 	}
 	
 	

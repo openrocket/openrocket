@@ -15,6 +15,7 @@ public class ShockCord extends MassObject {
 	public ShockCord() {
 		material = Application.getPreferences().getDefaultComponentMaterial(ShockCord.class, Material.Type.LINE);
 		cordLength = 0.4;
+		super.displayOrder = 13;		// Order for displaying the component in the 2D view
 	}
 	
 	

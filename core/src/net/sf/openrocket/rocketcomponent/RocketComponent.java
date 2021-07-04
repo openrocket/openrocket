@@ -126,8 +126,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
 	private Invalidator invalidator = new Invalidator(this);
-	
-	
+
+
+	/**
+	 * This is for determining the order in which the component should be drawn in the 2D views.
+	 * Lower values will be placed more in the back, higher values more in the front.
+	 */
+	protected int displayOrder = 100;	// Take a high enough init value to not mess with pre-defined values
+
 	////  NOTE !!!  All fields must be copied in the method copyFrom()!  ////
 	
 	
@@ -2014,6 +2020,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.name = src.name;
 		this.comment = src.comment;
 		this.id = src.id;
+		this.displayOrder = src.displayOrder;
 		
 		// Add source components to invalidation tree
 		for (RocketComponent c : src) {
@@ -2229,4 +2236,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return false;
 	}
 
+	public int getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(int displayOrder) {
+		this.displayOrder = displayOrder;
+	}
 }

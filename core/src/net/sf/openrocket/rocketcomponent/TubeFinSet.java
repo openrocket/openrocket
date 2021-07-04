@@ -56,6 +56,7 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	public TubeFinSet() {
 		super(AxialMethod.BOTTOM);
 		length = 0.10;
+		super.displayOrder = 3;		// Order for displaying the component in the 2D view
 	}
 	
 	public void setLength(double length) {

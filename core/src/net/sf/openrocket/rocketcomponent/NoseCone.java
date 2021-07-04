@@ -42,6 +42,8 @@ public class NoseCone extends Transition implements InsideColorComponent {
 		
 		super.setAftRadiusAutomatic(false);
 		super.setAftRadius(radius);
+
+		super.displayOrder = 1;		// Order for displaying the component in the 2D view
 	}
 	
 	
