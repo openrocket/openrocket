@@ -420,10 +420,34 @@ public class SimulationConditionsPanel extends JPanel {
 		intoWind.addEnableComponent(directionSpin, false);
 		intoWind.addEnableComponent(unit, false);
 		intoWind.addEnableComponent(directionSlider, false);
-		
-		
-	
-		
+
+
+		//// Initial Conditions:
+		sub = new JPanel(new MigLayout("fill, gap rel unrel",
+				"[grow][65lp!][30lp!][75lp!]", ""));
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.InitialConditions")));
+		this.add(sub, "growx, aligny 0, wrap");
+
+
+		// Launch Velocity:
+		label = new JLabel(trans.get("simedtdlg.lbl.VerticalVelocity"));
+		tip = trans.get("simedtdlg.lbl.ttip.VerticalVelocity");
+		label.setToolTipText(tip);
+		sub.add(label);
+
+		m = new DoubleModel(conditions, "LaunchVelocity", UnitGroup.UNITS_VELOCITY);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		sub.add(spin, "w 65lp!");
+
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		sub.add(unit, "growx");
+		slider = new BasicSlider(m.getSliderModel(0, 1, 5));
+		slider.setToolTipText(tip);
+		sub.add(slider, "w 75lp, wrap");
 		
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(new ActionListener() {

@@ -80,6 +80,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String LAUNCH_INTO_WIND = "LaunchIntoWind";
 	public static final String LAUNCH_ROD_ANGLE = "LaunchRodAngle";
 	public static final String LAUNCH_ROD_DIRECTION = "LaunchRodDirection";
+	public static final String LAUNCH_VELOCITY = "LaunchVelocity";
 	public static final String WIND_DIRECTION = "WindDirection";
 	public static final String WIND_AVERAGE = "WindAverage";
 	public static final String WIND_TURBULANCE = "WindTurbulence";
@@ -239,8 +240,17 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_ROD_DIRECTION, launchRodDirection);
 		fireChangeEvent();
 	}
-	
-	
+
+	public double getLaunchVelocity() {
+		return this.getDouble(LAUNCH_VELOCITY, 0);
+	}
+
+	public void setLaunchVelocity(double velocity) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_VELOCITY, 0), velocity))
+			return;
+		this.putDouble(LAUNCH_VELOCITY, velocity);
+		fireChangeEvent();
+	}
 	
 	public double getWindSpeedAverage() {
 		return this.getDouble(WIND_AVERAGE, 2);

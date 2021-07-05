@@ -334,6 +334,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
+		writeElement("launchverticalvelocity", cond.getLaunchVelocity());
 		writeElement("windaverage", cond.getWindSpeedAverage());
 		writeElement("windturbulence", cond.getWindTurbulenceIntensity());
 		writeElement("launchaltitude", cond.getLaunchAltitude());
