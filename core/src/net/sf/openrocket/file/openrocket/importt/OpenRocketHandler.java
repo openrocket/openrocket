@@ -19,7 +19,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
  * The starting point of the handlers.  Accepts a single <openrocket> element and hands
  * the contents to be read by a OpenRocketContentsHandler.
  */
-class OpenRocketHandler extends AbstractElementHandler {
+public class OpenRocketHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private OpenRocketContentHandler handler = null;
 	

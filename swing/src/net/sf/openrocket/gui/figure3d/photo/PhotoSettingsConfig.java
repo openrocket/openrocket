@@ -122,7 +122,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		}
 	}
 
-	public PhotoSettingsConfig(final PhotoSettings p) {
+	public PhotoSettingsConfig(PhotoSettings p) {
 		super();
 
 		setPreferredSize(new Dimension(240, 320));
@@ -300,8 +300,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				smokeModel.addEnableComponent(smokeColorButton);
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity")));
-				DoubleModel smokeAlphaModel = new DoubleModel(p, "SmokeAlpha", 100, UnitGroup.UNITS_NONE, 0, 100);
-				EditableSpinner opacitySpinner = new EditableSpinner(smokeAlphaModel.getSpinnerModel());
+				DoubleModel smokeOpacityModel = new DoubleModel(p, "SmokeOpacity", 100, UnitGroup.UNITS_NONE, 0, 100);
+				EditableSpinner opacitySpinner = new EditableSpinner(smokeOpacityModel.getSpinnerModel());
 				add(opacitySpinner, "wrap");
 				smokeModel.addEnableComponent(opacitySpinner);
 
