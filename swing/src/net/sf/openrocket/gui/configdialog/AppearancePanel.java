@@ -35,6 +35,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
+import net.sf.openrocket.rocketcomponent.InsideColorComponentHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.GeneralUnit;
@@ -187,7 +188,8 @@ public class AppearancePanel extends JPanel {
 		}
 
 		if (c instanceof InsideColorComponent) {
-			previousUserSelectedInsideAppearance = ((InsideColorComponent) c).getInsideAppearance();
+			previousUserSelectedInsideAppearance = ((InsideColorComponent) c).getInsideColorComponentHandler()
+					.getInsideAppearance();
 			if (previousUserSelectedInsideAppearance == null) {
 				previousUserSelectedInsideAppearance = new AppearanceBuilder()
 						.getAppearance();
@@ -298,6 +300,8 @@ public class AppearancePanel extends JPanel {
 
 		// Display a tabbed panel for choosing the outside and inside appearance, if the object is of type InsideColorComponent
 		if (c instanceof InsideColorComponent) {
+			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+
 			JTabbedPane tabbedPane = new JTabbedPane();
 			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
 			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
@@ -312,7 +316,7 @@ public class AppearancePanel extends JPanel {
 			add(tabbedPane, "span 4, growx, wrap");
 
 			// Checkbox to set edges the same as inside/outside
-			BooleanModel b = new BooleanModel(((InsideColorComponent) c).isEdgesSameAsInside());
+			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
 			JCheckBox edges = new JCheckBox(b);
 			edges.setText(trans.get("AppearanceCfg.lbl.EdgesSameAsInside"));
 			edges.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.EdgesSameAsInside"));
@@ -321,7 +325,7 @@ public class AppearancePanel extends JPanel {
 			edges.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					((InsideColorComponent) c).setEdgesSameAsInside(edges.isSelected());
+					handler.setEdgesSameAsInside(edges.isSelected());
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
@@ -347,7 +351,8 @@ public class AppearancePanel extends JPanel {
 		}
 		else if (c instanceof InsideColorComponent) {
 			builder = insideAb;
-			mDefault = new BooleanModel(((InsideColorComponent)c).getInsideAppearance() == null);
+			mDefault = new BooleanModel(
+					((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance() == null);
 		}
 		else return;
 
@@ -363,7 +368,7 @@ public class AppearancePanel extends JPanel {
 				if (!insideBuilder)
 					c.setAppearance(builder.getAppearance());
 				else
-					((InsideColorComponent)c).setInsideAppearance(builder.getAppearance());
+					((InsideColorComponent)c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
 				decalModel.refresh();
 			}
 		});
@@ -403,14 +408,15 @@ public class AppearancePanel extends JPanel {
 
 		// Custom inside color
 		if (insideBuilder) {
-			BooleanModel b = new BooleanModel(((InsideColorComponent) c).isInsideSameAsOutside());
+			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
 			JCheckBox customInside = new JCheckBox(b);
 			customInside.setText(trans.get("AppearanceCfg.lbl.InsideSameAsOutside"));
 			customInside.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.InsideSameAsOutside"));
 			customInside.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					((InsideColorComponent) c).setInsideSameAsOutside(customInside.isSelected());
+					handler.setInsideSameAsOutside(customInside.isSelected());
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});

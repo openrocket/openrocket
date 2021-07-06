@@ -95,10 +95,10 @@ public class RealisticRenderer extends RocketRenderer {
 	    Appearance app = getAppearance(c);
 	    if (c instanceof InsideColorComponent) {
 			Appearance innerApp = getInsideAppearance(c);
-			if (((InsideColorComponent) c).isInsideSameAsOutside()) innerApp = app;
+			if (((InsideColorComponent) c).getInsideColorComponentHandler().isInsideSameAsOutside()) innerApp = app;
 
 			render(gl, geom, Surface.INSIDE, innerApp, true, alpha);
-			if (((InsideColorComponent) c).isEdgesSameAsInside())
+			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside())
 				render(gl, geom, Surface.EDGES, innerApp, false, alpha);
 			else
 				render(gl, geom, Surface.EDGES, app, false, alpha);
@@ -208,7 +208,7 @@ public class RealisticRenderer extends RocketRenderer {
 
 	protected Appearance getInsideAppearance(RocketComponent c) {
 		if (c instanceof InsideColorComponent) {
-			Appearance ret = ((InsideColorComponent)c).getInsideAppearance();
+			Appearance ret = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
 			if (ret == null) {
 				ret = DefaultAppearance.getDefaultAppearance(c);
 			}

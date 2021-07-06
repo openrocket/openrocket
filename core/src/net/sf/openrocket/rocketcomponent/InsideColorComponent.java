@@ -19,50 +19,7 @@ import java.util.EventObject;
  */
 public interface InsideColorComponent {
     /**
-     * Get the realistic inside appearance of this component.
-     *  <code>null</code> = use the default for this material
-     *
-     * @return The component's realistic inner appearance, or <code>null</code>
+     * @return the InsideColorComponentHandler
      */
-    Appearance getInsideAppearance();
-
-    /**
-     * Set the realistic inside appearance of this component.
-     * Use <code>null</code> for default.
-     *
-     * @param appearance the inner appearance to be set
-     */
-     void setInsideAppearance(Appearance appearance);
-
-    /**
-     * Checks whether the component uses for the edges the same appearance as the inside (return true) or as the
-     * outside (return false)
-     *
-     * @return  true if edges should use the same appearance as the inside,
-     *          false if edges should use the same appearance as the outside
-     */
-     boolean isEdgesSameAsInside();
-
-    /**
-     * Sets the new state for edgesUseInsideAppearance to newState
-     *
-     * @param newState new edgesUseInsideAppearance value
-     */
-    void setEdgesSameAsInside(boolean newState);
-
-    /**
-     * Checks whether the component should use the same appearance for the inside as the outside (return true) or as the
-     * outside (return false)
-     *
-     * @return  true if edges should use the same appearance as the inside,
-     *          false if edges should use the same appearance as the outside
-     */
-    boolean isInsideSameAsOutside();
-
-    /**
-     * Sets the new state for insideSameAsOutside to newState
-     *
-     * @param newState new edgesUseInsideAppearance value
-     */
-    void setInsideSameAsOutside(boolean newState);
+    InsideColorComponentHandler getInsideColorComponentHandler();
 }

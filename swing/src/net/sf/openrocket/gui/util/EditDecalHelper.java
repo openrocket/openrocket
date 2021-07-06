@@ -17,6 +17,7 @@ import net.sf.openrocket.gui.watcher.WatchEvent;
 import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
+import net.sf.openrocket.rocketcomponent.InsideColorComponentHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 import com.google.inject.Inject;
@@ -143,11 +144,11 @@ public class EditDecalHelper {
 		DecalImage newImage = doc.makeUniqueDecal(decal);
 
 		if (component instanceof InsideColorComponent) {
-			InsideColorComponent c = ((InsideColorComponent)component);
-			AppearanceBuilder appearanceBuilder = new AppearanceBuilder(c.getInsideAppearance());
+			InsideColorComponentHandler handler = ((InsideColorComponent)component).getInsideColorComponentHandler();
+			AppearanceBuilder appearanceBuilder = new AppearanceBuilder(handler.getInsideAppearance());
 			appearanceBuilder.setImage(newImage);
 
-			c.setInsideAppearance(appearanceBuilder.getAppearance());
+			handler.setInsideAppearance(appearanceBuilder.getAppearance());
 		}
 
 		return newImage;

@@ -293,7 +293,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 */
 	private boolean hasDecalInside(RocketComponent comp, DecalImage img) {
 		if (comp instanceof InsideColorComponent) {
-			Appearance a = ((InsideColorComponent)comp).getInsideAppearance();
+			Appearance a = ((InsideColorComponent)comp).getInsideColorComponentHandler().getInsideAppearance();
 			if (a == null)
 				return false;
 			Decal d = a.getTexture();

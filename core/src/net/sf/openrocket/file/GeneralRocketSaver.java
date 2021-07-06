@@ -163,7 +163,7 @@ public class GeneralRocketSaver {
 			Appearance ap = c.getAppearance();
 			Appearance ap_in = null;
 			if (c instanceof InsideColorComponent)
-				ap_in = ((InsideColorComponent)c).getInsideAppearance();
+				ap_in = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
 
 			if ((ap == null) && (ap_in == null)) continue;
 			if (ap != null) {

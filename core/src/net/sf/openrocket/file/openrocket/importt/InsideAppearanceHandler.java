@@ -24,13 +24,13 @@ public class InsideAppearanceHandler extends AppearanceHandler {
         if ("edgesSameAsInside".equals(element)) {
             boolean edgesSameAsInside = Boolean.parseBoolean(content);
             if (component instanceof InsideColorComponent)
-                ((InsideColorComponent)component).setEdgesSameAsInside(edgesSameAsInside);
+                ((InsideColorComponent)component).getInsideColorComponentHandler().setEdgesSameAsInside(edgesSameAsInside);
             return;
         }
         if ("insideSameAsOutside".equals(element)) {
             boolean insideSameAsOutside = Boolean.parseBoolean(content);
             if (component instanceof InsideColorComponent)
-                ((InsideColorComponent)component).setInsideSameAsOutside(insideSameAsOutside);
+                ((InsideColorComponent)component).getInsideColorComponentHandler().setInsideSameAsOutside(insideSameAsOutside);
             return;
         }
 
@@ -40,6 +40,6 @@ public class InsideAppearanceHandler extends AppearanceHandler {
     @Override
     protected void setAppearance() {
         if ((component instanceof InsideColorComponent))
-            ((InsideColorComponent)component).setInsideAppearance(builder.getAppearance());
+            ((InsideColorComponent)component).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
     }
 }
