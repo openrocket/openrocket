@@ -272,7 +272,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin.setToolTipText(tip);
 		sub.add(spin, "w 65lp!");
 
-		label = new JLabel(Chars.DEGREE + " N");
+		label = new JLabel(Chars.DEGREE + " " + trans.get("CompassRose.lbl.north"));
 		label.setToolTipText(tip);
 		sub.add(label, "growx");
 		slider = new BasicSlider(m.getSliderModel(-90, 90));
@@ -293,7 +293,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin.setToolTipText(tip);
 		sub.add(spin, "w 65lp!");
 
-		label = new JLabel(Chars.DEGREE + " E");
+		label = new JLabel(Chars.DEGREE + " " + trans.get("CompassRose.lbl.east"));
 		label.setToolTipText(tip);
 		sub.add(label, "growx");
 		slider = new BasicSlider(m.getSliderModel(-180, 180));
