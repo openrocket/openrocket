@@ -319,7 +319,7 @@ public class FreeformFinSet extends FinSet {
 			clampLastPoint();
 
 			if (oldLength != this.length)
-				validateFinTab();
+				validateFinTabLength();
 		}
 	}
 

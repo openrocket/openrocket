@@ -71,7 +71,7 @@ public class EllipticalFinSet extends FinSet {
 		if (MathUtil.equals(this.length, length))
 			return;
 		this.length = length;
-		validateFinTab();
+		validateFinTabLength();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
