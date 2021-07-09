@@ -13,6 +13,7 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +38,7 @@ import org.jfree.chart.annotations.XYImageAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
@@ -47,6 +49,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.text.TextUtilities;
@@ -144,6 +147,17 @@ public class SimulationPlot {
 		if (domainType == null) {
 			throw new IllegalArgumentException("Domain axis type not specified.");
 		}
+
+		// Custom tooltip generator
+		StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
+			final DecimalFormat f = new DecimalFormat("##.00");
+			@Override
+			public String generateToolTip(XYDataset dataset, int series, int item) {
+				return String.format("<html>Item: %d<br>Y: %s<br>X: %s</html>",
+						item, f.format(dataset.getYValue(series, item)),
+						f.format(dataset.getXValue(series, item)));
+			}
+		};
 
 		// Get plot length (ignore trailing NaN's)
 		int typeCount = filled.getTypeCount();
@@ -262,6 +276,7 @@ public class SimulationPlot {
 				plot.setDataset(axisno, data[i]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
 				renderers.add(r);
+				r.setBaseToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
