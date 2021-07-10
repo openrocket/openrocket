@@ -12,7 +12,7 @@ import net.sf.openrocket.util.Transformation;
 /**
  * A catch-all, no-operation drawing component.
  */
-public class RocketComponentShape implements Comparable<RocketComponentShape> {
+public class RocketComponentShape {
 
 	final public boolean hasShape;
 	final public Shape shape;
@@ -70,11 +70,5 @@ public class RocketComponentShape implements Comparable<RocketComponentShape> {
 			toReturn[curShapeIndex] = new RocketComponentShape( curShape, rc);
 		}
 		return toReturn;
-	}
-
-
-	@Override
-	public int compareTo(RocketComponentShape o) {
-		return Integer.compare(o.component.getDisplayOrder(), this.component.getDisplayOrder());
 	}
 }

@@ -49,7 +49,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 		
 		motors = new MotorConfigurationSet(this);
 
-		super.displayOrder = 7;		// Order for displaying the component in the 2D view
+		super.displayOrder_side = 7;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 7;		// Order for displaying the component in the 2D back view
 	}
 	
 	

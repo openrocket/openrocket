@@ -13,7 +13,8 @@ public class CenteringRing extends RadiusRingComponent {
 		setOuterRadiusAutomatic(true);
 		setInnerRadiusAutomatic(true);
 		setLength(0.002);
-		super.displayOrder = 9;		// Order for displaying the component in the 2D view
+		super.displayOrder_side = 9;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
 	
 	private static final Translator trans = Application.getTranslator();

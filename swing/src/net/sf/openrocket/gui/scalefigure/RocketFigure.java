@@ -78,7 +78,10 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * the highest priority, namely being the one where the corresponding RocketComponent has the highest displayOrder
 	 * (declared in RocketComponent, can be overridden in separate components).
 	 */
-	private final PriorityQueue<RocketComponentShape> figureShapes = new PriorityQueue<>();
+	private final PriorityQueue<RocketComponentShape> figureShapes_side = new PriorityQueue<>(
+			Comparator.comparingInt(o -> -o.component.getDisplayOrder_side()));
+	private final PriorityQueue<RocketComponentShape> figureShapes_back = new PriorityQueue<>(
+			Comparator.comparingInt(o -> -o.component.getDisplayOrder_back()));
 	
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
@@ -191,13 +194,23 @@ public class RocketFigure extends AbstractScaleFigure {
 		Graphics2D g2 = (Graphics2D) g;
 		
 		AffineTransform baseTransform = g2.getTransform();
+
+		PriorityQueue<RocketComponentShape> figureShapes;
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+			figureShapes = figureShapes_side;
+		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
+			figureShapes = figureShapes_back;
+		else {
+			log.warn("Unknown view type for paintComponent");
+			return;
+		}
 		
 		updateSubjectDimensions();
 		updateCanvasOrigin();
         updateCanvasSize();
         updateTransform();
         
-        updateShapes(this.figureShapes);
+        updateShapes(figureShapes);
 
 		g2.transform(projection);
 		
@@ -332,6 +345,15 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
 
+		PriorityQueue<RocketComponentShape> figureShapes;
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+			figureShapes = figureShapes_side;
+		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
+			figureShapes = figureShapes_back;
+		else {
+			log.warn("Unknown view type for getComponentsByPoint");
+			return null;
+		}
 
 		PriorityQueue<RocketComponentShape> figureShapesCopy = new PriorityQueue<>(figureShapes);
 		while (!figureShapesCopy.isEmpty()) {
