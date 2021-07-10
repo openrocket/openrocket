@@ -46,7 +46,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		this.length = Math.max(length, 0);
 		motors = new MotorConfigurationSet(this);
 		super.displayOrder_side = 0;		// Order for displaying the component in the 2D side view
-		super.displayOrder_back = 0;		// Order for displaying the component in the 2D back view
+		super.displayOrder_back = 1;		// Order for displaying the component in the 2D back view
 	}
 	
 	public BodyTube(double length, double radius, boolean filled) {
