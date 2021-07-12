@@ -2,7 +2,10 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventObject;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
@@ -11,10 +14,10 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
 
-
-public class LaunchLug extends ExternalComponent implements AnglePositionable, BoxBounded, Coaxial, LineInstanceable {
+public class LaunchLug extends ExternalComponent implements AnglePositionable, BoxBounded, Coaxial, LineInstanceable, InsideColorComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -26,6 +29,8 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
+
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	public LaunchLug() {
 		super(AxialMethod.MIDDLE);
@@ -278,5 +283,10 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	@Override
 	public void setAngleMethod(AngleMethod newMethod) {
 		// no-op
+	}
+
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
 	}
 }

@@ -5,16 +5,20 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import static net.sf.openrocket.util.MathUtil.pow3;
 
 import java.util.Collection;
+import java.util.EventObject;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
 
-public class Transition extends SymmetricComponent {
+public class Transition extends SymmetricComponent implements InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	private static final double CLIP_PRECISION = 0.0001;
 
@@ -39,6 +43,8 @@ public class Transition extends SymmetricComponent {
 
 	// Used to cache the clip length
 	private double clipLength = -1;
+
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 
 	public Transition() {
 		super();
@@ -598,6 +604,11 @@ public class Transition extends SymmetricComponent {
 
 	}
 
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
+	}
+
 	/**
 	 * An enumeration listing the possible shapes of transitions.
 	 *
@@ -937,5 +948,6 @@ public class Transition extends SymmetricComponent {
             return null;
         }
 	}
+
 
 }

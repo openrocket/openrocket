@@ -15,14 +15,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.Clusterable;
-import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.Instanceable;
-import net.sf.openrocket.rocketcomponent.LineInstanceable;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusPositionable;
@@ -49,28 +42,26 @@ public class RocketComponentSaver {
 					"\" manufacturer=\"" + preset.getManufacturer().getSimpleName() +
 					"\" partno=\"" + preset.getPartNo() + "\" digest=\"" + preset.getDigest() + "\"/>");
 		}
-		
+
+		// Save outside appearance
 		Appearance ap = c.getAppearance();
 		if (ap != null) {
 			elements.add("<appearance>");
-			Color paint = ap.getPaint();
-			emitColor("paint", elements, paint);
-			elements.add("<shine>" + ap.getShine() + "</shine>");
-			Decal decal = ap.getTexture();
-			if (decal != null) {
-				String name = decal.getImage().getName();
-				double rotation = decal.getRotation();
-				EdgeMode edgeMode = decal.getEdgeMode();
-				elements.add("<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
-				Coordinate center = decal.getCenter();
-				elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
-				Coordinate offset = decal.getOffset();
-				elements.add("<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
-				Coordinate scale = decal.getScale();
-				elements.add("<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
-				elements.add("</decal>");
-			}
+			buildAppearanceElements(elements, ap);
 			elements.add("</appearance>");
+		}
+
+		// Save inside appearance
+		if (c instanceof InsideColorComponent) {
+			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+			Appearance ap_in = handler.getInsideAppearance();
+			if (ap_in != null) {
+				elements.add("<inside-appearance>");
+				elements.add("<edgesSameAsInside>" + handler.isEdgesSameAsInside() + "</edgesSameAsInside>");
+				elements.add("<insideSameAsOutside>" + handler.isInsideSameAsOutside() + "</insideSameAsOutside>");
+				buildAppearanceElements(elements, ap_in);
+				elements.add("</inside-appearance>");
+			}
 		}
 		
 		// Save color and line style if significant
@@ -147,10 +138,27 @@ public class RocketComponentSaver {
 		}
 		
 	}
-	
-	
-	
-	
+
+	private void buildAppearanceElements(List<String> elements, Appearance a) {
+		Color paint = a.getPaint();
+		emitColor("paint", elements, paint);
+		elements.add("<shine>" + a.getShine() + "</shine>");
+		Decal decal = a.getTexture();
+		if (decal != null) {
+			String name = decal.getImage().getName();
+			double rotation = decal.getRotation();
+			EdgeMode edgeMode = decal.getEdgeMode();
+			elements.add("<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
+			Coordinate center = decal.getCenter();
+			elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
+			Coordinate offset = decal.getOffset();
+			elements.add("<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
+			Coordinate scale = decal.getScale();
+			elements.add("<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
+			elements.add("</decal>");
+		}
+	}
+
 	protected final String materialParam(Material mat) {
 		return materialParam("material", mat);
 	}

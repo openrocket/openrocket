@@ -14,6 +14,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
 
@@ -90,10 +91,24 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void renderComponent(final GL2 gl, Geometry geom, final float alpha) {
-	    Appearance app = getAppearance( geom.getComponent() );
-		render(gl, geom, Surface.INSIDE, app, true, alpha);
+		RocketComponent c = geom.getComponent();
+	    Appearance app = getAppearance(c);
+	    if (c instanceof InsideColorComponent) {
+			Appearance innerApp = getInsideAppearance(c);
+			if (((InsideColorComponent) c).getInsideColorComponentHandler().isInsideSameAsOutside()) innerApp = app;
+
+			render(gl, geom, Surface.INSIDE, innerApp, true, alpha);
+			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside())
+				render(gl, geom, Surface.EDGES, innerApp, false, alpha);
+			else
+				render(gl, geom, Surface.EDGES, app, false, alpha);
+		}
+	    else {
+			render(gl, geom, Surface.INSIDE, app, true, alpha);
+			render(gl, geom, Surface.EDGES, app, false, alpha);
+		}
 		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
-		render(gl, geom, Surface.EDGES, app, false, alpha);
+
 	}
 	
 	protected float[] convertColor(Appearance a, float alpha) {
@@ -189,6 +204,19 @@ public class RealisticRenderer extends RocketRenderer {
 			ret = DefaultAppearance.getDefaultAppearance(c);
 		}
 		return ret;
+	}
+
+	protected Appearance getInsideAppearance(RocketComponent c) {
+		if (c instanceof InsideColorComponent) {
+			Appearance ret = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
+			if (ret == null) {
+				ret = DefaultAppearance.getDefaultAppearance(c);
+			}
+			return ret;
+		}
+		else {
+			return DefaultAppearance.getDefaultAppearance(c);
+		}
 	}
 	
 	private int toEdgeMode(Decal.EdgeMode m) {
