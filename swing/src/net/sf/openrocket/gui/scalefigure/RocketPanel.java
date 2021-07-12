@@ -7,14 +7,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.*;
+import java.util.concurrent.*;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -38,6 +32,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
@@ -62,11 +57,12 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
-import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
+import net.sf.openrocket.simulation.listeners.system.GroundHitListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -75,11 +71,13 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A JPanel that contains a RocketFigure and buttons to manipulate the figure. 
- * 
+ * A JPanel that contains a RocketFigure and buttons to manipulate the figure.
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  * @author Bill Kuker <bkuker@billkuker.com>
  */
@@ -87,6 +85,7 @@ import net.sf.openrocket.util.StateChangeListener;
 public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
 
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
 
 	public enum VIEW_TYPE {
 		SideView(false, RocketFigure.VIEW_SIDE),
@@ -128,7 +127,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
-	
+
 	private final OpenRocketDocument document;
 
 	private Caret extraCP = null;
@@ -154,7 +153,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * This uses a fixed-sized thread pool for all background simulations
 	 * with all threads in daemon mode and with minimum priority.
 	 */
-	private static final Executor backgroundSimulationExecutor;
+	private static final ExecutorService backgroundSimulationExecutor;
 	static {
 		backgroundSimulationExecutor = Executors.newFixedThreadPool(SwingPreferences.getMaxThreadCount(),
 				new ThreadFactory() {
@@ -170,7 +169,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 								});
 	}
 
-	
 	public OpenRocketDocument getDocument(){
 		return this.document;
 	}
@@ -216,6 +214,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		rkt.addComponentChangeListener(new ComponentChangeListener() {
 			@Override
 			public void componentChanged(ComponentChangeEvent e) {
+				updateExtras();
 				if (is3d) {
 					if (e.isTextureChange()) {
 						figure3d.flushTextureCaches();
@@ -367,7 +366,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Get the center of pressure figure element.
-	 * 
+	 *
 	 * @return center of pressure info
 	 */
 	public Caret getExtraCP() {
@@ -376,7 +375,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Get the center of gravity figure element.
-	 * 
+	 *
 	 * @return center of gravity info
 	 */
 	public Caret getExtraCG() {
@@ -385,7 +384,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Get the extra text figure element.
-	 * 
+	 *
 	 * @return extra text that contains info about the rocket design
 	 */
 	public RocketInfo getExtraText() {
@@ -490,12 +489,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Handle clicking on figure shapes.  The functioning is the following:
-	 * 
+	 *
 	 * Get the components clicked.
 	 * If no component is clicked, do nothing.
-	 * If the currently selected component is in the set, keep it, 
-	 * unless the selector specified is pressed.  If it is pressed, cycle to 
-	 * the next component. Otherwise select the first component in the list. 
+	 * If the currently selected component is in the set, keep it,
+	 * unless the selector specified is pressed.  If it is pressed, cycle to
+	 * the next component. Otherwise select the first component in the list.
 	 */
 	public static final int CYCLE_SELECTION_MODIFIER = InputEvent.SHIFT_DOWN_MASK;
 
@@ -557,7 +556,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Updates the extra data included in the figure.  Currently this includes
-	 * the CP and CG carets.
+	 * the CP and CG carets. Also start the background simulator.
 	 */
 	private WarningSet warnings = new WarningSet();
 
@@ -645,7 +644,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.setCG(new Coordinate(Double.NaN, Double.NaN));
 			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
 		}
-		
+
 		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
@@ -684,34 +683,64 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 
 		// Start calculation process
-		if(((SwingPreferences) Application.getPreferences()).computeFlightInBackground()){ 
-			extraText.setCalculatingData(true);
+		if (Application.getPreferences().getAutoRunSimulations()) {
+			updateSims(false);
+		}
+	}
 
-			Rocket duplicate = (Rocket) document.getRocket().copy();
+	/**
+	 * Updates the simulations. If *currentConfig* is true, only update the simulation of the current flight
+	 * configuration. If it is false, update all the simulations.
+	 *
+	 * @param currentConfig flag to check whether to update all the simulations (false) or only the current
+	 *                      flight config sim (true)
+	 */
+	private void updateSims(boolean currentConfig) {
+		// Stop previous computation (if any)
+		stopBackgroundSimulation();
 
-			// find a Simulation based on the current flight configuration
-			FlightConfigurationId curID = curConfig.getFlightConfigurationID();
-			Simulation simulation = null;
-			for (Simulation sim : document.getSimulations()) {
+		FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
+		extraText.setCalculatingData(true);
+		Rocket duplicate = (Rocket)document.getRocket().copy();
+
+		// Re-run the present simulation(s)
+		List<Simulation> sims = new LinkedList<>();
+		for (Simulation sim : document.getSimulations()) {
+			// Find a Simulation based on the current flight configuration
+			if (currentConfig) {
 				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
-					simulation = sim;
+					sims.add(sim);
 					break;
 				}
 			}
-
-			// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
-			// if there isn't one we'll create a new simulation to update the statistics in the panel using the
-			// default simulation conditions
-			if (simulation == null) {
-				System.out.println("creating new simulation");
-				simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-				simulation.setFlightConfigurationId( document.getSelectedConfiguration().getId());
-			} else
-				System.out.println("using pre-existing simulation");
-			
-			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
-			backgroundSimulationExecutor.execute(backgroundSimulationWorker);
+			else
+				sims.add(sim);
 		}
+		runBackgroundSimulations(sims, duplicate);
+	}
+
+	/**
+	 * Runs a new background simulation for simulations *sims*. It will run all the simulations in sims sequentially
+	 * in the background.
+	 *
+	 * @param sims simulations which should be run
+	 * @param rkt rocket for which the simulations are run
+	 */
+	private void runBackgroundSimulations(List<Simulation> sims, Rocket rkt) {
+		// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
+		// if there isn't one we'll create a new simulation to update the statistics in the panel using the
+		// default simulation conditions
+		for (Simulation sim : sims) {
+			if (sim == null) {
+				log.info("creating new simulation");
+				sim = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(rkt);
+				sim.setFlightConfigurationId(document.getSelectedConfiguration().getId());
+			} else
+				log.info("using pre-existing simulation");
+		}
+
+		backgroundSimulationWorker = new BackgroundSimulationWorker(document, sims);
+		backgroundSimulationExecutor.execute(backgroundSimulationWorker);
 	}
 
 	/**
@@ -732,16 +761,19 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private class BackgroundSimulationWorker extends SimulationWorker {
 
 		private final CustomExpressionSimulationListener exprListener;
+		private final OpenRocketDocument doc;
+		private List<Simulation> sims;
 
-		public BackgroundSimulationWorker(OpenRocketDocument doc, Simulation sim) {
-			super(sim);
+		public BackgroundSimulationWorker(OpenRocketDocument doc, List<Simulation> sims) {
+			super(sims.get(0));
+			this.sims = sims;
+			this.doc = doc;
 			List<CustomExpression> exprs = doc.getCustomExpressions();
 			exprListener = new CustomExpressionSimulationListener(exprs);
 		}
 
 		@Override
 		protected FlightData doInBackground() {
-
 			// Pause a little while to allow faster UI reaction
 			try {
 				Thread.sleep(300);
@@ -749,7 +781,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 			if (isCancelled() || backgroundSimulationWorker != this)
 				return null;
-
 			return super.doInBackground();
 		}
 
@@ -758,19 +789,26 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			// Do nothing if cancelled
 			if (isCancelled() || backgroundSimulationWorker != this)
 				return;
-
 			backgroundSimulationWorker = null;
 			extraText.setFlightData(simulation.getSimulatedData());
 			extraText.setCalculatingData(false);
 			figure.repaint();
 			figure3d.repaint();
+			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+
+			// Run the new simulation after this one has ended
+			this.sims.remove(0);
+			if (this.sims.size() > 0) {
+				backgroundSimulationWorker = new BackgroundSimulationWorker(this.doc, this.sims);
+				backgroundSimulationExecutor.execute(backgroundSimulationWorker);
+			}
 		}
 
 		@Override
 		protected SimulationListener[] getExtraListeners() {
 			return new SimulationListener[] {
 					InterruptListener.INSTANCE,
-					ApogeeEndListener.INSTANCE,
+					GroundHitListener.INSTANCE,
 					exprListener };
 
 		}
@@ -813,7 +851,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	/**
-	 * Updates the selection in the FigureParameters and repaints the figure.  
+	 * Updates the selection in the FigureParameters and repaints the figure.
 	 * Ignores the event itself.
 	 */
 	@Override

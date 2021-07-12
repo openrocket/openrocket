@@ -575,7 +575,7 @@ public class SimulationPanel extends JPanel {
 			public void documentChanged(DocumentChangeEvent event) {
 				if (!(event instanceof SimulationChangeEvent))
 					return;
-				simulationTableModel.fireTableDataChanged();
+				fireMaintainSelection();
 			}
 		});
 
