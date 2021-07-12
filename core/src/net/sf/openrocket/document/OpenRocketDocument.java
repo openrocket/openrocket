@@ -615,6 +615,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		
 		fireUndoRedoChangeEvent();
+		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
 	}
 
 	/**

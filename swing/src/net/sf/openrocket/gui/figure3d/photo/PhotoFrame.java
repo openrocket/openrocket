@@ -9,6 +9,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,6 +74,17 @@ public class PhotoFrame extends JFrame {
 		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
 
+		if (!app)
+			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				closeAction();
+			}
+		});
+
+		
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
 		GUIUtil.rememberWindowPosition(this);
@@ -305,6 +318,11 @@ public class PhotoFrame extends JFrame {
 
 	}
 
+	private boolean closeAction() {
+		photoPanel.clearDoc();
+		return true;
+	}
+	
 	public static void main(String args[]) throws Exception {
 
 		LoggingSystemSetup.setupLoggingAppender();
