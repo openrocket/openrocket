@@ -376,7 +376,7 @@ public class RocketComponentConfig extends JPanel {
 		bm = new BooleanModel(component, "CDOverridden");
 		check = new JCheckBox(bm);
 		//// Override mass:
-		check.setText("Set coefficient of drag:");
+		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_NONE, 0);
