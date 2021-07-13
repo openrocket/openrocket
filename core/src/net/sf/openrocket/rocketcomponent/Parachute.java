@@ -24,7 +24,7 @@ public class Parachute extends RecoveryDevice {
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
 		this.lineLength = 0.3;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
-		super.displayOrder_back = 7;		// Order for displaying the component in the 2D back view
+		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
 	
 	

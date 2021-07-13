@@ -14,7 +14,7 @@ public class TubeCoupler extends ThicknessRingComponent implements RadialParent 
 		setThickness(0.002);
 		setLength(0.06);
 		super.displayOrder_side = 6;		// Order for displaying the component in the 2D side view
-		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
+		super.displayOrder_back = 13;		// Order for displaying the component in the 2D back view
 	}
 	
 	@Override
