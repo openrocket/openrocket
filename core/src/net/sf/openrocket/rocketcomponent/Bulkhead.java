@@ -13,6 +13,8 @@ public class Bulkhead extends RadiusRingComponent {
 	public Bulkhead() {
 		setOuterRadiusAutomatic(true);
 		setLength(0.002);
+		super.displayOrder_side = 8;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 6;		// Order for displaying the component in the 2D back view
 	}
 	
 	@Override

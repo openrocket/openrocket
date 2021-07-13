@@ -21,6 +21,8 @@ public class Streamer extends RecoveryDevice {
 	public Streamer() {
 		this.stripLength = 0.5;
 		this.stripWidth = 0.05;
+		super.displayOrder_side = 10;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 8;		// Order for displaying the component in the 2D back view
 	}
 	
 	

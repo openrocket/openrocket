@@ -16,6 +16,8 @@ public class EngineBlock extends ThicknessRingComponent implements AxialPosition
 		setOuterRadiusAutomatic(true);
 		setThickness(0.005);
 		setLength(0.005);
+		super.displayOrder_side = 9;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 15;		// Order for displaying the component in the 2D back view
 	}
 	
 	@Override
