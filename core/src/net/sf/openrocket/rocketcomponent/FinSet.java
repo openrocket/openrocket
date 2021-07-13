@@ -122,10 +122,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	private double totalVolume = Double.NaN;
 	private Coordinate centerOfMass = Coordinate.NaN;
 
-	// Settings for inside/edge appearance
-	private Appearance insideAppearance = null;
-	private boolean insideSameAsOutside = true;
-	private boolean edgesSameAsInside = true;
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/**
 	 * New FinSet with given number of fins and given base rotation angle.
@@ -1272,47 +1269,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 
 	@Override
-	public Appearance getInsideAppearance() {
-		return this.insideAppearance;
-	}
-
-	@Override
-	public void setInsideAppearance(Appearance appearance) {
-		this.insideAppearance = appearance;
-		if (this.insideAppearance != null) {
-			Decal d = this.insideAppearance.getTexture();
-			if (d != null) {
-				d.getImage().addChangeListener(new StateChangeListener() {
-
-					@Override
-					public void stateChanged(EventObject e) {
-						fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
-					}
-
-				});
-			}
-		}
-		// CHECK - should this be a TEXTURE_CHANGE and not NONFUNCTIONAL_CHANGE?
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
-
-	@Override
-	public boolean isEdgesSameAsInside() {
-		return this.edgesSameAsInside;
-	}
-
-	@Override
-	public void setEdgesSameAsInside(boolean newState) {
-		this.edgesSameAsInside = newState;
-	}
-
-	@Override
-	public boolean isInsideSameAsOutside() {
-		return this.insideSameAsOutside;
-	}
-
-	@Override
-	public void setInsideSameAsOutside(boolean newState) {
-		this.insideSameAsOutside = newState;
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
 	}
 }
