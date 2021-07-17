@@ -20,6 +20,7 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rocksim.export.RocksimSaver;
+import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.MathUtil;
 
@@ -84,7 +85,7 @@ public class GeneralRocketSaver {
 	 * 
 	 * @param dest			the destination stream.
 	 * @param doc			the document to save.
-	 * @param options		the storage options.
+	 * @param opts			the storage options.
 	 * @param progress      a SavingProgress object used to provide progress information
 	 * @throws IOException	in case of an I/O error.
 	 */
@@ -159,17 +160,22 @@ public class GeneralRocketSaver {
 		
 		// Look for all decals used in the rocket.
 		for (RocketComponent c : document.getRocket()) {
-			if (c.getAppearance() == null) {
-				continue;
-			}
 			Appearance ap = c.getAppearance();
-			if (ap.getTexture() == null) {
-				continue;
+			Appearance ap_in = null;
+			if (c instanceof InsideColorComponent)
+				ap_in = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
+
+			if ((ap == null) && (ap_in == null)) continue;
+			if (ap != null) {
+				Decal decal = ap.getTexture();
+				if (decal != null)
+					usedDecals.add(decal.getImage());
 			}
-			
-			Decal decal = ap.getTexture();
-			
-			usedDecals.add(decal.getImage());
+			if (ap_in != null) {
+				Decal decal = ap_in.getTexture();
+				if (decal != null)
+					usedDecals.add(decal.getImage());
+			}
 		}
 		
 		saveAllPartsZipFile(output, document, options, usedDecals);

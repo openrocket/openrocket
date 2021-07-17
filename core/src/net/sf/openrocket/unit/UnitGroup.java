@@ -177,13 +177,13 @@ public class UnitGroup {
 		UNITS_STABILITY.addUnit(new GeneralUnit(1, "m"));
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.0254, "in"));
 		UNITS_STABILITY.addUnit(new CaliberUnit((Rocket) null));
+		UNITS_STABILITY.addUnit(new PercentageOfLengthUnit((Rocket) null));
 		UNITS_STABILITY.setDefaultUnit(4);
 		
 		UNITS_STABILITY_CALIBERS = new UnitGroup();
 		UNITS_STABILITY_CALIBERS.addUnit(new GeneralUnit(1, "cal"));
 		UNITS_STABILITY_CALIBERS.setDefaultUnit(0);
-		
-		
+
 		UNITS_VELOCITY = new UnitGroup();
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1, "m/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1 / 3.6, "km/h"));
@@ -708,24 +708,23 @@ public class UnitGroup {
 	 */
 	private static class StabilityUnitGroup extends UnitGroup {
 		
-		public StabilityUnitGroup(double ref) {
-			this(new CaliberUnit(ref));
-		}
+		public StabilityUnitGroup(double ref) { this(new CaliberUnit(ref), new PercentageOfLengthUnit(ref)); }
 		
 		public StabilityUnitGroup(Rocket rocket) {
-			this(new CaliberUnit(rocket));
+			this(new CaliberUnit(rocket), new PercentageOfLengthUnit(rocket));
 		}
 		
-		public StabilityUnitGroup(FlightConfiguration config) {
-			this(new CaliberUnit(config));
-		}
+		public StabilityUnitGroup(FlightConfiguration config) { this(new CaliberUnit(config), new PercentageOfLengthUnit(config)); }
 		
-		private StabilityUnitGroup(CaliberUnit caliberUnit) {
+		private StabilityUnitGroup(CaliberUnit caliberUnit, PercentageOfLengthUnit percentageOfLengthUnit) {
 			this.units.addAll(UnitGroup.UNITS_STABILITY.units);
 			this.defaultUnit = UnitGroup.UNITS_STABILITY.defaultUnit;
 			for (int i = 0; i < units.size(); i++) {
 				if (units.get(i) instanceof CaliberUnit) {
 					units.set(i, caliberUnit);
+				}
+				if (units.get(i) instanceof PercentageOfLengthUnit) {
+					units.set(i, percentageOfLengthUnit);
 				}
 			}
 		}

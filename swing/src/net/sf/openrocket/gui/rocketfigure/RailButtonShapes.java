@@ -5,15 +5,27 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 
 public class RailButtonShapes extends RocketComponentShape {
-	
+
+	/**
+	 * The rail button's shape is basically 3 cylinders stacked on top of each other. To achieve this 3D shape in a 2D
+	 * way, the top and bottom faces of the cylinder are drawn as 2D ellipses and the side faces are 2D lines. To be
+	 * able to select the side faces, extra invisible rectangles are added. This is because otherwise, there would just
+	 * be empty space between the 2D lines and thus the rail button could not be selected.
+	 * @param component
+	 * @param transformation
+	 * @return
+	 */
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
 		final RailButton btn = (RailButton)component;
 
@@ -27,7 +39,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double innerRadius = innerDiameter/2;
 		
 		// instance absolute location
-		final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
+		final Coordinate loc = transformation.transform(Coordinate.ZERO);
 		
 		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
 		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
@@ -40,10 +52,11 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double flangeHeightcos = flangeHeight*cosr;
 
 		Path2D.Double path = new Path2D.Double();
+		Path2D.Double pathInvis = new Path2D.Double();	// Path for the invisible triangles
 		{// central pillar
 			final double drawWidth = outerDiameter;
 			final double drawHeight = outerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y );
+			final Point2D.Double center = new Point2D.Double( loc.x, loc.y );
 			Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
 			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
@@ -51,12 +64,22 @@ public class RailButtonShapes extends RocketComponentShape {
 			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+baseHeightcos) ), false);
 			
 			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+baseHeightcos), drawWidth, drawHeight), false);
+
+			// Invisible rectangle
+			double y_invis;
+			if (baseHeightcos >= 0) {
+				y_invis = center.y;
+			}
+			else {
+				y_invis = center.y + baseHeightcos;
+			}
+			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
 		}
 		
 		{// inner flange
 			final double drawWidth = innerDiameter;
 			final double drawHeight = innerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y + baseHeightcos);
+			final Point2D.Double center = new Point2D.Double( loc.x, loc.y + baseHeightcos);
 			final Point2D.Double lowerLeft = new Point2D.Double( center.x - innerRadius, center.y-innerRadius*sinr);
 			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
@@ -64,11 +87,21 @@ public class RailButtonShapes extends RocketComponentShape {
 			path.append( new Line2D.Double( (center.x+innerRadius),  center.y, (center.x+innerRadius), (center.y+innerHeightcos) ), false);
 			
 			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+innerHeightcos), drawWidth, drawHeight), false);
+
+			// Invisible rectangle
+			double y_invis;
+			if (innerHeightcos >= 0) {
+				y_invis = center.y;
+			}
+			else {
+				y_invis = center.y + innerHeightcos;
+			}
+			pathInvis.append(new Rectangle2D.Double(center.x-innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
 		}
 		{// outer flange
 			final double drawWidth = outerDiameter;
 			final double drawHeight = outerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( instanceAbsoluteLocation.x, instanceAbsoluteLocation.y+baseHeightcos+innerHeightcos);
+			final Point2D.Double center = new Point2D.Double( loc.x, loc.y+baseHeightcos+innerHeightcos);
 			final Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
 			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 			
@@ -76,9 +109,27 @@ public class RailButtonShapes extends RocketComponentShape {
 			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+flangeHeightcos) ), false);
 			
 			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+flangeHeightcos), drawWidth, drawHeight), false);
+
+			// Invisible rectangle
+			double y_invis;
+			if (flangeHeightcos >= 0) {
+				y_invis = center.y;
+			}
+			else {
+				y_invis = center.y + flangeHeightcos;
+			}
+			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 		}
-	
-		return RocketComponentShape.toArray( new Shape[]{ path }, component );
+
+		RocketComponentShape[] shapes = RocketComponentShape.toArray(new Shape[]{ path }, component);
+		RocketComponentShape[] shapesInvis = RocketComponentShape.toArray(new Shape[]{ pathInvis }, component);
+
+		for (RocketComponentShape s : shapesInvis)
+			s.setColor(Color.INVISIBLE);
+
+		RocketComponentShape[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);
+		System.arraycopy(shapesInvis, 0, total, shapes.length, shapesInvis.length);
+		return total;
 	}
 	
 

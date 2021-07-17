@@ -5,6 +5,7 @@ import java.awt.Shape;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Transformation;
 
@@ -16,7 +17,7 @@ public class RocketComponentShape {
 
 	final public boolean hasShape;
 	final public Shape shape;
-	final public net.sf.openrocket.util.Color color;
+	public net.sf.openrocket.util.Color color;
 	final public LineStyle lineStyle;
 	final public RocketComponent component;
 	
@@ -62,8 +63,12 @@ public class RocketComponentShape {
 				+component);
 		return new RocketComponentShape[0];
 	}
-	
-	public static RocketComponentShape[] toArray( final Shape[] shapeArray, final RocketComponent rc){
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public static RocketComponentShape[] toArray(final Shape[] shapeArray, final RocketComponent rc){
 		RocketComponentShape[] toReturn = new RocketComponentShape[ shapeArray.length];
 		for ( int curShapeIndex=0;curShapeIndex<shapeArray.length; curShapeIndex++){
 			Shape curShape = shapeArray[curShapeIndex ];
@@ -71,6 +76,4 @@ public class RocketComponentShape {
 		}
 		return toReturn;
 	}
-	
-	
 }

@@ -1,19 +1,17 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.EventObject;
 import java.util.Iterator;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationSet;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.*;
 
 
 /**
@@ -22,7 +20,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMount, Coaxial {
+public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMount, Coaxial, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	
 	private double outerRadius = 0;
@@ -33,6 +31,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	private boolean isActingMount = false;
 	
 	private MotorConfigurationSet motors;
+
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	public BodyTube() {
 		this(8 * DEFAULT_RADIUS, DEFAULT_RADIUS);
@@ -45,6 +45,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		this.outerRadius = Math.max(radius, 0);
 		this.length = Math.max(length, 0);
 		motors = new MotorConfigurationSet(this);
+		super.displayOrder_side = 0;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 1;		// Order for displaying the component in the 2D back view
 	}
 	
 	public BodyTube(double length, double radius, boolean filled) {
@@ -454,5 +456,11 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public ClusterConfiguration getClusterConfiguration() {
 		return ClusterConfiguration.SINGLE;
+	}
+
+
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
 	}
 }

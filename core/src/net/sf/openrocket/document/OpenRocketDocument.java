@@ -3,6 +3,7 @@ package net.sf.openrocket.document;
 import java.io.File;
 import java.util.*;
 
+import net.sf.openrocket.rocketcomponent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +14,6 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
@@ -256,7 +251,10 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		Iterator<RocketComponent> it = rocket.iterator();
 		while (it.hasNext()) {
-			if(hasDecal(it.next(),img))
+			RocketComponent c = it.next();
+			if(hasDecal(c ,img))
+				count++;
+			else if (hasDecalInside(c, img))
 				count++;
 		}
 		return count;
@@ -279,6 +277,29 @@ public class OpenRocketDocument implements ComponentChangeListener {
 			return false;
 		if(img.equals(d.getImage()))
 			return true;
+		return false;
+	}
+
+	//TODO: LOW: move this method to rocketComponent, Appearance and decal
+	//I see 3 layers of object accessed, seems unsafe
+	/**
+	 * checks if a rocket component has the given inside decalImage
+	 * @param comp	the RocketComponent to be searched
+	 * @param img	the DecalImage to be checked
+	 * @return	if the comp has img
+	 */
+	private boolean hasDecalInside(RocketComponent comp, DecalImage img) {
+		if (comp instanceof InsideColorComponent) {
+			Appearance a = ((InsideColorComponent)comp).getInsideColorComponentHandler().getInsideAppearance();
+			if (a == null)
+				return false;
+			Decal d = a.getTexture();
+			if (d == null)
+				return false;
+			if (img.equals(d.getImage()))
+				return true;
+			return false;
+		}
 		return false;
 	}
 	
@@ -591,6 +612,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		
 		fireUndoRedoChangeEvent();
+		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
 	}
 
 	/**

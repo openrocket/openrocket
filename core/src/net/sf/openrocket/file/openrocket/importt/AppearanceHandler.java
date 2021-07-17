@@ -16,11 +16,11 @@ import net.sf.openrocket.util.Color;
 import org.xml.sax.SAXException;
 
 class AppearanceHandler extends AbstractElementHandler {
-	private final DocumentLoadingContext context;
-	private final RocketComponent component;
-	
-	private final AppearanceBuilder builder = new AppearanceBuilder();
-	private boolean isInDecal = false;
+	protected final DocumentLoadingContext context;
+	protected final RocketComponent component;
+
+	protected final AppearanceBuilder builder = new AppearanceBuilder();
+	protected boolean isInDecal = false;
 	
 	public AppearanceHandler(RocketComponent component, DocumentLoadingContext context) {
 		this.context = context;
@@ -44,7 +44,7 @@ class AppearanceHandler extends AbstractElementHandler {
 		}
 		return PlainTextHandler.INSTANCE;
 	}
-	
+
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
 		if ("paint".equals(element)) {
@@ -99,8 +99,12 @@ class AppearanceHandler extends AbstractElementHandler {
 			isInDecal = false;
 			return;
 		}
-		component.setAppearance(builder.getAppearance());
+		setAppearance();
 		super.endHandler(element, attributes, content, warnings);
+	}
+
+	protected void setAppearance() {
+		component.setAppearance(builder.getAppearance());
 	}
 	
 }

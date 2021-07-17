@@ -6,19 +6,7 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -45,6 +33,9 @@ import net.sf.openrocket.gui.util.EditDecalHelper;
 import net.sf.openrocket.gui.util.EditDecalHelper.EditDecalHelperException;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.InsideColorComponent;
+import net.sf.openrocket.rocketcomponent.InsideColorComponentHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.GeneralUnit;
@@ -58,15 +49,18 @@ public class AppearancePanel extends JPanel {
 
 	private static final Translator trans = Application.getTranslator();
 
-	private EditDecalHelper editDecalHelper = Application.getInjector()
+	final private EditDecalHelper editDecalHelper = Application.getInjector()
 			.getInstance(EditDecalHelper.class);
 
-	private AppearanceBuilder ab;
+	// Outside and inside appearance builder
+	final private AppearanceBuilder ab;
+	private AppearanceBuilder insideAb;
 
 	// We hang on to the user selected appearance when switching to default
 	// appearance.
 	// this appearance is restored if the user unchecks the "default" button.
 	private Appearance previousUserSelectedAppearance = null;
+	private Appearance previousUserSelectedInsideAppearance = null;
 
 	// We cache the default appearance for this component to make switching
 	// faster.
@@ -105,7 +99,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		/**
-		 Changes the color of the selected color to <color>
+		 Changes the color of the selected component to <color>
 		 @param color: color to change the component to
 		 */
 		private void changeComponentColor(Color color) {
@@ -182,14 +176,27 @@ public class AppearancePanel extends JPanel {
 			final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
-		previousUserSelectedAppearance = c.getAppearance();
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
+
+		previousUserSelectedAppearance = c.getAppearance();
 		if (previousUserSelectedAppearance == null) {
 			previousUserSelectedAppearance = new AppearanceBuilder()
 					.getAppearance();
 			ab = new AppearanceBuilder(defaultAppearance);
 		} else {
 			ab = new AppearanceBuilder(previousUserSelectedAppearance);
+		}
+
+		if (c instanceof InsideColorComponent) {
+			previousUserSelectedInsideAppearance = ((InsideColorComponent) c).getInsideColorComponentHandler()
+					.getInsideAppearance();
+			if (previousUserSelectedInsideAppearance == null) {
+				previousUserSelectedInsideAppearance = new AppearanceBuilder()
+						.getAppearance();
+				insideAb = new AppearanceBuilder(defaultAppearance);
+			} else {
+				insideAb = new AppearanceBuilder(previousUserSelectedInsideAppearance);
+			}
 		}
 
 		net.sf.openrocket.util.Color figureColor = c.getColor();
@@ -200,19 +207,9 @@ public class AppearancePanel extends JPanel {
 		final JButton figureColorButton = new JButton(
 				new ColorIcon(figureColor));
 
-		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
-
-		final DecalModel decalModel = new DecalModel(this, document, ab);
-		final JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
-
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
-			public void stateChanged(EventObject e) {
-				figureColorButton.setIcon(new ColorIcon(c.getColor()));
-				colorButton.setIcon(new ColorIcon(ab.getPaint()));
-				c.setAppearance(ab.getAppearance());
-				decalModel.refresh();
-			}
+			public void stateChanged(EventObject e) { figureColorButton.setIcon(new ColorIcon(c.getColor())); }
 		});
 
 		c.addChangeListener(new StateChangeListener() {
@@ -229,9 +226,7 @@ public class AppearancePanel extends JPanel {
 
 		figureColorButton
 				.addActionListener(new ColorActionListener(c, "Color"));
-		colorButton.addActionListener(new ColorActionListener(ab, "Paint"));
 
-		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 
 		{// Style Header Row
@@ -285,7 +280,6 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{// Line Style
-
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));
 
 			LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
@@ -304,148 +298,245 @@ public class AppearancePanel extends JPanel {
 
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
-		{// Texture Header Row
-			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"),
-					Style.BOLD));
-			final JCheckBox materialDefault = new JCheckBox(mDefault);
-			materialDefault.addActionListener(new ActionListener() {
+		// Display a tabbed panel for choosing the outside and inside appearance, if the object is of type InsideColorComponent
+		if (c instanceof InsideColorComponent) {
+			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+
+			JTabbedPane tabbedPane = new JTabbedPane();
+			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+
+			appearanceSection(document, c, false, outsidePanel);
+			appearanceSection(document, c, true, insidePanel);
+
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Outside"), null, outsidePanel,
+					"Outside Tool Tip");
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Inside"), null, insidePanel,
+					"Inside Tool Tip");
+			add(tabbedPane, "span 4, growx, wrap");
+
+			// Checkbox to set edges the same as inside/outside
+			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
+			JCheckBox edges = new JCheckBox(b);
+			edges.setText(trans.get("AppearanceCfg.lbl.EdgesSameAsInside"));
+			edges.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.EdgesSameAsInside"));
+			add(edges, "wrap");
+
+			edges.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (materialDefault.isSelected()) {
-						previousUserSelectedAppearance = (ab == null) ? null
-								: ab.getAppearance();
-						ab.setAppearance(defaultAppearance);
-					} else {
-						ab.setAppearance(previousUserSelectedAppearance);
-					}
+					handler.setEdgesSameAsInside(edges.isSelected());
+					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
-			materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
-			add(materialDefault, "wrap");
 		}
+		else
+			appearanceSection(document, c, false, this);
+	}
 
-		{// Texture File
-			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
-			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
-			mDefault.addEnableComponent(textureDropDown, false);
-			p.add(textureDropDown, "grow");
-			add(p, "span 3, growx, wrap");
-			final JButton editBtn = new JButton(
-					trans.get("AppearanceCfg.but.edit"));
-			editBtn.setEnabled(ab.getImage() != null);
-			// Enable the editBtn only when the appearance builder has an Image
-			// assigned to it.
-			ab.addChangeListener(new StateChangeListener() {
-				@Override
-				public void stateChanged(EventObject e) {
-					editBtn.setEnabled(ab.getImage() != null);
+	/**
+	 *
+	 * @param document
+	 * @param c
+	 * @param insideBuilder flag to check whether you are on the inside builder (true) or outside builder
+	 * @param panel
+	 */
+	private void appearanceSection(OpenRocketDocument document, RocketComponent c,
+								   boolean insideBuilder, JPanel panel) {
+		AppearanceBuilder builder;
+		BooleanModel mDefault;
+		if (!insideBuilder) {
+			builder = ab;
+			mDefault = new BooleanModel(c.getAppearance() == null);
+		}
+		else if (c instanceof InsideColorComponent) {
+			builder = insideAb;
+			mDefault = new BooleanModel(
+					((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance() == null);
+		}
+		else return;
+
+		DecalModel decalModel = new DecalModel(panel, document, builder);
+		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
+
+		JButton colorButton = new JButton(new ColorIcon(builder.getPaint()));
+
+		builder.addChangeListener(new StateChangeListener() {
+			@Override
+			public void stateChanged(EventObject e) {
+				colorButton.setIcon(new ColorIcon(builder.getPaint()));
+				if (!insideBuilder)
+					c.setAppearance(builder.getAppearance());
+				else
+					((InsideColorComponent)c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
+				decalModel.refresh();
+			}
+		});
+
+		colorButton.addActionListener(new ColorActionListener(builder, "Paint"));
+
+		// Texture Header Row
+		panel.add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"),
+				Style.BOLD));
+		JCheckBox materialDefault = new JCheckBox(mDefault);
+		materialDefault.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (materialDefault.isSelected()) {
+					if (!insideBuilder) {
+						previousUserSelectedAppearance = (builder == null) ? null
+								: builder.getAppearance();
+					}
+					else {
+						previousUserSelectedInsideAppearance = (builder == null) ? null
+								: builder.getAppearance();
+					}
+					builder.setAppearance(defaultAppearance);
+				} else {
+					if (!insideBuilder)
+						builder.setAppearance(previousUserSelectedAppearance);
+					else
+						builder.setAppearance(previousUserSelectedInsideAppearance);
 				}
-			});
-			editBtn.addActionListener(new ActionListener() {
+			}
+		});
+		materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
+		if (insideBuilder)
+			panel.add(materialDefault);
+		else
+			panel.add(materialDefault, "wrap");
 
+		// Custom inside color
+		if (insideBuilder) {
+			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
+			JCheckBox customInside = new JCheckBox(b);
+			customInside.setText(trans.get("AppearanceCfg.lbl.InsideSameAsOutside"));
+			customInside.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.InsideSameAsOutside"));
+			customInside.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try {
-						DecalImage newImage = editDecalHelper.editDecal(
-								SwingUtilities
-										.getWindowAncestor(AppearancePanel.this),
-								document, c, ab.getImage());
-						ab.setImage(newImage);
-					} catch (EditDecalHelperException ex) {
-						JOptionPane.showMessageDialog(AppearancePanel.this,
-								ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
-					}
+					handler.setInsideSameAsOutside(customInside.isSelected());
+					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
-
 			});
-			p.add(editBtn);
+			panel.add(customInside, "wrap");
 		}
 
-		{ // Color
-			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
-			mDefault.addEnableComponent(colorButton, false);
-			add(colorButton);
-		}
+		// Texture File
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
+		JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
+		mDefault.addEnableComponent(textureDropDown, false);
+		p.add(textureDropDown, "grow");
+		panel.add(p, "span 3, growx, wrap");
+		JButton editBtn = new JButton(
+				trans.get("AppearanceCfg.but.edit"));
+		editBtn.setEnabled(builder.getImage() != null);
+		// Enable the editBtn only when the appearance builder has an Image
+		// assigned to it.
+		builder.addChangeListener(new StateChangeListener() {
+			@Override
+			public void stateChanged(EventObject e) {
+				editBtn.setEnabled(builder.getImage() != null);
+			}
+		});
 
-		{ // Scale
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
+		editBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					DecalImage newImage = editDecalHelper.editDecal(
+							SwingUtilities
+									.getWindowAncestor(panel),
+							document, c, builder.getImage(), insideBuilder);
+					builder.setImage(newImage);
+				} catch (EditDecalHelperException ex) {
+					JOptionPane.showMessageDialog(panel,
+							ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+				}
+			}
 
-			add(new JLabel("x:"), "split 4");
-			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX",
-					TEXTURE_UNIT).getSpinnerModel());
-			scaleU.setEditor(new SpinnerEditor(scaleU));
-			mDefault.addEnableComponent(scaleU, false);
-			add(scaleU, "w 40");
+		});
+		p.add(editBtn);
 
-			add(new JLabel("y:"));
-			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY",
-					TEXTURE_UNIT).getSpinnerModel());
-			scaleV.setEditor(new SpinnerEditor(scaleV));
-			mDefault.addEnableComponent(scaleV, false);
-			add(scaleV, "wrap, w 40");
-		}
+		// Color
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
+		mDefault.addEnableComponent(colorButton, false);
+		panel.add(colorButton);
 
-		{// Shine
-			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			DoubleModel shineModel = new DoubleModel(ab, "Shine",
-					UnitGroup.UNITS_RELATIVE);
-			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
-			UnitSelector unit = new UnitSelector(shineModel);
+		// Scale
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
-			mDefault.addEnableComponent(slide, false);
-			mDefault.addEnableComponent(spin, false);
-			mDefault.addEnableComponent(unit, false);
+		panel.add(new JLabel("x:"), "split 4");
+		JSpinner scaleU = new JSpinner(new DoubleModel(builder, "ScaleX",
+				TEXTURE_UNIT).getSpinnerModel());
+		scaleU.setEditor(new SpinnerEditor(scaleU));
+		mDefault.addEnableComponent(scaleU, false);
+		panel.add(scaleU, "w 40");
 
-			add(spin, "split 3, w 50");
-			add(unit);
-			add(slide, "w 50");
-		}
+		panel.add(new JLabel("y:"));
+		JSpinner scaleV = new JSpinner(new DoubleModel(builder, "ScaleY",
+				TEXTURE_UNIT).getSpinnerModel());
+		scaleV.setEditor(new SpinnerEditor(scaleV));
+		mDefault.addEnableComponent(scaleV, false);
+		panel.add(scaleV, "wrap, w 40");
 
-		{ // Offset
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
+		// Shine
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
+		DoubleModel shineModel = new DoubleModel(builder, "Shine",
+				UnitGroup.UNITS_RELATIVE);
+		JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
+		UnitSelector unit = new UnitSelector(shineModel);
 
-			add(new JLabel("x:"), "split 4");
-			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU",
-					TEXTURE_UNIT).getSpinnerModel());
-			offsetU.setEditor(new SpinnerEditor(offsetU));
-			mDefault.addEnableComponent(offsetU, false);
-			add(offsetU, "w 40");
+		mDefault.addEnableComponent(slide, false);
+		mDefault.addEnableComponent(spin, false);
+		mDefault.addEnableComponent(unit, false);
 
-			add(new JLabel("y:"));
-			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV",
-					TEXTURE_UNIT).getSpinnerModel());
-			offsetV.setEditor(new SpinnerEditor(offsetV));
-			mDefault.addEnableComponent(offsetV, false);
-			add(offsetV, "wrap, w 40");
-		}
+		panel.add(spin, "split 3, w 50");
+		panel.add(unit);
+		panel.add(slide, "w 50");
 
-		{ // Repeat
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
-			EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
-			System.arraycopy(EdgeMode.values(), 0, list, 0,
-					EdgeMode.values().length);
-			JComboBox<EdgeMode> combo = new JComboBox<EdgeMode>(new EnumModel<EdgeMode>(ab,
-					"EdgeMode", list));
-			mDefault.addEnableComponent(combo, false);
-			add(combo);
-		}
+		// Offset
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
 
-		{ // Rotation
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
-			DoubleModel rotationModel = new DoubleModel(ab, "Rotation",
-					UnitGroup.UNITS_ANGLE);
-			JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
-			rotation.setEditor(new SpinnerEditor(rotation));
-			mDefault.addEnableComponent(rotation, false);
-			add(rotation, "split 3, w 50");
-			add(new UnitSelector(rotationModel));
-			BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(
-					-Math.PI, Math.PI));
-			mDefault.addEnableComponent(bs, false);
-			add(bs, "w 50, wrap");
-		}
+		panel.add(new JLabel("x:"), "split 4");
+		JSpinner offsetU = new JSpinner(new DoubleModel(builder, "OffsetU",
+				TEXTURE_UNIT).getSpinnerModel());
+		offsetU.setEditor(new SpinnerEditor(offsetU));
+		mDefault.addEnableComponent(offsetU, false);
+		panel.add(offsetU, "w 40");
 
+		panel.add(new JLabel("y:"));
+		JSpinner offsetV = new JSpinner(new DoubleModel(builder, "OffsetV",
+				TEXTURE_UNIT).getSpinnerModel());
+		offsetV.setEditor(new SpinnerEditor(offsetV));
+		mDefault.addEnableComponent(offsetV, false);
+		panel.add(offsetV, "wrap, w 40");
+
+		// Repeat
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
+		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
+		System.arraycopy(EdgeMode.values(), 0, list, 0,
+				EdgeMode.values().length);
+		JComboBox<EdgeMode> combo = new JComboBox<EdgeMode>(new EnumModel<EdgeMode>(builder,
+				"EdgeMode", list));
+		mDefault.addEnableComponent(combo, false);
+		panel.add(combo);
+
+		// Rotation
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
+		DoubleModel rotationModel = new DoubleModel(builder, "Rotation",
+				UnitGroup.UNITS_ANGLE);
+		JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
+		rotation.setEditor(new SpinnerEditor(rotation));
+		mDefault.addEnableComponent(rotation, false);
+		panel.add(rotation, "split 3, w 50");
+		panel.add(new UnitSelector(rotationModel));
+		BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(
+				-Math.PI, Math.PI));
+		mDefault.addEnableComponent(bs, false);
+		panel.add(bs, "w 50, wrap");
 	}
 }

@@ -40,6 +40,9 @@ class ComponentParameterHandler extends AbstractElementHandler {
 		if ( element.equals("appearance")) {
 			return new AppearanceHandler(component,context);
 		}
+		if (element.equals("inside-appearance")) {
+			return new InsideAppearanceHandler(component, context);
+		}
 		if (element.equals("motormount")) {
 			if (!(component instanceof MotorMount)) {
 				warnings.add(Warning.fromString("Illegal component defined as motor mount."));
@@ -92,8 +95,8 @@ class ComponentParameterHandler extends AbstractElementHandler {
 		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
 				element.equals("finpoints") || element.equals("motorconfiguration") ||
-				element.equals("appearance") || element.equals("deploymentconfiguration") ||
-				element.equals("separationconfiguration")) {
+				element.equals("appearance") || element.equals("inside-appearance") ||
+				element.equals("deploymentconfiguration") || element.equals("separationconfiguration")) {
 			return;
 		}
 		

@@ -1,9 +1,6 @@
 package net.sf.openrocket.startup;
 
-import java.awt.Desktop;
-import java.awt.Image;
-import java.awt.Taskbar;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.desktop.AboutHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
@@ -16,6 +13,8 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
+
+import javax.swing.*;
 
 /**
  * Static code for initialization of OSX UI Elements: Menu, Icon, Name and
@@ -90,6 +89,9 @@ final class OSXSetup {
 					SwingStartup.class.getResource(ICON_RSRC));
 			final Taskbar osxTaskbar = Taskbar.getTaskbar();
 			osxTaskbar.setIconImage(dockIcon);
+
+			// Set the foreground of active tabs to black; there was a bug where you had a white background and white foreground
+			UIManager.put("TabbedPane.foreground", Color.black);
 
 		} catch (final Throwable t) {
 			// None of the preceding is critical to the app,

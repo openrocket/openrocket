@@ -23,6 +23,7 @@ import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.jogamp.opengl.GL2;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -31,6 +32,7 @@ import net.sf.openrocket.gui.components.EditableSpinner;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.figure3d.TextureCache;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky.Credit;
 import net.sf.openrocket.gui.figure3d.photo.sky.builtin.Lake;
@@ -236,7 +238,16 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
 
-				add(new JComboBox<Sky>(new DefaultComboBoxModel<Sky>(new Sky[] { null, Mountains.instance, Meadow.instance,
+				Sky noSky = new Sky() {		// Dummy sky for 'none' selection option
+					@Override
+					public void draw(GL2 gl, TextureCache cache) { }
+
+					@Override
+					public String toString() {
+						return trans.get("DecalModel.lbl.select");
+					}
+				};
+				add(new JComboBox<Sky>(new DefaultComboBoxModel<Sky>(new Sky[] { noSky, Mountains.instance, Meadow.instance,
 						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance }) {
 				}) {
 					{
@@ -245,10 +256,10 @@ public class PhotoSettingsConfig extends JTabbedPane {
 							public void actionPerformed(ActionEvent e) {
 								@SuppressWarnings("unchecked")
 								Object s = ((JComboBox<Sky>) e.getSource()).getSelectedItem();
-								if (s instanceof Sky) {
+								if (s instanceof Sky && s != noSky) {
 									p.setSky((Sky) s);
 									skyColorButton.setEnabled(false);
-								} else if (s == null) {
+								} else if (s == noSky) {
 									p.setSky(null);
 									skyColorButton.setEnabled(true);
 								}

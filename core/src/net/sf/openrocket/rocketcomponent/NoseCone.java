@@ -1,9 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.StateChangeListener;
+
+import java.util.EventObject;
 
 /**
  * Rocket nose cones of various types.  Implemented as a transition with the
@@ -12,9 +17,10 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class NoseCone extends Transition {
+public class NoseCone extends Transition implements InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
-	
+
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/********* Constructors **********/
 	public NoseCone() {
@@ -36,6 +42,9 @@ public class NoseCone extends Transition {
 		
 		super.setAftRadiusAutomatic(false);
 		super.setAftRadius(radius);
+
+		super.displayOrder_side = 1;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 0;		// Order for displaying the component in the 2D back view
 	}
 	
 	
@@ -135,5 +144,10 @@ public class NoseCone extends Transition {
 		//// Nose cone
 		return trans.get("NoseCone.NoseCone");
 	}
-	
+
+
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
+	}
 }
