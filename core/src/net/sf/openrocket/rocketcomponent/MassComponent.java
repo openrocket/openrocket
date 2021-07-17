@@ -41,11 +41,15 @@ public class MassComponent extends MassObject {
 	
 	public MassComponent() {
 		super();
+		super.displayOrder_side = 13;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 10;		// Order for displaying the component in the 2D back view
 	}
 	
 	public MassComponent(double length, double radius, double mass) {
 		super(length, radius);
 		this.mass = mass;
+		super.displayOrder_side = 13;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 10;		// Order for displaying the component in the 2D back view
 	}
 	
 	

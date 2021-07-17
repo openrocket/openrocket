@@ -14,8 +14,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
@@ -74,10 +73,15 @@ public class RocketFigure extends AbstractScaleFigure {
 	private double rotation;
 	private Transformation axialRotation;
     
-	/*
-	 * figureComponents contains the corresponding RocketComponents of the figureShapes
+	/**
+	 * The shapes to be drawn are stored in this Priority Queue, where the first shape to be drawn is the one with
+	 * the highest priority, namely being the one where the corresponding RocketComponent has the highest displayOrder
+	 * (declared in RocketComponent, can be overridden in separate components).
 	 */
-	private final ArrayList<RocketComponentShape> figureShapes = new ArrayList<RocketComponentShape>();
+	private final PriorityQueue<RocketComponentShape> figureShapes_side = new PriorityQueue<>(
+			Comparator.comparingInt(o -> -o.component.getDisplayOrder_side()));
+	private final PriorityQueue<RocketComponentShape> figureShapes_back = new PriorityQueue<>(
+			Comparator.comparingInt(o -> -o.component.getDisplayOrder_back()));
 	
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
@@ -190,13 +194,23 @@ public class RocketFigure extends AbstractScaleFigure {
 		Graphics2D g2 = (Graphics2D) g;
 		
 		AffineTransform baseTransform = g2.getTransform();
+
+		PriorityQueue<RocketComponentShape> figureShapes;
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+			figureShapes = figureShapes_side;
+		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
+			figureShapes = figureShapes_back;
+		else {
+			log.warn("Unknown view type for paintComponent");
+			return;
+		}
 		
 		updateSubjectDimensions();
 		updateCanvasOrigin();
         updateCanvasSize();
         updateTransform();
         
-        updateShapes(this.figureShapes);
+        updateShapes(figureShapes);
 
 		g2.transform(projection);
 		
@@ -207,12 +221,12 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_RENDER_QUALITY);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		
-		int shapeCount = figureShapes.size();
+
 		// Draw all shapes
-		for (int i = 0; i < shapeCount; i++) {
-			RocketComponentShape rcs = figureShapes.get(i);
-			RocketComponent c = rcs.getComponent(); 
+		PriorityQueue<RocketComponentShape> figureShapesCopy = new PriorityQueue<>(figureShapes);
+		while (!figureShapesCopy.isEmpty()) {
+			RocketComponentShape rcs = figureShapesCopy.poll();
+			RocketComponent c = rcs.getComponent();
 			boolean selected = false;
 			
 			// Check if component is in the selection
@@ -330,16 +344,27 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 		
 		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
-		
-		for (int i = 0; i < figureShapes.size(); i++) {
-			RocketComponentShape rcs = this.figureShapes.get(i);
+
+		PriorityQueue<RocketComponentShape> figureShapes;
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+			figureShapes = figureShapes_side;
+		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
+			figureShapes = figureShapes_back;
+		else {
+			log.warn("Unknown view type for getComponentsByPoint");
+			return null;
+		}
+
+		PriorityQueue<RocketComponentShape> figureShapesCopy = new PriorityQueue<>(figureShapes);
+		while (!figureShapesCopy.isEmpty()) {
+			RocketComponentShape rcs = figureShapesCopy.poll();
 			if (rcs.shape.contains(p))
 				l.add(rcs.component);
 		}
 		return l.toArray(new RocketComponent[0]);
 	}
 	
-	private void updateShapes(ArrayList<RocketComponentShape> allShapes) { 
+	private void updateShapes(PriorityQueue<RocketComponentShape> allShapes) {
 		// source input
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 
@@ -369,8 +394,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	 *
 	 * @return the <code>ArrayList</code> containing all the shapes to draw.
 	 */
-	private static ArrayList<RocketComponentShape> addThisShape(
-			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter
+	private static PriorityQueue<RocketComponentShape> addThisShape(
+			PriorityQueue<RocketComponentShape> allShapes,  // this is the output parameter
 			final RocketPanel.VIEW_TYPE viewType, 
 			final RocketComponent component, 
 			final Transformation transformation) {
@@ -405,9 +430,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 	
 		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation);
-		for ( RocketComponentShape curShape : returnValue ){
-			allShapes.add( curShape );
-		}
+		allShapes.addAll(Arrays.asList(returnValue));
 		return allShapes;
 	}
 	
