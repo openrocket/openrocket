@@ -14,11 +14,9 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.simulation.SimulationPlotPanel;
@@ -49,6 +47,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -148,17 +147,6 @@ public class SimulationPlot {
 			throw new IllegalArgumentException("Domain axis type not specified.");
 		}
 
-		// Custom tooltip generator
-		StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
-			final DecimalFormat f = new DecimalFormat("##.00");
-			@Override
-			public String generateToolTip(XYDataset dataset, int series, int item) {
-				return String.format("<html>Item: %d<br>Y: %s<br>X: %s</html>",
-						item, f.format(dataset.getYValue(series, item)),
-						f.format(dataset.getXValue(series, item)));
-			}
-		};
-
 		// Get plot length (ignore trailing NaN's)
 		int typeCount = filled.getTypeCount();
 
@@ -248,6 +236,13 @@ public class SimulationPlot {
 		plot.setDomainGridlinePaint(Color.lightGray);
 
 		int axisno = 0;
+		Color[] colors = {new Color(0,114,189),		// Colors for data lines
+				new Color(217,83,25),
+				new Color(237,177,32),
+				new Color(126,49,142),
+				new Color(119,172,48),
+				new Color(77,190,238),
+				new Color(162,20,47)};
 		for (int i = 0; i < 2; i++) {
 			// Check whether axis has any data
 			if (data[i].getSeriesCount() > 0) {
@@ -265,14 +260,40 @@ public class SimulationPlot {
 
 				plot.setDomainAxis(new PresetNumberAxis(domainMin, domainMax));
 
+				// Custom tooltip generator
+				int finalAxisno = axisno;
+				StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
+					final DecimalFormat f = new DecimalFormat("0.00");
+					@Override
+					public String generateToolTip(XYDataset dataset, int series, int item) {
+						XYSeries ser = data[finalAxisno].getSeries(series);
+						String name = ser.getDescription();
+						// Extract the unit from the last part of the series description, between parenthesis
+						Matcher m = Pattern.compile(".*\\((.*?)\\)").matcher(name);
+						String unit_y = "";
+						if (m.find()) {
+							unit_y = m.group(1);
+						}
+						String unit_x = domainUnit.getUnit();
+						String ord_end = "th";		// Ordinal number ending (1'st', 2'nd'...)
+						if (item % 10 == 1)
+							ord_end = "st";
+						else if (item % 10 == 2)
+							ord_end = "nd";
+						else if (item % 10 == 3)
+							ord_end = "rd";
+						return String.format("<html>" +
+										"<b><i>%s</i></b><br>" +
+										"Y: %s %s<br>" +
+										"X: %s %s<br>" +
+										"%d<sup>%s</sup> sample" +
+										"</html>",
+								name, f.format(dataset.getYValue(series, item)), unit_y,
+								f.format(dataset.getXValue(series, item)), unit_x, item, ord_end);
+					}
+				};
+
 				// Add data and map to the axis
-				Color[] colors = {new Color(0,114,189),		// Colors for data lines
-						new Color(217,83,25),
-						new Color(237,177,32),
-						new Color(126,49,142),
-						new Color(119,172,48),
-						new Color(77,190,238),
-						new Color(162,20,47)};
 				plot.setDataset(axisno, data[i]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
 				renderers.add(r);
