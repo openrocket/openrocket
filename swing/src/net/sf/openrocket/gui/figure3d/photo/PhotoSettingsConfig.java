@@ -267,7 +267,12 @@ public class PhotoSettingsConfig extends JTabbedPane {
 							}
 						});
 
-						setSelectedItem(p.getSky());
+						if (p.getSky() != null) {
+							setSelectedItem(p.getSky());
+						}
+						else {
+							setSelectedItem(noSky);
+						}
 					}
 				}, "wrap");
 
