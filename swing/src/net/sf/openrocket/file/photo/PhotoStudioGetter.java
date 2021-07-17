@@ -187,18 +187,6 @@ public class PhotoStudioGetter {
                     s = Orbit.instance;
                 else if (Storm.class.isAssignableFrom(cl))
                     s = Storm.instance;
-                else {
-                    // Case where sky is a dummy sky, displaying <none>
-                    s = new Sky() {
-                        @Override
-                        public void draw(com.jogamp.opengl.GL2 gl, TextureCache cache) { }
-
-                        @Override
-                        public String toString() {
-                            return Application.getTranslator().get("DecalModel.lbl.select");
-                        }
-                    };
-                }
             }
             catch (ClassNotFoundException e) {
                 log.info("Could not load sky class '" + content + "'.");
