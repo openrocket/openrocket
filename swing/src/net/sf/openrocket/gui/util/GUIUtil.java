@@ -250,7 +250,6 @@ public class GUIUtil {
 		try {
 			// Set system L&F
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			UIManager.put("TabbedPane.foreground", Color.black);
 			
 			// Check whether we have an ugly L&F
 			LookAndFeel laf = UIManager.getLookAndFeel();
