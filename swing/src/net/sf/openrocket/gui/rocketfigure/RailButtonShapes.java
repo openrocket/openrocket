@@ -1,14 +1,17 @@
 package net.sf.openrocket.gui.rocketfigure;
 
 import java.awt.Shape;
-import java.awt.geom.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Transformation;
 
 
@@ -64,10 +67,12 @@ public class RailButtonShapes extends RocketComponentShape {
 
 			// Invisible rectangle
 			double y_invis;
-			if (baseHeightcos >= 0)
+			if (baseHeightcos >= 0) {
 				y_invis = center.y;
-			else
+			}
+			else {
 				y_invis = center.y + baseHeightcos;
+			}
 			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
 		}
 		
@@ -85,10 +90,12 @@ public class RailButtonShapes extends RocketComponentShape {
 
 			// Invisible rectangle
 			double y_invis;
-			if (innerHeightcos >= 0)
+			if (innerHeightcos >= 0) {
 				y_invis = center.y;
-			else
+			}
+			else {
 				y_invis = center.y + innerHeightcos;
+			}
 			pathInvis.append(new Rectangle2D.Double(center.x-innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
 		}
 		{// outer flange
@@ -105,10 +112,12 @@ public class RailButtonShapes extends RocketComponentShape {
 
 			// Invisible rectangle
 			double y_invis;
-			if (flangeHeightcos >= 0)
+			if (flangeHeightcos >= 0) {
 				y_invis = center.y;
-			else
+			}
+			else {
 				y_invis = center.y + flangeHeightcos;
+			}
 			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 		}
 
@@ -116,7 +125,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		RocketComponentShape[] shapesInvis = RocketComponentShape.toArray(new Shape[]{ pathInvis }, component);
 
 		for (RocketComponentShape s : shapesInvis)
-			s.setColor(new Color(1, 1, 1, 0));
+			s.setColor(Color.INVISIBLE);
 
 		RocketComponentShape[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);
 		System.arraycopy(shapesInvis, 0, total, shapes.length, shapesInvis.length);
