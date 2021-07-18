@@ -16,14 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -50,6 +43,7 @@ import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.Caret;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -63,7 +57,6 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
@@ -153,6 +146,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 
+	// Store the basic frame to know which tab is selected (Rocket design, Motors & Configuration, Flight simulations)
+	private final BasicFrame basicFrame;
+
 
 	/**
 	 * The executor service used for running the background simulations.
@@ -178,9 +174,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	public OpenRocketDocument getDocument(){
 		return this.document;
 	}
-	
+
 	public RocketPanel(OpenRocketDocument document) {
+		this(document, null);
+	}
+
+	public RocketPanel(OpenRocketDocument document, BasicFrame basicFrame) {
 		this.document = document;
+		this.basicFrame = basicFrame;
 		Rocket rkt = document.getRocket();
 		
 		
@@ -688,20 +689,25 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		}
 
-		// Start calculation process
+		// Update simulations
 		if (Application.getPreferences().getAutoRunSimulations()) {
+			// Update only current flight config simulation when you are not in the simulations tab
+			updateSims(this.basicFrame != null && this.basicFrame.getSelectedTab() == BasicFrame.SIMULATION_TAB);
+		}
+		else {
+			// Always update the simulation of the current configuration
 			updateSims(false);
 		}
 	}
 
 	/**
-	 * Updates the simulations. If *currentConfig* is true, only update the simulation of the current flight
-	 * configuration. If it is false, update all the simulations.
+	 * Updates the simulations. If *currentConfig* is false, only update the simulation of the current flight
+	 * configuration. If it is true, update all the simulations.
 	 *
-	 * @param currentConfig flag to check whether to update all the simulations (false) or only the current
-	 *                      flight config sim (true)
+	 * @param updateAllSims flag to check whether to update all the simulations (true) or only the current
+	 *                      flight config sim (false)
 	 */
-	private void updateSims(boolean currentConfig) {
+	private void updateSims(boolean updateAllSims) {
 		// Stop previous computation (if any)
 		stopBackgroundSimulation();
 
@@ -713,14 +719,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		List<Simulation> sims = new LinkedList<>();
 		for (Simulation sim : document.getSimulations()) {
 			// Find a Simulation based on the current flight configuration
-			if (currentConfig) {
+			if (!updateAllSims) {
 				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
 					sims.add(sim);
 					break;
 				}
 			}
-			else
+			else {
 				sims.add(sim);
+			}
 		}
 		runBackgroundSimulations(sims, duplicate);
 	}
@@ -780,6 +787,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		@Override
 		protected FlightData doInBackground() {
+			extraText.setCalculatingData(true);
 			// Pause a little while to allow faster UI reaction
 			try {
 				Thread.sleep(300);
