@@ -211,7 +211,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
 				newValue = oldValue;
 			}
-			
+
 		    column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
@@ -239,8 +239,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			c.setOpaque(true);
 			if ( isSelected) {
 				c.setBackground(table.getSelectionBackground());
+				c.setForeground((Color)UIManager.get("Table.selectionForeground"));
 			} else {
 				c.setBackground(table.getBackground());
+				c.setForeground(table.getForeground());
 			}
 			Border b = null;
 			if ( hasFocus ) {
