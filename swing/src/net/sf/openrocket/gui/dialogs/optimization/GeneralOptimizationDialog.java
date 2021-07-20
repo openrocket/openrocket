@@ -73,6 +73,7 @@ import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
@@ -88,7 +89,6 @@ import net.sf.openrocket.optimization.rocketoptimization.goals.MaximizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.MinimizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.goals.ValueSeekGoal;
 import net.sf.openrocket.optimization.services.OptimizationServiceHelper;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -527,7 +527,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		// // Start/Stop button
 		
-		startButton = new JToggleButton(START_TEXT);
+		startButton = new SelectColorToggleButton(START_TEXT);
 		startButton.addActionListener(e -> {
 			if (updating) {
 				log.debug("Updating, ignoring event");

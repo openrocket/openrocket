@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -36,7 +37,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		buttons.clear();
 		this.removeAll();
 		for(AxialStage stage : configuration.getRocket().getStageList()){
-			JToggleButton button = new JToggleButton(new StageAction(stage));
+			JToggleButton button = new SelectColorToggleButton(new StageAction(stage));
 			button.setSelected(configuration.isStageActive(stage.getStageNumber()));
 			this.add(button);
 			buttons.add(button);

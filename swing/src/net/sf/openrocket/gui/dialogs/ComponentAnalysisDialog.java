@@ -52,6 +52,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.CMAnalysisEntry;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -124,7 +125,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
-		worstToggle = new JToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
+		worstToggle = new SelectColorToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
 		worstToggle.setSelected(true);
 		worstToggle.addActionListener(new ActionListener() {
 			@Override
