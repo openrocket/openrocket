@@ -1,11 +1,17 @@
 package net.sf.openrocket.gui.widgets;
 
-import net.sf.openrocket.gui.components.StageSelector;
-
-import javax.swing.*;
+import javax.swing.JToggleButton;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.UIManager;
 import java.awt.Graphics;
-import java.awt.Color;
 
+/**
+ * This class is a replacement for the standard JToggleButton. Its purpose is to be able
+ * to control the foreground color for when the button is (de)selected.
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class SelectColorToggleButton extends JToggleButton {
     public SelectColorToggleButton(Action a) {
         super(a);
