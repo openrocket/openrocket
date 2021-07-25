@@ -29,6 +29,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -101,7 +102,7 @@ public class OptimizationPlotDialog extends JDialog {
 		panel.add(label, "");
 		
 
-		JButton close = new JButton(trans.get("button.close"));
+		JButton close = new SelectColorButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

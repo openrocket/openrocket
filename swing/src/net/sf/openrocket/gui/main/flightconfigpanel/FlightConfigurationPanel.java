@@ -25,6 +25,7 @@ import net.sf.openrocket.rocketvisitors.ListComponents;
 import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class FlightConfigurationPanel extends JPanel implements StateChangeListener {
@@ -68,7 +69,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		separationConfigurationPanel = new SeparationConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 
-		newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
+		newConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -85,7 +86,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		
 		this.add(newConfButton,"skip 1,gapright para");
 		
-		renameConfButton = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
+		renameConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
 		renameConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -95,7 +96,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		});
 		this.add(renameConfButton,"gapright para");
 		
-		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+		removeConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
 		removeConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -105,7 +106,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		});
 		this.add(removeConfButton,"gapright para");
 		
-		copyConfButton = new JButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
+		copyConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
 		copyConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

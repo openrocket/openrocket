@@ -14,6 +14,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import com.google.inject.Inject;
 
@@ -45,7 +46,7 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 		
 		panel.add(getConfigurationComponent((E) extension, simulation, sub), "grow, wrap para");
 		
-		JButton close = new JButton(trans.get("button.close"));
+		JButton close = new SelectColorButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -63,6 +63,7 @@ import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * Preset editor for creating new preset components.
@@ -366,7 +367,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ncPanel.add(panel, "cell 4 3, span 1 3");
 			panel.setLayout(null);
-			ncImageBtn = new JButton("No Image");
+			ncImageBtn = new SelectColorButton("No Image");
 			ncImageBtn.setMaximumSize(new Dimension(75, 75));
 			ncImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ncImageBtn);
@@ -492,7 +493,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			trPanel.add(panel, "cell 4 6");
 			panel.setLayout(null);
-			trImageBtn = new JButton("No Image");
+			trImageBtn = new SelectColorButton("No Image");
 			trImageBtn.setMaximumSize(new Dimension(75, 75));
 			trImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(trImageBtn);
@@ -570,7 +571,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			btPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			btImageBtn = new JButton("No Image");
+			btImageBtn = new SelectColorButton("No Image");
 			btImageBtn.setMaximumSize(new Dimension(75, 75));
 			btImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(btImageBtn);
@@ -648,7 +649,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			tcPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			tcImageBtn = new JButton("No Image");
+			tcImageBtn = new SelectColorButton("No Image");
 			tcImageBtn.setMaximumSize(new Dimension(75, 75));
 			tcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(tcImageBtn);
@@ -719,7 +720,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			bhPanel.add(panel, "cell 4 2");
 			panel.setLayout(null);
-			bhImageBtn = new JButton("No Image");
+			bhImageBtn = new SelectColorButton("No Image");
 			bhImageBtn.setMaximumSize(new Dimension(75, 75));
 			bhImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(bhImageBtn);
@@ -798,7 +799,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			crPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			crImageBtn = new JButton("No Image");
+			crImageBtn = new SelectColorButton("No Image");
 			crImageBtn.setMaximumSize(new Dimension(75, 75));
 			crImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(crImageBtn);
@@ -876,7 +877,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ebPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			ebImageBtn = new JButton("No Image");
+			ebImageBtn = new SelectColorButton("No Image");
 			ebImageBtn.setMaximumSize(new Dimension(75, 75));
 			ebImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ebImageBtn);
@@ -954,7 +955,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			llPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			llImageBtn = new JButton("No Image");
+			llImageBtn = new SelectColorButton("No Image");
 			llImageBtn.setMaximumSize(new Dimension(75, 75));
 			llImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(llImageBtn);
@@ -1051,7 +1052,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			rbPanel.add(panel, "cell 4 4");
 			panel.setLayout(null);
-			rbImageBtn = new JButton("No Image");
+			rbImageBtn = new SelectColorButton("No Image");
 			rbImageBtn.setMaximumSize(new Dimension(75, 75));
 			rbImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(rbImageBtn);
@@ -1129,7 +1130,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			stPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			stImageBtn = new JButton("No Image");
+			stImageBtn = new SelectColorButton("No Image");
 			stImageBtn.setMaximumSize(new Dimension(75, 75));
 			stImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(stImageBtn);
@@ -1221,7 +1222,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			pcPanel.add(panel, "cell 1 3, span 1 3");
 			panel.setLayout(null);
-			pcImageBtn = new JButton("No Image");
+			pcImageBtn = new SelectColorButton("No Image");
 			pcImageBtn.setMaximumSize(new Dimension(75, 75));
 			pcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(pcImageBtn);
@@ -1244,7 +1245,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		JPanel buttonPane = new JPanel();
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		buttonPane.setLayout(new MigLayout("", "[130px][176.00px][131.00px]", "[29px]"));
-		JButton btnSaveAndNew = new JButton("Save and New");
+		JButton btnSaveAndNew = new SelectColorButton("Save and New");
 		btnSaveAndNew.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -1253,7 +1254,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		});
 		buttonPane.add(btnSaveAndNew, "cell 0 0,alignx left,aligny top");
 		
-		JButton okButton = new JButton("Save and Close");
+		JButton okButton = new SelectColorButton("Save and Close");
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -1266,7 +1267,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		buttonPane.add(okButton, "cell 1 0,alignx left,aligny top");
 		getRootPane().setDefaultButton(okButton);
 		
-		JButton cancelButton = new JButton("Close");
+		JButton cancelButton = new SelectColorButton("Close");
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {

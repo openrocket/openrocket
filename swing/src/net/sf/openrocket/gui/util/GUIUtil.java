@@ -276,6 +276,8 @@ public class GUIUtil {
 					}
 				}
 			}
+			// Set the select foreground for buttons to not be black on a blue background
+			UIManager.put("Button.selectForeground", Color.WHITE);
 		} catch (Exception e) {
 			log.warn("Error setting LAF: " + e);
 		}

@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
@@ -52,7 +53,7 @@ public class ExpressionBuilderDialog extends JDialog {
 	private final JLabel nameCheck = new JLabel(RedIcon);
 	private final JLabel expressionCheck = new JLabel(RedIcon);
 	private final JLabel unitCheck = new JLabel(RedIcon);
-	private final JButton okButton = new JButton(trans.get("dlg.but.ok"));
+	private final JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
 	private final JTextField expressionField = new JTextField(20);
 	
 	public ExpressionBuilderDialog(Window parent, OpenRocketDocument doc){
@@ -155,7 +156,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		
 		
 		//// Insert variable button
-		final JButton insertVariableButton = new JButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
+		final JButton insertVariableButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
 		insertVariableButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -166,7 +167,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		});
 		
 		//// Insert operator button
-		final JButton insertOperatorButton = new JButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
+		final JButton insertOperatorButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
 		insertOperatorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -190,7 +191,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		});
 
 		//// Cancel button
-		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+		final JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

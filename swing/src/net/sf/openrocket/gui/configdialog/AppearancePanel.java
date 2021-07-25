@@ -43,6 +43,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class AppearancePanel extends JPanel {
 	private static final long serialVersionUID = 2709187552673202019L;
@@ -204,7 +205,7 @@ public class AppearancePanel extends JPanel {
 			figureColor = Application.getPreferences().getDefaultColor(
 					c.getClass());
 		}
-		final JButton figureColorButton = new JButton(
+		final JButton figureColorButton = new SelectColorButton(
 				new ColorIcon(figureColor));
 
 		ab.addChangeListener(new StateChangeListener() {
@@ -252,7 +253,7 @@ public class AppearancePanel extends JPanel {
 					Style.BOLD));
 			add(colorDefault);
 
-			JButton button = new JButton(
+			JButton button = new SelectColorButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
 			button.addActionListener(new ActionListener() {
 				@Override
@@ -359,7 +360,7 @@ public class AppearancePanel extends JPanel {
 		DecalModel decalModel = new DecalModel(panel, document, builder);
 		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
 
-		JButton colorButton = new JButton(new ColorIcon(builder.getPaint()));
+		JButton colorButton = new SelectColorButton(new ColorIcon(builder.getPaint()));
 
 		builder.addChangeListener(new StateChangeListener() {
 			@Override
@@ -429,7 +430,7 @@ public class AppearancePanel extends JPanel {
 		mDefault.addEnableComponent(textureDropDown, false);
 		p.add(textureDropDown, "grow");
 		panel.add(p, "span 3, growx, wrap");
-		JButton editBtn = new JButton(
+		JButton editBtn = new SelectColorButton(
 				trans.get("AppearanceCfg.but.edit"));
 		editBtn.setEnabled(builder.getImage() != null);
 		// Enable the editBtn only when the appearance builder has an Image

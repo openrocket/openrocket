@@ -39,6 +39,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public abstract class MotorFilterPanel extends JPanel {
 	private static final long serialVersionUID = -2068101000195158181L;
@@ -173,7 +174,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		sub.add(new JScrollPane(manufacturerCheckList.getList()), "grow,wrap");
 
-		JButton clearMotors = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
+		JButton clearMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -184,7 +185,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		sub.add(clearMotors,"split 2");
 
-		JButton selectMotors = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
+		JButton selectMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkAll"));
 		selectMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

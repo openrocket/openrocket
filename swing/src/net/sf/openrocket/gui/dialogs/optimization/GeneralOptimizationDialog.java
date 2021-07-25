@@ -100,6 +100,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.TextUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * General rocket optimization dialog. 
@@ -259,7 +260,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		// // Add/remove buttons
 		sub = new JPanel(new MigLayout("fill"));
 		
-		addButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
+		addButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
 		addButton.setToolTipText(trans.get("btn.add.ttip"));
 		addButton.addActionListener(e -> {
 			SimulationModifier mod = getSelectedAvailableModifier();
@@ -276,7 +277,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(addButton);
 		sub.add(addButton, "wrap para, sg button");
 		
-		removeButton = new JButton("   " + trans.get("btn.remove") + " " + Chars.RIGHT_ARROW);
+		removeButton = new SelectColorButton("   " + trans.get("btn.remove") + " " + Chars.RIGHT_ARROW);
 		removeButton.setToolTipText(trans.get("btn.remove.ttip"));
 		removeButton.addActionListener(e -> {
 			SimulationModifier mod = getSelectedModifier();
@@ -295,7 +296,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(removeButton);
 		sub.add(removeButton, "wrap para*2, sg button");
 		
-		removeAllButton = new JButton(trans.get("btn.removeAll"));
+		removeAllButton = new SelectColorButton(trans.get("btn.removeAll"));
 		removeAllButton.setToolTipText(trans.get("btn.removeAll.ttip"));
 		removeAllButton.addActionListener(new ActionListener() {
 			@Override
@@ -543,7 +544,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		});
 		sub.add(startButton, "span, growx, wrap para*2");
 		
-		plotButton = new JButton(trans.get("btn.plotPath"));
+		plotButton = new SelectColorButton(trans.get("btn.plotPath"));
 		plotButton.setToolTipText(trans.get("btn.plotPath.ttip"));
 		plotButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
@@ -559,7 +560,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(plotButton);
 		sub.add(plotButton, "span, growx, wrap");
 		
-		saveButton = new JButton(trans.get("btn.save"));
+		saveButton = new SelectColorButton(trans.get("btn.save"));
 		saveButton.setToolTipText(trans.get("btn.save.ttip"));
 		saveButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "User selected save path");
@@ -571,7 +572,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "wrap para*2");
 		
 		// // Bottom buttons
-		final JButton applyButton = new JButton(trans.get("btn.apply"));
+		final JButton applyButton = new SelectColorButton(trans.get("btn.apply"));
 		applyButton.setToolTipText(trans.get("btn.apply.ttip"));
 		applyButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Applying optimization changes");
@@ -580,7 +581,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(applyButton);
 		panel.add(applyButton, "span, split, gapright para, right");
 
-		final JButton resetButton = new JButton(trans.get("btn.reset"));
+		final JButton resetButton = new SelectColorButton(trans.get("btn.reset"));
 		resetButton.setToolTipText(trans.get("btn.reset.ttip"));
 		resetButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Resetting optimization design");
@@ -589,7 +590,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(resetButton);
 		panel.add(resetButton, "gapright para, right");
 
-		final JButton closeButton = new JButton(trans.get("btn.close"));
+		final JButton closeButton = new SelectColorButton(trans.get("btn.close"));
 		closeButton.setToolTipText(trans.get("btn.close.ttip"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override

@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class LicenseDialog extends JDialog {
 	private static final String LICENSE_FILENAME = "LICENSE.TXT";
@@ -64,7 +65,7 @@ public class LicenseDialog extends JDialog {
 		panel.add(new JScrollPane(text),"grow, wrap para");
 		
 		//Close button
-		JButton close = new JButton(trans.get("dlg.but.close"));
+		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

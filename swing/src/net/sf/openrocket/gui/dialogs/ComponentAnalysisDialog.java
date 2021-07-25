@@ -64,6 +64,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -462,7 +463,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JButton button;
 
 		// TODO: LOW: printing
-		//		button = new JButton("Print");
+		//		button = new SelectColorButton("Print");
 		//		button.addActionListener(new ActionListener() {
 		//			public void actionPerformed(ActionEvent e) {
 		//				try {
@@ -476,9 +477,9 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//		});
 		//		panel.add(button,"tag ok");
 
-		//button = new JButton("Close");
+		//button = new SelectColorButton("Close");
 		//Close button
-		button = new JButton(trans.get("dlg.but.close"));
+		button = new SelectColorButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -60,6 +60,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -350,16 +351,16 @@ public class BasicFrame extends JFrame {
 
 
 		// Buttons
-		JButton button = new JButton(actions.getMoveUpAction());
+		JButton button = new SelectColorButton(actions.getMoveUpAction());
 		panel.add(button, "sizegroup buttons, aligny 65%");
 
-		button = new JButton(actions.getMoveDownAction());
+		button = new SelectColorButton(actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
-		button = new JButton(actions.getEditAction());
+		button = new SelectColorButton(actions.getEditAction());
 		panel.add(button, "sizegroup buttons");
 
-		button = new JButton(actions.getDeleteAction());
+		button = new SelectColorButton(actions.getDeleteAction());
 		button.setIcon(null);
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");

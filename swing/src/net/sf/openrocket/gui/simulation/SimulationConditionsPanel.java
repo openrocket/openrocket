@@ -26,6 +26,7 @@ import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
@@ -425,7 +426,7 @@ public class SimulationConditionsPanel extends JPanel {
 	
 		
 		
-		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
+		JButton restoreDefaults = new SelectColorButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(new ActionListener() {
 			
 			@Override
@@ -440,7 +441,7 @@ public class SimulationConditionsPanel extends JPanel {
 		});
 		this.add(restoreDefaults, "span, split 3, skip, gapbottom para, gapright para, right");
 		
-		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
+		JButton saveDefaults = new SelectColorButton(trans.get("simedtdlg.but.savedefault"));
 		saveDefaults.addActionListener(new ActionListener() {
 			
 			@Override

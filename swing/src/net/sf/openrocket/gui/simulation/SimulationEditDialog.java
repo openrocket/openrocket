@@ -23,6 +23,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
@@ -182,7 +183,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		//// Open Plot button
-		JButton button = new JButton(trans.get("SimulationEditDialog.btn.plot") + " >>");
+		JButton button = new SelectColorButton(trans.get("SimulationEditDialog.btn.plot") + " >>");
 		button.addActionListener(new ActionListener() {
 			
 			@Override
@@ -199,7 +200,7 @@ public class SimulationEditDialog extends JDialog {
 		}
 		
 		//// Run simulation button
-		button = new JButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
+		button = new SelectColorButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
 		if (!isSingleEdit()) {
 			button.setText(trans.get("SimulationEditDialog.btn.simulate"));
 		}
@@ -219,7 +220,7 @@ public class SimulationEditDialog extends JDialog {
 		simEditPanel.add(button, " align right, tag ok");
 		
 		//// Close button 
-		JButton close = new JButton(trans.get("dlg.but.close"));
+		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -253,7 +254,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			plotExportPanel.add(tabbedPane, "grow, wrap");
 			
-			JButton button = new JButton("<< " + trans.get("SimulationEditDialog.btn.edit"));
+			JButton button = new SelectColorButton("<< " + trans.get("SimulationEditDialog.btn.edit"));
 			button.addActionListener(new ActionListener() {
 				
 				@Override
@@ -265,7 +266,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			plotExportPanel.add(button, "spanx, split 3, align left");
 			
-			final JButton ok = new JButton(trans.get("SimulationEditDialog.btn.plot"));
+			final JButton ok = new SelectColorButton(trans.get("SimulationEditDialog.btn.plot"));
 			
 			tabbedPane.addChangeListener(new ChangeListener() {
 				
@@ -307,7 +308,7 @@ public class SimulationEditDialog extends JDialog {
 			plotExportPanel.add(ok, "tag ok, split 2");
 			
 			//// Close button 
-			JButton close = new JButton(trans.get("dlg.but.close"));
+			JButton close = new SelectColorButton(trans.get("dlg.but.close"));
 			close.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

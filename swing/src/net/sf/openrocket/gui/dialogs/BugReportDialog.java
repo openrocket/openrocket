@@ -32,6 +32,7 @@ import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.JarUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class BugReportDialog extends JDialog {
@@ -76,7 +77,7 @@ public class BugReportDialog extends JDialog {
 		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
 		
 		////Close button
-		JButton close = new JButton(trans.get("dlg.but.close"));
+		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

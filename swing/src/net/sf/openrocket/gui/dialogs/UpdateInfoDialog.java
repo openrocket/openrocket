@@ -21,6 +21,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.ComparablePair;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class UpdateInfoDialog extends JDialog {
 	
@@ -73,7 +74,7 @@ public class UpdateInfoDialog extends JDialog {
 		panel.add(remind);
 		
 		//Close button
-		JButton button = new JButton(trans.get("dlg.but.close"));
+		JButton button = new SelectColorButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -22,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 
 @SuppressWarnings("serial")
@@ -169,7 +170,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		
 		//// Reset button
-		JButton button = new JButton(trans.get("MassComponentCfg.but.Reset"));
+		JButton button = new SelectColorButton(trans.get("MassComponentCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

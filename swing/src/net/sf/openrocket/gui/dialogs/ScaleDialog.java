@@ -39,6 +39,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.Reflection.Method;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * Dialog that allows scaling the rocket design.
@@ -388,7 +389,7 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scale / Accept Buttons
-		JButton scale = new JButton(trans.get("button.scale"));
+		JButton scale = new SelectColorButton(trans.get("button.scale"));
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -407,7 +408,7 @@ public class ScaleDialog extends JDialog {
 		panel.add(scale, "span, split, right, gap para");
 
 		// Cancel Button
-		JButton cancel = new JButton(trans.get("button.cancel"));
+		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

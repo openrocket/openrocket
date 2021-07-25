@@ -22,6 +22,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -103,7 +104,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		
 		panel.add(new JPanel(), "growx");
 		
-		JButton button = new JButton(trans.get("SimulationExtension.scripting.text.trusted.clear"));
+		JButton button = new SelectColorButton(trans.get("SimulationExtension.scripting.text.trusted.clear"));
 		button.setToolTipText(trans.get("SimulationExtension.scripting.text.trusted.clear.ttip"));
 		button.addActionListener(new ActionListener() {
 			@Override

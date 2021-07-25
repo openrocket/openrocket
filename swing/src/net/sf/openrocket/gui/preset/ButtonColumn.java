@@ -18,6 +18,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import net.sf.openrocket.gui.widgets.SelectColorButton;
+
 /**
  *  The ButtonColumn class provides a renderer and an editor that looks like a
  *  JButton. The renderer and editor will then be used for a specified column
@@ -61,8 +63,8 @@ public class ButtonColumn extends AbstractCellEditor
 		this.table = table;
 		this.action = action;
 
-		renderButton = new JButton();
-		editButton = new JButton();
+		renderButton = new SelectColorButton();
+		editButton = new SelectColorButton();
 		editButton.setFocusPainted( false );
 		editButton.addActionListener( this );
 		originalBorder = editButton.getBorder();

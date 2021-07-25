@@ -33,6 +33,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * Dialog shown for selecting a preset component.
@@ -145,7 +146,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		
 		// OK / Cancel buttons
-		JButton okButton = new JButton(trans.get("dlg.but.ok"));
+		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -155,7 +156,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(okButton, "tag ok, spanx, split");
 		
 		//// Cancel button
-		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

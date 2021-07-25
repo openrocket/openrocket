@@ -44,6 +44,7 @@ import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,7 +206,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		});
 		
 		
-		JButton addBtn = new JButton("Add");
+		JButton addBtn = new SelectColorButton("Add");
 		addBtn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {

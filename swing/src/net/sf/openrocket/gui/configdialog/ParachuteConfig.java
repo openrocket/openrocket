@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.components.HtmlLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -77,7 +78,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		
 		//// Reset button
-		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
+		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -279,7 +280,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Reset button
-		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
+		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

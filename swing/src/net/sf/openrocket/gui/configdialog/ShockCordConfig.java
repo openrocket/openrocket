@@ -12,7 +12,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.MassComponent;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -156,7 +156,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 
 		//// Reset button
-		JButton button = new JButton(trans.get("ShockCordCfg.but.Reset"));
+		JButton button = new SelectColorButton(trans.get("ShockCordCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

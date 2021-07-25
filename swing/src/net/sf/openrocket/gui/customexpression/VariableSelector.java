@@ -24,6 +24,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class VariableSelector extends JDialog {
 		super(parent, trans.get("CustomVariableSelector.title"), JDialog.ModalityType.DOCUMENT_MODAL);
 
 		this.parentBuilder = parentBuilder;
-		final JButton insertButton = new JButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
+		final JButton insertButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
 
 		JPanel mainPanel = new JPanel(new MigLayout());
 
@@ -114,7 +115,7 @@ public class VariableSelector extends JDialog {
 		mainPanel.add(scrollPane, "wrap, push, grow");
 
 		//// Cancel button
-		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+		final JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
