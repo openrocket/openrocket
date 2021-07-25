@@ -23,7 +23,13 @@ public class FinRenderer {
 	    BoundingBox bounds = finSet.getInstanceBoundingBox();
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
-		gl.glScaled(1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+		// Mirror the right side fin texture to avoid e.g. mirrored decal text
+		if (which == Surface.INSIDE) {
+			gl.glScaled(-1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+		}
+		else {
+			gl.glScaled(1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+		}
 		gl.glTranslated(-bounds.min.x, -bounds.min.y - finSet.getBodyRadius(), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
@@ -62,7 +68,7 @@ public class FinRenderer {
 			GLU.gluTessCallback(tobj, GLU.GLU_TESS_END, cb);
 			
 			// fin side: +z
-			if (which == Surface.OUTSIDE) {
+			if (which == Surface.INSIDE) {		// Right side
 				GLU.gluTessBeginPolygon(tobj, null);
 				GLU.gluTessBeginContour(tobj);
 				gl.glNormal3f(0, 0, 1);
@@ -78,7 +84,7 @@ public class FinRenderer {
 			}
 			
 	         // fin side: -z
-			if (which == Surface.INSIDE) {
+			if (which == Surface.OUTSIDE) {		// Left side
 				GLU.gluTessBeginPolygon(tobj, null);
 				GLU.gluTessBeginContour(tobj);
 				gl.glNormal3f(0, 0, -1);

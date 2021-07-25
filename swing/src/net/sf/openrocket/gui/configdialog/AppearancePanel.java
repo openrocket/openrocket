@@ -313,10 +313,10 @@ public class AppearancePanel extends JPanel {
 			// Get translator keys
 			String tr_outside, tr_inside, tr_edges, tr_edges_ttip;
 			if (c instanceof FinSet) {
-				tr_outside = "RocketCompCfg.tab.RightSide";
-				tr_inside = "RocketCompCfg.tab.LeftSide";
-				tr_edges = "AppearanceCfg.lbl.EdgesSameAsLeftSide";
-				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsLeftSide";
+				tr_outside = "RocketCompCfg.tab.LeftSide";
+				tr_inside = "RocketCompCfg.tab.RightSide";
+				tr_edges = "AppearanceCfg.lbl.EdgesSameAsRightSide";
+				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsRightSide";
 			}
 			else {
 				tr_outside = "RocketCompCfg.tab.Outside";
@@ -418,9 +418,9 @@ public class AppearancePanel extends JPanel {
 		});
 		materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
 		if (insideBuilder)
-			panel.add(materialDefault);
-		else
 			panel.add(materialDefault, "wrap");
+		else
+			panel.add(materialDefault);
 
 		// Get translation keys
 		String tr_insideOutside, tr_insideOutside_ttip;
@@ -433,8 +433,8 @@ public class AppearancePanel extends JPanel {
 			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.InsideSameAsOutside";
 		}
 
-		// Custom inside color
-		if (insideBuilder) {
+		// Custom inside color checkbox on outside tab
+		if (!insideBuilder) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
 			JCheckBox customInside = new JCheckBox(b);
