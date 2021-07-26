@@ -81,6 +81,7 @@ public class AppearancePanel extends JPanel {
 	private Appearance defaultAppearance = null;
 
 	private JTabbedPane outsideInsidePane = null;
+	private JCheckBox edgesCheckbox = null;
 
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for values that are
@@ -349,15 +350,16 @@ public class AppearancePanel extends JPanel {
 
 			// Checkbox to set edges the same as inside/outside
 			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
-			JCheckBox edges = new JCheckBox(b);
-			edges.setText(trans.get(tr_edges));
-			edges.setToolTipText(trans.get(tr_edges_ttip));
-			add(edges, "wrap");
+			edgesCheckbox = new JCheckBox(b);
+			edgesCheckbox.setText(trans.get(tr_edges));
+			edgesCheckbox.setToolTipText(trans.get(tr_edges_ttip));
+			edgesCheckbox.setVisible(false);
+			add(edgesCheckbox, "wrap");
 
-			edges.addActionListener(new ActionListener() {
+			edgesCheckbox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					handler.setEdgesSameAsInside(edges.isSelected());
+					handler.setEdgesSameAsInside(edgesCheckbox.isSelected());
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
@@ -463,6 +465,8 @@ public class AppearancePanel extends JPanel {
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 					if (outsideInsidePane != null)
 						outsideInsidePane.setEnabledAt(1, !customInside.isSelected());
+					if (edgesCheckbox != null)
+						edgesCheckbox.setVisible(!customInside.isSelected());
 				}
 			});
 			panel.add(customInside, "wrap");
