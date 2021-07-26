@@ -6,7 +6,20 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -66,6 +79,8 @@ public class AppearancePanel extends JPanel {
 	// We cache the default appearance for this component to make switching
 	// faster.
 	private Appearance defaultAppearance = null;
+
+	private JTabbedPane outsideInsidePane = null;
 
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for values that are
@@ -303,7 +318,7 @@ public class AppearancePanel extends JPanel {
 		if (c instanceof InsideColorComponent) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 
-			JTabbedPane tabbedPane = new JTabbedPane();
+			outsideInsidePane = new JTabbedPane();
 			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
 			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
 
@@ -325,11 +340,12 @@ public class AppearancePanel extends JPanel {
 				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsInside";
 			}
 
-			tabbedPane.addTab(trans.get(tr_outside), null, outsidePanel,
+			outsideInsidePane.addTab(trans.get(tr_outside), null, outsidePanel,
 					"Outside Tool Tip");
-			tabbedPane.addTab(trans.get(tr_inside), null, insidePanel,
+			outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
 					"Inside Tool Tip");
-			add(tabbedPane, "span 4, growx, wrap");
+			outsideInsidePane.setEnabledAt(1, false);
+			add(outsideInsidePane, "span 4, growx, wrap");
 
 			// Checkbox to set edges the same as inside/outside
 			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
@@ -445,6 +461,8 @@ public class AppearancePanel extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					handler.setInsideSameAsOutside(customInside.isSelected());
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+					if (outsideInsidePane != null)
+						outsideInsidePane.setEnabledAt(1, !customInside.isSelected());
 				}
 			});
 			panel.add(customInside, "wrap");
