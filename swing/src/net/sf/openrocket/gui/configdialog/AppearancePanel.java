@@ -83,6 +83,8 @@ public class AppearancePanel extends JPanel {
 	private JTabbedPane outsideInsidePane = null;
 	private JCheckBox edgesCheckbox = null;
 
+	private JCheckBox customInside = null;
+
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for values that are
 	 * on the 0-1 scale
@@ -345,15 +347,14 @@ public class AppearancePanel extends JPanel {
 					"Outside Tool Tip");
 			outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
 					"Inside Tool Tip");
-			outsideInsidePane.setEnabledAt(1, false);
 			add(outsideInsidePane, "span 4, growx, wrap");
 
 			// Checkbox to set edges the same as inside/outside
-			BooleanModel b = new BooleanModel(handler.isEdgesSameAsInside());
+			BooleanModel b = new BooleanModel(!handler.isEdgesSameAsInside());
 			edgesCheckbox = new JCheckBox(b);
 			edgesCheckbox.setText(trans.get(tr_edges));
 			edgesCheckbox.setToolTipText(trans.get(tr_edges_ttip));
-			edgesCheckbox.setVisible(false);
+			edgesCheckbox.doClick();
 			add(edgesCheckbox, "wrap");
 
 			edgesCheckbox.addActionListener(new ActionListener() {
@@ -363,6 +364,9 @@ public class AppearancePanel extends JPanel {
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
+
+			customInside.getActionListeners()[0].actionPerformed(null);
+			//edgesCheckbox.getActionListeners()[0].actionPerformed(null);
 		}
 		else
 			appearanceSection(document, c, false, this);
@@ -452,10 +456,10 @@ public class AppearancePanel extends JPanel {
 		}
 
 		// Custom inside color checkbox on outside tab
-		if (!insideBuilder) {
+		if (!insideBuilder && (c instanceof InsideColorComponent)) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
-			JCheckBox customInside = new JCheckBox(b);
+			this.customInside = new JCheckBox(b);
 			customInside.setText(trans.get(tr_insideOutside));
 			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
 			customInside.addActionListener(new ActionListener() {
@@ -463,10 +467,12 @@ public class AppearancePanel extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					handler.setInsideSameAsOutside(customInside.isSelected());
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-					if (outsideInsidePane != null)
+					if (outsideInsidePane != null) {
 						outsideInsidePane.setEnabledAt(1, !customInside.isSelected());
-					if (edgesCheckbox != null)
+					}
+					if (edgesCheckbox != null) {
 						edgesCheckbox.setVisible(!customInside.isSelected());
+					}
 				}
 			});
 			panel.add(customInside, "wrap");
