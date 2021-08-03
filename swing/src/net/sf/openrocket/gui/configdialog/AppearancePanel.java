@@ -321,33 +321,31 @@ public class AppearancePanel extends JPanel {
 		if (c instanceof InsideColorComponent) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 
-			outsideInsidePane = new JTabbedPane();
-			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
-			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
-
-			appearanceSection(document, c, false, outsidePanel);
-			appearanceSection(document, c, true, insidePanel);
-
 			// Get translator keys
-			String tr_outside, tr_inside, tr_edges, tr_edges_ttip;
+			String tr_outside, tr_inside, tr_edges, tr_edges_ttip, tr_insideOutside, tr_insideOutside_ttip;
 			if (c instanceof FinSet) {
 				tr_outside = "RocketCompCfg.tab.LeftSide";
 				tr_inside = "RocketCompCfg.tab.RightSide";
 				tr_edges = "AppearanceCfg.lbl.EdgesSameAsRightSide";
 				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsRightSide";
+				tr_insideOutside = "AppearanceCfg.lbl.LeftSideSameAsRightSide";
+				tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.LeftSideSameAsRightSide";
 			}
 			else {
 				tr_outside = "RocketCompCfg.tab.Outside";
 				tr_inside = "RocketCompCfg.tab.Inside";
 				tr_edges = "AppearanceCfg.lbl.EdgesSameAsInside";
 				tr_edges_ttip = "AppearanceCfg.lbl.ttip.EdgesSameAsInside";
+				tr_insideOutside = "AppearanceCfg.lbl.InsideSameAsOutside";
+				tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.InsideSameAsOutside";
 			}
 
-			outsideInsidePane.addTab(trans.get(tr_outside), null, outsidePanel,
-					"Outside Tool Tip");
-			outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
-					"Inside Tool Tip");
-			add(outsideInsidePane, "span 4, growx, wrap");
+			// Checkbox for using separate outside/inside appearance
+			BooleanModel b_customInside = new BooleanModel(handler.isInsideSameAsOutside());
+			this.customInside = new JCheckBox(b_customInside);
+			customInside.setText(trans.get(tr_insideOutside));
+			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
+			add(customInside, "wrap");
 
 			// Checkbox to set edges the same as inside/outside
 			BooleanModel b = new BooleanModel(!handler.isEdgesSameAsInside());
@@ -357,6 +355,19 @@ public class AppearancePanel extends JPanel {
 			edgesCheckbox.doClick();
 			add(edgesCheckbox, "wrap");
 
+			outsideInsidePane = new JTabbedPane();
+			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+
+			appearanceSection(document, c, false, outsidePanel);
+			appearanceSection(document, c, true, insidePanel);
+
+			outsideInsidePane.addTab(trans.get(tr_outside), null, outsidePanel,
+					"Outside Tool Tip");
+			outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
+					"Inside Tool Tip");
+			add(outsideInsidePane, "span 4, growx, wrap");
+
 			edgesCheckbox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -365,8 +376,28 @@ public class AppearancePanel extends JPanel {
 				}
 			});
 
+			// Show the outside/inside tabbed display when customInside is selected
+			customInside.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					handler.setInsideSameAsOutside(!customInside.isSelected());
+					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+					if (customInside.isSelected()) {
+						remove(outsidePanel);
+						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
+								"Outside Tool Tip", 0);
+						outsideInsidePane.setSelectedIndex(0);
+						add(outsideInsidePane, "span 4, growx, wrap");
+					}
+					else {
+						remove(outsideInsidePane);
+						add(outsidePanel, "span 4, growx, wrap");
+					}
+					updateUI();
+				}
+			});
+
 			customInside.getActionListeners()[0].actionPerformed(null);
-			//edgesCheckbox.getActionListeners()[0].actionPerformed(null);
 		}
 		else
 			appearanceSection(document, c, false, this);
@@ -439,44 +470,7 @@ public class AppearancePanel extends JPanel {
 			}
 		});
 		materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
-		if (insideBuilder)
-			panel.add(materialDefault, "wrap");
-		else
-			panel.add(materialDefault);
-
-		// Get translation keys
-		String tr_insideOutside, tr_insideOutside_ttip;
-		if (c instanceof FinSet) {
-			tr_insideOutside = "AppearanceCfg.lbl.LeftSideSameAsRightSide";
-			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.LeftSideSameAsRightSide";
-		}
-		else {
-			tr_insideOutside = "AppearanceCfg.lbl.InsideSameAsOutside";
-			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.InsideSameAsOutside";
-		}
-
-		// Custom inside color checkbox on outside tab
-		if (!insideBuilder && (c instanceof InsideColorComponent)) {
-			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
-			BooleanModel b = new BooleanModel(handler.isInsideSameAsOutside());
-			this.customInside = new JCheckBox(b);
-			customInside.setText(trans.get(tr_insideOutside));
-			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
-			customInside.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					handler.setInsideSameAsOutside(customInside.isSelected());
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-					if (outsideInsidePane != null) {
-						outsideInsidePane.setEnabledAt(1, !customInside.isSelected());
-					}
-					if (edgesCheckbox != null) {
-						edgesCheckbox.setVisible(!customInside.isSelected());
-					}
-				}
-			});
-			panel.add(customInside, "wrap");
-		}
+		panel.add(materialDefault, "wrap");
 
 		// Texture File
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
