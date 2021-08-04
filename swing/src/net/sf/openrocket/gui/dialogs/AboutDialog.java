@@ -20,6 +20,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
@@ -124,7 +125,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		//Close button
-		JButton close = new JButton(trans.get("button.close"));
+		JButton close = new SelectColorButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

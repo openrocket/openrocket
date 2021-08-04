@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
 
@@ -69,7 +70,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(check, "split, left");
 		
 		//// Zoom in button
-		JButton button = new JButton(Icons.ZOOM_IN);
+		JButton button = new SelectColorButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -84,7 +85,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Reset Zoom button.
-		button = new JButton(Icons.ZOOM_RESET);
+		button = new SelectColorButton(Icons.ZOOM_RESET);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -95,7 +96,7 @@ public class SimulationPlotDialog extends JDialog {
 		
 		
 		//// Zoom out button
-		button = new JButton(Icons.ZOOM_OUT);
+		button = new SelectColorButton(Icons.ZOOM_OUT);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -132,7 +133,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(new JPanel(), "growx");
 		
 		//// Close button
-		button = new JButton(trans.get("dlg.but.close"));
+		button = new SelectColorButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

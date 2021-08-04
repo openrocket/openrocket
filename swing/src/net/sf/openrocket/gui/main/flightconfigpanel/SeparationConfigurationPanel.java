@@ -22,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialStage> {
 	private static final long serialVersionUID = -1556652925279847316L;
@@ -40,7 +41,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		this.add(scroll, "span, grow, wrap");
 		
 		//// Select deployment
-		selectSeparationButton = new JButton(trans.get("edtmotorconfdlg.but.Selectseparation"));
+		selectSeparationButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectseparation"));
 		selectSeparationButton.setEnabled(false);
 		selectSeparationButton.addActionListener(new ActionListener() {
 			@Override
@@ -51,7 +52,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		this.add(selectSeparationButton, "split, align right, sizegroup button");
 		
 		//// Reset deployment
-		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetseparation"));
+		resetDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Resetseparation"));
 		resetDeploymentButton.setEnabled(false);
 		resetDeploymentButton.addActionListener(new ActionListener() {
 			@Override

@@ -211,7 +211,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
 				newValue = oldValue;
 			}
-			
+
 		    column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
@@ -229,6 +229,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 					T component = v.getV();
 					label = format(component, fcid, label );
 				}
+				for (Component c : label.getComponents()) {
+					if (c instanceof JLabel) {
+						setSelected((JLabel)c, table, isSelected, hasFocus);
+					}
+				}
 				setSelected(label, table, isSelected, hasFocus);
 				return label;
 			}
@@ -239,8 +244,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			c.setOpaque(true);
 			if ( isSelected) {
 				c.setBackground(table.getSelectionBackground());
+				c.setForeground((Color)UIManager.get("Table.selectionForeground"));
 			} else {
 				c.setBackground(table.getBackground());
+				c.setForeground(c.getForeground());
 			}
 			Border b = null;
 			if ( hasFocus ) {

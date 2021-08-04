@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
@@ -43,7 +44,7 @@ public class ScaleSelector extends JPanel {
 		this.scrollPane = scroll;
 
 		// Zoom out button
-		JButton button = new JButton(Icons.ZOOM_OUT);
+		JButton button = new SelectColorButton(Icons.ZOOM_OUT);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -96,7 +97,7 @@ public class ScaleSelector extends JPanel {
 		add(scaleSelector, "gap rel");
 
 		// Zoom in button
-		button = new JButton(Icons.ZOOM_IN);
+		button = new SelectColorButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -39,6 +39,7 @@ import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.Utils;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
@@ -123,7 +124,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(field, "w 100px, gapright unrel, spanx, growx, split");
 		
 		//// Add button
-		JButton button = new JButton(trans.get("pref.dlg.but.add"));
+		JButton button = new SelectColorButton(trans.get("pref.dlg.but.add"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -166,7 +167,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(button, "gapright unrel");
 		
 		//// Reset button
-		button = new JButton(trans.get("pref.dlg.but.reset"));
+		button = new SelectColorButton(trans.get("pref.dlg.but.reset"));
 		
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -199,7 +200,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(softwareUpdateBox);
 		
 		//// Check now button
-		button = new JButton(trans.get("pref.dlg.but.checknow"));
+		button = new SelectColorButton(trans.get("pref.dlg.but.checknow"));
 		//// Check for software updates now
 		button.setToolTipText(trans.get("pref.dlg.ttip.Checkupdatesnow"));
 		button.addActionListener(new ActionListener() {
@@ -253,7 +254,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		panel.add(bar, "growx, wrap para");
 		
 		//// Cancel button
-		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

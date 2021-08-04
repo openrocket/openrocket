@@ -18,6 +18,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class PreferencesDialog extends JDialog {
 		// new DisplayPreferencesPanel());
 
 		// Close button
-		JButton close = new JButton(trans.get("dlg.but.close"));
+		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Named;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class GuidedTourSelectionDialog extends JDialog {
 	private static final long serialVersionUID = -3643116444821710259L;
@@ -90,7 +91,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		tourLength = new StyledLabel(-1);
 		sub.add(tourLength, "wrap unrel");
 		
-		JButton start = new JButton(trans.get("btn.start"));
+		JButton start = new SelectColorButton(trans.get("btn.start"));
 		start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -103,7 +104,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		
 		
-		JButton close = new JButton(trans.get("button.close"));
+		JButton close = new SelectColorButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

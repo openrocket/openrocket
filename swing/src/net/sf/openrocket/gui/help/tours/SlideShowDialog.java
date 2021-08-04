@@ -24,6 +24,7 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SlideShowDialog extends JDialog {
@@ -52,7 +53,7 @@ public class SlideShowDialog extends JDialog {
 		
 		JPanel sub = new JPanel(new MigLayout("ins 0, fill"));
 		
-		prevButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.prev"));
+		prevButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.prev"));
 		prevButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -64,7 +65,7 @@ public class SlideShowDialog extends JDialog {
 		
 		
 		
-		nextButton = new JButton(trans.get("btn.next") + " " + Chars.RIGHT_ARROW);
+		nextButton = new SelectColorButton(trans.get("btn.next") + " " + Chars.RIGHT_ARROW);
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -78,7 +79,7 @@ public class SlideShowDialog extends JDialog {
 		sub.add(new JPanel(), "growx");
 		
 		
-		closeButton = new JButton(trans.get("button.close"));
+		closeButton = new SelectColorButton(trans.get("button.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

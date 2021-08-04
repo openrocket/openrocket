@@ -22,6 +22,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 
 /**
@@ -71,7 +72,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		panel.add(progressBar, "growx, wrap para");
 		
 		//// Cancel button
-		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

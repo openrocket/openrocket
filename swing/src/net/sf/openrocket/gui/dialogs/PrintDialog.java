@@ -46,6 +46,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
@@ -167,7 +168,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(new JPanel(), "pad 0, aligny top, growx");
 		
 
-		JButton settingsButton = new JButton(trans.get("printdlg.but.settings"));
+		JButton settingsButton = new SelectColorButton(trans.get("printdlg.but.settings"));
 		settingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -181,7 +182,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(settingsButton, "aligny top, wrap para");
 				
 
-		previewButton = new JButton(trans.get("but.previewAndPrint"));
+		previewButton = new SelectColorButton(trans.get("but.previewAndPrint"));
 		previewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -192,7 +193,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(previewButton, "split, right, gap para");
 		
 
-		saveAsPDF = new JButton(trans.get("printdlg.but.saveaspdf"));
+		saveAsPDF = new SelectColorButton(trans.get("printdlg.but.saveaspdf"));
 		saveAsPDF.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -204,7 +205,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(saveAsPDF, "right, gap para");
 		
 
-		cancel = new JButton(trans.get("button.cancel"));
+		cancel = new SelectColorButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

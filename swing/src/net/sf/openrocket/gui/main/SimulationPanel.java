@@ -71,6 +71,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
@@ -111,7 +112,7 @@ public class SimulationPanel extends JPanel {
 
 		//// New simulation button
 		{
-			JButton button = new JButton(trans.get("simpanel.but.newsimulation"));
+			JButton button = new SelectColorButton(trans.get("simpanel.but.newsimulation"));
 			//// Add a new simulation
 			button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
 			button.addActionListener(new ActionListener() {
@@ -133,7 +134,7 @@ public class SimulationPanel extends JPanel {
 		}
 
 		//// Edit simulation button
-		editButton = new JButton(trans.get("simpanel.but.editsimulation"));
+		editButton = new SelectColorButton(trans.get("simpanel.but.editsimulation"));
 		//// Edit the selected simulation
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
 		editButton.addActionListener(new ActionListener() {
@@ -155,7 +156,7 @@ public class SimulationPanel extends JPanel {
 		this.add(editButton, "gapright para");
 
 		//// Run simulations
-		runButton = new JButton(trans.get("simpanel.but.runsimulations"));
+		runButton = new SelectColorButton(trans.get("simpanel.but.runsimulations"));
 		//// Re-run the selected simulations
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		runButton.addActionListener(new ActionListener() {
@@ -181,7 +182,7 @@ public class SimulationPanel extends JPanel {
 		this.add(runButton, "gapright para");
 
 		//// Delete simulations button
-		deleteButton = new JButton(trans.get("simpanel.but.deletesimulations"));
+		deleteButton = new SelectColorButton(trans.get("simpanel.but.deletesimulations"));
 		//// Delete the selected simulations
 		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
 		deleteButton.addActionListener(new ActionListener() {
@@ -236,8 +237,8 @@ public class SimulationPanel extends JPanel {
 		this.add(deleteButton, "gapright para");
 
 		//// Plot / export button
-		plotButton = new JButton(trans.get("simpanel.but.plotexport"));
-		//		button = new JButton("Plot flight");
+		plotButton = new SelectColorButton(trans.get("simpanel.but.plotexport"));
+		//		button = new SelectColorButton("Plot flight");
 		plotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -35,6 +35,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
@@ -230,7 +231,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 
 		//// Reset button
-		JButton button = new JButton(trans.get("ringcompcfg.but.Reset"));
+		JButton button = new SelectColorButton(trans.get("ringcompcfg.but.Reset"));
 		//// Reset the component to the rocket centerline
 		button.setToolTipText(trans.get("ringcompcfg.but.Resetcomponant"));
 		button.addActionListener(new ActionListener() {
@@ -314,7 +315,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		// Split button
 		//// Split cluster
-		JButton split = new JButton(trans.get("InnerTubeCfg.but.Splitcluster"));
+		JButton split = new SelectColorButton(trans.get("InnerTubeCfg.but.Splitcluster"));
 		//// <html>Split the cluster into separate components.<br>
 		//// This also duplicates all components attached to this inner tube.
 		split.setToolTipText(trans.get("InnerTubeCfg.lbl.longA1") +
@@ -357,7 +358,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		// Reset button
 		///// Reset settings
-		JButton reset = new JButton(trans.get("InnerTubeCfg.but.Resetsettings"));
+		JButton reset = new SelectColorButton(trans.get("InnerTubeCfg.but.Resetsettings"));
 		//// Reset the separation and rotation to the default values
 		reset.setToolTipText(trans.get("InnerTubeCfg.but.ttip.Resetsettings"));
 		reset.addActionListener(new ActionListener() {

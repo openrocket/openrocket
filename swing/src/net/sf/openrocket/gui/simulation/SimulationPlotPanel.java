@@ -36,6 +36,7 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.Utils;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 /**
  * Panel that displays the simulation plot options to the user.
@@ -222,7 +223,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		
 		////  All + None buttons
-		JButton button = new JButton(trans.get("simplotpanel.but.All"));
+		JButton button = new SelectColorButton(trans.get("simplotpanel.but.All"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -234,7 +235,7 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(button, "split 2, gapleft para, gapright para, growx, sizegroup buttons");
 		
 		//// None
-		button = new JButton(trans.get("simplotpanel.but.None"));
+		button = new SelectColorButton(trans.get("simplotpanel.but.None"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -248,7 +249,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		
 		//// New Y axis plot type
-		button = new JButton(trans.get("simplotpanel.but.NewYaxisplottype"));
+		button = new SelectColorButton(trans.get("simplotpanel.but.NewYaxisplottype"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -301,7 +302,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		/*
 		//// Plot flight
-		button = new JButton(trans.get("simplotpanel.but.Plotflight"));
+		button = new SelectColorButton(trans.get("simplotpanel.but.Plotflight"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -463,7 +464,7 @@ public class SimulationPlotPanel extends JPanel {
 			this.add(axisSelector);
 			
 			
-			JButton button = new JButton(Icons.DELETE);
+			JButton button = new SelectColorButton(Icons.DELETE);
 			//// Remove this plot
 			button.setToolTipText(trans.get("simplotpanel.but.ttip.Removethisplot"));
 			button.setBorderPainted(false);

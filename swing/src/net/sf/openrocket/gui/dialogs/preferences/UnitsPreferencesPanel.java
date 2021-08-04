@@ -13,6 +13,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class UnitsPreferencesPanel extends PreferencesPanel {
 
@@ -136,7 +137,7 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		
 		
 		//// Default metric button
-		JButton button = new JButton(trans.get("pref.dlg.but.defaultmetric"));
+		JButton button = new SelectColorButton(trans.get("pref.dlg.but.defaultmetric"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -148,7 +149,7 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		this.add(button, "spanx, split 2, grow");
 		
 		//// Default imperial button
-		button = new JButton(trans.get("pref.dlg.but.defaultimperial"));
+		button = new SelectColorButton(trans.get("pref.dlg.but.defaultimperial"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

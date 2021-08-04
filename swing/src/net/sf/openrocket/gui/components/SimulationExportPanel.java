@@ -32,6 +32,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SimulationExportPanel extends JPanel {
@@ -135,7 +136,7 @@ public class SimulationExportPanel extends JPanel {
 		panel.add(new JScrollPane(table), "wmin 300lp, width 300lp, height 1, grow 100, wrap");
 		
 		// Select all/none buttons
-		button = new JButton(trans.get("SimExpPan.but.Selectall"));
+		button = new SelectColorButton(trans.get("SimExpPan.but.Selectall"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -144,7 +145,7 @@ public class SimulationExportPanel extends JPanel {
 		});
 		panel.add(button, "split 2, growx 1, sizegroup selectbutton");
 		
-		button = new JButton(trans.get("SimExpPan.but.Selectnone"));
+		button = new SelectColorButton(trans.get("SimExpPan.but.Selectnone"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -179,7 +180,7 @@ public class SimulationExportPanel extends JPanel {
 		
 
 		// Export button
-		button = new JButton(trans.get("SimExpPan.but.Exporttofile"));
+		button = new SelectColorButton(trans.get("SimExpPan.but.Exporttofile"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

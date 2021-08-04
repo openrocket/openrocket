@@ -49,6 +49,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 
 public class SimulationRunDialog extends JDialog {
@@ -160,7 +161,7 @@ public class SimulationRunDialog extends JDialog {
 		panel.add(progressBar, "spanx, growx, wrap para");
 
 		// Add cancel button
-		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

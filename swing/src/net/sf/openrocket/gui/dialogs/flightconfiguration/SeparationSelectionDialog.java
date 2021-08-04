@@ -28,6 +28,7 @@ import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SeparationSelectionDialog extends JDialog {
@@ -90,7 +91,7 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		panel.add(new JPanel(), "span, split, growx");
 		
-		JButton okButton = new JButton(trans.get("button.ok"));
+		JButton okButton = new SelectColorButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -109,7 +110,7 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		panel.add(okButton, "sizegroup btn");
 		
-		JButton cancel = new JButton(trans.get("button.cancel"));
+		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

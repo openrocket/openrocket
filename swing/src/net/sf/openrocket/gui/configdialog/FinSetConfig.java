@@ -41,6 +41,7 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		//// Convert buttons
 		if (!(component instanceof FreeformFinSet)) {
 			//// Convert to freeform
-			convert = new JButton(trans.get("FinSetConfig.but.Converttofreeform"));
+			convert = new SelectColorButton(trans.get("FinSetConfig.but.Converttofreeform"));
 			//// Convert this fin set into a freeform fin set
 			convert.setToolTipText(trans.get("FinSetConfig.but.Converttofreeform.ttip"));
 			convert.addActionListener(new ActionListener() {
@@ -94,7 +95,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		}
 		
 		//// Split fins
-		split = new JButton(trans.get("FinSetConfig.but.Splitfins"));
+		split = new SelectColorButton(trans.get("FinSetConfig.but.Splitfins"));
 		//// Split the fin set into separate fins
 		split.setToolTipText(trans.get("FinSetConfig.but.Splitfins.ttip"));
 		split.addActionListener(new ActionListener() {
@@ -225,7 +226,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add( enumCombo, "spanx 3, growx, wrap para");
 
 		// Calculate fin tab height, length, and position
-		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
+		autoCalc = new SelectColorButton(trans.get("FinSetConfig.but.AutoCalc"));
 		
 		autoCalc.addActionListener(new ActionListener() {
 			@Override

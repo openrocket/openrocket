@@ -52,6 +52,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.CMAnalysisEntry;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -63,6 +64,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +126,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
-		worstToggle = new JToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
+		worstToggle = new SelectColorToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
 		worstToggle.setSelected(true);
 		worstToggle.addActionListener(new ActionListener() {
 			@Override
@@ -461,7 +463,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JButton button;
 
 		// TODO: LOW: printing
-		//		button = new JButton("Print");
+		//		button = new SelectColorButton("Print");
 		//		button.addActionListener(new ActionListener() {
 		//			public void actionPerformed(ActionEvent e) {
 		//				try {
@@ -475,9 +477,9 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//		});
 		//		panel.add(button,"tag ok");
 
-		//button = new JButton("Close");
+		//button = new SelectColorButton("Close");
 		//Close button
-		button = new JButton(trans.get("dlg.but.close"));
+		button = new SelectColorButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

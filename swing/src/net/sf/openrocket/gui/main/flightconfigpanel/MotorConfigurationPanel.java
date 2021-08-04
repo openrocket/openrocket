@@ -25,6 +25,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -77,7 +78,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		this.add(cards, "grow, wrap");
 
 		//// Select motor
-		selectMotorButton = new JButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
+		selectMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
 		selectMotorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -87,7 +88,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		this.add(selectMotorButton, "split, align right, sizegroup button");
 
 		//// Remove motor button
-		removeMotorButton = new JButton(trans.get("MotorConfigurationPanel.btn.removeMotor"));
+		removeMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.removeMotor"));
 		removeMotorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -97,7 +98,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		this.add(removeMotorButton, "sizegroup button");
 
 		//// Select Ignition button
-		selectIgnitionButton = new JButton(trans.get("MotorConfigurationPanel.btn.selectIgnition"));
+		selectIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectIgnition"));
 		selectIgnitionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -107,7 +108,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		this.add(selectIgnitionButton, "sizegroup button");
 
 		//// Reset Ignition button
-		resetIgnitionButton = new JButton(trans.get("MotorConfigurationPanel.btn.resetIgnition"));
+		resetIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.resetIgnition"));
 		resetIgnitionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

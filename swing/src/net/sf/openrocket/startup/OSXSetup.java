@@ -93,6 +93,9 @@ final class OSXSetup {
 			// Set the foreground of active tabs to black; there was a bug where you had a white background and white foreground
 			UIManager.put("TabbedPane.foreground", Color.black);
 
+			// Set the select foreground for buttons to not be black on a blue background
+			UIManager.put("ToggleButton.selectForeground", Color.WHITE);
+
 		} catch (final Throwable t) {
 			// None of the preceding is critical to the app,
 			// so at worst case log an error and continue

@@ -30,6 +30,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import com.itextpdf.text.Font;
 
@@ -106,7 +107,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				add(commandText, "growx, wrap");
 				
-				final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
+				final JButton chooser = new SelectColorButton(trans.get("EditDecalDialog.btn.chooser"));
 				chooser.setEnabled(commandLineIsSelected);
 				chooser.addActionListener(new ActionListener() {
 					

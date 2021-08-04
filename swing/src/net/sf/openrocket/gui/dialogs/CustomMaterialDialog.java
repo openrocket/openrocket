@@ -24,6 +24,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class CustomMaterialDialog extends JDialog {
@@ -110,7 +111,7 @@ public class CustomMaterialDialog extends JDialog {
 		}
 		
 		//// OK button
-		JButton okButton = new JButton(trans.get("dlg.but.ok"));
+		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
 		
 		okButton.addActionListener(new ActionListener() {
 			@Override
@@ -122,7 +123,7 @@ public class CustomMaterialDialog extends JDialog {
 		panel.add(okButton, "span, split, tag ok");
 		
 		////  Cancel
-		JButton closeButton = new JButton(trans.get("dlg.but.cancel"));
+		JButton closeButton = new SelectColorButton(trans.get("dlg.but.cancel"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -33,6 +33,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class MaterialEditPanel extends JPanel {
@@ -118,7 +119,7 @@ public class MaterialEditPanel extends JPanel {
 		
 
 		//// New button
-		addButton = new JButton(trans.get("matedtpan.but.new"));
+		addButton = new SelectColorButton(trans.get("matedtpan.but.new"));
 		//// Add a new material
 		addButton.setToolTipText(trans.get("matedtpan.col.but.ttip.New"));
 		addButton.addActionListener(new ActionListener() {
@@ -140,7 +141,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(addButton, "gap rel rel para para, w 70lp, split 5, flowy, growx 1, top");
 		
 		//// Edit button
-		editButton = new JButton(trans.get("matedtpan.but.edit"));
+		editButton = new SelectColorButton(trans.get("matedtpan.but.edit"));
 		//// Edit an existing material
 		editButton.setToolTipText(trans.get("matedtpan.but.ttip.edit"));
 		editButton.addActionListener(new ActionListener() {
@@ -183,7 +184,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(editButton, "gap rel rel para para, growx 1, top");
 		
 		//// Delete button
-		deleteButton = new JButton(trans.get("matedtpan.but.delete"));
+		deleteButton = new SelectColorButton(trans.get("matedtpan.but.delete"));
 		//// Delete a user-defined material
 		deleteButton.setToolTipText(trans.get("matedtpan.but.ttip.delete"));
 		deleteButton.addActionListener(new ActionListener() {
@@ -207,7 +208,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(new JPanel(), "grow 1");
 		
 		//// Revert all button
-		revertButton = new JButton(trans.get("matedtpan.but.revertall"));
+		revertButton = new SelectColorButton(trans.get("matedtpan.but.revertall"));
 		//// Delete all user-defined materials
 		revertButton.setToolTipText(trans.get("matedtpan.but.ttip.revertall"));
 		revertButton.addActionListener(new ActionListener() {

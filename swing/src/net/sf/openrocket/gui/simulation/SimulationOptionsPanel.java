@@ -46,6 +46,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import com.google.inject.Key;
 
@@ -159,7 +160,7 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(subsub, "spanx, wrap para");
 		
 		// Reset to default button
-		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
+		JButton button = new SelectColorButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
 		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME
@@ -193,7 +194,7 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(desc, "aligny 0, hmin 100lp, growx, wrap para");
 		
 		
-		final JButton addExtension = new JButton(trans.get("simedtdlg.SimExt.add"));
+		final JButton addExtension = new SelectColorButton(trans.get("simedtdlg.SimExt.add"));
 		final JPopupMenu menu = getExtensionMenu();
 		addExtension.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
@@ -335,7 +336,7 @@ class SimulationOptionsPanel extends JPanel {
 			this.add(new JPanel(), "spanx, split, growx, right");
 			
 			if (findConfigurator(extension) != null) {
-				button = new JButton(Icons.CONFIGURE);
+				button = new SelectColorButton(Icons.CONFIGURE);
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -348,7 +349,7 @@ class SimulationOptionsPanel extends JPanel {
 			}
 			
 			if (extension.getDescription() != null) {
-				button = new JButton(Icons.HELP);
+				button = new SelectColorButton(Icons.HELP);
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -357,7 +358,7 @@ class SimulationOptionsPanel extends JPanel {
 						JPanel panel = new JPanel(new MigLayout("fill"));
 						DescriptionArea area = new DescriptionArea(extension.getDescription(), 10, 0);
 						panel.add(area, "width 400lp, wrap para");
-						JButton close = new JButton(trans.get("button.close"));
+						JButton close = new SelectColorButton(trans.get("button.close"));
 						close.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent e) {
@@ -374,7 +375,7 @@ class SimulationOptionsPanel extends JPanel {
 				this.add(button, "right");
 			}
 			
-			button = new JButton(Icons.DELETE);
+			button = new SelectColorButton(Icons.DELETE);
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {

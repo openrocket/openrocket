@@ -36,6 +36,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -138,7 +139,7 @@ public class RocketComponentConfig extends JPanel {
 		}
 		
 		//// Close button
-		JButton closeButton = new JButton(trans.get("dlg.but.close"));
+		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -242,7 +243,7 @@ public class RocketComponentConfig extends JPanel {
 			subPanel.add( finishCombo, "spanx 4, growx, split");
 			
 			//// Set for all
-			JButton button = new JButton(trans.get("RocketCompCfg.but.Setforall"));
+			JButton button = new SelectColorButton(trans.get("RocketCompCfg.but.Setforall"));
 			//// Set this finish for all components of the rocket.
 			button.setToolTipText(trans.get("RocketCompCfg.but.ttip.Setforall"));
 			button.addActionListener(new ActionListener() {
