@@ -58,7 +58,7 @@ public class RocketComponentSaver {
 			if (ap_in != null) {
 				elements.add("<inside-appearance>");
 				elements.add("<edgesSameAsInside>" + handler.isEdgesSameAsInside() + "</edgesSameAsInside>");
-				elements.add("<insideSameAsOutside>" + handler.isInsideSameAsOutside() + "</insideSameAsOutside>");
+				elements.add("<insideSameAsOutside>" + handler.isSeparateInsideOutside() + "</insideSameAsOutside>");
 				buildAppearanceElements(elements, ap_in);
 				elements.add("</inside-appearance>");
 			}

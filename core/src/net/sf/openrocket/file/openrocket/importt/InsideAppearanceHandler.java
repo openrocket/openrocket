@@ -30,7 +30,7 @@ public class InsideAppearanceHandler extends AppearanceHandler {
         if ("insideSameAsOutside".equals(element)) {
             boolean insideSameAsOutside = Boolean.parseBoolean(content);
             if (component instanceof InsideColorComponent)
-                ((InsideColorComponent)component).getInsideColorComponentHandler().setInsideSameAsOutside(insideSameAsOutside);
+                ((InsideColorComponent)component).getInsideColorComponentHandler().setSeparateInsideOutside(insideSameAsOutside);
             return;
         }
 
