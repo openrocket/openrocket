@@ -11,6 +11,7 @@ import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
 
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
@@ -24,7 +25,7 @@ public class FinRenderer {
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
 		// Mirror the right side fin texture to avoid e.g. mirrored decal text
-		if (which == Surface.INSIDE) {
+		if (which == Surface.INSIDE && ((InsideColorComponent) finSet).getInsideColorComponentHandler().isSeparateInsideOutside()) {
 			gl.glScaled(-1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
 		}
 		else {
