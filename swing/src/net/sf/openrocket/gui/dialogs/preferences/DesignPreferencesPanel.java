@@ -33,6 +33,20 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 								.get("pref.dlg.PrefChoiseSelector3"))),
 				"wrap para, growx, sg combos");
 
+		// // Position to insert new stages:
+		this.add(new JLabel(trans.get("pref.dlg.lbl.PositiontoinsertStages")),
+				"gapright para");
+		this.add(
+				new JComboBox<Object>(new PrefChoiceSelector(
+						Preferences.STAGE_INSERT_POSITION_KEY,
+						// // Always ask
+						// // Insert in middle
+						// // Add to end
+						trans.get("pref.dlg.PrefChoiseSelector1"), trans
+						.get("pref.dlg.PrefChoiseSelector2"), trans
+						.get("pref.dlg.PrefChoiseSelector3"))),
+				"wrap para, growx, sg combos");
+
 		// Font size of information in panel window
 		this.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")),
 				"gapright para");
