@@ -718,6 +718,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Re-run the present simulation(s)
 		List<Simulation> sims = new LinkedList<>();
 		for (Simulation sim : document.getSimulations()) {
+			if (sim.getStatus() == Simulation.Status.UPTODATE || sim.getStatus() == Simulation.Status.LOADED)
+				continue;
+
 			// Find a Simulation based on the current flight configuration
 			if (!updateAllSims) {
 				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
@@ -740,6 +743,18 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * @param rkt rocket for which the simulations are run
 	 */
 	private void runBackgroundSimulations(List<Simulation> sims, Rocket rkt) {
+		if (sims.size() == 0) {
+			FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
+			for (Simulation sim : document.getSimulations()) {
+				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
+					extraText.setFlightData(sim.getSimulatedData());
+					break;
+				}
+			}
+			extraText.setCalculatingData(false);
+			return;
+		}
+
 		// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
 		// if there isn't one we'll create a new simulation to update the statistics in the panel using the
 		// default simulation conditions
