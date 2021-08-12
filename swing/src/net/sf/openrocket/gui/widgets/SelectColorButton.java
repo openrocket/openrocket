@@ -35,12 +35,12 @@ public class SelectColorButton extends JButton {
     }
 
     private void addChangeListenerSelectColor() {
+        if (UIManager.getColor("Button.selectForeground") == null
+                || UIManager.getColor("Button.foreground") == null)
+            return;
         addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (UIManager.getColor("Button.selectForeground") == null
-                        || UIManager.getColor("Button.foreground") == null)
-                    return;
                 if (getModel().isArmed()) {
                     setForeground(UIManager.getColor("Button.selectForeground"));
                 }

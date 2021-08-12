@@ -4,12 +4,8 @@ import javax.swing.JToggleButton;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * This class is a replacement for the standard JToggleButton. Its purpose is to be able
@@ -57,13 +53,34 @@ public class SelectColorToggleButton extends JToggleButton {
         addChangeListenerSelectColor();
     }
 
+    /**
+     * This method sets the foreground color of the button. If the button is selected, then the selectForeground is used.
+     * If the frame that the button is in goes out of focus or if the button is unselected, then the foreground is used.
+     *
+     * This is to fix an issue on OSX devices where the foreground color would be black on blue (hardly readable)
+     */
     private void addChangeListenerSelectColor() {
-        addChangeListener(new ChangeListener() {
+        if (UIManager.getColor("ToggleButton.selectForeground") == null
+                || UIManager.getColor("ToggleButton.foreground") == null)
+            return;
+
+        // Case: frame goes out of focus
+        addPropertyChangeListener("Frame.active", new PropertyChangeListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
-                if (UIManager.getColor("ToggleButton.selectForeground") == null
-                        || UIManager.getColor("ToggleButton.foreground") == null)
-                    return;
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (isSelected() && (boolean)evt.getNewValue()) {
+                    setForeground(UIManager.getColor("ToggleButton.selectForeground"));
+                }
+                else {
+                    setForeground(UIManager.getColor("ToggleButton.foreground"));
+                }
+            }
+        });
+
+        // Case: button is clicked
+        addPropertyChangeListener("ancestor", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
                 if (isSelected()) {
                     setForeground(UIManager.getColor("ToggleButton.selectForeground"));
                 }
