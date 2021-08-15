@@ -1,12 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.awt.geom.Point2D;
+import java.util.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +19,10 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialPositionable;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
 
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Transformation;
-
-public abstract class FinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable {
+public abstract class FinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
 	private static final Logger log = LoggerFactory.getLogger(FinSet.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -125,6 +121,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	private double singlePlanformArea = Double.NaN;
 	private double totalVolume = Double.NaN;
 	private Coordinate centerOfMass = Coordinate.NaN;
+
+	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/**
 	 * New FinSet with given number of fins and given base rotation angle.
@@ -1268,5 +1266,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		}
 		
 		return toReturn;
+	}
+
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
 	}
 }

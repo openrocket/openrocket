@@ -95,17 +95,21 @@ public class RealisticRenderer extends RocketRenderer {
 	    Appearance app = getAppearance(c);
 	    if (c instanceof InsideColorComponent) {
 			Appearance innerApp = getInsideAppearance(c);
-			if (((InsideColorComponent) c).getInsideColorComponentHandler().isInsideSameAsOutside()) innerApp = app;
+			if (!((InsideColorComponent) c).getInsideColorComponentHandler().isSeparateInsideOutside()) {
+				innerApp = app;
+			}
 
 			render(gl, geom, Surface.INSIDE, innerApp, true, alpha);
-			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside())
-				render(gl, geom, Surface.EDGES, innerApp, false, alpha);
-			else
-				render(gl, geom, Surface.EDGES, app, false, alpha);
+			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside()) {
+				render(gl, geom, Surface.EDGES, innerApp, true, alpha);
+			}
+			else {
+				render(gl, geom, Surface.EDGES, app, true, alpha);
+			}
 		}
 	    else {
 			render(gl, geom, Surface.INSIDE, app, true, alpha);
-			render(gl, geom, Surface.EDGES, app, false, alpha);
+			render(gl, geom, Surface.EDGES, app, true, alpha);
 		}
 		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
 
