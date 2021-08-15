@@ -80,7 +80,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	private PhotoSettings p;
 	private OpenRocketDocument document;
 	private DocumentChangeListener changeListener;
-	
+
 	interface ImageCallback {
 		public void performAction(BufferedImage i);
 	}
@@ -94,7 +94,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		document = doc;
 		cachedBounds = null;
 		this.configuration = doc.getSelectedConfiguration();
-		
+
 		changeListener = new DocumentChangeListener() {
 			@Override
 			public void documentChanged(DocumentChangeEvent event) {
@@ -116,8 +116,18 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		});
 	}
 
+	void clearDoc() {
+		document.removeDocumentChangeListener(changeListener);
+		changeListener = null;
+		document = null;
+	}
+
+	PhotoSettings getSettings() {
+		return p;
+	}
+
 	PhotoPanel(OpenRocketDocument document, PhotoSettings p) {
-		this.p = p;
+    this.p = p;
 		this.setLayout(new BorderLayout());
 		PhotoPanel.this.configuration = document.getSelectedConfiguration();
 
@@ -406,7 +416,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		}
 
 		rr.render(drawable, configuration, new HashSet<RocketComponent>());
-		
+
 		//Figure out the lowest stage shown
 
 		AxialStage bottomStage = configuration.getBottomStage();
@@ -415,25 +425,25 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			bottomStage.getStageNumber();
 		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
 		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
-		
+
 		final FlightConfigurationId motorID = configuration.getFlightConfigurationID();
-		
-		
-		
+
+
+
 		final Iterator<MotorConfiguration> iter = configuration.getActiveMotors().iterator();
 		while( iter.hasNext()){
 			MotorConfiguration curConfig = iter.next();
 			final MotorMount mount = curConfig.getMount();
 			int curStageNumber = ((RocketComponent)mount).getStageNumber();
-			
+
 			//If this mount is not in currentStage continue on to the next one.
 			if( curStageNumber != bottomStageNumber ){
 				continue;
 			}
-			
+
 			final Motor motor = mount.getMotorConfig(motorID).getMotor();
 			final double length = motor.getLength();
-	
+
 			Coordinate[] position = ((RocketComponent) mount)
 					.toAbsolute(new Coordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));
