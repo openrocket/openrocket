@@ -5,6 +5,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -15,7 +17,9 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -58,9 +62,24 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		//// Automatic
 		javax.swing.Action outerAutoAction = od.getAutomaticAction();
-		JCheckBox check = new JCheckBox(outerAutoAction);
-		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
-		panel.add(check, "skip, span 2, wrap");
+		JCheckBox checkAuto = new JCheckBox(outerAutoAction);
+		checkAuto.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
+		panel.add(checkAuto, "skip, span 2, wrap");
+		// Disable check button if there is no component to get the diameter from
+		checkAuto.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (!(c instanceof BodyTube)) return;
+				if (((BodyTube) c).getPreviousSymmetricComponent() != null) {
+					checkAuto.setEnabled(true);
+				}
+				else {
+					checkAuto.setEnabled(false);
+					((BodyTube) c).setOuterRadiusAutomatic(false);
+				}
+			}
+		});
+		checkAuto.getChangeListeners()[0].stateChanged(null);
 
 		////  Inner diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
@@ -87,7 +106,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
 
 		//// Filled
-		check = new JCheckBox(new BooleanModel(component, "Filled"));
+		JCheckBox check = new JCheckBox(new BooleanModel(component, "Filled"));
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		panel.add(check, "skip, span 2, wrap");
 

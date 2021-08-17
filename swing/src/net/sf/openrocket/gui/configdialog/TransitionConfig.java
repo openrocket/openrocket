@@ -9,6 +9,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -20,6 +22,8 @@ import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
@@ -124,6 +128,21 @@ public class TransitionConfig extends RocketComponentConfig {
 			//// Automatic
 			checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 			panel.add(checkbox, "skip, span 2, wrap");
+			// Disable check button if there is no component to get the diameter from
+			checkbox.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (!(c instanceof Transition)) return;
+					if (((Transition) c).getPreviousSymmetricComponent() != null) {
+						checkbox.setEnabled(true);
+					}
+					else {
+						checkbox.setEnabled(false);
+						((Transition) c).setForeRadiusAutomatic(false);
+					}
+				}
+			});
+			checkbox.getChangeListeners()[0].stateChanged(null);
 		}
 
 		{	//// Aft diameter:
@@ -143,6 +162,21 @@ public class TransitionConfig extends RocketComponentConfig {
 			//// Automatic
 			aftRadiusCheckbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 			panel.add(aftRadiusCheckbox, "skip, span 2, wrap");
+			// Disable check button if there is no component to get the diameter from
+			aftRadiusCheckbox.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (!(c instanceof Transition)) return;
+					if (((Transition) c).getNextSymmetricComponent() != null) {
+						aftRadiusCheckbox.setEnabled(true);
+					}
+					else {
+						aftRadiusCheckbox.setEnabled(false);
+						((Transition) c).setAftRadiusAutomatic(false);
+					}
+				}
+			});
+			aftRadiusCheckbox.getChangeListeners()[0].stateChanged(null);
 		}
 
 		{ ///  Wall thickness:

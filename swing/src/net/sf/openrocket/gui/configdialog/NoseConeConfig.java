@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -113,6 +115,21 @@ public class NoseConeConfig extends RocketComponentConfig {
 			//// Automatic
 			check.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
 			panel.add(check, "skip, span 2, wrap");
+			// Disable check button if there is no component to get the diameter from
+			check.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (!(c instanceof NoseCone)) return;
+					if (((NoseCone) c).getNextSymmetricComponent() != null) {
+						check.setEnabled(true);
+					}
+					else {
+						check.setEnabled(false);
+						((NoseCone) c).setAftRadiusAutomatic(false);
+					}
+				}
+			});
+			check.getChangeListeners()[0].stateChanged(null);
 		}
 
 		{////  Wall thickness:
