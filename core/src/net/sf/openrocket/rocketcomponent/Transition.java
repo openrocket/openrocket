@@ -192,7 +192,15 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return getForeRadius();
 	}
 
+	@Override
+	public boolean usesPreviousCompAutomatic() {
+		return isForeRadiusAutomatic();
+	}
 
+	@Override
+	public boolean usesNextCompAutomatic() {
+		return isAftRadiusAutomatic();
+	}
 
 
 	////////  Type & shape  /////////

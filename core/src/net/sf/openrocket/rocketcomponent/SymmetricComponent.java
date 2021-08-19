@@ -644,5 +644,15 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Checks whether the component uses the previous symmetric component for its auto diameter.
+	 */
+	public abstract boolean usesPreviousCompAutomatic();
+
+	/**
+	 * Checks whether the component uses the next symmetric component for its auto diameter.
+	 */
+	public abstract boolean usesNextCompAutomatic();
+
 }

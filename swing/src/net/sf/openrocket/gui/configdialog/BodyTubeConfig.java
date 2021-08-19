@@ -5,8 +5,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -19,8 +17,8 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -28,6 +26,7 @@ import net.sf.openrocket.unit.UnitGroup;
 public class BodyTubeConfig extends RocketComponentConfig {
 
 	private DoubleModel maxLength;
+	private final JCheckBox checkAutoOuterRadius;
 	private static final Translator trans = Application.getTranslator();
 
 	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c) {
@@ -62,24 +61,10 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		//// Automatic
 		javax.swing.Action outerAutoAction = od.getAutomaticAction();
-		JCheckBox checkAuto = new JCheckBox(outerAutoAction);
-		checkAuto.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
-		panel.add(checkAuto, "skip, span 2, wrap");
-		// Disable check button if there is no component to get the diameter from
-		checkAuto.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!(c instanceof BodyTube)) return;
-				if (((BodyTube) c).getPreviousSymmetricComponent() != null) {
-					checkAuto.setEnabled(true);
-				}
-				else {
-					checkAuto.setEnabled(false);
-					((BodyTube) c).setOuterRadiusAutomatic(false);
-				}
-			}
-		});
-		checkAuto.getChangeListeners()[0].stateChanged(null);
+		checkAutoOuterRadius = new JCheckBox(outerAutoAction);
+		checkAutoOuterRadius.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
+		panel.add(checkAutoOuterRadius, "skip, span 2, wrap");
+		updateCheckboxAutoAftRadius();
 
 		////  Inner diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
@@ -132,4 +117,33 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		super.updateFields();
 	}
 
+	/**
+	 * Sets the checkAutoOuterRadius checkbox's enabled state and tooltip text, based on the state of its previous
+	 * component. If there is no next and previous symmetric component, the checkAutoOuterRadius checkbox is disabled.
+	 * If there is still a next or previous component which does not have its auto state enabled, meaning it can still
+	 * serve as a reference component for this component, the auto checkbox is enabled.
+	 */
+	private void updateCheckboxAutoAftRadius() {
+		if (component == null || checkAutoOuterRadius == null) return;
+
+		// Disable check button if there is no component to get the diameter from
+		SymmetricComponent prevComp = ((BodyTube) component).getPreviousSymmetricComponent();
+		SymmetricComponent nextComp = ((BodyTube) component).getNextSymmetricComponent();
+		if (prevComp == null && nextComp == null) {
+			checkAutoOuterRadius.setEnabled(false);
+			((BodyTube) component).setOuterRadiusAutomatic(false);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic_noReferenceComponent"));
+			return;
+		}
+		if (!(prevComp != null && nextComp == null && prevComp.usesNextCompAutomatic()) &&
+				!(nextComp != null && prevComp == null && nextComp.usesPreviousCompAutomatic()) &&
+				!(nextComp != null && prevComp != null && prevComp.usesNextCompAutomatic() && nextComp.usesPreviousCompAutomatic())) {
+			checkAutoOuterRadius.setEnabled(true);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic"));
+		} else {
+			checkAutoOuterRadius.setEnabled(false);
+			((BodyTube) component).setOuterRadiusAutomatic(false);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic_alreadyAuto"));
+		}
+	}
 }
