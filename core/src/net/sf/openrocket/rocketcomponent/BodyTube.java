@@ -97,6 +97,14 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		}
 		return outerRadius;
 	}
+
+	/**
+	 * Return the outer radius that was manually entered, so not the value that the component received from automatic
+	 * outer radius.
+	 */
+	public double getOuterRadiusNoAutomatic() {
+		return outerRadius;
+	}
 	
 	/**
 	 * Set the outer radius of the body tube.  If the radius is less than the wall thickness,

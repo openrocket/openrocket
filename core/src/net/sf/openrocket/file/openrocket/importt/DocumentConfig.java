@@ -152,7 +152,7 @@ class DocumentConfig {
 		// BodyTube
 		setters.put("BodyTube:radius", new DoubleSetter(
 				Reflection.findMethod(BodyTube.class, "setOuterRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 
 		// Parallel Stage
@@ -204,11 +204,11 @@ class DocumentConfig {
 		
 		setters.put("Transition:foreradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(Transition.class, "setForeRadiusAutomatic", boolean.class)));
 		setters.put("Transition:aftradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setAftRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class)));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
