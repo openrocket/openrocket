@@ -745,15 +745,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 */
 	private void runBackgroundSimulations(List<Simulation> sims, Rocket rkt) {
 		if (sims.size() == 0) {
+			extraText.setCalculatingData(false);
 			FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
 			for (Simulation sim : document.getSimulations()) {
 				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
 					extraText.setFlightData(sim.getSimulatedData());
-					break;
+					return;
 				}
 			}
-			extraText.setCalculatingData(false);
-			return;
+			extraText.setFlightData(FlightData.NaN_DATA);
 		}
 
 		// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
@@ -820,7 +820,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			if (isCancelled() || backgroundSimulationWorker != this)
 				return;
 			backgroundSimulationWorker = null;
-			extraText.setFlightData(simulation.getSimulatedData());
+
+			// Only set the flight data information of the current flight configuration
+			FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
+			if (simulation.getFlightConfigurationId().compareTo(curID) == 0) {
+				extraText.setFlightData(simulation.getSimulatedData());
+			}
 			extraText.setCalculatingData(false);
 			figure.repaint();
 			figure3d.repaint();
