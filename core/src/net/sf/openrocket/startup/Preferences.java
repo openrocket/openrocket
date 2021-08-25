@@ -40,6 +40,7 @@ public abstract class Preferences implements ChangeSource {
 	 * There are other strings out there in the source as well.
 	 */
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
+	public static final String STAGE_INSERT_POSITION_KEY = "StageInsertPosition";
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";

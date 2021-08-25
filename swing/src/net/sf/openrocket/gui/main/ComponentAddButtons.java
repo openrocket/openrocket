@@ -122,7 +122,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 
 		//// Component Assembly Components:
 		addButtonGroup(row,
-				new ComponentButton(AxialStage.class, trans.get("compaddbuttons.AxialStage")),
+				new StageButton(AxialStage.class, trans.get("compaddbuttons.AxialStage")),
 				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.ParallelStage")),
 				new ComponentButton(PodSet.class, trans.get("compaddbuttons.Pods")));
 		row++;
@@ -627,7 +627,128 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 	}
 
-	
+	/**
+	 * A class suitable for the Stage component.
+	 * If a stage component or any of its subcomponents is selected and there is already a stage after the
+	 * selected stage or parent stage, then a popup window will ask whether the user wants to insert the stage
+	 * at the end or between the two stages.
+	 * In any other case, the new stage will be added to the end of the component tree
+	 */
+	private class StageButton extends ComponentButton {
+
+		public StageButton(String text) {
+			super(text);
+		}
+
+		public StageButton(String text, Icon enabled, Icon disabled) {
+			super(text, enabled, disabled);
+		}
+
+		public StageButton(Class<? extends RocketComponent> c, String text) {
+			super(c, text);
+		}
+
+		@Override
+		public boolean isAddable(RocketComponent c) {
+			return true;
+		}
+
+		@Override
+		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
+			if (c == null || c instanceof Rocket) {
+				// Add to the end
+				return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+			}
+
+			RocketComponent parentStage = null;
+			if (c instanceof AxialStage)
+				parentStage = c;
+			else {
+				parentStage = c.getStage();
+			}
+			if (parentStage == null) {
+				throw new BugException("Component " + c.getComponentName() + " has no parent stage");
+			}
+
+			// Check whether to insert between or at the end.
+			// 0 = ask, 1 = in between, 2 = at the end
+			int pos = Application.getPreferences().getChoice(Preferences.STAGE_INSERT_POSITION_KEY, 2, 0);
+			if (pos == 0) {
+				if (document.getRocket().getChildPosition(parentStage) == document.getRocket().getChildCount() - 1)
+					pos = 2; // Selected component is the last component
+				else
+					pos = askPosition();
+			}
+
+			switch (pos) {
+				case 0:
+					// Cancel
+					return null;
+				case 1:
+					// Insert after current stage
+					return new Pair<RocketComponent, Integer>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
+				case 2:
+					// Insert at the end
+					return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+				default:
+					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
+					return null;
+			}
+		}
+
+		private int askPosition() {
+			//// Insert here
+			//// Add to the end
+			//// Cancel
+				Object[] options = { trans.get("compaddbuttons.askPosition.Inserthere"),
+					trans.get("compaddbuttons.askPosition.Addtotheend"),
+					trans.get("compaddbuttons.askPosition.Cancel") };
+
+			JPanel panel = new JPanel(new MigLayout());
+			//// Do not ask me again
+			JCheckBox check = new JCheckBox(trans.get("compaddbuttons.Donotaskmeagain"));
+			panel.add(check, "wrap");
+			//// You can change the default operation in the preferences.
+			panel.add(new StyledLabel(trans.get("compaddbuttons.lbl.Youcanchange"), -2));
+
+			int sel = JOptionPane.showOptionDialog(null, // parent component
+					//// Insert the component after the current component or as the last component?
+					new Object[] {
+							trans.get("compaddbuttons.lbl.insertstage"),
+							panel },
+					//// Select component position
+					trans.get("compaddbuttons.Selectstagepos"), // title
+					JOptionPane.DEFAULT_OPTION, // default selections
+					JOptionPane.QUESTION_MESSAGE, // dialog type
+					null, // icon
+					options, // options
+					options[0]); // initial value
+
+			switch (sel) {
+				case JOptionPane.CLOSED_OPTION:
+				case 2:
+					// Cancel
+					return 0;
+				case 0:
+					// Insert
+					sel = 1;
+					break;
+				case 1:
+					// Add
+					sel = 2;
+					break;
+				default:
+					Application.getExceptionHandler().handleErrorCondition("ERROR:  JOptionPane returned " + sel);
+					return 0;
+			}
+
+			if (check.isSelected()) {
+				// Save the preference
+				Application.getPreferences().putInt(Preferences.STAGE_INSERT_POSITION_KEY, sel);
+			}
+			return sel;
+		}
+	}
 
 	/////////  Scrolling functionality
 	

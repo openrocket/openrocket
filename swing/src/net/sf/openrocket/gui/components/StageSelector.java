@@ -36,8 +36,9 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	private void updateButtons( final FlightConfiguration configuration ) {
 		buttons.clear();
 		this.removeAll();
-		for(AxialStage stage : configuration.getRocket().getStageList()){
-			JToggleButton button = new SelectColorToggleButton(new StageAction(stage));
+		for(RocketComponent stage : configuration.getRocket().getChildren()){
+			if (!(stage instanceof AxialStage)) continue;
+			JToggleButton button = new SelectColorToggleButton(new StageAction((AxialStage) stage));
 			button.setSelected(configuration.isStageActive(stage.getStageNumber()));
 			this.add(button);
 			buttons.add(button);
