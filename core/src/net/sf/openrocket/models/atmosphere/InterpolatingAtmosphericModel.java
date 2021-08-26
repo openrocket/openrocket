@@ -18,10 +18,20 @@ public abstract class InterpolatingAtmosphericModel implements AtmosphericModel 
 		if (levels == null)
 			computeLayers();
 		
-		if (altitude <= 0)
+		if (altitude <= 0) {
+			// TODO: LOW: levels[0] returned null in some cases, see GitHub issue #952 for more information
+			if (levels[0] == null) {
+				computeLayers();
+			}
 			return levels[0];
-		if (altitude >= DELTA * (levels.length - 1))
+		}
+		if (altitude >= DELTA * (levels.length - 1)) {
+			// TODO: LOW: levels[levels.length - 1] returned null in some cases, see GitHub issue #952 for more information
+			if (levels[levels.length - 1] == null) {
+				computeLayers();
+			}
 			return levels[levels.length - 1];
+		}
 		
 		int n = (int) (altitude / DELTA);
 		double d = (altitude - n * DELTA) / DELTA;
