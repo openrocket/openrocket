@@ -58,8 +58,10 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
+import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.GroundHitListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
@@ -698,6 +700,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			// Always update the simulation of the current configuration
 			updateSims(false);
 		}
+
+		// Update flight data and add flight data update trigger upon simulation changes
+		for (Simulation sim : document.getSimulations()) {
+			sim.addChangeListener(new StateChangeListener() {
+				@Override
+				public void stateChanged(EventObject e) {
+					if (updateFlightData(sim)) {
+						updateFigures();
+					}
+				}
+			});
+			if (updateFlightData(sim)) {
+				break;
+			}
+		}
 	}
 
 	/**
@@ -737,6 +754,25 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	/**
+	 * Update the flight data text with the data of {sim}. Only update if sim is the simulation of the current flight
+	 * configuration.
+	 * @param sim: simulation from which the flight data is taken
+	 * @return true if the flight data was updated, false if not
+	 */
+	private boolean updateFlightData(Simulation sim) {
+		FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
+		if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
+			if (sim.hasSimulationData()) {
+				extraText.setFlightData(sim.getSimulatedData());
+			} else {
+				extraText.setFlightData(FlightData.NaN_DATA);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Runs a new background simulation for simulations *sims*. It will run all the simulations in sims sequentially
 	 * in the background.
 	 *
@@ -746,14 +782,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private void runBackgroundSimulations(List<Simulation> sims, Rocket rkt) {
 		if (sims.size() == 0) {
 			extraText.setCalculatingData(false);
-			FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
 			for (Simulation sim : document.getSimulations()) {
-				if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
-					extraText.setFlightData(sim.getSimulatedData());
+				if (updateFlightData(sim)) {
 					return;
 				}
 			}
 			extraText.setFlightData(FlightData.NaN_DATA);
+			return;
 		}
 
 		// I *think* every FlightConfiguration has at least one associated simulation; just in case I'm wrong,
@@ -822,10 +857,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			backgroundSimulationWorker = null;
 
 			// Only set the flight data information of the current flight configuration
-			FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
-			if (simulation.getFlightConfigurationId().compareTo(curID) == 0) {
-				extraText.setFlightData(simulation.getSimulatedData());
-			}
 			extraText.setCalculatingData(false);
 			figure.repaint();
 			figure3d.repaint();
@@ -941,5 +972,5 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
 		// }
 		// }
-	
+
 }
