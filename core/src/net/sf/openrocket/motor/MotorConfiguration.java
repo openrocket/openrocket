@@ -115,6 +115,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public void useDefaultIgnition() {
 		this.ignitionOveride = false;
+		setIgnitionDelay(0);
+		setIgnitionEvent(IgnitionEvent.AUTOMATIC);
 	}
 	
 	public double getIgnitionDelay() {
