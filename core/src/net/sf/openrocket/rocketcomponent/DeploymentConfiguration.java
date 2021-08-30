@@ -8,6 +8,8 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 
+import java.util.Objects;
+
 public class DeploymentConfiguration implements FlightConfigurableParameter<DeploymentConfiguration> {
 	
 	
@@ -154,5 +156,17 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 	@Override
 	public void update(){
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DeploymentConfiguration that = (DeploymentConfiguration) o;
+		return Double.compare(that.deployAltitude, deployAltitude) == 0 && Double.compare(that.deployDelay, deployDelay) == 0 && deployEvent == that.deployEvent;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(deployEvent, deployAltitude, deployDelay);
+	}
 }
