@@ -203,13 +203,15 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         	throw new IllegalStateException("Attempting to set a motor on the default FCID.");
         }
 
+        double initDelay = curMount.getMotorConfig(fcid).getEjectionDelay();
+
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
 
         Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
-			if (mtr == curMount.getMotorConfig(fcid).getMotor()) {
+			if (mtr == curMount.getMotorConfig(fcid).getMotor() && d == initDelay) {
 				return;
 			}
 	        final MotorConfiguration templateConfig = curMount.getMotorConfig(fcid);
