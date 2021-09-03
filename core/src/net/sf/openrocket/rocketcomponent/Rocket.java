@@ -496,10 +496,24 @@ public class Rocket extends ComponentAssembly {
 	
 	@Override
 	public void update(){
+		updateStageNumbers();
 		updateStageMap();
 		updateConfigurations();
 	}
-	
+
+	/**
+	 * Update all the stage numbers based on their position in the component tree
+	 */
+	private void updateStageNumbers() {
+		for (RocketComponent component : getChildren()) {
+			if (component instanceof AxialStage) {
+				AxialStage stage = (AxialStage) component;
+				forgetStage(stage);
+				stage.setStageNumber(getChildPosition(stage));
+			}
+		}
+	}
+
 	private void updateStageMap(){
 		for( RocketComponent component : getChildren() ){
 			if (component instanceof AxialStage) {
