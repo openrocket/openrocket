@@ -17,6 +17,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
@@ -75,6 +76,14 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 				return component.getStageNumber() > 0;
 			}
 
+			@Override
+			public void componentChanged(ComponentChangeEvent cce) {
+				super.componentChanged(cce);
+				// This will catch a name change of the stage to cause a change in the header of the table
+				if (cce.getSource() instanceof AxialStage && cce.isNonFunctionalChange()) {
+					fireTableStructureChanged();
+				}
+			}
 		};
 		JTable separationTable = new JTable(separationTableModel);
 		separationTable.getTableHeader().setReorderingAllowed(false);
