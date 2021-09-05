@@ -57,9 +57,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	
 	//// Lateral position and motion
-	//// Position upwind
+	//// Position East of launch
 	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px", UnitGroup.UNITS_DISTANCE, 30);
-	//// Position parallel to wind
+	//// Position North of launch
 	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py", UnitGroup.UNITS_DISTANCE, 31);
 	//// Lateral distance
 	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl", UnitGroup.UNITS_DISTANCE, 32);
