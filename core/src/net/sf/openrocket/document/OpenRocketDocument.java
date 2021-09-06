@@ -34,7 +34,7 @@ import net.sf.openrocket.util.ArrayList;
  */
 public class OpenRocketDocument implements ComponentChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
-	
+	private final List<String> file_extensions = Arrays.asList("ork", "rkt");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.
 	 */
@@ -191,6 +191,23 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * @return	the File handler object for the document
 	 */
 	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * returns the File handler object for the document without the file extension (e.g. '.ork' removed)
+	 * @return the File handler object for the document without the file extension
+	 */
+	public File getFileNoExtension() {
+		if (file == null) return null;
+		int index = file.getAbsolutePath().lastIndexOf('.');
+		if (index > 0) {
+			String filename = file.getAbsolutePath().substring(0, index);
+			String extension = file.getAbsolutePath().substring(index + 1);
+			if (file_extensions.contains(extension)) {
+				return new File(filename);
+			}
+		}
 		return file;
 	}
 	

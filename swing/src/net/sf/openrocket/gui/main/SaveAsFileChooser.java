@@ -3,6 +3,9 @@ package net.sf.openrocket.gui.main;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 
@@ -33,12 +36,11 @@ public class SaveAsFileChooser extends JFileChooser {
 
 		this.setAcceptAllFileFilterUsed(true);
 
-		File defaultFilename = document.getFile();
+		File defaultFilename = document.getFileNoExtension();
 		
 		switch( type ) {
 		default:
 		case OPENROCKET:
-			defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
 			this.setDialogTitle(trans.get("saveAs.openrocket.title"));
 			storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
 			this.setAccessory(storageChooser);
@@ -46,7 +48,6 @@ public class SaveAsFileChooser extends JFileChooser {
 			this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 			break;
 		case ROCKSIM:
-			defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
 			this.setDialogTitle(trans.get("saveAs.rocksim.title"));
 			storageChooser = null;
 			this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
