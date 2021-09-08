@@ -41,6 +41,7 @@ public class SaveAsFileChooser extends JFileChooser {
 		switch( type ) {
 		default:
 		case OPENROCKET:
+			defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
 			this.setDialogTitle(trans.get("saveAs.openrocket.title"));
 			storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
 			this.setAccessory(storageChooser);
@@ -48,6 +49,7 @@ public class SaveAsFileChooser extends JFileChooser {
 			this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 			break;
 		case ROCKSIM:
+			defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
 			this.setDialogTitle(trans.get("saveAs.rocksim.title"));
 			storageChooser = null;
 			this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);

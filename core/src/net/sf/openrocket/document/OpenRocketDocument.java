@@ -34,7 +34,7 @@ import net.sf.openrocket.util.ArrayList;
  */
 public class OpenRocketDocument implements ComponentChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
-	private final List<String> file_extensions = Arrays.asList("ork", "rkt");	// Possible extensions of an OpenRocket document
+	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.
 	 */
