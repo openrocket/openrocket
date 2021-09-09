@@ -34,7 +34,7 @@ public class SaveAsFileChooser extends JFileChooser {
 		this.document = document;
 		this.type = type;
 
-		this.setAcceptAllFileFilterUsed(true);
+		this.setAcceptAllFileFilterUsed(false);
 
 		File defaultFilename = document.getFileNoExtension();
 		
