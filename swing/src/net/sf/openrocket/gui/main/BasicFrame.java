@@ -1410,9 +1410,6 @@ public class BasicFrame extends JFrame {
 				return false;
 			}
 		}
-		if (!FileHelper.confirmWrite(file, this)) {
-			return false;
-		}
 
 		try {
 			StorageOptions options = new StorageOptions();
