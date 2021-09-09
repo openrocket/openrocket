@@ -47,7 +47,7 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 	/**
 	 * Parent.
 	 */
-	private RocketComponent parent;
+	private final RocketComponent parent;
 	
 	/**
 	 * 0 == General, 1 == Shock Cord

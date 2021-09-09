@@ -81,7 +81,7 @@ public class RocketTest extends BaseTestCase {
 			
 			{	
 				FinSet fins = (FinSet)body.getChild(0);
-				Coordinate actLocs[] = fins.getComponentLocations();
+				Coordinate[] actLocs = fins.getComponentLocations();
 				assertThat(fins.getName()+" have incorrect count: ", fins.getInstanceCount(), equalTo(3));
 				{ // fin #1
 					expLoc = new Coordinate(0.22,0.012,0);
@@ -126,7 +126,7 @@ public class RocketTest extends BaseTestCase {
 			assertThat(ring.getName()+" not positioned correctly: ", actLoc, equalTo(expLoc));
 
 			ring.setInstanceCount(2);
-			Coordinate actLocs[] = ring.getComponentLocations();
+			Coordinate[] actLocs = ring.getComponentLocations();
 			{ // first instance
 				expLoc = new Coordinate(0.21, 0, 0);
 				actLoc = actLocs[0];
@@ -176,7 +176,7 @@ public class RocketTest extends BaseTestCase {
 			assertEquals("incorrect fin length:", 0.05, fins.getLength(), EPSILON);
 			{ // fin #1
 				final Coordinate expLoc = new Coordinate(0.22, 0.012, 0);
-				final Coordinate actLocs[] = fins.getComponentLocations();
+				final Coordinate[] actLocs = fins.getComponentLocations();
 				assertThat(fins.getName() + " not positioned correctly: ", actLocs[0], equalTo(expLoc));
 			}
 		}
@@ -313,7 +313,7 @@ public class RocketTest extends BaseTestCase {
 
 		Coordinate expLoc;
 		Coordinate actLoc;
-		Coordinate actLocs[];
+		Coordinate[] actLocs;
 		{
 			BodyTube body = (BodyTube)boosterStage.getChild(0);
 			Coordinate[] bodyLocs = body.getComponentLocations();
@@ -429,14 +429,14 @@ public class RocketTest extends BaseTestCase {
 				assertEquals( boosters.getName()+" position is incorrect: ", 0.0, boosterPosition.y, EPSILON);
 				assertEquals( boosters.getName()+" position is incorrect: ", 0.0, boosterPosition.z, EPSILON);
 				
-				Coordinate boosterInstanceOffsets[] = boosters.getInstanceOffsets();			
+				Coordinate[] boosterInstanceOffsets = boosters.getInstanceOffsets();
 				assertEquals( boosters.getName()+" location is incorrect: ", 0.0, boosterInstanceOffsets[0].x, EPSILON);
 				assertEquals( boosters.getName()+" location is incorrect: ",  0.077, boosterInstanceOffsets[0].y, EPSILON);
 				assertEquals( boosters.getName()+" location is incorrect: ", -0.077, boosterInstanceOffsets[1].y, EPSILON);
 				assertEquals( boosters.getName()+" location is incorrect: ", 0.0, boosterInstanceOffsets[0].z, EPSILON);
 				
 				
-				Coordinate boosterLocations[] = boosters.getComponentLocations();			
+				Coordinate[] boosterLocations = boosters.getComponentLocations();
 				assertEquals( boosters.getName()+" location is incorrect: ", 0.484, boosterLocations[0].x, EPSILON);
 				assertEquals( boosters.getName()+" location is incorrect: ", 0.077, boosterLocations[0].y, EPSILON);
 				assertEquals( boosters.getName()+" location is incorrect: ", -0.077, boosterLocations[1].y, EPSILON);

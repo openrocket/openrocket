@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.Permission;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	private volatile int responseCode;
 
 	private volatile String requestMethod = "";
-	private Map<String, String> requestProperties = new HashMap<String, String>();
+	private final Map<String, String> requestProperties = new HashMap<String, String>();
 	private volatile int connectTimeout = -1;
 	private volatile String contentEncoding = "";
 	
@@ -214,12 +215,8 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	}
 	
 	public void setContent(String content) {
-		try {
-			this.content = content.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			fail("UTF-8");
-		}
-	}
+        this.content = content.getBytes(StandardCharsets.UTF_8);
+    }
 	
 	
 	@Override
@@ -285,13 +282,8 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	}
 	
 	public String getOutputStreamString() {
-		try {
-			return outputStream.toString("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			fail("UTF-8");
-			return null;
-		}
-	}
+        return outputStream.toString(StandardCharsets.UTF_8);
+    }
 	
 	
 	

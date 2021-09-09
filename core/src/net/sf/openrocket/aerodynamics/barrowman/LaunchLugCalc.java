@@ -10,8 +10,8 @@ import net.sf.openrocket.util.Transformation;
 
 public class LaunchLugCalc extends RocketComponentCalc {
 
-	private double CDmul;
-	private double refArea;
+	private final double CDmul;
+	private final double refArea;
 	
 	public LaunchLugCalc(RocketComponent component) {
 		super(component);

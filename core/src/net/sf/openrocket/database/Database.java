@@ -121,7 +121,7 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 	 * Iterator class implementation that fires changes if remove() is called.
 	 */
 	private class DBIterator implements Iterator<T> {
-		private Iterator<T> iterator = list.iterator();
+		private final Iterator<T> iterator = list.iterator();
 		private T current = null;
 		
 		@Override

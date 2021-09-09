@@ -234,9 +234,9 @@ public class GeneralRocketSaver {
 	
 	private static class ProgressOutputStream extends FilterOutputStream {
 		
-		private long estimatedSize;
+		private final long estimatedSize;
 		private long bytesWritten = 0;
-		private SavingProgress progressCallback;
+		private final SavingProgress progressCallback;
 		
 		ProgressOutputStream(OutputStream ostream, long estimatedSize, SavingProgress progressCallback) {
 			super(ostream);

@@ -187,7 +187,7 @@ public class FlightConfigurationTest extends BaseTestCase {
         assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount, equalTo(expectedConfigCount));
 
         // create with
-        rkt.createFlightConfiguration( (FlightConfigurationId)null);
+        rkt.createFlightConfiguration(null);
         expectedConfigCount = 6;
         actualConfigCount = rkt.getConfigurationCount();
         assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount, equalTo(expectedConfigCount));

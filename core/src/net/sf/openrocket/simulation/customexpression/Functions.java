@@ -25,7 +25,7 @@ public class Functions {
 	private static final Logger log = LoggerFactory.getLogger(Functions.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private List<CustomFunction> allFunctions = new ArrayList<CustomFunction>();
+	private final List<CustomFunction> allFunctions = new ArrayList<CustomFunction>();
 
 	public static Functions getInstance() {
 		if(instance == null) {

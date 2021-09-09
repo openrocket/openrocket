@@ -5,7 +5,7 @@ import java.util.List;
 
 public class XmlContainerElement extends XmlElement {
 	
-	private ArrayList<XmlElement> subelements = new ArrayList<XmlElement>();
+	private final ArrayList<XmlElement> subelements = new ArrayList<XmlElement>();
 	
 	public XmlContainerElement(String name) {
 		super(name);

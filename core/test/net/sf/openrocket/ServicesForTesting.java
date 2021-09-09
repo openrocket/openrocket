@@ -30,7 +30,7 @@ public class ServicesForTesting extends AbstractModule {
 	
 	public static class TranslatorProviderForTesting implements Provider<Translator> {
 		
-		private AtomicReference<Translator> translator = new AtomicReference<Translator>();
+		private final AtomicReference<Translator> translator = new AtomicReference<Translator>();
 		
 		@Override
 		public Translator get() {
@@ -133,7 +133,7 @@ public class ServicesForTesting extends AbstractModule {
 		
 		@Override
 		public Set<Material> getUserMaterials() {
-			return Collections.<Material> emptySet();
+			return Collections.emptySet();
 		}
 		
 		@Override

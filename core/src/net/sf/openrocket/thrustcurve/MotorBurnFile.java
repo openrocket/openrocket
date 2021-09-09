@@ -38,11 +38,11 @@ public class MotorBurnFile {
 			if (SupportedFileTypes.RASP_FORMAT.equals(filetype)) {
 				RASPMotorLoader loader = new RASPMotorLoader();
 				List<ThrustCurveMotor.Builder> motors = loader.load(new StringReader(data), "download");
-				this.thrustCurveMotor = (ThrustCurveMotor.Builder)motors.get(0);
+				this.thrustCurveMotor = motors.get(0);
 			} else if (SupportedFileTypes.ROCKSIM_FORMAT.equals(filetype)) {
 				RockSimMotorLoader loader = new RockSimMotorLoader();
 				List<ThrustCurveMotor.Builder> motors = loader.load(new StringReader(data), "download");
-				this.thrustCurveMotor = (ThrustCurveMotor.Builder)motors.get(0);
+				this.thrustCurveMotor = motors.get(0);
 			}
 		} catch (IOException ex) {
 			this.thrustCurveMotor = null;

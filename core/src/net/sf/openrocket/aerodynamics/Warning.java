@@ -61,7 +61,7 @@ public abstract class Warning {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class LargeAOA extends Warning {
-		private double aoa;
+		private final double aoa;
 		
 		/**
 		 * Sole constructor.  The argument is the AOA that caused this warning.
@@ -100,7 +100,7 @@ public abstract class Warning {
 	 * @author Craig Earls <enderw88@gmail.com>
 	 */
 	public static class HighSpeedDeployment extends Warning {
-		private double recoverySpeed;
+		private final double recoverySpeed;
 		
 		/**
 		 * Sole constructor.  The argument is the speed that caused this warning.
@@ -130,7 +130,7 @@ public abstract class Warning {
 	 *
 	 */
 	public static class EventAfterLanding extends Warning {
-		private FlightEvent event;
+		private final FlightEvent event;
 		
 		/**
 		 * Sole constructor.  The argument is an event which has occurred after landing
@@ -324,7 +324,7 @@ public abstract class Warning {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class Other extends Warning {
-		private String description;
+		private final String description;
 		
 		public Other(String description) {
 			this.description = description;

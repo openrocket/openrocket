@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class L10nPropertyReport {
 	
-	private static String[] supportedLocales = new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt", "tr", "zh_CN", "uk_UA" };
+	private static final String[] supportedLocales = new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt", "tr", "zh_CN", "uk_UA" };
 	
 	public static void main(String[] args) throws Exception {
 		

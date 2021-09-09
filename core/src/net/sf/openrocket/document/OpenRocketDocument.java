@@ -53,7 +53,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final Rocket rocket;
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
-	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 
 	// The Photo Settings will be saved in the core module as a map of key values with corresponding content
 	private Map<String, String> photoSettings = new HashMap<>();
@@ -66,8 +66,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * The undo history of the rocket.   Whenever a new undo position is created while the
 	 * rocket is in "dirty" state, the rocket is copied here.
 	 */
-	private LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
-	private LinkedList<String> undoDescription = new LinkedList<String>();
+	private final LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
+	private final LinkedList<String> undoDescription = new LinkedList<String>();
 	
 	/**
 	 * The position in the undoHistory we are currently at.  If modifications have been
@@ -83,7 +83,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private String storedDescription = null;
 	
 	
-	private ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
+	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
 	
 	private File file = null;
 	private int savedID = -1;

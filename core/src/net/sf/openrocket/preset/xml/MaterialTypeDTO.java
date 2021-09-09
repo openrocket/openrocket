@@ -12,7 +12,7 @@ public enum MaterialTypeDTO {
     SURFACE (Material.Type.SURFACE),
     BULK (Material.Type.BULK);
 
-    private Material.Type corollary;
+    private final Material.Type corollary;
 
     private MaterialTypeDTO(final Material.Type theCorollary) {
         corollary = theCorollary;

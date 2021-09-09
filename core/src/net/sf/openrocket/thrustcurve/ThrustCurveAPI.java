@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 
 public abstract class ThrustCurveAPI {
 	
-	public static SearchResponse doSearch(SearchRequest request) throws MalformedURLException, IOException, SAXException {
+	public static SearchResponse doSearch(SearchRequest request) throws IOException, SAXException {
 		
 		String requestString = request.toString();
 		
@@ -42,7 +42,7 @@ public abstract class ThrustCurveAPI {
 		return result;
 	}
 	
-	public static List<MotorBurnFile> downloadData(Integer motor_id, String format) throws MalformedURLException, IOException, SAXException {
+	public static List<MotorBurnFile> downloadData(Integer motor_id, String format) throws IOException, SAXException {
 		
 		if (motor_id == null) {
 			return null;
@@ -70,7 +70,7 @@ public abstract class ThrustCurveAPI {
 		stream.write(requestString.getBytes());
 		
 		if (conn.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
-			return Collections.<MotorBurnFile> emptyList();
+			return Collections.emptyList();
 		}
 		InputStream is = conn.getInputStream();
 		

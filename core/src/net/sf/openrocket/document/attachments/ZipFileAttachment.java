@@ -21,7 +21,7 @@ public class ZipFileAttachment extends Attachment {
 	}
 	
 	@Override
-	public InputStream getBytes() throws FileNotFoundException, IOException {
+	public InputStream getBytes() throws IOException {
 		String name = getName();
 		
 		ZipInputStream zis = new ZipInputStream(zipFileLocation.openStream());

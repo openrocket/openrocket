@@ -17,8 +17,8 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 	public boolean add(E e) {
 		modID++;
 		return super.add(e);
-	};
-	
+	}
+
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
 		modID++;

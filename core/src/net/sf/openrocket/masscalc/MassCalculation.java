@@ -106,7 +106,7 @@ public class MassCalculation {
 	
 	@Override
 	public int hashCode() {
-		return (int) (this.centerOfMass.hashCode());
+		return this.centerOfMass.hashCode();
 	}
 
 	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time,

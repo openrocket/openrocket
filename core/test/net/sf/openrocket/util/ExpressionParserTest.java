@@ -8,7 +8,7 @@ public class ExpressionParserTest {
 	
 	private static final double EPS = 1e-10;
 	
-	private ExpressionParser parser = new ExpressionParser();
+	private final ExpressionParser parser = new ExpressionParser();
 	
 	@Test
 	public void testPlainNumber() throws InvalidExpressionException {

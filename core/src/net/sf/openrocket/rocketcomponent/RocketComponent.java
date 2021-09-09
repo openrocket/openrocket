@@ -125,7 +125,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
-	private Invalidator invalidator = new Invalidator(this);
+	private final Invalidator invalidator = new Invalidator(this);
 
 
 	/**

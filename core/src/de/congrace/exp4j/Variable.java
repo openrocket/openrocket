@@ -9,8 +9,8 @@ package de.congrace.exp4j;
 public class Variable {
 
 	// The primary or preferred representation
-	public enum Primary {DOUBLE, ARRAY, PLACEHOLDER};
-	private final Primary primary;
+	public enum Primary {DOUBLE, ARRAY, PLACEHOLDER}
+    private final Primary primary;
 
 	private final String name;
 

@@ -1,7 +1,7 @@
 package net.sf.openrocket.simulation.extension.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -138,9 +138,9 @@ public class ScriptingUtil {
 		
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
-			digest.update(language.getBytes("UTF-8"));
+			digest.update(language.getBytes(StandardCharsets.UTF_8));
 			digest.update((byte) '|');
-			byte[] hash = digest.digest(script.getBytes("UTF-8"));
+			byte[] hash = digest.digest(script.getBytes(StandardCharsets.UTF_8));
 			BigInteger bigInt = new BigInteger(1, hash);
 			output = bigInt.toString(16);
 			while (output.length() < 64) {
@@ -148,10 +148,8 @@ public class ScriptingUtil {
 			}
 		} catch (NoSuchAlgorithmException e) {
 			throw new BugException("JRE does not support SHA-256 hash algorithm", e);
-		} catch (UnsupportedEncodingException e) {
-			throw new BugException(e);
 		}
-		
+
 		return digest.getAlgorithm() + ":" + output;
 	}
 	

@@ -30,8 +30,8 @@ public class ComponentChangeEvent extends EventObject {
 			return (0 != (this.value & testValue ));
 		}
 		
-	};
-	
+	}
+
 	/** A change that does not affect simulation results in any way (name, color, etc.) */
 	public static final int NONFUNCTIONAL_CHANGE = TYPE.NON_FUNCTIONAL.value;
 	/** A change that affects the mass properties of the rocket */

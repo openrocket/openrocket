@@ -115,7 +115,7 @@ public enum GeodeticComputationStrategy {
 			
 			// Calculate the new lat and lon		
 			double newLat, newLon;
-			double ret[] = dirct1(location.getLatitudeRad(), location.getLongitudeRad(), bearing, d, 6378137, 1.0 / 298.25722210088);
+			double[] ret = dirct1(location.getLatitudeRad(), location.getLongitudeRad(), bearing, d, 6378137, 1.0 / 298.25722210088);
 			newLat = ret[0];
 			newLon = ret[1];
 			

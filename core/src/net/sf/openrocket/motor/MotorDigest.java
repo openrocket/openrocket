@@ -1,6 +1,6 @@
 package net.sf.openrocket.motor;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -167,13 +167,9 @@ public class MotorDigest {
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException("MD5 digest not supported by JRE", e);
 		}
-		
-		try {
-			digest.update(comment.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("UTF-8 encoding not supported by JRE", e);
-		}
-		
+
+		digest.update(comment.getBytes(StandardCharsets.UTF_8));
+
 		return TextUtil.hexString(digest.digest());
 	}
 	
