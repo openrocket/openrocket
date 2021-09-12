@@ -34,7 +34,7 @@ import com.google.inject.Provider;
 public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorSetDatabase> {
 	
 	private static final Logger log = LoggerFactory.getLogger(BlockingMotorDatabaseProvider.class);
-	
+
 	@Inject
 	private Translator trans;
 	
@@ -99,7 +99,7 @@ public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorS
 	
 	private class LoadingDialog extends JDialog {
 		private LoadingDialog() {
-			super(null, trans.get("MotorDbLoadDlg.title"), ModalityType.APPLICATION_MODAL);
+			super(null, trans.get("MotorDbLoadDlg.title"), ModalityType.DOCUMENT_MODAL);
 			
 			JPanel panel = new JPanel(new MigLayout("fill"));
 			panel.add(new JLabel(trans.get("MotorDbLoadDlg.Loadingmotors")), "wrap para");
