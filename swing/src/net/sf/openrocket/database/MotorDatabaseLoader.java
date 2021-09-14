@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.text.MessageFormat;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
@@ -144,9 +145,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 			catch (IllegalArgumentException e) {
 				Translator trans = Application.getTranslator();
 				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
-						"</i>.<br><br>" + trans.get("MotorDbLoaderDlg.message1") + " '<b>" + f.getU() + "</b>' " +
-						trans.get("MotorDbLoaderDlg.message2")
-						+ "<br>" + trans.get("MotorDbLoaderDlg.message3") + "</p></body></html>";
+						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), f.getU()) +
+						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
 				JOptionPane.showMessageDialog(null,
 						message, trans.get("MotorDbLoaderDlg.title"), JOptionPane.WARNING_MESSAGE);
 			}
