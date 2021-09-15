@@ -20,8 +20,10 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.attachments.FileSystemAttachment;
-import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.DecalNotFoundException;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
@@ -91,7 +93,7 @@ public class DecalRegistry {
 			decalName = makeUniqueName(location.getName());
 			
 			d = new DecalImageImpl(decalName, attachment);
-			d.setFileSystemLocation(location);
+			d.setDecalFile(location);
 			
 			registeredDecals.put(decalName, d);
 			return d;
@@ -121,7 +123,10 @@ public class DecalRegistry {
 		private final Attachment delegate;
 		
 		private String name;
-		private File fileSystemLocation;
+		private File decalFile;
+		private final Translator trans = Application.getTranslator();
+		// Flag to check whether this DecalImage should be ignored for saving
+		private boolean ignored = false;
 		
 		private DecalImageImpl(String name, Attachment delegate) {
 			this.name = name;
@@ -151,10 +156,13 @@ public class DecalRegistry {
 		* @throws IOException
 		 */
 		@Override
-		public InputStream getBytes() throws FileNotFoundException, IOException {
+		public InputStream getBytes() throws FileNotFoundException, IOException, DecalNotFoundException {
 			// First check if the decal is located on the file system
-			File exportedFile = getFileSystemLocation();
+			File exportedFile = getDecalFile();
 			if (exportedFile != null) {
+				if (!exportedFile.exists()) {
+					throw new DecalNotFoundException(exportedFile.getAbsolutePath(), this);
+				}
 				InputStream rawIs = new FileInputStream(exportedFile);
 				try {
 					byte[] bytes = FileUtils.readBytes(rawIs);
@@ -164,38 +172,47 @@ public class DecalRegistry {
 				}
 				
 			}
-			
-			return delegate.getBytes();
+			try {
+				return delegate.getBytes();
+			} catch (DecalNotFoundException decex) {
+				throw new DecalNotFoundException(delegate.getName(), this);
+			}
 		}
 		
 		@Override
-		public void exportImage(File file) throws IOException {
-			try {
-				InputStream is = getBytes();
-				OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-				
-				FileUtils.copy(is, os);
-				
-				is.close();
-				os.close();
-				
-				this.fileSystemLocation = file;
-				
-			} catch (IOException iex) {
-				throw new BugException(iex);
-			}
+		public void exportImage(File file) throws IOException, DecalNotFoundException {
+			InputStream is;
+			is = getBytes();
+			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+
+			FileUtils.copy(is, os);
+
+			is.close();
+			os.close();
+
+			this.decalFile = file;
 		}
 		
 		/**
 		 * 
 		 * @return
 		 */
-		File getFileSystemLocation() {
-			return fileSystemLocation;
+		public File getDecalFile() {
+			return decalFile;
 		}
-		
-		void setFileSystemLocation(File fileSystemLocation) {
-			this.fileSystemLocation = fileSystemLocation;
+
+		public void setDecalFile(File file) {
+			this.decalFile = file;
+		}
+
+		@Override
+		public boolean isIgnored() {
+			return this.ignored;
+		}
+
+		@Override
+		public void setIgnored(boolean ignored) {
+			this.ignored = ignored;
 		}
 		
 		@Override
@@ -211,7 +228,7 @@ public class DecalRegistry {
 		@Override
 		protected DecalImageImpl clone() {
 			DecalImageImpl clone = new DecalImageImpl(this.delegate);
-			clone.fileSystemLocation = this.fileSystemLocation;
+			clone.decalFile = this.decalFile;
 			
 			return clone;
 		}
@@ -237,7 +254,7 @@ public class DecalRegistry {
 	private DecalImageImpl findDecalForFile(File file) {
 		
 		for (DecalImageImpl d : registeredDecals.values()) {
-			if (file.equals(d.getFileSystemLocation())) {
+			if (file.equals(d.getDecalFile())) {
 				return d;
 			}
 		}

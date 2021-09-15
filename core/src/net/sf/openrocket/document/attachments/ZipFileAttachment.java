@@ -1,7 +1,6 @@
 package net.sf.openrocket.document.attachments;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -9,6 +8,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.sf.openrocket.document.Attachment;
+import net.sf.openrocket.util.DecalNotFoundException;
 import net.sf.openrocket.util.FileUtils;
 
 public class ZipFileAttachment extends Attachment {
@@ -21,7 +21,7 @@ public class ZipFileAttachment extends Attachment {
 	}
 	
 	@Override
-	public InputStream getBytes() throws FileNotFoundException, IOException {
+	public InputStream getBytes() throws DecalNotFoundException, IOException {
 		String name = getName();
 		
 		ZipInputStream zis = new ZipInputStream(zipFileLocation.openStream());
@@ -35,7 +35,7 @@ public class ZipFileAttachment extends Attachment {
 				}
 				entry = zis.getNextEntry();
 			}
-			throw new FileNotFoundException("Unable to locate decal for name " + name);
+			throw new DecalNotFoundException(name, null);
 		} finally {
 			zis.close();
 		}

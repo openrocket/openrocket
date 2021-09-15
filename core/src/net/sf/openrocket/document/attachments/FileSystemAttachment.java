@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.openrocket.document.Attachment;
+import net.sf.openrocket.util.DecalNotFoundException;
 
 /**
  * 
@@ -41,7 +42,7 @@ public class FileSystemAttachment extends Attachment {
 	 *	creates the stream based on the location passed while building
 	 */
 	@Override
-	public InputStream getBytes() throws FileNotFoundException, IOException {
+	public InputStream getBytes() throws DecalNotFoundException, IOException {
 		return new FileInputStream(location);
 	}
 	
