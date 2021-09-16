@@ -230,7 +230,7 @@ public class SimulationExportPanel extends JPanel {
 		if (file == null)
 			return false;
 		
-		file = FileHelper.ensureExtension(file, "csv");
+		file = FileHelper.forceExtension(file, "csv");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return false;
 		}

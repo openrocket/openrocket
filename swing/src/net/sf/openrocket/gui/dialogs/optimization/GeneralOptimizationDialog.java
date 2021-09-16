@@ -1121,7 +1121,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		if (file == null)
 			return;
 		
-		file = FileHelper.ensureExtension(file, "csv");
+		file = FileHelper.forceExtension(file, "csv");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return;
 		}

@@ -262,7 +262,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
                 if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FreeformFinSetConfig.this)){
                 	File selectedFile= chooser.getSelectedFile();
-					selectedFile = FileHelper.ensureExtension(selectedFile, "csv");
+					selectedFile = FileHelper.forceExtension(selectedFile, "csv");
 					if (!FileHelper.confirmWrite(selectedFile, panel)) {
 						return;
 					}
