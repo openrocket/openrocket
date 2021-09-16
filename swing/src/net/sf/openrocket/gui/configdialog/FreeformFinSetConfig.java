@@ -260,10 +260,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
 				
 				JFileChooser chooser = new JFileChooser();
-				// Demonstrate "Save" dialog:
+				chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 
                 if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FreeformFinSetConfig.this)){
                 	File selectedFile= chooser.getSelectedFile();
+					selectedFile = FileHelper.ensureExtension(selectedFile, "csv");
+					if (!FileHelper.confirmWrite(selectedFile, panel)) {
+						return;
+					}
 
 				    FreeformFinSetConfig.writeCSVFile(table, selectedFile);
 				}
