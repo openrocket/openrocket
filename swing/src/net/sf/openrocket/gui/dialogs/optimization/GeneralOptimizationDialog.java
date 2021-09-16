@@ -48,8 +48,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.openrocket.optimization.rocketoptimization.modifiers.GenericComponentModifier;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1112,7 +1110,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);
 		
