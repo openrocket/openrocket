@@ -221,7 +221,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return false;
 		}
 		
-		if (!designation.equalsIgnoreCase(m.getDesignation()))
+		if (!commonName.equalsIgnoreCase(m.getCommonName()))
 			return false;
 		
 		if (caseInfo != null && !caseInfo.equalsIgnoreCase(m.getCaseInfo()))
@@ -348,11 +348,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		
 		@Override
 		public int compare(ThrustCurveMotor o1, ThrustCurveMotor o2) {
+
 			// 1. Designation
 			if (!o1.getDesignation().equals(o2.getDesignation())) {
 				return o1.getDesignation().compareTo(o2.getDesignation());
 			}
-			
+
 			// 2. Number of data points (more is better)
 			if (o1.getSampleSize() != o2.getSampleSize()) {
 				return o2.getSampleSize() - o1.getSampleSize();

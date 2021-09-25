@@ -22,6 +22,7 @@ public class ThrustCurveMotorSetTest {
 	
 	private static final ThrustCurveMotor motor1 = new ThrustCurveMotor.Builder()
 			.setManufacturer(Manufacturer.getManufacturer("A"))
+			.setCommonName("F12")
 			.setDesignation("F12X")
 			.setDescription("Desc")
 			.setMotorType(Motor.Type.UNKNOWN)
@@ -36,6 +37,7 @@ public class ThrustCurveMotorSetTest {
 	
 	private static final ThrustCurveMotor motor2 = new ThrustCurveMotor.Builder()
 			.setManufacturer(Manufacturer.getManufacturer("A"))
+			.setCommonName("F12")
 			.setDesignation("F12H")
 			.setDescription("Desc")
 			.setMotorType(Motor.Type.SINGLE)
@@ -50,7 +52,7 @@ public class ThrustCurveMotorSetTest {
 	
 	private static final ThrustCurveMotor motor3 = new ThrustCurveMotor.Builder()
 			.setManufacturer(Manufacturer.getManufacturer("A"))
-			.setDesignation("F12")
+			.setCode("F12")
 			.setDescription("Desc")
 			.setMotorType(Motor.Type.UNKNOWN)
 			.setStandardDelays(new double[] { 0, Motor.PLUGGED_DELAY })
@@ -65,7 +67,7 @@ public class ThrustCurveMotorSetTest {
 	private static final ThrustCurveMotor motor4 = new ThrustCurveMotor.Builder()
 			.setManufacturer(Manufacturer.getManufacturer("A"))
 			.setDesignation("F12")
-			.setDesignation("Desc")
+			.setDescription("Desc")
 			.setMotorType(Motor.Type.HYBRID)
 			.setStandardDelays(new double[] { 0 })
 			.setDiameter(0.024)
@@ -75,20 +77,7 @@ public class ThrustCurveMotorSetTest {
 			.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
 			.setDigest("digestD")
 			.build();
-	
-	
-	@Test
-	public void testSimplifyDesignation() {
-		assertEquals("J115", ThrustCurveMotorSet.simplifyDesignation("J115"));
-		assertEquals("J115", ThrustCurveMotorSet.simplifyDesignation(" J115  "));
-		assertEquals("H115", ThrustCurveMotorSet.simplifyDesignation("241H115-KS"));
-		assertEquals("J115", ThrustCurveMotorSet.simplifyDesignation("384  J115"));
-		assertEquals("J115", ThrustCurveMotorSet.simplifyDesignation("384-J115"));
-		assertEquals("A2", ThrustCurveMotorSet.simplifyDesignation("A2T"));
-		assertEquals("1/2A2T", ThrustCurveMotorSet.simplifyDesignation("1/2A2T"));
-		assertEquals("MicroMaxxII", ThrustCurveMotorSet.simplifyDesignation("Micro Maxx II"));
-	}
-	
+		
 	@Test
 	public void testAdding() {
 		ThrustCurveMotorSet set = new ThrustCurveMotorSet();
@@ -108,7 +97,7 @@ public class ThrustCurveMotorSetTest {
 		assertEquals(1, set.getMotors().size());
 		assertEquals(motor1, set.getMotors().get(0));
 		assertEquals(Collections.emptyList(), set.getDelays());
-		
+
 		// Add motor1 again
 		assertTrue(set.matches(motor1));
 		set.addMotor(motor1);
@@ -120,12 +109,12 @@ public class ThrustCurveMotorSetTest {
 		assertEquals(1, set.getMotors().size());
 		assertEquals(motor1, set.getMotors().get(0));
 		assertEquals(Collections.emptyList(), set.getDelays());
-		
+
 		// Add motor2
 		assertTrue(set.matches(motor2));
 		set.addMotor(motor2);
 		assertEquals(motor1.getManufacturer(), set.getManufacturer());
-		assertEquals(motor3.getDesignation(), set.getDesignation());
+		assertEquals(motor3.getCommonName(), set.getCommonName());
 		assertEquals(Motor.Type.SINGLE, set.getType());
 		assertEquals(motor1.getDiameter(), set.getDiameter(), 0.00001);
 		assertEquals(motor1.getLength(), set.getLength(), 0.00001);
@@ -133,21 +122,26 @@ public class ThrustCurveMotorSetTest {
 		assertEquals(motor2, set.getMotors().get(0));
 		assertEquals(motor1, set.getMotors().get(1));
 		assertEquals(Arrays.asList(5.0), set.getDelays());
-		
+
 		// Add motor3
 		assertTrue(set.matches(motor3));
 		set.addMotor(motor3);
 		assertEquals(motor1.getManufacturer(), set.getManufacturer());
-		assertEquals(motor3.getDesignation(), set.getDesignation());
+		assertEquals(motor3.getCommonName(), set.getCommonName());
 		assertEquals(Motor.Type.SINGLE, set.getType());
 		assertEquals(motor1.getDiameter(), set.getDiameter(), 0.00001);
 		assertEquals(motor1.getLength(), set.getLength(), 0.00001);
 		assertEquals(3, set.getMotors().size());
+		System.out.println("motor set");
+		System.out.println(set.getMotors());
+		System.out.println(motor3);
+		System.out.println(motor2);
+		System.out.println(motor1);
 		assertEquals(motor3, set.getMotors().get(0));
 		assertEquals(motor2, set.getMotors().get(1));
 		assertEquals(motor1, set.getMotors().get(2));
 		assertEquals(Arrays.asList(0.0, 5.0, Motor.PLUGGED_DELAY), set.getDelays());
-		
+
 		// Test that adding motor4 fails
 		assertFalse(set.matches(motor4));
 		try {

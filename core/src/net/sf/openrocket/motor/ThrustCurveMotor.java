@@ -158,7 +158,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		 * @return		the simplified designation, or the string itself if the format was not detected
 		 */
 		private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
-		static String simplifyDesignation(String str) {
+		public static String simplifyDesignation(String str) {
 			str = str.trim();
 			Matcher m = SIMPLIFY_PATTERN.matcher(str);
 			if (m.matches()) {
@@ -244,7 +244,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			// If I don't have a motor common name (will be the case if I read the thrustcurve from a flle)
 			// apply the motor code simplification heuristics to generate a common name
 			if (motor.commonName.equals("")) {
-				motor.commonName = motor.designation;
+				motor.commonName = simplifyDesignation(motor.designation);
 			}
 				
 
