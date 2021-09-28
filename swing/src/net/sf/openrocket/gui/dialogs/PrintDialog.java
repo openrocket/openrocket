@@ -380,7 +380,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		File file = chooser.getSelectedFile();
 		if (returnVal == JFileChooser.APPROVE_OPTION && file != null) {
 			
-			file = FileHelper.ensureExtension(file, "pdf");
+			file = FileHelper.forceExtension(file, "pdf");
 			if (!FileHelper.confirmWrite(file, this)) {
 				return false;
 			}

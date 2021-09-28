@@ -29,33 +29,32 @@ public final class FileHelper {
 	private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
 	private static final Translator trans = Application.getTranslator();
 
-
-	// TODO: HIGH: Rename translation keys
+	
 
 	/** File filter for any rocket designs (*.ork, *.rkt) */
 	public static final FileFilter ALL_DESIGNS_FILTER =
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter1"),
+			new SimpleFileFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
 					".ork", ".ork.gz", ".rkt", ".rkt.gz");
 
 	/** File filter for OpenRocket designs (*.ork) */
 	public static final FileFilter OPENROCKET_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter2"), ".ork", ".ork.gz");
+			new SimpleFileFilter(trans.get("FileHelper.OPENROCKET_DESIGN_FILTER"), ".ork", ".ork.gz");
 
 	/** File filter for RockSim designs (*.rkt) */
 	public static final FileFilter ROCKSIM_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter3"), ".rkt", ".rkt.gz");
+			new SimpleFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".rkt", ".rkt.gz");
 
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter4"), ".orc", ".orc.gz");
+			new SimpleFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");
 
 	/** File filter for PDF files (*.pdf) */
 	public static final FileFilter PDF_FILTER =
-			new SimpleFileFilter(trans.get("filetypes.pdf"), ".pdf");
+			new SimpleFileFilter(trans.get("FileHelper.PDF_FILTER"), ".pdf");
 
 	/** File filter for CSV files (*.csv) */
-	public static final FileFilter CSV_FILE_FILTER =
-			new SimpleFileFilter(trans.get("SimExpPan.desc"), ".csv");
+	public static final FileFilter CSV_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.CSV_FILTER"), ".csv");
 
 
 
@@ -73,7 +72,7 @@ public final class FileHelper {
 		Arrays.sort(extensions);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(trans.get("filetypes.images"));
+		sb.append(trans.get("FileHelper.IMAGES"));
 		sb.append(" (");
 		for (int i = 0; i < extensions.length; i++) {
 			sb.append("*.").append(extensions[i]);
@@ -120,7 +119,12 @@ public final class FileHelper {
 		if ( original == null ) {
 			return null;
 		}
-		if (!original.getName().toLowerCase(Locale.ENGLISH).endsWith(extension.toLowerCase(Locale.ENGLISH))) {
+		int index = original.getName().lastIndexOf('.');
+		String original_extension = "";
+		if (index > 0) {
+			original_extension = original.getName().substring(index + 1);
+		}
+		if (!original_extension.toLowerCase(Locale.ENGLISH).equals(extension.toLowerCase(Locale.ENGLISH))) {
 			log.debug("File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
 			if (extension.startsWith(".")) {
