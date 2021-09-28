@@ -29,10 +29,12 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
@@ -201,20 +203,25 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         	throw new IllegalStateException("Attempting to set a motor on the default FCID.");
         }
 
+        double initDelay = curMount.getMotorConfig(fcid).getEjectionDelay();
+
 		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
 		motorChooserDialog.setVisible(true);
 
         Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
 		if (mtr != null) {
+			if (mtr == curMount.getMotorConfig(fcid).getMotor() && d == initDelay) {
+				return;
+			}
 	        final MotorConfiguration templateConfig = curMount.getMotorConfig(fcid);
 	        final MotorConfiguration newConfig = new MotorConfiguration( curMount, fcid, templateConfig);
 	        newConfig.setMotor(mtr);
 			newConfig.setEjectionDelay(d);
 			curMount.setMotorConfig( newConfig, fcid);
-		}
 
-		fireTableDataChanged();
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		}
 	}
 
 	private void removeMotor() {
@@ -226,24 +233,30 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         
         curMount.setMotorConfig( null, fcid); 
 		
-		fireTableDataChanged();
+		fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 
 	private void selectIgnition() {
-		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationId fcid= getSelectedConfigurationId();
-        if ( (null == fcid )||( null == curMount )){
-            return;
-        }
-        
+		MotorMount curMount = getSelectedComponent();
+		FlightConfigurationId fcid = getSelectedConfigurationId();
+		if ((null == fcid) || (null == curMount)) {
+			return;
+		}
+
+		MotorConfiguration curInstance = curMount.getMotorConfig(fcid);
+		IgnitionEvent initialIgnitionEvent = curInstance.getIgnitionEvent();
+		double initialIgnitionDelay = curInstance.getIgnitionDelay();
+
 		// this call also performs the update changes
 		IgnitionSelectionDialog ignitionDialog = new IgnitionSelectionDialog(
 				SwingUtilities.getWindowAncestor(this.flightConfigurationPanel),
 				fcid,
 				curMount);
 		ignitionDialog.setVisible(true);
-				
-		fireTableDataChanged();
+
+		if (!initialIgnitionEvent.equals(curInstance.getIgnitionEvent()) || (initialIgnitionDelay != curInstance.getIgnitionDelay())) {
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		}
 	}
 
 
@@ -254,10 +267,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
         MotorConfiguration curInstance = curMount.getMotorConfig(fcid);
+		IgnitionEvent initialIgnitionEvent = curInstance.getIgnitionEvent();
+		double initialIgnitionDelay = curInstance.getIgnitionDelay();
 		
         curInstance.useDefaultIgnition();
 
-		fireTableDataChanged();
+		if (!initialIgnitionEvent.equals(curInstance.getIgnitionEvent()) || (initialIgnitionDelay != curInstance.getIgnitionDelay())) {
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		}
 	}
 
 

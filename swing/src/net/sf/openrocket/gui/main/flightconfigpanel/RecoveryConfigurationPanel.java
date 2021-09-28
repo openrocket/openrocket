@@ -99,22 +99,31 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 
 	private void selectDeployment() {
 		RecoveryDevice c = getSelectedComponent();
-		if (c == null) {
+		FlightConfigurationId fcid = getSelectedConfigurationId();
+		if ((c == null) || (fcid == null)) {
 			return;
 		}
+		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
 		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, c);
 		d.setVisible(true);
-		fireTableDataChanged();
+		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
+
 	}
 
 	private void resetDeployment() {
 		RecoveryDevice c = getSelectedComponent();
-		if (c == null) {
+		FlightConfigurationId fcid = getSelectedConfigurationId();
+		if ((c == null) || (fcid == null)) {
 			return;
 		}
+		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
 		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		c.getDeploymentConfigurations().reset(id);
-		fireTableDataChanged();
+		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
 	}
 
 	public void updateButtonState() {

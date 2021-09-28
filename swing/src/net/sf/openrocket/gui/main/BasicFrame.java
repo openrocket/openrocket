@@ -221,7 +221,7 @@ public class BasicFrame extends JFrame {
 
 		//  Bottom segment, rocket figure
 
-		rocketpanel = new RocketPanel(document);
+		rocketpanel = new RocketPanel(document, this);
 		vertical.setBottomComponent(rocketpanel);
 
 		rocketpanel.setSelectionModel(tree.getSelectionModel());
@@ -1099,6 +1099,9 @@ public class BasicFrame extends JFrame {
 		tabbedPane.setSelectedIndex(tab);
 	}
 
+	public int getSelectedTab() {
+		return tabbedPane.getSelectedIndex();
+	}
 
 
 	private void openAction() {
