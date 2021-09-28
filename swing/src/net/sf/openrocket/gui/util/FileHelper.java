@@ -119,7 +119,12 @@ public final class FileHelper {
 		if ( original == null ) {
 			return null;
 		}
-		if (!original.getName().toLowerCase(Locale.ENGLISH).endsWith(extension.toLowerCase(Locale.ENGLISH))) {
+		int index = original.getName().lastIndexOf('.');
+		String original_extension = "";
+		if (index > 0) {
+			original_extension = original.getName().substring(index + 1);
+		}
+		if (!original_extension.toLowerCase(Locale.ENGLISH).equals(extension.toLowerCase(Locale.ENGLISH))) {
 			log.debug("File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
 			if (extension.startsWith(".")) {
