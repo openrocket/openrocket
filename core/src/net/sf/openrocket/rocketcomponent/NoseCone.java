@@ -69,7 +69,12 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	public void setForeRadiusAutomatic(boolean b) {
 		// No-op
 	}
-	
+
+	@Override
+	public boolean usesPreviousCompAutomatic() {
+		return false;
+	}
+
 	@Override
 	public double getForeShoulderLength() {
 		return 0;
