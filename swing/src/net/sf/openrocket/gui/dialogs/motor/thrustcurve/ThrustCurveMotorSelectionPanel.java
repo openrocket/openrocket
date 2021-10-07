@@ -359,6 +359,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		// Update the panel data
 		updateData();
 		setDelays(false);
+		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
 
 	}
 
