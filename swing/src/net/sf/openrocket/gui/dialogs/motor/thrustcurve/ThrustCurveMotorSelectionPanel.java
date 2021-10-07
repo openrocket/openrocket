@@ -360,6 +360,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		updateData();
 		setDelays(false);
 		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
+		hideSimilarBox.getActionListeners()[0].actionPerformed(null);
 
 	}
 
