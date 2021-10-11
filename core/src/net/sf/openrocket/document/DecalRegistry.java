@@ -189,8 +189,6 @@ public class DecalRegistry {
 
 			is.close();
 			os.close();
-
-			this.decalFile = file;
 		}
 		
 		/**
