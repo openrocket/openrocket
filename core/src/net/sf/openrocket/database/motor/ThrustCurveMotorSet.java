@@ -38,8 +38,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private final List<Double> delays = new ArrayList<Double>();
 	
 	private Manufacturer manufacturer = null;
+	private String commonName = null;
 	private String designation = null;
-	private String simplifiedDesignation = null;
 	private double diameter = -1;
 	private double length = -1;
 	private long totalImpulse = 0;
@@ -57,7 +57,6 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		checkFirstInsertion(motor);
 		verifyMotor(motor);
 		updateType(motor);
-		checkChangeSimplifiedDesignation(motor);
 		addStandardDelays(motor);
 		if(!checkMotorOverwrite(motor)){
 			motors.add(motor);
@@ -144,23 +143,6 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		Collections.sort(delays);
 	}
 
-
-	/**
-	 * checks if simplified designation should be changed with the given motor
-	 * @param motor	the motor to be checked with
-	 */
-	private void checkChangeSimplifiedDesignation(ThrustCurveMotor motor) {
-		// Change the simplified designation if necessary
-		if (!designation.equalsIgnoreCase(motor.getDesignation().trim())) {
-			designation = simplifiedDesignation;
-		}
-		
-		if (caseInfo == null) {
-			caseInfo = motor.getCaseInfo();
-		}
-	}
-
-
 	/**
 	 * checks if the cached type should be changed with the given motor
 	 * if it's hybrid, delays will be added
@@ -206,7 +188,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (motors.isEmpty()) {
 			manufacturer = motor.getManufacturer();
 			designation = motor.getDesignation();
-			simplifiedDesignation = simplifyDesignation(designation);
+			commonName = motor.getCommonName();
 			diameter = motor.getDiameter();
 			length = motor.getLength();
 			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
@@ -239,14 +221,14 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return false;
 		}
 		
-		if (!simplifiedDesignation.equalsIgnoreCase(simplifyDesignation(m.getDesignation())))
+		if (!commonName.equalsIgnoreCase(m.getCommonName()))
 			return false;
 		
 		if (caseInfo != null && !caseInfo.equalsIgnoreCase(m.getCaseInfo()))
 			return false;
 			
 		return true;
-	}
+    }
 	
 	/**
 	 * returns a new list with the stored motors
@@ -283,11 +265,17 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public Manufacturer getManufacturer() {
 		return manufacturer;
 	}
-	
-	
+
 	/**
-	 * Return the designation of this motor type.  This is either the exact or simplified
-	 * designation, depending on what motors have been added.
+	 * Return the common name of this motor type.
+	 * @return the common name
+	 */
+	public String getCommonName() {
+		return commonName;
+	}
+
+	/**
+	 * Return the designation of this motor type.
 	 * @return the designation
 	 */
 	public String getDesignation() {
@@ -352,25 +340,6 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		return "ThrustCurveMotorSet[" + manufacturer + " " + designation +
 				", type=" + type + ", count=" + motors.size() + "]";
 	}
-	
-	private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
-	
-	/**
-	 * Simplify a motor designation, if possible.  This attempts to reduce the designation
-	 * into a simple letter + number notation for the impulse class and average thrust.
-	 * 
-	 * @param str	the designation to simplify
-	 * @return		the simplified designation, or the string itself if the format was not detected
-	 */
-	public static String simplifyDesignation(String str) {
-		str = str.trim();
-		Matcher m = SIMPLIFY_PATTERN.matcher(str);
-		if (m.matches()) {
-			return m.group(1);
-		} else {
-			return str.replaceAll("\\s", "");
-		}
-	}
 
 	/**
 	 * Comparator for deciding in which order to display matching motors.
@@ -379,11 +348,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		
 		@Override
 		public int compare(ThrustCurveMotor o1, ThrustCurveMotor o2) {
+
 			// 1. Designation
 			if (!o1.getDesignation().equals(o2.getDesignation())) {
 				return o1.getDesignation().compareTo(o2.getDesignation());
 			}
-			
+
 			// 2. Number of data points (more is better)
 			if (o1.getSampleSize() != o2.getSampleSize()) {
 				return o2.getSampleSize() - o1.getSampleSize();

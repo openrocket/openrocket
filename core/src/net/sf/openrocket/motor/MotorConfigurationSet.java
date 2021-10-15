@@ -58,7 +58,7 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 					loopFCID.toShortKey(),
 					curConfig.getFCID().toShortKey(),
 					curConfig.getMID().toShortKey(),
-					curConfig.toMotorDesignation(),
+					curConfig.toMotorCommonName(),
 					curConfig.toIgnitionDescription() ));
 						
 		}

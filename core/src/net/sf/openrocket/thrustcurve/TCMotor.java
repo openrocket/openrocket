@@ -270,7 +270,7 @@ public class TCMotor implements Cloneable {
 		this.updated_on = updated_on;
 	}
 	
-	public String getAvailiability() {
+	public String getAvailability() {
 		return availability;
 	}
 	
