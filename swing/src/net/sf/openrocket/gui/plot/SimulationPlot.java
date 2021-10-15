@@ -158,6 +158,9 @@ public class SimulationPlot {
 		for (int i = 0; i < typeCount; i++) {
 			// Get info
 			FlightDataType type = filled.getType(i);
+			if (Objects.equals(type.getName(), "Position upwind")) {
+				type = FlightDataType.TYPE_POSITION_Y;
+			}
 			Unit unit = filled.getUnit(i);
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
