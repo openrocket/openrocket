@@ -76,6 +76,14 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 				return component.getStageNumber() > 0;
 			}
 
+			@Override
+			public void componentChanged(ComponentChangeEvent cce) {
+				super.componentChanged(cce);
+				// This will catch a name change of the stage to cause a change in the header of the table
+				if (cce.getSource() instanceof AxialStage && cce.isNonFunctionalChange()) {
+					fireTableStructureChanged();
+				}
+			}
 		};
 		JTable separationTable = new JTable(separationTableModel);
 		separationTable.getTableHeader().setReorderingAllowed(false);

@@ -29,9 +29,12 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -138,6 +141,15 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			@Override
 			protected boolean includeComponent(MotorMount component) {
 				return component.isMotorMount();
+			}
+
+			@Override
+			public void componentChanged(ComponentChangeEvent cce) {
+				super.componentChanged(cce);
+				// This will catch a name change to cause a change in the header of the table
+				if ((cce.getSource() instanceof BodyTube || cce.getSource() instanceof InnerTube) && cce.isNonFunctionalChange()) {
+					fireTableStructureChanged();
+				}
 			}
 		};
 		
