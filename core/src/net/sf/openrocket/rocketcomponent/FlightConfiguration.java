@@ -441,7 +441,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 				
 				if( ! motorConfig.isEmpty()){
-					buff.append(motorConfig.toMotorDesignation());
+					buff.append(motorConfig.toMotorCommonName());
 					++activeMotorCount;
 				}
 			}

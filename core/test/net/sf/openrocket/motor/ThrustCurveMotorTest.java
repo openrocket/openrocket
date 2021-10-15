@@ -186,4 +186,16 @@ public class ThrustCurveMotorTest {
 	}
 			
 	
+	@Test
+	public void testSimplifyDesignation() {
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("J115"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation(" J115  "));
+		assertEquals("H115", ThrustCurveMotor.Builder.simplifyDesignation("241H115-KS"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384  J115"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384-J115"));
+		assertEquals("A2", ThrustCurveMotor.Builder.simplifyDesignation("A2T"));
+		assertEquals("1/2A2T", ThrustCurveMotor.Builder.simplifyDesignation("1/2A2T"));
+		assertEquals("MicroMaxxII", ThrustCurveMotor.Builder.simplifyDesignation("Micro Maxx II"));
+	}
+	
 }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -56,112 +58,118 @@ public class ScaleDialog extends JDialog {
 	 * Scaler implementations
 	 * 
 	 * Each scaled value (except override cg/mass) is defined using a Scaler instance.
+	 * There are two scaler instances; one for when the offset distances (axial/radial offset) don't need to be scaled
+	 * together with the other dimensions and one for when the offsets do need to scale.
 	 */
-	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS =
+	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_NO_OFFSET =
+			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
+	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_OFFSET =
 			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
 	static {
 		List<Scaler> list;
 
 		// RocketComponent
-		addScaler(RocketComponent.class, "AxialOffset");
-		SCALERS.get(RocketComponent.class).add(new OverrideScaler());
+		addScaler(RocketComponent.class, "AxialOffset", SCALERS_OFFSET);
+		SCALERS_OFFSET.get(RocketComponent.class).add(new OverrideScaler());
 
 		// ComponentAssembly
-		addScaler(ParallelStage.class, "RadiusOffset");
-		addScaler(PodSet.class, "RadiusOffset");
+		addScaler(ParallelStage.class, "RadiusOffset", SCALERS_OFFSET);
+		addScaler(PodSet.class, "RadiusOffset", SCALERS_OFFSET);
 
 		// BodyComponent
-		addScaler(BodyComponent.class, "Length");
+		addScaler(BodyComponent.class, "Length", SCALERS_NO_OFFSET);
 		
 		// SymmetricComponent
-		addScaler(SymmetricComponent.class, "Thickness", "isFilled");
+		addScaler(SymmetricComponent.class, "Thickness", "isFilled", SCALERS_NO_OFFSET);
 		
 		// Transition + Nose cone
-		addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic");
-		addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic");
-		addScaler(Transition.class, "ForeShoulderRadius");
-		addScaler(Transition.class, "ForeShoulderThickness");
-		addScaler(Transition.class, "ForeShoulderLength");
-		addScaler(Transition.class, "AftShoulderRadius");
-		addScaler(Transition.class, "AftShoulderThickness");
-		addScaler(Transition.class, "AftShoulderLength");
+		addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "ForeShoulderRadius", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "ForeShoulderThickness", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "ForeShoulderLength", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "AftShoulderRadius", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "AftShoulderThickness", SCALERS_NO_OFFSET);
+		addScaler(Transition.class, "AftShoulderLength", SCALERS_NO_OFFSET);
 		
 		// Body tube
-		addScaler(BodyTube.class, "OuterRadius", "isOuterRadiusAutomatic");
-		addScaler(BodyTube.class, "MotorOverhang");
+		addScaler(BodyTube.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(BodyTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
 		
 		// Launch lug
-		addScaler(LaunchLug.class, "OuterRadius");
-		addScaler(LaunchLug.class, "Thickness");
-		addScaler(LaunchLug.class, "Length");
+		addScaler(LaunchLug.class, "OuterRadius", SCALERS_NO_OFFSET);
+		addScaler(LaunchLug.class, "Thickness", SCALERS_NO_OFFSET);
+		addScaler(LaunchLug.class, "Length", SCALERS_NO_OFFSET);
 		
 		// FinSet
-		addScaler(FinSet.class, "Thickness");
-		addScaler(FinSet.class, "TabHeight");
-		addScaler(FinSet.class, "TabLength");
-		addScaler(FinSet.class, "TabOffset");
+		addScaler(FinSet.class, "Thickness", SCALERS_NO_OFFSET);
+		addScaler(FinSet.class, "TabHeight", SCALERS_NO_OFFSET);
+		addScaler(FinSet.class, "TabLength", SCALERS_NO_OFFSET);
+		addScaler(FinSet.class, "TabOffset", SCALERS_NO_OFFSET);
 		
 		// TrapezoidFinSet
-		addScaler(TrapezoidFinSet.class, "Sweep");
-		addScaler(TrapezoidFinSet.class, "RootChord");
-		addScaler(TrapezoidFinSet.class, "TipChord");
-		addScaler(TrapezoidFinSet.class, "Height");
+		addScaler(TrapezoidFinSet.class, "Sweep", SCALERS_NO_OFFSET);
+		addScaler(TrapezoidFinSet.class, "RootChord", SCALERS_NO_OFFSET);
+		addScaler(TrapezoidFinSet.class, "TipChord", SCALERS_NO_OFFSET);
+		addScaler(TrapezoidFinSet.class, "Height", SCALERS_NO_OFFSET);
 		
 		// EllipticalFinSet
-		addScaler(EllipticalFinSet.class, "Length");
-		addScaler(EllipticalFinSet.class, "Height");
+		addScaler(EllipticalFinSet.class, "Length", SCALERS_NO_OFFSET);
+		addScaler(EllipticalFinSet.class, "Height", SCALERS_NO_OFFSET);
 		
 		// FreeformFinSet
 		list = new ArrayList<ScaleDialog.Scaler>(1);
 		list.add(new FreeformFinSetScaler());
-		SCALERS.put(FreeformFinSet.class, list);
+		SCALERS_NO_OFFSET.put(FreeformFinSet.class, list);
 		
 		// MassObject
-		addScaler(MassObject.class, "Length");
-		addScaler(MassObject.class, "Radius");
-		addScaler(MassObject.class, "RadialPosition");
+		addScaler(MassObject.class, "Length", SCALERS_NO_OFFSET);
+		addScaler(MassObject.class, "Radius", SCALERS_NO_OFFSET);
+		addScaler(MassObject.class, "RadialPosition", SCALERS_OFFSET);
 		
 		// MassComponent
 		list = new ArrayList<ScaleDialog.Scaler>(1);
 		list.add(new MassComponentScaler());
-		SCALERS.put(MassComponent.class, list);
+		SCALERS_NO_OFFSET.put(MassComponent.class, list);
 		
 		// Parachute
-		addScaler(Parachute.class, "Diameter");
-		addScaler(Parachute.class, "LineLength");
+		addScaler(Parachute.class, "Diameter", SCALERS_NO_OFFSET);
+		addScaler(Parachute.class, "LineLength", SCALERS_NO_OFFSET);
 		
 		// Streamer
-		addScaler(Streamer.class, "StripLength");
-		addScaler(Streamer.class, "StripWidth");
+		addScaler(Streamer.class, "StripLength", SCALERS_NO_OFFSET);
+		addScaler(Streamer.class, "StripWidth", SCALERS_NO_OFFSET);
 		
 		// ShockCord
-		addScaler(ShockCord.class, "CordLength");
+		addScaler(ShockCord.class, "CordLength", SCALERS_NO_OFFSET);
 		
 		// RingComponent
-		addScaler(RingComponent.class, "Length");
-		addScaler(RingComponent.class, "RadialPosition");
+		addScaler(RingComponent.class, "Length", SCALERS_NO_OFFSET);
+		addScaler(RingComponent.class, "RadialPosition", SCALERS_OFFSET);
 		
 		// ThicknessRingComponent
-		addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic");
-		addScaler(ThicknessRingComponent.class, "Thickness");
+		addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(ThicknessRingComponent.class, "Thickness", SCALERS_NO_OFFSET);
 		
 		// InnerTube
-		addScaler(InnerTube.class, "MotorOverhang");
+		addScaler(InnerTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
 		
 		// RadiusRingComponent
-		addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic");
-		addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic");
+		addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", SCALERS_NO_OFFSET);
 	}
 	
-	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName) {
-		addScaler(componentClass, methodName, null);
+	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName,
+								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
+		addScaler(componentClass, methodName, null, scaler);
 	}
 	
-	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
-		List<Scaler> list = SCALERS.get(componentClass);
+	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName,
+								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
+		List<Scaler> list = scaler.get(componentClass);
 		if (list == null) {
 			list = new ArrayList<ScaleDialog.Scaler>();
-			SCALERS.put(componentClass, list);
+			scaler.put(componentClass, list);
 		}
 		list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
 	}
@@ -447,7 +455,7 @@ public class ScaleDialog extends JDialog {
 			try {
 				document.startUndo(trans.get("undo.scaleRocket"));
 				for (RocketComponent c : document.getRocket()) {
-					scale(c, mul, scaleMass);
+					scale(c, mul, scaleMass, true);
 				}
 			} finally {
 				document.stopUndo();
@@ -458,8 +466,9 @@ public class ScaleDialog extends JDialog {
 			// Scale component and subcomponents
 			try {
 				document.startUndo(trans.get("undo.scaleComponents"));
-				for (RocketComponent c : selection) {
-					scale(c, mul, scaleMass);
+				scale(selection, mul, scaleMass, false);
+				for (RocketComponent c : selection.getChildren()) {
+					scale(c, mul, scaleMass, true);
 				}
 			} finally {
 				document.stopUndo();
@@ -470,7 +479,7 @@ public class ScaleDialog extends JDialog {
 			// Scale only the selected component
 			try {
 				document.startUndo(trans.get("undo.scaleComponent"));
-				scale(selection, mul, scaleMass);
+				scale(selection, mul, scaleMass, false);
 			} finally {
 				document.stopUndo();
 			}
@@ -479,16 +488,28 @@ public class ScaleDialog extends JDialog {
 			throw new BugException("Unknown item selected, item=" + item);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Perform scaling on a single component.
+	 * @param component component to be scaled
+	 * @param mul scaling factor
+	 * @param scaleMass flag to check if the mass should be scaled as well
+	 * @param scaleOffset flag to check if the axial/radial offsets should be scaled as well
 	 */
-	private void scale(RocketComponent component, double mul, boolean scaleMass) {
+	private void scale(RocketComponent component, double mul, boolean scaleMass, boolean scaleOffset) {
 		
 		Class<?> clazz = component.getClass();
 		while (clazz != null) {
-			List<Scaler> list = SCALERS.get(clazz);
+			List<Scaler> list = null;
+			if (scaleOffset) {
+				Stream<Scaler> strm_no_offset = SCALERS_NO_OFFSET.get(clazz) == null ? Stream.empty() : SCALERS_NO_OFFSET.get(clazz).stream();
+				Stream<Scaler> strm_offset = SCALERS_OFFSET.get(clazz) == null ? Stream.empty() : SCALERS_OFFSET.get(clazz).stream();
+				list = Stream.concat(strm_no_offset, strm_offset).distinct().collect(Collectors.toList());
+			}
+			else {
+				list = SCALERS_NO_OFFSET.get(clazz);
+			}
 			if (list != null) {
 				for (Scaler s : list) {
 					s.scale(component, mul, scaleMass);

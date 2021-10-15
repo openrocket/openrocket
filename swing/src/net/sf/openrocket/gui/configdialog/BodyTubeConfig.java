@@ -15,8 +15,10 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -24,6 +26,7 @@ import net.sf.openrocket.unit.UnitGroup;
 public class BodyTubeConfig extends RocketComponentConfig {
 
 	private DoubleModel maxLength;
+	private final JCheckBox checkAutoOuterRadius;
 	private static final Translator trans = Application.getTranslator();
 
 	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c) {
@@ -58,9 +61,10 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		//// Automatic
 		javax.swing.Action outerAutoAction = od.getAutomaticAction();
-		JCheckBox check = new JCheckBox(outerAutoAction);
-		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
-		panel.add(check, "skip, span 2, wrap");
+		checkAutoOuterRadius = new JCheckBox(outerAutoAction);
+		checkAutoOuterRadius.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
+		panel.add(checkAutoOuterRadius, "skip, span 2, wrap");
+		updateCheckboxAutoAftRadius();
 
 		////  Inner diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
@@ -87,7 +91,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
 
 		//// Filled
-		check = new JCheckBox(new BooleanModel(component, "Filled"));
+		JCheckBox check = new JCheckBox(new BooleanModel(component, "Filled"));
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		panel.add(check, "skip, span 2, wrap");
 
@@ -113,4 +117,33 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		super.updateFields();
 	}
 
+	/**
+	 * Sets the checkAutoOuterRadius checkbox's enabled state and tooltip text, based on the state of its previous
+	 * component. If there is no next and previous symmetric component, the checkAutoOuterRadius checkbox is disabled.
+	 * If there is still a next or previous component which does not have its auto state enabled, meaning it can still
+	 * serve as a reference component for this component, the auto checkbox is enabled.
+	 */
+	private void updateCheckboxAutoAftRadius() {
+		if (component == null || checkAutoOuterRadius == null) return;
+
+		// Disable check button if there is no component to get the diameter from
+		SymmetricComponent prevComp = ((BodyTube) component).getPreviousSymmetricComponent();
+		SymmetricComponent nextComp = ((BodyTube) component).getNextSymmetricComponent();
+		if (prevComp == null && nextComp == null) {
+			checkAutoOuterRadius.setEnabled(false);
+			((BodyTube) component).setOuterRadiusAutomatic(false);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic_noReferenceComponent"));
+			return;
+		}
+		if (!(prevComp != null && nextComp == null && prevComp.usesNextCompAutomatic()) &&
+				!(nextComp != null && prevComp == null && nextComp.usesPreviousCompAutomatic()) &&
+				!(nextComp != null && prevComp != null && prevComp.usesNextCompAutomatic() && nextComp.usesPreviousCompAutomatic())) {
+			checkAutoOuterRadius.setEnabled(true);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic"));
+		} else {
+			checkAutoOuterRadius.setEnabled(false);
+			((BodyTube) component).setOuterRadiusAutomatic(false);
+			checkAutoOuterRadius.setToolTipText(trans.get("BodyTubecfg.checkbox.ttip.Automatic_alreadyAuto"));
+		}
+	}
 }

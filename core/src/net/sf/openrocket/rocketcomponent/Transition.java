@@ -94,6 +94,14 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return foreRadius;
 	}
 
+	/**
+	 * Return the fore radius that was manually entered, so not the value that the component received from automatic
+	 * fore radius.
+	 */
+	public double getForeRadiusNoAutomatic() {
+		return foreRadius;
+	}
+
 	public void setForeRadius(double radius) {
 		if ((this.foreRadius == radius) && (autoForeRadius == false))
 			return;
@@ -142,7 +150,13 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return aftRadius;
 	}
 
-
+	/**
+	 * Return the aft radius that was manually entered, so not the value that the component received from automatic
+	 * zft radius.
+	 */
+	public double getAftRadiusNoAutomatic() {
+		return aftRadius;
+	}
 
 	public void setAftRadius(double radius) {
 		if ((this.aftRadius == radius) && (autoAftRadius2 == false))
@@ -192,7 +206,15 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return getForeRadius();
 	}
 
+	@Override
+	public boolean usesPreviousCompAutomatic() {
+		return isForeRadiusAutomatic();
+	}
 
+	@Override
+	public boolean usesNextCompAutomatic() {
+		return isAftRadiusAutomatic();
+	}
 
 
 	////////  Type & shape  /////////

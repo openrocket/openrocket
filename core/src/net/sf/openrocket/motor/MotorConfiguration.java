@@ -62,11 +62,11 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		return ignitionOveride;
 	}
 
-	public String toMotorDesignation(){
+	public String toMotorCommonName(){
 		if( motor == null ){
 			return trans.get("empty");
 		}else{
-			return this.motor.getDesignation(this.getEjectionDelay());
+			return this.motor.getCommonName(this.getEjectionDelay());
 		}
 	}
 	
@@ -115,6 +115,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	
 	public void useDefaultIgnition() {
 		this.ignitionOveride = false;
+		setIgnitionDelay(0);
+		setIgnitionEvent(IgnitionEvent.AUTOMATIC);
 	}
 	
 	public double getIgnitionDelay() {
@@ -235,7 +237,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	}
 
 	public String toDescription(){
-		return ( this.toMotorDesignation()+
+		return ( this.toMotorCommonName()+
 				" in: "+mount.getDebugName()+
 				" ign@: "+this.toIgnitionDescription() );
 	}
@@ -251,7 +253,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 				mount.getDebugName(),
 				fcid.toShortKey(),
 				mid.toDebug(),
-				toMotorDesignation(),
+				toMotorCommonName(),
 				toIgnitionDescription() ));
 		
 		return buf.toString();
