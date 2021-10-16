@@ -48,7 +48,7 @@ import com.google.inject.util.Modules;
 
 public class OpenRocketSaverTest {
 	
-	private OpenRocketSaver saver = new OpenRocketSaver();
+	private final OpenRocketSaver saver = new OpenRocketSaver();
 	private static final File TMP_DIR = new File("./tmp/");
 	
 	public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
@@ -88,9 +88,7 @@ public class OpenRocketSaverTest {
 			@Override
 			public boolean accept(File theFile) {
 				if (theFile.isFile()) {
-					if (theFile.getName().matches(fileNameMatchStr)) {
-						return true;
-					}
+					return theFile.getName().matches(fileNameMatchStr);
 				}
 				return false;
 			}

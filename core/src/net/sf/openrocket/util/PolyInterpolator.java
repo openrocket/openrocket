@@ -151,9 +151,9 @@ public class PolyInterpolator {
 	private static double[][] inverse(double[][] matrix) {
 		int n = matrix.length;
 		
-		double x[][] = new double[n][n];
-		double b[][] = new double[n][n];
-		int index[] = new int[n];
+		double[][] x = new double[n][n];
+		double[][] b = new double[n][n];
+		int[] index = new int[n];
 		for (int i=0; i<n; ++i) 
 			b[i][i] = 1;
 
@@ -180,10 +180,10 @@ public class PolyInterpolator {
 		return x;
 	}
 
-	private static void gaussian(double a[][],
-			int index[]) {
+	private static void gaussian(double[][] a,
+                                 int[] index) {
 		int n = index.length;
-		double c[] = new double[n];
+		double[] c = new double[n];
 
 		// Initialize the index
 		for (int i=0; i<n; ++i) index[i] = i;

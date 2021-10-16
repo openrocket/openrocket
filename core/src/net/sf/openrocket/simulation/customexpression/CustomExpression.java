@@ -31,12 +31,12 @@ public class CustomExpression implements Cloneable {
 	
 	private static final Logger log = LoggerFactory.getLogger(CustomExpression.class);
 	
-	private OpenRocketDocument doc;
+	private final OpenRocketDocument doc;
 	private String name, symbol, unit;
 	
 	protected String expression;
 	private ExpressionBuilder builder;
-	private List<CustomExpression> subExpressions = new ArrayList<CustomExpression>();
+	private final List<CustomExpression> subExpressions = new ArrayList<CustomExpression>();
 	
 	public CustomExpression(OpenRocketDocument doc) {
 		this.doc = doc;

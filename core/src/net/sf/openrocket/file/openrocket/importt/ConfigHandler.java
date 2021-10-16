@@ -17,8 +17,8 @@ import org.xml.sax.SAXException;
 public class ConfigHandler extends AbstractElementHandler {
 	
 	private ConfigHandler listHandler;
-	private Config config = new Config();
-	private List<Object> list = new ArrayList<Object>();
+	private final Config config = new Config();
+	private final List<Object> list = new ArrayList<Object>();
 	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {

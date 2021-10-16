@@ -21,7 +21,7 @@ public enum CaseInfo {
 	
 	PRO54_1("Pro54-1G"), PRO54_2("Pro54-2G"), PRO54_3("Pro54-3G"), PRO54_4("Pro54-4G"), PRO54_5("Pro54-5G"), PRO54_6("Pro54-6G"), PRO54_6XL("Pro54-6GXL");
 	
-	private String label;
+	private final String label;
 	
 	private CaseInfo(String label) {
 		this.label = label;
@@ -40,8 +40,8 @@ public enum CaseInfo {
 		return compatibleCases.get(this);
 	}
 	
-	private static Map<String, CaseInfo> labelMapping;
-	private static Map<CaseInfo, CaseInfo[]> compatibleCases;
+	private static final Map<String, CaseInfo> labelMapping;
+	private static final Map<CaseInfo, CaseInfo[]> compatibleCases;
 	
 	static {
 		labelMapping = new HashMap<>();

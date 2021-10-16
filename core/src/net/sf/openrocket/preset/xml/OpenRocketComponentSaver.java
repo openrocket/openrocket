@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,7 +47,7 @@ public class OpenRocketComponentSaver {
     public boolean save(File file, List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
                                                                                                      JAXBException,
                                                                                                      IOException {
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
         writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
         writer.flush();
         writer.close();
@@ -130,7 +131,7 @@ public class OpenRocketComponentSaver {
     public void save(OutputStream dest, List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
                                                                                                              IOException,
                                                                                                              JAXBException {
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
         writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
         writer.flush();
         writer.close();

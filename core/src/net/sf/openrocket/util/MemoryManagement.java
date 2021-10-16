@@ -30,11 +30,11 @@ public final class MemoryManagement {
 	 * Storage of the objects.  This is basically a mapping from the objects (using weak references)
 	 * to 
 	 */
-	private static List<MemoryData> objects = new LinkedList<MemoryData>();
+	private static final List<MemoryData> objects = new LinkedList<MemoryData>();
 	private static int collectableCallCount = 0;
 	
 
-	private static List<WeakReference<ListenerList<?>>> listenerLists = new LinkedList<WeakReference<ListenerList<?>>>();
+	private static final List<WeakReference<ListenerList<?>>> listenerLists = new LinkedList<WeakReference<ListenerList<?>>>();
 	private static int listenerCallCount = 0;
 	
 	

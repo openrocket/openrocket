@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SearchResponse {
 	
-	private List<TCMotor> results = new ArrayList<TCMotor>();
+	private final List<TCMotor> results = new ArrayList<TCMotor>();
 	
 	private int matches;
 	

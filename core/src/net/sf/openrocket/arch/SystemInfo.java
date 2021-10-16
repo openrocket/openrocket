@@ -17,8 +17,8 @@ public class SystemInfo {
 	public enum Platform {
 		WINDOWS,
 		MAC_OS,
-		UNIX;
-	}
+		UNIX
+    }
 	
 	
 	/**

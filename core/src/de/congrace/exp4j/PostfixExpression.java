@@ -28,7 +28,7 @@ import java.util.Stack;
  */
 public final class PostfixExpression extends AbstractExpression implements Calculable {
 	
-	private VariableSet variables = new VariableSet();
+	private final VariableSet variables = new VariableSet();
 	
 	/**
 	 * Factory method for creating {@link PostfixExpression}s from human

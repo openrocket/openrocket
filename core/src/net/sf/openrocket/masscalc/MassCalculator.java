@@ -23,7 +23,7 @@ public class MassCalculator implements Monitorable {
 	//	private MassData rocketSpentMassCache;
 	//	private MassData motorMassCache;
 
-	private int modId = 0;
+	private final int modId = 0;
 	
 	//////////////////  Constructors ///////////////////
 	public MassCalculator() {

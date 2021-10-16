@@ -80,7 +80,7 @@ public class RocketComponentSaver {
 			int instanceCount = c.getInstanceCount();
 			
 			if (c instanceof Clusterable) {
-				; // no-op.  Instance counts are set via named cluster configurations
+				// no-op.  Instance counts are set via named cluster configurations
 			} else {
 				emitInteger(elements, "instancecount", c.getInstanceCount());
 			}

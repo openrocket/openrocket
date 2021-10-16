@@ -116,7 +116,7 @@ public class ThrustCurveMotorTest {
 	public void testThrustInterpolation(){
 		final ThrustCurveMotor mtr = motorEstesA8_3;
 		
-		Pair<Double, Double> testPairs[] = new TestPair[]{
+		Pair<Double, Double>[] testPairs = new TestPair[]{
 				new TestPair(0.512, 0.041),
 				new TestPair(2.115, 0.084),
 				new TestPair( 1.220, 0.060),

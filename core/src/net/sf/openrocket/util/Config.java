@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class Config {
 	
-	private LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+	private final LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
 	
 	
 	public void put(String key, String value) {

@@ -36,7 +36,7 @@ public class DesignationComparator implements Comparator<String> {
 	 *   4 = average thrust
 	 *   5 = stuff after thrust number
 	 */
-	private Pattern pattern =
+	private final Pattern pattern =
 			Pattern.compile("^([0-9]+-?|1/([1-8]))?([a-zA-Z])([0-9,]+)(.*?)$");
 	
 	@Override

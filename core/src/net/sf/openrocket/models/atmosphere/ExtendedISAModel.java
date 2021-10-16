@@ -104,7 +104,7 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	}
 	
 	
-	public static void main(String foo[]) {
+	public static void main(String[] foo) {
 		ExtendedISAModel model1 = new ExtendedISAModel();
 		ExtendedISAModel model2 = new ExtendedISAModel(278.15, 100000);
 		

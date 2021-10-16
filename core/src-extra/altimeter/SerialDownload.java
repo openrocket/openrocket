@@ -30,8 +30,8 @@ public class SerialDownload {
 	
 
 	public static String[] getNames() {
-		ArrayList<String> list = new ArrayList<String>();;
-		
+		ArrayList<String> list = new ArrayList<String>();
+
 		Enumeration<?> pids = CommPortIdentifier.getPortIdentifiers();
 
 		while (pids.hasMoreElements()) {

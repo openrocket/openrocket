@@ -35,7 +35,7 @@ class FunctionToken extends CalculationToken {
 		ABS, ACOS, ASIN, ATAN, CBRT, CEIL, COS, COSH, EXP, EXPM1, FLOOR, ROUND, RANDOM, LOG, SIN, SINH, SQRT, TAN, TANH, LOG10
 	}
 
-	private Function function;
+	private final Function function;
 
 	/**
 	 * construct a new {@link FunctionToken}

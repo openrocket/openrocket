@@ -47,7 +47,7 @@ public class FlightDataBranch implements Monitorable {
 	
 	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
 	
-	private Mutable mutable = new Mutable();
+	private final Mutable mutable = new Mutable();
 	
 	private int modID = 0;
 	

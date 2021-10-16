@@ -35,10 +35,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private SimulationStepper flightStepper  = new RK4SimulationStepper();
-	private SimulationStepper landingStepper = new BasicLandingStepper();
-	private SimulationStepper tumbleStepper  = new BasicTumbleStepper();
-	private SimulationStepper groundStepper  = new GroundStepper();
+	private final SimulationStepper flightStepper  = new RK4SimulationStepper();
+	private final SimulationStepper landingStepper = new BasicLandingStepper();
+	private final SimulationStepper tumbleStepper  = new BasicTumbleStepper();
+	private final SimulationStepper groundStepper  = new GroundStepper();
 	
 	// Constant holding 20 degrees in radians.  This is the AOA condition
 	// necessary to transition to tumbling.

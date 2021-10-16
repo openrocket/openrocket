@@ -8,7 +8,7 @@ import net.sf.openrocket.util.StringUtil;
 
 public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 
-	private TypedKey<Double> propKey;
+	private final TypedKey<Double> propKey;
 
 	public DoubleUnitColumnParser(String columnHeader, String unitHeader,
 			TypedKey<Double> propKey) {

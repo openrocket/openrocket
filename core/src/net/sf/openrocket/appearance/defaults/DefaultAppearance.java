@@ -49,8 +49,8 @@ public class DefaultAppearance {
 						new Coordinate(1, 1),
 						0,
 						new ResourceDecalImage(resource), EdgeMode.REPEAT));
-	};
-	
+	}
+
 	/**
 	 * returns the image with custom color and shine
 	 * 
@@ -69,27 +69,27 @@ public class DefaultAppearance {
 						new Coordinate(1, 1),
 						0,
 						new ResourceDecalImage(resource), EdgeMode.REPEAT));
-	};
-	
-	private static Appearance BALSA = simple("/datafiles/textures/balsa.jpg");
-	private static Appearance WOOD = simple("/datafiles/textures/wood.jpg");
+	}
+
+	private static final Appearance BALSA = simple("/datafiles/textures/balsa.jpg");
+	private static final Appearance WOOD = simple("/datafiles/textures/wood.jpg");
 	@SuppressWarnings("unused")
-	private static Appearance CARDBOARD = simple("/datafiles/textures/cardboard.jpg");
-	private static Appearance HARDBOARD = simple("/datafiles/textures/hardboard.jpg");
-	private static Appearance WADDING = simple("/datafiles/textures/wadding.png");
-	private static Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
+	private static final Appearance CARDBOARD = simple("/datafiles/textures/cardboard.jpg");
+	private static final Appearance HARDBOARD = simple("/datafiles/textures/hardboard.jpg");
+	private static final Appearance WADDING = simple("/datafiles/textures/wadding.png");
+	private static final Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
 	
 	
 	private static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	private static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
 	private static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
-	private static Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
-	private static Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
-	private static Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
-	private static Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
+	private static final Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
+	private static final Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
+	private static final Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
+	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 	
-	private static HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
+	private static final HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
 	
 	/**
 	 * gets the appearance correspondent to the plastic with the given color

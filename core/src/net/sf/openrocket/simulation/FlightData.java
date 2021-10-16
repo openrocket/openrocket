@@ -36,7 +36,7 @@ public class FlightData {
 		NaN_DATA = data;
 	}
 	
-	private Mutable mutable = new Mutable();
+	private final Mutable mutable = new Mutable();
 	
 	private final ArrayList<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
 	

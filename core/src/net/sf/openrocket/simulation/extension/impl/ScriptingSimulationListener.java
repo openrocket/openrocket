@@ -37,7 +37,7 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	 * so that unimplemented script methods are not called unnecessarily.
 	 */
 	
-	private Invocable invocable;
+	private final Invocable invocable;
 	private Set<String> missing = new HashSet<String>();
 	
 	

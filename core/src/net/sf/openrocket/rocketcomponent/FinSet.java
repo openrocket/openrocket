@@ -837,11 +837,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 	public boolean isRootStraight( ){
         if( getParent() instanceof Transition){
-            if( ((Transition)getParent()).getType() == Transition.Shape.CONICAL ){
-                return true;
-            }else{
-                return false;
-            }
+			return ((Transition) getParent()).getType() == Shape.CONICAL;
         }
         
         // by default, assume a flat base

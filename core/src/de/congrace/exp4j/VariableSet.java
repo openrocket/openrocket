@@ -27,7 +27,7 @@ public class VariableSet extends HashSet<Variable> {
 		if (this.size() == 0){
 			return null;
 		}
-		String names[] = new String[this.size()];
+		String[] names = new String[this.size()];
 		int i = 0;
 		for (Variable var : this){
 			names[i] = var.getName();

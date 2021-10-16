@@ -15,7 +15,7 @@ import net.sf.openrocket.util.GeodeticComputationStrategy;
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	public FlightConfigurationId idToSet = FlightConfigurationId.ERROR_FCID;
-	private SimulationOptions options;
+	private final SimulationOptions options;
 	private AtmosphereHandler atmosphereHandler;
 	
 	public SimulationConditionsHandler(Rocket rocket, DocumentLoadingContext context) {

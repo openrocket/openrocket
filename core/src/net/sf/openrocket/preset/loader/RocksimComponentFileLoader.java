@@ -25,7 +25,7 @@ public abstract class RocksimComponentFileLoader {
 	
 	private String basePath = "";
 	
-	private File dir;
+	private final File dir;
 	
 	protected List<RocksimComponentFileColumnParser> fileColumns = new ArrayList<RocksimComponentFileColumnParser>();
 	

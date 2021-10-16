@@ -51,7 +51,7 @@ public class SearchResponseParser implements ElementHandler {
 	private static final String updated_on = "updated-on";
 	private static final String availability = "availability";
 	
-	private SearchResponse response = new SearchResponse();
+	private final SearchResponse response = new SearchResponse();
 	
 	private TCMotor currentMotor;
 	

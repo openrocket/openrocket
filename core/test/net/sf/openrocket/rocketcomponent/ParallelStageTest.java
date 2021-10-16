@@ -220,7 +220,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		final double expectedRadius = coreBody.getOuterRadius() + boosterBody.getOuterRadius();
 		{
-			final Coordinate actualInstanceOffsets[] = parallelBoosterStage.getInstanceOffsets();
+			final Coordinate[] actualInstanceOffsets = parallelBoosterStage.getInstanceOffsets();
 			
 			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[0].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", expectedRadius, actualInstanceOffsets[0].y, EPSILON);
@@ -228,7 +228,7 @@ public class ParallelStageTest extends BaseTestCase {
 			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[1].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", -expectedRadius, actualInstanceOffsets[1].y, EPSILON);
 		}{
-			final Coordinate actualLocations[] = parallelBoosterStage.getComponentLocations();
+			final Coordinate[] actualLocations = parallelBoosterStage.getComponentLocations();
 			
 			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[0].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", expectedRadius, actualLocations[0].y, EPSILON);
@@ -260,7 +260,7 @@ public class ParallelStageTest extends BaseTestCase {
 		
 		final double expectedRadius = targetRadiusOffset + coreBody.getOuterRadius() + boosterBody.getOuterRadius();
 		{
-			final Coordinate actualInstanceOffsets[] = parallelBoosterStage.getInstanceOffsets();
+			final Coordinate[] actualInstanceOffsets = parallelBoosterStage.getInstanceOffsets();
 			
 			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[0].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", expectedRadius, actualInstanceOffsets[0].y, EPSILON);
@@ -268,7 +268,7 @@ public class ParallelStageTest extends BaseTestCase {
 			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[1].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", -expectedRadius, actualInstanceOffsets[1].y, EPSILON);
 		}{
-			final Coordinate actualLocations[] = parallelBoosterStage.getComponentLocations();
+			final Coordinate[] actualLocations = parallelBoosterStage.getComponentLocations();
 			
 			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[0].x, EPSILON);
 			assertEquals(" error while setting radius offset: ", expectedRadius, actualLocations[0].y, EPSILON);

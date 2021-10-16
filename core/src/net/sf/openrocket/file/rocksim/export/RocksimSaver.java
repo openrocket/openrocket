@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -60,7 +61,7 @@ public class RocksimSaver extends RocketSaver {
 	public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
 		log.info("Saving .rkt file");
 		
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
 		writer.write(marshalToRocksim(doc));
 		writer.flush();
 	}

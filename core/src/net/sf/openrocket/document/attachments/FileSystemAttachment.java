@@ -41,7 +41,7 @@ public class FileSystemAttachment extends Attachment {
 	 *	creates the stream based on the location passed while building
 	 */
 	@Override
-	public InputStream getBytes() throws FileNotFoundException, IOException {
+	public InputStream getBytes() throws IOException {
 		return new FileInputStream(location);
 	}
 	

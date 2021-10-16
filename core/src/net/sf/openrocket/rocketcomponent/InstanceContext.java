@@ -23,7 +23,7 @@ public class InstanceContext {
 	
 	@Override
 	public int hashCode() {
-		return (int) (component.hashCode());
+		return component.hashCode();
 	}
 
 	public InstanceContext(final RocketComponent _component, final boolean _active, final int _instanceNumber, final Transformation _transform) {

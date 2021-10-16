@@ -34,7 +34,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	private final Map<Point, Double> functionCache = new HashMap<Point, Double>();
 	private final Map<Point, Future<Double>> futureMap = new HashMap<Point, Future<Double>>();
 	
-	private ExecutorService executor;
+	private final ExecutorService executor;
 	
 	private Function function;
 	

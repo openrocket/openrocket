@@ -45,7 +45,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
-	private double[] poly = new double[6];
+	private final double[] poly = new double[6];
 	
 	private final double thickness;
 	private final double bodyRadius;
@@ -63,7 +63,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	public FinSetCalc(FinSet component) {
 		super(component);
 		
-		FinSet fin = (FinSet) component;
+		FinSet fin = component;
 
 		thickness = fin.getThickness();
 		bodyLength = component.getParent().getLength();

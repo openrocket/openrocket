@@ -43,8 +43,7 @@ public abstract class RocksimTestBase extends BaseTestCase {
 			} catch (Exception ex) {
 				/* in case of an exception, we will throw a new
 				 * NoSuchFieldException object */
-				;
-			}
+            }
 		}
 		throw new NoSuchFieldException("Could get value for field " +
 				object.getClass().getName() + "." + name);
@@ -74,8 +73,7 @@ public abstract class RocksimTestBase extends BaseTestCase {
 			} catch (Exception ex) {
 				/* in case of an exception, we will throw a new
 				 * NoSuchFieldException object */
-				;
-			}
+            }
 			base = base.getSuperclass();
 		}
 		throw new NoSuchFieldException("Could get value for static field " +

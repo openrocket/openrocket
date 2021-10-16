@@ -3,6 +3,7 @@ package net.sf.openrocket.communication;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import net.sf.openrocket.util.BugException;
 
@@ -64,11 +65,7 @@ public abstract class Communicator {
 	public static String encode(String str) {
 		if (str == null)
 			return "null";
-		try {
-			return URLEncoder.encode(str, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new BugException("Unsupported encoding UTF-8", e);
-		}
-	}
+        return URLEncoder.encode(str, StandardCharsets.UTF_8);
+    }
 	
 }

@@ -39,7 +39,7 @@ public class DecalRegistry {
 	}
 	
 	/** the decal usage map*/
-	private Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
+	private final Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
 	
 	/**
 	 * returns a new decal with the same image but with unique names

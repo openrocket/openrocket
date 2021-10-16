@@ -5,6 +5,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class TextUtilTest {
 	@Test
 	public void testConvertStringToBytes() {
 		
-		Charset us_ascii = Charset.forName("US-ASCII");
+		Charset us_ascii = StandardCharsets.US_ASCII;
 		
 		byte[] ZIP_SIGNATURE_CORRECT = "PK".getBytes(us_ascii);
 		byte[] ZIP_SIGNATURE_TEST = TextUtil.asciiBytes("PK");

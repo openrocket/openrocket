@@ -621,7 +621,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		if( SNAP_TOLERANCE > (1-lowerFrac) ){
 			return cg[ (int) pseudoIndex ];
 		}else if( SNAP_TOLERANCE > upperFrac ){
-			return cg[ (int)upperIndex ];
+			return cg[upperIndex];
 		}
 		
 		// return simple linear interpolation
@@ -810,7 +810,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		// 1. Manufacturer
 		value = COLLATOR.compare(this.manufacturer.getDisplayName(),
-				((ThrustCurveMotor) other).manufacturer.getDisplayName());
+				other.manufacturer.getDisplayName());
 		if (value != 0)
 			return value;
 		
