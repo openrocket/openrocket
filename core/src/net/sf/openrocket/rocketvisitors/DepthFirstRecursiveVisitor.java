@@ -3,7 +3,7 @@ package net.sf.openrocket.rocketvisitors;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponentVisitor;
 
-public abstract class DepthFirstRecusiveVisitor<R> implements RocketComponentVisitor<R> {
+public abstract class DepthFirstRecursiveVisitor<R> implements RocketComponentVisitor<R> {
 	
 	@Override
 	public final void visit(RocketComponent visitable) {

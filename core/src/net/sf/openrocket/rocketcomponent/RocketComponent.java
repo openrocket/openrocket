@@ -97,11 +97,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	// Override mass/CG
 	private double overrideMass = 0;
-	private boolean massOverriden = false;
+	private boolean massOverridden = false;
 	private double overrideCGX = 0;
-	private boolean cgOverriden = false;
+	private boolean cgOverridden = false;
 	private double overrideCD = 0;
-	private boolean cdOverriden = false;
+	private boolean cdOverridden = false;
 	
 	private boolean overrideSubcomponents = false;
 	
@@ -234,7 +234,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Return a collection of bounding coordinates.  The coordinates must be such that
 	 * the component is fully enclosed in their convex hull.
 	 * 
-	 * Note: this function gets the bounds only for this component.  Subchildren must be called individually.
+	 * Note: this function gets the bounds only for this component.  Sub-children must be called individually.
 	 *
 	 * @return	a collection of coordinates that bound the component.
 	 */
@@ -521,7 +521,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		checkState();
 		overrideMass = Math.max(m, 0);
-		if (massOverriden)
+		if (massOverridden)
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -533,7 +533,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final boolean isMassOverridden() {
 		mutex.verify();
-		return massOverriden;
+		return massOverridden;
 	}
 	
 	/**
@@ -542,11 +542,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param o  whether the mass is overridden
 	 */
 	public final void setMassOverridden(boolean o) {
-		if (massOverriden == o) {
+		if (massOverridden == o) {
 			return;
 		}
 		checkState();
-		massOverriden = o;
+		massOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -597,7 +597,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final boolean isCGOverridden() {
 		mutex.verify();
-		return cgOverriden;
+		return cgOverridden;
 	}
 	
 	/**
@@ -606,17 +606,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param o  whether the CG is overridden
 	 */
 	public final void setCGOverridden(boolean o) {
-		if (cgOverriden == o) {
+		if (cgOverridden == o) {
 			return;
 		}
 		checkState();
-		cgOverriden = o;
+		cgOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 
 
-	/** Return the current override CD. The CD is not neccesarily overriden.
+	/** Return the current override CD. The CD is not necessarily overridden.
 	 * 
 	 * @return the override CG.
 	 */
@@ -644,27 +644,27 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 
 	/**
-	 * Return whether the CD is currently overriden.
+	 * Return whether the CD is currently overridden.
 	 * 
 	 * @return whether the CD is overridden
 	 */
 	public final boolean isCDOverridden() {
 		mutex.verify();
-		return cdOverriden;
+		return cdOverridden;
 	}
 
 
 	/**
-	 * Set whether the CD is currently overriden.
+	 * Set whether the CD is currently overridden.
 	 *
-	 * @param o whether the CD is overriden
+	 * @param o whether the CD is overridden
 	 */
 	public final void setCDOverridden(boolean o) {
-		if(cdOverriden == o) {
+		if(cdOverridden == o) {
 			return;
 		}
 		checkState();
-		cdOverriden = o;
+		cdOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -1283,7 +1283,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getMass() {
 		mutex.verify();
-		if (massOverriden)
+		if (massOverridden)
 			return overrideMass;
 		return getComponentMass();
 	}
@@ -1311,10 +1311,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final Coordinate getCG() {
 		checkState();
-		if (cgOverriden)
+		if (cgOverridden)
 			return getOverrideCG().setWeight(getMass());
 		
-		if (massOverriden)
+		if (massOverridden)
 			return getComponentCG().setWeight(getMass());
 		
 		return getComponentCG();
@@ -2016,9 +2016,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.color = src.color;
 		this.lineStyle = src.lineStyle;
 		this.overrideMass = src.overrideMass;
-		this.massOverriden = src.massOverriden;
+		this.massOverridden = src.massOverridden;
 		this.overrideCGX = src.overrideCGX;
-		this.cgOverriden = src.cgOverriden;
+		this.cgOverridden = src.cgOverridden;
 		this.overrideSubcomponents = src.overrideSubcomponents;
 		this.name = src.name;
 		this.comment = src.comment;

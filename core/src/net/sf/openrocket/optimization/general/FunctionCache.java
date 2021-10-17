@@ -2,7 +2,7 @@ package net.sf.openrocket.optimization.general;
 
 /**
  * A storage of cached values of a function.  The purpose of this class is to
- * cache function values between optimization runs.  Subinterfaces may provide
+ * cache function values between optimization runs.  Sub-interfaces may provide
  * additional functionality.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>

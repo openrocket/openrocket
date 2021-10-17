@@ -8,7 +8,7 @@ import org.junit.Test;
 public class GeodeticComputationStrategyTest {
 	
 	@Test
-	public void testSpericalAddCoordinate() {
+	public void testSphericalAddCoordinate() {
 		
 		double arcmin = (1.0 / 60.0);
 		double arcsec = (1.0 / (60.0 * 60.0));
@@ -145,7 +145,7 @@ public class GeodeticComputationStrategyTest {
 	
 	
 	@Test
-	public void testSpericalGetCoriolisAcceleration() {
+	public void testSphericalGetCoriolisAcceleration() {
 		
 		// For positive latitude and rotational velocity, a movement due east results in an acceleration due south
 		Coordinate velocity = new Coordinate(-1000, 0, 0);

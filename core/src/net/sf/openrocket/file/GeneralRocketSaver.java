@@ -147,7 +147,7 @@ public class GeneralRocketSaver {
 	
 	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException {
 		
-		// For now, we don't save decal inforamtion in ROCKSIM files, so don't do anything
+		// For now, we don't save decal information in ROCKSIM files, so don't do anything
 		// which follows.
 		// TODO - add support for decals in ROCKSIM files?
 		if (options.getFileType() == FileType.ROCKSIM) {

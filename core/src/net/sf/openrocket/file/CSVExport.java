@@ -93,7 +93,7 @@ public class CSVExport {
 		// Number of data points
 		int n = branch.getLength();
 
-		// Flight events in occurrance order
+		// Flight events in occurrence order
 		List<FlightEvent> events = branch.getEvents();
 		Collections.sort(events);
 		int eventPosition = 0;

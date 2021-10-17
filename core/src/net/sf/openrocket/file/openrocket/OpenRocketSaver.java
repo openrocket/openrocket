@@ -234,7 +234,7 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	
 	/**
-	 * Finds a getElements method somewhere in the *saver class hiearchy corresponding to the given component. 
+	 * Finds a getElements method somewhere in the *saver class hierarchy corresponding to the given component.
 	 */
 	private static Reflection.Method findGetElementsMethod(RocketComponent component) {
 		String currentclassname;

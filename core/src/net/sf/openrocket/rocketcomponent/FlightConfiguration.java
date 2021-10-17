@@ -263,7 +263,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	// this method is deprecated because it ignores instancing of parent components (e.g. Strapons or pods )
 	// depending on your context, this may or may not be what you want.
-	// recomend migrating to either: `getAllComponents` or `getActiveInstances`
+	// recommend migrating to either: `getAllComponents` or `getActiveInstances`
 	@Deprecated
 	public Collection<RocketComponent> getActiveComponents() {
 		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.getActiveStages());

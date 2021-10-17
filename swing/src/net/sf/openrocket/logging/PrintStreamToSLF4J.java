@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class PrintStreamToSLF4J {
 	
-	public static PrintStream getPrintStream(String category, PrintStream orignal) {
+	public static PrintStream getPrintStream(String category, PrintStream original) {
 		
 		final Logger logger = LoggerFactory.getLogger(category);
 		

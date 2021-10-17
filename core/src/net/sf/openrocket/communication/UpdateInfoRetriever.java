@@ -131,7 +131,7 @@ public class UpdateInfoRetriever {
 	}
 
 	/**
-	 * check if the string is formated as an update list header
+	 * check if the string is formatted as an update list header
 	 * @param str	the string to be checked
 	 * @return		true if str is a header, false otherwise
 	 */
@@ -250,7 +250,7 @@ public class UpdateInfoRetriever {
 		/**
 		 * checks if a line contains an update information
 		 * @param 	line	the line to be checked
-		 * @return	true if the line caontain an update information
+		 * @return	true if the line contain an update information
 		 * 			false otherwise 
 		 */
 		private boolean isUpdateInfo(String line) {
@@ -386,7 +386,7 @@ public class UpdateInfoRetriever {
 		
 		/**
 		 * builds the default url for fetching updates
-		 * @return	the string with an url for fethcing updates
+		 * @return	the string with an url for fetching updates
 		 */
 		private String getUrl() {
 			return Communicator.UPDATE_INFO_URL + "?" + Communicator.VERSION_PARAM + "="

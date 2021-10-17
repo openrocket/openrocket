@@ -25,7 +25,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 	private Shape type;
 	private double shapeParameter;
-	private boolean clipped; // Not to be read - use isClipped(), which may be overriden
+	private boolean clipped; // Not to be read - use isClipped(), which may be overridden
 
 	private double foreRadius, aftRadius;
 	private boolean autoForeRadius, autoAftRadius2; // Whether the start radius is automatic

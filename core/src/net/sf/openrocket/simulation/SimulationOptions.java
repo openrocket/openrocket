@@ -59,7 +59,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	
 	private double windAverage = preferences.getDouble(Preferences.WIND_AVERAGE, 2.0);
-	private double windTurbulence = preferences.getDouble(Preferences.WIND_TURBULANCE, 0.1);
+	private double windTurbulence = preferences.getDouble(Preferences.WIND_TURBULENCE, 0.1);
 	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,

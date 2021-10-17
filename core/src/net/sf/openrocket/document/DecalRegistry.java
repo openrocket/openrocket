@@ -230,8 +230,8 @@ public class DecalRegistry {
 	}
 	
 	/**
-	 * sercha
-	 * @param file
+	 * Find decal that has file {file} as source
+	 * @param file decal source file
 	 * @return
 	 */
 	private DecalImageImpl findDecalForFile(File file) {
@@ -272,7 +272,7 @@ public class DecalRegistry {
 	/**
 	 * Makes a unique name for saving decal files in case the name already exists
 	 * @param name	the name of the decal
-	 * @return	the name formated and unique
+	 * @return	the name formatted and unique
 	 */
 	private String makeUniqueName(String name) {
 		

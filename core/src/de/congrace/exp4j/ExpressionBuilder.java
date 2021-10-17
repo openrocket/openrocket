@@ -105,7 +105,7 @@ public class ExpressionBuilder {
 		
 	/**
 	 * set the variables names used in the expression without setting their
-	 * values. Usefull for building an expression before you know the variable values.
+	 * values. Useful for building an expression before you know the variable values.
 	 * 
 	 * @param variableNames
 	 *            vararg {@link String} of the variable names used in the

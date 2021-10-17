@@ -152,7 +152,7 @@ public class TransitionComponentTests extends BaseTestCase {
 	}
 	
 	@Test
-	public void changeAftSholderLengthLeavesPreset() {
+	public void changeAftShoulderLengthLeavesPreset() {
 		Transition tr = new Transition();
 		
 		tr.loadPreset(preset);

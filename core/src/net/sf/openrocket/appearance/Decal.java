@@ -35,11 +35,11 @@ public class Decal {
 	private final EdgeMode mode;
 	
 	/**
-	 * Builds a new decal with the given itens
+	 * Builds a new decal with the given items
 	 * 
-	 * @param offset	The offset of the decal, in coordinate obejct format
+	 * @param offset	The offset of the decal, in coordinate object format
 	 * @param center	The position of the center of the decal, in coordinate object format
-	 * @param scale		The scale of the decal, in coordinate obejct format
+	 * @param scale		The scale of the decal, in coordinate object format
 	 * @param rotation	Rotation of the decal, in radians
 	 * @param image		The image itself
 	 * @param mode		The description of Edge behaviour

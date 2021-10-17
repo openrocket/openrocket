@@ -54,10 +54,10 @@ public class SaveAsFileChooser extends JFileChooser {
 			break;
 		}
 		
-		final RememberFilenamePropertyListener listner = new RememberFilenamePropertyListener();
-		this.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, listner);
-		this.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, listner);
-		this.addPropertyChangeListener(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY, listner);
+		final RememberFilenamePropertyListener listener = new RememberFilenamePropertyListener();
+		this.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, listener);
+		this.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, listener);
+		this.addPropertyChangeListener(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY, listener);
 		
 		this.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 

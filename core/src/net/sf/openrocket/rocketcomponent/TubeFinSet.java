@@ -264,7 +264,7 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	
 	@Override
 	public double getLongitudinalUnitInertia() {
-		// Logitudinal Unit Inertia for a single tube fin.
+		// Longitudinal Unit Inertia for a single tube fin.
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
 		final double inertia = (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLength())) / 12;
 		if (fins == 1) {

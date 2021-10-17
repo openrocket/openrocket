@@ -20,7 +20,7 @@ public class FinSetShapes extends RocketComponentShape {
 		
         // this supplied transformation includes: 
         //  - baseRotationTransformation
-        //  - mount-radius transformtion
+        //  - mount-radius transformation
         //  - component-center offset transformation
         //  - component-instance offset transformation        
 
