@@ -3,6 +3,9 @@ package net.sf.openrocket.gui.main;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 
@@ -31,9 +34,9 @@ public class SaveAsFileChooser extends JFileChooser {
 		this.document = document;
 		this.type = type;
 
-		this.setAcceptAllFileFilterUsed(true);
+		this.setAcceptAllFileFilterUsed(false);
 
-		File defaultFilename = document.getFile();
+		File defaultFilename = document.getFileNoExtension();
 		
 		switch( type ) {
 		default:
