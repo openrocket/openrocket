@@ -292,7 +292,7 @@ public class TCMotor implements Cloneable {
 				+ ", info_url=" + info_url + ", tot_mass_g=" + tot_mass_g
 				+ ", prop_mass_g=" + prop_mass_g + ", delays=" + delays
 				+ ", case_info=" + case_info + ", prop_info=" + prop_info
-				+ ", updated_on=" + updated_on + "]";
+				+ ", updated_on=" + updated_on + ", availability=" + availability + "]";
 	}
 	
 }
