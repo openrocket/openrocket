@@ -60,9 +60,15 @@ public class GroundStepper extends AbstractSimulationStepper {
 		
 		data.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, 0.0);
 		data.setValue(FlightDataType.TYPE_MACH_NUMBER, 0.0);
+
+
+		// Calculate mass data
+		double rocketMass = calculateStructureMass(status).getMass();
+		double motorMass = calculateMotorMass(status).getMass();
 		
-		data.setValue(FlightDataType.TYPE_MASS, calculateStructureMass(status).getMass());
-		data.setValue(FlightDataType.TYPE_MOTOR_MASS, 0.0); // Is this a reasonable assumption? Probably.
+		double mass = rocketMass + motorMass;
+		data.setValue(FlightDataType.TYPE_MASS, mass);
+		data.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0.0);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, 0.0);
