@@ -32,9 +32,9 @@ public class FinSetShapes extends RocketComponentShape {
 
         final Transformation compositeTransform = transformation.applyTransformation(cantRotation);
 		
-		Coordinate finPoints[] = finset.getFinPoints();
-        Coordinate tabPoints[] = finset.getTabPoints();
-        Coordinate rootPoints[] = finset.getRootPoints();
+		Coordinate[] finPoints = finset.getFinPoints();
+        Coordinate[] tabPoints = finset.getTabPoints();
+        Coordinate[] rootPoints = finset.getRootPoints();
 
 		// Translate & rotate points into place
         finPoints = compositeTransform.transform( finPoints );
