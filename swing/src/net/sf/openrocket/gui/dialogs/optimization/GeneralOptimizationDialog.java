@@ -190,12 +190,13 @@ public class GeneralOptimizationDialog extends JDialog {
 	 * @param document  the document
 	 * @param parent    the parent window
 	 */
-	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) {
+	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) throws InterruptedException {
 		super(parent, trans.get("title"));
 		
 		this.baseDocument = document;
 		this.documentCopy = document.copy();
-		
+
+		checkExistingSimulations();
 		loadOptimizationParameters();
 		loadSimulationModifiers();
 		
@@ -903,6 +904,19 @@ public class GeneralOptimizationDialog extends JDialog {
 		// Update selectable parameters
 		populateParameters();
 		
+	}
+
+	/**
+	 * Checks whether there are simulations present in the document. If not, a pop-up information
+	 * dialog launches stating that the optimizer cannot be launched.
+	 * @throws InterruptedException when no simulations present
+	 */
+	private void checkExistingSimulations() throws InterruptedException {
+		if (documentCopy.getSimulations().size() == 0) {
+			JOptionPane.showMessageDialog(null, trans.get("GeneralOptimizationDialog.info.noSims.message"),
+					trans.get("GeneralOptimizationDialog.info.noSims.title"), JOptionPane.INFORMATION_MESSAGE);
+			throw new InterruptedException("No simulations to optimize");
+		}
 	}
 	
 	private void populateSimulations() {
