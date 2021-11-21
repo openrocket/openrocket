@@ -716,7 +716,11 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Rocket optimization selected");
-				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+				try {
+					new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+				} catch (InterruptedException ex) {
+					log.warn(ex.getMessage());
+				}
 			}
 		});
 		menu.add(item);
