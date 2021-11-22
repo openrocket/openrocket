@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.configdialog;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -18,7 +17,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,7 +33,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import net.sf.openrocket.util.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,17 +250,22 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
-		JButton exportCsvButton = new SelectColorButton("Export CSV");
+		JButton exportCsvButton = new SelectColorButton(trans.get("FreeformFinSetConfig.lbl.exportCSV"));
 		exportCsvButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
 				
 				JFileChooser chooser = new JFileChooser();
-				// Demonstrate "Save" dialog:
+				chooser.setFileFilter(FileHelper.CSV_FILTER);
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 
                 if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FreeformFinSetConfig.this)){
                 	File selectedFile= chooser.getSelectedFile();
+					selectedFile = FileHelper.forceExtension(selectedFile, "csv");
+					if (!FileHelper.confirmWrite(selectedFile, panel)) {
+						return;
+					}
 
 				    FreeformFinSetConfig.writeCSVFile(table, selectedFile);
 				}

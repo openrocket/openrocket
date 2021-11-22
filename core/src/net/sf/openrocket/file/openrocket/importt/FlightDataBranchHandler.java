@@ -7,11 +7,13 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(FlightDataBranchHandler.class);
 	private final SingleSimulationHandler simHandler;
+	private static final Translator trans = Application.getTranslator();
 	
 	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.simHandler = simHandler;
@@ -79,6 +82,11 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			if (t.getName().equals(name)) {
 				return t;
 			}
+		}
+
+		// Replace deprecated 'Position upwind' with new 'Position North of launch' option
+		if (name.equals(trans.get("FlightDataType.TYPE_UPWIND"))) {
+			return FlightDataType.TYPE_POSITION_Y;
 		}
 		
 		// Look in custom expressions

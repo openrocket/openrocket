@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class UniqueID {
 	
-	private static AtomicInteger nextId = new AtomicInteger(1);
+	private static final AtomicInteger nextId = new AtomicInteger(1);
 	
 	/**
 	 * Return a positive integer ID unique during this program execution.

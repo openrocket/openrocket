@@ -21,6 +21,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -35,6 +36,8 @@ public class TransitionConfig extends RocketComponentConfig {
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private BasicSlider shapeSlider;
+	private final JCheckBox checkAutoAftRadius;
+	private final JCheckBox checkAutoForeRadius;
 	private DescriptionArea description;
 	
 
@@ -120,10 +123,11 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(foreRadiusModel), "growx");
 			panel.add(new BasicSlider(foreRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
 
-			final JCheckBox checkbox = new JCheckBox(foreRadiusModel.getAutomaticAction());
+			checkAutoForeRadius = new JCheckBox(foreRadiusModel.getAutomaticAction());
 			//// Automatic
-			checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-			panel.add(checkbox, "skip, span 2, wrap");
+			checkAutoForeRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+			panel.add(checkAutoForeRadius, "skip, span 2, wrap");
+			updateCheckboxAutoForeRadius();
 		}
 
 		{	//// Aft diameter:
@@ -139,10 +143,11 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(aftRadiusModel), "growx");
 			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
 
-			final JCheckBox aftRadiusCheckbox = new JCheckBox(aftRadiusModel.getAutomaticAction());
+			checkAutoAftRadius = new JCheckBox(aftRadiusModel.getAutomaticAction());
 			//// Automatic
-			aftRadiusCheckbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-			panel.add(aftRadiusCheckbox, "skip, span 2, wrap");
+			checkAutoAftRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+			panel.add(checkAutoAftRadius, "skip, span 2, wrap");
+			updateCheckboxAutoAftRadius();
 		}
 
 		{ ///  Wall thickness:
@@ -193,6 +198,58 @@ public class TransitionConfig extends RocketComponentConfig {
 		shapeLabel.setEnabled(e);
 		shapeSpinner.setEnabled(e);
 		shapeSlider.setEnabled(e);
+	}
+
+	/**
+	 * Sets the checkAutoAftRadius checkbox's enabled state and tooltip text, based on the state of its next component.
+	 * If there is no next symmetric component or if that component already has its auto checkbox checked, the
+	 * checkAutoAftRadius checkbox is disabled.
+	 */
+	private void updateCheckboxAutoAftRadius() {
+		if (component == null || checkAutoAftRadius == null) return;
+
+		// Disable check button if there is no component to get the diameter from
+		SymmetricComponent nextComp = ((Transition) component).getNextSymmetricComponent();
+		if (nextComp == null) {
+			checkAutoAftRadius.setEnabled(false);
+			((Transition) component).setAftRadiusAutomatic(false);
+			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_noReferenceComponent"));
+			return;
+		}
+		if (!nextComp.usesPreviousCompAutomatic()) {
+			checkAutoAftRadius.setEnabled(true);
+			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
+		} else {
+			checkAutoAftRadius.setEnabled(false);
+			((Transition) component).setAftRadiusAutomatic(false);
+			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_alreadyAuto"));
+		}
+	}
+
+	/**
+	 * Sets the checkAutoForeRadius checkbox's enabled state and tooltip text, based on the state of its next component.
+	 * If there is no next symmetric component or if that component already has its auto checkbox checked, the
+	 * checkAutoForeRadius checkbox is disabled.
+	 */
+	private void updateCheckboxAutoForeRadius() {
+		if (component == null || checkAutoForeRadius == null) return;
+
+		// Disable check button if there is no component to get the diameter from
+		SymmetricComponent prevComp = ((Transition) component).getPreviousSymmetricComponent();
+		if (prevComp == null) {
+			checkAutoForeRadius.setEnabled(false);
+			((Transition) component).setForeRadiusAutomatic(false);
+			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_noReferenceComponent"));
+			return;
+		}
+		if (!prevComp.usesNextCompAutomatic()) {
+			checkAutoForeRadius.setEnabled(true);
+			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
+		} else {
+			checkAutoForeRadius.setEnabled(false);
+			((Transition) component).setForeRadiusAutomatic(false);
+			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_alreadyAuto"));
+		}
 	}
 	
 }

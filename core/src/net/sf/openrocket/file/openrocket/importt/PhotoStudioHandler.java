@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class PhotoStudioHandler extends AbstractElementHandler {
     // The Photo Settings will be saved in the core module as a map of key values with corresponding content
-    private Map<String, String> p;
+    private final Map<String, String> p;
     private static final Logger log = LoggerFactory.getLogger(OpenRocketHandler.class);
 
     public PhotoStudioHandler(Map<String, String> p) {

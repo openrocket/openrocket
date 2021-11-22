@@ -10,7 +10,7 @@ import net.sf.openrocket.util.BugException;
 
 public class MaterialLoader extends RocksimComponentFileLoader {
 	
-	private MaterialHolder materialMap = new MaterialHolder();
+	private final MaterialHolder materialMap = new MaterialHolder();
 	
 	private final static TypedKey<String> MATERIALNAME = new TypedKey<String>("MaterialName", String.class);
 	private final static TypedKey<String> UNITS = new TypedKey<String>("Units", String.class);

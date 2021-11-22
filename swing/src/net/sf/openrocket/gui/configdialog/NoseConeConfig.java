@@ -23,6 +23,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -36,6 +37,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private JSlider shapeSlider;
+	private final JCheckBox checkAutoAftRadius;
 	private static final Translator trans = Application.getTranslator();
 	
 	// Prepended to the description from NoseCone.DESCRIPTIONS
@@ -109,10 +111,11 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(aftRadiusModel), "growx");
 			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
 
-			JCheckBox check = new JCheckBox(aftRadiusModel.getAutomaticAction());
+			checkAutoAftRadius = new JCheckBox(aftRadiusModel.getAutomaticAction());
 			//// Automatic
-			check.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
-			panel.add(check, "skip, span 2, wrap");
+			checkAutoAftRadius.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
+			panel.add(checkAutoAftRadius, "skip, span 2, wrap");
+			updateCheckboxAutoAftRadius();
 		}
 
 		{////  Wall thickness:
@@ -165,6 +168,30 @@ public class NoseConeConfig extends RocketComponentConfig {
 		shapeSpinner.setEnabled(e);
 		shapeSlider.setEnabled(e);
 	}
-	
 
+	/**
+	 * Sets the checkAutoAftRadius checkbox's enabled state and tooltip text, based on the state of its next component.
+	 * If there is no next symmetric component or if that component already has its auto checkbox checked, the
+	 * checkAutoAftRadius checkbox is disabled.
+	 */
+	private void updateCheckboxAutoAftRadius() {
+		if (component == null || checkAutoAftRadius == null) return;
+
+		// Disable check button if there is no component to get the diameter from
+		SymmetricComponent nextComp = ((NoseCone) component).getNextSymmetricComponent();
+		if (nextComp == null) {
+			checkAutoAftRadius.setEnabled(false);
+			((NoseCone) component).setAftRadiusAutomatic(false);
+			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_noReferenceComponent"));
+			return;
+		}
+		if (!nextComp.usesPreviousCompAutomatic()) {
+			checkAutoAftRadius.setEnabled(true);
+			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic"));
+		} else {
+			checkAutoAftRadius.setEnabled(false);
+			((NoseCone) component).setAftRadiusAutomatic(false);
+			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_alreadyAuto"));
+		}
+	}
 }

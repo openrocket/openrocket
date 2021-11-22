@@ -228,7 +228,7 @@ public abstract class BaseComponentDTO {
 	
 	static class AnnotatedLengthDTO {
 		@XmlAttribute(name = "Unit", required = false)
-		private String unitName = "m";
+		private final String unitName = "m";
 		@XmlValue
 		private double length;
 		
@@ -246,7 +246,7 @@ public abstract class BaseComponentDTO {
 	
 	static class AnnotatedMassDTO {
 		@XmlAttribute(name = "Unit", required = false)
-		private String unitName = "kg";
+		private final String unitName = "kg";
 		@XmlValue
 		private double mass;
 		

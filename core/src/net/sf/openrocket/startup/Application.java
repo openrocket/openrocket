@@ -27,11 +27,8 @@ public final class Application {
 	public static boolean useSafetyChecks() {
 		// Currently default to false unless openrocket.debug.safetycheck is defined
 		String s = System.getProperty("openrocket.debug.safetycheck");
-		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
-			return true;
-		}
-		return false;
-	}
+        return s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"));
+    }
 	
 	private static Translator getBaseTranslator() {
 		if (injector == null) {

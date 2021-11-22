@@ -3,7 +3,7 @@ package net.sf.openrocket.file;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +49,7 @@ public class CSVExport {
 		PrintWriter writer = null;
 		try {
 
-			writer = new PrintWriter(stream, false, Charset.forName("UTF-8"));
+			writer = new PrintWriter(stream, false, StandardCharsets.UTF_8);
 
 			// Write the initial comments
 			if (simulationComments) {

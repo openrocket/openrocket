@@ -48,8 +48,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.openrocket.optimization.rocketoptimization.modifiers.GenericComponentModifier;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,12 +190,13 @@ public class GeneralOptimizationDialog extends JDialog {
 	 * @param document  the document
 	 * @param parent    the parent window
 	 */
-	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) {
+	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) throws InterruptedException {
 		super(parent, trans.get("title"));
 		
 		this.baseDocument = document;
 		this.documentCopy = document.copy();
-		
+
+		checkExistingSimulations();
 		loadOptimizationParameters();
 		loadSimulationModifiers();
 		
@@ -906,6 +905,19 @@ public class GeneralOptimizationDialog extends JDialog {
 		populateParameters();
 		
 	}
+
+	/**
+	 * Checks whether there are simulations present in the document. If not, a pop-up information
+	 * dialog launches stating that the optimizer cannot be launched.
+	 * @throws InterruptedException when no simulations present
+	 */
+	private void checkExistingSimulations() throws InterruptedException {
+		if (documentCopy.getSimulations().size() == 0) {
+			JOptionPane.showMessageDialog(null, trans.get("GeneralOptimizationDialog.info.noSims.message"),
+					trans.get("GeneralOptimizationDialog.info.noSims.title"), JOptionPane.INFORMATION_MESSAGE);
+			throw new InterruptedException("No simulations to optimize");
+		}
+	}
 	
 	private void populateSimulations() {
 		String current = null;
@@ -1112,7 +1124,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);
 		
@@ -1123,7 +1135,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		if (file == null)
 			return;
 		
-		file = FileHelper.ensureExtension(file, "csv");
+		file = FileHelper.forceExtension(file, "csv");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return;
 		}

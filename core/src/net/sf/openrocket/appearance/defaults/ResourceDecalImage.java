@@ -40,7 +40,7 @@ public class ResourceDecalImage implements DecalImage {
 	}
 	
 	@Override
-	public InputStream getBytes() throws FileNotFoundException, IOException {
+	public InputStream getBytes() throws IOException {
 		return this.getClass().getResourceAsStream(resource);
 	}
 	

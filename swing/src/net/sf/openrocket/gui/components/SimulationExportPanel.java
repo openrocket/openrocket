@@ -194,7 +194,7 @@ public class SimulationExportPanel extends JPanel {
 	
 	private void doExport() {
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
@@ -204,7 +204,7 @@ public class SimulationExportPanel extends JPanel {
 		if (file == null)
 			return;
 		
-		file = FileHelper.ensureExtension(file, "csv");
+		file = FileHelper.forceExtension(file, "csv");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return;
 		}

@@ -81,6 +81,7 @@ public class SimulationEditDialog extends JDialog {
 		if (!allowsPlotMode()) {
 			return;
 		}
+		setTitle(trans.get("simplotpanel.title.Plotsim"));
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, PLOTMODE);
 		cards.validate();

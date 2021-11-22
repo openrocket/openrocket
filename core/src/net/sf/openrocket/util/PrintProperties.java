@@ -14,7 +14,7 @@ public class PrintProperties {
 		}
 		
 		for (String key: keys) {
-			System.out.println(key + "=" + System.getProperty((String)key));
+			System.out.println(key + "=" + System.getProperty(key));
 		}
 		
 	}

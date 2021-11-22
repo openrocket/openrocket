@@ -49,9 +49,8 @@ public class TestFunctionOptimizer {
 				return stepCount < maxSteps;
 			}
 		};
-		;
-		
-		functionCache.setFunction(function);
+
+        functionCache.setFunction(function);
 		optimizer.setFunctionCache(functionCache);
 		optimizer.optimize(new Point(optimum.dim(), 0.5), control);
 		System.err.println("Result: " + optimizer.getOptimumPoint() + "  value=" + optimizer.getOptimumValue());

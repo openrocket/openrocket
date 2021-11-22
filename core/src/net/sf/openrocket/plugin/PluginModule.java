@@ -17,8 +17,8 @@ import com.google.inject.multibindings.Multibinder;
 public class PluginModule extends AbstractModule {
 	
 	
-	private Map<Class<?>, Multibinder<?>> binders = new HashMap<Class<?>, Multibinder<?>>();
-	private AnnotationFinder finder = new AnnotationFinderImpl();
+	private final Map<Class<?>, Multibinder<?>> binders = new HashMap<Class<?>, Multibinder<?>>();
+	private final AnnotationFinder finder = new AnnotationFinderImpl();
 	
 	
 	@SuppressWarnings("unchecked")

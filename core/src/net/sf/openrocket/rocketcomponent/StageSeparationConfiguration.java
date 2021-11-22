@@ -5,6 +5,8 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
+import java.util.Objects;
+
 public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
 	
 	public static enum SeparationEvent {
@@ -94,7 +96,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	private static final Translator trans = Application.getTranslator();
 	
 	
-	private SeparationEvent separationEvent = SeparationEvent.NEVER;
+	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
 	private double separationDelay = 0;
 		
 	public SeparationEvent getSeparationEvent() {
@@ -144,8 +146,20 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		clone.separationDelay = this.separationDelay;
 		return clone;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		StageSeparationConfiguration that = (StageSeparationConfiguration) o;
+		return Double.compare(that.separationDelay, separationDelay) == 0 && separationEvent == that.separationEvent;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(separationEvent, separationDelay);
+	}
+
 	private void fireChangeEvent() {
 
 	}

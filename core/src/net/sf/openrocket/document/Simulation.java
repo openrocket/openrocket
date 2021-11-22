@@ -64,7 +64,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		CANT_RUN
 	}
 	
-	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	
 	private SafetyMutex mutex = SafetyMutex.newInstance();
@@ -87,7 +87,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
 	private Class<? extends AerodynamicCalculator> aerodynamicCalculatorClass = BarrowmanCalculator.class;
 	@SuppressWarnings("unused")
-	private Class<? extends MassCalculator> massCalculatorClass = MassCalculator.class;
+	private final Class<? extends MassCalculator> massCalculatorClass = MassCalculator.class;
 	
 	/** Listeners for this object */
 	private List<EventListener> listeners = new ArrayList<EventListener>();

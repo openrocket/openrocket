@@ -837,11 +837,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 	public boolean isRootStraight( ){
         if( getParent() instanceof Transition){
-            if( ((Transition)getParent()).getType() == Transition.Shape.CONICAL ){
-                return true;
-            }else{
-                return false;
-            }
+			return ((Transition) getParent()).getType() == Shape.CONICAL;
         }
         
         // by default, assume a flat base
@@ -1163,7 +1159,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		// correct last point, if beyond a rounding error from body's end.
 		final int lastIndex = points.length - 1;
-		if( body.getLength()-0.000001 < points[lastIndex].x) {
+		if (Math.abs(points[lastIndex].x - body.getLength()) < 0.000001) {
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
 

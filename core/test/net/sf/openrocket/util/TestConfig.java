@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class TestConfig {
 	
-	private Config config = new Config();
+	private final Config config = new Config();
 	
 	@Test
 	public void testDoubles() {
@@ -41,7 +41,7 @@ public class TestConfig {
 		assertEquals(true, config.getBoolean("foo", true));
 		assertEquals(123, (int) config.getInt("foo", 123));
 		assertEquals(123L, (long) config.getLong("foo", 123L));
-		assertEquals(1.23, (double) config.getDouble("foo", 1.23), 0);
+		assertEquals(1.23, config.getDouble("foo", 1.23), 0);
 		assertEquals("bar", config.getString("foo", "bar"));
 		assertEquals(Arrays.asList("foo"), config.getList("foo", Arrays.asList("foo")));
 	}
@@ -110,7 +110,7 @@ public class TestConfig {
 		assertEquals("foo", copy.getString("string", null));
 		assertEquals(123, (int) copy.getInt("int", null));
 		assertEquals(100, (int) copy.getInt("atomicinteger", null));
-		assertEquals(Math.PI, (double) copy.getDouble("double", null), 0);
+		assertEquals(Math.PI, copy.getDouble("double", null), 0);
 		assertEquals(Arrays.asList("Foo"), copy.getList("list", null));
 	}
 	

@@ -36,7 +36,7 @@ public class FlightData {
 		NaN_DATA = data;
 	}
 	
-	private Mutable mutable = new Mutable();
+	private final Mutable mutable = new Mutable();
 	
 	private final ArrayList<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
 	
@@ -220,7 +220,7 @@ public class FlightData {
 			timeToApogee = Double.NaN;
 		
 
-		// Launch rod velocity
+		// Launch rod velocity + deployment velocity + ground hit velocity
 		for (FlightEvent event : branch.getEvents()) {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();

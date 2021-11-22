@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class WGSGravityModelTest {
 	
-	private WGSGravityModel model = new WGSGravityModel();
+	private final WGSGravityModel model = new WGSGravityModel();
 	
 	@Test
 	public void testSurfaceGravity() {

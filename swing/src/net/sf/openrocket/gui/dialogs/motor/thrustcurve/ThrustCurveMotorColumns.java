@@ -30,11 +30,11 @@ enum ThrustCurveMotorColumns {
 			return Collator.getInstance();
 		}
 	},
-	//// Designation
-	DESIGNATION("TCurveMotorCol.DESIGNATION") {
+	//// Common name
+	COMMON_NAME("TCurveMotorCol.COMMON_NAME") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
-			return m.getDesignation();
+			return m.getCommonName();
 		}
 		
 		@Override

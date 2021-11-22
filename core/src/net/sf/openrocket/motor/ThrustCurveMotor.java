@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,10 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private String digest = "";
 	
 	private Manufacturer manufacturer = Manufacturer.getManufacturer("Unknown");
+	private String code = "";
+	private String commonName = "";
 	private String designation = "";
+		
 	private String description = "";
 	private Motor.Type type = Motor.Type.UNKNOWN;
 	private double[] delays = {};
@@ -72,6 +77,16 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		public Builder setDescription(String d) {
 			motor.description = d;
+			return this;
+		}
+
+		public Builder setCode(String c) {
+			motor.code = c;
+			return this;
+		}
+		
+		public Builder setCommonName(String n) {
+			motor.commonName = n;
 			return this;
 		}
 		
@@ -130,9 +145,27 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return this;
 		}
 		
-		public Builder setAvailablity(boolean avail) {
+		public Builder setAvailability(boolean avail) {
 			motor.available = avail;
 			return this;
+		}
+	
+		/**
+		 * Simplify a motor designation, if possible.  This attempts to reduce the designation
+		 * into a simple letter + number notation for the impulse class and average thrust.
+		 * 
+		 * @param str	the designation to simplify
+		 * @return		the simplified designation, or the string itself if the format was not detected
+		 */
+		private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
+		public static String simplifyDesignation(String str) {
+			str = str.trim();
+			Matcher m = SIMPLIFY_PATTERN.matcher(str);
+			if (m.matches()) {
+				return m.group(1);
+			} else {
+				return str.replaceAll("\\s", "");
+			}
 		}
 		
 		public ThrustCurveMotor build() {
@@ -201,6 +234,19 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			
 			motor.unitRotationalInertia = Inertia.filledCylinderRotational( motor.diameter / 2);
 			motor.unitLongitudinalInertia = Inertia.filledCylinderLongitudinal( motor.diameter / 2, motor.length);
+
+			// If I don't have a motor designation (will be the case if I read the thrustcurve from a file)
+			// use the motor code
+			if (motor.designation.equals("")) {
+				motor.designation = motor.code;
+			}
+
+			// If I don't have a motor common name (will be the case if I read the thrustcurve from a flle)
+			// apply the motor code simplification heuristics to generate a common name
+			if (motor.commonName.equals("")) {
+				motor.commonName = simplifyDesignation(motor.designation);
+			}
+				
 
 			motor.computeStatistics();
 			
@@ -440,6 +486,21 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	public double getUnitIzz(){
 		return this.unitLongitudinalInertia;
 	}
+
+	@Override
+	public String getCode() {
+		return code;
+	}
+
+	@Override
+	public String getCommonName() {
+		return commonName;
+	}
+
+	@Override
+	public String getCommonName(double delay) {
+		return commonName + "-" + getDelayString(delay);
+	}
 	
 	@Override
 	public String getDesignation() {
@@ -560,7 +621,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		if( SNAP_TOLERANCE > (1-lowerFrac) ){
 			return cg[ (int) pseudoIndex ];
 		}else if( SNAP_TOLERANCE > upperFrac ){
-			return cg[ (int)upperIndex ];
+			return cg[upperIndex];
 		}
 		
 		// return simple linear interpolation
@@ -749,7 +810,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		// 1. Manufacturer
 		value = COLLATOR.compare(this.manufacturer.getDisplayName(),
-				((ThrustCurveMotor) other).manufacturer.getDisplayName());
+				other.manufacturer.getDisplayName());
 		if (value != 0)
 			return value;
 		

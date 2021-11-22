@@ -18,7 +18,7 @@ public enum ShapeDTO {
     PARABOLIC (Transition.Shape.PARABOLIC),
     HAACK (Transition.Shape.HAACK);
 
-    private Transition.Shape corollary;
+    private final Transition.Shape corollary;
 
     private ShapeDTO(Transition.Shape theShape) {
         corollary = theShape;

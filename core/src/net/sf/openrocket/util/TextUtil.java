@@ -1,7 +1,7 @@
 package net.sf.openrocket.util;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 public class TextUtil {
@@ -19,7 +19,7 @@ public class TextUtil {
 	 * String.getBytes(Charset)
 	 */
 	public static byte[] asciiBytes(String string) {
-		ByteBuffer encoded = Charset.forName("US-ASCII").encode(string);
+		ByteBuffer encoded = StandardCharsets.US_ASCII.encode(string);
 		return encoded.array();
 	}
 	

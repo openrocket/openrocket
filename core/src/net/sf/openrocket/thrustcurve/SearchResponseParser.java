@@ -2,6 +2,8 @@ package net.sf.openrocket.thrustcurve;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 import org.xml.sax.InputSource;
@@ -51,7 +53,7 @@ public class SearchResponseParser implements ElementHandler {
 	private static final String updated_on = "updated-on";
 	private static final String availability = "availability";
 	
-	private SearchResponse response = new SearchResponse();
+	private final SearchResponse response = new SearchResponse();
 	
 	private TCMotor currentMotor;
 	
@@ -171,6 +173,12 @@ public class SearchResponseParser implements ElementHandler {
 			break;
 		case availability:
 			currentMotor.setAvailability(content);
+			break;
+		case updated_on:
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+			try {
+				currentMotor.setUpdated_on(formatter.parse(content));
+			} catch (ParseException ignored) { }
 			break;
 		}
 		

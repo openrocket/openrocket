@@ -25,7 +25,7 @@ public class MassComponent extends MassObject {
 		RECOVERYHARDWARE(Application.getTranslator().get("MassComponent.RecoveryHardware")),
 		BATTERY(Application.getTranslator().get("MassComponent.Battery"));
 		
-		private String title;
+		private final String title;
 		
 		MassComponentType(String title) {
 			this.title = title;

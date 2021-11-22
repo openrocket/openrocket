@@ -1,10 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.EventObject;
 import java.util.Iterator;
 
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -25,6 +22,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	private double outerRadius = 0;
 	private boolean autoRadius = false; // Radius chosen automatically based on parent component
+
+	private SymmetricComponent refComp = null;	// Reference component that is used for the autoRadius
 	
 	// When changing the inner radius, thickness is modified
 	private double overhang = 0;
@@ -79,19 +78,31 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 			// Return auto radius from front or rear
 			double r = -1;
 			SymmetricComponent c = this.getPreviousSymmetricComponent();
-			if (c != null) {
+			// Don't use the radius of a component who already has its auto diameter enabled
+			if (c != null && !c.usesNextCompAutomatic()) {
 				r = c.getFrontAutoRadius();
+				refComp = c;
 			}
 			if (r < 0) {
 				c = this.getNextSymmetricComponent();
-				if (c != null) {
+				// Don't use the radius of a component who already has its auto diameter enabled
+				if (c != null && !c.usesPreviousCompAutomatic()) {
 					r = c.getRearAutoRadius();
+					refComp = c;
 				}
 			}
 			if (r < 0)
 				r = DEFAULT_RADIUS;
 			return r;
 		}
+		return outerRadius;
+	}
+
+	/**
+	 * Return the outer radius that was manually entered, so not the value that the component received from automatic
+	 * outer radius.
+	 */
+	public double getOuterRadiusNoAutomatic() {
 		return outerRadius;
 	}
 	
@@ -136,8 +147,17 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
 	}
-	
-	
+
+	@Override
+	public boolean usesPreviousCompAutomatic() {
+		return isOuterRadiusAutomatic() && refComp == getPreviousSymmetricComponent();
+	}
+
+	@Override
+	public boolean usesNextCompAutomatic() {
+		return isOuterRadiusAutomatic() && refComp == getNextSymmetricComponent();
+	}
+
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		this.autoRadius = false;

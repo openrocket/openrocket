@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.text.MessageFormat;
 import java.util.List;
 
+import net.sf.openrocket.l10n.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 
+import javax.swing.JOptionPane;
+
 /**
  * An asynchronous database loader that loads the internal thrust curves
  * and external user-supplied thrust curves to a ThrustCurveMotorSetDatabase.
@@ -32,7 +36,7 @@ import net.sf.openrocket.util.Pair;
 public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	private final static Logger log = LoggerFactory.getLogger(MotorDatabaseLoader.class);
-	
+
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	private static final long STARTUP_DELAY = 0;
 	
@@ -135,7 +139,17 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	private void loadFile(GeneralMotorLoader loader, Pair<String, InputStream> f) {
 		try {
 			List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU());
-			addMotorsFromBuilders(motors);
+			try {
+				addMotorsFromBuilders(motors);
+			}
+			catch (IllegalArgumentException e) {
+				Translator trans = Application.getTranslator();
+				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
+						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), f.getU()) +
+						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
+				JOptionPane.showMessageDialog(null,
+						message, trans.get("MotorDbLoaderDlg.title"), JOptionPane.WARNING_MESSAGE);
+			}
 			f.getV().close();
 		} catch (IOException e) {
 			log.warn("IOException while loading file " + f.getU() + ": " + e, e);

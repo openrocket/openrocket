@@ -14,7 +14,7 @@ public enum IgnitionEvent {
 	AUTOMATIC( "AUTOMATIC", "MotorMount.IgnitionEvent.AUTOMATIC"){
 		@Override
 		public boolean isActivationEvent(FlightEvent testEvent, RocketComponent targetComponent) {
-			AxialStage targetStage = (AxialStage)targetComponent.getStage();
+			AxialStage targetStage = targetComponent.getStage();
 			
 	        if ( targetStage.isLaunchStage() ){
 	        	return LAUNCH.isActivationEvent(testEvent, targetComponent);
@@ -36,8 +36,8 @@ public enum IgnitionEvent {
 				return false;
 			}
 			    
-			AxialStage targetStage = (AxialStage)targetComponent.getStage();
-			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
+			AxialStage targetStage = targetComponent.getStage();
+			AxialStage eventStage = testEvent.getSource().getStage();
 			AxialStage eventParentStage = eventStage.getUpperStage();
 			return ( targetStage.equals(eventParentStage));
 		}
@@ -48,8 +48,8 @@ public enum IgnitionEvent {
 			if (testEvent.getType() != FlightEvent.Type.BURNOUT)
 				return false;
 			
-			AxialStage targetStage = (AxialStage)targetComponent.getStage();
-			AxialStage eventStage =  (AxialStage)testEvent.getSource().getStage();
+			AxialStage targetStage = targetComponent.getStage();
+			AxialStage eventStage = testEvent.getSource().getStage();
 			AxialStage eventParentStage = eventStage.getUpperStage();
 			return ( targetStage.equals(eventParentStage));
 		}

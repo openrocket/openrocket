@@ -29,13 +29,9 @@ public class BoundingBox {
 	}
 
 	public boolean isEmpty(){
-		if( (min.x > max.x) ||
-			(min.y > max.y) ||
-			(min.z > max.z)){
-			return true;
-		}else{
-			return false;
-		}
+        return (min.x > max.x) ||
+                (min.y > max.y) ||
+                (min.z > max.z);
 	}
 
 	/**

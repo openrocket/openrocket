@@ -21,7 +21,7 @@ import net.sf.openrocket.util.Pair;
 
 public class SerializeThrustcurveMotors {
 	
-	private static String[] manufacturers = {
+	private static final String[] manufacturers = {
 			"AeroTech",
 			"Alpha",
 			"AMW",
@@ -75,7 +75,7 @@ public class SerializeThrustcurveMotors {
 		
 	}
 	
-	public static void loadFromThrustCurve(List<Motor> allMotors) throws SAXException, MalformedURLException, IOException {
+	public static void loadFromThrustCurve(List<Motor> allMotors) throws SAXException, IOException {
 		
 		SearchRequest searchRequest = new SearchRequest();
 		for (String m : manufacturers) {
@@ -133,14 +133,12 @@ public class SerializeThrustcurveMotors {
 						builder.setDiameter(mi.getDiameter() / 1000.0);
 						builder.setLength(mi.getLength() / 1000.0);
 						builder.setMotorType(type);
+
+						builder.setCommonName(mi.getCommon_name());
+						builder.setDesignation(mi.getDesignation());
 						
-						if ("OOP".equals(mi.getAvailiability())) {
-							builder.setDesignation(mi.getDesignation());
-							builder.setAvailablity(false);
-						} else if (mi.getDesignation().startsWith("Micro")) {
-							builder.setDesignation(mi.getDesignation());
-						} else {
-							builder.setDesignation(mi.getCommon_name());
+						if ("OOP".equals(mi.getAvailability())) {
+							builder.setAvailability(false);
 						}
 
 						allMotors.add(builder.build());
@@ -164,7 +162,7 @@ public class SerializeThrustcurveMotors {
 	}
 	
 	private static List<MotorBurnFile> getThrustCurvesForMotorId(int motorId) {
-		String formats[] = new String[] {"RASP", "RockSim"};
+		String[] formats = new String[] {"RASP", "RockSim"};
 		List<MotorBurnFile> b = new ArrayList<>();
 		for (String format : formats) {
 			try {

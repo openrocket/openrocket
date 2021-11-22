@@ -44,7 +44,9 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 					matchDescription = false;
 				else if (manufacturer != null && !m.getManufacturer().matches(manufacturer))
 					matchDescription = false;
-				else if (designation != null && !designation.equalsIgnoreCase(m.getDesignation()))
+				else if (designation != null &&
+						 !designation.equalsIgnoreCase(m.getDesignation()) &&
+						 !designation.equalsIgnoreCase(m.getCommonName()))
 					matchDescription = false;
 				else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.005))
 					matchDescription = false;

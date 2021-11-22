@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 public class DefaultSimulationOptionFactory {
 	
 	@Inject
-	private Preferences prefs;
+	private final Preferences prefs;
 	
 	public static final String SIMCONDITION_WIND_SPEED = "SimConditionWindSpeed";
 	public static final String SIMCONDITION_WIND_STDDEV = "SimConditionWindStdDev";

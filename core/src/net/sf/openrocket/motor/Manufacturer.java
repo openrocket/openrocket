@@ -35,7 +35,7 @@ public class Manufacturer implements Serializable {
 		}
 		
 	}
-	private static ManufacturerList manufacturers = new ManufacturerList();
+	private static final ManufacturerList manufacturers = new ManufacturerList();
 
 	static {
 		

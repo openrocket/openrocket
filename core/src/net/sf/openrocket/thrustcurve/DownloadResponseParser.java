@@ -26,14 +26,14 @@ public class DownloadResponseParser implements ElementHandler {
 	private static final String data_tag = "data";
 	private static final String error_tag = "error";
 	
-	private DownloadResponse response = new DownloadResponse();
+	private final DownloadResponse response = new DownloadResponse();
 	
 	private MotorBurnFile motorBurnFile;
 	
 	private DownloadResponseParser() {
-	};
-	
-	public static DownloadResponse parse(InputStream in) throws IOException, SAXException {
+	}
+
+    public static DownloadResponse parse(InputStream in) throws IOException, SAXException {
 		
 		DownloadResponseParser handler = new DownloadResponseParser();
 		WarningSet warnings = new WarningSet();

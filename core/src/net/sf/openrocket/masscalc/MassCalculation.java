@@ -106,7 +106,7 @@ public class MassCalculation {
 	
 	@Override
 	public int hashCode() {
-		return (int) (this.centerOfMass.hashCode());
+		return this.centerOfMass.hashCode();
 	}
 
 	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time,
@@ -343,6 +343,10 @@ public class MassCalculation {
 			
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
+
+			// setting zero as the CG position means the top of the component, which is component.getPosition()
+			final Coordinate compZero = parentTransform.transform( component.getPosition() );
+
 			if (component.getOverrideSubcomponents()) {
 				if( component.isMassive() ){
 					// if this component mass, merge it in before overriding:
@@ -352,14 +356,13 @@ public class MassCalculation {
 					this.setCM( this.getCM().setWeight(component.getOverrideMass()) );
 				}
 				if (component.isCGOverridden()) {
-					this.setCM( this.getCM().setX( compCM.x + component.getOverrideCGX()));
+					this.setCM( this.getCM().setX( compZero.x + component.getOverrideCGX()));
 				}
 			}else {
 				if (component.isMassOverridden()) {
 					compCM = compCM.setWeight( component.getOverrideMass() );
 				}
 				if (component.isCGOverridden()) {
-					final Coordinate compZero = parentTransform.transform( Coordinate.ZERO );
 					compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
 				}
 				this.addMass( compCM );

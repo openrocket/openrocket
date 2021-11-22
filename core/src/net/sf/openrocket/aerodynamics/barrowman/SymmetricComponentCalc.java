@@ -415,10 +415,11 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		LinearInterpolator interpolator = new LinearInterpolator();
 		
 		// In the range M = 1 ... 1.3 use polynomial approximation
-		double cdMach1 = 2.1 * pow2(sinphi) + 0.6019 * sinphi;
+		double cdMach1 = sinphi;
+		double cdMach1_3 = 2.1 * pow2(sinphi) + 0.6019 * sinphi;
 		
 		double[] poly = conicalPolyInterpolator.interpolator(
-				1.0 * sinphi, cdMach1,
+				cdMach1, cdMach1_3,
 				4 / (GAMMA + 1) * (1 - 0.5 * cdMach1), -1.1341 * sinphi
 				);
 		

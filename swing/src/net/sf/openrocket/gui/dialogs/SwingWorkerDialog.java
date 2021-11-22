@@ -57,7 +57,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 	
 	
 	private SwingWorkerDialog(Window parent, String title, String label, SwingWorker<?, ?> w) {
-		super(parent, title, ModalityType.APPLICATION_MODAL);
+		super(parent, title, ModalityType.DOCUMENT_MODAL);
 		
 		this.worker = w;
 		w.addPropertyChangeListener(this);

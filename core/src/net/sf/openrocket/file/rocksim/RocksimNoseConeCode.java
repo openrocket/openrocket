@@ -33,7 +33,7 @@ public enum RocksimNoseConeCode {
     /**
      * Names of the shape that are sometimes found in NCDATA.CSV
      */
-    private Set<String> shapeNames = new HashSet<String>();
+    private final Set<String> shapeNames = new HashSet<String>();
 
     /**
      * Constructor.

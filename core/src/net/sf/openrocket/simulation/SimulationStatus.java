@@ -53,7 +53,7 @@ public class SimulationStatus implements Monitorable {
 	private double effectiveLaunchRodLength;
 	
 	// Set of all motors	
-	private List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
+	private final List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
 	 
 	
 	/** Nanosecond time when the simulation was started. */
@@ -79,7 +79,7 @@ public class SimulationStatus implements Monitorable {
 	private boolean landed = false;
 	
 	/** Contains a list of deployed recovery devices. */
-	private MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
+	private final MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
 	
 	/** The flight event queue */
 	private final EventQueue eventQueue = new EventQueue();
@@ -514,7 +514,7 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	public String toEventDebug(){
-		final StringBuilder buf = new StringBuilder("");
+		final StringBuilder buf = new StringBuilder();
 		for ( FlightEvent event : this.eventQueue){
 			buf.append("      [t:"+event.getType()+" @"+ event.getTime());
 			if( null != event.getSource()){

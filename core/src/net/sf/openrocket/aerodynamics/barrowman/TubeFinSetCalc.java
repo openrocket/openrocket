@@ -57,7 +57,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 	protected double[] chordTrail = new double[DIVISIONS];
 	protected double[] chordLength = new double[DIVISIONS];
 	
-	private double[] poly = new double[6];
+	private final double[] poly = new double[6];
 	
 	private final double thickness;
 	private final double bodyRadius;

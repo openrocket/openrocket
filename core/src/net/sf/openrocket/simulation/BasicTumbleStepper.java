@@ -37,8 +37,10 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		double dragForce = tumbleDrag * dynP;
 		
 		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
-		double mass = calculateStructureMass(status).getMass();
+		double rocketMass = calculateStructureMass(status).getMass();
+		double motorMass = calculateMotorMass(status).getMass();
 		
+		double mass = rocketMass + motorMass;
 
 		// Compute drag acceleration
 		Coordinate linearAcceleration;
@@ -121,7 +123,7 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
 		
 		data.setValue(FlightDataType.TYPE_MASS, mass);
-		data.setValue(FlightDataType.TYPE_MOTOR_MASS, 0.0); // Is this a reasonable assumption? Probably.
+		data.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);

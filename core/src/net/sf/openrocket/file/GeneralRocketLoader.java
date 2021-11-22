@@ -43,8 +43,8 @@ public class GeneralRocketLoader {
 	
 	private final RocksimLoader rocksimLoader = new RocksimLoader();
 	
-	private File baseFile;
-	private URL jarURL;
+	private final File baseFile;
+	private final URL jarURL;
 	private boolean isContainer;
 	
 	private final MotorFinder motorFinder;

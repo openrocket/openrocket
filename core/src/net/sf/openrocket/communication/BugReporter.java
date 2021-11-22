@@ -3,6 +3,7 @@ package net.sf.openrocket.communication;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 import net.sf.openrocket.util.BuildProperties;
 
@@ -40,7 +41,7 @@ public class BugReporter extends Communicator {
 		try {
 			// Send post information
 			connection.setDoOutput(true);
-			wr = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+			wr = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8);
 			wr.write(post);
 			wr.flush();
 			

@@ -35,10 +35,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private SimulationStepper flightStepper  = new RK4SimulationStepper();
-	private SimulationStepper landingStepper = new BasicLandingStepper();
-	private SimulationStepper tumbleStepper  = new BasicTumbleStepper();
-	private SimulationStepper groundStepper  = new GroundStepper();
+	private final SimulationStepper flightStepper  = new RK4SimulationStepper();
+	private final SimulationStepper landingStepper = new BasicLandingStepper();
+	private final SimulationStepper tumbleStepper  = new BasicTumbleStepper();
+	private final SimulationStepper groundStepper  = new GroundStepper();
 	
 	// Constant holding 20 degrees in radians.  This is the AOA condition
 	// necessary to transition to tumbling.
@@ -259,7 +259,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private boolean handleEvents() throws SimulationException {
 		boolean ret = true;
 		FlightEvent event;
-		
+
 		log.trace("HandleEvents: current branch = " + currentStatus.getFlightData().getBranchName());
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			log.trace("Obtained event from queue:  " + event.toString());
@@ -300,7 +300,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			// Ignore events for components that are no longer attached to the rocket
 			if (event.getSource() != null && event.getSource().getParent() != null &&
 					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
-				log.trace("Ignoring event from unattached componenent");
+				log.trace("Ignoring event from unattached component");
 				continue;
 			}
 			
@@ -332,6 +332,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			
 			// Check for recovery device deployment, add events to queue
+			// TODO: LOW: check if deprecated function getActiveComponents needs to be replaced
 			for (RocketComponent c : currentStatus.getConfiguration().getActiveComponents()) {
 				if (!(c instanceof RecoveryDevice))
 					continue;
@@ -532,7 +533,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 		}
-		
+
+		// TODO : FUTURE : do not hard code the 1200 (maybe even make it configurable by the user)
 		if( 1200 < currentStatus.getSimulationTime() ){
 			ret = false;
 			log.error("Simulation hit max time (1200s): aborting.");

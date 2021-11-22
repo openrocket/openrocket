@@ -325,7 +325,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	private boolean openComponentFile() {
 		final JFileChooser chooser = new JFileChooser();
 		chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
-		chooser.addChoosableFileFilter(FileHelper.CSV_FILE_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 		chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		if (editContext.getLastDirectory() != null) {

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class DownloadResponse {
 
-	private Map<Integer,List<MotorBurnFile>> data = new HashMap<Integer,List<MotorBurnFile>>();
+	private final Map<Integer,List<MotorBurnFile>> data = new HashMap<Integer,List<MotorBurnFile>>();
 	
 	private String error = null;
 	

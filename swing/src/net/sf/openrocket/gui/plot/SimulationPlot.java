@@ -27,6 +27,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LinearInterpolator;
 
+import net.sf.openrocket.utils.DecimalFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
@@ -157,6 +158,9 @@ public class SimulationPlot {
 		for (int i = 0; i < typeCount; i++) {
 			// Get info
 			FlightDataType type = filled.getType(i);
+			if (Objects.equals(type.getName(), "Position upwind")) {
+				type = FlightDataType.TYPE_POSITION_Y;
+			}
 			Unit unit = filled.getUnit(i);
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
@@ -263,7 +267,6 @@ public class SimulationPlot {
 				// Custom tooltip generator
 				int finalAxisno = axisno;
 				StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
-					final DecimalFormat f = new DecimalFormat("0.00");
 					@Override
 					public String generateToolTip(XYDataset dataset, int series, int item) {
 						XYSeries ser = data[finalAxisno].getSeries(series);
@@ -282,14 +285,18 @@ public class SimulationPlot {
 							ord_end = "nd";
 						else if (item % 10 == 3)
 							ord_end = "rd";
+						double data_y = dataset.getYValue(series, item);
+						double data_x = dataset.getXValue(series, item);
+						DecimalFormat df_y = DecimalFormatter.df(data_y, 2, false);
+						DecimalFormat df_x = DecimalFormatter.df(data_x, 2, false);
 						return String.format("<html>" +
 										"<b><i>%s</i></b><br>" +
 										"Y: %s %s<br>" +
 										"X: %s %s<br>" +
 										"%d<sup>%s</sup> sample" +
 										"</html>",
-								name, f.format(dataset.getYValue(series, item)), unit_y,
-								f.format(dataset.getXValue(series, item)), unit_x, item, ord_end);
+								name, df_y.format(data_y), unit_y,
+								df_x.format(data_x), unit_x, item, ord_end);
 					}
 				};
 

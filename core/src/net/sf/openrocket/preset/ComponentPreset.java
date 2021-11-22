@@ -161,7 +161,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			return displayedColumns;
 		}
 
-		private static Map<Type, List<Type>> compatibleTypeMap = new HashMap<Type, List<Type>>();
+		private static final Map<Type, List<Type>> compatibleTypeMap = new HashMap<Type, List<Type>>();
 
 		static {
 			compatibleTypeMap.put(BODY_TUBE, Arrays.asList(BODY_TUBE, TUBE_COUPLER, LAUNCH_LUG));
@@ -203,7 +203,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> STANDOFF_HEIGHT = new TypedKey<Double>("StandoffHeight", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FLANGE_HEIGHT = new TypedKey<Double>("FlangeHeight", Double.class, UnitGroup.UNITS_LENGTH);
 
-	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.<TypedKey<?>> asList(
+	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.asList(
 			MANUFACTURER,
 			PARTNO,
 			DESCRIPTION,
@@ -328,11 +328,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 		ComponentPreset that = (ComponentPreset) o;
 
-		if (digest != null ? !digest.equals(that.digest) : that.digest != null) {
-			return false;
-		}
-
-		return true;
+		return digest != null ? digest.equals(that.digest) : that.digest == null;
 	}
 
 	@Override

@@ -67,33 +67,33 @@ class DocumentConfig {
 	static {
 		try {
 			// External components
-			constructors.put("bodytube", BodyTube.class.getConstructor(new Class<?>[0]));
-			constructors.put("transition", Transition.class.getConstructor(new Class<?>[0]));
-			constructors.put("nosecone", NoseCone.class.getConstructor(new Class<?>[0]));
-			constructors.put("trapezoidfinset", TrapezoidFinSet.class.getConstructor(new Class<?>[0]));
-			constructors.put("ellipticalfinset", EllipticalFinSet.class.getConstructor(new Class<?>[0]));
-			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor(new Class<?>[0]));
-			constructors.put("tubefinset", TubeFinSet.class.getConstructor(new Class<?>[0]));
-			constructors.put("launchlug", LaunchLug.class.getConstructor(new Class<?>[0]));
-			constructors.put("railbutton", RailButton.class.getConstructor(new Class<?>[0]));
+			constructors.put("bodytube", BodyTube.class.getConstructor());
+			constructors.put("transition", Transition.class.getConstructor());
+			constructors.put("nosecone", NoseCone.class.getConstructor());
+			constructors.put("trapezoidfinset", TrapezoidFinSet.class.getConstructor());
+			constructors.put("ellipticalfinset", EllipticalFinSet.class.getConstructor());
+			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor());
+			constructors.put("tubefinset", TubeFinSet.class.getConstructor());
+			constructors.put("launchlug", LaunchLug.class.getConstructor());
+			constructors.put("railbutton", RailButton.class.getConstructor());
 			
 			// Internal components
-			constructors.put("engineblock", EngineBlock.class.getConstructor(new Class<?>[0]));
-			constructors.put("innertube", InnerTube.class.getConstructor(new Class<?>[0]));
-			constructors.put("tubecoupler", TubeCoupler.class.getConstructor(new Class<?>[0]));
-			constructors.put("bulkhead", Bulkhead.class.getConstructor(new Class<?>[0]));
-			constructors.put("centeringring", CenteringRing.class.getConstructor(new Class<?>[0]));
+			constructors.put("engineblock", EngineBlock.class.getConstructor());
+			constructors.put("innertube", InnerTube.class.getConstructor());
+			constructors.put("tubecoupler", TubeCoupler.class.getConstructor());
+			constructors.put("bulkhead", Bulkhead.class.getConstructor());
+			constructors.put("centeringring", CenteringRing.class.getConstructor());
 			
-			constructors.put("masscomponent", MassComponent.class.getConstructor(new Class<?>[0]));
-			constructors.put("shockcord", ShockCord.class.getConstructor(new Class<?>[0]));
-			constructors.put("parachute", Parachute.class.getConstructor(new Class<?>[0]));
-			constructors.put("streamer", Streamer.class.getConstructor(new Class<?>[0]));
+			constructors.put("masscomponent", MassComponent.class.getConstructor());
+			constructors.put("shockcord", ShockCord.class.getConstructor());
+			constructors.put("parachute", Parachute.class.getConstructor());
+			constructors.put("streamer", Streamer.class.getConstructor());
 			
 			// Other
-			constructors.put("stage", AxialStage.class.getConstructor(new Class<?>[0]));
-			constructors.put("boosterset", ParallelStage.class.getConstructor(new Class<?>[0]));
-			constructors.put("parallelstage", ParallelStage.class.getConstructor(new Class<?>[0]));
-			constructors.put("podset", PodSet.class.getConstructor(new Class<?>[0]));
+			constructors.put("stage", AxialStage.class.getConstructor());
+			constructors.put("boosterset", ParallelStage.class.getConstructor());
+			constructors.put("parallelstage", ParallelStage.class.getConstructor());
+			constructors.put("podset", PodSet.class.getConstructor());
 			
 		} catch (NoSuchMethodException e) {
 			throw new BugException(
@@ -152,7 +152,7 @@ class DocumentConfig {
 		// BodyTube
 		setters.put("BodyTube:radius", new DoubleSetter(
 				Reflection.findMethod(BodyTube.class, "setOuterRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 
 		// Parallel Stage
@@ -204,11 +204,11 @@ class DocumentConfig {
 		
 		setters.put("Transition:foreradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(Transition.class, "setForeRadiusAutomatic", boolean.class)));
 		setters.put("Transition:aftradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setAftRadius", double.class),
-				"auto",
+				"auto", " ",
 				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class)));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(

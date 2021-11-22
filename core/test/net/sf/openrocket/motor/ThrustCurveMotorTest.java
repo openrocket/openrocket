@@ -116,7 +116,7 @@ public class ThrustCurveMotorTest {
 	public void testThrustInterpolation(){
 		final ThrustCurveMotor mtr = motorEstesA8_3;
 		
-		Pair<Double, Double> testPairs[] = new TestPair[]{
+		Pair<Double, Double>[] testPairs = new TestPair[]{
 				new TestPair(0.512, 0.041),
 				new TestPair(2.115, 0.084),
 				new TestPair( 1.220, 0.060),
@@ -185,5 +185,17 @@ public class ThrustCurveMotorTest {
 		assertEquals( 3.0, motorX6.getThrust( 3 ),  0.001 );
 	}
 			
+	
+	@Test
+	public void testSimplifyDesignation() {
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("J115"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation(" J115  "));
+		assertEquals("H115", ThrustCurveMotor.Builder.simplifyDesignation("241H115-KS"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384  J115"));
+		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384-J115"));
+		assertEquals("A2", ThrustCurveMotor.Builder.simplifyDesignation("A2T"));
+		assertEquals("1/2A2T", ThrustCurveMotor.Builder.simplifyDesignation("1/2A2T"));
+		assertEquals("MicroMaxxII", ThrustCurveMotor.Builder.simplifyDesignation("Micro Maxx II"));
+	}
 	
 }

@@ -25,7 +25,7 @@ public class StageDTO {
             @XmlElementRef(name = RocksimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.TRANSITION, type = TransitionDTO.class)
     })
-    private List<BasePartDTO> externalPart = new ArrayList<BasePartDTO>();
+    private final List<BasePartDTO> externalPart = new ArrayList<BasePartDTO>();
 
     /**
      * Default constructor.

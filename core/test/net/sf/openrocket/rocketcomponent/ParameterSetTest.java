@@ -62,9 +62,9 @@ public class ParameterSetTest extends BaseTestCase {
         public TestParameter copy( final FlightConfigurationId copyId){
             return new TestParameter();
         }
-	};
-	
-	@Before
+	}
+
+    @Before
 	public void localSetUp() {
 		gid=0;
 		TestParameter defaultParam = new TestParameter();
