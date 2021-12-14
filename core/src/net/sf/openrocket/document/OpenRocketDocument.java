@@ -727,9 +727,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		
 		rocket.checkComponentStructure();
-		undoHistory.get(undoPosition).checkComponentStructure();
-		undoHistory.get(undoPosition).copyWithOriginalID().checkComponentStructure();
-		rocket.loadFrom(undoHistory.get(undoPosition).copyWithOriginalID());
+		rocket.loadFrom(undoHistory.get(undoPosition));
 		rocket.checkComponentStructure();
 	}
 	
