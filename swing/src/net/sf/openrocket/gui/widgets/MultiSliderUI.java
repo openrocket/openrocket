@@ -5,7 +5,7 @@ package net.sf.openrocket.gui.widgets;
  * Java source file for the class MultiSliderUI
  *
  * Copyright (c), 1999 - 2002, Masahiro Takatsuka and GeoVISTA Center
- * All Rights Researved.
+ * All Rights Reserved.
  *
  * Original Author: Masahiro Takatsuka
  * $Author: eytanadar $

@@ -102,7 +102,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		this.rkt = document.getRocket();
 		this.setLayout(new BorderLayout());
 		
-		//Only initizlize GL if 3d is enabled.
+		//Only initialize GL if 3d is enabled.
 		if (is3dEnabled()) {
 			//Fixes a linux / X bug: Splash must be closed before GL Init
 			SplashScreen splash = Splash.getSplashScreen();

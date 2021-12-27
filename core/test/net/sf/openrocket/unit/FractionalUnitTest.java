@@ -149,7 +149,7 @@ public class FractionalUnitTest {
 		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.225));
 		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.25));
 		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.274));
-		//assertEquals("-1/4", testUnit.toString(-.275)); // this has roundoff error which pushes it over epsilon
+		//assertEquals("-1/4", testUnit.toString(-.275)); // this has round-off error which pushes it over epsilon
 		
 		assertEquals("0", testUnit.toString(-0.024));
 		assertEquals("0", testUnit.toString(0));
@@ -253,7 +253,7 @@ public class FractionalUnitTest {
 		
 		assertEquals("7 \u2077\u2044\u2088", inchUnit.toString(length));
 		
-		// had problems with roundoff in decrement.
+		// had problems with round-off in decrement.
 		
 		double v = inchUnit.toUnit(length);
 		for (int i = 0; i < 15; i++) {

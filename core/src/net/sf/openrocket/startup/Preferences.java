@@ -83,7 +83,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String LAUNCH_ROD_DIRECTION = "LaunchRodDirection";
 	public static final String WIND_DIRECTION = "WindDirection";
 	public static final String WIND_AVERAGE = "WindAverage";
-	public static final String WIND_TURBULANCE = "WindTurbulence";
+	public static final String WIND_TURBULENCE = "WindTurbulence";
 	public static final String LAUNCH_ALTITUDE = "LaunchAltitude";
 	public static final String LAUNCH_LATITUDE = "LaunchLatitude";
 	public static final String LAUNCH_LONGITUDE = "LaunchLongitude";
@@ -188,15 +188,15 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	public final double getWindTurbulenceIntensity() {
-		return Application.getPreferences().getChoice(Preferences.WIND_TURBULANCE, 0.9, 0.1);
+		return Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.1);
 	}
 	
 	public final void setWindTurbulenceIntensity(double wti) {
-		double oldWTI = Application.getPreferences().getChoice(Preferences.WIND_TURBULANCE, 0.9, 0.3);
+		double oldWTI = Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.3);
 		
 		if (MathUtil.equals(oldWTI, wti))
 			return;
-		this.putDouble(Preferences.WIND_TURBULANCE, wti);
+		this.putDouble(Preferences.WIND_TURBULENCE, wti);
 		fireChangeEvent();
 	}
 	
@@ -255,7 +255,7 @@ public abstract class Preferences implements ChangeSource {
 	
 	
 	public double getWindSpeedDeviation() {
-		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULANCE, .1);
+		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, .1);
 	}
 	
 	public void setWindSpeedDeviation(double windDeviation) {

@@ -148,7 +148,7 @@ public final class Point {
 	/**
 	 * Return the squared length of this coordinate.
 	 * 
-	 * @return	the square of the length of thie coordinate.
+	 * @return	the square of the length of the coordinate.
 	 */
 	public double length2() {
 		if (length2 < 0) {

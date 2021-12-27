@@ -86,7 +86,7 @@ public class MaterialDTO {
 	/**
 	 * Special directive to the JAXB system.  After the object is parsed from xml,
 	 * we replace the '2' with Chars.SQUARED, and '3' with Chars.CUBED.  Just the 
-	 * opposite transformation as doen in beforeMarshal.
+	 * opposite transformation as done in beforeMarshal.
 	 * @param unmarshaller
 	 * @param parent
 	 */

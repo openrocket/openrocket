@@ -27,7 +27,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	
 	
 	/**
-	 * Sole contructor.
+	 * Sole constructor.
 	 */
 	public ListenerList() {
 		this.instantiationLocation = new Throwable();
@@ -73,7 +73,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 				return true;
 			}
 		}
-		log.info("Attempting to remove non-existant listener " + listener);
+		log.info("Attempting to remove non-existent listener " + listener);
 		return false;
 	}
 	

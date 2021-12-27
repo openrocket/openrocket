@@ -438,7 +438,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 	
 	/**
-	 * Return true if this simulation contains plotable flight data.
+	 * Return true if this simulation contains plottable flight data.
 	 * 
 	 * @return
 	 */

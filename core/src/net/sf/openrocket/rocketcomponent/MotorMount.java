@@ -49,7 +49,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	public MotorConfiguration getDefaultMotorConfig();
 	
 	/** 
-	 * Default implementatino supplied by RocketComponent (returns 1);
+	 * Default implementation supplied by RocketComponent (returns 1);
 	 * 
 	 * @return number of times this component is instanced
 	 */

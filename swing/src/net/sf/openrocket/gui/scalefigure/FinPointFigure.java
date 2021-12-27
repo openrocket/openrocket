@@ -161,7 +161,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		}
 	}
 
-	// NOTE:  This function drawns relative to the reference point of the BODY component
+	// NOTE:  This function draws relative to the reference point of the BODY component
 	// In other words: 0,0 == the front, foreRadius of the body component
 	private void paintBodyTransition( Graphics2D g2){
 

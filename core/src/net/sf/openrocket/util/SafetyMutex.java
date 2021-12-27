@@ -162,7 +162,7 @@ public abstract class SafetyMutex {
 				
 				// Check that the mutex is locked by the current thread
 				if (lockingThread != Thread.currentThread()) {
-					error("Mutex is being unlocked from differerent thread than where it was locked", false);
+					error("Mutex is being unlocked from different thread than where it was locked", false);
 					return false;
 				}
 				

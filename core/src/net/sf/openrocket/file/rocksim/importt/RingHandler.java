@@ -184,7 +184,7 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
 		super.endHandler(element, attributes, content, warnings);
 		
 		// The <Ring> XML element in Rocksim design file is used for many types of components, unfortunately.
-		// Additional subelements are used to indicate the type of the rocket component. When parsing using SAX
+		// Additional sub-elements are used to indicate the type of the rocket component. When parsing using SAX
 		// this poses a problem because we can't "look ahead" to see what type is being represented at the start
 		// of parsing - something that would be nice to do so that we can instantiate the correct OR component
 		// at the start, then just call setters for the appropriate data.

@@ -174,7 +174,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 						
 						if (accept(coordinateSearch, currentValue)) {
 							
-							log.debug("Coordinate search successful, reseting simplex");
+							log.debug("Coordinate search successful, resetting simplex");
 							List<Point> toAbort = new LinkedList<Point>(simplex);
 							simplex.clear();
 							simplex.add(current);

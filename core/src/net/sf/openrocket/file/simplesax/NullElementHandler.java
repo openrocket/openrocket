@@ -9,7 +9,7 @@ import org.xml.sax.SAXException;
 
 /**
  * A singleton element handler that does not accept any content in the element
- * except whitespace text.  All subelements are ignored and a warning is produced
+ * except whitespace text.  All sub-elements are ignored and a warning is produced
  * of them.  It ignores any attributes.
  * <p>
  * This class can be used for elements that have no content but contain attributes.

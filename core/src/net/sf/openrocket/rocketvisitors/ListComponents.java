@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
-public class ListComponents<T extends RocketComponent> extends DepthFirstRecusiveVisitor<List<T>> {
+public class ListComponents<T extends RocketComponent> extends DepthFirstRecursiveVisitor<List<T>> {
 	
 	private final Class<T> componentClazz;
 	protected List<T> components = new ArrayList<T>();

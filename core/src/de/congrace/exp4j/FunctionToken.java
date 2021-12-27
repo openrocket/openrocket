@@ -143,7 +143,7 @@ class FunctionToken extends CalculationToken {
 	 * 
 	 * get the {@link Function}
 	 * 
-	 * @return the correspoding {@link Function}
+	 * @return the corresponding {@link Function}
 	 */
 	Function getFunction() {
 		return function;

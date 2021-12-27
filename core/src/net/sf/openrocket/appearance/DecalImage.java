@@ -8,7 +8,7 @@ import java.io.InputStream;
 import net.sf.openrocket.util.ChangeSource;
 
 /**
- * Interface to handle image files for declas
+ * Interface to handle image files for decals
  *
  */
 public interface DecalImage extends ChangeSource, Comparable<DecalImage> {

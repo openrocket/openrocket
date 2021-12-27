@@ -67,7 +67,7 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 			this.selected = item; 
 			return;
 		}else{
-			throw new IllegalArgumentException("attempted to set selected item (oftype "+item.getClass().getSimpleName()
+			throw new IllegalArgumentException("attempted to set selected item (of type "+item.getClass().getSimpleName()
 					+") when this generic contains a type: "+this.selected.getClass().getSimpleName()); 
 		}
 	}

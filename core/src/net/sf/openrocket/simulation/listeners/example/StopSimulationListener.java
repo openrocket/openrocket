@@ -7,7 +7,7 @@ import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 
 /**
  * A simulation listener that stops the simulation after a specified number of steps or
- * after a specified abount of simulation time.
+ * after a specified amount of simulation time.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */

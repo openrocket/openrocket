@@ -27,7 +27,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
  *  the button.
  *
  *  The button can be invoked by a mouse click or by pressing the space bar
- *  when the cell has focus. Optionaly a mnemonic can be set to invoke the
+ *  when the cell has focus. Optionally a mnemonic can be set to invoke the
  *  button. When the button is invoked the provided Action is invoked. The
  *  source of the Action will be the table. The action command will contain
  *  the model row number of the button that was clicked.

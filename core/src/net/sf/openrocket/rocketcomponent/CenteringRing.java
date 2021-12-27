@@ -25,7 +25,7 @@ public class CenteringRing extends RadiusRingComponent {
 		// Implement sibling inner radius automation
 		if (isInnerRadiusAutomatic()) {
 			innerRadius = 0;
-			// Component can be parentless if disattached from rocket
+			// Component can be parentless if detached from rocket
 			if (this.getParent() != null) {
 				for (RocketComponent sibling : this.getParent().getChildren()) {
 					/*

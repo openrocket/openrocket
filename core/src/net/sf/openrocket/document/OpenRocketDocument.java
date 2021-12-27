@@ -120,13 +120,13 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 */
 	public void addCustomExpression(CustomExpression expression) {
 		if (customExpressions.contains(expression)) {
-			log.info(Markers.USER_MARKER, "Could not add custom expression " + expression.getName() + " to document as document alerady has a matching expression.");
+			log.info(Markers.USER_MARKER, "Could not add custom expression " + expression.getName() + " to document as document already has a matching expression.");
 		} 
 		customExpressions.add(expression);
 	}
 	
 	/**
-	 * remves
+	 * Removes custom expression from the document
 	 * @param expression
 	 */
 	public void removeCustomExpression(CustomExpression expression) {
@@ -435,7 +435,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 
 	/**
 	 * removes all simulations with the specific configId
-	 * @param configId	the Flight Configuration Id that dictates which simulations shoul be removed
+	 * @param configId	the Flight Configuration Id that dictates which simulations should be removed
 	 */
 	private void removeSimulations(FlightConfigurationId configId) {
 		for (Simulation s : getSimulations()) {

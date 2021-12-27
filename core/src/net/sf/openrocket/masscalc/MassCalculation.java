@@ -242,7 +242,7 @@ public class MassCalculation {
 		
 		double clusterIt = motorConfig.getUnitLongitudinalInertia()*instanceCount*eachMass;
 		
-		// if more than 1 moter => motors are not an the centerline => adjust via parallel-axis theorem
+		// if more than 1 motor => motors are not at the centerline => adjust via parallel-axis theorem
 		double clusterIr = clusterBaseIr; 
 		if( 1 < instanceCount ){
 			for( Coordinate coord : offsets ){

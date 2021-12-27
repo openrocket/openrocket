@@ -167,7 +167,7 @@ public class Transformation implements java.io.Serializable {
 	}
 	
 	/**
-	 * Applies the given transformation before this tranformation.  The resulting 
+	 * Applies the given transformation before this transformation.  The resulting
 	 * transformation result.transform(c) will equal this.transform(other.transform(c)).
 	 * 
 	 * @param other  Transformation to apply

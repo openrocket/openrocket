@@ -29,7 +29,7 @@ public class TranslatorProvider implements Provider<Translator> {
 			return oldTranslator;
 		}
 		
-		// Check for locale propery
+		// Check for locale property
 		String langcode = System.getProperty("openrocket.locale");
 		
 		if (langcode != null) {

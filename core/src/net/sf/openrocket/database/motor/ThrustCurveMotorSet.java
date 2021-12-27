@@ -100,7 +100,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	 * @param motor		the motor to be checked
 	 * @param digest	the digest of the motor
 	 * @param m			the current motor being checked with
-	 * @return	wheter the motor is or no
+	 * @return	whether the motor is or no
 	 */
 	private boolean isMotorPresent(ThrustCurveMotor motor, final String digest, Motor m) {
 		return digest.equals(digestMap.get(m)) &&
@@ -129,7 +129,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 
 
 	/**
-	 * adds the standard delay if aplicable
+	 * adds the standard delay if applicable
 	 * @param motor	the motor to be considered
 	 */
 	private void addStandardDelays(ThrustCurveMotor motor) {
@@ -181,7 +181,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 
 	/**
 	 * checks if the given motor is the first one
-	 * the ifrst motor inserted is what will difine the rest of the motors in the set
+	 * the first motor inserted is what will define the rest of the motors in the set
 	 * @param motor	the motor to be checked
 	 */
 	private void checkFirstInsertion(ThrustCurveMotor motor) {

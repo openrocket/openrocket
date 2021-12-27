@@ -99,7 +99,7 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 		return null;
 	}
 	
-	/** Checks wether the specified column is currently visible.
+	/** Checks whether the specified column is currently visible.
 	 * @param aColumn column to check
 	 * @return visibility of specified column (false if there is no such column at all. [It's not visible, right?])
 	 */
@@ -107,7 +107,7 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 		return (tableColumns.indexOf(aColumn) >= 0);
 	}
 	
-	/** Append <code>column</code> to the right of exisiting columns.
+	/** Append <code>column</code> to the right of existing columns.
 	 * Posts <code>columnAdded</code> event.
 	 * @param column The column to be added
 	 * @see #removeColumn
