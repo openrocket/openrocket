@@ -401,7 +401,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		final double b = min * minDeriv / (minValue - cdMach0);
 		final double a = (minValue - cdMach0) / Math.pow(min, b);
 		
-		for (double m = 0; m < minValue; m += 0.05) {
+		for (double m = 0; m < min; m += 0.05) {
 			interpolator.addPoint(m, a * Math.pow(m, b) + cdMach0);
 		}
 	}
