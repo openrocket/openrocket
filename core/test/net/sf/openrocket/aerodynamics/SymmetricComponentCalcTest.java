@@ -103,4 +103,43 @@ public class SymmetricComponentCalcTest {
 		assertEquals(" SymmetricComponentCalc produces bad C_m:  ", 0.0, forces.getCm(), EPSILON);
 	}
 
+	@Test
+	public void testEllipseNoseconeDrag() {
+	    Rocket rocket = TestRockets.makeEstesAlphaIII();
+	    NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
+	    // use an ellipsoidal nose cone with fineness ratio 5
+	    nose.setType(Transition.Shape.ELLIPSOID);
+	    nose.setLength(nose.getAftRadius() * 5.0);
+	    SymmetricComponentCalc calcObj = new SymmetricComponentCalc( nose );
+	    
+	    FlightConfiguration config = rocket.getSelectedConfiguration();
+	    FlightConditions conditions = new FlightConditions(config);
+	    conditions.setAOA(0.0);
+
+	    WarningSet warnings = new WarningSet();
+
+	    double frontalArea = Math.PI * nose.getAftRadius() * nose.getAftRadius();
+		// vvv TEST vvv
+	    // these values from a reimplementation of the pressure cd calculation in python
+	    // values at M = 0, 0.05, ... , 1.15
+		double cd[] = {
+			8.000392024269301e-07, 2.422001414621988e-06, 2.0098855921838474e-05,
+			8.295843903984836e-05, 0.000230425812213129, 0.0005104254351619708,
+			0.0009783566607446353, 0.0016963974152150677, 0.0027329880483111142,
+			0.004162427611715722, 0.006064546184601524, 0.008524431611715306,
+			0.011632196831399358, 0.01548277847481293, 0.020175760185344116,
+			0.02581521589534269, 0.032509569500239276, 0.04037146820686186,
+			0.04951766743137877, 0.06006892556095394, 0.07214990722137526,
+			0.08588909394291767, 0.10141870131021756, 0.11887460183385967 };
+
+		for (int i = 0; i < cd.length; i++) {
+			double m = i/20.0;
+			String buf = "SymmetricComponentCalc produces bad Cd at index " + i + "(m=" + m +")";
+			conditions.setMach(m);
+			double testcd = calcObj.calculatePressureDragForce(conditions, 0.0,  0.0, warnings) *
+				conditions.getRefArea() / frontalArea;
+			assertEquals(buf, cd[(int) Math.round(m*20)], testcd, EPSILON);
+	    }
+	}
+    
 }
