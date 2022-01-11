@@ -3,6 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import static org.junit.Assert.assertEquals;
 
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;
 
 import net.sf.openrocket.rocketcomponent.position.*;
@@ -92,38 +93,74 @@ public class FinSetTest extends BaseTestCase {
 			fins.setTabOffsetMethod( methods[caseIndex]);
 
 			//query
-			double actShift = fins.getTabOffset();
+			final double actShift = fins.getTabOffset();
 			assertEquals(String.format("Offset doesn't match for: %s \n", methods[caseIndex].name()), expShift[caseIndex], actShift, EPSILON);
 		}
 	}
 
     @Test
-    public void testTabGetAs(){
+    public void testTabGetAs() {
 		final FinSet fins = FinSetTest.createSimpleFin();
 		assertEquals("incorrect fin length:", 0.06, fins.getLength(), EPSILON);
 		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
-
-		// TOP -> native(TOP)
-		fins.setTabOffsetMethod(AxialMethod.TOP);
-		fins.setTabOffset(0.0);
-
-		assertEquals("Setting by TOP method failed!", 0.0, fins.getTabFrontEdge(), EPSILON);
-		assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
-
-		// MIDDLE -> native
-		fins.setTabOffsetMethod(AxialMethod.MIDDLE);
-		fins.setTabOffset(0.0);
-		assertEquals("Setting by TOP method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
-		assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
-
-		// BOTTOM -> native
-		fins.setTabOffsetMethod(AxialMethod.BOTTOM);
-		fins.setTabOffset(0.0);
-
-		assertEquals("Setting by TOP method failed!", 0.04, fins.getTabFrontEdge(), EPSILON);
-		assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
+	
+		{   // TOP -> native(TOP)
+			fins.setTabOffsetMethod(AxialMethod.TOP);
+			fins.setTabOffset(0.0);
+		
+			assertEquals("Setting by TOP method failed!", 0.0, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by TOP method failed!", 0.02, fins.getTabLength(), EPSILON);
+		}
+		{   // MIDDLE -> native
+			fins.setTabOffsetMethod(AxialMethod.MIDDLE);
+			fins.setTabOffset(0.0);
+			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabLength(), EPSILON);
+		}
+		{// BOTTOM -> native
+			fins.setTabOffsetMethod(AxialMethod.BOTTOM);
+			fins.setTabOffset(0.0);
+			
+			assertEquals("Setting by BOTTOM method failed!", 0.04, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by BOTTOM method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by BOTTOM method failed!", 0.02, fins.getTabLength(), EPSILON);
+		}
 	}
+	
+	
+	@Test
+	public void testTabSetLength() {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
 
+		final BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
+		assertEquals("incorrect body tube length:", 0.20, body.getLength(), EPSILON);
+
+		final FinSet fins = (FinSet)body.getChild(0);
+		fins.setTabHeight(0.01);
+		fins.setTabLength(0.02);
+		assertEquals("incorrect fin length:", 0.05, fins.getLength(), EPSILON);
+		assertEquals("incorrect fin tab height:", 0.01, fins.getTabHeight(), EPSILON);
+		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
+		assertEquals("incorrect fin location", 0.015, fins.getTabFrontEdge(), EPSILON);
+		
+		{   // MIDDLE -> native
+			fins.setTabOffsetMethod(AxialMethod.MIDDLE);
+			fins.setTabOffset(0.0);
+			
+			assertEquals("Setting by MIDDLE method failed!", 0.015, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabLength(), EPSILON);
+			
+			fins.setTabLength(0.04);
+			
+			assertEquals("Setting by MIDDLE method failed!", 0.005, fins.getTabFrontEdge(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
+			assertEquals("Setting by MIDDLE method failed!", 0.04, fins.getTabLength(), EPSILON);
+		}
+	}
+	
 	@Test
 	public void testTabLocationUpdate() {
 		final FinSet fins = FinSetTest.createSimpleFin();
@@ -138,9 +175,9 @@ public class FinSetTest extends BaseTestCase {
 		assertEquals("Setting by TOP method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
 
 		((TrapezoidFinSet)fins).setRootChord(0.08);
-
-		assertEquals("Front edge doesn't match after adjusting root chord...", 0.03, fins.getTabFrontEdge(), EPSILON);
+		
 		assertEquals("Offset doesn't match after adjusting root chord....", 0.0, fins.getTabOffset(), EPSILON);
+		assertEquals("Front edge doesn't match after adjusting root chord...", 0.03, fins.getTabFrontEdge(), EPSILON);
 	}
 
 	@Test
