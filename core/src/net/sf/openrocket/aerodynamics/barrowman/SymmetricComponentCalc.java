@@ -18,7 +18,8 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 import net.sf.openrocket.util.Transformation;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Calculates the aerodynamic properties of a <code>SymmetricComponent</code>.
@@ -31,6 +32,8 @@ import net.sf.openrocket.util.Transformation;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SymmetricComponentCalc extends RocketComponentCalc {
+	
+	private final static Logger log = LoggerFactory.getLogger(SymmetricComponentCalc.class);
 	
 	public static final double BODY_LIFT_K = 1.1;
 	
@@ -375,7 +378,16 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				interpolator.addPoint(m, stag * Math.pow(int1.getValue(m) / stag, log4));
 			}
 		}
-		
+
+		// dump transonic/supersonic knots, in a format easily imported into python
+		String vel = "vel = [ ";
+		String cd = "cd = [ ";
+		for (double m : interpolator.getXPoints()) {
+			vel = vel + m + ", ";
+			cd = cd + interpolator.getValue(m) + ", ";
+		}
+		log.debug(vel + "]");
+		log.debug(cd + "]");
 
 		/*
 		 * Now the transonic/supersonic region is ok.  We still need to interpolate
@@ -391,6 +403,9 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		
 		double cdMach0 = 0.8 * pow2(sinphi);
 		double minDeriv = (interpolator.getValue(min + 0.01) - minValue) / 0.01;
+
+		log.debug("cdMach0 = " + cdMach0);
+		log.debug("minDeriv = " + minDeriv);
 		
 		// These should not occur, but might cause havoc for the interpolation
 		if ((cdMach0 >= minValue - 0.01) || (minDeriv <= 0.01)) {
@@ -398,10 +413,10 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		}
 		
 		// Cd = a*M^b + cdMach0
-		double a = minValue - cdMach0;
-		double b = minDeriv / a;
+		final double b = min * minDeriv / (minValue - cdMach0);
+		final double a = (minValue - cdMach0) / Math.pow(min, b);
 		
-		for (double m = 0; m < minValue; m += 0.05) {
+		for (double m = 0; m < min; m += 0.05) {
 			interpolator.addPoint(m, a * Math.pow(m, b) + cdMach0);
 		}
 	}
