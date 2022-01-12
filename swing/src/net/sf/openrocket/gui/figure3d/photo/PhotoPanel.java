@@ -422,7 +422,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		AxialStage bottomStage = configuration.getBottomStage();
 		int bottomStageNumber = 0;
 		if (bottomStage != null)
-			bottomStage.getStageNumber();
+			bottomStageNumber = bottomStage.getStageNumber();
 		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
 		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
 
