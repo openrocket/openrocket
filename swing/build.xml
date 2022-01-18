@@ -125,11 +125,13 @@
 	</target>
 	
 	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializePresets"
-	          fork="true"
-			  classpathref="run-classpath"
-			  failonerror="true">
-	    </java>
+	  <java classname="net.sf.openrocket.utils.SerializePresets"
+	        fork="true"
+		classpathref="run-classpath"
+		failonerror="true">
+	    <arg value="resources-src/datafiles/legacy_components"/>
+	    <arg value="resources-src/datafiles/components/orc"/>
+	  </java>
 	</target>
 
 	<!-- CONVERT vendor csv to ORC files -->
@@ -138,7 +140,7 @@
 		<attribute name="vendor"/>
 		<sequential>
 			<echo>Generating ORC file for vendor @{vendor}</echo>
-			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
+			<java classname="net.sf.openrocket.utils.RocksimComponentFileTranslator"
 				fork="true"
 				classpathref="run-classpath"
 				failonerror="true">

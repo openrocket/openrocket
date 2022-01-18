@@ -17,6 +17,11 @@ import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.util.Pair;
 
 public class SerializePresets extends BasicApplication {
+
+    private static void printUsage() {
+        System.err.println("SerializePresets <dir> ... ");
+        System.err.println("<dir> (may be repeated) is base directory for a set of .orc preset files");
+    }
 	
 	/**
 	 * @param args
@@ -26,25 +31,36 @@ public class SerializePresets extends BasicApplication {
 		SerializePresets app = new SerializePresets();
 		app.initializeApplication();
 		
+		if (args.length < 1) {
+			printUsage();
+            throw new IllegalArgumentException("Invalid Command Line Params");
+        }
+		
 		Locale.setDefault(Locale.ENGLISH);
 		
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		
-		FileIterator iterator = DirectoryIterator.findDirectory("resources-src/datafiles/presets", new SimpleFileFilter("", false, "orc"));
-		
-		if (iterator == null) {
-			throw new RuntimeException("Can't find resources-src/presets directory");
-		}
-		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			String fileName = f.getU();
-			InputStream is = f.getV();
+
+		for (int i = 0; i < args.length; i++) {
+
+			System.err.println("Processing .orc files in directory " + args[i]);
 			
-			OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
-			Collection<ComponentPreset> presets = loader.load(is, fileName);
+			FileIterator iterator = DirectoryIterator.findDirectory(args[i], new SimpleFileFilter("", false, "orc"));
+			if (iterator == null) {
+				throw new RuntimeException("Can't find " + args[i] + " directory");
+			}
 			
-			componentPresetDao.addAll(presets);
-			
+			while (iterator.hasNext()) {
+				Pair<String, InputStream> f = iterator.next();
+				String fileName = f.getU();
+				InputStream is = f.getV();
+				
+				OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
+				Collection<ComponentPreset> presets = loader.load(is, fileName);
+				
+				componentPresetDao.addAll(presets);
+				
+			}
+
 		}
 		
 		List<ComponentPreset> list = componentPresetDao.listAll();
