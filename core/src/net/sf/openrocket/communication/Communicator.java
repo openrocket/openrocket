@@ -1,17 +1,15 @@
 package net.sf.openrocket.communication;
 
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
-import net.sf.openrocket.util.BugException;
 
 public abstract class Communicator {
 
 	protected static final String BUG_REPORT_URL;
 
-	protected static final String UPDATE_INFO_URL;
+	protected static final String UPDATE_URL;
+	protected static final String UPDATE_ADDITIONAL_URL;	// Extra URL needed for the update checker
 	
 	static {
 		String url;
@@ -21,9 +19,14 @@ public abstract class Communicator {
 		BUG_REPORT_URL = url;
 		
 		url = System.getProperty("openrocket.debug.updateurl");
-		if (url == null)
-			url = "http://openrocket.sourceforge.net/actions/updates";
-		UPDATE_INFO_URL = url;
+		if (url == null) {
+			url = "https://api.github.com/repos/openrocket/openrocket/releases";
+			UPDATE_ADDITIONAL_URL = "https://api.github.com/repos/openrocket/openrocket/releases/latest";
+		}
+		else {
+			UPDATE_ADDITIONAL_URL = null;
+		}
+		UPDATE_URL = url;
 	}
 	
 
