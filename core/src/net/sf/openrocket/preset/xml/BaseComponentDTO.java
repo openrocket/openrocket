@@ -156,7 +156,7 @@ public abstract class BaseComponentDTO {
 		}
 	}
 	
-	public abstract ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException;
+	public abstract ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials) throws InvalidComponentPresetException;
 	
 	void addProps(TypedPropertyMap props, List<MaterialDTO> materialList) {
 		props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(manufacturer));
