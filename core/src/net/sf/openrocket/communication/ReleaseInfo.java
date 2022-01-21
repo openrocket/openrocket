@@ -59,4 +59,10 @@ public class ReleaseInfo {
         if (this.obj == null) return null;
         return this.obj.get("html_url").toString();
     }
+
+    @Override
+    public String toString() {
+        return String.format("releaseTag = %s ; releaseNotes = %s ; releaseURL = %s", getReleaseTag(), getReleaseNotes(),
+                getReleaseURL());
+    }
 }
