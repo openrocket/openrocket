@@ -1,41 +1,35 @@
 package net.sf.openrocket.communication;
 
-import java.util.List;
-
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BuildProperties;
-import net.sf.openrocket.util.ComparablePair;
 
- /**
-  * 
-  * class that stores the update information of the application
-  *
-  */
+/**
+ * Class that stores the update information of the application
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class UpdateInfo {
-	
 	private final String latestVersion;
-	
-	private final ArrayList<ComparablePair<Integer, String>> updates;
+
+	 // Release info of the latest release. If null, the current build is the latest version
+	private final ReleaseInfo latestRelease;
 	
 	/**
 	 * loads the default information
 	 */
 	public UpdateInfo() {
 		this.latestVersion = BuildProperties.getVersion();
-		this.updates = new ArrayList<ComparablePair<Integer, String>>();
+		this.latestRelease = null;
 	}
 	
 	/**
 	 * loads a custom update information into the cache
-	 * @param version	String with the version
-	 * @param updates	The list of updates contained in the version
+	 * @param latestRelease	The release info object of the latest GitHub release
 	 */
-	public UpdateInfo(String version, List<ComparablePair<Integer, String>> updates) {
-		this.latestVersion = version;
-		this.updates = new ArrayList<ComparablePair<Integer, String>>(updates);
+	public UpdateInfo(ReleaseInfo latestRelease) {
+		this.latestRelease = latestRelease;
+		this.latestVersion = latestRelease.getReleaseTag();
 	}
-	
-	
+
 
 	/**
 	 * Get the latest OpenRocket version.  If it is the current version, then the value
@@ -46,21 +40,18 @@ public class UpdateInfo {
 	public String getLatestVersion() {
 		return latestVersion;
 	}
-	
-	
+
 	/**
-	 * Return a list of the new features/updates that are available.  The list has a
-	 * priority for each update and a message text.  The returned list may be modified.
-	 * 
-	 * @return	a modifiable list of the updates.
+	 * Get the latest release info object.
+	 * @return the latest GitHub release object
 	 */
-	public List<ComparablePair<Integer, String>> getUpdates() {
-		return updates.clone();
+	public ReleaseInfo getLatestRelease() {
+		return latestRelease;
 	}
 	
 	@Override
 	public String toString() {
-		return "UpdateInfo[version=" + latestVersion + "; updates=" + updates.toString() + "]";
+		return "UpdateInfo[version=" + latestVersion + "; latestRelease=" + latestRelease.toString() + "]";
 	}
 	
 }
