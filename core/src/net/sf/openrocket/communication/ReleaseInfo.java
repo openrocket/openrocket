@@ -26,7 +26,7 @@ public class ReleaseInfo {
      * Get the release tag from the GitHub release JSON object.
      * @return release tag (e.g. "15.0.3")
      */
-    private String getReleaseTag() {
+    public String getReleaseTag() {
         if (this.obj == null) return null;
 
         String tag = this.obj.get("tag_name").toString();        // Release label is encapsulated in the 'tag_name'-tag
@@ -46,7 +46,7 @@ public class ReleaseInfo {
      * Get the release notes from the GitHub release JSON object.
      * @return release notes (this is the text that explains a certain GitHub release)
      */
-    private String getReleaseNotes() {
+    public String getReleaseNotes() {
         if (this.obj == null) return null;
         return this.obj.get("body").toString();
     }
@@ -55,7 +55,7 @@ public class ReleaseInfo {
      * Get the release URL from the GitHub release JSON object.
      * @return release URL (e.g. 'https://github.com/openrocket/openrocket/releases/tag/release-15.03')
      */
-    private String getReleaseURL() {
+    public String getReleaseURL() {
         if (this.obj == null) return null;
         return this.obj.get("html_url").toString();
     }
