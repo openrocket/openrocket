@@ -73,8 +73,8 @@ public class UpdateInfoDialog extends JDialog {
 		remind.setSelected(true);
 		panel.add(remind);
 		
-		//Close button
-		JButton button = new SelectColorButton(trans.get("dlg.but.close"));
+		// Cancel button
+		JButton button = new SelectColorButton(trans.get("button.cancel"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
