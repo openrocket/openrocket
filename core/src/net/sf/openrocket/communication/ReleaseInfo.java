@@ -1,9 +1,12 @@
 package net.sf.openrocket.communication;
 
+import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
+import java.util.List;
 
 /**
  * Class containing info about a GitHub release. All the info is stored in a JSON objects, retrieved using the GitHub
@@ -58,6 +61,23 @@ public class ReleaseInfo {
     public String getReleaseURL() {
         if (this.obj == null) return null;
         return this.obj.get("html_url").toString();
+    }
+
+    /**
+     * Get the download URLs of the assets from the GitHub release JSON object.
+     * @return list of asset download URLs (e.g. 'https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03-installer.exe')
+     */
+    public List<String> getAssetURLs() {
+        if (this.obj == null) return null;
+        List<String> assetURLs = new ArrayList<>();
+
+        JsonArray assets = this.obj.getJsonArray("assets");
+        for (int i = 0; i < assets.size(); i++) {
+            String url = assets.getJsonObject(i).getString("browser_download_url");
+            assetURLs.add(url);
+        }
+
+        return assetURLs;
     }
 
     @Override
