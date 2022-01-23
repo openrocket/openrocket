@@ -24,8 +24,7 @@ import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class UpdateInfoDialog extends JDialog {
-	
-	private final JCheckBox remind;
+	private final JCheckBox checkAtStartup;
 	private static final Translator trans = Application.getTranslator();
 
 	public UpdateInfoDialog(UpdateInfo info) {
@@ -66,12 +65,12 @@ public class UpdateInfoDialog extends JDialog {
 				"gaptop para, alignx 50%, wrap unrel");
 		panel.add(new URLLabel(AboutDialog.OPENROCKET_URL), "alignx 50%, wrap para");
 		
-		//// Remind me later
-		remind = new JCheckBox("Remind me later");
-		//// Show this update also the next time you start OpenRocket
-		remind.setToolTipText("Show this update also the next time you start OpenRocket");
-		remind.setSelected(true);
-		panel.add(remind);
+		//// Check for software updates at startup
+		checkAtStartup = new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
+		//// Check for software updates every time you start up OpenRocket
+		checkAtStartup.setToolTipText(trans.get("pref.dlg.checkbox.Checkupdates.ttip"));
+		checkAtStartup.setSelected(true);
+		panel.add(checkAtStartup);
 		
 		// Cancel button
 		JButton button = new SelectColorButton(trans.get("button.cancel"));
