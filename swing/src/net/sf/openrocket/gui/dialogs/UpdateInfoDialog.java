@@ -17,6 +17,7 @@ import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
@@ -26,6 +27,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class UpdateInfoDialog extends JDialog {
 	private final JCheckBox checkAtStartup;
 	private static final Translator trans = Application.getTranslator();
+	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	public UpdateInfoDialog(UpdateInfo info) {
 		//// OpenRocket update available
@@ -69,7 +71,13 @@ public class UpdateInfoDialog extends JDialog {
 		checkAtStartup = new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
 		//// Check for software updates every time you start up OpenRocket
 		checkAtStartup.setToolTipText(trans.get("pref.dlg.checkbox.Checkupdates.ttip"));
-		checkAtStartup.setSelected(true);
+		checkAtStartup.setSelected(preferences.getCheckUpdates());
+		checkAtStartup.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setCheckUpdates(checkAtStartup.isSelected());
+			}
+		});
 		panel.add(checkAtStartup);
 		
 		// Cancel button
@@ -87,11 +95,6 @@ public class UpdateInfoDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(null);
 		GUIUtil.setDisposableDialogOptions(this, button);
-	}
-	
-	
-	public boolean isReminderSelected() {
-		return remind.isSelected();
 	}
 	
 }
