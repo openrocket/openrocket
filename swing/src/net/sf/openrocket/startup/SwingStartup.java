@@ -146,14 +146,14 @@ public class SwingStartup {
 		guiModule.startLoader();
 		
 		// Start update info fetching
-		final UpdateInfoRetriever updateInfo;
+		final UpdateInfoRetriever updateRetriever;
 		if (Application.getPreferences().getCheckUpdates()) {
 			log.info("Starting update check");
-			updateInfo = new UpdateInfoRetriever();
-			updateInfo.start();
+			updateRetriever = new UpdateInfoRetriever();
+			updateRetriever.startFetchUpdateInfo();
 		} else {
 			log.info("Update check disabled");
-			updateInfo = null;
+			updateRetriever = null;
 		}
 		
 		// Set the best available look-and-feel
@@ -192,7 +192,7 @@ public class SwingStartup {
 		
 		// Check whether update info has been fetched or whether it needs more time
 		log.info("Checking update status");
-		checkUpdateStatus(updateInfo);
+		checkUpdateStatus(updateRetriever);
 		
 	}
 	
@@ -213,12 +213,12 @@ public class SwingStartup {
 	}
 	
 	
-	private void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
-		if (updateInfo == null)
+	private void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
+		if (updateRetriever == null)
 			return;
 		
 		int delay = 1000;
-		if (!updateInfo.isRunning())
+		if (!updateRetriever.isRunning())
 			delay = 100;
 		
 		final Timer timer = new Timer(delay, null);
@@ -228,13 +228,13 @@ public class SwingStartup {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (!updateInfo.isRunning()) {
+				if (!updateRetriever.isRunning()) {
 					timer.stop();
 					
 					String current = BuildProperties.getVersion();
 					String last = Application.getPreferences().getString(Preferences.LAST_UPDATE, "");
 					
-					UpdateInfo info = updateInfo.getUpdateInfo();
+					UpdateInfo info = updateRetriever.getUpdateInfo();
 					if (info != null && info.getLatestVersion() != null &&
 							!current.equals(info.getLatestVersion()) &&
 							!last.equals(info.getLatestVersion())) {
