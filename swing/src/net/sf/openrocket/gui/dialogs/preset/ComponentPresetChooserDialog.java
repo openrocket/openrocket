@@ -49,7 +49,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private JTextField filterText;
 	private JCheckBox foreDiameterFilterCheckBox;
 	private JCheckBox aftDiameterFilterCheckBox;
-	
+	private JCheckBox showLegacyCheckBox;
+
+	private ComponentPresetRowFilter legacyFilter;
 	private ComponentPresetRowFilter foreDiameterFilter;
 	private ComponentPresetRowFilter aftDiameterFilter;
 	
@@ -58,6 +60,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	 * outerDiamtereColumnIndex is the index of the column associated with the OUTER_DIAMETER
 	 * field.  This index is needed by the matchOuterDiameterCheckBox to implement filtering.
 	 */
+	int legacyColumnIndex = -1;	
 	int aftDiameterColumnIndex = -1;
 	int foreDiameterColumnIndex = -1;
 	
@@ -86,6 +89,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 				// this kind of preset.
 				if (!displayedColumnKeys.contains(key)) {
 					continue;
+				}
+				if (key == ComponentPreset.LEGACY) {
+					legacyColumnIndex = i;
 				}
 				if (key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.AFT_OUTER_DIAMETER) {
 					aftDiameterColumnIndex = i;
@@ -126,17 +132,20 @@ public class ComponentPresetChooserDialog extends JDialog {
 		});
 		
 		panel.add(sub, "growx, ay 0, gapright para");
-		
-		
-		panel.add(getFilterCheckboxes(), "wrap para");
-		
+
+		// need to create componentSelectionTable before filter checkboxes,
+		// but add to panel after
 		componentSelectionTable = new ComponentPresetTable(presetType, presets, displayedColumnKeys);
 		//		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
 		int w = componentSelectionTable.getRowHeight() + 4;
-		TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
+		XTableColumnModel tm = componentSelectionTable.getXColumnModel();
+		//TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
+		TableColumn tc = tm.getColumn(0);
 		tc.setPreferredWidth(w);
 		tc.setMaxWidth(w);
 		tc.setMinWidth(w);
+
+		panel.add(getFilterCheckboxes(tm, legacyColumnIndex), "wrap para");
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
@@ -169,10 +178,12 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		GUIUtil.rememberWindowSize(this);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+
+		updateFilters();
 	}
 	
 	
-	private JPanel getFilterCheckboxes() {
+	private JPanel getFilterCheckboxes(XTableColumnModel tm, int legacyColumnIndex) {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
 		
 		/*
@@ -194,9 +205,27 @@ public class ComponentPresetChooserDialog extends JDialog {
 					}
 					componentSelectionTable.updateData(presets);
 				}
-			});
+				});
 		}
 
+		/*
+		 * Add legacy component filter checkbox
+		 */
+		TableColumn legacyColumn = tm.getColumn(legacyColumnIndex);
+		tm.setColumnVisible(legacyColumn, false);		
+		legacyFilter = new ComponentPresetRowFilter(false, legacyColumnIndex);
+		showLegacyCheckBox = new JCheckBox();
+		showLegacyCheckBox.setText(trans.get("ComponentPresetChooserDialog.checkbox.showLegacyCheckBox"));
+		panel.add(showLegacyCheckBox, "wrap");
+		
+		showLegacyCheckBox.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					updateFilters();
+					tm.setColumnVisible(legacyColumn, showLegacyCheckBox.isSelected());
+				}
+			});			
+		
 		if(component instanceof SymmetricComponent) {
 			final SymmetricComponent curSym = (SymmetricComponent) component;
 			/*
@@ -273,6 +302,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 		}
 		if (foreDiameterFilterCheckBox.isSelected()) {
 			filters.add(foreDiameterFilter);
+		}
+		if (!showLegacyCheckBox.isSelected()) {
+			filters.add(legacyFilter);
 		}
 		
 		componentSelectionTable.setRowFilter(RowFilter.andFilter(filters));

@@ -377,6 +377,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			});
 
 			for (TypedKey<?> key : keys) {
+				if (key == ComponentPreset.LEGACY) {
+					continue;
+				}
 
 				Object value = properties.get(key);
 

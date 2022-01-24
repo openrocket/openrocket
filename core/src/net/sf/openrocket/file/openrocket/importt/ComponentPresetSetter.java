@@ -44,7 +44,6 @@ class ComponentPresetSetter implements Setter {
 		}
 		
 		List<ComponentPreset> presets = Application.getComponentPresetDao().find(manufacturerName, productNo);
-		
 		ComponentPreset matchingPreset = null;
 		
 		for (ComponentPreset preset : presets) {
@@ -53,6 +52,7 @@ class ComponentPresetSetter implements Setter {
 				matchingPreset = preset;
 				break;
 			}
+
 			if (type != null && preset.getType().name().equals(type) && matchingPreset != null) {
 				// Found the first one with matching type.
 				matchingPreset = preset;
