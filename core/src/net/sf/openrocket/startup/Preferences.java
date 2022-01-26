@@ -55,7 +55,6 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 	
 	private static final String CHECK_UPDATES = "CheckUpdates";
-	public static final String LAST_UPDATE = "LastUpdateVersion";
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
