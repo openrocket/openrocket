@@ -297,9 +297,9 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		if (info == null) {
 			JOptionPane.showMessageDialog(this,
 					//// An error occurred while communicating with the server.
-					trans.get("pref.dlg.lbl.msg1"),
+					trans.get("update.dlg.error"),
 					//// Unable to retrieve update information
-					trans.get("pref.dlg.lbl.msg2"), JOptionPane.WARNING_MESSAGE, null);
+					trans.get("update.dlg.error.title"), JOptionPane.WARNING_MESSAGE, null);
 			return;
 		}
 
