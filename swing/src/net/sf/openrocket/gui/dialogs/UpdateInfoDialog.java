@@ -83,7 +83,7 @@ public class UpdateInfoDialog extends JDialog {
 						  try {
 							  desktop.browse(e.getURL().toURI());
 						  } catch (Exception ex) {
-							  log.debug("Exception hyperlink: " + ex.getMessage());
+							  log.warn("Exception hyperlink: " + ex.getMessage());
 						  }
 					  }
 				  }
