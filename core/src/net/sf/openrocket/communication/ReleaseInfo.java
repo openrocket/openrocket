@@ -26,23 +26,23 @@ public class ReleaseInfo {
     }
 
     /**
-     * Get the release tag from the GitHub release JSON object.
-     * @return release tag (e.g. "15.0.3")
+     * Get the release name from the GitHub release JSON object.
+     * @return release name (e.g. "15.0.3")
      */
-    public String getReleaseTag() {
+    public String getReleaseName() {
         if (this.obj == null) return null;
 
-        String tag = this.obj.get("tag_name").toString();        // Release label is encapsulated in the 'tag_name'-tag
-        tag = tag.replaceAll("^\"+|\"+$", "");    // Remove double quotations in the beginning and end
+        String name = this.obj.get("tag_name").toString();           // Release label is encapsulated in the 'tag_name'-tag
+        name = name.replaceAll("^\"+|\"+$", "");    // Remove double quotations in the beginning and end
 
-        // Remove the 'release-' preamble of the name tag (example name tag: 'release-15.03')
+        // Remove the 'release-' preamble of the name (example name: 'release-15.03')
         String preamble = "release-";
-        if (tag.startsWith(preamble)) {
-            tag = tag.substring(preamble.length());
+        if (name.startsWith(preamble)) {
+            name = name.substring(preamble.length());
         } else {
-            log.debug("Invalid release tag format for tag: " + tag);
+            log.debug("Invalid release tag format for release: " + name);
         }
-        return tag;
+        return name;
     }
 
     /**
@@ -82,7 +82,7 @@ public class ReleaseInfo {
 
     @Override
     public String toString() {
-        return String.format("releaseTag = %s ; releaseNotes = %s ; releaseURL = %s", getReleaseTag(), getReleaseNotes(),
+        return String.format("releaseTag = %s ; releaseNotes = %s ; releaseURL = %s", getReleaseName(), getReleaseNotes(),
                 getReleaseURL());
     }
 }
