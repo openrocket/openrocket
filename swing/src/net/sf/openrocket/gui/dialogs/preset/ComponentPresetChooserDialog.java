@@ -297,10 +297,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 			} catch (java.util.regex.PatternSyntaxException e) {
 			}
 		}
-		if (aftDiameterFilterCheckBox.isSelected()) {
+		if ((null != aftDiameterFilterCheckBox) && aftDiameterFilterCheckBox.isSelected()) {
 			filters.add(aftDiameterFilter);
 		}
-		if (foreDiameterFilterCheckBox.isSelected()) {
+		if ((null != foreDiameterFilterCheckBox) && foreDiameterFilterCheckBox.isSelected()) {
 			filters.add(foreDiameterFilter);
 		}
 		if (!showLegacyCheckBox.isSelected()) {
