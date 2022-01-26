@@ -41,7 +41,7 @@ public class UpdateInfoDialog extends JDialog {
 
 	public UpdateInfoDialog(UpdateInfo info) {
 		//// OpenRocket update available
-		super(null, "Update OpenRocket", ModalityType.APPLICATION_MODAL);		// TODO: replace with trans
+		super(null, trans.get("update.dlg.updateAvailable.title"), ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 
@@ -59,13 +59,13 @@ public class UpdateInfoDialog extends JDialog {
 
 		// 		OpenRocket version available!
 		sb.append("<html>");
-		sb.append(String.format("<h1>OpenRocket version %s available!</h1>", release.getReleaseName()));
+		sb.append(String.format("<h1>%s</h1>", String.format(trans.get("update.dlg.updateAvailable.txtPane.title"), release.getReleaseName())));
 
 		//		Your version
-		sb.append(String.format("<i>Your current version: %s </i> <br><br>", BuildProperties.getVersion()));
+		sb.append(String.format("<i>%s</i> <br><br>", String.format(trans.get("update.dlg.updateAvailable.txtPane.yourVersion"), BuildProperties.getVersion())));
 
 		// 		Changelog
-		sb.append("<h2>Changelog</h2>");	// TODO: replace with trans
+		sb.append(String.format("<h2>%s</h2>", trans.get("update.dlg.updateAvailable.txtPane.changelog")));
 		String releaseNotes = release.getReleaseNotes();
 		releaseNotes = releaseNotes.replaceAll("^\"|\"$", "");	// Remove leading and trailing quotations
 		sb.append(MarkdownUtil.toHtml(releaseNotes)).append("<br><br>");
@@ -73,7 +73,7 @@ public class UpdateInfoDialog extends JDialog {
 		//		GitHub link
 		String releaseURL = release.getReleaseURL();
 		releaseURL = releaseURL.replaceAll("^\"|\"$", "");	// Remove leading and trailing quotations
-		sb.append(String.format("<a href='%s'>Read more on GitHub</a>", releaseURL));
+		sb.append(String.format("<a href='%s'>%s</a>", releaseURL, trans.get("update.dlg.updateAvailable.txtPane.readMore")));
 		sb.append("</html>");
 		textPane.addHyperlinkListener(new HyperlinkListener() {
 				  @Override

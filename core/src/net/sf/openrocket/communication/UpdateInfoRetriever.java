@@ -229,8 +229,8 @@ public class UpdateInfoRetriever {
 
 				// Invalid response code
 				if (status != 200) {
-					log.warn("Bad response code for update checker: " + status);
-					throw new UpdateCheckerException("Bad response code for update checker: " + status);     // TODO: replace by trans
+					log.warn(String.format("Bad response code from server: %d", status));
+					throw new UpdateCheckerException(String.format(trans.get("update.fetcher.badResponse"), status));
 				}
 
 				// Read the response JSON data into a StringBuilder
@@ -257,12 +257,12 @@ public class UpdateInfoRetriever {
 				}
 			} catch (UnknownHostException | SocketTimeoutException | ConnectException e) {
 				log.warn(String.format("Could not connect to URL: %s. Please check your internet connection.", urlLink));
-				throw new UpdateCheckerException("Could not connect to the GitHub server. Please check your internet connection.");     // TODO: replace by trans
+				throw new UpdateCheckerException(trans.get("update.fetcher.badConnection"));
 			} catch (MalformedURLException e) {
-				log.warn("Malformed URL for update checker: " + urlLink);
-				throw new UpdateCheckerException("Malformed URL for update checker: " + urlLink);     // TODO: replace by trans
+				log.warn("Malformed URL: " + urlLink);
+				throw new UpdateCheckerException(String.format(trans.get("update.fetcher.malformedURL"), urlLink));
 			} catch (IOException e) {
-				throw new UpdateCheckerException(String.format("Exception - %s: %s", e, e.getMessage()));     // TODO: replace by trans
+				throw new UpdateCheckerException(String.format("Exception - %s: %s", e, e.getMessage()));
 			} finally {     // Close the connection to the release page
 				if (connection != null) {
 					try {

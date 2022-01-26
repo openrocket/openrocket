@@ -307,7 +307,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		if (info.getException() != null) {
 			JOptionPane.showMessageDialog(this,
 					info.getException().getMessage(),
-					"Could not check for updates", JOptionPane.WARNING_MESSAGE, null);	// TODO: replace by trans
+					trans.get("update.dlg.exception.title"), JOptionPane.WARNING_MESSAGE, null);
 			return;
 		}
 
@@ -324,11 +324,11 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				break;
 			case NEWER:
 				JOptionPane.showMessageDialog(this,
-						//// You are running the latest version of OpenRocket.
-						String.format("<html><body><p style='width: %dpx'>%s", 400, String.format("You are either running a test/unofficial release of OpenRocket, or you have a time machine and are running an official release from the future.\n\nYour version: %s\nLatest official release: %s",
-								BuildProperties.getVersion(), release.getReleaseName())),	// TODO: trans
-						//// No updates available
-						"Newer version", JOptionPane.INFORMATION_MESSAGE, null);	// TODO: trans
+						//// You are running a newer version than the latest official release
+						String.format("<html><body><p style='width: %dpx'>%s", 400, String.format(trans.get("update.dlg.newerVersion"),
+								BuildProperties.getVersion(), release.getReleaseName())),
+						//// Newer version detected
+						trans.get("update.dlg.newerVersion.title"), JOptionPane.INFORMATION_MESSAGE, null);
 				break;
 			case OLDER:
 				UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
