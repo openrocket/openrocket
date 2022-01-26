@@ -37,10 +37,6 @@ public abstract class Communicator {
 	protected static final int BUG_REPORT_RESPONSE_CODE = HttpURLConnection.HTTP_ACCEPTED;
 	protected static final int CONNECTION_TIMEOUT = 10000;  // in milliseconds
 
-	protected static final int UPDATE_INFO_UPDATE_AVAILABLE = HttpURLConnection.HTTP_OK;
-	protected static final int UPDATE_INFO_NO_UPDATE_CODE = HttpURLConnection.HTTP_NO_CONTENT;
-	protected static final String UPDATE_INFO_CONTENT_TYPE = "text/plain";
-
 	// Limit the number of bytes that can be read from the server
 	protected static final int MAX_INPUT_BYTES = 20000;
 
