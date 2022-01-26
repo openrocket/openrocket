@@ -43,10 +43,10 @@ public class UpdateInfoDialog extends JDialog {
 		//// OpenRocket update available
 		super(null, trans.get("update.dlg.updateAvailable.title"), ModalityType.APPLICATION_MODAL);
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("insets n n 8px n, fill"));
 
 		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")),
-				"spany 1, top");
+				"split, span, top");
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
@@ -91,7 +91,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		textPane.setText(sb.toString());
 
-		panel.add(new JScrollPane(textPane), "grow, span, wrap");
+		panel.add(new JScrollPane(textPane), "left, grow, span, push, gapleft 40px, gapbottom 6px, wrap");
 
 		//// Check for software updates at startup
 		JCheckBox checkAtStartup = new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
@@ -116,7 +116,7 @@ public class UpdateInfoDialog extends JDialog {
 		});
 		panel.add(button, "right, gapright para");
 
-		panel.setPreferredSize(new Dimension(1000, 600));
+		panel.setPreferredSize(new Dimension(900, 600));
 
 		this.add(panel);
 		
