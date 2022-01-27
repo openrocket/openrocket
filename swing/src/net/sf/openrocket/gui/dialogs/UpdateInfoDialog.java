@@ -4,9 +4,13 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +20,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.communication.AssetHandler;
 import net.sf.openrocket.communication.ReleaseInfo;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -24,6 +29,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.MarkdownUtil;
 import org.slf4j.Logger;
@@ -105,16 +111,51 @@ public class UpdateInfoDialog extends JDialog {
 			}
 		});
 		panel.add(checkAtStartup);
+
+		// Install operating system combo box
+		List<String> assetURLs = release.getAssetURLs();
+		Map<String, String> mappedAssets = AssetHandler.mapURLToOSName(assetURLs);
+		JComboBox<String> comboBox;
+		if (mappedAssets == null || mappedAssets.size() == 0) {
+			comboBox = new JComboBox<>(new String[]{
+					String.format("- %s -", trans.get("update.dlg.updateAvailable.combo.noDownloads"))});
+		}
+		else {
+			comboBox = new JComboBox<>(mappedAssets.keySet().toArray(new String[0]));
+		}
+		panel.add(comboBox, "pushx, right");
+		String os = AssetHandler.getOSName();
+		comboBox.setSelectedItem(os);
+
+		// Install update button
+		JButton btnInstall = new SelectColorButton(trans.get("update.dlg.updateAvailable.but.install"));
+		btnInstall.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (mappedAssets == null) return;
+				String url = mappedAssets.get((String) comboBox.getSelectedItem());
+				Desktop desktop = Desktop.getDesktop();
+				try {
+					desktop.browse(new URI(url));
+				} catch (Exception ex) {
+					log.warn("Exception install link: " + ex.getMessage());
+				}
+			}
+		});
+		if (mappedAssets == null || mappedAssets.size() == 0) {
+			btnInstall.setEnabled(false);
+		}
+		panel.add(btnInstall, "gapright 20");
 		
 		// Cancel button
-		JButton button = new SelectColorButton(trans.get("button.cancel"));
-		button.addActionListener(new ActionListener() {
+		JButton btnCancel = new SelectColorButton(trans.get("button.cancel"));
+		btnCancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				UpdateInfoDialog.this.dispose();
 			}
 		});
-		panel.add(button, "right, gapright para");
+		panel.add(btnCancel);
 
 		panel.setPreferredSize(new Dimension(900, 600));
 
@@ -122,7 +163,7 @@ public class UpdateInfoDialog extends JDialog {
 		
 		this.pack();
 		this.setLocationRelativeTo(null);
-		GUIUtil.setDisposableDialogOptions(this, button);
+		GUIUtil.setDisposableDialogOptions(this, btnCancel);
 	}
 	
 }
