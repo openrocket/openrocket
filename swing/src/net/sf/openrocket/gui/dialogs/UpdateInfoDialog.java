@@ -29,7 +29,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.MarkdownUtil;
 import org.slf4j.Logger;
@@ -114,7 +113,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Install operating system combo box
 		List<String> assetURLs = release.getAssetURLs();
-		Map<String, String> mappedAssets = AssetHandler.mapURLToOSName(assetURLs);
+		Map<String, String> mappedAssets = AssetHandler.mapURLToPlatformName(assetURLs);
 		JComboBox<String> comboBox;
 		if (mappedAssets == null || mappedAssets.size() == 0) {
 			comboBox = new JComboBox<>(new String[]{
@@ -124,8 +123,8 @@ public class UpdateInfoDialog extends JDialog {
 			comboBox = new JComboBox<>(mappedAssets.keySet().toArray(new String[0]));
 		}
 		panel.add(comboBox, "pushx, right");
-		String os = AssetHandler.getOSName();
-		comboBox.setSelectedItem(os);
+		String platformName = AssetHandler.getPlatformName();
+		comboBox.setSelectedItem(platformName);
 
 		// Install update button
 		JButton btnInstall = new SelectColorButton(trans.get("update.dlg.updateAvailable.but.install"));
