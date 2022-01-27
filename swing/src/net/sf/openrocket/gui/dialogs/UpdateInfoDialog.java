@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,14 +14,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.AssetHandler;
+import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
 import net.sf.openrocket.communication.ReleaseInfo;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -113,18 +117,26 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Install operating system combo box
 		List<String> assetURLs = release.getAssetURLs();
-		Map<String, String> mappedAssets = AssetHandler.mapURLToPlatformName(assetURLs);
-		JComboBox<String> comboBox;
+		Map<UpdatePlatform, String> mappedAssets = AssetHandler.mapURLToPlatform(assetURLs);
+		JComboBox<Object> comboBox;
 		if (mappedAssets == null || mappedAssets.size() == 0) {
 			comboBox = new JComboBox<>(new String[]{
 					String.format("- %s -", trans.get("update.dlg.updateAvailable.combo.noDownloads"))});
 		}
 		else {
-			comboBox = new JComboBox<>(mappedAssets.keySet().toArray(new String[0]));
+			comboBox = new JComboBox<>(mappedAssets.keySet().toArray(new UpdatePlatform[0]));
+			comboBox.setRenderer(new CustomComboBoxRenderer());
+			UpdatePlatform platform = AssetHandler.getUpdatePlatform();
+			// TODO: check select null?
+			comboBox.setSelectedItem(platform);
+			comboBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					((SwingPreferences) Application.getPreferences()).setUpdatePlatform((UpdatePlatform) comboBox.getSelectedItem());
+				}
+			});
 		}
 		panel.add(comboBox, "pushx, right");
-		String platformName = AssetHandler.getPlatformName();
-		comboBox.setSelectedItem(platformName);
 
 		// Install update button
 		JButton btnInstall = new SelectColorButton(trans.get("update.dlg.updateAvailable.but.install"));
@@ -132,7 +144,7 @@ public class UpdateInfoDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (mappedAssets == null) return;
-				String url = mappedAssets.get((String) comboBox.getSelectedItem());
+				String url = mappedAssets.get((UpdatePlatform) comboBox.getSelectedItem());
 				Desktop desktop = Desktop.getDesktop();
 				try {
 					desktop.browse(new URI(url));
@@ -164,5 +176,18 @@ public class UpdateInfoDialog extends JDialog {
 		this.setLocationRelativeTo(null);
 		GUIUtil.setDisposableDialogOptions(this, btnCancel);
 	}
-	
+
+	/**
+	 * ComboBox renderer to display an UpdatePlatform by the platform name
+	 */
+	private static class CustomComboBoxRenderer extends BasicComboBoxRenderer {
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value instanceof UpdatePlatform) {
+				setText(AssetHandler.getPlatformName((UpdatePlatform)value));
+			}
+			return this;
+		}
+	}
 }

@@ -1,7 +1,7 @@
 package net.sf.openrocket.communication;
 
-import net.sf.openrocket.arch.SystemInfo;
-import net.sf.openrocket.arch.SystemInfo.Platform;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.startup.Application;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,18 +14,26 @@ import java.util.TreeMap;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class AssetHandler {
-    private static final Map<String, Platform> mapExtensionToPlatform = new HashMap<>();  // Map file extensions to operating platform
-    private static final Map<Platform, String> mapPlatformToName = new HashMap<>();       // Map operating platform to a name
-    static {
-        mapExtensionToPlatform.put(".dmg", Platform.MAC_OS);
-        mapExtensionToPlatform.put(".exe", Platform.WINDOWS);
-        mapExtensionToPlatform.put(".AppImage", Platform.UNIX);
-        mapExtensionToPlatform.put(".jar", null);
+    private static final Map<String, UpdatePlatform> mapExtensionToPlatform = new HashMap<>();  // Map file extensions to operating platform
+    private static final Map<UpdatePlatform, String> mapPlatformToName = new HashMap<>();       // Map operating platform to a name
 
-        mapPlatformToName.put(Platform.MAC_OS, "Mac OS");
-        mapPlatformToName.put(Platform.WINDOWS, "Windows");
-        mapPlatformToName.put(Platform.UNIX, "Linux");
-        mapPlatformToName.put(null, "JAR");
+    public enum UpdatePlatform {
+        WINDOWS,
+        MAC_OS,
+        LINUX,
+        JAR
+    }
+
+    static {
+        mapExtensionToPlatform.put(".dmg", UpdatePlatform.MAC_OS);
+        mapExtensionToPlatform.put(".exe", UpdatePlatform.WINDOWS);
+        mapExtensionToPlatform.put(".AppImage", UpdatePlatform.LINUX);
+        mapExtensionToPlatform.put(".jar", UpdatePlatform.JAR);
+
+        mapPlatformToName.put(UpdatePlatform.MAC_OS, "Mac OS");
+        mapPlatformToName.put(UpdatePlatform.WINDOWS, "Windows");
+        mapPlatformToName.put(UpdatePlatform.LINUX, "Linux");
+        mapPlatformToName.put(UpdatePlatform.JAR, "JAR");
     }
 
     /**
@@ -35,14 +43,14 @@ public class AssetHandler {
      * @param urls list of asset URLs
      * @return map with as key the operating platform name and as value the corresponding asset URL
      */
-    public static Map<String, String> mapURLToPlatformName(List<String> urls) {
-        Map<String, String> output = new TreeMap<>();
+    public static Map<UpdatePlatform, String> mapURLToPlatform(List<String> urls) {
+        Map<UpdatePlatform, String> output = new TreeMap<>();
         if (urls == null) return null;
 
         for (String url : urls) {
             for (String ext : mapExtensionToPlatform.keySet()) {
                 if (url.endsWith(ext)) {
-                    output.put(mapPlatformToName.get(mapExtensionToPlatform.get(ext)), url);
+                    output.put(mapExtensionToPlatform.get(ext), url);
                 }
             }
         }
@@ -50,13 +58,20 @@ public class AssetHandler {
     }
 
     /**
-     * Returns the operating platform name based on the operating system that the user is running on, or the value
+     * Returns the operating platform based on the operating system that the user is running on, or the value
      * stored in preferences.
-     * @return operating platform name
+     * @return operating platform
      */
-    public static String getPlatformName() {
-        Platform currentPlatform = SystemInfo.getPlatform();
-        // TODO: select right option based on preference
-        return mapPlatformToName.get(currentPlatform);
+    public static UpdatePlatform getUpdatePlatform() {
+        return ((SwingPreferences) Application.getPreferences()).getUpdatePlatform();
+    }
+
+    /**
+     * Get the name of a platform (e.g. for Platform.MAC_OS, return "Mac OS")
+     * @param platform platform to get the name from
+     * @return name of the platform
+     */
+    public static String getPlatformName(UpdatePlatform platform) {
+        return mapPlatformToName.get(platform);
     }
 }
