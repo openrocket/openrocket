@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -358,7 +359,7 @@ public class UpdateInfoRetriever {
 				String releaseName = release.getReleaseName();
 
 				// Filter the release name
-				List<String> temp = new net.sf.openrocket.util.ArrayList<>(List.of(releaseName));
+				List<String> temp = new ArrayList<>(List.of(releaseName));
 				temp = filterReleasePreTag(temp, preTag);
 				temp = filterReleaseTags(temp, tags);
 				if (onlyOfficial) {
