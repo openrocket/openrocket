@@ -2,38 +2,72 @@ package net.sf.openrocket.communication;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
+import java.io.StringReader;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import net.sf.openrocket.l10n.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
-import net.sf.openrocket.util.ComparablePair;
-import net.sf.openrocket.util.LimitedInputStream;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.stream.JsonParsingException;
+import javax.net.ssl.HttpsURLConnection;
+
+/**
+ * Class that initiates fetching software update information.
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class UpdateInfoRetriever {
-	
-	private static final Logger log = LoggerFactory.getLogger(UpdateInfoRetriever.class);
-	
 	private UpdateInfoFetcher fetcher = null;
-	
-	
+
+	// Map of development tags for releases and their corresponding priority (higher number = more priority; newer release)
+	private static final Map<String, Integer> devTags = Stream.of(new Object[][] {
+			{ "alpha", 1 },
+			{ "beta", 2 },
+	}).collect(Collectors.toMap(c -> (String) c[0], c -> (Integer) c[1]));
+
+	/* Enum for the current build version. Values:
+          OLDER: current build version is older than the latest official release
+          LATEST: current build is the latest official release
+          NEWER: current build is "newer" than the latest official release (in the case of beta software)
+     */
+	public enum ReleaseStatus {
+		OLDER,
+		LATEST,
+		NEWER
+	}
+
 	/**
 	 * Start an asynchronous task that will fetch information about the latest
 	 * OpenRocket version.  This will overwrite any previous fetching operation.
 	 * This call will return immediately.
 	 */
-	public void start() {
-		fetcher = new UpdateInfoFetcher();
-		fetcher.setName("UpdateInfoFetcher");
-		fetcher.setDaemon(true);
-		fetcher.start();
+	public void startFetchUpdateInfo() {
+		this.fetcher = new UpdateInfoFetcher();
+		this.fetcher.setName("UpdateInfoFetcher");
+		this.fetcher.setDaemon(true);
+		this.fetcher.start();
 	}
 	
 	
@@ -44,16 +78,16 @@ public class UpdateInfoRetriever {
 	 * @throws	IllegalStateException if {@link #startFetchUpdateInfo()} has not been called
 	 */
 	public boolean isRunning() {
-		if (fetcher == null) {
+		if (this.fetcher == null) {
 			throw new IllegalStateException("startFetchUpdateInfo() has not been called"); 
 		}
-		return fetcher.isAlive();
+		return this.fetcher.isAlive();
 	}
 	
 	
 	/**
 	 * Retrieve the result of the background update info fetcher.  This method returns 
-	 * the result of the previous call to {@link #start()}. It must be
+	 * the result of the previous call to {@link #startFetchUpdateInfo()}. It must be
 	 * called before calling this method.
 	 * <p>
 	 * This method will return <code>null</code> if the info fetcher is still running or
@@ -62,335 +96,396 @@ public class UpdateInfoRetriever {
 	 * 
 	 * @return	the update result, or <code>null</code> if the fetching is still in progress
 	 * 			or an error occurred while communicating with the server.
-	 * @throws	IllegalStateException	if {@link #start()} has not been called.
+	 * @throws	IllegalStateException	if {@link #startFetchUpdateInfo()} has not been called.
 	 */
 	public UpdateInfo getUpdateInfo() {
-		if (fetcher == null) {
-			throw new IllegalStateException("start() has not been called");
+		if (this.fetcher == null) {
+			throw new IllegalStateException("startFetchUpdateInfo() has not been called");
 		}
-		return fetcher.info;
+		return this.fetcher.info;
 	}
-	
-	
-	
+
+
 	/**
-	 * Parse the data received from the server.
+	 * An asynchronous task that fetches the latest GitHub release.
 	 * 
-	 * @param r		the Reader from which to read.
-	 * @return		an UpdateInfo construct, or <code>null</code> if the data was invalid.
-	 * @throws IOException	if an I/O exception occurs.
+	 * @author Sibo Van Gool <sibo.vangool@hotmail.com>
 	 */
-	/* package-private */
-	static UpdateInfo parseUpdateInput(Reader r) throws IOException {
-		BufferedReader reader = convertToBufferedReader(r);
-		String version = null;
-		
-		ArrayList<ComparablePair<Integer, String>> updates =
-				new ArrayList<ComparablePair<Integer, String>>();
-		
-		String str = reader.readLine();
-		while (str != null) {
-			if (isHeader(str)) {
-				version = str.substring(8).trim();
-			} else if (isUpdateToken(str)) {
-				ComparablePair<Integer, String> update = parseUpdateToken(str);
-				if(update != null)
-					updates.add(update);
-			}
-			str = reader.readLine();
-		}
-		
-		if (version == null) 
-			return null;
-		return new UpdateInfo(version, updates);
-	}
-	
-	/**
-	 * parses a line of a connection content into the information of an update
-	 * @param str	the line of the connection
-	 * @return		the update information
-	 */
-	private static ComparablePair<Integer, String> parseUpdateToken(String str){
-		int index = str.indexOf(':');
-		int value = Integer.parseInt(str.substring(0, index));
-		String desc = str.substring(index + 1).trim();
-		
-		if (desc.equals("")) 
-			return null;
-		return new ComparablePair<Integer, String>(value, desc);
-	}
+	public static class UpdateInfoFetcher extends Thread {
+		private static final Logger log = LoggerFactory.getLogger(UpdateInfoFetcher.class);
+		private static final Translator trans = Application.getTranslator();
 
-	/**
-	 * checks if a string contains and update information
-	 * @param str	the string itself
-	 * @return		true for when the string has an update
-	 * 				false otherwise
-	 */
-	private static boolean isUpdateToken(String str) {
-		return str.matches("^[0-9]+:\\p{Print}+$");
-	}
-
-	/**
-	 * check if the string is formatted as an update list header
-	 * @param str	the string to be checked
-	 * @return		true if str is a header, false otherwise
-	 */
-	private static boolean isHeader(String str) {
-		return str.matches("^Version: *[0-9]+\\.[0-9]+\\.[0-9]+[a-zA-Z0-9.-]* *$");
-	}
-	
-	/**
-	 * convert, if not yet converted, a Reader into a buffered reader
-	 * @param r		the Reader object
-	 * @return		the Reader as a BufferedReader Object
-	 */
-	private static BufferedReader convertToBufferedReader(Reader r) {
-		if (r instanceof BufferedReader) 
-			return (BufferedReader) r;
-		return new BufferedReader(r);
-	}
-
-
-
-	/**
-	 * An asynchronous task that fetches and parses the update info.
-	 * 
-	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
-	 */
-	private class UpdateInfoFetcher extends Thread {
-		
-		private volatile UpdateInfo info = null;
+		private volatile UpdateInfo info;
 		
 		@Override
 		public void run() {
 			try {
-				doConnection();
-			} catch (IOException e) {
-				log.info("Fetching update failed: " + e);
-				return;
+				runUpdateFetcher();
+			} catch (UpdateCheckerException e) {
+				info = new UpdateInfo(e);
 			}
 		}
-		
+
 		/**
-		 * Establishes a connection with data of previous updates
-		 * @throws IOException
+		 * Fetch the latest release name from the GitHub repository, compare it with the current build version and change
+		 * the UpdateInfo with the result.
+		 * @throws UpdateCheckerException if something went wrong in the process
 		 */
-		private void doConnection() throws IOException {
-			HttpURLConnection connection = getConnection(getUrl());
-			InputStream is = null;
-			
+		public void runUpdateFetcher() throws UpdateCheckerException {
+			String buildVersion = BuildProperties.getVersion();
+			String preTag = null;       	// Change e.g. to 'android' for Android release
+			String[] tags = null;			// Change to e.g. ["beta"] for only beta releases
+			boolean onlyOfficial = true;	// Change to false for beta testing
+
+			// Get the latest release name from the GitHub release page
+			JsonArray jsonArr = retrieveAllReleaseObjects();
+			JsonObject latestObj = getLatestReleaseJSON(jsonArr, preTag, tags, onlyOfficial);
+			ReleaseInfo release = new ReleaseInfo(latestObj);
+			String latestName = release.getReleaseName();
+
+			ReleaseStatus status = compareLatest(buildVersion, latestName);
+
+			switch (status) {
+				case OLDER:
+					log.info("Found update: " + latestName);
+					break;
+				case LATEST:
+					log.info("Current build is latest version");
+					break;
+				case NEWER:
+					log.info("Current build is newer");
+			}
+
+			this.info = new UpdateInfo(release, status);
+		}
+
+		/**
+		 * Retrieve all the GitHub release JSON objects from OpenRocket's repository
+		 *
+		 * We need to both check the '/releases' and '/releases/latest' URL, because the '/releases/latest' JSON object
+		 * is not included in the '/releases' page.
+		 *
+		 * @return JSON array containing all the GitHub release JSON objects
+		 * @throws UpdateCheckerException if an error occurred (e.g. no internet connection)
+		 */
+		private JsonArray retrieveAllReleaseObjects() throws UpdateCheckerException {
+			// Extra parameters to add to the connection request
+			Map<String, String> params = new HashMap<>();
+			params.put("accept", "application/vnd.github.v3+json");     // Recommended by the GitHub API
+
+			// Get release tags from release page
+			String relUrl = Communicator.UPDATE_URL;
+			relUrl = generateUrlWithParameters(relUrl, params);
+			JsonArray arr1 = retrieveReleaseJSONArr(relUrl);
+
+			if (arr1 == null) return null;
+			if (Communicator.UPDATE_ADDITIONAL_URL == null) return arr1;
+
+			// Get release tags from latest release page
+			String latestRelUrl = Communicator.UPDATE_ADDITIONAL_URL;
+			latestRelUrl = generateUrlWithParameters(latestRelUrl, params);
+			JsonArray arr2 = retrieveReleaseJSONArr(latestRelUrl);
+
+			if (arr2 == null) return null;
+
+			// Combine both arrays
+			JsonArrayBuilder builder = Json.createArrayBuilder();
+			for (int i = 0; i < arr1.size(); i++) {
+				JsonObject obj = arr1.getJsonObject(i);
+				builder.add(obj);
+			}
+			for (int i = 0; i < arr2.size(); i++) {
+				JsonObject obj = arr2.getJsonObject(i);
+				builder.add(obj);
+			}
+
+			return builder.build();
+		}
+
+		/**
+		 * Retrieve the JSON array of GitHub release objects from the specified URL link
+		 * @param urlLink URL link from which to retrieve the JSON array
+		 * @return JSON array containing the GitHub release objects
+		 * @throws UpdateCheckerException if an error occurred (e.g. no internet connection)
+		 */
+		private JsonArray retrieveReleaseJSONArr(String urlLink) throws UpdateCheckerException {
+			JsonArray jsonArr;
+
+			HttpsURLConnection connection = null;
 			try {
+				// Set up connection info to the GitHub release page
+				URL url = new URL(urlLink);
+				connection = (HttpsURLConnection) url.openConnection();
+				connection.setRequestMethod("GET");
+				connection.setRequestProperty("Accept", "application/json");
+				connection.setUseCaches(false);
+				connection.setAllowUserInteraction(false);
+				connection.setConnectTimeout(Communicator.CONNECTION_TIMEOUT);
+				connection.setReadTimeout(Communicator.CONNECTION_TIMEOUT);
+
+				// Connect to the GitHub page and get the status response code
 				connection.connect();
-				if(!checkConnection(connection))
-					return;
-				if(!checkContentType(connection))
-					return;
-				is = new LimitedInputStream(connection.getInputStream(), Communicator.MAX_INPUT_BYTES);
-				parseUpdateInput(buildBufferedReader(connection,is));
-			} finally {
+				int status = connection.getResponseCode();
+				log.debug("Update checker response code: " + status);
+
+				// Invalid response code
+				if (status != 200) {
+					log.warn(String.format("Bad response code from server: %d", status));
+					throw new UpdateCheckerException(String.format(trans.get("update.fetcher.badResponse"), status));
+				}
+
+				// Read the response JSON data into a StringBuilder
+				StringBuilder sb = new StringBuilder();
+				BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String line;
+				while ((line = br.readLine()) != null) {
+					sb.append(line).append("\n");
+				}
+				br.close();
+
+				// Read the release page as a JSON array
+				JsonReader reader = Json.createReader(new StringReader(sb.toString()));
+
+				// The reader-content can be a JSON array or just a JSON object
+				try {                                   // Case: JSON array
+					jsonArr = reader.readArray();
+				} catch (JsonParsingException e) {      // Case: JSON object
+					JsonArrayBuilder builder = Json.createArrayBuilder();
+					reader = Json.createReader(new StringReader(sb.toString()));
+					JsonObject obj = reader.readObject();
+					builder.add(obj);
+					jsonArr = builder.build();
+				}
+			} catch (UnknownHostException | SocketTimeoutException | ConnectException e) {
+				log.warn(String.format("Could not connect to URL: %s. Please check your internet connection.", urlLink));
+				throw new UpdateCheckerException(trans.get("update.fetcher.badConnection"));
+			} catch (MalformedURLException e) {
+				log.warn("Malformed URL: " + urlLink);
+				throw new UpdateCheckerException(String.format(trans.get("update.fetcher.malformedURL"), urlLink));
+			} catch (IOException e) {
+				throw new UpdateCheckerException(String.format("Exception - %s: %s", e, e.getMessage()));
+			} finally {     // Close the connection to the release page
+				if (connection != null) {
+					try {
+						connection.disconnect();
+					} catch (Exception ex) {
+						log.warn("Could not disconnect update checker connection");
+					}
+				}
+			}
+
+			return jsonArr;
+		}
+
+		/**
+		 * Sometimes release names start with a pre-tag, as is the case for e.g. 'android-13.11', where 'android' is the pre-tag.
+		 * This function extracts all the release names that start with the specified preTag.
+		 * If preTag is null, the default release names without a pre-tag, starting with a number, are returned (e.g. '15.03').
+		 * @param names list of release names to filter
+		 * @param preTag pre-tag to filter the names on. If null, no special preTag filtering is applied
+		 * @return list of names starting with the preTag
+		 */
+		public List<String> filterReleasePreTag(List<String> names, String preTag) {
+			List<String> filteredTags = new LinkedList<>();
+
+			// Filter out the names that are not related to the preTag
+			if (preTag != null) {
+				for (String tag : names) {
+					if (tag.startsWith(preTag + "-")) {
+						// Remove the preTag + '-' delimiter from the tag
+						tag = tag.substring(preTag.length() + 1);
+						filteredTags.add(tag);
+					}
+				}
+			}
+			else {
+				// Add every name that starts with a number
+				for (String tag : names) {
+					if (tag.split("\\.")[0].matches("\\d+")) {
+						filteredTags.add(tag);
+					}
+				}
+			}
+			return filteredTags;
+		}
+
+		/**
+		 * Filter out release names that contain certain tags. This could be useful if you are for example running a
+		 * beta release and only want releases containing the 'beta'-tag to show up.
+		 * If tag is null, the original list is returned.
+		 * @param names list of release names to filter
+		 * @param tags filter tags
+		 * @return list of release names containing the filter tag
+		 */
+		public List<String> filterReleaseTags(List<String> names, String[] tags) {
+			if (names == null) return null;
+			if (tags == null) return names;
+			return names.stream().filter(c -> Arrays.stream(tags)
+					.anyMatch(c::contains)).collect(Collectors.toList());
+		}
+
+		/**
+		 * Filter a list of release names to only contain official releases, i.e. releases without a devTag (e.g. 'beta').
+		 * This could be useful if you're running an official release and don't want to get updates from beta releases.
+		 * @param names list of release names to filter
+		 * @return list of release names that do not contain a devTag
+		 */
+		public List<String> filterOfficialRelease(List<String> names) {
+			if (names == null) return null;
+			return names.stream().filter(c -> Arrays.stream(devTags.keySet().toArray(new String[0]))
+					.noneMatch(c::contains)).collect(Collectors.toList());
+		}
+
+		/**
+		 * Return the latest JSON GitHub release object from a JSON array of release objects.
+		 * E.g. from a JSON array where JSON objects have release tags {"14.01", "15.03", "11.01"} return the JSON object
+		 * with release tag "15.03"?
+		 * @param jsonArr JSON array containing JSON GitHub release objects
+		 * @param preTag pre-tag to filter the names on. If null, no special preTag filtering is applied
+		 * @param tags tags to filter the names on. If null, no tag filtering is applied
+		 * @param onlyOfficial bool to check whether to only include official (non-test) releases
+		 * @return latest JSON GitHub release object
+		 */
+		public JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags, boolean onlyOfficial) throws UpdateCheckerException {
+			if (jsonArr == null) return null;
+
+			JsonObject latestObj = null;
+			String latestName = null;
+
+			// Find the tag with the latest version out of the filtered tags
+			for (int i = 0; i < jsonArr.size(); i++) {
+				JsonObject obj = jsonArr.getJsonObject(i);
+				ReleaseInfo release = new ReleaseInfo(obj);
+				String releaseName = release.getReleaseName();
+
+				// Filter the release name
+				List<String> temp = new ArrayList<>(List.of(releaseName));
+				temp = filterReleasePreTag(temp, preTag);
+				temp = filterReleaseTags(temp, tags);
+				if (onlyOfficial) {
+					temp = filterOfficialRelease(temp);
+				}
+				if (temp.size() == 0) continue;
+
+				// Init latestObj and latestName here so that only filtered objects and tags can be assigned to them
+				if (latestObj == null && latestName == null) {
+					latestObj = obj;
+					latestName = releaseName;
+				}
+				else if (compareLatest(releaseName, latestName) == ReleaseStatus.NEWER) {
+					latestName = releaseName;
+					latestObj = obj;
+				}
+			}
+
+			return latestObj;
+		}
+
+		/**
+		 * Compares if the version of tag1 is OLDER, NEWER or equals (LATEST) than the version of tag2
+		 * @param tag1 first tag to compare (e.g. "15.03")
+		 * @param tag2 second tag to compare (e.g. "14.11")
+		 * @return ReleaseStatus of tag1 compared to tag2 (e.g. 'ReleaseStatus.NEWER')
+		 * @throws UpdateCheckerException if one of the tags if malformed or null
+		 */
+		public static ReleaseStatus compareLatest(String tag1, String tag2) throws UpdateCheckerException {
+			if (tag1 == null) {
+				log.debug("tag1 is null");
+				throw new UpdateCheckerException("Malformed release tag");
+			}
+			if (tag2 == null) {
+				log.debug("tag2 is null");
+				throw new UpdateCheckerException("Malformed release tag");
+			}
+
+			// Each tag should have the format 'XX.XX...' where 'XX' is a number or a text (e.g. 'alpha'). Separator '.'
+			// can also be '-'.
+			String[] tag1Split = tag1.split("[.-]");
+			String[] tag2Split = tag2.split("[.-]");
+
+			for (int i = 0; i < tag2Split.length; i++) {
+				// If the loop is still going until this condition, you have the situation where tag1 is e.g.
+				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
+				if (i >= tag1Split.length) {
+					return ReleaseStatus.OLDER;
+				}
+
 				try {
-					if (is != null)
-						is.close();
-					connection.disconnect();
-				} catch (Exception e) {
-					e.printStackTrace();
+					int tag1Value = Integer.parseInt(tag1Split[i]);
+					int tag2Value = Integer.parseInt(tag2Split[i]);
+					if (tag1Value > tag2Value) {
+						return ReleaseStatus.NEWER;
+					}
+					else if (tag2Value > tag1Value) {
+						return ReleaseStatus.OLDER;
+					}
+				} catch (NumberFormatException e) {     // Thrown when one of the tag elements is a String
+					// In case tag1 is e.g. '20.beta.01', and tag2 '20.alpha.16', tag1 is newer
+					if (devTags.containsKey(tag1Split[i]) && devTags.containsKey(tag2Split[i])) {
+						// In case when e.g. tag1 is '20.beta.01' and tag2 '20.alpha.01', tag1 is newer
+						if (devTags.get(tag1Split[i]) > devTags.get(tag2Split[i])) {
+							return ReleaseStatus.NEWER;
+						}
+						// In case when e.g. tag1 is '20.alpha.01' and tag2 '20.beta.01', tag1 is older
+						else if (devTags.get(tag1Split[i]) < devTags.get(tag2Split[i])) {
+							return ReleaseStatus.OLDER;
+						}
+						// In case when e.g. tag1 is '20.alpha.01' and tag2 '20.alpha.02', go to the next loop to compare '01' and '02'
+						continue;
+					}
+
+					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release with a number instead of
+					// a text, e.g. '20.01'
+					if (tag2Split[i].matches("\\d+")) {
+						return ReleaseStatus.NEWER;
+					}
+
+					String message = String.format("Unrecognized release tag format, tag 1: %s, tag 2: %s", tag1, tag2);
+					log.warn(message);
+					throw new UpdateCheckerException(message);
 				}
 			}
+
+			// If tag 1 is bigger than tag 2 and by this point, all the other elements of the tags were the same, tag 1
+			// must be newer (e.g. tag 1 = '15.03.01' and tag 2 = '15.03').
+			if (tag1Split.length > tag2Split.length) {
+				return ReleaseStatus.NEWER;
+			}
+
+			return ReleaseStatus.LATEST;
 		}
-		
+
 		/**
-		 * Parses the data received in a buffered reader
-		 * @param reader		The reader object
-		 * @throws IOException	If anything bad happens
+		 * Generate a URL with a set of parameters included.
+		 * E.g. url = github.com/openrocket/openrocket/releases, params = {"lorem", "ipsum"}
+		 *      => formatted url: github.com/openrocket/openrocket/releases?lorem=ipsum
+		 * @param url base URL
+		 * @param params parameters to include
+		 * @return formatted URL (= base URL with parameters)
 		 */
-		private void parseUpdateInput(BufferedReader reader) throws IOException{
-			String version = null;
-			ArrayList<ComparablePair<Integer, String>> updates =
-					new ArrayList<ComparablePair<Integer, String>>();
-			
-			String line = reader.readLine();
-			while (line != null) {
-				if (isHeader(line)) {
-					version = parseHeader(line);
-				} else if (isUpdateInfo(line)) {
-					updates.add(parseUpdateInfo(line));
+		private String generateUrlWithParameters(String url, Map<String, String> params) {
+			StringBuilder formattedUrl = new StringBuilder(url);
+			formattedUrl.append("?");        // Identifier for start of query string (for parameters)
+
+			// Append the parameters to the URL
+			int idx = 0;
+			for (Map.Entry<String, String> e : params.entrySet()) {
+				formattedUrl.append(String.format("%s=%s", e.getKey(), e.getValue()));
+				if (idx < params.size() - 1) {
+					formattedUrl.append("&");    // Identifier for more parameters
 				}
-				line = reader.readLine();
+				idx++;
 			}
-			
-			if (isInvalidVersion(version)) {
-				log.warn("Invalid version received, ignoring.");
-				return;
+			return formattedUrl.toString();
+		}
+
+		/**
+		 * Exception for the update checker
+		 */
+		public static class UpdateCheckerException extends Exception {
+			public UpdateCheckerException(String message) {
+				super(message);
 			}
-			
-			info = new UpdateInfo(version, updates);
-			log.info("Found update: " + info);
-		}
-
-		/**
-		 * parses a line into it's version name
-		 * @param 	line	the string of the header
-		 * @return	the version in it's right format
-		 */
-		private String parseHeader(String line) {
-			return line.substring(8).trim();
-		}
-		
-		/**
-		 * parses a line into it's correspondent update information
-		 * @param line	the line to be parsed
-		 * @return		update information from the line
-		 */
-		private ComparablePair<Integer,String> parseUpdateInfo(String line){
-			String[] split = line.split(":", 2);
-			int n = Integer.parseInt(split[0]);
-			return new ComparablePair<Integer, String>(n, split[1].trim());
-		}
-
-		/**
-		 * checks if a line contains an update information
-		 * @param 	line	the line to be checked
-		 * @return	true if the line contain an update information
-		 * 			false otherwise 
-		 */
-		private boolean isUpdateInfo(String line) {
-			return line.matches("^[0-9]{1,9}:\\P{Cntrl}{1,300}$");
-		}
-
-		/**
-		 * checks if a line is a header of an update list
-		 * @param line	the line to be checked
-		 * @return		true if line is a header, false otherwise
-		 */
-		private boolean isHeader(String line) {
-			return line.matches("^Version:[a-zA-Z0-9._ -]{1,30}$");
-		}
-
-		/**
-		 * checks if a String is a valid version
-		 * @param version	the String to be checked
-		 * @return			true if it's valid, false otherwise
-		 */
-		private boolean isInvalidVersion(String version) {
-			return version == null || version.length() == 0 ||
-					version.equalsIgnoreCase(BuildProperties.getVersion());
-		}
-		
-		/**
-		 * builds a buffered reader from an open connection and a stream
-		 * @param connection	The connection
-		 * @param is			The input stream
-		 * @return				The Buffered reader created
-		 * @throws IOException
-		 */
-		private BufferedReader buildBufferedReader(HttpURLConnection connection, InputStream is) throws IOException {
-			String encoding = connection.getContentEncoding();
-			if (encoding == null || encoding.equals(""))
-				encoding = "UTF-8";
-			return new BufferedReader(new InputStreamReader(is, encoding));
-		}
-
-		/**
-		 * check if the content of a connection is valid
-		 * @param connection	the connection to be checked
-		 * @return				true if the content is valid, false otherwise
-		 */
-		private boolean checkContentType(HttpURLConnection connection) {
-			String contentType = connection.getContentType();
-			if (contentType == null ||
-					contentType.toLowerCase(Locale.ENGLISH).indexOf(Communicator.UPDATE_INFO_CONTENT_TYPE) < 0) {
-				// Unknown response type
-				log.warn("Unknown Content-type received:" + contentType);
-				return false;
-			}
-			return true;
-		}
-
-		/**
-		 * check if a connection is responsive and valid
-		 * @param connection	the connection to be checked
-		 * @return				true if connection is ok, false otherwise
-		 * @throws IOException
-		 */
-		private boolean checkConnection(HttpURLConnection connection) throws IOException{
-			log.debug("Update response code: " + connection.getResponseCode());
-			
-			if (noUpdatesAvailable(connection)) {
-				log.info("No updates available");
-				info = new UpdateInfo();
-				return false;
-			}
-			
-			if (!updateAvailable(connection)) {
-				// Error communicating with server
-				log.warn("Unknown server response code: " + connection.getResponseCode());
-				return false;
-			}
-			return true;
-		}
-
-		/**
-		 * checks if a connection sent an update available flag
-		 * @param connection	the connection to be checked
-		 * @return				true if the response was an update available flag
-		 * 						false otherwise
-		 * @throws IOException	if anything goes wrong
-		 */
-		private boolean updateAvailable(HttpURLConnection connection) throws IOException {
-			return connection.getResponseCode() == Communicator.UPDATE_INFO_UPDATE_AVAILABLE;
-		}
-
-		/**
-		 * checks if a connection sent an update unavailable flag
-		 * @param connection	the connection to be checked
-		 * @return				true if the response was an no update available flag
-		 * 						false otherwise
-		 * @throws IOException	if anything goes wrong
-		 */
-		private boolean noUpdatesAvailable(HttpURLConnection connection) throws IOException {
-			return connection.getResponseCode() == Communicator.UPDATE_INFO_NO_UPDATE_CODE;
-		}
-
-		/**
-		 * Builds a connection with the given url
-		 * @param url	the url
-		 * @return		connection base on the url
-		 * @throws IOException
-		 */
-		private HttpURLConnection getConnection(String url) throws IOException{
-			HttpURLConnection connection = Communicator.connectionSource.getConnection(url);
-			
-			connection.setConnectTimeout(Communicator.CONNECTION_TIMEOUT);
-			connection.setInstanceFollowRedirects(true);
-			connection.setRequestMethod("GET");
-			connection.setUseCaches(false);
-			connection.setDoInput(true);
-			connection.setRequestProperty("X-OpenRocket-Version",
-					Communicator.encode(BuildProperties.getVersion() + " " + BuildProperties.getBuildSource()));
-			connection.setRequestProperty("X-OpenRocket-ID",
-					Communicator.encode(Application.getPreferences().getUniqueID()));
-			connection.setRequestProperty("X-OpenRocket-OS",
-					Communicator.encode(System.getProperty("os.name") + " " +
-							System.getProperty("os.arch")));
-			connection.setRequestProperty("X-OpenRocket-Java",
-					Communicator.encode(System.getProperty("java.vendor") + " " +
-							System.getProperty("java.version")));
-			connection.setRequestProperty("X-OpenRocket-Country",
-					Communicator.encode(System.getProperty("user.country") + " " +
-							System.getProperty("user.timezone")));
-			connection.setRequestProperty("X-OpenRocket-Locale",
-					Communicator.encode(Locale.getDefault().toString()));
-			connection.setRequestProperty("X-OpenRocket-CPUs", "" + Runtime.getRuntime().availableProcessors());
-			return connection;
-		}
-		
-		/**
-		 * builds the default url for fetching updates
-		 * @return	the string with an url for fetching updates
-		 */
-		private String getUrl() {
-			return Communicator.UPDATE_INFO_URL + "?" + Communicator.VERSION_PARAM + "="
-					+ Communicator.encode(BuildProperties.getVersion());
 		}
 	}
 }
