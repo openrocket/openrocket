@@ -239,7 +239,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAz")));
 				DoubleModel lightAzModel = new DoubleModel(p, "LightAz", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(lightAzModel.getSpinnerModel()), "split 2");
-				add(new UnitSelector(lightAzModel), "push, left, wrap");
+				add(new UnitSelector(lightAzModel), "pushx, left, wrap");
 
 				/// Light altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAlt")));
