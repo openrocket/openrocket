@@ -162,47 +162,57 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
+				// Rocket
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.rocket"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// Pitch
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.pitch")));
 				DoubleModel pitchModel = new DoubleModel(p, "Pitch", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(pitchModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(pitchModel), "pushx, left, wrap");
 
+				/// Yaw
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.yaw")));
 				DoubleModel yawModel = new DoubleModel(p, "Yaw", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(yawModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(yawModel), "wrap");
 
+				/// Roll
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.roll")));
 				DoubleModel rollModel = new DoubleModel(p, "Roll", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(rollModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(rollModel), "wrap");
 
+				/// Advance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.advance")));
 				DoubleModel advanceModel = new DoubleModel(p, "Advance", UnitGroup.UNITS_LENGTH);
 				add(new EditableSpinner(advanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(advanceModel), "wrap");
 
+				// Camera
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.camera"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// View azimuth
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAz")));
 				DoubleModel viewAzModel = new DoubleModel(p, "ViewAz", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(viewAzModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAzModel), "wrap");
 
+				/// View altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAlt")));
 				DoubleModel viewAltModle = new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(viewAltModle.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAltModle), "wrap");
 
+				/// View distance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vDist")));
 				DoubleModel viewDistanceModel = new DoubleModel(p, "ViewDistance", UnitGroup.UNITS_LENGTH);
 				add(new EditableSpinner(viewDistanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewDistanceModel), "wrap");
 
+				/// FoV
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.fov")));
 				DoubleModel fovModel = new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(fovModel.getSpinnerModel()), "growx");
@@ -212,31 +222,39 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
+				// Light
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// Sun light
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sun")));
 				add(sunLightColorButton, "wrap");
 
+				/// Ambiance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.amb")));
 				DoubleModel ambianceModel = new DoubleModel(p, "Ambiance", 100, UnitGroup.UNITS_NONE, 0, 100);
 				add(new EditableSpinner(ambianceModel.getSpinnerModel()), "wrap");
 
+				/// Light azimuth
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAz")));
 				DoubleModel lightAzModel = new DoubleModel(p, "LightAz", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(lightAzModel.getSpinnerModel()), "split 2");
 				add(new UnitSelector(lightAzModel), "push, left, wrap");
 
+				/// Light altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAlt")));
 				DoubleModel lightAltModle = new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE);
 				add(new EditableSpinner(lightAltModle.getSpinnerModel()), "wrap");
 
+				// Sky
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.sky"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// Sky color
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
 				add(skyColorButton, "wrap");
 
+				/// Sky image
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
 
 				Sky noSky = new Sky() {		// Dummy sky for 'none' selection option
@@ -276,6 +294,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 					}
 				}, "wrap");
 
+				/// Image credit
 				final JLabel creditLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.skyCredit"));
 				add(creditLabel, "wrap");
 
@@ -306,9 +325,11 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
+				// Smoke & Flame
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// Smoke
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smoke")));
 				BooleanModel smokeModel = new BooleanModel(p, "Smoke");
 				add(new JCheckBox(smokeModel), "split 2, w 15");
@@ -316,12 +337,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(smokeColorButton, "pushx, left, wrap");
 				smokeModel.addEnableComponent(smokeColorButton);
 
+				/// Smoke opacity
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity")));
 				DoubleModel smokeOpacityModel = new DoubleModel(p, "SmokeOpacity", 100, UnitGroup.UNITS_NONE, 0, 100);
 				EditableSpinner opacitySpinner = new EditableSpinner(smokeOpacityModel.getSpinnerModel());
 				add(opacitySpinner, "wrap");
 				smokeModel.addEnableComponent(opacitySpinner);
 
+				/// Flame
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.flame")));
 				BooleanModel fireModel = new BooleanModel(p, "Flame");
 				add(new JCheckBox(fireModel), "split 2, w 15");
@@ -329,6 +352,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(flameColorButton, "wrap");
 				fireModel.addEnableComponent(flameColorButton);
 
+				/// Flame aspect ratio
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.flameAspect")));
 				DoubleModel flameAspectModel = new DoubleModel(p, "FlameAspectRatio", 100, UnitGroup.UNITS_NONE, 25,
 						250);
@@ -336,12 +360,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(flameAspectSpinner, "wrap");
 				fireModel.addEnableComponent(flameAspectSpinner);
 
+				/// Sparks
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparks")));
 				BooleanModel sparksModel = new BooleanModel(p, "Sparks");
 				JCheckBox sparksCheck = new JCheckBox(sparksModel);
 				add(sparksCheck, "wrap");
 				fireModel.addEnableComponent(sparksCheck);
 
+				/// Sparks concentration
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkConcentration")));
 				DoubleModel sparkConcentrationModel = new DoubleModel(p, "SparkConcentration", 100,
 						UnitGroup.UNITS_NONE, 0, 100);
@@ -349,19 +375,23 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(sparkConcentrationSpinner, "wrap");
 				sparksModel.addEnableComponent(sparkConcentrationSpinner);
 
+				/// Spark weight
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkWeight")));
 				DoubleModel sparkWeightModel = new DoubleModel(p, "SparkWeight", 100, UnitGroup.UNITS_NONE, 0, 100);
 				EditableSpinner sparkWeightSpinner = new EditableSpinner(sparkWeightModel.getSpinnerModel());
 				add(sparkWeightSpinner, "wrap");
 				sparksModel.addEnableComponent(sparkWeightSpinner);
 
+				/// Exhaust scale
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.exhaustScale")));
 				DoubleModel exhaustScaleModel = new DoubleModel(p, "ExhaustScale", 100, UnitGroup.UNITS_NONE, 0, 1000);
 				add(new EditableSpinner(exhaustScaleModel.getSpinnerModel()), "wrap");
 
+				// Effects
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.effects"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
+				/// Speed
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.speed")));
 				add(new JCheckBox(new BooleanModel(p, "MotionBlurred")), "wrap");
 			}
