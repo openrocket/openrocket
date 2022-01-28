@@ -60,8 +60,11 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.util.DecalNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1418,14 +1421,31 @@ public class BasicFrame extends JFrame {
 			}
 		}
 
+		StorageOptions options = new StorageOptions();
+		options.setFileType(StorageOptions.FileType.ROCKSIM);
+		return saveRocksimFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the Rocksim file
+	 * @param file file to be stored
+	 * @param options storage options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveRocksimFile(File file, StorageOptions options) {
 		try {
-			StorageOptions options = new StorageOptions();
-			options.setFileType(StorageOptions.FileType.ROCKSIM);
 			ROCKET_SAVER.save(file, document, options);
 			// Do not update the save state of the document.
 			return true;
 		} catch (IOException e) {
 			return false;
+		} catch (DecalNotFoundException decex) {
+			DecalImage decal = decex.getDecal();
+			// Check if the user replaced the source file, if not, just ignore the faulty decal on the next save
+			if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
+				decal.setIgnored(true);
+			}
+			return saveRocksimFile(file, options);	// Resave
 		}
 	}
 
@@ -1509,6 +1529,16 @@ public class BasicFrame extends JFrame {
 						"An I/O error occurred while saving:",
 						e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 				return false;
+			}
+			else if (cause instanceof DecalNotFoundException) {
+				DecalNotFoundException decex = (DecalNotFoundException) cause;
+				DecalImage decal = decex.getDecal();
+				// Check if the user replaced the source file, if not, just ignore the faulty decal on the next save
+				if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
+					decal.setIgnored(true);
+				}
+				return saveAsOpenRocket(file);	// Resave
+
 			} else {
 				Reflection.handleWrappedException(e);
 			}

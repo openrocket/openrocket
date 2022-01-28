@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.DecalNotFoundException;
 
 /**
  * 
@@ -39,7 +40,7 @@ public abstract class Attachment extends AbstractChangeSource implements Compara
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public abstract InputStream getBytes() throws FileNotFoundException, IOException;
+	public abstract InputStream getBytes() throws FileNotFoundException, IOException, DecalNotFoundException;
 	
 	/**
 	 * {@inheritDoc}

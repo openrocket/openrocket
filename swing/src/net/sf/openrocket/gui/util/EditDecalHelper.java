@@ -11,6 +11,7 @@ import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.dialogs.EditDecalDialog;
 import net.sf.openrocket.gui.watcher.FileWatcher;
 import net.sf.openrocket.gui.watcher.WatchEvent;
@@ -21,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.InsideColorComponentHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 import com.google.inject.Inject;
+import net.sf.openrocket.util.DecalNotFoundException;
 
 public class EditDecalHelper {
 	
@@ -83,7 +85,7 @@ public class EditDecalHelper {
 		//First Check preferences
 		if (usageCount == 1 && (sysPrefSet || isSnapConfined)) {
 			String commandLine = isSnapConfined ? "xdg-open %%" : prefs.getDecalEditorCommandLine();
-			launchEditor(prefs.isDecalEditorPreferenceSystem(), commandLine, decal);
+			launchEditor(parent, prefs.isDecalEditorPreferenceSystem(), commandLine, decal);
 			return decal;
 		}
 		
@@ -121,7 +123,7 @@ public class EditDecalHelper {
 				decal = makeDecalUniqueInside(doc, component, decal);
 		}
 		
-		launchEditor(useSystemEditor, commandLine, decal);
+		launchEditor(parent, useSystemEditor, commandLine, decal);
 		
 		return decal;
 		
@@ -154,7 +156,7 @@ public class EditDecalHelper {
 		return newImage;
 	}
 	
-	private void launchEditor(boolean useSystemEditor, String commandTemplate, final DecalImage decal) throws EditDecalHelperException {
+	private void launchEditor(Window parent, boolean useSystemEditor, String commandTemplate, final DecalImage decal) throws EditDecalHelperException {
 		
 		String decalId = decal.getName();
 		// Create Temp File.
@@ -188,6 +190,11 @@ public class EditDecalHelper {
 		} catch (IOException ioex) {
 			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), tmpFile.getAbsoluteFile());
 			throw new EditDecalHelperException(message, ioex);
+		} catch (DecalNotFoundException decex) {
+			if (DecalNotFoundDialog.showDialog(parent, decex)) {
+				launchEditor(parent, useSystemEditor, commandTemplate, decal);
+			}
+			return;
 		}
 		
 		
