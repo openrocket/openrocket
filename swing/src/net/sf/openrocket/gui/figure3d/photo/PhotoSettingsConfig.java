@@ -160,29 +160,29 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		smokeColorButton.addActionListener(new ColorActionListener(p, "SmokeColor"));
 		flameColorButton.addActionListener(new ColorActionListener(p, "FlameColor"));
 
-		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.rocket"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.pitch")));
 				DoubleModel pitchModel = new DoubleModel(p, "Pitch", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(pitchModel.getSpinnerModel()), "w 40");
-				add(new UnitSelector(pitchModel), "wrap");
+				add(new EditableSpinner(pitchModel.getSpinnerModel()), "growx");
+				add(new UnitSelector(pitchModel), "pushx, left, wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.yaw")));
 				DoubleModel yawModel = new DoubleModel(p, "Yaw", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(yawModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(yawModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(yawModel), "wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.roll")));
 				DoubleModel rollModel = new DoubleModel(p, "Roll", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(rollModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(rollModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(rollModel), "wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.advance")));
 				DoubleModel advanceModel = new DoubleModel(p, "Advance", UnitGroup.UNITS_LENGTH);
-				add(new EditableSpinner(advanceModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(advanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(advanceModel), "wrap");
 
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.camera"), Style.BOLD));
@@ -190,27 +190,27 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAz")));
 				DoubleModel viewAzModel = new DoubleModel(p, "ViewAz", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(viewAzModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(viewAzModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAzModel), "wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAlt")));
 				DoubleModel viewAltModle = new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(viewAltModle.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(viewAltModle.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAltModle), "wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vDist")));
 				DoubleModel viewDistanceModel = new DoubleModel(p, "ViewDistance", UnitGroup.UNITS_LENGTH);
-				add(new EditableSpinner(viewDistanceModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(viewDistanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewDistanceModel), "wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.fov")));
 				DoubleModel fovModel = new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(fovModel.getSpinnerModel()), "w 40");
+				add(new EditableSpinner(fovModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(fovModel), "wrap");
 			}
 		});
 
-		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
@@ -224,8 +224,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAz")));
 				DoubleModel lightAzModel = new DoubleModel(p, "LightAz", UnitGroup.UNITS_ANGLE);
-				add(new EditableSpinner(lightAzModel.getSpinnerModel()), "w 40");
-				add(new UnitSelector(lightAzModel), "wrap");
+				add(new EditableSpinner(lightAzModel.getSpinnerModel()), "split 2");
+				add(new UnitSelector(lightAzModel), "push, left, wrap");
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAlt")));
 				DoubleModel lightAltModle = new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE);
@@ -304,7 +304,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 			}
 		});
 
-		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD));
 				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
@@ -313,7 +313,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				BooleanModel smokeModel = new BooleanModel(p, "Smoke");
 				add(new JCheckBox(smokeModel), "split 2, w 15");
 
-				add(smokeColorButton, "wrap");
+				add(smokeColorButton, "pushx, left, wrap");
 				smokeModel.addEnableComponent(smokeColorButton);
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity")));
