@@ -60,7 +60,10 @@ public class AboutDialog extends JDialog {
 			"JOGL (http://jogamp.org/jogl/www/)<br>" +
 			"Guava (https://github.com/google/guava)<br>" +
 			"Opencsv (http://opencsv.sourceforge.net/)<br>" +
-			"Simple Logging Facade for Java (http://www.slf4j.org/)";
+			"Simple Logging Facade for Java (http://www.slf4j.org/)<br><br>" +
+		    "<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br><br>" +
+		    "Rocket Motor Data (https://www.thrustcurve.org/)<br>" +
+		    "Enhanced components database for OpenRocket (https://github.com/dbcook/openrocket-database/";
 	
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
