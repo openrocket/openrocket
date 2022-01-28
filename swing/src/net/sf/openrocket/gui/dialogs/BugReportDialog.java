@@ -71,7 +71,7 @@ public class BugReportDialog extends JDialog {
 				  "gapleft para, split 2, gapright rel");
 		panel.add(new URLLabel(REPORT_EMAIL_URL, REPORT_EMAIL), "growx, wrap para");
 
-		final JEditorPane editorPane = new JEditorPane("text/html", message.replace("\n", "<br>"));
+		final JEditorPane editorPane = new JEditorPane("text/html", formatNewlineHTML(message));
 		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 		editorPane.setPreferredSize(new Dimension(600, 400));
 		editorPane.setEditable(true);
@@ -240,6 +240,17 @@ public class BugReportDialog extends JDialog {
 		for (LogLine l : logs) {
 			sb.append(l.toString()).append('\n');
 		}
+	}
+
+	/**
+	 * Replace newline character \n to an HTML newline. Instead of just using a <br> tag, we replace newlines with a
+	 * paragraph tag with zero margin. This is so that when you copy the HTML text and paste it somewhere, that the
+	 * HTML newlines are also interpreted as newlines in the new text. A <br> tag would just be replaced by a space.
+	 * @param text text to be formatted
+	 * @return text with HTML newlines
+	 */
+	private static String formatNewlineHTML(String text) {
+		return text.replaceAll("\n(.*?)(?=(\n|$))", "<p style=\"margin-top: 0\">$1</p>");
 	}
 	
 }
