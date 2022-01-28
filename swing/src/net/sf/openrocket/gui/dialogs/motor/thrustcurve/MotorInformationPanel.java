@@ -155,7 +155,7 @@ class MotorInformationPanel extends JPanel {
 			comment.setWrapStyleWord(true);
 			comment.setEditable(false);
 			JScrollPane scrollpane = new JScrollPane(comment);
-			this.add(scrollpane, "spanx, growx, wrap para");
+			this.add(scrollpane, "spanx, grow, pushy, wrap para");
 		}
 
 		// Thrust curve plot

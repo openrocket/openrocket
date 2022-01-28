@@ -290,7 +290,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			JScrollPane scrollpane = new JScrollPane();
 			scrollpane.setViewportView(table);
-			panel.add(scrollpane, "grow, width :500:, spanx, wrap");
+			panel.add(scrollpane, "grow, width :500:, spanx, push, wrap");
 
 		}
 
@@ -354,7 +354,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		rightSide.add(trans.get("TCMotorSelPan.btn.filter"), motorFilterPanel);
 		rightSide.add(trans.get("TCMotorSelPan.btn.details"), motorInformationPanel);
 
-		this.add(rightSide);
+		this.add(rightSide, "growy");
 
 		// Update the panel data
 		updateData();
