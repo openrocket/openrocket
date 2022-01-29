@@ -48,7 +48,7 @@ public class TransitionConfig extends RocketComponentConfig {
 	public TransitionConfig(OpenRocketDocument d, RocketComponent c) {
 		super(d, c);
 		
-		final JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		final JPanel panel = new JPanel(new MigLayout("gap rel unrel, fillx", "[][65lp::][30lp::]", ""));
 
 		////  Shape selection
 		//// Transition shape:
@@ -69,7 +69,7 @@ public class TransitionConfig extends RocketComponentConfig {
 				updateEnabled();
 			}
 		});
-		panel.add(typeBox, "span, split 2");
+		panel.add(typeBox, "span 3, split 2");
 
 		{//// Clipped
 			final JCheckBox checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
