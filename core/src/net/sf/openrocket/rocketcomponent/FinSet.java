@@ -101,7 +101,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	private static final double minimumTabArea = 1e-8;
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
-	// this is always measured from the the root-lead point.
+	// this is always measured from the root-lead point.
 	private double tabPosition = 0.0;
 	private AxialMethod tabOffsetMethod = AxialMethod.MIDDLE;
 	private double tabOffset = 0.;
