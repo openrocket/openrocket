@@ -294,7 +294,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	protected void updateTabPosition(){
+	public void updateTabPosition(){
 		this.tabPosition = this.tabOffsetMethod.getAsPosition(tabOffset, tabLength, length);
 	}
 	
