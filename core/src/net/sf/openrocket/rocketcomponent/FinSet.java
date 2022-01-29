@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.ArrayList;
 
 
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
