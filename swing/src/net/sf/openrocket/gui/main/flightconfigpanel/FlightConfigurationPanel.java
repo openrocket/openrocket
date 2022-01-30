@@ -76,25 +76,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				addOrCopyConfiguration(false);
-				int lastRow = motorConfigurationPanel.table.getRowCount() - 1;
-				int lastCol = motorConfigurationPanel.table.getColumnCount() - 1;
-				motorConfigurationPanel.table.setRowSelectionInterval(lastRow, lastRow);
-				motorConfigurationPanel.table.setColumnSelectionInterval(lastCol, lastCol);
-				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
-				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
-				switch (tabs.getSelectedIndex()) {
-					case MOTOR_TAB_INDEX:
-						motorConfigurationPanel.selectMotor();
-						break;
-					case RECOVERY_TAB_INDEX:
-						recoveryConfigurationPanel.selectDeployment();
-						break;
-					case SEPARATION_TAB_INDEX:
-						separationConfigurationPanel.selectSeparation();
-						break;
-				}
+				newOrCopyConfigAction(false);
 			}
 			
 		});
@@ -125,20 +107,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		copyConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				addOrCopyConfiguration(true);
-				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
-				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
-				switch (tabs.getSelectedIndex()) {
-					case MOTOR_TAB_INDEX:
-						motorConfigurationPanel.selectMotor();
-						break;
-					case RECOVERY_TAB_INDEX:
-						recoveryConfigurationPanel.selectDeployment();
-						break;
-					case SEPARATION_TAB_INDEX:
-						separationConfigurationPanel.selectSeparation();
-						break;
-				}
+				newOrCopyConfigAction(true);
 			}
 		});
 		this.add(copyConfButton, "wrap");
@@ -164,6 +133,28 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		updateButtonState();
 
 		this.add(tabs, "spanx, grow, wrap rel");
+	}
+
+	/**
+	 * Action for when the new configuration or copy configuration button is pressed.
+	 * @param copy if True, then copy configuration operation, if False then create a new configuration
+	 */
+	private void newOrCopyConfigAction(boolean copy) {
+		addOrCopyConfiguration(copy);
+		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		stateChanged(null);
+		switch (tabs.getSelectedIndex()) {
+			case MOTOR_TAB_INDEX:
+				motorConfigurationPanel.selectMotor();
+				break;
+			case RECOVERY_TAB_INDEX:
+				recoveryConfigurationPanel.selectDeployment();
+				break;
+			case SEPARATION_TAB_INDEX:
+				separationConfigurationPanel.selectSeparation();
+				break;
+		}
+		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
 	}
 
 	/**
