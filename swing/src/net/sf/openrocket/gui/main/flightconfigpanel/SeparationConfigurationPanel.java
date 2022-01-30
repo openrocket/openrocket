@@ -104,7 +104,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		return separationTable;
 	}
 
-	private void selectSeparation() {
+	public void selectSeparation() {
 		AxialStage stage = getSelectedComponent();
 		FlightConfigurationId fcid = getSelectedConfigurationId();
 		if ((stage == null) || (fcid == null)) {

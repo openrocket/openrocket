@@ -97,7 +97,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		return recoveryTable;
 	}
 
-	private void selectDeployment() {
+	public void selectDeployment() {
 		RecoveryDevice c = getSelectedComponent();
 		FlightConfigurationId fcid = getSelectedConfigurationId();
 		if ((c == null) || (fcid == null)) {

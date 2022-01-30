@@ -82,7 +82,17 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				motorConfigurationPanel.table.setColumnSelectionInterval(lastCol, lastCol);
 				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
 				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
-				motorConfigurationPanel.selectMotor();
+				switch (tabs.getSelectedIndex()) {
+					case MOTOR_TAB_INDEX:
+						motorConfigurationPanel.selectMotor();
+						break;
+					case RECOVERY_TAB_INDEX:
+						recoveryConfigurationPanel.selectDeployment();
+						break;
+					case SEPARATION_TAB_INDEX:
+						separationConfigurationPanel.selectSeparation();
+						break;
+				}
 			}
 			
 		});
@@ -116,7 +126,17 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				addOrCopyConfiguration(true);
 				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
 				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
-				motorConfigurationPanel.selectMotor();
+				switch (tabs.getSelectedIndex()) {
+					case MOTOR_TAB_INDEX:
+						motorConfigurationPanel.selectMotor();
+						break;
+					case RECOVERY_TAB_INDEX:
+						recoveryConfigurationPanel.selectDeployment();
+						break;
+					case SEPARATION_TAB_INDEX:
+						separationConfigurationPanel.selectSeparation();
+						break;
+				}
 			}
 		});
 		this.add(copyConfButton, "wrap");
