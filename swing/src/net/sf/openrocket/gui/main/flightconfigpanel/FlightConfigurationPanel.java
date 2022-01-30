@@ -8,6 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -140,6 +142,24 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			}
 		});
 		this.add(copyConfButton, "wrap");
+
+		tabs.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// Trigger a selection of the motor/recovery/configuration item
+				switch (tabs.getSelectedIndex()) {
+					case MOTOR_TAB_INDEX:
+						motorConfigurationPanel.updateButtonState();
+						break;
+					case RECOVERY_TAB_INDEX:
+						recoveryConfigurationPanel.updateButtonState();
+						break;
+					case SEPARATION_TAB_INDEX:
+						separationConfigurationPanel.updateButtonState();
+						break;
+				}
+			}
+		});
 
 		updateButtonState();
 
