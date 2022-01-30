@@ -4,16 +4,20 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
@@ -56,7 +60,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(flightConfigurationPanel,rocket);
+		super(flightConfigurationPanel, rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
 
@@ -66,20 +70,20 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			JLabel label = new StyledLabel(trans.get("lbl.motorMounts"), Style.BOLD);
 			subpanel.add(label, "wrap");
 
-			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this,rocket);
+			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this, rocket);
 			subpanel.add(mountConfigPanel, "grow");
 			this.add(subpanel, "split, w 200lp, growy");
 		}
 
 		cards = new JPanel(new CardLayout());
-		this.add( cards );
-		
+		this.add(cards);
+
 		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
-		cards.add(helpText, HELP_LABEL );
-		
+		cards.add(helpText, HELP_LABEL);
+
 		JScrollPane scroll = new JScrollPane(table);
-		cards.add(scroll, TABLE_LABEL );
-		
+		cards.add(scroll, TABLE_LABEL);
+
 		this.add(cards, "grow, wrap");
 
 		//// Select motor
@@ -121,6 +125,15 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 		});
 		this.add(resetIgnitionButton, "sizegroup button, wrap");
+
+		// Set 'Enter' key action to open the motor selection dialog
+		table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+		table.getActionMap().put("Enter", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				selectMotor();
+			}
+		});
 
 		updateButtonState();
 
