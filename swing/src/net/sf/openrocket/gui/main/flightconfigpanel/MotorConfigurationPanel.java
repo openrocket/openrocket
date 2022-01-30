@@ -204,7 +204,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-	private void selectMotor() {
+	public void selectMotor() {
 		MotorMount curMount = getSelectedComponent();		
 		FlightConfigurationId fcid= getSelectedConfigurationId();
         if ( (null == fcid )||( null == curMount )){
