@@ -68,7 +68,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 
 		// Set 'Enter' key action to open the separation selection dialog
-		table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+		table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
 		table.getActionMap().put("Enter", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
