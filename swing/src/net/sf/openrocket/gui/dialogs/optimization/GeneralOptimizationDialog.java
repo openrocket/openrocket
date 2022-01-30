@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.optimization;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -205,7 +206,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		JScrollPane scroll;
 		String tip;
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill, w 1200"));
 		
 		ChangeListener clearHistoryChangeListener = e -> clearHistory();
 		ActionListener clearHistoryActionListener = e -> clearHistory();
@@ -606,11 +607,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		updateComponents();
 		GUIUtil.setDisposableDialogOptions(this, null);
 
-		// seem like a reasonable defaults
-		this.setSize(1200, 600);
-		// System.err.println("OptimizationDialog.size:     " + this.getSize());
-		this.setLocation(100, 100);
-		// System.err.println("OptimizationDialog.location: " + this.getLocation());
+		this.setLocation((parent.getWidth() - 1200)/2, 100);
 	}
 	
 	private void startOptimization() {
