@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -62,13 +63,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		{
 			//// Select motor mounts
-			JPanel subpanel = new JPanel(new MigLayout(""));
-			JLabel label = new StyledLabel(trans.get("lbl.motorMounts"), Style.BOLD);
-			subpanel.add(label, "wrap");
+			JPanel subpanel = new JPanel(new MigLayout("inset 0, fill"));
+			subpanel.setBorder(BorderFactory.createTitledBorder(
+					BorderFactory.createEtchedBorder(),
+					"<html><b>" + trans.get("lbl.motorMounts") + "</b></html>"));
 
 			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this,rocket);
 			subpanel.add(mountConfigPanel, "grow");
-			this.add(subpanel, "split, w 200lp, growy");
+			this.add(subpanel, "split, growy");
 		}
 
 		cards = new JPanel(new CardLayout());
@@ -76,11 +78,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		
 		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
 		cards.add(helpText, HELP_LABEL );
-		
+
+		JPanel configurationPanel = new JPanel(new MigLayout("fill, insets n n 5px n"));
+		configurationPanel.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(),
+				"<html><b>" + trans.get("MotorConfigurationPanel.lbl.motorConfiguration") + "</b></html>"));
 		JScrollPane scroll = new JScrollPane(table);
-		cards.add(scroll, TABLE_LABEL );
-		
-		this.add(cards, "grow, wrap");
+		configurationPanel.add(scroll, "spanx, grow, wrap");
 
 		//// Select motor
 		selectMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
@@ -90,7 +94,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				selectMotor();
 			}
 		});
-		this.add(selectMotorButton, "split, align right, sizegroup button");
+		configurationPanel.add(selectMotorButton, "split, align right, sizegroup button");
 
 		//// Remove motor button
 		removeMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.removeMotor"));
@@ -100,7 +104,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				removeMotor();
 			}
 		});
-		this.add(removeMotorButton, "sizegroup button");
+		configurationPanel.add(removeMotorButton, "sizegroup button");
 
 		//// Select Ignition button
 		selectIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectIgnition"));
@@ -110,7 +114,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				selectIgnition();
 			}
 		});
-		this.add(selectIgnitionButton, "sizegroup button");
+		configurationPanel.add(selectIgnitionButton, "sizegroup button");
 
 		//// Reset Ignition button
 		resetIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.resetIgnition"));
@@ -120,7 +124,11 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				resetIgnition();
 			}
 		});
-		this.add(resetIgnitionButton, "sizegroup button, wrap");
+		configurationPanel.add(resetIgnitionButton, "sizegroup button, wrap");
+
+		cards.add(configurationPanel, TABLE_LABEL );
+
+		this.add(cards, "gapleft para, grow, wrap");
 
 		updateButtonState();
 
