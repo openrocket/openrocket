@@ -81,6 +81,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				motorConfigurationPanel.table.setRowSelectionInterval(lastRow, lastRow);
 				motorConfigurationPanel.table.setColumnSelectionInterval(lastCol, lastCol);
 				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
+				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
 			}
 			
 		});
@@ -113,6 +114,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			public void actionPerformed(ActionEvent e) {
 				addOrCopyConfiguration(true);
 				configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
+				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
 			}
 		});
 		this.add(copyConfButton, "wrap");
