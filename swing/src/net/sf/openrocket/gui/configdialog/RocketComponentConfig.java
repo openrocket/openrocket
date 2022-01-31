@@ -22,7 +22,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -94,7 +93,6 @@ public class RocketComponentConfig extends JPanel {
 		if (component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
-			((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
 			presetComboBox = new JComboBox(presetModel);
 			presetComboBox.setEditable(false);
 			this.add(presetComboBox, "");
@@ -623,7 +621,6 @@ public class RocketComponentConfig extends JPanel {
 		for (Invalidatable i : invalidatables) {
 			i.invalidate();
 		}
-		((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
 	}
 	
 

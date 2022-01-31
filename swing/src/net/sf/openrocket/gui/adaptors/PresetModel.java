@@ -7,6 +7,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(PresetModel.this);
 					ComponentPresetChooserDialog dialog =
 							new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(parent), component);
 					dialog.setVisible(true);
@@ -82,6 +84,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 					if (preset != null) {
 						setSelectedItem(preset);
 					}
+					((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(PresetModel.this);
 				}
 			});
 		} else {
