@@ -909,7 +909,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			return new Coordinate[]{};
 		}
 	
-		final int pointCount = 4;
+		final int pointCount = 5;
 		Coordinate[] points = new Coordinate[pointCount];
 		final Coordinate finFront = this.getFinFront();
 		
@@ -932,6 +932,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		points[1] = new Coordinate(xTabFront, yTabBottom );
 		points[2] = new Coordinate(xTabTrail, yTabBottom );
 		points[3] = new Coordinate(xTabTrail, yTabTrail);
+		points[4] = new Coordinate(xTabFront, yTabFront);
 
 		return points;
 	}
