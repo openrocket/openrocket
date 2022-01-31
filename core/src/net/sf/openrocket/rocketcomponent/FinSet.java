@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.ArrayList;
 
 
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +101,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	private static final double minimumTabArea = 1e-8;
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
-	// this is always measured from the the root-lead point.
+	// this is always measured from the root-lead point.
 	private double tabPosition = 0.0;
 	private AxialMethod tabOffsetMethod = AxialMethod.MIDDLE;
 	private double tabOffset = 0.;
@@ -291,12 +289,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 		tabLength = lengthRequest;
 		
-		setTabPosition();
+		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	protected void setTabPosition(){
+
+	public void updateTabPosition(){
 		this.tabPosition = this.tabOffsetMethod.getAsPosition(tabOffset, tabLength, length);
 	}
 	
@@ -307,7 +305,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 */
 	public void setTabOffset( final double offsetRequest) {
 		tabOffset = offsetRequest;
-		setTabPosition();
+		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
