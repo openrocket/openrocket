@@ -1,6 +1,7 @@
 package net.sf.openrocket.logging;
 
 import java.io.PrintWriter;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -127,7 +128,7 @@ public class LogLine implements Comparable<LogLine> {
 	public String toString() {
 		if (formattedMessage == null) {
 			String str;
-			str = String.format("%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
+			str = String.format(Locale.ENGLISH, "%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
 					count, timestamp / 1000.0, (level != null) ? level.toString() : "NULL",
 					getLocation(),
 					message);

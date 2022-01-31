@@ -91,23 +91,17 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	private void loadPresetComponents() {
 		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
-		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "ser"));
+		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "orc"));
 		
 		if(iterator == null)
 			return;
-		
+
 		while (iterator.hasNext()) {
 			Pair<String, InputStream> f = iterator.next();
-			try {
-				ObjectInputStream ois = new ObjectInputStream(f.getV());
-				@SuppressWarnings("unchecked")
-				List<ComponentPreset> list = (List<ComponentPreset>) ois.readObject();
-				componentPresetDao.addAll(list);
-				fileCount++;
-				presetCount += list.size();
-			} catch (Exception ex) {
-				throw new BugException(ex);
-			}
+			Collection<ComponentPreset> presets = loadFile(f.getU(), f.getV());
+			componentPresetDao.addAll(presets);
+			fileCount++;
+			presetCount += presets.size();
 		}
 	}
 	

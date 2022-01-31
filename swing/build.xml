@@ -64,6 +64,7 @@
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
 		<delete dir="${tmp.dir}/"/>
+		<delete dir="${resources.dir}/datafiles/presets"/>
 	</target>
 		
 	
@@ -75,7 +76,7 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-presets" description="Create the OpenRocket executable JAR">
+	<target name="jar" depends="build,copy-orc-files" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${classes.dir}">
 			<manifest>
@@ -124,14 +125,6 @@
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
-	
-	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializePresets"
-	          fork="true"
-			  classpathref="run-classpath"
-			  failonerror="true">
-	    </java>
-	</target>
 
 	<!-- CONVERT vendor csv to ORC files -->
 	<macrodef name="build-orc-file">
@@ -139,7 +132,7 @@
 		<attribute name="vendor"/>
 		<sequential>
 			<echo>Generating ORC file for vendor @{vendor}</echo>
-			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
+			<java classname="net.sf.openrocket.utils.RocksimComponentFileTranslator"
 				fork="true"
 				classpathref="run-classpath"
 				failonerror="true">
@@ -166,7 +159,19 @@
 			</sequential>
 		</for>
 	</target>
-	
+
+	<!-- COPY orc files from source directories to build directory -->
+	<target name="copy-orc-files"
+		description="Copy orc files">
+	  
+		<copy todir="${resources.dir}/datafiles/presets">
+			<fileset dir="${resources-src.dir}/datafiles/legacy_components"/>
+		 </copy>
+		<copy todir="${resources.dir}/datafiles/presets">
+			<fileset dir="${resources-src.dir}/datafiles/components/orc"/>
+		 </copy>
+	</target>
+
 	<!-- DIST-SRC -->
 	<target name="dist-src">
 		<echo>			

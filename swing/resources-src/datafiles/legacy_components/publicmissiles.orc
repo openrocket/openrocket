@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OpenRocketComponent>
     <Version>0.1</Version>
+    <Legacy />
     <Materials>
         <Material UnitsOfMeasure="g/m">
             <Name>1/16 In. braided nylon</Name>

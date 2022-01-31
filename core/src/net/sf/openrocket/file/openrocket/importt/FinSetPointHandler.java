@@ -62,6 +62,10 @@ class FinSetPointHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
 		finset.setPoints(coordinates.toArray(new Coordinate[0]));
-		
+		// Update the tab position. This is because the tab position relies on the finset length, but because the
+		// <tabposition> tag comes before the <finpoints> tag in the .ork file, the tab position will be set first,
+		// using the default finset length, not the intended finset length that we extract in this part. So we update
+		// the tab position here to cope for the wrongly calculated tab position earlier.
+		finset.updateTabPosition();
 	}
 }

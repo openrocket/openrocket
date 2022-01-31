@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OpenRocketComponent>
     <Version>0.1</Version>
+    <Legacy />
     <Materials>
         <Material UnitsOfMeasure="g/cm3">
             <Name>Birch</Name>

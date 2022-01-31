@@ -14,10 +14,12 @@ import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import com.jogamp.opengl.JoglVersion;
 
@@ -68,11 +70,13 @@ public class BugReportDialog extends JDialog {
 		panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") + " "),
 				  "gapleft para, split 2, gapright rel");
 		panel.add(new URLLabel(REPORT_EMAIL_URL, REPORT_EMAIL), "growx, wrap para");
-		
-		
-		final JTextArea textArea = new JTextArea(message, 20, 70);
-		textArea.setEditable(true);
-		panel.add(new JScrollPane(textArea), "grow, wrap");
+
+		final JEditorPane editorPane = new JEditorPane("text/html", formatNewlineHTML(message));
+		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		editorPane.setPreferredSize(new Dimension(600, 400));
+		editorPane.setEditable(true);
+		editorPane.setCaretPosition(0);		// Scroll to the top by default
+		panel.add(new JScrollPane(editorPane), "grow, wrap");
 		
 		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
 		
@@ -106,17 +110,18 @@ public class BugReportDialog extends JDialog {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("---------- Bug report ----------\n");
+		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		sb.append("Include detailed steps on how to trigger the bug:\n");
+		sb.append("<b>Include detailed steps on how to trigger the bug:</b>\n");
+		sb.append("<i>(You can edit text directly in this window)</i>\n");
 		sb.append('\n');
 		sb.append("1. \n");
 		sb.append("2. \n");
 		sb.append("3. \n");
 		sb.append('\n');
 		
-		sb.append("What does the software do and what in your opinion should it do in the " +
-				"case described above:\n");
+		sb.append("<b>What does the software do and what in your opinion should it do in the " +
+				"case described above:</b>\n");
 		sb.append('\n');
 		sb.append('\n');
 		sb.append('\n');
@@ -133,7 +138,7 @@ public class BugReportDialog extends JDialog {
 		addSystemInformation(sb);
 		sb.append("---------- Error log ----------\n");
 		addErrorLog(sb);
-		sb.append("---------- End of bug report ----------\n");
+		sb.append("---------- End of bug report ----------</html>\n");
 		sb.append('\n');
 		
 		BugReportDialog reportDialog = new BugReportDialog(parent,
@@ -152,14 +157,15 @@ public class BugReportDialog extends JDialog {
 	public static void showExceptionDialog(Window parent, Thread t, Throwable e) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("---------- Bug report ----------\n");
+		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		sb.append("Please include a description about what actions you were " +
-				"performing when the exception occurred:\n");
+		sb.append("<b>Please include a description about what actions you were " +
+				"performing when the exception occurred:</b>\n");
+		sb.append("<i>(You can edit text directly in this window)</i>\n");
 		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
+		sb.append("1. \n");
+		sb.append("2. \n");
+		sb.append("3. \n");
 		
 		
 		sb.append("Include your email address (optional; it helps if we can " +
@@ -191,7 +197,7 @@ public class BugReportDialog extends JDialog {
 		addSystemInformation(sb);
 		sb.append("---------- Error log ----------\n");
 		addErrorLog(sb);
-		sb.append("---------- End of bug report ----------\n");
+		sb.append("---------- End of bug report ----------</html>\n");
 		sb.append('\n');
 		
 		BugReportDialog reportDialog =
@@ -234,6 +240,17 @@ public class BugReportDialog extends JDialog {
 		for (LogLine l : logs) {
 			sb.append(l.toString()).append('\n');
 		}
+	}
+
+	/**
+	 * Replace newline character \n to an HTML newline. Instead of just using a <br> tag, we replace newlines with a
+	 * paragraph tag with zero margin. This is so that when you copy the HTML text and paste it somewhere, that the
+	 * HTML newlines are also interpreted as newlines in the new text. A <br> tag would just be replaced by a space.
+	 * @param text text to be formatted
+	 * @return text with HTML newlines
+	 */
+	private static String formatNewlineHTML(String text) {
+		return text.replaceAll("\n(.*?)(?=(\n|$))", "<p style=\"margin-top: 0\">$1</p>");
 	}
 	
 }

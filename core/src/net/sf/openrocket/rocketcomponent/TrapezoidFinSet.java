@@ -77,7 +77,7 @@ public class TrapezoidFinSet extends FinSet {
 		if (length == r)
 			return;
 		length = Math.max(r, 0);
-		setTabPosition();
+		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 	}
