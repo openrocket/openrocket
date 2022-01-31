@@ -602,7 +602,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		});
 		panel.add(closeButton, "right");
 		
-		this.add(panel);
+		this.add(new JScrollPane(panel));
 		clearHistory();
 		updateComponents();
 		GUIUtil.setDisposableDialogOptions(this, null);
