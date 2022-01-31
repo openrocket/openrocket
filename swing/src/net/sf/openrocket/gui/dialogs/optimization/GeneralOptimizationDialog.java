@@ -255,7 +255,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(scroll, "wmin 300lp, height 200lp, grow");
 		selectedModifierDescription = new DescriptionArea(2, -3);
 		disableComponents.add(selectedModifierDescription);
-		panel.add(selectedModifierDescription, "growx");
+		panel.add(selectedModifierDescription, "hmin 20lp, growx");
 		
 		// // Add/remove buttons
 		sub = new JPanel(new MigLayout("fill"));
