@@ -1,4 +1,28 @@
-                    GNU GENERAL PUBLIC LICENSE
+OpenRocket - A model rocket simulator
+
+Copyright (C) 2007-2022 Sampo Niskanen and others
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License (below) for more details.
+
+
+Additional permission under GNU GPL version 3 section 7:
+
+The licensors grant additional permission to package this Program, or
+any covered work, along with any non-compilable data files (such as
+thrust curves or component databases) and convey the resulting work.
+
+
+------------------------------------------------------------------------
+
+GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
 Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
