@@ -56,7 +56,7 @@ public class CustomExpressionPanel extends JPanel {
 		//expressionSelectorPanel.add(scroll);
 		
 		//this.add(expressionSelectorPanel, "spany 1, height 10px, wmin 600lp, grow 100, gapright para");
-		this.add(scroll, "hmin 200lp, wmin 700lp, grow 100, wrap");
+		this.add(scroll, "hmin 200lp, wmin 700lp, grow 100, pushy, wrap");
 		
 		//DescriptionArea desc = new DescriptionArea(trans.get("customExpressionPanel.lbl.UpdateNote")+"\n\n"+trans.get("customExpressionPanel.lbl.CalcNote"), 8, -2f);
 		//desc.setViewportBorder(BorderFactory.createEmptyBorder());
