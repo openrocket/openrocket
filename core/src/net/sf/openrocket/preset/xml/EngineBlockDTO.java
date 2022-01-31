@@ -34,7 +34,7 @@ public class EngineBlockDTO extends BodyTubeDTO {
     }
 
     @Override
-    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
-        return super.asComponentPreset(ComponentPreset.Type.ENGINE_BLOCK, materials);
+    public ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return super.asComponentPreset(legacy, ComponentPreset.Type.ENGINE_BLOCK, materials);
     }
 }

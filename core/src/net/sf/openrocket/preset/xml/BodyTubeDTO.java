@@ -83,12 +83,13 @@ public class BodyTubeDTO extends BaseComponentDTO {
     }
 
     @Override
-    public ComponentPreset asComponentPreset(java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
-        return asComponentPreset(ComponentPreset.Type.BODY_TUBE, materials);
+    public ComponentPreset asComponentPreset(Boolean legacy, java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return asComponentPreset(legacy, ComponentPreset.Type.BODY_TUBE, materials);
     }
 
-    public ComponentPreset asComponentPreset(ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
+    public ComponentPreset asComponentPreset(Boolean legacy, ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
+		props.put(ComponentPreset.LEGACY, legacy);
         addProps(props, materials);
         props.put(ComponentPreset.INNER_DIAMETER, this.getInsideDiameter());
         props.put(ComponentPreset.OUTER_DIAMETER, this.getOutsideDiameter());

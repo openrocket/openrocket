@@ -108,12 +108,13 @@ public class ParachuteDTO extends BaseComponentDTO {
     }
 
     @Override
-    public ComponentPreset asComponentPreset(java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
-        return asComponentPreset(ComponentPreset.Type.PARACHUTE, materials);
+    public ComponentPreset asComponentPreset(Boolean legacy, java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return asComponentPreset(legacy, ComponentPreset.Type.PARACHUTE, materials);
     }
 
-    public ComponentPreset asComponentPreset(ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
+    public ComponentPreset asComponentPreset(Boolean legacy, ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
+		props.put(ComponentPreset.LEGACY, legacy);
         addProps(props, materials);
         // TODO - seems some vendors use a bulk material for the sheet along with a Thickness.
         // need to fix the MATERIAL packed into the componentpreset.
