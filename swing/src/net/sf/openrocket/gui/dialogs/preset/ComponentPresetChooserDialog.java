@@ -67,8 +67,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private List<ComponentPreset> presets;
 	private ComponentPreset.Type presetType;
 	
-	private boolean okClicked = false;
-	
 	
 	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
@@ -154,30 +152,20 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(new JLabel(Chars.UP_ARROW + " " + trans.get("lbl.favorites")), "spanx, gapleft 5px, wrap para");
 		
 		
-		// OK / Cancel buttons
-		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
-		okButton.addActionListener(new ActionListener() {
+		// Close buttons
+		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
+		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				close(true);
+				ComponentPresetChooserDialog.this.setVisible(false);
 			}
 		});
-		panel.add(okButton, "tag ok, spanx, split");
-		
-		//// Cancel button
-		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
-		cancelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				close(false);
-			}
-		});
-		panel.add(cancelButton, "tag cancel");
+		panel.add(closeButton, "spanx, right, tag close");
 		
 		this.add(panel);
 		
 		GUIUtil.rememberWindowSize(this);
-		GUIUtil.setDisposableDialogOptions(this, okButton);
+		GUIUtil.setDisposableDialogOptions(this, closeButton);
 
 		updateFilters();
 	}
@@ -270,8 +258,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	 * @return	the selected motor, or <code>null</code> if no motor has been selected or the selection was canceled.
 	 */
 	public ComponentPreset getSelectedComponentPreset() {
-		if (!okClicked)
-			return null;
 		int row = componentSelectionTable.getSelectedRow();
 		if (row < 0) {
 			// Nothing selected.
@@ -279,11 +265,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 		}
 		row = componentSelectionTable.convertRowIndexToModel(row);
 		return presets.get(row);
-	}
-	
-	public void close(boolean ok) {
-		okClicked = ok;
-		this.setVisible(false);
 	}
 	
 	private void updateFilters() {
