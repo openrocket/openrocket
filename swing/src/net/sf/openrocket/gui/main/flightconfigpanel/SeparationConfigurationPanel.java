@@ -2,14 +2,18 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
@@ -62,7 +66,16 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 			}
 		});
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
-		
+
+		// Set 'Enter' key action to open the separation selection dialog
+		table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+		table.getActionMap().put("Enter", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				selectSeparation();
+			}
+		});
 	}
 	
 	@Override
@@ -104,7 +117,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		return separationTable;
 	}
 
-	private void selectSeparation() {
+	public void selectSeparation() {
 		AxialStage stage = getSelectedComponent();
 		FlightConfigurationId fcid = getSelectedConfigurationId();
 		if ((stage == null) || (fcid == null)) {
