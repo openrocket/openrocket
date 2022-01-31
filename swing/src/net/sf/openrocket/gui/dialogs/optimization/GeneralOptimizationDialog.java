@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.dialogs.optimization;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -606,6 +607,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		clearHistory();
 		updateComponents();
 		GUIUtil.setDisposableDialogOptions(this, null);
+
+		int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+		this.setSize(new Dimension(this.getWidth(), Math.min(this.getHeight(), screenHeight - 150)));
 
 		this.setLocation((parent.getWidth() - 1200)/2, 100);
 	}
