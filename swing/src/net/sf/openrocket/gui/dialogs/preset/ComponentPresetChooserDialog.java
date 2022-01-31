@@ -111,7 +111,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		sub.add(filterLabel, "gapright para");
 		
 		filterText = new JTextField();
-		sub.add(filterText, "width 50:320, growx");
+		sub.add(filterText, "width 50:320, pushx, growx");
 		filterText.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -129,7 +129,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 		
-		panel.add(sub, "growx, ay 0, gapright para");
+		panel.add(sub, "growx, pushx, ay 0, gapright para");
 
 		// need to create componentSelectionTable before filter checkboxes,
 		// but add to panel after
@@ -147,7 +147,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
-		panel.add(scrollpane, "grow, width 700lp, height 300lp, spanx, wrap rel");
+		panel.add(scrollpane, "grow, width 700lp, height 300lp, pushy, spanx, wrap rel");
 		
 		panel.add(new JLabel(Chars.UP_ARROW + " " + trans.get("lbl.favorites")), "spanx, gapleft 5px, wrap para");
 		
