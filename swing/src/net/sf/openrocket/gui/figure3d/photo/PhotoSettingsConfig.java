@@ -296,7 +296,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Image credit
 				final JLabel creditLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.skyCredit"));
-				add(creditLabel, "wrap");
+				add(creditLabel);
 
 				final JTextArea credit = new JTextArea();
 				credit.setEditable(false);
