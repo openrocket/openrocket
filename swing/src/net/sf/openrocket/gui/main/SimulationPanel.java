@@ -814,12 +814,9 @@ public class SimulationPanel extends JPanel {
 			case CANT_RUN:
 				tip += trans.get("simpanel.ttip.noData")+"<br>";
 				break;
+			case LOADED:
 			case UPTODATE:
 				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
-				break;
-
-			case LOADED:
-				tip += trans.get("simpanel.ttip.loaded") + "<br>";
 				break;
 
 			case OUTDATED:
