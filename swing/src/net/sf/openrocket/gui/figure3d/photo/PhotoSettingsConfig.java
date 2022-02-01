@@ -163,8 +163,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				// Rocket
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.rocket"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.rocket"), Style.BOLD), "split, span, gapright para");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Pitch
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.pitch")));
@@ -191,8 +191,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new UnitSelector(advanceModel), "wrap");
 
 				// Camera
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.camera"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.camera"), Style.BOLD), "split, gapright para, span");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// View azimuth
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAz")));
@@ -223,8 +223,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				// Light
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD), "split, span, gapright para");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Sun light
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sun")));
@@ -247,8 +247,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new EditableSpinner(lightAltModle.getSpinnerModel()), "wrap");
 
 				// Sky
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.sky"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.sky"), Style.BOLD), "split, span, gapright para");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Sky color
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
@@ -326,8 +326,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
 				// Smoke & Flame
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD), "split, span, gapright para");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Smoke
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smoke")));
@@ -388,8 +388,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new EditableSpinner(exhaustScaleModel.getSpinnerModel()), "wrap");
 
 				// Effects
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.effects"), Style.BOLD));
-				add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.effects"), Style.BOLD), "split, span, gapright para");
+				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Speed
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.speed")));
