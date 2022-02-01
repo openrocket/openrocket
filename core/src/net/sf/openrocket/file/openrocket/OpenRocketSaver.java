@@ -320,7 +320,7 @@ public class OpenRocketSaver extends RocketSaver {
 		SimulationOptions cond = simulation.getOptions();
 
 		Simulation.Status simStatus;
-		simStatus = timeSkip != StorageOptions.SIMULATION_DATA_NONE ? simulation.getStatus() : Simulation.Status.OUTDATED;
+		simStatus = timeSkip != StorageOptions.SIMULATION_DATA_NONE ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
 
 		writeln("<simulation status=\"" + enumToXMLName(simStatus) + "\">");
 		indent++;
