@@ -304,7 +304,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				credit.setOpaque(false);
 				credit.setFocusable(false);
 				credit.setFont(creditLabel.getFont());
-				add(credit, "span, gap left 10px");
+				add(credit);
 
 				final StateChangeListener skyChange = new StateChangeListener() {
 					@Override
