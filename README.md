@@ -31,9 +31,7 @@ OpenRocket maintains an installer for installing the software and Java runtime. 
 
 Release Notes
 -------------
-Release notes are available on each release's page.
-
-[Latest Release Notes](https://github.com/openrocket/openrocket/releases/tag/release-15.03)
+Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
 License
 -------
