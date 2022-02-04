@@ -25,45 +25,58 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
 	
-	public static final String OPENROCKET_URL = "http://openrocket.info/";
-	private static final Translator trans = Application.getTranslator();
+	public final String OPENROCKET_URL = "http://openrocket.info/";
+
+	private final Translator trans = Application.getTranslator();
 	
-	private static final String CREDITS = "<html><center>" +
-			"<font size=\"+1\"><b>OpenRocket has been developed by:</b></font><br><br>" +
-			"Sampo Niskanen (main developer)<br>" +
-			"Doug Pedrick (RockSim file format, printing)<br>" +
-			"Kevin Ruland (Android version)<br>" +
-			"Bill Kuker (3D visualization)<br>" +
-			"Boris du Reau (internationalization, translation lead)<br>" +
-			"Richard Graham (geodetic computations)<br>" +
-			"Jason Blood (finset import)<br>" +
-			"Daniel Williams (pod support, maintainer)<br>" +
-			"Joe Pfeiffer (maintainer)<br>" +
-			"Billy Olsen (maintainer)<br>" +
-			"Neil Weinstock (tester, icons, forum support)<br>" +
-			"H. Craig Miller (tester)<br><br>" +
-			"<b>Translations by:</b><br><br>" +
-			"Tripoli France (French)<br>" +
-			"Stefan Lobas / ERIG e.V. (German)<br>" +
-			"Tripoli Spain (Spanish)<br>" +
-			"Sky Dart Team (Russian)<br>" +
-			"Mauro Biasutti (Italian)<br>" +
-			"Vladimir Beran (Czech)<br>" +
-			"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
-			"Sibo Van Gool (Dutch)<br><br>" +
-			"See all contributors at <br>https://github.com/openrocket/openrocket/graphs/contributors<br><br>" +
-			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
-			"MiG Layout (http://www.miglayout.com/)<br>" +
-			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
-			"iText (http://www.itextpdf.com/)<br>" +
-			"exp4j (http://projects.congrace.de/exp4j/index.html)<br>" +
-			"JOGL (http://jogamp.org/jogl/www/)<br>" +
-			"Guava (https://github.com/google/guava)<br>" +
-			"Opencsv (http://opencsv.sourceforge.net/)<br>" +
-			"Simple Logging Facade for Java (http://www.slf4j.org/)<br><br>" +
-		    "<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br><br>" +
-		    "Rocket Motor Data (https://www.thrustcurve.org/)<br>" +
-		    "Enhanced components database for OpenRocket (https://github.com/dbcook/openrocket-database/";
+	private final String CREDITS = "<html><center>" +
+		"<font size=\"+1\"><b>OpenRocket has been developed by:</b></font><br>" +
+		"<br>" +
+		"Sampo Niskanen (main developer)<br>" +
+		"Doug Pedrick (RockSim file format, printing)<br>" +
+		"Kevin Ruland (Android version)<br>" +
+		"Bill Kuker (3D visualization)<br>" +
+		"Boris du Reau (internationalization, translation lead)<br>" +
+		"Richard Graham (geodetic computations)<br>" +
+		"Jason Blood (finset import)<br>" +
+		"Daniel Williams (pod support, maintainer)<br>" +
+		"Joe Pfeiffer (maintainer)<br>" +
+		"Billy Olsen (maintainer)<br>" +
+		"Neil Weinstock (tester, icons, forum support)<br>" +
+		"H. Craig Miller (tester)<br><br>" +
+		"<b>Translations by:</b><br><br>" +
+		"Tripoli France (French)<br>" +
+		"Stefan Lobas / ERIG e.V. (German)<br>" +
+		"Tripoli Spain (Spanish)<br>" +
+		"Sky Dart Team (Russian)<br>" +
+		"Mauro Biasutti (Italian)<br>" +
+		"Vladimir Beran (Czech)<br>" +
+		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
+		"Sibo Van Gool (Dutch)<br>" +
+		"<br>" +
+		"See all contributors at <br>" +
+		href("https://github.com/openrocket/openrocket/graphs/contributors") + "<br>" + 
+		"<br>" +
+		"<b>OpenRocket utilizes the following libraries:</b><br>" +
+		"<br>" +
+		"MiG Layout ("                                        + href("http://www.miglayout.com/")                     + ")<br>" +
+		"JFreeChart ("                                        + href("http://www.jfree.org/jfreechart/")              + ")<br>" +
+		"iText ("                                             + href("http://www.itextpdf.com/")                      + ")<br>" +
+		"exp4j ("                                             + href("http://projects.congrace.de/exp4j/index.html")  + ")<br>" +
+		"JOGL ("                                              + href("http://jogamp.org/jogl/www/")                   + ")<br>" +
+		"Guava ("                                             + href("https://github.com/google/guava")               + ")<br>" +
+		"Opencsv ("                                           + href("http://opencsv.sourceforge.net/")               + ")<br>" +
+		"Simple Logging Facade for Java ("                    + href("http://www.slf4j.org/")                         + ")<br>" +
+		"Java library for parsing and rendering CommonMark (" + href("https://github.com/commonmark/commonmark-java") + ")<br>" +
+		"<br>" +
+		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
+		"<br>" +
+		"Rocket Motor Data ("                         + href("https://www.thrustcurve.org/")                   + ")<br>" +
+		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database/") + ")<br>";
+
+	private String href(String url) {
+		return "<a href=\"" + url + "\">" + url + "</a>";
+	}
 	
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
