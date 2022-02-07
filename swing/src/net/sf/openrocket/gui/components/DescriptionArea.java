@@ -107,7 +107,8 @@ public class DescriptionArea extends JScrollPane {
 								prefix = resourceName.substring(0, dotIndex);
 								suffix = resourceName.substring(dotIndex+1);
 							}
-							
+
+
 							// create temporary file and copy resource to it
 							File of = null;
 							BufferedOutputStream os = null;
@@ -122,13 +123,9 @@ public class DescriptionArea extends JScrollPane {
 							uri = of.toURI();
 
 							try {
-								int avail = is.available();
-								while (avail > 0) {
-									byte buffer[] = new byte[avail];
-									int bytesread = is.read(buffer, 0, avail);
-									os.write(buffer, 0, bytesread);
-									avail = is.available();
-								}
+								byte buffer[] = is.readAllBytes();
+								os.write(buffer);
+								os.close();
 							}
 							catch (Exception ex) {
 								throw new RuntimeException(ex);
@@ -162,7 +159,6 @@ public class DescriptionArea extends JScrollPane {
 		
 		Dimension dim = editorPane.getPreferredSize();
 		dim.height = lineheight * rows + extraheight + 2;
-		this.setPreferredSize(dim);
 		
 		this.setViewportView(editorPane);
 		this.setText(text);
