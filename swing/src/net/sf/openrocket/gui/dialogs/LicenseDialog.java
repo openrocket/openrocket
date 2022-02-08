@@ -54,23 +54,23 @@ public class LicenseDialog extends JDialog {
 		/*****************************************************************************************************************************/
         /* GPL:  overall project                                                                                                     */
 		/*****************************************************************************************************************************/
-		final String gplInternalHref = "<a href=\"" + jarUrl + "!/LICENSE.TXT\">here</a>";
 		final String orLicense = "<strong>GNU GENERAL PUBLIC LICENSE</strong>" + "<br>" +
 			"<br>" +
 			"OpenRocket - A model rocket simulator<br>" + 
 			"Copyright " + Chars.COPY + " 2007-" + copyrightYear + "Sampo Niskanen and others<br>" +
 			"Project page: <a href=\"https://openrocket.info/\">https://openrocket.info/</a><br>" +
 			"<br>" + 
-			"This program is free software: you can redistribute it and/or modify it under the terms " +
-			"of the GNU General Public License as published by the Free Software Foundation, either " +
-			"version 3 of the License, or any later version.<br>" + 
-			"<br>" + 
+			"This program is free software: you can redistribute it and/or modify it under the terms of the " +
+			"GNU General Public License as published by the Free Software Foundation, either version 3 " +
+			"of the License, or any later version.<br>" +
+			"The license may be viewed " +
+			"<a href=\"" + jarUrl + "!/LICENSE.TXT\">here</a>.<br>" +
+			"<br>" +
 			"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; " +
 			"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " +
-			"See the GNU General Public License " + gplInternalHref + " for more details.<br>" + 
-			"<br>" + 
-			"A copy of the GNU General Public License may be viewed " + gplInternalHref + ". " +
-			"You may also obtain a copy of the License at:<br>" + 
+			"See the GNU General Public License for more details.<br>" + 
+			"<br>" +
+			"You should have received a copy of the GNU Public License along with this program.  If not, see<br>" +
 			"<br>" + 
 			"<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">https://www.gnu.org/licenses/gpl-3.0.html</a><br>" + 
 			"<br>" + 
@@ -83,83 +83,64 @@ public class LicenseDialog extends JDialog {
 		/*****************************************************************************************************************************/
         /* APACHE:  components library                                                                                               */
 		/*****************************************************************************************************************************/
-		final String apacheInternalHref = "<a href=\"" + jarUrl + "!/datafiles/presets/LICENSE\">here</a>";
 		final String componentsLicense = 
 			"<strong>APACHE LICENSE</strong><br>" + 
 			"<br>" + 
-			"Enhanced components database for OpenRocket<br>" +
+			"OpenRocket features the enhanced components database created by David B. Cook<br>" +
 			"Copyright " + Chars.COPY + " 2015-" + copyrightYear + " David B. Cook<br>" +
 			"Project page:  <a href=\"https://github.com/dbcook/openrocket-database\">https://github.com/dbcook/openrocket-database</a><br>" +
 			"<br>" +
 			"Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this work except in compliance with the License. " +
-			" A copy of the Apache License may be viewed " + apacheInternalHref + ".  You may also obtain a copy of the License at:<br>" + 
+			" A copy of the Apache License may be viewed " +
+			"<a href=\"" + jarUrl + "!/datafiles/presets/LICENSE\">here</a>.<br>" +
+			"You may also obtain a copy of the License at:<br>" + 
 			"<br>" +
 			"<a href=\"http://www.apache.org/licenses/LICENSE-2.0\">http://www.apache.org/licenses/LICENSE-2.0</a><br><br>" +
-			
-			"Unless required by applicable law or agreed to in writing, software distributed under the License is distributed " +
-			"on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License " +
-			apacheInternalHref + " for the specific language governing permissions and limitations under the License.<br>" +
+			"<br>" +
+			"OpenRocket uses the Work or Derivative Works of Ant, a product which includes software developed by the Apache " +
+			"Software Foundation<br>" +
+			"<br>" +
+			"Ant product also includes software developed by:<br>" +
+			"<ul>" +
+			"<li>the W3C Consortium (<a href=\"http://www.w3c.org\">http://www.w3c.org</a>)</li>" +
+			"<li>the SAX project (<a href=\"http://www.saxproject.org\">http://www.saxproject.org</a></li>" +
+			"</ul><br>" +
+			"The names \"Ant\" and \"Apache Software Foundation\" must not be used to endorse or " +
+			"promote products derived from this software without prior written permission.  For written permission, "+
+			"please contact <a href=\"mailto:apache@apache.org\">apache@apache.org</a>.<br>" +
 			"<br>";
 
-		
 		/*****************************************************************************************************************************/
         /* BITSTREAM VERA:  Deja Vu font                                                                                             */
 		/*****************************************************************************************************************************/
-		final String dejaLicenseUrl = jarUrl + "!/dejavu-font/LICENSE";
 		final String fontLicense =
 			"<strong>Bitstream Vera Font License</strong><br>" +
 			"<br>" +
-			"DejaVu Serif Font<br>" +
-			"Fonts are Copyright " +  Chars.COPY + " 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.<br>" +
+			"OpenRocket makes use of the DejaVu Serif Font<br>" +
+			"Fonts are Copyright " +  Chars.COPY + " 2003 by Bitstream, Inc. All Rights Reserved. " +
+			"Bitstream Vera is a trademark of Bitstream, Inc.<br>" +
 			"DejaVu changes are in the public domain<br>" +
 			"Glyphs imported from Arev Fonts Copyright " + Chars.COPY + " 2006 by Tavmjong Bah. All Rights Reserved.<br>" +
 			"<br>" +
-			"Licensed according to the Bitstream Vera Font License which may be found <a href=\"" + dejaLicenseUrl + "\">here</a>." +
+			"Licensed according to the Bitstream Vera Font License which may be found " +
+			"<a href=\"" + jarUrl + "!/dejavu-font/LICENSE\">here</a>." +
 			"<br>" +
-			"THE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS " +
-			"OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY " +
-			"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT, " +
-			"TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME " +
-			"FOUNDATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING " +
-			"ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, " +
-			"WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF " +
-			"THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE " +
-			"FONT SOFTWARE.<br>" +
-			"<br>" +
-			"See the <a href=\"" + dejaLicenseUrl + "\">License</a> for the specific language" +
-			"governing permissions and limitations under the License.<br>" +
+			"The license is also available at " +
+			"<a href=\"https://github.com/dejavu-fonts/dejavu-fonts/blob/master/LICENSE\">https://github.com/dejavu-fonts/dejavu-fonts/blob/master/LICENSE</a><br>" +
 			"<br>";
-		
-		
+				
 		/*****************************************************************************************************************************/
         /* BSD 2-Clause:  commonmark-java library                                                                                    */
 		/*****************************************************************************************************************************/
 		final String commonmarkLicense =
 			"<strong>BSD 2-Clause License</strong><br>" +
 			"<br>" +
-			"Commonmark-Java Library<br>" +
+			"OpenRocket makes use of the Commonmark-Java Library<br>" +
 			"Copyright " + Chars.COPY + " 2015-2016 Atlassian Pty Ltd<br>" +
 			"All rights reserved.<br>" +
 			"<br>" +
-			"Redistribution and use in source and binary forms, with or without" +
-			"modification, are permitted provided that the following conditions are met:<br>" +
-			"<ul>" +
-			"<li>Redistributions of source code must retain the above copyright notice, this " +
-			"list of conditions and the following disclaimer.<br></li>" +
-			"<li>Redistributions in binary form must reproduce the above copyright notice, " +
-			"this list of conditions and the following disclaimer in the documentation " +
-			"and/or other materials provided with the distribution.</li></ul>" +
-			"<br>" +
-			"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" " +
-			"AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED " +
-			"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. " +
-			"IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, " +
-			"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, " +
-			"BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, " +
-			"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF " +
-			"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE " +
-			"OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED " +
-			"OF THE POSSIBILITY OF SUCH DAMAGE.<br>" +
+			"See <a href=\"https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt\">https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt</a> " +
+			"for full terms of use" +
 			"<br>";
 		
 		/*****************************************************************************************************************************/
