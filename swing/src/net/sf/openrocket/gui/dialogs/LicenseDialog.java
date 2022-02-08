@@ -57,12 +57,12 @@ public class LicenseDialog extends JDialog {
 		final String orLicense = "<strong>GNU GENERAL PUBLIC LICENSE</strong>" + "<br>" +
 			"<br>" +
 			"OpenRocket - A model rocket simulator<br>" + 
-			"Copyright " + Chars.COPY + " 2007-" + copyrightYear + "Sampo Niskanen and others<br>" +
+			"Copyright " + Chars.COPY + " 2007-" + copyrightYear + " Sampo Niskanen and others<br>" +
 			"Project page: <a href=\"https://openrocket.info/\">https://openrocket.info/</a><br>" +
 			"<br>" + 
 			"This program is free software: you can redistribute it and/or modify it under the terms of the " +
 			"GNU General Public License as published by the Free Software Foundation, either version 3 " +
-			"of the License, or any later version.<br>" +
+			"of the License, or any later version. " +
 			"The license may be viewed " +
 			"<a href=\"" + jarUrl + "!/LICENSE.TXT\">here</a>.<br>" +
 			"<br>" +
@@ -70,13 +70,12 @@ public class LicenseDialog extends JDialog {
 			"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " +
 			"See the GNU General Public License for more details.<br>" + 
 			"<br>" +
-			"You should have received a copy of the GNU Public License along with this program.  If not, see<br>" +
-			"<br>" + 
+			"You should have received a copy of the GNU Public License along with this program.  If not, you may obtain a copy at " +
 			"<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">https://www.gnu.org/licenses/gpl-3.0.html</a><br>" + 
 			"<br>" + 
 			"OpenRocket developers may be contacted electronically at:<br>" + 
-			"<br>" + 
-			"<a href=\"mailto:openrocket-devel@lists.sourceforge.net\">mailto:openrocket-devel@lists.sourceforge.net</a><br>" + 
+			"<a href=\"mailto:openrocket-devel@lists.sourceforge.net\">mailto:openrocket-devel@lists.sourceforge.net</a><br>" +
+			"<a href=\"https://openrocket.slack.com\">https://openrocket.slack.com</a><br>" +
 			"<a href=\"https://github.com/openrocket\">https://github.com/openrocket</a><br>" +
 			"<br>";
 		
@@ -91,20 +90,19 @@ public class LicenseDialog extends JDialog {
 			"Project page:  <a href=\"https://github.com/dbcook/openrocket-database\">https://github.com/dbcook/openrocket-database</a><br>" +
 			"<br>" +
 			"Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this work except in compliance with the License. " +
-			" A copy of the Apache License may be viewed " +
+			"You may view the License " +
 			"<a href=\"" + jarUrl + "!/datafiles/presets/LICENSE\">here</a>.<br>" +
-			"You may also obtain a copy of the License at:<br>" + 
-			"<br>" +
-			"<a href=\"http://www.apache.org/licenses/LICENSE-2.0\">http://www.apache.org/licenses/LICENSE-2.0</a><br><br>" +
+			"You may also obtain a copy of the License at " + 
+			"<a href=\"http://www.apache.org/licenses/LICENSE-2.0\">http://www.apache.org/licenses/LICENSE-2.0</a><br>" +
 			"<br>" +
 			"OpenRocket uses the Work or Derivative Works of Ant, a product which includes software developed by the Apache " +
 			"Software Foundation<br>" +
 			"<br>" +
-			"Ant product also includes software developed by:<br>" +
-			"<ul>" +
+			"Ant also includes software developed by:" +
+			"<ul style=\"margin-top: 0;\">" +
 			"<li>the W3C Consortium (<a href=\"http://www.w3c.org\">http://www.w3c.org</a>)</li>" +
 			"<li>the SAX project (<a href=\"http://www.saxproject.org\">http://www.saxproject.org</a></li>" +
-			"</ul><br>" +
+			"</ul>" +
 			"The names \"Ant\" and \"Apache Software Foundation\" must not be used to endorse or " +
 			"promote products derived from this software without prior written permission.  For written permission, "+
 			"please contact <a href=\"mailto:apache@apache.org\">apache@apache.org</a>.<br>" +
@@ -114,18 +112,19 @@ public class LicenseDialog extends JDialog {
         /* BITSTREAM VERA:  Deja Vu font                                                                                             */
 		/*****************************************************************************************************************************/
 		final String fontLicense =
-			"<strong>Bitstream Vera Font License</strong><br>" +
+			"<strong>BITSTREAM VERA FONT LICENSE</strong><br>" +
 			"<br>" +
 			"OpenRocket makes use of the DejaVu Serif Font<br>" +
 			"Fonts are Copyright " +  Chars.COPY + " 2003 by Bitstream, Inc. All Rights Reserved. " +
 			"Bitstream Vera is a trademark of Bitstream, Inc.<br>" +
 			"DejaVu changes are in the public domain<br>" +
 			"Glyphs imported from Arev Fonts Copyright " + Chars.COPY + " 2006 by Tavmjong Bah. All Rights Reserved.<br>" +
+			"Project page: <a href=\"https://github.com/dejavu-fonts/dejavu-fonts/\">https://github.com/dejavu-fonts/dejavu-fonts/<a/><br>" +
 			"<br>" +
 			"Licensed according to the Bitstream Vera Font License which may be found " +
 			"<a href=\"" + jarUrl + "!/dejavu-font/LICENSE\">here</a>." +
 			"<br>" +
-			"The license is also available at " +
+			"You may also obtain a copy of the License at " +
 			"<a href=\"https://github.com/dejavu-fonts/dejavu-fonts/blob/master/LICENSE\">https://github.com/dejavu-fonts/dejavu-fonts/blob/master/LICENSE</a><br>" +
 			"<br>";
 				
@@ -134,13 +133,12 @@ public class LicenseDialog extends JDialog {
 		/*****************************************************************************************************************************/
 		final String commonmarkLicense =
 			"<strong>BSD 2-Clause License</strong><br>" +
-			"<br>" +
+		    "<br>" +
 			"OpenRocket makes use of the Commonmark-Java Library<br>" +
-			"Copyright " + Chars.COPY + " 2015-2016 Atlassian Pty Ltd<br>" +
-			"All rights reserved.<br>" +
+			"Copyright " + Chars.COPY + " 2015-2016 Atlassian Pty Ltd. All rights reserved.<br>" +
+			"Project page: <a href=\"https://github.com/commonmark/commonmark-java/\">https://github.com/commonmark/commonmark-java/<a/><br>" +
 			"<br>" +
-			"See <a href=\"https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt\">https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt</a> " +
-			"for full terms of use" +
+			"You may obtain a copy of the License at <a href=\"https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt\">https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt</a>." +
 			"<br>";
 		
 		/*****************************************************************************************************************************/
