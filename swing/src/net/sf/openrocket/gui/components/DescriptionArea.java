@@ -95,17 +95,20 @@ public class DescriptionArea extends JScrollPane {
 						if (uri.getScheme().equals("jar")) {
 							
 							// get the resource
-							String uriString = uri.toString();
-							String resourceName = uriString.substring(uriString.indexOf("!") + 1);
+							final String uriString = uri.toString();
+							final String resourceName = uriString.substring(uriString.indexOf("!") + 1);
 							final BufferedInputStream is = new BufferedInputStream(getClass().getResourceAsStream(resourceName));
 							
 							// construct filename from resource name
 							String prefix = resourceName.substring(1);
-							String suffix = null;
+							String suffix;
 							final int dotIndex = prefix.lastIndexOf(".");
 							if (dotIndex > 0) {
 								prefix = resourceName.substring(0, dotIndex);
 								suffix = resourceName.substring(dotIndex+1);
+							} else {
+								// if there is no suffix, assume it's a raw text file.
+								suffix = ".txt";
 							}
 
 
