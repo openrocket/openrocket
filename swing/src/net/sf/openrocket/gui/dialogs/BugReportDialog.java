@@ -18,7 +18,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
 import com.jogamp.opengl.JoglVersion;
@@ -180,7 +179,8 @@ public class BugReportDialog extends JDialog {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
-		sb.append(sw.getBuffer());
+		String stackTrace = unformatHTML(String.valueOf(sw.getBuffer()));
+		sb.append(stackTrace);
 		sb.append('\n');
 		
 		
@@ -207,39 +207,47 @@ public class BugReportDialog extends JDialog {
 	}
 	
 	private static void addSystemInformation(StringBuilder sb) {
-		sb.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
-		sb.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
-		sb.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
-		sb.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
-		sb.append("Current default locale: " + Locale.getDefault() + "\n");
-		sb.append("System properties:\n");
-		
+		StringBuilder sbTemp = new StringBuilder();
+		sbTemp.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
+		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
+		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
+		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
+		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
+		sbTemp.append("System properties:\n");
+
 		// Sort the keys
 		SortedSet<String> keys = new TreeSet<String>();
 		for (Object key : System.getProperties().keySet()) {
 			keys.add((String) key);
 		}
-		
+
 		for (String key : keys) {
 			String value = System.getProperty(key);
-			sb.append("  " + key + "=");
+			sbTemp.append("  " + key + "=");
 			if (key.equals("line.separator")) {
 				for (char c : value.toCharArray()) {
-					sb.append(String.format("\\u%04x", (int) c));
+					sbTemp.append(String.format("\\u%04x", (int) c));
 				}
 			} else {
-				sb.append(value);
+				sbTemp.append(value);
 			}
-			sb.append('\n');
+			sbTemp.append('\n');
 		}
+
+		String message = unformatHTML(sbTemp.toString());
+		sb.append(message);
 	}
-	
+
 	private static void addErrorLog(StringBuilder sb) {
+		StringBuilder sbTemp = new StringBuilder();
 		LogLevelBufferLogger buffer = LoggingSystemSetup.getBufferLogger();
 		List<LogLine> logs = buffer.getLogs();
 		for (LogLine l : logs) {
-			sb.append(l.toString()).append('\n');
+			sbTemp.append(l.toString()).append('\n');
 		}
+
+		String message = unformatHTML(sbTemp.toString());
+		sb.append(message);
 	}
 
 	/**
@@ -251,6 +259,15 @@ public class BugReportDialog extends JDialog {
 	 */
 	private static String formatNewlineHTML(String text) {
 		return text.replaceAll("\n(.*?)(?=(\n|$))", "<p style=\"margin-top: 0\">$1</p>");
+	}
+
+	/**
+	 * Makes text HTML unformatted by replacing '<' and '>' by the HTML character equivalent
+	 * @param text text to be replaced
+	 * @return HTML unformatted text
+	 */
+	private static String unformatHTML(String text) {
+		return text.replace("<", "&lt;").replace(">", "&gt;");
 	}
 	
 }
