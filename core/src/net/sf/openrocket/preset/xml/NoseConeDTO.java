@@ -131,8 +131,9 @@ public class NoseConeDTO extends BaseComponentDTO {
 	}
 
 	@Override
-	public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+	public ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
+		props.put(ComponentPreset.LEGACY, legacy);
         addProps(props, materials);
         props.put(ComponentPreset.SHAPE, shape.getORShape());
         props.put(ComponentPreset.AFT_OUTER_DIAMETER, this.getOutsideDiameter());

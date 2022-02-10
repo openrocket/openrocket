@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,7 +248,18 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		}
 		return compdir;
 	}
-	
+
+	public void setUpdatePlatform(UpdatePlatform platform) {
+		if (platform == null) return;
+		putString("UpdatePlatform", platform.name());
+	}
+
+	public UpdatePlatform getUpdatePlatform() {
+		String p = getString("UpdatePlatform", SystemInfo.getPlatform().name());
+		if (p == null) return null;
+		return UpdatePlatform.valueOf(p);
+	}
+
 	/**
 	 * Return a list of files/directories to be loaded as custom thrust curves.
 	 * <p>

@@ -47,6 +47,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 	public enum Type {
 		BODY_TUBE(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -55,6 +56,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		NOSE_CONE(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -65,6 +67,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		TRANSITION(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -78,6 +81,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		TUBE_COUPLER(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -86,6 +90,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		BULK_HEAD(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -93,6 +98,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		CENTERING_RING(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -101,6 +107,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		ENGINE_BLOCK(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -109,6 +116,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		LAUNCH_LUG(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -117,6 +125,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LENGTH }),
 
 		RAIL_BUTTON(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -128,6 +137,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.HEIGHT }),
 
 		STREAMER(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -137,6 +147,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.MATERIAL }),
 
 		PARACHUTE(new TypedKey<?>[] {
+				ComponentPreset.LEGACY,
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
@@ -173,6 +184,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 	}
 
+	public final static TypedKey<Boolean> LEGACY = new TypedKey<Boolean>("Legacy", Boolean.class);
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
 	public final static TypedKey<String> PARTNO = new TypedKey<String>("PartNo", String.class);
 	public final static TypedKey<String> DESCRIPTION = new TypedKey<String>("Description", String.class);
@@ -204,6 +216,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> FLANGE_HEIGHT = new TypedKey<Double>("FlangeHeight", Double.class, UnitGroup.UNITS_LENGTH);
 
 	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.asList(
+			LEGACY,
 			MANUFACTURER,
 			PARTNO,
 			DESCRIPTION,
@@ -235,6 +248,15 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 	// package scope constructor to encourage use of factory.
 	ComponentPreset() {
+	}
+
+	/**
+	 * Convenience method to determine whether this is from the legacy database
+	 *
+	 * @return
+	 */
+	public Boolean getLegacy() {
+		return properties.get(LEGACY);
 	}
 
 	/**
@@ -355,6 +377,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			});
 
 			for (TypedKey<?> key : keys) {
+				if (key == ComponentPreset.LEGACY) {
+					continue;
+				}
 
 				Object value = properties.get(key);
 

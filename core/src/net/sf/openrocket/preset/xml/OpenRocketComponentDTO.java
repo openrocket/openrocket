@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -24,6 +25,9 @@ public class OpenRocketComponentDTO {
 
     @XmlElement(name = "Version")
     private final String version = "0.1";
+
+	@XmlElement(name = "Legacy", required = false)
+	private String legacy;
 
     @XmlElementWrapper(name = "Materials")
     @XmlElement(name = "Material")
@@ -47,11 +51,27 @@ public class OpenRocketComponentDTO {
     public OpenRocketComponentDTO() {
     }
 
-    public OpenRocketComponentDTO(final List<MaterialDTO> theMaterials, final List<BaseComponentDTO> theComponents) {
+    public OpenRocketComponentDTO(boolean isLegacy, final List<MaterialDTO> theMaterials, final List<BaseComponentDTO> theComponents) {
+		setLegacy(isLegacy);
         materials = theMaterials;
         components = theComponents;
     }
 
+	public Boolean getLegacy() {
+		if (null == legacy) {
+			return false;
+		}
+		return true;
+	}
+
+	public void setLegacy(Boolean isLegacy) {
+		if (isLegacy) {
+			legacy = "";
+		} else {
+			legacy = null;
+		}
+	}
+		
     public List<MaterialDTO> getMaterials() {
         return materials;
     }
@@ -79,7 +99,7 @@ public class OpenRocketComponentDTO {
     public List<ComponentPreset> asComponentPresets() throws InvalidComponentPresetException {
         List<ComponentPreset> result = new ArrayList<ComponentPreset>(components.size());
         for (int i = 0; i < components.size(); i++) {
-            result.add(components.get(i).asComponentPreset(materials));
+            result.add(components.get(i).asComponentPreset(getLegacy(), materials));
         }
         return result;
     }

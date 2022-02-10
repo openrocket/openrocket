@@ -1,66 +1,65 @@
 package net.sf.openrocket.communication;
 
-import java.util.List;
+import net.sf.openrocket.communication.UpdateInfoRetriever.ReleaseStatus;
+import net.sf.openrocket.communication.UpdateInfoRetriever.UpdateInfoFetcher.UpdateCheckerException;
 
-import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.BuildProperties;
-import net.sf.openrocket.util.ComparablePair;
-
- /**
-  * 
-  * class that stores the update information of the application
-  *
-  */
+/**
+ * Class that stores the update information of the application
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class UpdateInfo {
-	
-	private final String latestVersion;
-	
-	private final ArrayList<ComparablePair<Integer, String>> updates;
-	
-	/**
-	 * loads the default information
-	 */
-	public UpdateInfo() {
-		this.latestVersion = BuildProperties.getVersion();
-		this.updates = new ArrayList<ComparablePair<Integer, String>>();
-	}
+	private final ReleaseInfo latestRelease;
+	private final ReleaseStatus releaseStatus;
+	private final UpdateCheckerException exception;		// Exception that was thrown during the release fetching process. If null, the fetching was successful.
 	
 	/**
-	 * loads a custom update information into the cache
-	 * @param version	String with the version
-	 * @param updates	The list of updates contained in the version
+	 * Constructor for when a valid release is found.
+	 * @param latestRelease	the release info object of the latest GitHub release
+	 * @param releaseStatus the release status of the current build version compared to the latest GitHub release version
 	 */
-	public UpdateInfo(String version, List<ComparablePair<Integer, String>> updates) {
-		this.latestVersion = version;
-		this.updates = new ArrayList<ComparablePair<Integer, String>>(updates);
+	public UpdateInfo(ReleaseInfo latestRelease, ReleaseStatus releaseStatus) {
+		this.latestRelease = latestRelease;
+		this.releaseStatus = releaseStatus;
+		this.exception = null;
 	}
-	
-	
 
 	/**
-	 * Get the latest OpenRocket version.  If it is the current version, then the value
-	 * of {@link BuildProperties#getVersion()} is returned.
-	 * 
-	 * @return	the latest OpenRocket version.
+	 * Constructor for when an error occurred when checking the latest release.
+	 * @param exception exception that was thrown when checking the releases
 	 */
-	public String getLatestVersion() {
-		return latestVersion;
+	public UpdateInfo(UpdateCheckerException exception) {
+		this.latestRelease = null;
+		this.releaseStatus = null;
+		this.exception = exception;
 	}
-	
-	
+
 	/**
-	 * Return a list of the new features/updates that are available.  The list has a
-	 * priority for each update and a message text.  The returned list may be modified.
-	 * 
-	 * @return	a modifiable list of the updates.
+	 * Get the release status of the current build version compared to the latest GitHub release version.
+	 * @return the release status of the current
 	 */
-	public List<ComparablePair<Integer, String>> getUpdates() {
-		return updates.clone();
+	public ReleaseStatus getReleaseStatus() {
+		return this.releaseStatus;
+	}
+
+	/**
+	 * Get the latest release info object.
+	 * @return the latest GitHub release object
+	 */
+	public ReleaseInfo getLatestRelease() {
+		return this.latestRelease;
+	}
+
+	/**
+	 * Get the exception that was thrown when fetching the latest release. If the fetching was successful, null is returned.
+	 * @return UpdateCheckerException exception that was thrown when fetching the release. Null if fetching was successful
+	 */
+	public UpdateCheckerException getException() {
+		return this.exception;
 	}
 	
 	@Override
 	public String toString() {
-		return "UpdateInfo[version=" + latestVersion + "; updates=" + updates.toString() + "]";
+		return "UpdateInfo[releaseStatus=" + releaseStatus + "; latestRelease=" + (latestRelease == null ? "null" : latestRelease.toString()) + "]";
 	}
-	
 }

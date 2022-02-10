@@ -84,7 +84,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	private final JTable doTableInitialization() {
 		JTable table = this.initializeTable();
 		FlightConfigurationId current = this.rocket.getSelectedConfiguration().getFlightConfigurationID();
-		int col = (table.getColumnCount() > 1) ? 1 : 0;
+		int col = (table.getColumnCount() > 1) ? table.getColumnCount() - 1 : 0;
 		for (int row = 0; row < table.getRowCount(); row++) {
 			FlightConfigurationId rowFCID = rocket.getId(row);
 			if (rowFCID.equals(current)) {
@@ -107,7 +107,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			// We'll select the correct row, in the currently selected column.
 			int col = table.getSelectedColumn();
 			if ( col < 0 ) {
-				col = (table.getColumnCount() > 1) ? 1 : 0;
+				col = (table.getColumnCount() > 1) ? table.getColumnCount() - 1 : 0;
 			}
 			
 			for( int rowNum = 0; rowNum < table.getRowCount(); rowNum++ ) {

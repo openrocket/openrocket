@@ -65,8 +65,9 @@ public class BulkHeadDTO extends BaseComponentDTO {
     }
 
     @Override
-    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+    public ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
+		props.put(ComponentPreset.LEGACY, legacy);
         addProps(props, materials);
         props.put(ComponentPreset.OUTER_DIAMETER, this.getOutsideDiameter());
         props.put(ComponentPreset.LENGTH, this.getLength());

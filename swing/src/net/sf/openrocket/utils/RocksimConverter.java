@@ -9,6 +9,8 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
+import net.sf.openrocket.util.DecalNotFoundException;
 
 /**
  * Utility that loads Rocksim file formats and saves them in ORK format.
@@ -64,6 +66,8 @@ public class RocksimConverter {
 				System.err.println("ERROR: Error loading '" + inputFile + "': " + e.getMessage());
 			} catch (IOException e) {
 				System.err.println("ERROR: Error saving '" + outputFile + "': " + e.getMessage());
+			} catch (DecalNotFoundException decex) {
+				DecalNotFoundDialog.showDialog(null, decex);
 			}
 			
 		}

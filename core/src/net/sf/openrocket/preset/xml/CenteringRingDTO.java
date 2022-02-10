@@ -35,7 +35,7 @@ public class CenteringRingDTO extends BodyTubeDTO {
     }
 
     @Override
-    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
-        return super.asComponentPreset(ComponentPreset.Type.CENTERING_RING, materials);
+    public ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return super.asComponentPreset(legacy, ComponentPreset.Type.CENTERING_RING, materials);
     }
 }

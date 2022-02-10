@@ -64,6 +64,7 @@
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
 		<delete dir="${tmp.dir}/"/>
+		<delete dir="${resources.dir}/datafiles/presets"/>
 	</target>
 		
 	
@@ -75,7 +76,7 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-presets" description="Create the OpenRocket executable JAR">
+	<target name="jar" depends="build,copy-orc-files" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${classes.dir}">
 			<manifest>
@@ -95,6 +96,7 @@
 			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
 			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
+			<zipfileset src="${core.dir}/lib/commonmark-0.18.1.jar"/>
 			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-runtime.jar"/>
@@ -123,14 +125,6 @@
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
-	
-	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializePresets"
-	          fork="true"
-			  classpathref="run-classpath"
-			  failonerror="true">
-	    </java>
-	</target>
 
 	<!-- CONVERT vendor csv to ORC files -->
 	<macrodef name="build-orc-file">
@@ -138,7 +132,7 @@
 		<attribute name="vendor"/>
 		<sequential>
 			<echo>Generating ORC file for vendor @{vendor}</echo>
-			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
+			<java classname="net.sf.openrocket.utils.RocksimComponentFileTranslator"
 				fork="true"
 				classpathref="run-classpath"
 				failonerror="true">
@@ -165,7 +159,53 @@
 			</sequential>
 		</for>
 	</target>
-	
+
+	<!-- COPY orc files from source directories to build directory	-->
+	<target name="check-database" description="check component database">
+		<available file="${resources-src.dir}/datafiles/components/orc" property="database"/>
+	</target>
+
+	<target name="copy-orc-files" depends="check-database"
+		description="Copy orc files">
+
+		<fail message="NOTE: ${line.separator}
+The component database is now a submodule, and must be included into ${line.separator}
+this project to build the .jar file. ${line.separator}
+${line.separator}
+If you retrieved this code by cloning the openrocket repository, you ${line.separator}
+must initialize and update the submodule.  From the command line, ${line.separator}
+this can be accomplished with ${line.separator}
+% git submodule init ${line.separator}
+% git submodule update ${line.separator}
+${line.separator}
+If you retrieved this code by downloading and uncompressing a zip file, ${line.separator}
+you must do the same for the submodule.  Download the code ${line.separator}
+from https://github.com/dbcook/openrocket-database and uncompress it.${line.separator}
+Copy the files and directories under the openrocket-database-master ${line.separator}
+into ${resources-src.dir}/datafiles/components/ ${line.separator}
+${line.separator}
+After including the database submodule, you will be able to build
+${line.separator}
+the .jar file
+">
+	  		<condition>
+				<not>
+					<isset property="database" />
+				</not>
+			</condition>
+	  	</fail>
+	  	<copy todir="${resources.dir}/datafiles/presets">
+			<fileset dir="${resources-src.dir}/datafiles/legacy_components"/>
+	  	</copy>
+	  	<copy todir="${resources.dir}/datafiles/presets">
+			<fileset dir="${resources-src.dir}/datafiles/components/orc"/>
+	  	</copy>
+	  	<copy
+		    file="${resources-src.dir}/datafiles/components/LICENSE"
+		    todir="${resources.dir}/datafiles/presets">
+	  	</copy>
+	</target>
+
 	<!-- DIST-SRC -->
 	<target name="dist-src">
 		<echo>			

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OpenRocketComponent>
     <Version>0.1</Version>
+    <Legacy />
     <Materials>
         <Material UnitsOfMeasure="g/m">
             <Name>1/16 In. braided nylon</Name>
@@ -107,7 +108,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-08542 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004252428464999999</Mass>
             <Filled>true</Filled>
@@ -136,7 +137,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1016 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0034019427719999998</Mass>
             <Filled>true</Filled>
@@ -165,7 +166,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1019 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003685438003</Mass>
             <Filled>true</Filled>
@@ -194,7 +195,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1020E [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003685438003</Mass>
             <Filled>true</Filled>
@@ -223,7 +224,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1022 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004252428464999999</Mass>
             <Filled>true</Filled>
@@ -252,7 +253,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1024 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004252428464999999</Mass>
             <Filled>true</Filled>
@@ -281,7 +282,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1031 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004252428464999999</Mass>
             <Filled>true</Filled>
@@ -310,7 +311,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1032 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004252428464999999</Mass>
             <Filled>true</Filled>
@@ -339,7 +340,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1037 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004535923696</Mass>
             <Filled>true</Filled>
@@ -368,7 +369,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1039 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004819418927</Mass>
             <Filled>true</Filled>
@@ -397,7 +398,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1041 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -426,7 +427,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1041G [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -455,7 +456,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1041P [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -484,7 +485,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1045 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005386409389</Mass>
             <Filled>true</Filled>
@@ -513,7 +514,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1045P [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005386409389</Mass>
             <Filled>true</Filled>
@@ -542,7 +543,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1048 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005386409389</Mass>
             <Filled>true</Filled>
@@ -571,7 +572,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1050 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.030900980179</Mass>
             <Filled>true</Filled>
@@ -600,7 +601,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1051 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.00566990462</Mass>
             <Filled>true</Filled>
@@ -629,7 +630,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BC-1052 [R]</PartNumber>
-            <Description>Balsa Nose Cone – Reversed</Description>
+            <Description>Balsa Nose Cone - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006236895082</Mass>
             <Filled>true</Filled>
@@ -3989,7 +3990,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-085225 [R]</PartNumber>
-            <Description>Balsa Reducer 085 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 085 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.022112628018</Mass>
             <Filled>true</Filled>
@@ -4021,7 +4022,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1013 [R]</PartNumber>
-            <Description>Balsa Reducer 10 to 13 – Reversed</Description>
+            <Description>Balsa Reducer 10 to 13 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -4053,7 +4054,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1016 [R]</PartNumber>
-            <Description>Balsa Reducer 10 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 10 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009071847392</Mass>
             <Filled>true</Filled>
@@ -4085,7 +4086,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1016S [R]</PartNumber>
-            <Description>Balsa Reducer 10 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 10 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008221361698999998</Mass>
             <Filled>true</Filled>
@@ -4117,7 +4118,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1116 [R]</PartNumber>
-            <Description>Balsa Reducer 11 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 11 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009355342623</Mass>
             <Filled>true</Filled>
@@ -4149,7 +4150,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1118 [R]</PartNumber>
-            <Description>Balsa Reducer 11 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 11 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.010205828315999999</Mass>
             <Filled>true</Filled>
@@ -4181,7 +4182,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-11516 [R]</PartNumber>
-            <Description>Balsa Reducer 115 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 115 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.029766999255</Mass>
             <Filled>true</Filled>
@@ -4213,7 +4214,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-11518 [R]</PartNumber>
-            <Description>Balsa Reducer 115 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 115 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.031184475410000002</Mass>
             <Filled>true</Filled>
@@ -4245,7 +4246,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-125-175 [R]</PartNumber>
-            <Description>Balsa Reducer 125 to 175 – Reversed</Description>
+            <Description>Balsa Reducer 125 to 175 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.01417476155</Mass>
             <Filled>true</Filled>
@@ -4277,7 +4278,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-125-175L [R]</PartNumber>
-            <Description>Balsa Reducer 125 to 175 – Reversed</Description>
+            <Description>Balsa Reducer 125 to 175 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.018427190015</Mass>
             <Filled>true</Filled>
@@ -4309,7 +4310,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-125-225 [R]</PartNumber>
-            <Description>Balsa Reducer 125 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 125 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.017009713859999998</Mass>
             <Filled>true</Filled>
@@ -4341,7 +4342,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1316 [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0068038855439999995</Mass>
             <Filled>true</Filled>
@@ -4373,7 +4374,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1316F [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.010205828315999999</Mass>
             <Filled>true</Filled>
@@ -4405,7 +4406,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1316L [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008504856929999999</Mass>
             <Filled>true</Filled>
@@ -4437,7 +4438,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1316M [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007937866468</Mass>
             <Filled>true</Filled>
@@ -4469,7 +4470,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1320 [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007937866468</Mass>
             <Filled>true</Filled>
@@ -4501,7 +4502,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1320L [R]</PartNumber>
-            <Description>Balsa Reducer 13 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 13 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.015875732936</Mass>
             <Filled>true</Filled>
@@ -4533,7 +4534,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-150-225 [R]</PartNumber>
-            <Description>Balsa Reducer 150 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 150 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.029766999255</Mass>
             <Filled>true</Filled>
@@ -4565,7 +4566,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-150-275 [R]</PartNumber>
-            <Description>Balsa Reducer 150 to 275 – Reversed</Description>
+            <Description>Balsa Reducer 150 to 275 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.041106808495</Mass>
             <Filled>true</Filled>
@@ -4597,7 +4598,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1618 [R]</PartNumber>
-            <Description>Balsa Reducer 16 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 16 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007937866468</Mass>
             <Filled>true</Filled>
@@ -4629,7 +4630,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1618F [R]</PartNumber>
-            <Description>Balsa Reducer 16 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 16 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008504856929999999</Mass>
             <Filled>true</Filled>
@@ -4661,7 +4662,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1620 [R]</PartNumber>
-            <Description>Balsa Reducer 16 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 16 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008504856929999999</Mass>
             <Filled>true</Filled>
@@ -4693,7 +4694,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1620F [R]</PartNumber>
-            <Description>Balsa Reducer 16 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 16 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0076543712370000004</Mass>
             <Filled>true</Filled>
@@ -4725,7 +4726,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-16225F [R]</PartNumber>
-            <Description>Balsa Reducer 16 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 16 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009355342623</Mass>
             <Filled>true</Filled>
@@ -4757,7 +4758,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-175-225 [R]</PartNumber>
-            <Description>Balsa Reducer 175 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 175 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.02267961848</Mass>
             <Filled>true</Filled>
@@ -4789,7 +4790,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-1820 [R]</PartNumber>
-            <Description>Balsa Reducer 18 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 18 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007087380775</Mass>
             <Filled>true</Filled>
@@ -4821,7 +4822,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-18225 [R]</PartNumber>
-            <Description>Balsa Reducer 18 to 225 – Reversed</Description>
+            <Description>Balsa Reducer 18 to 225 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008788352160999999</Mass>
             <Filled>true</Filled>
@@ -4853,7 +4854,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-225-80H [R]</PartNumber>
-            <Description>Balsa Reducer 225 to BT-80H – Reversed</Description>
+            <Description>Balsa Reducer 225 to BT-80H - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.03685438003</Mass>
             <Filled>true</Filled>
@@ -4885,7 +4886,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-510 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 10 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 10 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003118447541</Mass>
             <Filled>true</Filled>
@@ -4917,7 +4918,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-511 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 11 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 11 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0034019427719999998</Mass>
             <Filled>true</Filled>
@@ -4949,7 +4950,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-513 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 13 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 13 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004535923696</Mass>
             <Filled>true</Filled>
@@ -4981,7 +4982,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-57 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 7 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 7 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.001984466617</Mass>
             <Filled>true</Filled>
@@ -5013,7 +5014,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-58 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 8 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 8 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.00283495231</Mass>
             <Filled>true</Filled>
@@ -5045,7 +5046,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-58F [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 8F – Reversed</Description>
+            <Description>Balsa Reducer 5 to 8F - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.00283495231</Mass>
             <Filled>true</Filled>
@@ -5077,7 +5078,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-59 [R]</PartNumber>
-            <Description>Balsa Reducer 5 to 9 – Reversed</Description>
+            <Description>Balsa Reducer 5 to 9 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -5109,7 +5110,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-60-18 [R]</PartNumber>
-            <Description>Balsa Reducer BT-60 to ST-18 – Reversed</Description>
+            <Description>Balsa Reducer BT-60 to ST-18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008221361698999998</Mass>
             <Filled>true</Filled>
@@ -5141,7 +5142,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-710 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 10 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 10 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0034019427719999998</Mass>
             <Filled>true</Filled>
@@ -5173,7 +5174,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-711 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 11 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 11 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003685438003</Mass>
             <Filled>true</Filled>
@@ -5205,7 +5206,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-713 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 13 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 13 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -5237,7 +5238,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-716 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.010205828315999999</Mass>
             <Filled>true</Filled>
@@ -5269,7 +5270,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-718 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.011906799701999999</Mass>
             <Filled>true</Filled>
@@ -5301,7 +5302,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-78 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 8 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 8 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003685438003</Mass>
             <Filled>true</Filled>
@@ -5333,7 +5334,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-78F [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 8F – Reversed</Description>
+            <Description>Balsa Reducer 7 to 8F - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004819418927</Mass>
             <Filled>true</Filled>
@@ -5365,7 +5366,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-78S [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 8 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 8 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.00283495231</Mass>
             <Filled>true</Filled>
@@ -5397,7 +5398,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-79 [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 9 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 9 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004819418927</Mass>
             <Filled>true</Filled>
@@ -5429,7 +5430,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-79L [R]</PartNumber>
-            <Description>Balsa Reducer 7 to 9 – Reversed</Description>
+            <Description>Balsa Reducer 7 to 9 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006520390313</Mass>
             <Filled>true</Filled>
@@ -5461,7 +5462,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-810 [R]</PartNumber>
-            <Description>Balsa Reducer 8 to 10 – Reversed</Description>
+            <Description>Balsa Reducer 8 to 10 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003968933234</Mass>
             <Filled>true</Filled>
@@ -5493,7 +5494,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-813 [R]</PartNumber>
-            <Description>Balsa Reducer 8 to 13 – Reversed</Description>
+            <Description>Balsa Reducer 8 to 13 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007370876006</Mass>
             <Filled>true</Filled>
@@ -5525,7 +5526,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-813P [R]</PartNumber>
-            <Description>Balsa Reducer 8 to 13 – Reversed</Description>
+            <Description>Balsa Reducer 8 to 13 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007370876006</Mass>
             <Filled>true</Filled>
@@ -5557,7 +5558,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-816 [R]</PartNumber>
-            <Description>Balsa Reducer 8 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 8 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008504856929999999</Mass>
             <Filled>true</Filled>
@@ -5589,7 +5590,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-816NT [R]</PartNumber>
-            <Description>Balsa Reducer 8 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 8 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.010772818778</Mass>
             <Filled>true</Filled>
@@ -5621,7 +5622,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-8F11 [R]</PartNumber>
-            <Description>Balsa Reducer 8F to 11 – Reversed</Description>
+            <Description>Balsa Reducer 8F to 11 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.005102914157999999</Mass>
             <Filled>true</Filled>
@@ -5653,7 +5654,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-8F11L [R]</PartNumber>
-            <Description>Balsa Reducer 8F to 11 – Reversed</Description>
+            <Description>Balsa Reducer 8F to 11 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006236895082</Mass>
             <Filled>true</Filled>
@@ -5685,7 +5686,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-916 [R]</PartNumber>
-            <Description>Balsa Reducer 9 to 16 – Reversed</Description>
+            <Description>Balsa Reducer 9 to 16 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008504856929999999</Mass>
             <Filled>true</Filled>
@@ -5717,7 +5718,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-918 [R]</PartNumber>
-            <Description>Balsa Reducer 9 to 18 – Reversed</Description>
+            <Description>Balsa Reducer 9 to 18 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009071847392</Mass>
             <Filled>true</Filled>
@@ -5749,7 +5750,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>BR-920 [R]</PartNumber>
-            <Description>Balsa Reducer 9 to 20 – Reversed</Description>
+            <Description>Balsa Reducer 9 to 20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009638837854</Mass>
             <Filled>true</Filled>
@@ -9836,7 +9837,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-2050 [R]</PartNumber>
-            <Description>Balsa Reducer BT-20 to BT-50 – Reversed</Description>
+            <Description>Balsa Reducer BT-20 to BT-50 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.004819418927</Mass>
             <Filled>true</Filled>
@@ -9868,7 +9869,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-2050A [R]</PartNumber>
-            <Description>Balsa Reducer BT-20 to BT-50 – Reversed</Description>
+            <Description>Balsa Reducer BT-20 to BT-50 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003118447541</Mass>
             <Filled>true</Filled>
@@ -9900,7 +9901,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-2050B [R]</PartNumber>
-            <Description>Balsa Reducer BT-20 to BT-50 – Reversed</Description>
+            <Description>Balsa Reducer BT-20 to BT-50 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0059533998509999995</Mass>
             <Filled>true</Filled>
@@ -9932,7 +9933,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-2055 [R]</PartNumber>
-            <Description>Balsa Reducer BT-20 to BT-55 – Reversed</Description>
+            <Description>Balsa Reducer BT-20 to BT-55 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006236895082</Mass>
             <Filled>true</Filled>
@@ -9964,7 +9965,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-2060 [R]</PartNumber>
-            <Description>Balsa Reducer BT-20 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-20 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.00566990462</Mass>
             <Filled>true</Filled>
@@ -9996,7 +9997,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5055 [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-55 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-55 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.017009713859999998</Mass>
             <Filled>true</Filled>
@@ -10028,7 +10029,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5055L [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-55 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-55 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.020128161401</Mass>
             <Filled>true</Filled>
@@ -10060,7 +10061,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5060 [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006520390313</Mass>
             <Filled>true</Filled>
@@ -10092,7 +10093,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5060C [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.003968933234</Mass>
             <Filled>true</Filled>
@@ -10124,7 +10125,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5060E [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0059533998509999995</Mass>
             <Filled>true</Filled>
@@ -10156,7 +10157,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5065 [R]</PartNumber>
-            <Description>Balsa Reducer BT-50 to BT-65 – Reversed</Description>
+            <Description>Balsa Reducer BT-50 to BT-65 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007370876006</Mass>
             <Filled>true</Filled>
@@ -10188,7 +10189,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-520 [R]</PartNumber>
-            <Description>Balsa Reducer BT-5 to BT-20 – Reversed</Description>
+            <Description>Balsa Reducer BT-5 to BT-20 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.001133980924</Mass>
             <Filled>true</Filled>
@@ -10220,7 +10221,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5260A [R]</PartNumber>
-            <Description>Balsa Reducer BT-52 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-52 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006520390313</Mass>
             <Filled>true</Filled>
@@ -10252,7 +10253,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5260C [R]</PartNumber>
-            <Description>Balsa Reducer BT-52 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-52 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.009355342623</Mass>
             <Filled>true</Filled>
@@ -10284,7 +10285,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-550 [R]</PartNumber>
-            <Description>Balsa Reducer BT-5 to BT-50 – Reversed</Description>
+            <Description>Balsa Reducer BT-5 to BT-50 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.0017009713859999999</Mass>
             <Filled>true</Filled>
@@ -10316,7 +10317,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5560 [R]</PartNumber>
-            <Description>Balsa Reducer BT-55 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-55 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.007087380775</Mass>
             <Filled>true</Filled>
@@ -10348,7 +10349,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5560A [R]</PartNumber>
-            <Description>Balsa Reducer BT-55 to BT-60 – Reversed</Description>
+            <Description>Balsa Reducer BT-55 to BT-60 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.008221361698999998</Mass>
             <Filled>true</Filled>
@@ -10380,7 +10381,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-5565 [R]</PartNumber>
-            <Description>Balsa Reducer BT-55 to BT-65 – Reversed</Description>
+            <Description>Balsa Reducer BT-55 to BT-65 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.010772818778</Mass>
             <Filled>true</Filled>
@@ -10412,7 +10413,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-6065 [R]</PartNumber>
-            <Description>Balsa Reducer BT-60 to BT-65 – Reversed</Description>
+            <Description>Balsa Reducer BT-60 to BT-65 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.006520390313</Mass>
             <Filled>true</Filled>
@@ -10444,7 +10445,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-6070 [R]</PartNumber>
-            <Description>Balsa Reducer BT-60 to BT-70 – Reversed</Description>
+            <Description>Balsa Reducer BT-60 to BT-70 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.018427190015</Mass>
             <Filled>true</Filled>
@@ -10476,7 +10477,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-6080 [R]</PartNumber>
-            <Description>Balsa Reducer BT-60 to BT-80 – Reversed</Description>
+            <Description>Balsa Reducer BT-60 to BT-80 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.018427190015</Mass>
             <Filled>true</Filled>
@@ -10508,7 +10509,7 @@
         <Transition>
             <Manufacturer>SEMROC Astronautics</Manufacturer>
             <PartNumber>TA-7080 [R]</PartNumber>
-            <Description>Balsa Reducer BT-70 to BT-80 – Reversed</Description>
+            <Description>Balsa Reducer BT-70 to BT-80 - Reversed</Description>
             <Material Type="BULK">Balsa</Material>
             <Mass Unit="kg">0.018427190015</Mass>
             <Filled>true</Filled>

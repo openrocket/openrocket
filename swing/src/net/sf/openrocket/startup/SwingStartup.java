@@ -15,6 +15,7 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.communication.UpdateInfoRetriever.ReleaseStatus;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
@@ -146,14 +147,14 @@ public class SwingStartup {
 		guiModule.startLoader();
 		
 		// Start update info fetching
-		final UpdateInfoRetriever updateInfo;
+		final UpdateInfoRetriever updateRetriever;
 		if (Application.getPreferences().getCheckUpdates()) {
 			log.info("Starting update check");
-			updateInfo = new UpdateInfoRetriever();
-			updateInfo.start();
+			updateRetriever = new UpdateInfoRetriever();
+			updateRetriever.startFetchUpdateInfo();
 		} else {
 			log.info("Update check disabled");
-			updateInfo = null;
+			updateRetriever = null;
 		}
 		
 		// Set the best available look-and-feel
@@ -192,7 +193,7 @@ public class SwingStartup {
 		
 		// Check whether update info has been fetched or whether it needs more time
 		log.info("Checking update status");
-		checkUpdateStatus(updateInfo);
+		checkUpdateStatus(updateRetriever);
 		
 	}
 	
@@ -213,12 +214,12 @@ public class SwingStartup {
 	}
 	
 	
-	private void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
-		if (updateInfo == null)
+	private void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
+		if (updateRetriever == null)
 			return;
 		
 		int delay = 1000;
-		if (!updateInfo.isRunning())
+		if (!updateRetriever.isRunning())
 			delay = 100;
 		
 		final Timer timer = new Timer(delay, null);
@@ -228,24 +229,15 @@ public class SwingStartup {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (!updateInfo.isRunning()) {
+				if (!updateRetriever.isRunning()) {
 					timer.stop();
-					
-					String current = BuildProperties.getVersion();
-					String last = Application.getPreferences().getString(Preferences.LAST_UPDATE, "");
-					
-					UpdateInfo info = updateInfo.getUpdateInfo();
-					if (info != null && info.getLatestVersion() != null &&
-							!current.equals(info.getLatestVersion()) &&
-							!last.equals(info.getLatestVersion())) {
-						
+
+					UpdateInfo info = updateRetriever.getUpdateInfo();
+
+					// Only display something when an update is found
+					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER) {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
-						if (infoDialog.isReminderSelected()) {
-							Application.getPreferences().putString(Preferences.LAST_UPDATE, "");
-						} else {
-							Application.getPreferences().putString(Preferences.LAST_UPDATE, info.getLatestVersion());
-						}
 					}
 				}
 				count--;

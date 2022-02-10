@@ -616,13 +616,13 @@ public class DesignReport {
 				log.warn("Simulation " + simulation.getId() + " has no motors, skipping");
 				// Continue so we don't simulate
 				continue;
+			case LOADED:
 			case UPTODATE:
 				log.trace("Simulation " + simulation.getId() + "is up to date, not running simulation");
 				simulate = false;
 				break;
 			case NOT_SIMULATED:
 			case OUTDATED:
-			case LOADED:
 				log.trace("Running simulation for " + simulation.getId());
 				simulate = true;
 				break;
