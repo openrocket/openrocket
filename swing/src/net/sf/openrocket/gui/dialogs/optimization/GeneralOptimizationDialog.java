@@ -253,7 +253,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		label = new StyledLabel(trans.get("lbl.paramsToOptimize"), Style.BOLD);
 		disableComponents.add(label);
 		panel.add(label, "split 3, flowy");
-		panel.add(scroll, "wmin 300lp, height 200lp, grow");
+		panel.add(scroll, "wmin 300lp, height 150lp, grow");
 		selectedModifierDescription = new DescriptionArea(2, -3);
 		disableComponents.add(selectedModifierDescription);
 		panel.add(selectedModifierDescription, "hmin 20lp, growx");
@@ -610,6 +610,7 @@ public class GeneralOptimizationDialog extends JDialog {
 
 		int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
 		this.setSize(new Dimension(this.getWidth(), Math.min(this.getHeight(), screenHeight - 150)));
+		this.pack();
 
 		this.setLocation((parent.getWidth() - 1200)/2, 100);
 	}
