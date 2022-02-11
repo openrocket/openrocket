@@ -42,6 +42,7 @@ public class AboutDialog extends JDialog {
 		"Daniel Williams (pod support, maintainer)<br>" +
 		"Joe Pfeiffer (maintainer)<br>" +
 		"Billy Olsen (maintainer)<br>" +
+    "Sibo Van Gool (maintainer)<br>" +
 		"Neil Weinstock (tester, icons, forum support)<br>" +
 		"H. Craig Miller (tester)<br><br>" +
 		"<b>Translations by:</b><br><br>" +
