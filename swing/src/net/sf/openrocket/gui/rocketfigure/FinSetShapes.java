@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.rocketfigure;
 import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -89,37 +90,72 @@ public class FinSetShapes extends RocketComponentShape {
 		
 		double thickness = finset.getThickness();
 		double height = finset.getSpan();
+		double tabHeight = finset.getTabHeight();
 		
 		// Generate base coordinates for a single fin
-		Coordinate c[] = new Coordinate[4];
+		Coordinate[] c = new Coordinate[4];
 		c[0]=new Coordinate(0, 0,-thickness/2);
         c[1]=new Coordinate(0, 0,thickness/2);
         c[2]=new Coordinate(0,height,thickness/2);
         c[3]=new Coordinate(0,height,-thickness/2);
 
+		// Generate base coordinates for a single fin tab
+		Coordinate[] cTab = new Coordinate[4];
+		cTab[0]=new Coordinate(0, 0,-thickness/2);
+		cTab[1]=new Coordinate(0, 0,thickness/2);
+		cTab[2]=new Coordinate(0, -tabHeight,thickness/2);
+		cTab[3]=new Coordinate(0, -tabHeight,-thickness/2);
+
 		// Apply base rotation
 		c = transformation.transform(c);
+		cTab = transformation.transform(cTab);
           
 		// Make polygon
+		Path2D.Double p = createUncantedPolygon(c);
+
+		if (tabHeight != 0 && finset.getTabLength() != 0) {
+			Path2D.Double pTab = createUncantedPolygon(cTab);
+			return new Shape[]{p, pTab};
+		}
+		else {
+			return new Shape[]{p};
+		}
+	}
+
+	private static Path2D.Double createUncantedPolygon(Coordinate[] c) {
 		Coordinate a;
 		Path2D.Double p = new Path2D.Double();
-		
-	    a = c[0];
+
+		a = c[0];
 		p.moveTo(a.z, a.y);
 		a = c[1];
-		p.lineTo(a.z, a.y);			
+		p.lineTo(a.z, a.y);
 		a = c[2];
-		p.lineTo(a.z, a.y);		
+		p.lineTo(a.z, a.y);
 		a = c[3];
 		p.lineTo(a.z, a.y);
 		p.closePath();
-		
-		return new Shape[]{p};
+		return p;
 	}
-	
-	private static Shape[] cantedShapesBack(FinSet finset,
-			Transformation transformation) {
 
+	private static Shape[] cantedShapesBack(FinSet finset,
+												Transformation transformation) {
+		if (finset.getTabHeight() == 0 || finset.getTabLength() == 0) {
+			return cantedShapesBackFins(finset, transformation);
+		}
+
+		Shape[] toReturn;
+		Shape[] shapesFin = cantedShapesBackFins(finset, transformation);
+		Shape[] shapesTab = cantedShapesBackTabs(finset, transformation);
+
+		toReturn = Arrays.copyOf(shapesFin, shapesFin.length + shapesTab.length);
+		System.arraycopy(shapesTab, 0, toReturn, shapesFin.length, shapesTab.length);
+
+		return toReturn;
+	}
+
+	private static Shape[] cantedShapesBackFins(FinSet finset,
+												Transformation transformation) {
 		double thickness = finset.getThickness();
 		
 		Coordinate[] sidePoints;
@@ -166,6 +202,57 @@ public class FinSetShapes extends RocketComponentShape {
 			s[0] = makePolygonBack(sidePoints,compositeTransform);
 		}
 		
+		return s;
+	}
+
+	private static Shape[] cantedShapesBackTabs(FinSet finset,
+											Transformation transformation) {
+		double thickness = finset.getThickness();
+
+		Coordinate[] sidePoints;
+		Coordinate[] backPoints;
+		int minIndex;
+
+		Coordinate[] points = finset.getTabPoints();
+
+		// this loop finds the index @ min-y, as visible from the back
+		for (minIndex = points.length-1; minIndex > 0; minIndex--) {
+			if (points[minIndex-1].y > points[minIndex].y)
+				break;
+		}
+
+		Transformation cantTransform = finset.getCantRotation();
+		final Transformation compositeTransform = transformation.applyTransformation(cantTransform);
+
+		sidePoints = new Coordinate[points.length];
+		backPoints = new Coordinate[2*(points.length-minIndex)];
+		double sign = Math.copySign(1.0, finset.getCantAngle());
+
+		// Calculate points for the visible side panel
+		for (int i=0; i < points.length; i++) {
+			sidePoints[i] = points[i].add(0,0,sign*thickness/2);
+		}
+
+		// Calculate points for the back portion
+		int i=0;
+		for (int j=points.length-1; j >= minIndex; j--, i++) {
+			backPoints[i] = points[j].add(0,0,sign*thickness/2);
+		}
+		for (int j=minIndex; j <= points.length-1; j++, i++) {
+			backPoints[i] = points[j].add(0,0,-sign*thickness/2);
+		}
+
+		// Generate shapes
+		Shape[] s;
+		if (thickness > 0.0005) {
+			s = new Shape[2];
+			s[0] = makePolygonBack(sidePoints,compositeTransform);
+			s[1] = makePolygonBack(backPoints,compositeTransform);
+		} else {
+			s = new Shape[1];
+			s[0] = makePolygonBack(sidePoints,compositeTransform);
+		}
+
 		return s;
 	}
 	
