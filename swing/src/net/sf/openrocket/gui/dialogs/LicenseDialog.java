@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.DescriptionArea;
@@ -138,7 +139,7 @@ public class LicenseDialog extends JDialog {
 		/*****************************************************************************************************************************/
 
 		DescriptionArea info = new DescriptionArea(20);
-		info.setTextFont(null);
+		info.setTextFont(UIManager.getFont("Label.font"));
 		info.setText(orLicense + componentsLicense + fontLicense + commonmarkLicense);
 		panel.add(info, "newline, width 700lp, height 250lp, pushy, grow, spanx, wrap para");
 		

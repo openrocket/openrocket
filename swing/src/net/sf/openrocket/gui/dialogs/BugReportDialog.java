@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 
 import com.jogamp.opengl.JoglVersion;
 
@@ -72,6 +73,7 @@ public class BugReportDialog extends JDialog {
 
 		final JEditorPane editorPane = new JEditorPane("text/html", formatNewlineHTML(message));
 		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		editorPane.setFont(UIManager.getFont("Label.font"));
 		editorPane.setPreferredSize(new Dimension(600, 400));
 		editorPane.setEditable(true);
 		editorPane.setCaretPosition(0);		// Scroll to the top by default
