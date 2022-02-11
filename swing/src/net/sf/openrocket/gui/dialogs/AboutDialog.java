@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.DescriptionArea;
@@ -101,7 +102,7 @@ public class AboutDialog extends JDialog {
 		sub.add(new StyledLabel(copyright), "ax 50%, growy, wrap para");
 		
 		sub.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");
-		panel.add(sub, "grow");
+		panel.add(sub, "grow, pushx");
 		
 		
 		// Translation information (if present)
@@ -132,7 +133,8 @@ public class AboutDialog extends JDialog {
 		
 		DescriptionArea info = new DescriptionArea(5);
 		info.setText(CREDITS);
-		panel.add(info, "newline, width 10px, height 150lp, grow, spanx, wrap para");
+		info.setTextFont(UIManager.getFont("Label.font"));
+		panel.add(info, "newline, width 10px, height 250lp, pushy, grow, spanx, wrap para");
 		
 		//		JTextArea area = new JTextArea(CREATORS);
 		//		area.setEditable(false);
@@ -154,7 +156,6 @@ public class AboutDialog extends JDialog {
 		this.add(panel);
 		this.setTitle("OpenRocket " + version);
 		this.pack();
-		this.setResizable(false);
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
