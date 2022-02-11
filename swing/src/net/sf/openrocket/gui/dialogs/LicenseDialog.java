@@ -1,21 +1,14 @@
 package net.sf.openrocket.gui.dialogs;
 
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.DescriptionArea;
@@ -39,7 +32,7 @@ public class LicenseDialog extends JDialog {
 		// OpenRocket logo
 		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")), "top");
 		
-		panel.add(new StyledLabel("Software Licenses", 10), "ax 50%, wrap para");
+		panel.add(new StyledLabel("Software Licenses", 10), "ax 50%, pushx, wrap para");
 
 		final String jarUrl = "jar:" + getClass().getProtectionDomain().getCodeSource().getLocation().toString();
 		final String copyrightYear = BuildProperties.getCopyrightYear();
@@ -146,8 +139,9 @@ public class LicenseDialog extends JDialog {
 		/*****************************************************************************************************************************/
 
 		DescriptionArea info = new DescriptionArea(20);
+		info.setTextFont(UIManager.getFont("Label.font"));
 		info.setText(orLicense + componentsLicense + fontLicense + commonmarkLicense);
-		panel.add(info, "newline, width 600lp, height 150lp, grow, spanx, wrap para");
+		panel.add(info, "newline, width 700lp, height 250lp, pushy, grow, spanx, wrap para");
 		
 		//Close button
 		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
@@ -157,7 +151,7 @@ public class LicenseDialog extends JDialog {
 				LicenseDialog.this.dispose();
 			}
 		});
-		panel.add(close, "right");
+		panel.add(close, "spanx, right");
 		
 		this.add(panel);
 		this.setTitle("OpenRocket license");

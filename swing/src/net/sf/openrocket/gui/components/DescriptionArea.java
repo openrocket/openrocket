@@ -12,18 +12,15 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
+import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-
-import net.sf.openrocket.util.BugException;
 
 @SuppressWarnings("serial")
 public class DescriptionArea extends JScrollPane {
@@ -179,6 +176,18 @@ public class DescriptionArea extends JScrollPane {
 			
 		});
 		editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
+	}
+
+	/**
+	 * Set the font to use for the text pane. If null, then the default font from OR is used.
+	 * @param font font to use
+	 */
+	public void setTextFont(Font font) {
+		if (editorPane == null) return;
+		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		if (font != null) {
+			editorPane.setFont(font);
+		}
 	}
 	
 }
