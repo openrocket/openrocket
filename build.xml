@@ -1,8 +1,10 @@
-<project name="OpenRocket" basedir="." default="jar">
+<project name="OpenRocket" basedir="." default="package">
 
     <!-- CLEAN -->
 
-	<target name="clean" depends="clean-core, clean-swing">
+        <target name="clean" depends="clean-core, clean-swing">
+	  <delete dir="OpenRocket" />
+	  <delete file="OpenRocket.AppImage" />
 	</target>
 
 	<target name="clean-core">
@@ -40,6 +42,86 @@
 		<ant dir="swing" target="jar"/>
 	</target>
 
+    <!-- PACKAGE -->
+    <target name="package" depends="pkg-2">
+    </target>
+    
+    <target name="check-os" depends="jar">
+      <condition property="type" value="app-image">
+	<os name="linux" />
+      </condition>
+      
+      <condition property="isLinux">
+	<os name="linux" />
+      </condition>
+      
+      <condition property="type" value="dmg">
+	<os name="macos" />
+      </condition>
+      
+      <condition property="type" value="exe">
+	<os family="windows" />
+      </condition>
+    </target>
+    
+    <target name="pkg-1" depends="check-os" >
+      <sequential>
+	<delete dir="OpenRocket" />
+	<exec executable="jpackage">
+	  <arg line="--input swing/build/jar" />
+	  <arg line="--main-jar OpenRocket.jar" />
+	  <arg line="--type ${type}" />
+	  <arg line="--app-version 22.xx-BETA" />
+	  <arg value="--copyright" />
+	  <arg value="Copyright (C) 2007-2022 Sampo Niskanen and others" />
+	  <arg value="--description" />
+	  <arg value="Rocket Design and Simulation Program" />
+	  <arg line="--name OpenRocket" />
+	  <arg value="--verbose" />
+	  <arg line="--icon package-resources/openrocket.png" />
+	</exec>
+      </sequential>
+    </target>
+
+    <target name="appimage-check" depends="check-os" >
+      <echo message="checking appimagetool.AppImage" />
+      <exec executable="appimagetool.AppImage"
+	    resultproperty="appReturn" failifexecutionfails="false">
+	<arg value="--version"/>
+      </exec>
+      <condition property="appimage-failed" value="true">
+	<not>
+	  <equals arg1="0" arg2="${appReturn}" />
+	</not>
+      </condition>
+      <fail if="${appimage-failed}" message="
+appimagetool.AppImage executable failed ${line.separator}
+To build the Linux appimage, you will need to ${line.separator}
+
+download the correct appimagetool for your architecture
+from https://appimage.github.io/appimagetool/, ${line.separator}
+
+rename it appimagetool.AppImage, ${line.separator}
+
+make it executable, and ${line.separator}
+
+put it in a directory in your command execution path"
+	    />
+    </target>
+
+    <target name="pkg-2" depends="appimage-check, pkg-1" if="isLinux" >
+      <sequential>
+	<exec executable="cp">
+	  <arg line="LICENSE.TXT package-resources/AppRun package-resources/openrocket.desktop package-resources/openrocket.png OpenRocket" />
+	</exec>
+	<exec executable="appimagetool.AppImage">
+	  <arg value="OpenRocket" />
+	  <arg value="OpenRocket.AppImage" />
+	</exec>
+	<delete dir="OpenRocket" />
+      </sequential>
+    </target>
+    
     <!-- TEST -->
 	
 	<target name="unittest" depends="unittest-core, unittest-swing">

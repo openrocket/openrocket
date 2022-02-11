@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OpenRocket
+GenericName=Rocket Design and Simulation
+Comment=Design and simulate model rockets
+Icon=openrocket
+Exec=/openrocket %f
+Terminal=false
+MimeType=text/plain;
+Categories=Development;Science;
