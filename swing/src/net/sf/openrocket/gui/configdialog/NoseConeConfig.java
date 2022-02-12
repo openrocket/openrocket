@@ -144,7 +144,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 		
 		description = new DescriptionArea(5);
 		description.setText(PREDESC + ((NoseCone) component).getType().getNoseConeDescription());
-		panel2.add(description, "wmin 250lp, spanx, growx, wrap para");
+		panel2.add(description, "w 250lp, spanx, growx, wrap para");
 		
 
 		//// Material
