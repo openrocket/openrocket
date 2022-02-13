@@ -209,7 +209,7 @@ public class BasicFrame extends JFrame {
 		//// Rocket design
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designTab());
 		//// Flight configurations
-		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(document));
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(this, document));
 		//// Flight simulations
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 
@@ -1690,10 +1690,14 @@ public class BasicFrame extends JFrame {
 		}
 	}
 
+	public void setSelectedComponent(RocketComponent component) {
+		this.selectionModel.setSelectedComponent(component);
+	}
+
 	public void stateChanged(ChangeEvent e) {
 		JTabbedPane tabSource = (JTabbedPane) e.getSource();
-		String tab = tabSource.getTitleAt(tabSource.getSelectedIndex());
-		if (tab.equals(trans.get("BasicFrame.tab.Flightsim"))) {
+		int tab = tabSource.getSelectedIndex();
+		if (tab == SIMULATION_TAB) {
 			simulationPanel.activating();
 		}
 	}
