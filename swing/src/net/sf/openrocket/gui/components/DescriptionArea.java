@@ -159,6 +159,7 @@ public class DescriptionArea extends JScrollPane {
 		
 		Dimension dim = editorPane.getPreferredSize();
 		dim.height = lineheight * rows + extraheight + 2;
+		this.setPreferredSize(dim);
 		
 		this.setViewportView(editorPane);
 		this.setText(text);

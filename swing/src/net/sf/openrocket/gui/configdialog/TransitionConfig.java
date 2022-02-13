@@ -175,7 +175,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		description = new DescriptionArea(5);
 		description.setText(PREDESC + ((Transition) component).getType().
 				getTransitionDescription());
-		panel2.add(description, "w 250lp, spanx, growx, wrap para");
+		panel2.add(description, "wmin 250lp, spanx, growx, wrap para");
 		
 
 		//// Material
