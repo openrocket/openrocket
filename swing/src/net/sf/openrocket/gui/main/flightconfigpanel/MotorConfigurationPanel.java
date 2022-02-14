@@ -45,6 +45,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
 
 @SuppressWarnings("serial")
@@ -237,10 +238,16 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if (e.getValueIsAdjusting()) {
 			return;
 		}
-		MotorMount mount = getSelectedComponent();
-		if (mount instanceof RocketComponent) {
-			flightConfigurationPanel.setSelectedComponent((RocketComponent) mount);
+		List<MotorMount> mounts = getSelectedComponents();
+		if (mounts == null || mounts.size() == 0) return;
+		List<RocketComponent> components = new ArrayList<>();
+		for (MotorMount mount : mounts) {
+			if (mount instanceof RocketComponent) {
+				components.add((RocketComponent) mount);
+			}
 		}
+
+		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
 	protected void updateButtonState() {

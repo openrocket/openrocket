@@ -297,6 +297,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.basicFrame.setSelectedComponent(component);
 	}
 
+	public void setSelectedComponents(List<RocketComponent> components) {
+		this.basicFrame.setSelectedComponents(components);
+	}
+
 	@Override
 	public void stateChanged(EventObject e) {
 		updateButtonState();
