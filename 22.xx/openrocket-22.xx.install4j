@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="9.0.6" transformSequenceNumber="9">
   <directoryPresets config="install4j/22.xx" />
-  <application name="OpenRocket 22.xx" applicationId="8434-9327-1469-6373" mediaDir="media" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="22.xx" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11.0" javaMaxVersion="11.0" jdkMode="jdk" jdkName="JDK 11.0">
+  <application name="OpenRocket 22.xx" applicationId="8434-9327-1469-6373" mediaDir="media" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="22.xx" allPathsRelative="true" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11.0" javaMaxVersion="11.0" jdkMode="jdk" jdkName="JDK 11.0">
     <jreBundles jdkProviderId="AdoptOpenJDK" release="11/jdk-11.0.6+10" />
   </application>
   <files preserveSymlinks="false">
@@ -15,6 +15,7 @@
   <launchers>
     <launcher name="OpenRocket 22.xx" id="59" icnsFile="OpenRocket.icns">
       <executable name="OpenRocket" iconSet="true" executableDir="." executableMode="gui" />
+      <splashScreen show="true" bitmapFile="../../core/resources/pix/splashscreen.png" />
       <java mainClass="net.sf.openrocket.startup.OpenRocket">
         <classPath>
           <archive location="OpenRocket.jar" failOnError="false" />
