@@ -3,6 +3,10 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -27,6 +31,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketvisitors.ListComponents;
 import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -163,51 +168,71 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	 * create simulation for new configuration
 	 */
 	private void addOrCopyConfiguration(boolean copy) {
-		FlightConfiguration newConfig;
-		FlightConfigurationId newId;
+		Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
 
 		// create or copy configuration
 		if (copy) {
-			FlightConfigurationId oldId = this.motorConfigurationPanel.getSelectedConfigurationId();
-			FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
+			List<FlightConfigurationId> oldIds = getSelectedConfigurationIds();
+			if (oldIds == null || oldIds.size() == 0) return;
 
-			newConfig = oldConfig.copy(null);
-			newId = newConfig.getId();
+			for (FlightConfigurationId oldId : oldIds) {
+				final FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
 
-			for (RocketComponent c : rocket) {
-				if (c instanceof FlightConfigurableComponent) {
-					((FlightConfigurableComponent) c).copyFlightConfiguration(oldId, newId);
+				final FlightConfiguration newConfig = oldConfig.copy(null);
+				final FlightConfigurationId newId = newConfig.getId();
+
+				for (RocketComponent c : rocket) {
+					if (c instanceof FlightConfigurableComponent) {
+						((FlightConfigurableComponent) c).copyFlightConfiguration(oldId, newId);
+					}
 				}
+
+				newConfigs.put(newId, newConfig);
 			}
 		} else {
-			newConfig = new FlightConfiguration(rocket, null);
-			newId = newConfig.getId();
-		}
-		
-		// associate configuration with Id and select it
-		rocket.setFlightConfiguration(newId, newConfig);
-		rocket.setSelectedConfiguration(newId);
+			final FlightConfiguration newConfig = new FlightConfiguration(rocket, null);
+			final FlightConfigurationId newId = newConfig.getId();
 
-		// create simulation for configuration
-		Simulation newSim = new Simulation(rocket);
-		
-		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
-        if (doc != null) {
-            newSim.setName(doc.getNextSimulationName());
-            doc.addSimulation(newSim);
-        }
+			newConfigs.put(newId, newConfig);
+		}
+
+		for (FlightConfigurationId newId : newConfigs.keySet()) {
+			// associate configuration with Id and select it
+			rocket.setFlightConfiguration(newId, newConfigs.get(newId));
+
+			// create simulation for configuration
+			Simulation newSim = new Simulation(rocket);
+
+			OpenRocketDocument doc = BasicFrame.findDocument(rocket);
+			if (doc != null) {
+				newSim.setName(doc.getNextSimulationName());
+				doc.addSimulation(newSim);
+			}
+		}
+
+		rocket.setSelectedConfiguration((FlightConfigurationId) newConfigs.keySet().toArray()[0]);
 	}
 	
 	private void renameConfiguration() {
-		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
-		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, currentId).setVisible(true);
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if (fcIds == null) return;
+		FlightConfigurationId initFcId = fcIds.get(0);
+		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId).setVisible(true);
+		String newName = rocket.getFlightConfiguration(initFcId).getName();
+		for (int i = 1; i < fcIds.size(); i++) {
+			rocket.getFlightConfiguration(fcIds.get(i)).setName(newName);
+		}
 	}
 	
 	private void removeConfiguration() {
-		FlightConfigurationId currentId = this.motorConfigurationPanel.getSelectedConfigurationId();
-		if (currentId == null)
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if (fcIds == null || fcIds.size() == 0)
 			return;
-		document.removeFlightConfigurationAndSimulations(currentId);
+
+		for (FlightConfigurationId fcId : fcIds) {
+			document.removeFlightConfigurationAndSimulations(fcId);
+		}
+
 		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
@@ -251,6 +276,19 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			tabs.setSelectedIndex(MOTOR_TAB_INDEX);
 		}
 
+	}
+
+	private List<FlightConfigurationId> getSelectedConfigurationIds() {
+		switch (tabs.getSelectedIndex()) {
+			case MOTOR_TAB_INDEX:
+				return this.motorConfigurationPanel.getSelectedConfigurationIds();
+			case RECOVERY_TAB_INDEX:
+				return this.recoveryConfigurationPanel.getSelectedConfigurationIds();
+			case SEPARATION_TAB_INDEX:
+				return this.separationConfigurationPanel.getSelectedConfigurationIds();
+			default:
+				return null;
+		}
 	}
 	
 	@Override

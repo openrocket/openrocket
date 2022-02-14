@@ -3,6 +3,9 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,6 +20,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,6 +187,27 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return null;
 	}
 
+	protected List<T> getSelectedComponents() {
+		int[] cols = Arrays.stream(table.getSelectedColumns()).map(table::convertRowIndexToModel).toArray();
+		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
+		if (Arrays.stream(cols).min().isEmpty() || Arrays.stream(rows).min().isEmpty() ||
+				Arrays.stream(cols).min().getAsInt() < 0 || Arrays.stream(rows).min().getAsInt() < 0) {
+			return null;
+		}
+		List<T> components = new ArrayList<>();
+		for (int row : rows) {
+			for (int col : cols) {
+				Object tableValue = table.getModel().getValueAt(row, col);
+				if (tableValue instanceof Pair) {
+					@SuppressWarnings("unchecked")
+					Pair<String, T> selectedComponent = (Pair<String, T>) tableValue;
+					components.add(selectedComponent.getV());
+				}
+			}
+		}
+		return components;
+	}
+
 	protected FlightConfigurationId  getSelectedConfigurationId() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
@@ -199,6 +224,31 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			return (FlightConfigurationId) tableValue;
 		}
 		return FlightConfigurationId.ERROR_FCID;
+	}
+
+	protected List<FlightConfigurationId> getSelectedConfigurationIds() {
+		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
+		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
+		if (Arrays.stream(rows).min().isEmpty() || Arrays.stream(rows).min().getAsInt() < 0 || col < 0 ||
+				Arrays.stream(rows).max().getAsInt() >= table.getRowCount() || col >= table.getColumnCount() ) {
+			return null;
+		}
+		Object[] tableValues = Arrays.stream(rows).mapToObj(c -> table.getModel().getValueAt(c, col)).toArray();
+		List<FlightConfigurationId> Ids = new ArrayList<>();
+		for (Object tableValue : tableValues) {
+			if (tableValue instanceof Pair) {
+				@SuppressWarnings("unchecked")
+				Pair<FlightConfigurationId, T> selectedComponent = (Pair<FlightConfigurationId, T>) tableValue;
+				FlightConfigurationId fcid = selectedComponent.getU();
+				Ids.add(fcid);
+			} else if (tableValue instanceof FlightConfigurationId) {
+				Ids.add((FlightConfigurationId) tableValue);
+			} else {
+				Ids.add(FlightConfigurationId.ERROR_FCID);
+			}
+		}
+
+		return Ids;
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
