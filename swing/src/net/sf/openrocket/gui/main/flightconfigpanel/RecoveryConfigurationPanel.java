@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -82,7 +83,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		JTable recoveryTable = new JTable(recoveryTableModel);
 		recoveryTable.getTableHeader().setReorderingAllowed(false);
 		recoveryTable.setCellSelectionEnabled(true);
-		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		recoveryTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		recoveryTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -112,30 +113,74 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	}
 
 	public void selectDeployment() {
-		RecoveryDevice c = getSelectedComponent();
-		FlightConfigurationId fcid = getSelectedConfigurationId();
-		if ((c == null) || (fcid == null)) {
+		List<RecoveryDevice> devices = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((devices == null) || (fcIds == null) || (devices.size() == 0) || fcIds.size() == 0) {
 			return;
 		}
-		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
-		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, c);
+
+		boolean update = false;
+		RecoveryDevice initDevice = devices.get(0);
+		FlightConfigurationId initFcId = fcIds.get(0);
+
+		DeploymentConfiguration initialConfig = initDevice.getDeploymentConfigurations().get(initFcId).copy(initFcId);
+		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initDevice);
 		d.setVisible(true);
-		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+
+		if (!initialConfig.equals(initDevice.getDeploymentConfigurations().get(initFcId))) {
+			update = true;
+		}
+
+		double deployDelay = initDevice.getDeploymentConfigurations().get(initFcId).getDeployDelay();
+		double deployAltitude = initDevice.getDeploymentConfigurations().get(initFcId).getDeployAltitude();
+		DeployEvent deployEvent = initDevice.getDeploymentConfigurations().get(initFcId).getDeployEvent();
+
+		for (int i = 0; i < devices.size(); i++) {
+			for (int j = 0; j < fcIds.size(); j++) {
+				if ((i == 0) && (j == 0)) break;
+
+				final RecoveryDevice device = devices.get(i);
+				final FlightConfigurationId fcId = fcIds.get(j);
+				DeploymentConfiguration config = device.getDeploymentConfigurations().get(fcId).copy(fcId);
+				initialConfig = config.copy(fcId);
+
+				config.setDeployDelay(deployDelay);
+				config.setDeployAltitude(deployAltitude);
+				config.setDeployEvent(deployEvent);
+
+				device.getDeploymentConfigurations().set(fcId, config);
+
+				if (!initialConfig.equals(device.getDeploymentConfigurations().get(fcId))) {
+					update = true;
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 		}
 
 	}
 
 	private void resetDeployment() {
-		RecoveryDevice c = getSelectedComponent();
-		FlightConfigurationId fcid = getSelectedConfigurationId();
-		if ((c == null) || (fcid == null)) {
+		List<RecoveryDevice> devices = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((devices == null) || (fcIds == null) || (devices.size() == 0) || fcIds.size() == 0) {
 			return;
 		}
-		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
-		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		c.getDeploymentConfigurations().reset(id);
-		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+
+		boolean update = false;
+		for (RecoveryDevice device : devices) {
+			for (FlightConfigurationId fcId : fcIds) {
+				DeploymentConfiguration initialConfig = device.getDeploymentConfigurations().get(fcId).copy(fcId);
+				device.getDeploymentConfigurations().reset(fcId);
+
+				if (!initialConfig.equals(device.getDeploymentConfigurations().get(fcId))) {
+					update = true;
+				}
+			}
+		}
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 		}
 	}

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -25,6 +26,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -101,7 +103,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		JTable separationTable = new JTable(separationTableModel);
 		separationTable.getTableHeader().setReorderingAllowed(false);
 		separationTable.setCellSelectionEnabled(true);
-		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		separationTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		separationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -118,32 +120,75 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	}
 
 	public void selectSeparation() {
-		AxialStage stage = getSelectedComponent();
-		FlightConfigurationId fcid = getSelectedConfigurationId();
-		if ((stage == null) || (fcid == null)) {
+		List<AxialStage> stages = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((stages == null) || (fcIds == null) || (stages.size() == 0) || (fcIds.size() == 0)) {
 			return;
 		}
-		StageSeparationConfiguration initialConfig = stage.getSeparationConfigurations().get(fcid).copy(fcid);
-		JDialog d = new SeparationSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, stage);
+
+		boolean update = false;
+		AxialStage initStage = stages.get(0);
+		FlightConfigurationId initFcId = fcIds.get(0);
+
+		StageSeparationConfiguration initialConfig = initStage.getSeparationConfigurations().get(initFcId).copy(initFcId);
+		JDialog d = new SeparationSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initStage);
 		d.setVisible(true);
-		if (!initialConfig.equals(stage.getSeparationConfigurations().get(fcid))) {
+
+		if (!initialConfig.equals(initStage.getSeparationConfigurations().get(initFcId))) {
+			update = true;
+		}
+
+		double separationDelay = initStage.getSeparationConfigurations().get(initFcId).getSeparationDelay();
+		SeparationEvent separationEvent= initStage.getSeparationConfigurations().get(initFcId).getSeparationEvent();
+
+		for (int i = 0; i < stages.size(); i++) {
+			for (int j = 0; j < fcIds.size(); j++) {
+				if ((i == 0) && (j == 0)) break;
+
+				final AxialStage stage = stages.get(i);
+				final FlightConfigurationId fcId = fcIds.get(j);
+				StageSeparationConfiguration config = stage.getSeparationConfigurations().get(fcId);
+				initialConfig = config.copy(fcId);
+
+				if (stage.getSeparationConfigurations().isDefault(config)) {
+					config = config.clone();
+				}
+
+				config.setSeparationDelay(separationDelay);
+				config.setSeparationEvent(separationEvent);
+				stage.getSeparationConfigurations().set(fcId, config);
+
+				if (!initialConfig.equals(config)) {
+					update = true;
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
 		}
 	}
 	
 	private void resetSeparation() {
-		AxialStage stage = getSelectedComponent();
-		FlightConfigurationId fcid = getSelectedConfigurationId();
-		if ((stage == null) || (fcid == null)) {
+		List<AxialStage> stages = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((stages == null) || (fcIds == null) || (stages.size() == 0) || (fcIds.size() == 0)) {
 			return;
 		}
 
-		StageSeparationConfiguration initialConfig = stage.getSeparationConfigurations().get(fcid).copy(fcid);
-		// why? 
-		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		stage.getSeparationConfigurations().reset(id);
+		boolean update = false;
+		for (AxialStage stage : stages) {
+			for (FlightConfigurationId fcId : fcIds) {
+				StageSeparationConfiguration initialConfig = stage.getSeparationConfigurations().get(fcId).copy(fcId);
+				stage.getSeparationConfigurations().reset(fcId);
 
-		if (!initialConfig.equals(stage.getSeparationConfigurations().get(fcid))) {
+				if (!initialConfig.equals(stage.getSeparationConfigurations().get(fcId))) {
+					update = true;
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
 		}
 	}
