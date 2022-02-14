@@ -41,7 +41,8 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
-	
+
+	private final BasicFrame basicFrame;
 	private final JButton newConfButton, renameConfButton, removeConfButton, copyConfButton;
 	
 	private final JTabbedPane tabs;
@@ -53,9 +54,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private final static int RECOVERY_TAB_INDEX = 1;
 	private final static int SEPARATION_TAB_INDEX = 2;
 
-	public FlightConfigurationPanel(OpenRocketDocument doc) {
+	public FlightConfigurationPanel(BasicFrame basicFrame, OpenRocketDocument doc) {
 		super(new MigLayout("fill","[grow][][][][][grow]"));
-		
+
+		this.basicFrame = basicFrame;
 		this.document = doc;
 		this.rocket = doc.getRocket();
 		this.rocket.addChangeListener(this);
@@ -291,6 +293,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		}
 	}
 	
+	public void setSelectedComponent(RocketComponent component) {
+		this.basicFrame.setSelectedComponent(component);
+	}
+
 	@Override
 	public void stateChanged(EventObject e) {
 		updateButtonState();

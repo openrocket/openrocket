@@ -4,6 +4,8 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,12 +24,12 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
@@ -41,6 +43,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 
@@ -204,6 +207,40 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		});
 		
 		return configurationTable;
+	}
+
+	@Override
+	protected void installTableListener() {
+		super.installTableListener();
+
+		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				updateComponentSelection(e);
+			}
+		});
+
+		table.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+
+			}
+		});
+	}
+
+	public void updateComponentSelection(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			return;
+		}
+		MotorMount mount = getSelectedComponent();
+		if (mount instanceof RocketComponent) {
+			flightConfigurationPanel.setSelectedComponent((RocketComponent) mount);
+		}
 	}
 
 	protected void updateButtonState() {
