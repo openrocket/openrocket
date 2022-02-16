@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.EventObject;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -126,6 +127,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
 	private final Invalidator invalidator = new Invalidator(this);
+
+	/**
+	 * List of components that will set their properties to the same as the current component
+	 */
+	protected final List<RocketComponent> configListeners = new LinkedList<>();
 
 
 	/**
@@ -458,6 +464,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		// CHECK - should this be a TEXTURE_CHANGE and not NONFUNCTIONAL_CHANGE?
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setAppearance(appearance);
+		}
 	}
 	
 	/**
@@ -480,6 +490,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		this.color = c;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setColor(c);
+		}
 	}
 	
 	
@@ -494,6 +508,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		this.lineStyle = style;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setLineStyle(style);
+		}
 	}
 	
 	
@@ -523,6 +541,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		overrideMass = Math.max(m, 0);
 		if (massOverridden)
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setOverrideMass(m);
+		}
 	}
 	
 	/**
@@ -548,6 +570,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		massOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setMassOverridden(o);
+		}
 	}
 	
 	
@@ -588,6 +614,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setOverrideCGX(x);
+		}
 	}
 	
 	/**
@@ -612,6 +642,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		cgOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setCGOverridden(o);
+		}
 	}
 
 
@@ -639,6 +673,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setOverrideCD(x);
+		}
 	}
 		
 
@@ -666,6 +704,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		cdOverridden = o;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setCDOverridden(o);
+		}
 	}
 	
 	
@@ -699,6 +741,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		overrideSubcomponents = override;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setOverrideSubcomponents(override);
+		}
 	}
 	
 	/**
@@ -747,6 +793,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		else
 			this.name = name;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setName(name);
+		}
 	}
 	
 	
@@ -775,6 +825,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		else
 			this.comment = comment;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setComment(comment);
+		}
 	}
 	
 	
@@ -845,6 +899,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				rocket.thaw();
 			}
 		}
+
+		for (RocketComponent listener : configListeners) {
+			listener.loadPreset(preset);
+		}
 	}
 	
 	
@@ -876,6 +934,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		presetComponent = null;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.clearPreset();
+		}
 	}
 	
 	
@@ -951,6 +1013,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		// // this doesn't cause any physical change-- just how it's described.
 		// fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			listener.setAxialMethod(newAxialMethod);
+		}
 	}
 
 	/**
@@ -1783,6 +1849,28 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public void fireComponentChangeEvent(int type) {
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
+	}
+
+	/**
+	 * Add a new config listener that will undergo the same configuration changes as this.component. Listener must be
+	 * of the same class as this.component.
+	 * @param listener new config listener
+	 * @return true if listener was successfully added, false if not
+	 */
+	public boolean addConfigListener(RocketComponent listener) {
+		if (listener == null || !this.getClass().equals(listener.getClass())) {
+			return false;
+		}
+		configListeners.add(listener);
+		return true;
+	}
+
+	public void removeConfigListener(RocketComponent listener) {
+		configListeners.remove(listener);
+	}
+
+	public void clearConfigListeners() {
+		configListeners.clear();
 	}
 	
 	

@@ -786,16 +786,40 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent c = selectionModel.getSelectedComponent();
-			if (c == null)
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (!checkAllClassesEqual(components))
 				return;
-			
-			ComponentConfigDialog.showDialog(parentFrame, document, c);
+
+			for (int i = 1; i < components.size(); i++) {
+				components.get(0).addConfigListener(components.get(i));
+			}
+
+			ComponentConfigDialog.showDialog(parentFrame, document, components.get(0));
 		}
 
 		@Override
 		public void clipboardChanged() {
-			this.setEnabled(selectionModel.getSelectedComponent() != null);
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+
+			this.setEnabled(checkAllClassesEqual(components));
+		}
+
+		/**
+		 * Checks whether all components in the list have the same class
+		 * @param components list to check
+		 * @return true if all components are of the same class, false if not
+		 */
+		private boolean checkAllClassesEqual(List<RocketComponent> components) {
+			if (components == null || components.size() == 0) {
+				return false;
+			}
+			Class<? extends RocketComponent> myClass = components.get(0).getClass();
+			for (int i = 1; i < components.size(); i++) {
+				if (!components.get(i).getClass().equals(myClass)) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 

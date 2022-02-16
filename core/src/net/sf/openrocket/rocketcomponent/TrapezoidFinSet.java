@@ -67,6 +67,12 @@ public class TrapezoidFinSet extends FinSet {
 		this.thickness = thickness;
 		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setFinShape(rootChord, tipChord, sweep, height, thickness);
+			}
+		}
 	}
 	
 	public double getRootChord() {
@@ -80,6 +86,12 @@ public class TrapezoidFinSet extends FinSet {
 		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setRootChord(r);
+			}
+		}
 	}
 	
 	public double getTipChord() {
@@ -91,6 +103,12 @@ public class TrapezoidFinSet extends FinSet {
 			return;
 		tipChord = Math.max(r, 0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setTipChord(r);
+			}
+		}
 	}
 	
 	/**
@@ -108,6 +126,12 @@ public class TrapezoidFinSet extends FinSet {
 			return;
 		sweep = r;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setSweep(r);
+			}
+		}
 	}
 	
 	/**
@@ -138,6 +162,12 @@ public class TrapezoidFinSet extends FinSet {
 		if (Double.isNaN(mySweep) || Double.isInfinite(mySweep))
 			return;
 		setSweep(mySweep);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setSweepAngle(r);
+			}
+		}
 	}
 	
 	public double getHeight() {
@@ -149,6 +179,12 @@ public class TrapezoidFinSet extends FinSet {
 			return;
 		height = Math.max(r, 0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setHeight(r);
+			}
+		}
 	}
 	
 	

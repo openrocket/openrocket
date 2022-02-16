@@ -54,6 +54,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.cd = cd;
 		this.cdAutomatic = false;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setCD(cd);
+			}
+		}
 	}
 	
 	
@@ -66,6 +72,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 			return;
 		this.cdAutomatic = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setCDAutomatic(auto);
+			}
+		}
 	}
 	
 	
@@ -83,6 +95,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.material = (Material.Surface) mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setMaterial(mat);
+			}
+		}
 	}
 
 	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {

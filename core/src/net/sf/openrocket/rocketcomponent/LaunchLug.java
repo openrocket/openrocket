@@ -55,6 +55,12 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 		this.thickness = Math.min(this.thickness, this.radius);
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setOuterRadius(radius);
+			}
+		}
 	}
 	
 	@Override
@@ -65,6 +71,12 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	@Override
 	public void setInnerRadius(double innerRadius) {
 		setOuterRadius(innerRadius + thickness);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setInnerRadius(innerRadius);
+			}
+		}
 	}
 	
 	@Override
@@ -78,6 +90,12 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 		this.thickness = MathUtil.clamp(thickness, 0, radius);
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setThickness(thickness);
+			}
+		}
 	}
 	
 	@Override
@@ -92,6 +110,12 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 			return;
 		this.angleOffsetRadians = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setAngleOffset(newAngleRadians);
+			}
+		}
 	}
 	
 	public void setLength(double length) {
@@ -99,6 +123,12 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 			return;
 		this.length = length;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setLength(length);
+			}
+		}
 	}
 	
 	@Override
@@ -243,12 +273,24 @@ public class LaunchLug extends ExternalComponent implements AnglePositionable, B
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		this.instanceSeparation = _separation;
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setInstanceSeparation(_separation);
+			}
+		}
 	}
 	
 	@Override
 	public void setInstanceCount( final int newCount ){
 		if( 0 < newCount ){
 			this.instanceCount = newCount;
+		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof LaunchLug) {
+				((LaunchLug) listener).setInstanceCount(newCount);
+			}
 		}
 	}
 	

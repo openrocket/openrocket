@@ -118,6 +118,12 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		filled = false;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof SymmetricComponent) {
+				((SymmetricComponent) listener).setThickness(thickness);
+			}
+		}
 	}
 	
 	
@@ -144,6 +150,12 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		this.filled = filled;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof SymmetricComponent) {
+				((SymmetricComponent) listener).setFilled(filled);
+			}
+		}
 	}
 	
 	

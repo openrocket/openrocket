@@ -36,6 +36,12 @@ public class Streamer extends RecoveryDevice {
 		this.stripLength = stripLength;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Streamer) {
+				((Streamer) listener).setStripLength(stripLength);
+			}
+		}
 	}
 	
 	public double getStripWidth() {
@@ -49,11 +55,23 @@ public class Streamer extends RecoveryDevice {
 		this.length = stripWidth;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Streamer) {
+				((Streamer) listener).setStripWidth(stripWidth);
+			}
+		}
 	}
 	
 	@Override
 	public void setLength(double length) {
 		setStripWidth(length);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Streamer) {
+				((Streamer) listener).setStripWidth(length);
+			}
+		}
 	}
 	
 	
@@ -72,6 +90,12 @@ public class Streamer extends RecoveryDevice {
 		stripWidth = MathUtil.safeSqrt(area / ratio);
 		stripLength = ratio * stripWidth;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Streamer) {
+				((Streamer) listener).setAspectRatio(ratio);
+			}
+		}
 	}
 	
 	
@@ -88,6 +112,12 @@ public class Streamer extends RecoveryDevice {
 		stripWidth = MathUtil.safeSqrt(area / ratio);
 		stripLength = ratio * stripWidth;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Streamer) {
+				((Streamer) listener).setArea(area);
+			}
+		}
 	}
 	
 	

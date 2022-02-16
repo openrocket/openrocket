@@ -65,6 +65,12 @@ public abstract class ThicknessRingComponent extends RingComponent {
 		clearPreset();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ThicknessRingComponent) {
+				((ThicknessRingComponent) listener).setOuterRadius(r);
+			}
+		}
 	}
 	
 	
@@ -86,6 +92,12 @@ public abstract class ThicknessRingComponent extends RingComponent {
 		clearPreset();
 
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ThicknessRingComponent) {
+				((ThicknessRingComponent) listener).setThickness(thickness);
+			}
+		}
 	}
 
 	
@@ -97,6 +109,12 @@ public abstract class ThicknessRingComponent extends RingComponent {
 	public void setInnerRadius(double r) {
 		r = Math.max(r,0);
 		setThickness(getOuterRadius() - r);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ThicknessRingComponent) {
+				((ThicknessRingComponent) listener).setInnerRadius(r);
+			}
+		}
 	}
 	
 	

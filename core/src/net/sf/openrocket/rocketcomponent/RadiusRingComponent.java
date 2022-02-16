@@ -63,6 +63,12 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setOuterRadius(r);
+			}
+		}
 	}
 
 
@@ -85,6 +91,12 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInnerRadius(r);
+			}
+		}
 	}
 
 
@@ -98,6 +110,12 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 		thickness = MathUtil.clamp(thickness, 0, outer);
 		setInnerRadius(outer - thickness);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setThickness(thickness);
+			}
+		}
 	}
 
 
@@ -109,12 +127,24 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		this.instanceSeparation = _separation;
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInstanceSeparation(_separation);
+			}
+		}
 	}
 	
 	@Override
 	public void setInstanceCount( final int newCount ){
 		if( 0 < newCount ){
 			this.instanceCount = newCount;
+		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInstanceCount(newCount);
+			}
 		}
 	}
 	

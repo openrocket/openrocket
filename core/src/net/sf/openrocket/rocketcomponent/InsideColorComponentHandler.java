@@ -53,6 +53,12 @@ public class InsideColorComponentHandler {
             }
         }
         component.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+        for (RocketComponent listener : component.configListeners) {
+            if (listener instanceof InsideColorComponent) {
+                ((InsideColorComponent) listener).getInsideColorComponentHandler().setInsideAppearance(appearance);
+            }
+        }
     }
 
     /**
@@ -73,6 +79,12 @@ public class InsideColorComponentHandler {
      */
     public void setEdgesSameAsInside(boolean newState) {
         this.edgesSameAsInside = newState;
+
+        for (RocketComponent listener : component.configListeners) {
+            if (listener instanceof InsideColorComponent) {
+                ((InsideColorComponent) listener).getInsideColorComponentHandler().setEdgesSameAsInside(newState);
+            }
+        }
     }
 
     /**
@@ -92,5 +104,17 @@ public class InsideColorComponentHandler {
      */
     public void setSeparateInsideOutside(boolean newState) {
         this.separateInsideOutside = newState;
+
+        for (RocketComponent listener : component.configListeners) {
+            if (listener instanceof InsideColorComponent) {
+                ((InsideColorComponent) listener).getInsideColorComponentHandler().setSeparateInsideOutside(newState);
+            }
+        }
+    }
+
+    public void copyFrom(InsideColorComponentHandler src) {
+        this.insideAppearance = src.insideAppearance;
+        this.separateInsideOutside = src.separateInsideOutside;
+        this.edgesSameAsInside = src.edgesSameAsInside;
     }
 }

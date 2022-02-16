@@ -162,7 +162,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	
 	@Override 
-	public void setInstanceCount( final int newCount ){
+	public void setInstanceCount(int newCount ){
 		mutex.verify();
 		if ( newCount < 1) {
 			// there must be at least one instance....   
@@ -172,6 +172,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
         this.instanceCount = newCount;
         this.angleSeparation = Math.PI * 2 / this.instanceCount;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setInstanceCount(newCount);
+			}
+		}
 	}
 	
 	@Override
@@ -192,7 +198,13 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public void setAngleOffset(double angle_rad) {
 		mutex.verify();
 		this.angleOffset_rad = angle_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);		
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setAngleOffset(angle_rad);
+			}
+		}
 	}
 
 	@Override
@@ -213,6 +225,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			this.radiusOffset_m = radius_m;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadiusOffset(radius_m);
+			}
+		}
 	}
 	
 	@Override
@@ -221,14 +239,20 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
-	public void setRadiusMethod( final RadiusMethod newMethod ) {
+	public void setRadiusMethod(RadiusMethod newMethod ) {
 		mutex.verify();
 		this.radiusMethod = newMethod;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadiusMethod(newMethod);
+			}
+		}
 	}
 	
 	@Override
-	public void setRadius( final RadiusMethod requestMethod, final double requestRadius ) {
+	public void setRadius(RadiusMethod requestMethod, double requestRadius ) {
 		mutex.verify();
 		
 		RadiusMethod newMethod = requestMethod; 
@@ -241,6 +265,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		this.radiusMethod = newMethod;
 		this.radiusOffset_m = newRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadius(requestMethod, requestRadius);
+			}
+		}
 	}
 
 }

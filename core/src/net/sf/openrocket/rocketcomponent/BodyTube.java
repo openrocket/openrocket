@@ -125,6 +125,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 			this.thickness = this.outerRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setOuterRadius(radius);
+			}
+		}
 	}
 	
 	
@@ -146,6 +152,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		autoRadius = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setOuterRadiusAutomatic(auto);
+			}
+		}
 	}
 
 	@Override
@@ -239,6 +251,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public void setInnerRadius(double r) {
 		setThickness(getOuterRadius() - r);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setInnerRadius(r);
+			}
+		}
 	}
 	
 	
@@ -384,9 +402,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		}		
 
 		this.isActingMount=true;
-		
-		// this is done automatically in the motorSet
-		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setMotorConfig(newMotorConfig, fcid);
+			}
+		}
 	}
 	
 	
@@ -411,6 +432,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
     		return;
     	this.isActingMount = _active;
     	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setMotorMount(_active);
+			}
+		}
     }
 
 	@Override
@@ -447,6 +474,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 			return;
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setMotorOverhang(overhang);
+			}
+		}
 	}
 	
 	

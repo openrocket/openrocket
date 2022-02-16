@@ -153,6 +153,12 @@ public class FreeformFinSet extends FinSet {
 	 */
 	public void setPoints(Coordinate[] newPoints) {
 		setPoints(new ArrayList<>(Arrays.asList(newPoints)));
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				((FreeformFinSet) listener).setPoints(newPoints);
+			}
+		}
 	}
 	
 	/**
@@ -192,6 +198,12 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				((FreeformFinSet) listener).setPoints(newPoints);
+			}
+		}
 	}
 
 	/**

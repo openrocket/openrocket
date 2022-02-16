@@ -57,6 +57,12 @@ public abstract class MassObject extends InternalComponent {
 		}
 		this.length = length;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setLength(length);
+			}
+		}
 	}
 	
 	
@@ -72,6 +78,12 @@ public abstract class MassObject extends InternalComponent {
 		}
 		this.radius = radius;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadius(radius);
+			}
+		}
 	}
 	
 	
@@ -89,6 +101,12 @@ public abstract class MassObject extends InternalComponent {
 		shiftY = radialPosition * Math.cos(radialDirection);
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadialPosition(radialPosition);
+			}
+		}
 	}
 	
 	public final double getRadialDirection() {
@@ -104,6 +122,12 @@ public abstract class MassObject extends InternalComponent {
 		shiftY = radialPosition * Math.cos(radialDirection);
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadialDirection(radialDirection);
+			}
+		}
 	}
 	
 	

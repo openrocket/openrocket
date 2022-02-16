@@ -213,6 +213,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	public static void hideDialog() {
 		if (dialog != null) {
 			dialog.setVisible(false);
+			if (dialog.component != null) {
+				dialog.component.clearConfigListeners();
+			}
 		}
 	}
 	

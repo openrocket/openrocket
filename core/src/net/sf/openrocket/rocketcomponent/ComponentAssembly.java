@@ -159,6 +159,12 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 			throw new BugException("Unrecognized subclass of Component Assembly.  Please update this method.");
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ComponentAssembly) {
+				((ComponentAssembly) listener).setAxialMethod(newMethod);
+			}
+		}
 	}
 	
 	@Override

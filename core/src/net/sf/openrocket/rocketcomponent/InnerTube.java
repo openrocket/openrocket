@@ -137,6 +137,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			this.cluster = cluster;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setClusterConfiguration(cluster);
+			}
+		}
 	}
 	
 	public BoundingBox getInstanceBoundingBox(){
@@ -187,6 +193,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			return;
 		clusterScale = scale;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setClusterScale(scale);
+			}
+		}
 	}
 	
 	
@@ -208,6 +220,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			return;
 		this.clusterRotation = rotation;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setClusterRotation(rotation);
+			}
+		}
 	}
 	
 	
@@ -298,8 +316,11 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 
 		this.isActingMount = true;
 
-		// this is done automatically in the motorSet
-		//fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setMotorConfig(newMotorConfig, fcid);
+			}
+		}
 	}
 	
 	@Override
@@ -323,6 +344,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
     		return;
     	this.isActingMount = _active;
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setMotorMount(_active);
+			}
+		}
     }
 
 	@Override
@@ -358,6 +385,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			return;
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setMotorOverhang(overhang);
+			}
+		}
 	}
 	
 	@Override

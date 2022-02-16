@@ -69,6 +69,12 @@ public abstract class BodyComponent extends ExternalComponent {
 			return;
 		this.length = Math.max(length, 0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyComponent) {
+				((BodyComponent) listener).setLength(length);
+			}
+		}
 	}
 	
 	@Override

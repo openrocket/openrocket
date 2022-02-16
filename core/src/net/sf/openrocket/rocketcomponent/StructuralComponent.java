@@ -51,5 +51,11 @@ public abstract class StructuralComponent extends InternalComponent {
 		this.material = mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof StructuralComponent) {
+				((StructuralComponent) listener).setMaterial(mat);
+			}
+		}
 	}
 }

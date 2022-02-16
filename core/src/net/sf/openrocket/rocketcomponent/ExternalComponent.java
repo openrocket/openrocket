@@ -114,6 +114,12 @@ public abstract class ExternalComponent extends RocketComponent {
 		material = mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ExternalComponent) {
+				((ExternalComponent) listener).setMaterial(mat);
+			}
+		}
 	}
 	
 	public Finish getFinish() {
@@ -125,6 +131,12 @@ public abstract class ExternalComponent extends RocketComponent {
 			return;
 		this.finish = finish;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ExternalComponent) {
+				((ExternalComponent) listener).setFinish(finish);
+			}
+		}
 	}
 	
 	

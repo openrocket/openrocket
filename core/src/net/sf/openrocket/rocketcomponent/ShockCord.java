@@ -32,6 +32,12 @@ public class ShockCord extends MassObject {
 			return;
 		this.material = m;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ShockCord) {
+				((ShockCord) listener).setMaterial(m);
+			}
+		}
 	}
 	
 	
@@ -45,6 +51,12 @@ public class ShockCord extends MassObject {
 			return;
 		this.cordLength = length;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ShockCord) {
+				((ShockCord) listener).setCordLength(length);
+			}
+		}
 	}
 	
 	

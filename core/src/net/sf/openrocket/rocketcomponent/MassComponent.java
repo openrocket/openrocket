@@ -64,6 +64,12 @@ public class MassComponent extends MassObject {
 			return;
 		this.mass = mass;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setComponentMass(mass);
+			}
+		}
 	}
 	
 	
@@ -80,6 +86,12 @@ public class MassComponent extends MassObject {
 		if (Double.isNaN(m))
 			m = 0;
 		setComponentMass(m);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setDensity(density);
+			}
+		}
 	}
 	
 	
@@ -107,6 +119,12 @@ public class MassComponent extends MassObject {
 		checkState();
 		this.massComponentType = compType;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setMassComponentType(compType);
+			}
+		}
 	}
 	
 	@Override

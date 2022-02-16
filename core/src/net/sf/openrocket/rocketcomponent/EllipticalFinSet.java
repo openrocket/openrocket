@@ -64,6 +64,12 @@ public class EllipticalFinSet extends FinSet {
 			return;
 		this.height = height;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof EllipticalFinSet) {
+				((EllipticalFinSet) listener).setHeight(height);
+			}
+		}
 	}
 	
 	
@@ -73,6 +79,12 @@ public class EllipticalFinSet extends FinSet {
 		this.length = length;
 		validateFinTabLength();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof EllipticalFinSet) {
+				((EllipticalFinSet) listener).setLength(length);
+			}
+		}
 	}
 	
 

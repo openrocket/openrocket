@@ -151,31 +151,61 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	}
 	
 	
-	public void setStandoff( final double newStandoff){
+	public void setStandoff(double newStandoff){
 		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setStandoff(newStandoff);
+			}
+		}
 	}
 
-	public void setInnerDiameter( final double newID ){
+	public void setInnerDiameter(double newID ){
 		this.innerDiameter_m = newID;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setInnerDiameter(newID);
+			}
+		}
 	}
 
 
-	public void setOuterDiameter( final double newOD ){
+	public void setOuterDiameter(double newOD ){
 		this.outerDiameter_m = newOD;
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setOuterDiameter(newOD);
+			}
+		}
 	}
 
-	public void setTotalHeight( final double newHeight ) {
+	public void setTotalHeight(double newHeight ) {
 		this.totalHeight_m = newHeight;
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setTotalHeight(newHeight);
+			}
+		}
 	}
 	
-	public void setThickness( final double newThickness ) {
+	public void setThickness(double newThickness ) {
 		this.flangeHeight_m = newThickness;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setThickness(newThickness);
+			}
+		}
 	}
 	
 	@Override
@@ -201,13 +231,19 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	
 	@Override
-	public void setAngleOffset(final double angle_rad){
+	public void setAngleOffset(double angle_rad){
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
 		
 		if (MathUtil.equals(this.angle_rad, clamped_rad))
 			return;
 		this.angle_rad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setAngleOffset(angle_rad);
+			}
+		}
 	}
 	
 	
@@ -282,17 +318,29 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	}
 	
 	@Override
-	public void setInstanceSeparation(final double _separation){
+	public void setInstanceSeparation(double _separation){
 		this.instanceSeparation = _separation;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setInstanceSeparation(_separation);
+			}
+		}
 	}
 	
 	@Override
-	public void setInstanceCount( final int newCount ){
+	public void setInstanceCount(int newCount ){
 		if( 0 < newCount ){
 			this.instanceCount = newCount;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setInstanceCount(newCount);
+			}
+		}
 	}
 	
 	@Override
