@@ -5,6 +5,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -181,6 +184,14 @@ public class RocketActions {
 		return true;
 	}
 
+	private boolean isDeletable(List<RocketComponent> components) {
+		if (components == null || components.size() == 0) return false;
+		for (RocketComponent component : components) {
+			if (!isDeletable(component)) return false;
+		}
+		return true;
+	}
+
 	private void delete(RocketComponent c) {
 		if (!isDeletable(c)) {
 			throw new IllegalArgumentException("Report bug!  Component " + c + 
@@ -191,12 +202,135 @@ public class RocketActions {
 		parent.removeChild(c);
 	}
 
+	private void delete(List<RocketComponent> components) {
+		if (!isDeletable(components)) {
+			throw new IllegalArgumentException("Report bug!  Components not deletable.");
+		}
+
+		for (RocketComponent component : components) {
+			delete(component);
+		}
+	}
+
 	private boolean isCopyable(RocketComponent c) {
 		if (c==null)
 			return false;
 		if (c instanceof Rocket)
 			return false;
 		return true;
+	}
+
+	private boolean isCopyable(List<RocketComponent> components) {
+		if (components == null || components.size() == 0) return false;
+		for (RocketComponent component : components) {
+			if (!isCopyable(component)) return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Copies components, but with maintaining parent-relations with the newly copied components
+	 * @param components components to copy
+	 * @return copied components
+	 */
+	public static List<RocketComponent> copyComponentsMaintainParent(List<RocketComponent> components) {
+		if (components == null) return null;
+		List<RocketComponent> result = new LinkedList<>();
+		for (RocketComponent component : components) {
+			result.add(component.copy());
+		}
+
+		for (int i = 0; i < components.size(); i++) {
+			if (components.contains(components.get(i).getParent())) {
+				RocketComponent oldChild = components.get(i);
+				RocketComponent oldParent = oldChild.getParent();
+
+				int index = components.indexOf(oldParent);
+				int childPos = oldParent.getChildPosition(oldChild);
+
+				RocketComponent newChild = result.get(i);
+				RocketComponent newParent = result.get(index);
+
+				// Add the newly copied child to the parent
+				newParent.addChild(newChild, childPos);
+
+				// Remove the old child from the parent
+				newParent.removeChild(oldChild);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Iteratively checks whether the list of components contains the parent or super-parent (parent of parent of parent of...)
+	 * of component.
+	 * @param components list of components that may contain the parent
+	 * @param component component to check the parent for
+	 * @return true if the list contains the parent, false if not
+	 */
+	public static boolean listContainsParent(List<RocketComponent> components, RocketComponent component) {
+		RocketComponent c = component;
+		while (c.getParent() != null) {
+			if (components.contains(c.getParent())) {
+				return true;
+			}
+			c = c.getParent();
+		}
+		return false;
+	}
+
+	/**
+	 * If the children of a parent are not selected, add them to the selection. Do this recursively for the children
+	 * of the children as well.
+	 * @param selections list of currently selected components
+	 * @param parent parent component to parse the children of
+	 */
+	private void selectAllUnselectedInParent(List<RocketComponent> selections, RocketComponent parent) {
+		if (parent.getChildCount() == 0) return;
+
+		boolean noChildrenSelected = true;
+		for (RocketComponent child : parent.getChildren()) {
+			if (selections.contains(child)) {
+				noChildrenSelected = false;
+				break;
+			}
+		}
+
+		// Add children to selection if none of them were selected
+		if (noChildrenSelected) {
+			selections.addAll(parent.getChildren());
+		}
+
+		// Recursively select all unselected children. Unselected children will not undergo this recursive updating.
+		for (RocketComponent child : parent.getChildren()) {
+			if (!noChildrenSelected && selections.contains(child)) {
+				selectAllUnselectedInParent(selections, child);
+			}
+		}
+	}
+
+	/**
+	 * This method fills in some selections in selections. If there is a parent where none of its children are selected,
+	 * add all the children to the selection. If there is a component whose parent is not selected, but it does have
+	 * a super-parent in the selection, add the parent to the selection.
+	 * @param selections component selections to be filled up
+	 */
+	private void fillInMissingSelections(List<RocketComponent> selections) {
+		List<RocketComponent> initSelections = new LinkedList<>(selections);
+		for (RocketComponent component : initSelections) {
+			selectAllUnselectedInParent(selections, component);
+
+			// If there is a component in the selection, but its parent (or the parent of the parent) is still
+			// not selected, add it to the selection
+			RocketComponent temp = component;
+			if (listContainsParent(selections, temp) && !selections.contains(temp.getParent())) {
+				while (!selections.contains(temp.getParent())) {
+					selections.add(temp.getParent());
+					temp = temp.getParent();
+				}
+			}
+		}
 	}
 
 	
@@ -269,8 +403,26 @@ public class RocketActions {
 
 		return null;
 	}
-	
-	
+
+	/**
+	 * Return the component and position to which the current clipboard
+	 * should be pasted.  Returns null if the clipboard is empty or if the
+	 * clipboard cannot be pasted to the current selection.
+	 *
+	 * @param   clipboard	the component on the clipboard.
+	 * @return  a Pair with both components defined, or null.
+	 */
+	private List<Pair<RocketComponent, Integer>> getPastePositions(List<RocketComponent> clipboard) {
+		List<Pair<RocketComponent, Integer>> result = new LinkedList<>();
+		for (RocketComponent component : clipboard) {
+			Pair<RocketComponent, Integer> position = getPastePosition(component);
+			if (position != null) {
+				result.add(position);
+			}
+		}
+		return result;
+	}
+
 	
 	
 
@@ -306,15 +458,30 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent c = selectionModel.getSelectedComponent();
+			List<RocketComponent> components = new ArrayList<>(selectionModel.getSelectedComponents());
+			if (components.size() == 0) return;
+			components.sort(Comparator.comparing(c -> c.getParent().getChildPosition(c)));
 
-			if (isDeletable(c)) {
+			if (components.size() == 1) {
+				document.addUndoPosition("Delete " + components.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Delete components");
+			}
+
+			for (RocketComponent component : components) {
+				deleteComponent(component);
+			}
+		}
+
+		private void deleteComponent(RocketComponent component) {
+			if (isDeletable(component)) {
 				ComponentConfigDialog.hideDialog();
 
-				c.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
+				try {
+					component.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
 
-				document.addUndoPosition("Delete " + c.getComponentName());
-				delete(c);
+					delete(component);
+				} catch (IllegalStateException ignored) { }
 			}
 		}
 
@@ -419,15 +586,28 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent c = selectionModel.getSelectedComponent();
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components != null) {
+				components = new ArrayList<>(components);
+				fillInMissingSelections(components);
+
+				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if (isDeletable(c) && isCopyable(c)) {
+			if (isDeletable(components) && isCopyable(components)) {
 				ComponentConfigDialog.hideDialog();
-				
-				document.addUndoPosition("Cut " + c.getComponentName());
-				OpenRocketClipboard.setClipboard(c.copy());
-				delete(c);
+
+				if (components.size() == 1) {
+					document.addUndoPosition("Cut " + components.get(0).getComponentName());
+				} else {
+					document.addUndoPosition("Cut components");
+				}
+
+				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+
+				OpenRocketClipboard.setClipboard(copiedComponents);
+				delete(components);
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
 			} else if (isSimulationSelected()) {
 
@@ -446,8 +626,8 @@ public class RocketActions {
 
 		@Override
 		public void clipboardChanged() {
-			RocketComponent c = selectionModel.getSelectedComponent();
-			this.setEnabled((isDeletable(c) && isCopyable(c)) || isSimulationSelected());
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled((isDeletable(components) && isCopyable(components)) || isSimulationSelected());
 		}
 	}
 
@@ -472,13 +652,21 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent c = selectionModel.getSelectedComponent();
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components != null) {
+				components = new ArrayList<>(components);
+				fillInMissingSelections(components);
+
+				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if (isCopyable(c)) {
-				OpenRocketClipboard.setClipboard(c.copy());
+			if (isCopyable(components)) {
+				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+
+				OpenRocketClipboard.setClipboard(copiedComponents);
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
-			} else if (sims.length >= 0) {
+			} else if (sims.length > 0) {
 
 				Simulation[] simsCopy = new Simulation[sims.length];
 				for (int i=0; i < sims.length; i++) {
@@ -520,17 +708,33 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent clipboard = OpenRocketClipboard.getClipboardComponent();
+			List<RocketComponent> components = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
 			Simulation[] sims = OpenRocketClipboard.getClipboardSimulations();
-			
-			Pair<RocketComponent, Integer> position = getPastePosition(clipboard);
-			if (position != null) {
+
+			if (components.size() > 0) {
 				ComponentConfigDialog.hideDialog();
 				
-				RocketComponent pasted = clipboard.copy();
-				document.addUndoPosition("Paste " + pasted.getComponentName());
-				position.getU().addChild(pasted, position.getV());
-				selectionModel.setSelectedComponent(pasted);
+				List<RocketComponent> pasted = new LinkedList<>();
+				for (RocketComponent component : components) {
+					pasted.add(component.copy());
+				}
+
+				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
+				for (RocketComponent component : pasted) {
+					positions.add(getPastePosition(component));
+				}
+
+				if (pasted.size() == 1) {
+					document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
+				} else {
+					document.addUndoPosition("Paste components");
+				}
+
+				for (int i = 0; i < pasted.size(); i++) {
+					positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
+				}
+
+				selectionModel.setSelectedComponents(pasted);
 				
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
 				
@@ -556,7 +760,7 @@ public class RocketActions {
 		@Override
 		public void clipboardChanged() {
 			this.setEnabled(
-					(getPastePosition(OpenRocketClipboard.getClipboardComponent()) != null) ||
+					(getPastePositions(OpenRocketClipboard.getClipboardComponents()).size() > 0) ||
 					(OpenRocketClipboard.getClipboardSimulations() != null));
 		}
 	}
@@ -656,22 +860,40 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent selected = selectionModel.getSelectedComponent();
-			if (!canMove(selected))
+			List<RocketComponent> components =  selectionModel.getSelectedComponents();
+			if (components == null || components.size() == 0) return;
+			components = new ArrayList<>(components);
+			components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
+
+			if (components.size() == 1) {
+				document.addUndoPosition("Move " + components.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Move components");
+			}
+
+			for (RocketComponent component : components) {
+				// Only move top components, don't move its children
+				if (!listContainsParent(components, component)) {
+					moveUp(component);
+				}
+			}
+			rocket.fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+			selectionModel.setSelectedComponents(components);
+		}
+
+		private void moveUp(RocketComponent component) {
+			if (!canMove(component))
 				return;
-			
+
 			ComponentConfigDialog.hideDialog();
 
-			RocketComponent parent = selected.getParent();
-			document.addUndoPosition("Move "+selected.getComponentName());
-			parent.moveChild(selected, parent.getChildPosition(selected)-1);
-			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
-			selectionModel.setSelectedComponent(selected);
+			RocketComponent parent = component.getParent();
+			parent.moveChild(component, parent.getChildPosition(component) - 1);
 		}
 
 		@Override
 		public void clipboardChanged() {
-			this.setEnabled(canMove(selectionModel.getSelectedComponent()));
+			this.setEnabled(canMove(selectionModel.getSelectedComponents()));
 		}
 		
 		private boolean canMove(RocketComponent c) {
@@ -681,6 +903,17 @@ public class RocketActions {
 			if (parent.getChildPosition(c) > 0)
 				return true;
 			return false;
+		}
+
+		private boolean canMove(List<RocketComponent> components) {
+			if (components == null || components.size() == 0)
+				return false;
+
+			for (RocketComponent component : components) {
+				if (!listContainsParent(components, component) && !canMove(component))
+					return false;
+			}
+			return true;
 		}
 	}
 
@@ -702,22 +935,40 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			RocketComponent selected = selectionModel.getSelectedComponent();
-			if (!canMove(selected))
+			List<RocketComponent> components =  selectionModel.getSelectedComponents();
+			if (components == null || components.size() == 0) return;
+			components = new ArrayList<>(components);
+			components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+
+			if (components.size() == 1) {
+				document.addUndoPosition("Move " + components.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Move components");
+			}
+
+			for (RocketComponent component : components) {
+				// Only move top components, don't move its children
+				if (!listContainsParent(components, component)) {
+					moveDown(component);
+				}
+			}
+			rocket.fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+			selectionModel.setSelectedComponents(components);
+		}
+
+		private void moveDown(RocketComponent component) {
+			if (!canMove(component))
 				return;
-			
+
 			ComponentConfigDialog.hideDialog();
 
-			RocketComponent parent = selected.getParent();
-			document.addUndoPosition("Move "+selected.getComponentName());
-			parent.moveChild(selected, parent.getChildPosition(selected)+1);
-			rocket.fireComponentChangeEvent( ComponentChangeEvent.TREE_CHANGE );
-			selectionModel.setSelectedComponent(selected);
+			RocketComponent parent = component.getParent();
+			parent.moveChild(component, parent.getChildPosition(component) + 1);
 		}
 
 		@Override
 		public void clipboardChanged() {
-			this.setEnabled(canMove(selectionModel.getSelectedComponent()));
+			this.setEnabled(canMove(selectionModel.getSelectedComponents()));
 		}
 		
 		private boolean canMove(RocketComponent c) {
@@ -727,6 +978,17 @@ public class RocketActions {
 			if (parent.getChildPosition(c) < parent.getChildCount()-1)
 				return true;
 			return false;
+		}
+
+		private boolean canMove(List<RocketComponent> components) {
+			if (components == null || components.size() == 0)
+				return false;
+
+			for (RocketComponent component : components) {
+				if (!listContainsParent(components, component) && !canMove(component))
+					return false;
+			}
+			return true;
 		}
 	}
 

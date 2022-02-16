@@ -181,7 +181,7 @@ public class BasicFrame extends JFrame {
 
 		// Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
-		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		componentSelectionModel.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
 		// Obtain the simulation selection model that will be used
 		simulationPanel = new SimulationPanel(document);
