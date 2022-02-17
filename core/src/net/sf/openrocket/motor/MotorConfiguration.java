@@ -226,6 +226,16 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
         return clone;
     }
 
+	public void copyFrom(MotorConfiguration configuration) {
+		if (configuration == null) return;
+
+		this.motor = configuration.motor;
+		this.ejectionDelay = configuration.ejectionDelay;
+		this.ignitionOveride = configuration.ignitionOveride;
+		this.ignitionDelay = configuration.ignitionDelay;
+		this.ignitionEvent = configuration.ignitionEvent;
+	}
+
 
 
     public int getModID() {

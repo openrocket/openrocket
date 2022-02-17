@@ -1872,6 +1872,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public void clearConfigListeners() {
 		configListeners.clear();
 	}
+
+	public List<RocketComponent> getConfigListeners() {
+		return configListeners;
+	}
 	
 	
 	/**

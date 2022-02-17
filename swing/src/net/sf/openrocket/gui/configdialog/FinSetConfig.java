@@ -85,7 +85,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 							document.addUndoPosition(trans.get("FinSetConfig.Convertfinset"));
 							RocketComponent freeform =
 									FreeformFinSet.convertFinSet((FinSet) component);
-							ComponentConfigDialog.showDialog(freeform);
+
+							List<RocketComponent> listeners = new ArrayList<>();
+							for (RocketComponent listener : component.getConfigListeners()) {
+								if (listener instanceof FinSet) {
+									listeners.add(FreeformFinSet.convertFinSet((FinSet) listener));
+								}
+							}
+
+							ComponentConfigDialog.showDialog(freeform, listeners);
 						}
 					});
 					

@@ -390,7 +390,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	}
 
 	@Override 
-	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
+	public void setMotorConfig(MotorConfiguration newMotorConfig, FlightConfigurationId fcid){
 		if(null == newMotorConfig){
 			this.motors.set( fcid, null);
 		}else{
@@ -405,7 +405,11 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof BodyTube) {
-				((BodyTube) listener).setMotorConfig(newMotorConfig, fcid);
+				if (newMotorConfig != null) {
+					BodyTube tube = (BodyTube) listener;
+					MotorConfiguration config = tube.getMotorConfig(fcid);
+					config.copyFrom(newMotorConfig);
+				}
 			}
 		}
 	}
