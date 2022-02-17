@@ -407,6 +407,24 @@ public class BasicFrame extends JFrame {
 		return (RocketComponent) path.getLastPathComponent();
 	}
 
+	/**
+	 * Return the currently selected rocket component, or <code>null</code> if none selected.
+	 */
+	private List<RocketComponent> getSelectedComponents() {
+		TreePath[] paths = componentSelectionModel.getSelectionPaths();
+		if (paths == null || paths.length == 0)
+			return null;
+
+		List<RocketComponent> result = new LinkedList<>();
+		for (TreePath path : paths) {
+			tree.scrollPathToVisible(path);
+			RocketComponent component = (RocketComponent) path.getLastPathComponent();
+			result.add(component);
+		}
+
+		return result;
+	}
+
 
 	/**
 	 * Creates the menu for the window.
@@ -651,7 +669,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Scale... selected");
-				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponent(), BasicFrame.this);
+				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponents(), BasicFrame.this);
 				dialog.setVisible(true);
 				dialog.dispose();
 			}

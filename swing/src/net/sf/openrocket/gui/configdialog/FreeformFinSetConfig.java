@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -241,7 +242,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Scaling free-form fin");
-				ScaleDialog dialog = new ScaleDialog(document, finset, SwingUtilities.getWindowAncestor(FreeformFinSetConfig.this), true);
+				ScaleDialog dialog = new ScaleDialog(document, new ArrayList<>(List.of(finset)), SwingUtilities.getWindowAncestor(FreeformFinSetConfig.this), true);
 				dialog.setVisible(true);
 				dialog.dispose();
 			}

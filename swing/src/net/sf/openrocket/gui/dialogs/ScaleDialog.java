@@ -3,7 +3,10 @@ package net.sf.openrocket.gui.dialogs;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,22 +197,23 @@ public class ScaleDialog extends JDialog {
 	private final DoubleModel toField = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
 	
 	private final OpenRocketDocument document;
-	private final RocketComponent selection;
+	private final List<RocketComponent> selection;
 	private final boolean onlySelection;
 	
 	private JComboBox<String> selectionOption;
 	private JCheckBox scaleMassValues;
+	private JCheckBox scaleOffsets;
 	
 	private boolean changing = false;
-	
+
 	/**
 	 * Sole constructor.
 	 * 
 	 * @param document		the document to modify.
-	 * @param selection		the currently selected component (or <code>null</code> if none selected).
+	 * @param selection		the currently selected componentents (or <code>null</code> if none selected).
 	 * @param parent		the parent window.
 	 */
-	public ScaleDialog(OpenRocketDocument document, RocketComponent selection, Window parent) {
+	public ScaleDialog(OpenRocketDocument document, List<RocketComponent> selection, Window parent) {
 		this(document, selection, parent, false);
 	}
 	
@@ -221,7 +225,7 @@ public class ScaleDialog extends JDialog {
 	 * @param parent		the parent window.
 	 * @param onlySelection	true to only allow scaling on the selected component (not the whole rocket)
 	 */
-	public ScaleDialog(OpenRocketDocument document, RocketComponent selection, Window parent, Boolean onlySelection) {
+	public ScaleDialog(OpenRocketDocument document, List<RocketComponent> selection, Window parent, Boolean onlySelection) {
 		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 		this.document = document;
@@ -236,10 +240,21 @@ public class ScaleDialog extends JDialog {
 		List<String> options = new ArrayList<String>();
 		if (!onlySelection)
 			options.add(SCALE_ROCKET);
-		if (selection != null && selection.getChildCount() > 0) {
+
+		boolean subPartsPresent = false;
+		if (selection != null) {
+			for (RocketComponent component : selection) {
+				if (component.getChildCount() > 0) {
+					subPartsPresent = true;
+					break;
+				}
+			}
+		}
+		if (selection != null && subPartsPresent) {
 			options.add(SCALE_SUBSELECTION);
 		}
-		if (selection != null) {
+
+		if (selection != null && selection.size() > 0) {
 			options.add(SCALE_SELECTION);
 		}
 		
@@ -251,15 +266,16 @@ public class ScaleDialog extends JDialog {
 		 * Otherwise the maximum body diameter is selected.  As a fallback DEFAULT_INITIAL_SIZE is used.
 		 */
 		double initialSize = 0;
-		if (selection != null) {
-			if (selection instanceof SymmetricComponent) {
-				SymmetricComponent s = (SymmetricComponent) selection;
+		if (selection != null && selection.size() == 1) {
+			RocketComponent component = selection.get(0);
+			if (component instanceof SymmetricComponent) {
+				SymmetricComponent s = (SymmetricComponent) component;
 				initialSize = s.getForeRadius() * 2;
 				initialSize = MathUtil.max(initialSize, s.getAftRadius() * 2);
-			}else if ((selection instanceof ParallelStage) || (selection instanceof PodSet )) {
-				initialSize = selection.getRadiusOffset();
+			}else if ((component instanceof ParallelStage) || (component instanceof PodSet )) {
+				initialSize = component.getRadiusOffset();
 			} else {
-				initialSize = selection.getLength();
+				initialSize = component.getLength();
 			}
 		} else {
 			for (RocketComponent c : document.getRocket()) {
@@ -267,8 +283,6 @@ public class ScaleDialog extends JDialog {
 					SymmetricComponent s = (SymmetricComponent) c;
 					initialSize = s.getForeRadius() * 2;
 					initialSize = MathUtil.max(initialSize, s.getAftRadius() * 2);
-				} else if ((selection instanceof ParallelStage) || (selection instanceof PodSet )) {
-					initialSize = selection.getRadiusOffset();
 				}
 			}
 		}
@@ -330,6 +344,18 @@ public class ScaleDialog extends JDialog {
 		selectionOption.setEditable(false);
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
+
+		// Change the offset checkbox to false when 'Scale selection' is selection and only one component is selected,
+		// since this is a common action.
+		selectionOption.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (SCALE_SELECTION.equals(selectionOption.getSelectedItem()) && (selection != null) &&
+						(selection.size() == 1) && (scaleOffsets != null)) {
+					scaleOffsets.setSelected(false);
+				}
+			}
+		});
 		
 		
 		// Scale multiplier
@@ -393,7 +419,13 @@ public class ScaleDialog extends JDialog {
 			}
 		}
 		scaleMassValues.setEnabled(overridden);
-		panel.add(scaleMassValues, "span, wrap para*3");
+		panel.add(scaleMassValues, "span, wrap");
+
+		// Scale offsets
+		scaleOffsets = new JCheckBox(trans.get("checkbox.scaleOffsets"));
+		scaleOffsets.setToolTipText(trans.get("checkbox.scaleOffsets.ttip"));
+		scaleOffsets.setSelected(true);
+		panel.add(scaleOffsets, "span, wrap para*3");
 		
 		
 		// Scale / Accept Buttons
@@ -455,7 +487,7 @@ public class ScaleDialog extends JDialog {
 			try {
 				document.startUndo(trans.get("undo.scaleRocket"));
 				for (RocketComponent c : document.getRocket()) {
-					scale(c, mul, scaleMass, true);
+					scale(c, mul, scaleMass, scaleOffsets.isSelected());
 				}
 			} finally {
 				document.stopUndo();
@@ -466,9 +498,17 @@ public class ScaleDialog extends JDialog {
 			// Scale component and subcomponents
 			try {
 				document.startUndo(trans.get("undo.scaleComponents"));
-				scale(selection, mul, scaleMass, false);
-				for (RocketComponent c : selection.getChildren()) {
-					scale(c, mul, scaleMass, true);
+
+				// Keep track of which components are already scaled so that we don't scale children multiple times (if
+				// they were also part of selection)
+				List<RocketComponent> scaledComponents = new ArrayList<>();
+				for (RocketComponent component : selection) {
+					scale(component, mul, scaleMass, scaleOffsets.isSelected());
+					scaledComponents.add(component);
+
+					if (component.getChildCount() > 0) {
+						scaleChildren(component, scaledComponents, mul, scaleMass);
+					}
 				}
 			} finally {
 				document.stopUndo();
@@ -476,10 +516,13 @@ public class ScaleDialog extends JDialog {
 			
 		} else if (SCALE_SELECTION.equals(item)) {
 			
-			// Scale only the selected component
+			// Scale only the selected components
 			try {
 				document.startUndo(trans.get("undo.scaleComponent"));
-				scale(selection, mul, scaleMass, false);
+
+				for (RocketComponent component : selection) {
+					scale(component, mul, scaleMass, scaleOffsets.isSelected());
+				}
 			} finally {
 				document.stopUndo();
 			}
@@ -517,6 +560,22 @@ public class ScaleDialog extends JDialog {
 			}
 			
 			clazz = clazz.getSuperclass();
+		}
+	}
+
+	/**
+	 * Iteratively scale the children of component. If one of the children was already present in scaledComponents,
+	 * don't scale it.
+	 * @param component component whose children need to be scaled
+	 * @param scaledComponents list of components that were already scaled
+	 */
+	private void scaleChildren(RocketComponent component, List<RocketComponent> scaledComponents, double mul, boolean scaleMass) {
+		for (RocketComponent child : component.getChildren()) {
+			if (!scaledComponents.contains(component)) {
+				scale(child, mul, scaleMass, scaleOffsets.isSelected());
+				scaledComponents.add(child);
+				scaleChildren(child, scaledComponents, mul, scaleMass);
+			}
 		}
 	}
 	
