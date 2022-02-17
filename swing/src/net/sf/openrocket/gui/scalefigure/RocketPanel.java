@@ -535,11 +535,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// If the shift-button is held, add a newly clicked component to the selection path
 		if ((event.isShiftDown() || event.isMetaDown()) && event.getClickCount() == 1) {
 			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-			for (RocketComponent component : clicked) {
-				if (!selectedComponents.contains(component)) {
-					TreePath path = ComponentTreeModel.makeTreePath(component);
+			for (int i = 0; i < clicked.length; i++) {
+				if (!selectedComponents.contains(clicked[i])) {
+					TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
 					paths.add(path);
 					break;
+				}
+				// If all the clicked components are already in the selection, then deselect an object
+				if (i == clicked.length - 1) {
+					paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
 				}
 			}
 			selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
