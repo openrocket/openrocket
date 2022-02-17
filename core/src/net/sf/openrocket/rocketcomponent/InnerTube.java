@@ -432,6 +432,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 */
 	public static InnerTube makeIndividualClusterComponent(Coordinate coord, String splitName, RocketComponent theInnerTube) {
 		InnerTube copy = (InnerTube) theInnerTube.copy();
+		copy.clearConfigListeners();
 		copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
 		copy.setClusterRotation(0.0);
 		copy.setClusterScale(1.0);
