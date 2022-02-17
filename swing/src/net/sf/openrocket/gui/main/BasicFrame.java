@@ -335,16 +335,26 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				// Scroll tree to the selected item
-				TreePath path = componentSelectionModel.getSelectionPath();
-				if (path == null)
+				TreePath[] paths = componentSelectionModel.getSelectionPaths();
+				if (paths == null || paths.length == 0)
 					return;
-				tree.scrollPathToVisible(path);
+
+				for (TreePath path : paths) {
+					tree.scrollPathToVisible(path);
+				}
 
 				if (!ComponentConfigDialog.isDialogVisible())
 					return;
-				RocketComponent c = (RocketComponent) path.getLastPathComponent();
+				RocketComponent c = (RocketComponent) paths[0].getLastPathComponent();
+				List<RocketComponent> listeners = new ArrayList<>();
+				for (int i = 1; i < paths.length; i++) {
+					RocketComponent listener = (RocketComponent) paths[i].getLastPathComponent();
+					if (listener.getClass().equals(c.getClass())) {
+						listeners.add((RocketComponent) paths[i].getLastPathComponent());
+					}
+				}
 				ComponentConfigDialog.showDialog(BasicFrame.this,
-						BasicFrame.this.document, c);
+						BasicFrame.this.document, c, listeners);
 			}
 		});
 

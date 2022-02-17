@@ -790,11 +790,15 @@ public class RocketActions {
 			if (!checkAllClassesEqual(components))
 				return;
 
-			for (int i = 1; i < components.size(); i++) {
-				components.get(0).addConfigListener(components.get(i));
-			}
+			// Do nothing if the config dialog is already visible
+			if (ComponentConfigDialog.isDialogVisible())
+				return;
 
-			ComponentConfigDialog.showDialog(parentFrame, document, components.get(0));
+			List<RocketComponent> listeners = null;
+			if (components.size() > 1) {
+				listeners = components.subList(1, components.size());
+			}
+			ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
 		}
 
 		@Override

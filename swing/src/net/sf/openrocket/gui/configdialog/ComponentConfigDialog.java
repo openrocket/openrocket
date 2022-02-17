@@ -6,6 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.swing.JDialog;
 
@@ -42,7 +43,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
 	
-	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
+	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component,
+								  List<RocketComponent> listeners) {
 		super(parent);
 		this.parent = parent;
 		
@@ -61,9 +63,22 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				configurator.invalidate();
 				document.getRocket().removeComponentChangeListener(ComponentConfigDialog.this);
 				ComponentConfigDialog.this.dispose();
+				component.clearConfigListeners();
 			}
 			
 			public void windowClosing(WindowEvent e){}
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+				super.windowOpened(e);
+				// Add config listeners
+				component.clearConfigListeners();
+				if (listeners != null) {
+					for (RocketComponent listener : listeners) {
+						component.addConfigListener(listener);
+					}
+				}
+			}
 		});
 	}
 	
@@ -188,23 +203,41 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * 
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
+	 * @param listeners		config listeners for the component
 	 */
 	public static void showDialog(Window parent, OpenRocketDocument document,
-			RocketComponent component) {
+			RocketComponent component, List<RocketComponent> listeners) {
 		if (dialog != null)
 			dialog.dispose();
-		
-		dialog = new ComponentConfigDialog(parent, document, component);
+
+		dialog = new ComponentConfigDialog(parent, document, component, listeners);
 		dialog.setVisible(true);
 		
 		////Modify
 		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 	}
+
+	/**
+	 * A singleton configuration dialog.  Will create and show a new dialog if one has not
+	 * previously been used, or update the dialog and show it if a previous one exists.
+	 *
+	 * @param document		the document to configure.
+	 * @param component		the component to configure.
+	 */
+	public static void showDialog(Window parent, OpenRocketDocument document,
+								  RocketComponent component) {
+		ComponentConfigDialog.showDialog(parent, document, component, null);
+	}
 	
 	
 	/* package */
+	static void showDialog(RocketComponent component, List<RocketComponent> listeners) {
+		showDialog(dialog.parent, dialog.document, component, listeners);
+	}
+
+	/* package */
 	static void showDialog(RocketComponent component) {
-		showDialog(dialog.parent, dialog.document, component);
+		ComponentConfigDialog.showDialog(component, null);
 	}
 	
 	/**
@@ -213,9 +246,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	public static void hideDialog() {
 		if (dialog != null) {
 			dialog.setVisible(false);
-			if (dialog.component != null) {
-				dialog.component.clearConfigListeners();
-			}
 		}
 	}
 	
