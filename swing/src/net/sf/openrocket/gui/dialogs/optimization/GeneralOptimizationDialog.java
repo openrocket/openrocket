@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui.dialogs.optimization;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -205,7 +207,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		JScrollPane scroll;
 		String tip;
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill, w 1200"));
 		
 		ChangeListener clearHistoryChangeListener = e -> clearHistory();
 		ActionListener clearHistoryActionListener = e -> clearHistory();
@@ -251,10 +253,10 @@ public class GeneralOptimizationDialog extends JDialog {
 		label = new StyledLabel(trans.get("lbl.paramsToOptimize"), Style.BOLD);
 		disableComponents.add(label);
 		panel.add(label, "split 3, flowy");
-		panel.add(scroll, "wmin 300lp, height 200lp, grow");
+		panel.add(scroll, "wmin 300lp, height 150lp, grow");
 		selectedModifierDescription = new DescriptionArea(2, -3);
 		disableComponents.add(selectedModifierDescription);
-		panel.add(selectedModifierDescription, "growx");
+		panel.add(selectedModifierDescription, "hmin 20lp, growx");
 		
 		// // Add/remove buttons
 		sub = new JPanel(new MigLayout("fill"));
@@ -601,16 +603,16 @@ public class GeneralOptimizationDialog extends JDialog {
 		});
 		panel.add(closeButton, "right");
 		
-		this.add(panel);
+		this.add(new JScrollPane(panel));
 		clearHistory();
 		updateComponents();
 		GUIUtil.setDisposableDialogOptions(this, null);
 
-		// seem like a reasonable defaults
-		this.setSize(1200, 600);
-		// System.err.println("OptimizationDialog.size:     " + this.getSize());
-		this.setLocation(100, 100);
-		// System.err.println("OptimizationDialog.location: " + this.getLocation());
+		int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+		this.setSize(new Dimension(this.getWidth(), Math.min(this.getHeight(), screenHeight - 150)));
+		this.pack();
+
+		this.setLocation((parent.getWidth() - 1200)/2, 100);
 	}
 	
 	private void startOptimization() {

@@ -75,7 +75,6 @@ OpenRocket 22.xx Beta 1
 
 ..._plus many, many additional bug fixes and refinements_
 
-
 OpenRocket 15.03 (2015-03-28)
 -----------------------------
 

@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -82,6 +83,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
+	private double initTheta;
 
 	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -115,6 +117,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		aoa = new DoubleModel(rocketPanel, "CPAOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
 		rocketPanel.setCPMach(Application.getPreferences().getDefaultMach());
 		mach = new DoubleModel(rocketPanel, "CPMach", UnitGroup.UNITS_COEFFICIENT, 0);
+		initTheta = rocketPanel.getFigure().getRotation();
 		rocketPanel.setCPTheta(rocketPanel.getFigure().getRotation());
 		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		rocketPanel.setCPRoll(0);
@@ -148,7 +151,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
-		panel.add(scrollPane, "gap paragraph, spany 4, width 300lp!, growy 1, height :100lp:, wrap");
+		panel.add(scrollPane, "gap paragraph, spany 4, wmin 300lp, grow, height :100lp:, wrap");
 
 		////Angle of attack:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
@@ -183,7 +186,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		// Tabbed pane
 
 		JTabbedPane tabbedPane = new JTabbedPane();
-		panel.add(tabbedPane, "spanx, growx, growy");
+		panel.add(tabbedPane, "spanx, growx, growy, pushy");
 
 
 		// Create the Longitudinal Stability (CM vs CP) data table
@@ -428,6 +431,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
+				theta.setValue(initTheta);
+
 				//System.out.println("Closing method called: " + this);
 				theta.removeChangeListener(ComponentAnalysisDialog.this);
 				aoa.removeChangeListener(ComponentAnalysisDialog.this);

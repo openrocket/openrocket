@@ -83,6 +83,10 @@ public class RocketComponentSaver {
 				// no-op.  Instance counts are set via named cluster configurations
 			} else {
 				emitInteger(elements, "instancecount", c.getInstanceCount());
+				// TODO: delete this when no backward compatibility with OR 15.03 is needed anymore
+				if (c instanceof FinSet || c instanceof TubeFinSet) {
+					emitInteger(elements, "fincount", c.getInstanceCount());
+				}
 			}
 			
 			if (c instanceof LineInstanceable) {
@@ -103,6 +107,13 @@ public class RocketComponentSaver {
 			final String angleMethod = anglePos.getAngleMethod().name().toLowerCase(Locale.ENGLISH);
 			final double angleOffset = anglePos.getAngleOffset()*180.0/Math.PI;
 			elements.add("<angleoffset method=\"" + angleMethod + "\">" + angleOffset + "</angleoffset>");
+			// TODO: delete this when no backward compatibility with OR 15.03 is needed anymore
+			if (c instanceof FinSet || c instanceof TubeFinSet) {
+				elements.add("<rotation>" + angleOffset + "</rotation>");
+			}
+			else if (!(c instanceof RailButton)) {
+				elements.add("<radialdirection>" + angleOffset + "</radialdirection>");
+			}
 		}
 		
 		// Save position unless "AFTER"
@@ -110,6 +121,8 @@ public class RocketComponentSaver {
 			// The type names are currently equivalent to the enum names except for case.
 			String axialMethod = c.getAxialMethod().name().toLowerCase(Locale.ENGLISH);
 			elements.add("<axialoffset method=\"" + axialMethod + "\">" + c.getAxialOffset() + "</axialoffset>");
+			// TODO: delete this when no backward compatibility with OR 15.03 is needed anymore
+			elements.add("<position type=\"" + axialMethod + "\">" + c.getAxialOffset() + "</position>");
 		}
 		
 		// Overrides

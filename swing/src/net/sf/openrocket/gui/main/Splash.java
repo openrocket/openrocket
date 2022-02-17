@@ -25,8 +25,8 @@ public class Splash {
 	
 	// The right edge of the text base line for the version string
 	private static final int VERSION_POSITION_X = 617;
-	private static final int VERSION_POSITION_Y = 138;
-	private static final Font VERSION_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
+	private static final int VERSION_POSITION_Y = 150;
+	private static final Font VERSION_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
 	private static final Color VERSION_COLOR = Color.WHITE;
 	
 	

@@ -3,6 +3,8 @@ package net.sf.openrocket.file.openrocket.savers;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.MathUtil;
 
 public class FinSetSaver extends ExternalComponentSaver {
@@ -28,6 +30,22 @@ public class FinSetSaver extends ExternalComponentSaver {
 			
 			elements.add("<tabheight>" + fins.getTabHeight() + "</tabheight>");
 			elements.add("<tablength>" + fins.getTabLength() + "</tablength>");
+			// TODO: delete this when no backward compatibility with OR 15.03 is needed anymore
+			String offset = "center";
+			double offsetVal = fins.getTabOffset();
+			switch (fins.getTabOffsetMethod()) {
+				case TOP:
+					offset = "front";
+					break;
+				case BOTTOM:
+					offset = "end";
+					break;
+				case MIDDLE:
+					offset = "center";
+					break;
+			}
+			elements.add("<tabposition relativeto=\"" + offset + "\">" +
+					offsetVal + "</tabposition>");
 			elements.add("<tabposition relativeto=\"" +
 					fins.getTabOffsetMethod().name().toLowerCase(Locale.ENGLISH) + "\">" +
 					fins.getTabOffset() + "</tabposition>");
