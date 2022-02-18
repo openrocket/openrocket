@@ -121,6 +121,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	// The realistic appearance of this component
 	private Appearance appearance = null;
+
+	// If true, component change events will not be fired
+	private boolean ignoreComponentChange = false;
 	
 	
 	/**
@@ -1832,7 +1835,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
 		checkState();
-		if (parent == null) {
+		if (parent == null || ignoreComponentChange) {
 			/* Ignore if root invalid. */
 			return;
 		}
@@ -1851,6 +1854,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 
+	public void setIgnoreComponentChange(boolean newValue) {
+		this.ignoreComponentChange = newValue;
+	}
+
+	public boolean getIgnoreComponentChange() {
+		return this.ignoreComponentChange;
+	}
+
 	/**
 	 * Add a new config listener that will undergo the same configuration changes as this.component. Listener must be
 	 * of the same class as this.component.
@@ -1862,14 +1873,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return false;
 		}
 		configListeners.add(listener);
+		listener.setIgnoreComponentChange(true);
 		return true;
 	}
 
 	public void removeConfigListener(RocketComponent listener) {
 		configListeners.remove(listener);
+		listener.setIgnoreComponentChange(false);
 	}
 
 	public void clearConfigListeners() {
+		for (RocketComponent listener : configListeners) {
+			listener.setIgnoreComponentChange(false);
+		}
 		configListeners.clear();
 	}
 
