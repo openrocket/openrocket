@@ -138,4 +138,33 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		copy.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(deploymentConfigurations);
 		return copy;
 	}
+
+	@Override
+	public boolean addConfigListener(RocketComponent listener) {
+		boolean success = super.addConfigListener(listener);
+		if (listener instanceof RecoveryDevice) {
+			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
+			success = success && thisConfig.addConfigListener(listenerConfig);
+			return success;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeConfigListener(RocketComponent listener) {
+		super.removeConfigListener(listener);
+		if (listener instanceof RecoveryDevice) {
+			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
+			thisConfig.removeConfigListener(listenerConfig);
+		}
+	}
+
+	@Override
+	public void clearConfigListeners() {
+		super.clearConfigListeners();
+		DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+		thisConfig.clearConfigListeners();
+	}
 }
