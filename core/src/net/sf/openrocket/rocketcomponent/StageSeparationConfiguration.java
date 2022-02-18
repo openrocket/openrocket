@@ -5,6 +5,8 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
@@ -98,12 +100,18 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	
 	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
 	private double separationDelay = 0;
+
+	private final List<StageSeparationConfiguration> configListeners = new LinkedList<>();
 		
 	public SeparationEvent getSeparationEvent() {
 		return separationEvent;
 	}
 	
 	public void setSeparationEvent(SeparationEvent separationEvent) {
+		for (StageSeparationConfiguration listener : configListeners) {
+			listener.setSeparationEvent(separationEvent);
+		}
+
 		if (separationEvent == null) {
 			throw new NullPointerException("separationEvent is null");
 		}
@@ -119,6 +127,10 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	}
 	
 	public void setSeparationDelay(double separationDelay) {
+		for (StageSeparationConfiguration listener : configListeners) {
+			listener.setSeparationDelay(separationDelay);
+		}
+
 		if (MathUtil.equals(this.separationDelay, separationDelay)) {
 			return;
 		}
@@ -167,6 +179,31 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 
 	@Override
 	public void update(){
+	}
+
+	/**
+	 * Add a new config listener that will undergo the same configuration changes as this configuration.
+	 * @param listener new config listener
+	 * @return true if listener was successfully added, false if not
+	 */
+	public boolean addConfigListener(StageSeparationConfiguration listener) {
+		if (listener == null) {
+			return false;
+		}
+		configListeners.add(listener);
+		return true;
+	}
+
+	public void removeConfigListener(StageSeparationConfiguration listener) {
+		configListeners.remove(listener);
+	}
+
+	public void clearConfigListeners() {
+		configListeners.clear();
+	}
+
+	public List<StageSeparationConfiguration> getConfigListeners() {
+		return configListeners;
 	}
 	
 }
