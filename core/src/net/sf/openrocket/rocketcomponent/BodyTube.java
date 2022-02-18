@@ -520,4 +520,30 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
 	}
+
+	@Override
+	public boolean addConfigListener(RocketComponent listener) {
+		boolean success = super.addConfigListener(listener);
+		if (listener instanceof BodyTube) {
+			MotorConfiguration config = ((BodyTube) listener).getDefaultMotorConfig();
+			success = success && getDefaultMotorConfig().addConfigListener(config);
+			return success;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeConfigListener(RocketComponent listener) {
+		super.removeConfigListener(listener);
+		if (listener instanceof BodyTube) {
+			MotorConfiguration config = ((BodyTube) listener).getDefaultMotorConfig();
+			getDefaultMotorConfig().removeConfigListener(config);
+		}
+	}
+
+	@Override
+	public void clearConfigListeners() {
+		super.clearConfigListeners();
+		getDefaultMotorConfig().clearConfigListeners();
+	}
 }

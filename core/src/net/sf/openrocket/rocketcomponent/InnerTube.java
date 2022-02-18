@@ -445,5 +445,31 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	public String toMotorDebug( ){
 		return this.motors.toDebug();
 	}
+
+	@Override
+	public boolean addConfigListener(RocketComponent listener) {
+		boolean success = super.addConfigListener(listener);
+		if (listener instanceof InnerTube) {
+			MotorConfiguration config = ((InnerTube) listener).getDefaultMotorConfig();
+			success = success && getDefaultMotorConfig().addConfigListener(config);
+			return success;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeConfigListener(RocketComponent listener) {
+		super.removeConfigListener(listener);
+		if (listener instanceof InnerTube) {
+			MotorConfiguration config = ((InnerTube) listener).getDefaultMotorConfig();
+			getDefaultMotorConfig().removeConfigListener(config);
+		}
+	}
+
+	@Override
+	public void clearConfigListeners() {
+		super.clearConfigListeners();
+		getDefaultMotorConfig().clearConfigListeners();
+	}
 	
 }
