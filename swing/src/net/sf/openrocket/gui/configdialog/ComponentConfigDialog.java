@@ -142,7 +142,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		if (e.isTreeChange() || e.isUndoChange()) {
 			
 			// Hide dialog in case of tree or undo change
-			hideDialog();
+			disposeDialog();
 			
 		} else {
 			/*
@@ -241,11 +241,11 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	}
 	
 	/**
-	 * Hides the configuration dialog.  May be used even if not currently visible.
+	 * Disposes the configuration dialog.  May be used even if not currently visible.
 	 */
-	public static void hideDialog() {
+	public static void disposeDialog() {
 		if (dialog != null) {
-			dialog.setVisible(false);
+			dialog.dispose();
 		}
 	}
 	

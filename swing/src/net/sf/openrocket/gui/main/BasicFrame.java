@@ -1582,7 +1582,7 @@ public class BasicFrame extends JFrame {
 	private boolean closeAction() {
 		if (!document.isSaved()) {
 			log.info("Confirming whether to save the design");
-			ComponentConfigDialog.hideDialog();
+			ComponentConfigDialog.disposeDialog();
 			int result = JOptionPane.showConfirmDialog(this,
 					trans.get("BasicFrame.dlg.lbl1") + rocket.getName() +
 					trans.get("BasicFrame.dlg.lbl2") + "  " +
@@ -1610,7 +1610,7 @@ public class BasicFrame extends JFrame {
 		log.debug("Disposing window");
 		this.dispose();
 
-		ComponentConfigDialog.hideDialog();
+		ComponentConfigDialog.disposeDialog();
 		ComponentAnalysisDialog.hideDialog();
 
 		frames.remove(this);

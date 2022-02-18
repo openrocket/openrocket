@@ -30,13 +30,11 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
-import net.sf.openrocket.rocketcomponent.Coaxial;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -97,7 +95,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						}
 					});
 					
-					ComponentConfigDialog.hideDialog();
+					ComponentConfigDialog.disposeDialog();
 				}
 			});
 		}
@@ -135,7 +133,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 					}
 				});
 				
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 			}
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);

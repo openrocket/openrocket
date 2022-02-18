@@ -142,7 +142,7 @@ public class RocketComponentConfig extends JPanel {
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 			}
 		});
 		buttonPanel.add(closeButton, "right, gap 30lp");

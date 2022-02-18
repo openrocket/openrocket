@@ -475,7 +475,7 @@ public class RocketActions {
 
 		private void deleteComponent(RocketComponent component) {
 			if (isDeletable(component)) {
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 
 				try {
 					component.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
@@ -596,7 +596,7 @@ public class RocketActions {
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
 			if (isDeletable(components) && isCopyable(components)) {
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 
 				if (components.size() == 1) {
 					document.addUndoPosition("Cut " + components.get(0).getComponentName());
@@ -712,7 +712,7 @@ public class RocketActions {
 			Simulation[] sims = OpenRocketClipboard.getClipboardSimulations();
 
 			if (components.size() > 0) {
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 				
 				List<RocketComponent> pasted = new LinkedList<>();
 				for (RocketComponent component : components) {
@@ -850,7 +850,7 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			
-			ComponentConfigDialog.hideDialog();
+			ComponentConfigDialog.disposeDialog();
 
 			RocketComponent stage = new AxialStage();
 
@@ -913,7 +913,7 @@ public class RocketActions {
 			if (!canMove(component))
 				return;
 
-			ComponentConfigDialog.hideDialog();
+			ComponentConfigDialog.disposeDialog();
 
 			RocketComponent parent = component.getParent();
 			parent.moveChild(component, parent.getChildPosition(component) - 1);
@@ -988,7 +988,7 @@ public class RocketActions {
 			if (!canMove(component))
 				return;
 
-			ComponentConfigDialog.hideDialog();
+			ComponentConfigDialog.disposeDialog();
 
 			RocketComponent parent = component.getParent();
 			parent.moveChild(component, parent.getChildPosition(component) + 1);
