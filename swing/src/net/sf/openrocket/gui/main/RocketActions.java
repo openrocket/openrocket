@@ -25,6 +25,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -176,8 +177,8 @@ public class RocketActions {
 		if (c instanceof Rocket)
 			return false;
 
-		// Cannot remove last stage
-		if ((c instanceof AxialStage) && (c.getParent().getChildCount() == 1)) {
+		// Cannot remove last stage, except from Boosters
+		if ((c instanceof AxialStage) && !(c instanceof ParallelStage) && (c.getParent().getChildCount() == 1)) {
 			return false;
 		}
 
