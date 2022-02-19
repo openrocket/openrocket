@@ -147,8 +147,8 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 			}
 		});
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+		panel.add(new UnitSelector(axialOffsetModel), "growx");
+		panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap para");
