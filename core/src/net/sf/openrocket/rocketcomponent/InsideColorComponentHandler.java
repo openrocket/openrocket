@@ -38,6 +38,12 @@ public class InsideColorComponentHandler {
      * @param appearance the inner appearance to be set
      */
     public void setInsideAppearance(Appearance appearance) {
+        for (RocketComponent listener : component.configListeners) {
+            if (listener instanceof InsideColorComponent) {
+                ((InsideColorComponent) listener).getInsideColorComponentHandler().setInsideAppearance(appearance);
+            }
+        }
+
         this.insideAppearance = appearance;
         if (this.insideAppearance != null) {
             Decal d = this.insideAppearance.getTexture();
@@ -53,12 +59,6 @@ public class InsideColorComponentHandler {
             }
         }
         component.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-
-        for (RocketComponent listener : component.configListeners) {
-            if (listener instanceof InsideColorComponent) {
-                ((InsideColorComponent) listener).getInsideColorComponentHandler().setInsideAppearance(appearance);
-            }
-        }
     }
 
     /**
@@ -78,13 +78,13 @@ public class InsideColorComponentHandler {
      * @param newState new edgesUseInsideAppearance value
      */
     public void setEdgesSameAsInside(boolean newState) {
-        this.edgesSameAsInside = newState;
-
         for (RocketComponent listener : component.configListeners) {
             if (listener instanceof InsideColorComponent) {
                 ((InsideColorComponent) listener).getInsideColorComponentHandler().setEdgesSameAsInside(newState);
             }
         }
+
+        this.edgesSameAsInside = newState;
     }
 
     /**
@@ -103,13 +103,13 @@ public class InsideColorComponentHandler {
      * @param newState new separateInsideOutside value
      */
     public void setSeparateInsideOutside(boolean newState) {
-        this.separateInsideOutside = newState;
-
         for (RocketComponent listener : component.configListeners) {
             if (listener instanceof InsideColorComponent) {
                 ((InsideColorComponent) listener).getInsideColorComponentHandler().setSeparateInsideOutside(newState);
             }
         }
+
+        this.separateInsideOutside = newState;
     }
 
     public void copyFrom(InsideColorComponentHandler src) {

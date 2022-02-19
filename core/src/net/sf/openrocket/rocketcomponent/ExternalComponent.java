@@ -127,16 +127,16 @@ public abstract class ExternalComponent extends RocketComponent {
 	}
 	
 	public void setFinish(Finish finish) {
-		if (this.finish == finish)
-			return;
-		this.finish = finish;
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof ExternalComponent) {
 				((ExternalComponent) listener).setFinish(finish);
 			}
 		}
+
+		if (this.finish == finish)
+			return;
+		this.finish = finish;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	

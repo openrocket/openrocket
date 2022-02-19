@@ -54,16 +54,16 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	
 	// Setter is protected, subclasses may make it public
 	protected void setOuterRadiusAutomatic(boolean auto) {
-		if (auto == outerRadiusAutomatic)
-			return;
-		outerRadiusAutomatic = auto;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RingComponent) {
 				((RingComponent) listener).setOuterRadiusAutomatic(auto);
 			}
 		}
+
+		if (auto == outerRadiusAutomatic)
+			return;
+		outerRadiusAutomatic = auto;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -73,34 +73,34 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	
 	// Setter is protected, subclasses may make it public
 	protected void setInnerRadiusAutomatic(boolean auto) {
-		if (auto == innerRadiusAutomatic)
-			return;
-		innerRadiusAutomatic = auto;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RingComponent) {
 				((RingComponent) listener).setInnerRadiusAutomatic(auto);
 			}
 		}
+
+		if (auto == innerRadiusAutomatic)
+			return;
+		innerRadiusAutomatic = auto;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
 
 
 	public final void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setLength(length);
+			}
+		}
+
 		double l = Math.max(length, 0);
 		if (this.length == l)
 			return;
 		
 		this.length = l;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RingComponent) {
-				((RingComponent) listener).setLength(length);
-			}
-		}
 	}
 	
 	
@@ -121,6 +121,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	 * @param dir  the radial direction.
 	 */
 	public void setRadialDirection(double dir) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setRadialDirection(dir);
+			}
+		}
+
 		dir = MathUtil.reducePi(dir);
 		if (radialDirection == dir)
 			return;
@@ -128,12 +134,6 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 		shiftY = radialPosition * Math.cos(radialDirection);
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RingComponent) {
-				((RingComponent) listener).setRadialDirection(dir);
-			}
-		}
 	}
 	
 	public BoundingBox getInstanceBoundingBox(){
@@ -166,18 +166,19 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	 */
 	public void setRadialPosition(double pos) {
 		pos = Math.max(pos, 0);
-		if (radialPosition == pos)
-			return;
-		radialPosition = pos;
-		shiftY = radialPosition * Math.cos(radialDirection);
-		shiftZ = radialPosition * Math.sin(radialDirection);
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RingComponent) {
 				((RingComponent) listener).setRadialPosition(pos);
 			}
 		}
+
+		if (radialPosition == pos)
+			return;
+		radialPosition = pos;
+		shiftY = radialPosition * Math.cos(radialDirection);
+		shiftZ = radialPosition * Math.sin(radialDirection);
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -190,6 +191,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	}
 	
 	public void setRadialShift(double y, double z) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setRadialShift(y, z);
+			}
+		}
+
 		radialPosition = Math.hypot(y, z);
 		radialDirection = Math.atan2(z, y);
 		
@@ -200,12 +207,6 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 		assert (MathUtil.equals(z, shiftZ));
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RingComponent) {
-				((RingComponent) listener).setRadialShift(y, z);
-			}
-		}
 	}
 	
 	@Override

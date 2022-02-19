@@ -60,31 +60,31 @@ public class EllipticalFinSet extends FinSet {
 	}
 	
 	public void setHeight(double height) {
-		if (MathUtil.equals(this.height, height))
-			return;
-		this.height = height;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof EllipticalFinSet) {
 				((EllipticalFinSet) listener).setHeight(height);
 			}
 		}
+
+		if (MathUtil.equals(this.height, height))
+			return;
+		this.height = height;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	
 	public void setLength(double length) {
-		if (MathUtil.equals(this.length, length))
-			return;
-		this.length = length;
-		validateFinTabLength();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof EllipticalFinSet) {
 				((EllipticalFinSet) listener).setLength(length);
 			}
 		}
+
+		if (MathUtil.equals(this.length, length))
+			return;
+		this.length = length;
+		validateFinTabLength();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 

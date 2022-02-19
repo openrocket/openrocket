@@ -103,6 +103,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeRadius(double radius) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Transition) {
+				((Transition) listener).setForeRadius(radius);
+			}
+		}
+
 		if ((this.foreRadius == radius) && (autoForeRadius == false))
 			return;
 
@@ -114,12 +120,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Transition) {
-				((Transition) listener).setForeRadius(radius);
-			}
-		}
 	}
 
 	@Override
@@ -128,6 +128,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Transition) {
+				((Transition) listener).setForeRadiusAutomatic(auto);
+			}
+		}
+
 		if (autoForeRadius == auto)
 			return;
 
@@ -135,12 +141,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Transition) {
-				((Transition) listener).setForeRadiusAutomatic(auto);
-			}
-		}
 	}
 
 
@@ -171,6 +171,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftRadius(double radius) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Transition) {
+				((Transition) listener).setAftRadius(radius);
+			}
+		}
+
 		if ((this.aftRadius == radius) && (autoAftRadius2 == false))
 			return;
 
@@ -182,12 +188,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Transition) {
-				((Transition) listener).setAftRadius(radius);
-			}
-		}
 	}
 
 	@Override
@@ -196,6 +196,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Transition) {
+				((Transition) listener).setAftRadiusAutomatic(auto);
+			}
+		}
+
 		if (autoAftRadius2 == auto)
 			return;
 
@@ -203,12 +209,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Transition) {
-				((Transition) listener).setAftRadiusAutomatic(auto);
-			}
-		}
 	}
 
 
@@ -248,6 +248,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setType(Shape type) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Transition) {
+				((Transition) listener).setType(type);
+			}
+		}
+
 		if (type == null) {
 			throw new IllegalArgumentException("setType called with null argument");
 		}
@@ -257,12 +263,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		this.clipped = type.isClippable();
 		this.shapeParameter = type.defaultParameter();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Transition) {
-				((Transition) listener).setType(type);
-			}
-		}
 	}
 
 	public double getShapeParameter() {
@@ -270,16 +270,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setShapeParameter(double n) {
-		if (shapeParameter == n)
-			return;
-		this.shapeParameter = MathUtil.clamp(n, type.minParameter(), type.maxParameter());
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setShapeParameter(n);
 			}
 		}
+
+		if (shapeParameter == n)
+			return;
+		this.shapeParameter = MathUtil.clamp(n, type.minParameter(), type.maxParameter());
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public boolean isClipped() {
@@ -289,16 +289,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setClipped(boolean c) {
-		if (clipped == c)
-			return;
-		clipped = c;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setClipped(c);
 			}
 		}
+
+		if (clipped == c)
+			return;
+		clipped = c;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public boolean isClippedEnabled() {
@@ -321,17 +321,17 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeShoulderRadius(double foreShoulderRadius) {
-		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
-			return;
-		this.foreShoulderRadius = foreShoulderRadius;
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeShoulderRadius(foreShoulderRadius);
 			}
 		}
+
+		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
+			return;
+		this.foreShoulderRadius = foreShoulderRadius;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public double getForeShoulderThickness() {
@@ -339,16 +339,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeShoulderThickness(double foreShoulderThickness) {
-		if (MathUtil.equals(this.foreShoulderThickness, foreShoulderThickness))
-			return;
-		this.foreShoulderThickness = foreShoulderThickness;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeShoulderThickness(foreShoulderThickness);
 			}
 		}
+
+		if (MathUtil.equals(this.foreShoulderThickness, foreShoulderThickness))
+			return;
+		this.foreShoulderThickness = foreShoulderThickness;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public double getForeShoulderLength() {
@@ -356,16 +356,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeShoulderLength(double foreShoulderLength) {
-		if (MathUtil.equals(this.foreShoulderLength, foreShoulderLength))
-			return;
-		this.foreShoulderLength = foreShoulderLength;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeShoulderLength(foreShoulderLength);
 			}
 		}
+
+		if (MathUtil.equals(this.foreShoulderLength, foreShoulderLength))
+			return;
+		this.foreShoulderLength = foreShoulderLength;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public boolean isForeShoulderCapped() {
@@ -373,16 +373,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setForeShoulderCapped(boolean capped) {
-		if (this.foreShoulderCapped == capped)
-			return;
-		this.foreShoulderCapped = capped;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeShoulderCapped(capped);
 			}
 		}
+
+		if (this.foreShoulderCapped == capped)
+			return;
+		this.foreShoulderCapped = capped;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 
@@ -393,17 +393,17 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftShoulderRadius(double aftShoulderRadius) {
-		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
-			return;
-		this.aftShoulderRadius = aftShoulderRadius;
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftShoulderRadius(aftShoulderRadius);
 			}
 		}
+
+		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
+			return;
+		this.aftShoulderRadius = aftShoulderRadius;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public double getAftShoulderThickness() {
@@ -411,16 +411,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftShoulderThickness(double aftShoulderThickness) {
-		if (MathUtil.equals(this.aftShoulderThickness, aftShoulderThickness))
-			return;
-		this.aftShoulderThickness = aftShoulderThickness;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftShoulderThickness(aftShoulderThickness);
 			}
 		}
+
+		if (MathUtil.equals(this.aftShoulderThickness, aftShoulderThickness))
+			return;
+		this.aftShoulderThickness = aftShoulderThickness;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public double getAftShoulderLength() {
@@ -428,16 +428,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftShoulderLength(double aftShoulderLength) {
-		if (MathUtil.equals(this.aftShoulderLength, aftShoulderLength))
-			return;
-		this.aftShoulderLength = aftShoulderLength;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftShoulderLength(aftShoulderLength);
 			}
 		}
+
+		if (MathUtil.equals(this.aftShoulderLength, aftShoulderLength))
+			return;
+		this.aftShoulderLength = aftShoulderLength;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public boolean isAftShoulderCapped() {
@@ -445,16 +445,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	public void setAftShoulderCapped(boolean capped) {
-		if (this.aftShoulderCapped == capped)
-			return;
-		this.aftShoulderCapped = capped;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftShoulderCapped(capped);
 			}
 		}
+
+		if (this.aftShoulderCapped == capped)
+			return;
+		this.aftShoulderCapped = capped;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 

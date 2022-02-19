@@ -115,6 +115,12 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	 */
 	@Override
 	public void setOuterRadius(double radius) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setOuterRadius(radius);
+			}
+		}
+
 		if ((this.outerRadius == radius) && (autoRadius == false))
 			return;
 		
@@ -125,12 +131,6 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 			this.thickness = this.outerRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof BodyTube) {
-				((BodyTube) listener).setOuterRadius(radius);
-			}
-		}
 	}
 	
 	
@@ -146,18 +146,18 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	 * Sets whether the radius is selected automatically or not.
 	 */
 	public void setOuterRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				((BodyTube) listener).setOuterRadiusAutomatic(auto);
+			}
+		}
+
 		if (autoRadius == auto)
 			return;
 		
 		autoRadius = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof BodyTube) {
-				((BodyTube) listener).setOuterRadiusAutomatic(auto);
-			}
-		}
 	}
 
 	@Override
@@ -250,13 +250,13 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	@Override
 	public void setInnerRadius(double r) {
-		setThickness(getOuterRadius() - r);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof BodyTube) {
 				((BodyTube) listener).setInnerRadius(r);
 			}
 		}
+
+		setThickness(getOuterRadius() - r);
 	}
 	
 	
@@ -391,6 +391,16 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 
 	@Override 
 	public void setMotorConfig(MotorConfiguration newMotorConfig, FlightConfigurationId fcid){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyTube) {
+				if (newMotorConfig != null) {
+					BodyTube tube = (BodyTube) listener;
+					MotorConfiguration config = tube.getMotorConfig(fcid);
+					config.copyFrom(newMotorConfig);
+				}
+			}
+		}
+
 		if(null == newMotorConfig){
 			this.motors.set( fcid, null);
 		}else{
@@ -402,16 +412,6 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		}		
 
 		this.isActingMount=true;
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof BodyTube) {
-				if (newMotorConfig != null) {
-					BodyTube tube = (BodyTube) listener;
-					MotorConfiguration config = tube.getMotorConfig(fcid);
-					config.copyFrom(newMotorConfig);
-				}
-			}
-		}
 	}
 	
 	
@@ -432,16 +432,16 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	@Override
     public void setMotorMount(boolean _active){
-    	if (this.isActingMount == _active)
-    		return;
-    	this.isActingMount = _active;
-    	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof BodyTube) {
 				((BodyTube) listener).setMotorMount(_active);
 			}
 		}
+
+    	if (this.isActingMount == _active)
+    		return;
+    	this.isActingMount = _active;
+    	fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
@@ -474,16 +474,16 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	@Override
 	public void setMotorOverhang(double overhang) {
-		if (MathUtil.equals(this.overhang, overhang))
-			return;
-		this.overhang = overhang;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof BodyTube) {
 				((BodyTube) listener).setMotorOverhang(overhang);
 			}
 		}
+
+		if (MathUtil.equals(this.overhang, overhang))
+			return;
+		this.overhang = overhang;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	

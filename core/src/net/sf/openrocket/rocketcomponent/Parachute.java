@@ -33,17 +33,17 @@ public class Parachute extends RecoveryDevice {
 	}
 	
 	public void setDiameter(double d) {
-		if (MathUtil.equals(this.diameter, d))
-			return;
-		this.diameter = d;
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Parachute) {
 				((Parachute) listener).setDiameter(d);
 			}
 		}
+
+		if (MathUtil.equals(this.diameter, d))
+			return;
+		this.diameter = d;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	
@@ -52,6 +52,12 @@ public class Parachute extends RecoveryDevice {
 	}
 	
 	public final void setLineMaterial(Material mat) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Parachute) {
+				((Parachute) listener).setLineMaterial(mat);
+			}
+		}
+
 		if (mat.getType() != Material.Type.LINE) {
 			throw new IllegalArgumentException("Attempted to set non-line material " + mat);
 		}
@@ -62,12 +68,6 @@ public class Parachute extends RecoveryDevice {
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Parachute) {
-				((Parachute) listener).setLineMaterial(mat);
-			}
-		}
 	}
 	
 	
@@ -76,17 +76,17 @@ public class Parachute extends RecoveryDevice {
 	}
 	
 	public final void setLineCount(int n) {
-		if (this.lineCount == n)
-			return;
-		this.lineCount = n;
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Parachute) {
 				((Parachute) listener).setLineCount(n);
 			}
 		}
+
+		if (this.lineCount == n)
+			return;
+		this.lineCount = n;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	public final double getLineLength() {
@@ -94,6 +94,12 @@ public class Parachute extends RecoveryDevice {
 	}
 	
 	public final void setLineLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Parachute) {
+				((Parachute) listener).setLineLength(length);
+			}
+		}
+
 		if (MathUtil.equals(this.lineLength, length))
 			return;
 		this.lineLength = length;
@@ -101,12 +107,6 @@ public class Parachute extends RecoveryDevice {
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Parachute) {
-				((Parachute) listener).setLineLength(length);
-			}
-		}
 	}
 	
 	
@@ -121,17 +121,17 @@ public class Parachute extends RecoveryDevice {
 	}
 	
 	public void setArea(double area) {
-		if (MathUtil.equals(getArea(), area))
-			return;
-		diameter = MathUtil.safeSqrt(area / Math.PI) * 2;
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Parachute) {
 				((Parachute) listener).setArea(area);
 			}
 		}
+
+		if (MathUtil.equals(getArea(), area))
+			return;
+		diameter = MathUtil.safeSqrt(area / Math.PI) * 2;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override

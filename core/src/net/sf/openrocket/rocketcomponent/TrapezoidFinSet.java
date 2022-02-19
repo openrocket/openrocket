@@ -57,6 +57,12 @@ public class TrapezoidFinSet extends FinSet {
 	
 	public void setFinShape(double rootChord, double tipChord, double sweep, double height,
 			double thickness) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setFinShape(rootChord, tipChord, sweep, height, thickness);
+			}
+		}
+
 		if (this.length == rootChord && this.tipChord == tipChord && this.sweep == sweep &&
 				this.height == height && this.thickness == thickness)
 			return;
@@ -67,12 +73,6 @@ public class TrapezoidFinSet extends FinSet {
 		this.thickness = thickness;
 		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof TrapezoidFinSet) {
-				((TrapezoidFinSet) listener).setFinShape(rootChord, tipChord, sweep, height, thickness);
-			}
-		}
 	}
 	
 	public double getRootChord() {
@@ -80,18 +80,18 @@ public class TrapezoidFinSet extends FinSet {
 	}
 	
 	public void setRootChord(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setRootChord(r);
+			}
+		}
+
 		if (length == r)
 			return;
 		length = Math.max(r, 0);
 		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof TrapezoidFinSet) {
-				((TrapezoidFinSet) listener).setRootChord(r);
-			}
-		}
 	}
 	
 	public double getTipChord() {
@@ -99,16 +99,16 @@ public class TrapezoidFinSet extends FinSet {
 	}
 	
 	public void setTipChord(double r) {
-		if (tipChord == r)
-			return;
-		tipChord = Math.max(r, 0);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof TrapezoidFinSet) {
 				((TrapezoidFinSet) listener).setTipChord(r);
 			}
 		}
+
+		if (tipChord == r)
+			return;
+		tipChord = Math.max(r, 0);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	/**
@@ -122,16 +122,16 @@ public class TrapezoidFinSet extends FinSet {
 	 * Set the sweep length.
 	 */
 	public void setSweep(double r) {
-		if (sweep == r)
-			return;
-		sweep = r;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof TrapezoidFinSet) {
 				((TrapezoidFinSet) listener).setSweep(r);
 			}
 		}
+
+		if (sweep == r)
+			return;
+		sweep = r;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	/**
@@ -154,6 +154,12 @@ public class TrapezoidFinSet extends FinSet {
 	 * and the angle itself is not stored.
 	 */
 	public void setSweepAngle(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TrapezoidFinSet) {
+				((TrapezoidFinSet) listener).setSweepAngle(r);
+			}
+		}
+
 		if (r > MAX_SWEEP_ANGLE)
 			r = MAX_SWEEP_ANGLE;
 		if (r < -MAX_SWEEP_ANGLE)
@@ -162,12 +168,6 @@ public class TrapezoidFinSet extends FinSet {
 		if (Double.isNaN(mySweep) || Double.isInfinite(mySweep))
 			return;
 		setSweep(mySweep);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof TrapezoidFinSet) {
-				((TrapezoidFinSet) listener).setSweepAngle(r);
-			}
-		}
 	}
 	
 	public double getHeight() {
@@ -175,16 +175,16 @@ public class TrapezoidFinSet extends FinSet {
 	}
 	
 	public void setHeight(double r) {
-		if (height == r)
-			return;
-		height = Math.max(r, 0);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof TrapezoidFinSet) {
 				((TrapezoidFinSet) listener).setHeight(r);
 			}
 		}
+
+		if (height == r)
+			return;
+		height = Math.max(r, 0);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	

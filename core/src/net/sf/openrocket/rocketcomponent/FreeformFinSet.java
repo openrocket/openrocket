@@ -152,13 +152,13 @@ public class FreeformFinSet extends FinSet {
 	/** maintained just for backwards compatibility:
 	 */
 	public void setPoints(Coordinate[] newPoints) {
-		setPoints(new ArrayList<>(Arrays.asList(newPoints)));
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FreeformFinSet) {
 				((FreeformFinSet) listener).setPoints(newPoints);
 			}
 		}
+
+		setPoints(new ArrayList<>(Arrays.asList(newPoints)));
 	}
 	
 	/**
@@ -167,6 +167,11 @@ public class FreeformFinSet extends FinSet {
 	 * @param newPoints New points to set as the exposed edges of the fin
 	 */
 	public void setPoints( ArrayList<Coordinate> newPoints) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				((FreeformFinSet) listener).setPoints(newPoints);
+			}
+		}
 
 		final Coordinate delta = newPoints.get(0).multiply(-1);
 		if( IGNORE_SMALLER_THAN < delta.length2()){
@@ -198,12 +203,6 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof FreeformFinSet) {
-				((FreeformFinSet) listener).setPoints(newPoints);
-			}
-		}
 	}
 
 	/**

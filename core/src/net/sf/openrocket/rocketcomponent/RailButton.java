@@ -152,60 +152,60 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	
 	public void setStandoff(double newStandoff){
-		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setStandoff(newStandoff);
 			}
 		}
+
+		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
 	}
 
 	public void setInnerDiameter(double newID ){
-		this.innerDiameter_m = newID;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setInnerDiameter(newID);
 			}
 		}
+
+		this.innerDiameter_m = newID;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 
 	public void setOuterDiameter(double newOD ){
-		this.outerDiameter_m = newOD;
-
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setOuterDiameter(newOD);
 			}
 		}
+
+		this.outerDiameter_m = newOD;
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public void setTotalHeight(double newHeight ) {
-		this.totalHeight_m = newHeight;
-
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setTotalHeight(newHeight);
 			}
 		}
+
+		this.totalHeight_m = newHeight;
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	public void setThickness(double newThickness ) {
-		this.flangeHeight_m = newThickness;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setThickness(newThickness);
 			}
 		}
+
+		this.flangeHeight_m = newThickness;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
@@ -232,18 +232,18 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	@Override
 	public void setAngleOffset(double angle_rad){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setAngleOffset(angle_rad);
+			}
+		}
+
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
 		
 		if (MathUtil.equals(this.angle_rad, clamped_rad))
 			return;
 		this.angle_rad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setAngleOffset(angle_rad);
-			}
-		}
 	}
 	
 	
@@ -319,28 +319,28 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	@Override
 	public void setInstanceSeparation(double _separation){
-		this.instanceSeparation = _separation;
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setInstanceSeparation(_separation);
 			}
 		}
+
+		this.instanceSeparation = _separation;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override
 	public void setInstanceCount(int newCount ){
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
-		}
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
 				((RailButton) listener).setInstanceCount(newCount);
 			}
 		}
+
+		if( 0 < newCount ){
+			this.instanceCount = newCount;
+		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override

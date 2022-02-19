@@ -35,6 +35,12 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setOuterRadius(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Sleeve) {
+				((Sleeve) listener).setOuterRadius(r);
+			}
+		}
+
 		if (MathUtil.equals(getOuterRadius(), r))
 			return;
 		
@@ -42,12 +48,6 @@ public class Sleeve extends RingComponent {
 		if (thickness > r)
 			thickness = r;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Sleeve) {
-				((Sleeve) listener).setOuterRadius(r);
-			}
-		}
 	}
 	
 	
@@ -68,17 +68,17 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setInnerRadius(double r) {
-		r = Math.max(r, 0);
-		if (MathUtil.equals(innerRadius, r))
-			return;
-		innerRadius = r;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Sleeve) {
 				((Sleeve) listener).setInnerRadius(r);
 			}
 		}
+
+		r = Math.max(r, 0);
+		if (MathUtil.equals(innerRadius, r))
+			return;
+		innerRadius = r;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	@Override
@@ -88,17 +88,17 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setThickness(double t) {
-		t = Math.max(t, 0);
-		if (MathUtil.equals(thickness, t))
-			return;
-		thickness = t;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Sleeve) {
 				((Sleeve) listener).setThickness(t);
 			}
 		}
+
+		t = Math.max(t, 0);
+		if (MathUtil.equals(thickness, t))
+			return;
+		thickness = t;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	

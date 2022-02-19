@@ -49,17 +49,17 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public void setCD(double cd) {
-		if (MathUtil.equals(this.cd, cd) && !isCDAutomatic())
-			return;
-		this.cd = cd;
-		this.cdAutomatic = false;
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RecoveryDevice) {
 				((RecoveryDevice) listener).setCD(cd);
 			}
 		}
+
+		if (MathUtil.equals(this.cd, cd) && !isCDAutomatic())
+			return;
+		this.cd = cd;
+		this.cdAutomatic = false;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	
@@ -68,16 +68,16 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public void setCDAutomatic(boolean auto) {
-		if (cdAutomatic == auto)
-			return;
-		this.cdAutomatic = auto;
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RecoveryDevice) {
 				((RecoveryDevice) listener).setCDAutomatic(auto);
 			}
 		}
+
+		if (cdAutomatic == auto)
+			return;
+		this.cdAutomatic = auto;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	
@@ -87,6 +87,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public final void setMaterial(Material mat) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setMaterial(mat);
+			}
+		}
+
 		if (!(mat instanceof Material.Surface)) {
 			throw new IllegalArgumentException("Attempted to set non-surface material " + mat);
 		}
@@ -95,12 +101,6 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.material = (Material.Surface) mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RecoveryDevice) {
-				((RecoveryDevice) listener).setMaterial(mat);
-			}
-		}
 	}
 
 	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {

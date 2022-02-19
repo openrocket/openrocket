@@ -130,18 +130,18 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 */
 	@Override
 	public void setClusterConfiguration( final ClusterConfiguration cluster) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setClusterConfiguration(cluster);
+			}
+		}
+
 		if( cluster == this.cluster){
 			// no change
 			return;
 		}else{
 			this.cluster = cluster;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-		}
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setClusterConfiguration(cluster);
-			}
 		}
 	}
 	
@@ -189,16 +189,17 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 */
 	public void setClusterScale(double scale) {
 		scale = Math.max(scale, 0);
-		if (MathUtil.equals(clusterScale, scale))
-			return;
-		clusterScale = scale;
-		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof InnerTube) {
 				((InnerTube) listener).setClusterScale(scale);
 			}
 		}
+
+		if (MathUtil.equals(clusterScale, scale))
+			return;
+		clusterScale = scale;
+		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 	}
 	
 	
@@ -215,17 +216,17 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 * @param rotation the clusterRotation to set
 	 */
 	public void setClusterRotation(double rotation) {
-		rotation = MathUtil.reducePi(rotation);
-		if (clusterRotation == rotation)
-			return;
-		this.clusterRotation = rotation;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof InnerTube) {
 				((InnerTube) listener).setClusterRotation(rotation);
 			}
 		}
+
+		rotation = MathUtil.reducePi(rotation);
+		if (clusterRotation == rotation)
+			return;
+		this.clusterRotation = rotation;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -304,6 +305,12 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 
 	@Override 
 	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof InnerTube) {
+				((InnerTube) listener).setMotorConfig(newMotorConfig, fcid);
+			}
+		}
+
 		if((null == newMotorConfig)){
 			this.motors.set( fcid, null);
 		}else{
@@ -315,12 +322,6 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 		}
 
 		this.isActingMount = true;
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setMotorConfig(newMotorConfig, fcid);
-			}
-		}
 	}
 	
 	@Override
@@ -340,16 +341,16 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	
 	@Override
     public void setMotorMount(boolean _active){
-    	if (this.isActingMount == _active)
-    		return;
-    	this.isActingMount = _active;
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof InnerTube) {
 				((InnerTube) listener).setMotorMount(_active);
 			}
 		}
+
+    	if (this.isActingMount == _active)
+    		return;
+    	this.isActingMount = _active;
+		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
     }
 
 	@Override
@@ -381,16 +382,16 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	
 	@Override
 	public void setMotorOverhang(double overhang) {
-		if (MathUtil.equals(this.overhang, overhang))
-			return;
-		this.overhang = overhang;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof InnerTube) {
 				((InnerTube) listener).setMotorOverhang(overhang);
 			}
 		}
+
+		if (MathUtil.equals(this.overhang, overhang))
+			return;
+		this.overhang = overhang;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override

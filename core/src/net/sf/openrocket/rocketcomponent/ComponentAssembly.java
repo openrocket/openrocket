@@ -142,6 +142,12 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 		
 	@Override
 	public void setAxialMethod( final AxialMethod newMethod ) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ComponentAssembly) {
+				((ComponentAssembly) listener).setAxialMethod(newMethod);
+			}
+		}
+
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
@@ -159,12 +165,6 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 			throw new BugException("Unrecognized subclass of Component Assembly.  Please update this method.");
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ComponentAssembly) {
-				((ComponentAssembly) listener).setAxialMethod(newMethod);
-			}
-		}
 	}
 	
 	@Override
