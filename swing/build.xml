@@ -200,6 +200,10 @@ the .jar file
 	  	<copy todir="${resources.dir}/datafiles/presets">
 			<fileset dir="${resources-src.dir}/datafiles/components/orc"/>
 	  	</copy>
+	  	<copy
+		    file="${resources-src.dir}/datafiles/components/LICENSE"
+		    todir="${resources.dir}/datafiles/presets">
+	  	</copy>
 	</target>
 
 	<!-- DIST-SRC -->

@@ -1,10 +1,21 @@
 package net.sf.openrocket.gui.components;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 
+import java.net.URI;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import javax.swing.JTextPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -65,7 +76,71 @@ public class DescriptionArea extends JScrollPane {
 		Font font = editorPane.getFont();
 		editorPane.setFont(font.deriveFont(font.getSize2D() + size));
 		editorPane.setEditable(false);
-		
+		editorPane.addHyperlinkListener(new HyperlinkListener() {
+				public void hyperlinkUpdate(HyperlinkEvent e) {
+					if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+						URI uri = null;
+						try {
+							uri = e.getURL().toURI();
+						}
+						catch (Exception ex) {
+							throw new RuntimeException(ex);
+						}
+						
+						// If the uri scheme indicates this is a resource in a jar file,
+						// extract and write to a temporary file
+						if (uri.getScheme().equals("jar")) {
+							
+							// get the resource
+							final String uriString = uri.toString();
+							final String resourceName = uriString.substring(uriString.indexOf("!") + 1);
+							final BufferedInputStream is = new BufferedInputStream(getClass().getResourceAsStream(resourceName));
+							
+							// construct filename from resource name
+							String prefix = resourceName.substring(1);
+							String suffix;
+							final int dotIndex = prefix.lastIndexOf(".");
+							if (dotIndex > 0) {
+								prefix = resourceName.substring(0, dotIndex);
+								suffix = resourceName.substring(dotIndex+1);
+							} else {
+								// if there is no suffix, assume it's a raw text file.
+								suffix = ".txt";
+							}
+
+
+							// create temporary file and copy resource to it
+							File of = null;
+							BufferedOutputStream os = null;
+							try {
+								of = File.createTempFile(prefix, suffix);
+								os = new BufferedOutputStream(new FileOutputStream(of));
+							}
+							catch (Exception ex) {
+								throw new RuntimeException(ex);
+							}
+							of.deleteOnExit();
+							uri = of.toURI();
+
+							try {
+								byte buffer[] = is.readAllBytes();
+								os.write(buffer);
+								os.close();
+							}
+							catch (Exception ex) {
+								throw new RuntimeException(ex);
+							}
+						}
+						
+						try {	
+							Desktop.getDesktop().browse(uri);
+						}
+						catch (Exception ex) {
+							throw new RuntimeException(ex);
+						}
+					}
+				}
+			});
 		if (!opaque) {
 			Color bg = new JPanel().getBackground();
 			editorPane.setBackground(new Color(bg.getRed(), bg.getGreen(), bg.getBlue()));
@@ -102,6 +177,18 @@ public class DescriptionArea extends JScrollPane {
 			
 		});
 		editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
+	}
+
+	/**
+	 * Set the font to use for the text pane. If null, then the default font from OR is used.
+	 * @param font font to use
+	 */
+	public void setTextFont(Font font) {
+		if (editorPane == null) return;
+		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		if (font != null) {
+			editorPane.setFont(font);
+		}
 	}
 	
 }

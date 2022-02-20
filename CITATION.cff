@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Niskanen"
+  given-names: "Sampo"
+title: "OpenRocket"
+version: 15.03
+date-released: 2015-03-28
+url: "https://github.com/openrocket/openrocket"

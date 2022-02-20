@@ -132,7 +132,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		table.changeSelection(row, col, true, false);
 	}
 
-	private final void installTableListener() {
+	protected void installTableListener() {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			@Override

@@ -318,8 +318,11 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	private void saveSimulation(Simulation simulation, double timeSkip) throws IOException {
 		SimulationOptions cond = simulation.getOptions();
-		
-		writeln("<simulation status=\"" + enumToXMLName(simulation.getStatus()) + "\">");
+
+		Simulation.Status simStatus;
+		simStatus = timeSkip != StorageOptions.SIMULATION_DATA_NONE ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
+
+		writeln("<simulation status=\"" + enumToXMLName(simStatus) + "\">");
 		indent++;
 		
 		writeln("<name>" + TextUtil.escapeXML(simulation.getName()) + "</name>");

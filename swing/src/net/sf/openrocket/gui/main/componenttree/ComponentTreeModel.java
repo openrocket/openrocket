@@ -138,7 +138,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		if (e.isTreeChange() || e.isUndoChange() || e.isMassChange()) {
+		if (e.isTreeChange() || e.isUndoChange()) {
 			// Tree must be fully updated also in case of an undo change 
 			fireTreeStructureChanged(e.getSource());
 			if (e.isTreeChange() && e.isUndoChange()) {
