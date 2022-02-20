@@ -24,4 +24,9 @@ jobs:
           distribution: 'adopt'
       - name: Ant build
         run: ant -noinput -buildfile build.xml clean check jar unittest
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: openrocket_build_${{ github.run_number }}
+          path: ${{github.workspace}}/swing/build/jar/OpenRocket.jar
 
