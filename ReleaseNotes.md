@@ -1,8 +1,8 @@
 Release Notes
 =============
 
-OpenRocket 22.xx Beta 1
------------------------
+OpenRocket 22.00.beta.01
+------------------------
 (through PR1132)
 ### Application
 * Update to Java 11 
@@ -43,6 +43,7 @@ OpenRocket 22.xx Beta 1
 * Separate left and right appearance for fin components
 
 ### User Interface
+* Multi-select/copy/paste components in the tree
 * Option to display rocket stability as percentage of length
 * Improved layout on many windows and dialogs
 * Now use "Export" to save to RKT format
