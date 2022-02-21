@@ -10,12 +10,12 @@ OpenRocket 22.00.beta.01
 * Distributed as packaged installers
 
 ### New Rocket Design Capabilities
-* **Pods!**
-* **Drop-off Boosters!**
-* **Rail buttons!**
-* **Attach freeform fins to nose cones and transitions!**
-* **Coefficient of Drag override!**
-* **Added Dave Cook's rocket component library!**
+* **Pods**
+* **Drop-off Boosters**
+* **Rail buttons**
+* **Attach freeform fins to nose cones and transitions**
+* **Coefficient of Drag override**
+* **Added Dave Cook's rocket component library**
 
 ### Staging Improvements
 * Update CG correctly when stages are toggled
