@@ -392,7 +392,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		double minDeriv = (interpolator.getValue(min + 0.01) - minValue) / 0.01;
 		
 		// These should not occur, but might cause havoc for the interpolation
-		if ((cdMach0 >= minValue - 0.01) || (minDeriv <= 0.01)) {
+		if ((cdMach0 >= minValue - 0.001) || (minDeriv <= 0.01)) {
 			return;
 		}
 		
@@ -400,7 +400,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		double a = minValue - cdMach0;
 		double b = minDeriv / a;
 		
-		for (double m = 0; m < minValue; m += 0.05) {
+		for (double m = 0; m < min; m += 0.05) {
 			interpolator.addPoint(m, a * Math.pow(m, b) + cdMach0);
 		}
 	}
