@@ -70,7 +70,7 @@ public class ComponentIcons {
 		load("tubecoupler", trans.get("ComponentIcons.Tubecoupler"), TubeCoupler.class);
 		//// Centering ring
 		load("centeringring", trans.get("ComponentIcons.Centeringring"), CenteringRing.class);
-		//// Bulk head
+		//// Bulkhead
 		load("bulkhead", trans.get("ComponentIcons.Bulkhead"), Bulkhead.class);
 		// // Engine block
 		load("engineblock", trans.get("ComponentIcons.Engineblock"),
