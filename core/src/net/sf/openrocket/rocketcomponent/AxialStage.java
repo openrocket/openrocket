@@ -192,5 +192,44 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		
 	}
 
-	
+	public StageSeparationConfiguration getSeparationConfiguration() {
+		FlightConfiguration flConfig = getRocket().getSelectedConfiguration();
+		StageSeparationConfiguration sepConfig = getSeparationConfigurations().get(flConfig.getId());
+		// to ensure the configuration is distinct, and we're not modifying the default
+		if ((sepConfig == getSeparationConfigurations().getDefault())
+				&& (flConfig.getId() != FlightConfigurationId.DEFAULT_VALUE_FCID)) {
+			sepConfig = new StageSeparationConfiguration();
+			getSeparationConfigurations().set(flConfig.getId(), sepConfig);
+		}
+		return sepConfig;
+	}
+
+	@Override
+	public boolean addConfigListener(RocketComponent listener) {
+		boolean success = super.addConfigListener(listener);
+		if (listener instanceof AxialStage) {
+			StageSeparationConfiguration thisConfig = getSeparationConfiguration();
+			StageSeparationConfiguration listenerConfig = ((AxialStage) listener).getSeparationConfiguration();
+			success = success && thisConfig.addConfigListener(listenerConfig);
+			return success;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeConfigListener(RocketComponent listener) {
+		super.removeConfigListener(listener);
+		if (listener instanceof AxialStage) {
+			StageSeparationConfiguration thisConfig = getSeparationConfiguration();
+			StageSeparationConfiguration listenerConfig = ((AxialStage) listener).getSeparationConfiguration();
+			thisConfig.removeConfigListener(listenerConfig);
+		}
+	}
+
+	@Override
+	public void clearConfigListeners() {
+		super.clearConfigListeners();
+		StageSeparationConfiguration thisConfig = getSeparationConfiguration();
+		thisConfig.clearConfigListeners();
+	}
 }

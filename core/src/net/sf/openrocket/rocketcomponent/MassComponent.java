@@ -59,6 +59,12 @@ public class MassComponent extends MassObject {
 	}
 	
 	public void setComponentMass(double mass) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setComponentMass(mass);
+			}
+		}
+
 		mass = Math.max(mass, 0);
 		if (MathUtil.equals(this.mass, mass))
 			return;
@@ -75,6 +81,12 @@ public class MassComponent extends MassObject {
 	}
 	
 	public void setDensity(double density) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setDensity(density);
+			}
+		}
+
 		double m = density * getVolume();
 		m = MathUtil.clamp(m, 0, 1000000);
 		if (Double.isNaN(m))
@@ -100,6 +112,12 @@ public class MassComponent extends MassObject {
 	}
 	
 	public void setMassComponentType(MassComponent.MassComponentType compType) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassComponent) {
+				((MassComponent) listener).setMassComponentType(compType);
+			}
+		}
+
 		mutex.verify();
 		if (this.massComponentType == compType) {
 			return;

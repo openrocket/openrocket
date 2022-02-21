@@ -108,7 +108,13 @@ public abstract class ExternalComponent extends RocketComponent {
 			throw new IllegalArgumentException("ExternalComponent requires a bulk material" +
 					" type=" + mat.getType());
 		}
-		
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ExternalComponent) {
+				((ExternalComponent) listener).setMaterial(mat);
+			}
+		}
+
 		if (material.equals(mat))
 			return;
 		material = mat;
@@ -121,6 +127,12 @@ public abstract class ExternalComponent extends RocketComponent {
 	}
 	
 	public void setFinish(Finish finish) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ExternalComponent) {
+				((ExternalComponent) listener).setFinish(finish);
+			}
+		}
+
 		if (this.finish == finish)
 			return;
 		this.finish = finish;

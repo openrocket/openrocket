@@ -112,6 +112,12 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * allowed, and will result in setting the thickness to the maximum radius.
 	 */
 	public void setThickness(double thickness) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof SymmetricComponent) {
+				((SymmetricComponent) listener).setThickness(thickness);
+			}
+		}
+
 		if ((this.thickness == thickness) && !filled)
 			return;
 		this.thickness = MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius()));
@@ -139,6 +145,12 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * the wall thickness will have no effect.
 	 */
 	public void setFilled(boolean filled) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof SymmetricComponent) {
+				((SymmetricComponent) listener).setFilled(filled);
+			}
+		}
+
 		if (this.filled == filled)
 			return;
 		this.filled = filled;

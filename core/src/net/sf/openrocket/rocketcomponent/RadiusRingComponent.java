@@ -51,6 +51,13 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setOuterRadius(double r) {
 		r = Math.max(r,0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setOuterRadius(r);
+			}
+		}
+
 		if (MathUtil.equals(outerRadius, r) && !isOuterRadiusAutomatic())
 			return;
 
@@ -73,6 +80,13 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setInnerRadius(double r) {
 		r = Math.max(r,0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInnerRadius(r);
+			}
+		}
+
 		if (MathUtil.equals(innerRadius, r))
 			return;
 
@@ -94,6 +108,12 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	}
 	@Override
 	public void setThickness(double thickness) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setThickness(thickness);
+			}
+		}
+
 		double outer = getOuterRadius();
 
 		thickness = MathUtil.clamp(thickness, 0, outer);
@@ -109,10 +129,22 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		this.instanceSeparation = _separation;
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInstanceSeparation(_separation);
+			}
+		}
 	}
 	
 	@Override
 	public void setInstanceCount( final int newCount ){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RadiusRingComponent) {
+				((RadiusRingComponent) listener).setInstanceCount(newCount);
+			}
+		}
+
 		if( 0 < newCount ){
 			this.instanceCount = newCount;
 		}

@@ -61,6 +61,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	}
 	
 	public void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setLength(length);
+			}
+		}
+
 		if (MathUtil.equals(this.length, length))
 			return;
 		this.length = length;
@@ -116,6 +122,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	 * @param radius  the outside radius in standard units
 	 */
 	public void setOuterRadius(double radius) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setOuterRadius(radius);
+			}
+		}
+
 		if ((this.outerRadius == radius) && (autoRadius == false))
 			return;
 		
@@ -132,6 +144,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	 * Sets whether the radius is selected automatically or not.
 	 */
 	public void setOuterRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setOuterRadiusAutomatic(auto);
+			}
+		}
+
 		if (autoRadius == auto)
 			return;
 		
@@ -145,6 +163,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	}
 	
 	public void setInnerRadius(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setInnerRadius(r);
+			}
+		}
+
 		setThickness(getOuterRadius() - r);
 	}
 	
@@ -161,6 +185,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	 * allowed, and will result in setting the thickness to the maximum radius.
 	 */
 	public void setThickness(double thickness) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setThickness(thickness);
+			}
+		}
+
 		if ((this.thickness == thickness))
 			return;
 		this.thickness = MathUtil.clamp(thickness, 0, getOuterRadius());
@@ -187,6 +217,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setFinCount(n);
+			}
+		}
+
 		if (fins == n)
 			return;
 		if (n < 1)
@@ -215,6 +251,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	 * @param r The base rotation amount.
 	 */
 	public void setBaseRotation(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setBaseRotation(r);
+			}
+		}
+
 		setAngleOffset(r);
 	}
 	
@@ -355,6 +397,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 
 	@Override
 	public void setInstanceCount(int newCount) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setInstanceCount(newCount);
+			}
+		}
+
 		setFinCount(newCount);
 	}
 
@@ -377,6 +425,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 
 	@Override
 	public void setAngleOffset(double angleRadians) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setAngleOffset(angleRadians);
+			}
+		}
+
 		final double reducedAngle = MathUtil.reducePi(angleRadians);
 		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
@@ -403,6 +457,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 
 	@Override
 	public void setAngleMethod(AngleMethod newAngleMethod) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof TubeFinSet) {
+				((TubeFinSet) listener).setAngleMethod(newAngleMethod);
+			}
+		}
+
 		mutex.verify();
 		this.angleMethod = newAngleMethod;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

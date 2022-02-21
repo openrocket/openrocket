@@ -152,6 +152,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setFinCount(n);
+			}
+		}
+
 		if (finCount == n)
 			return;
 		if (n < 1)
@@ -187,6 +193,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @param r The base rotation in radians
 	 */
 	public void setBaseRotation(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setBaseRotation(r);
+			}
+		}
+
 		setAngleOffset(r);
 	}
 	
@@ -202,6 +214,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @param newCantRadians -- new cant angle, in radians
 	 */
 	public void setCantAngle(final double newCantRadians) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setCantAngle(newCantRadians);
+			}
+		}
+
 		final double clampedCant = MathUtil.clamp(newCantRadians, -MAX_CANT_RADIANS, MAX_CANT_RADIANS);
 		if (MathUtil.equals(clampedCant, this.cantRadians))
 			return;
@@ -226,6 +244,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 	
 	public void setThickness(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setThickness(r);
+			}
+		}
+
 		if (thickness == r)
 			return;
 		thickness = Math.max(r, 0);
@@ -238,6 +262,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 	
 	public void setCrossSection(CrossSection cs) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setCrossSection(cs);
+			}
+		}
+
 		if (crossSection == cs)
 			return;
 		crossSection = cs;
@@ -265,6 +295,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * 
 	 */
 	public void setTabHeight(final double newTabHeight) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setTabHeight(newTabHeight);
+			}
+		}
+
 		if (MathUtil.equals(this.tabHeight, MathUtil.max(newTabHeight, 0))){
 			return;
 		}
@@ -283,6 +319,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * set tab length
 	 */
 	public void setTabLength(final double lengthRequest) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setTabLength(lengthRequest);
+			}
+		}
+
 		if (MathUtil.equals(tabLength, MathUtil.max(lengthRequest, 0))) {
 			return;
 		}
@@ -304,6 +346,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @param offsetRequest new requested tab offset
 	 */
 	public void setTabOffset( final double offsetRequest) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setTabOffset(offsetRequest);
+			}
+		}
+
 		tabOffset = offsetRequest;
 		updateTabPosition();
 		
@@ -319,6 +367,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * it is merely a lens through which other modules may view the tab's position.
      */
 	public void setTabOffsetMethod(final AxialMethod newPositionMethod) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setTabOffsetMethod(newPositionMethod);
+			}
+		}
+
 		this.tabOffsetMethod = newPositionMethod;
 		this.tabOffset = this.tabOffsetMethod.getAsOffset(tabPosition, tabLength, length);
 		
@@ -962,6 +1016,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	@Override
 	public void setAngleOffset(final double angleRadians) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setAngleOffset(angleRadians);
+			}
+		}
+
 		final double reducedAngle = MathUtil.reducePi(angleRadians);
 		if (MathUtil.equals(reducedAngle, firstFinOffsetRadians))
 			return;
@@ -1000,6 +1060,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	@Override
 	public void setAngleMethod(AngleMethod newAngleMethod ) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setAngleMethod(newAngleMethod);
+			}
+		}
+
 		mutex.verify();
 		this.angleMethod = newAngleMethod;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -1028,6 +1094,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	@Override
 	public void setInstanceCount(int newCount) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setInstanceCount(newCount);
+			}
+		}
+
 		setFinCount(newCount);
 	}
 
@@ -1075,6 +1147,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 	
 	public void setFilletMaterial(Material mat) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setFilletMaterial(mat);
+			}
+		}
+
 		if (mat.getType() != Material.Type.BULK) {
 			throw new IllegalArgumentException("ExternalComponent requires a bulk material" +
 					" type=" + mat.getType());
@@ -1092,6 +1170,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 	
 	public void setFilletRadius(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setFilletRadius(r);
+			}
+		}
+
 		if (MathUtil.equals(filletRadius, r))
 			return;
 		filletRadius = r;

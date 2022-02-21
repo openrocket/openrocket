@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
@@ -327,6 +328,18 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						document.addUndoPosition("Split cluster");
+
+						List<RocketComponent> listeners = new ArrayList<>(component.getConfigListeners());
+						splitAction(component);
+						for (RocketComponent listener : listeners) {
+							if (listener instanceof InnerTube) {
+								splitAction(listener);
+							}
+						}
+					}
+
+					private void splitAction(RocketComponent component) {
 						RocketComponent parent = component.getParent();
 						int index = parent.getChildPosition(component);
 						if (index < 0) {
@@ -338,11 +351,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 						if (tube.getInstanceCount() <= 1)
 							return;
 
-						document.addUndoPosition("Split cluster");
-
-						Coordinate[] coords = new Coordinate[]{Coordinate.ZERO };
-						// coords = component.shiftCoordinates( coords); // old version
-						coords = component.getComponentLocations();
+						Coordinate[] coords = component.getComponentLocations();
 						parent.removeChild(index);
 						for (int i = 0; i < coords.length; i++) {
 							InnerTube copy = InnerTube.makeIndividualClusterComponent(coords[i], component.getName() + " #" + (i + 1), component);

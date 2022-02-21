@@ -54,6 +54,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	
 	// Setter is protected, subclasses may make it public
 	protected void setOuterRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setOuterRadiusAutomatic(auto);
+			}
+		}
+
 		if (auto == outerRadiusAutomatic)
 			return;
 		outerRadiusAutomatic = auto;
@@ -67,6 +73,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	
 	// Setter is protected, subclasses may make it public
 	protected void setInnerRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setInnerRadiusAutomatic(auto);
+			}
+		}
+
 		if (auto == innerRadiusAutomatic)
 			return;
 		innerRadiusAutomatic = auto;
@@ -77,6 +89,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 
 
 	public final void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setLength(length);
+			}
+		}
+
 		double l = Math.max(length, 0);
 		if (this.length == l)
 			return;
@@ -103,6 +121,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	 * @param dir  the radial direction.
 	 */
 	public void setRadialDirection(double dir) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setRadialDirection(dir);
+			}
+		}
+
 		dir = MathUtil.reducePi(dir);
 		if (radialDirection == dir)
 			return;
@@ -142,6 +166,13 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	 */
 	public void setRadialPosition(double pos) {
 		pos = Math.max(pos, 0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setRadialPosition(pos);
+			}
+		}
+
 		if (radialPosition == pos)
 			return;
 		radialPosition = pos;
@@ -160,6 +191,12 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	}
 	
 	public void setRadialShift(double y, double z) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setRadialShift(y, z);
+			}
+		}
+
 		radialPosition = Math.hypot(y, z);
 		radialDirection = Math.atan2(z, y);
 		

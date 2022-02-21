@@ -60,6 +60,12 @@ public class EllipticalFinSet extends FinSet {
 	}
 	
 	public void setHeight(double height) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof EllipticalFinSet) {
+				((EllipticalFinSet) listener).setHeight(height);
+			}
+		}
+
 		if (MathUtil.equals(this.height, height))
 			return;
 		this.height = height;
@@ -68,6 +74,12 @@ public class EllipticalFinSet extends FinSet {
 	
 	
 	public void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof EllipticalFinSet) {
+				((EllipticalFinSet) listener).setLength(length);
+			}
+		}
+
 		if (MathUtil.equals(this.length, length))
 			return;
 		this.length = length;

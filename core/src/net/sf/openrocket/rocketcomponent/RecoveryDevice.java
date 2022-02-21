@@ -49,6 +49,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public void setCD(double cd) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setCD(cd);
+			}
+		}
+
 		if (MathUtil.equals(this.cd, cd) && !isCDAutomatic())
 			return;
 		this.cd = cd;
@@ -62,6 +68,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public void setCDAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setCDAutomatic(auto);
+			}
+		}
+
 		if (cdAutomatic == auto)
 			return;
 		this.cdAutomatic = auto;
@@ -75,6 +87,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	public final void setMaterial(Material mat) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setMaterial(mat);
+			}
+		}
+
 		if (!(mat instanceof Material.Surface)) {
 			throw new IllegalArgumentException("Attempted to set non-surface material " + mat);
 		}
@@ -119,5 +137,34 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
 		copy.deploymentConfigurations = new FlightConfigurableParameterSet<DeploymentConfiguration>(deploymentConfigurations);
 		return copy;
+	}
+
+	@Override
+	public boolean addConfigListener(RocketComponent listener) {
+		boolean success = super.addConfigListener(listener);
+		if (listener instanceof RecoveryDevice) {
+			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
+			success = success && thisConfig.addConfigListener(listenerConfig);
+			return success;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeConfigListener(RocketComponent listener) {
+		super.removeConfigListener(listener);
+		if (listener instanceof RecoveryDevice) {
+			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
+			thisConfig.removeConfigListener(listenerConfig);
+		}
+	}
+
+	@Override
+	public void clearConfigListeners() {
+		super.clearConfigListeners();
+		DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
+		thisConfig.clearConfigListeners();
 	}
 }

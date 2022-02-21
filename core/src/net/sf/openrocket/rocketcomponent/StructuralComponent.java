@@ -46,6 +46,13 @@ public abstract class StructuralComponent extends InternalComponent {
 		if (mat.getType() != Material.Type.BULK) {
 			throw new IllegalArgumentException("Attempted to set non-bulk material "+mat);
 		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof StructuralComponent) {
+				((StructuralComponent) listener).setMaterial(mat);
+			}
+		}
+
 		if (mat.equals(material))
 			return;
 		this.material = mat;

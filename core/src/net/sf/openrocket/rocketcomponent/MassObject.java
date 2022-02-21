@@ -51,6 +51,12 @@ public abstract class MassObject extends InternalComponent {
 
 	
 	public void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setLength(length);
+			}
+		}
+
 		length = Math.max(length, 0);
 		if (MathUtil.equals(this.length, length)) {
 			return;
@@ -67,6 +73,13 @@ public abstract class MassObject extends InternalComponent {
 	
 	public final void setRadius(double radius) {
 		radius = Math.max(radius, 0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadius(radius);
+			}
+		}
+
 		if (MathUtil.equals(this.radius, radius)) {
 			return;
 		}
@@ -82,6 +95,13 @@ public abstract class MassObject extends InternalComponent {
 	
 	public final void setRadialPosition(double radialPosition) {
 		radialPosition = Math.max(radialPosition, 0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadialPosition(radialPosition);
+			}
+		}
+
 		if (MathUtil.equals(this.radialPosition, radialPosition)) {
 			return;
 		}
@@ -96,6 +116,12 @@ public abstract class MassObject extends InternalComponent {
 	}
 	
 	public final void setRadialDirection(double radialDirection) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadialDirection(radialDirection);
+			}
+		}
+
 		radialDirection = MathUtil.reducePi(radialDirection);
 		if (MathUtil.equals(this.radialDirection, radialDirection)) {
 			return;

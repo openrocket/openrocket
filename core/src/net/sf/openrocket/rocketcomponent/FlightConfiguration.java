@@ -208,7 +208,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return true;
 		}
 		
-		return stages.get(stageNumber).active;
+		return stages.get(stageNumber) != null && stages.get(stageNumber).active;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {

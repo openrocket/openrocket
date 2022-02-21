@@ -35,6 +35,12 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setOuterRadius(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Sleeve) {
+				((Sleeve) listener).setOuterRadius(r);
+			}
+		}
+
 		if (MathUtil.equals(getOuterRadius(), r))
 			return;
 		
@@ -62,6 +68,12 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setInnerRadius(double r) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Sleeve) {
+				((Sleeve) listener).setInnerRadius(r);
+			}
+		}
+
 		r = Math.max(r, 0);
 		if (MathUtil.equals(innerRadius, r))
 			return;
@@ -76,6 +88,12 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setThickness(double t) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Sleeve) {
+				((Sleeve) listener).setThickness(t);
+			}
+		}
+
 		t = Math.max(t, 0);
 		if (MathUtil.equals(thickness, t))
 			return;

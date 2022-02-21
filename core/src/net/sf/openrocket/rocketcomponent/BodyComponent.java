@@ -65,6 +65,12 @@ public abstract class BodyComponent extends ExternalComponent {
 	 * clearPreset().  (BodyTube allows changing length without resetting the preset.)
 	 */
 	public void setLength(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof BodyComponent) {
+				((BodyComponent) listener).setLength(length);
+			}
+		}
+
 		if (this.length == length)
 			return;
 		this.length = Math.max(length, 0);

@@ -175,6 +175,20 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		}
 		return (RocketComponent) last;
 	}
+
+	/**
+	 * Return the rocket components that an array of TreePath objects are referring to.
+	 *
+	 * @param paths	the TreePaths
+	 * @return		the list of RocketComponents the paths are referring to.
+	 */
+	 public static List<RocketComponent> componentsFromPaths(TreePath[] paths) {
+		List<RocketComponent> result = new LinkedList<>();
+		for (TreePath path : paths) {
+			result.add(componentFromPath(path));
+		}
+		return result;
+	}
 	
 	
 	/**

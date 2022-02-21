@@ -162,7 +162,13 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	
 	@Override 
-	public void setInstanceCount( final int newCount ){
+	public void setInstanceCount(int newCount ){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setInstanceCount(newCount);
+			}
+		}
+
 		mutex.verify();
 		if ( newCount < 1) {
 			// there must be at least one instance....   
@@ -190,9 +196,15 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 
 	@Override
 	public void setAngleOffset(double angle_rad) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setAngleOffset(angle_rad);
+			}
+		}
+
 		mutex.verify();
 		this.angleOffset_rad = angle_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);		
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	@Override
@@ -206,6 +218,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 
 	@Override
 	public void setRadiusOffset(double radius_m) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadiusOffset(radius_m);
+			}
+		}
+
 		mutex.verify();
 		if( this.radiusMethod.clampToZero() ) {
 			this.radiusOffset_m = 0.0;
@@ -221,14 +239,26 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
-	public void setRadiusMethod( final RadiusMethod newMethod ) {
+	public void setRadiusMethod(RadiusMethod newMethod ) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadiusMethod(newMethod);
+			}
+		}
+
 		mutex.verify();
 		this.radiusMethod = newMethod;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
-	public void setRadius( final RadiusMethod requestMethod, final double requestRadius ) {
+	public void setRadius(RadiusMethod requestMethod, double requestRadius ) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof PodSet) {
+				((PodSet) listener).setRadius(requestMethod, requestRadius);
+			}
+		}
+
 		mutex.verify();
 		
 		RadiusMethod newMethod = requestMethod; 

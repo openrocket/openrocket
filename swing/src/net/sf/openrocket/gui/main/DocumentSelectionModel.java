@@ -79,8 +79,19 @@ public class DocumentSelectionModel {
 	 * @return	the currently selected rocket component, or <code>null</code>.
 	 */
 	public RocketComponent getSelectedComponent() {
-		if (componentSelection == null || componentSelection.size() == 0) return null;
+		if (componentSelection.size() == 0) return null;
 		return componentSelection.get(0);
+	}
+
+	/**
+	 * Return the currently selected rocket components.  Returns <code>null</code>
+	 * if no rocket component is selected.
+	 *
+	 * @return	the currently selected rocket components, or <code>null</code>.
+	 */
+	public List<RocketComponent> getSelectedComponents() {
+		if (componentSelection.size() == 0) return null;
+		return componentSelection;
 	}
 	
 	public void setSelectedComponent(RocketComponent component) {
@@ -142,7 +153,7 @@ public class DocumentSelectionModel {
 	
 	
 	public void clearComponentSelection() {
-		if (componentSelection == null || componentSelection.size() == 0)
+		if (componentSelection.size() == 0)
 			return;
 		
 		componentSelection.clear();
@@ -177,15 +188,17 @@ public class DocumentSelectionModel {
 
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {
-			TreePath path = componentTreeSelectionModel.getSelectionPath();
-			if (path == null) {
+			TreePath[] paths = componentTreeSelectionModel.getSelectionPaths();
+			if (paths == null || paths.length == 0) {
 				componentSelection.clear();
 				fireDocumentSelection(DocumentSelectionListener.COMPONENT_SELECTION_CHANGE);
 				return;
 			}
 
 			componentSelection.clear();
-			componentSelection.add((RocketComponent)path.getLastPathComponent());
+			for (TreePath path : paths) {
+				componentSelection.add((RocketComponent)path.getLastPathComponent());
+			}
 			
 			clearSimulationSelection();
 			fireDocumentSelection(DocumentSelectionListener.COMPONENT_SELECTION_CHANGE);

@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -141,7 +142,7 @@ public class RocketComponentConfig extends JPanel {
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ComponentConfigDialog.hideDialog();
+				ComponentConfigDialog.disposeDialog();
 			}
 		});
 		buttonPanel.add(closeButton, "right, gap 30lp");
