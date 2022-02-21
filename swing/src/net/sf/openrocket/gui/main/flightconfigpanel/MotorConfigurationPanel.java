@@ -9,6 +9,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.AbstractAction;
@@ -44,6 +45,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
 
 @SuppressWarnings("serial")
@@ -189,7 +191,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		JTable configurationTable = new JTable(configurationTableModel);
 		configurationTable.getTableHeader().setReorderingAllowed(false);
 		configurationTable.setCellSelectionEnabled(true);
-		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		configurationTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
 
 		configurationTable.addMouseListener(new MouseAdapter() {
@@ -236,10 +238,16 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if (e.getValueIsAdjusting()) {
 			return;
 		}
-		MotorMount mount = getSelectedComponent();
-		if (mount instanceof RocketComponent) {
-			flightConfigurationPanel.setSelectedComponent((RocketComponent) mount);
+		List<MotorMount> mounts = getSelectedComponents();
+		if (mounts == null || mounts.size() == 0) return;
+		List<RocketComponent> components = new ArrayList<>();
+		for (MotorMount mount : mounts) {
+			if (mount instanceof RocketComponent) {
+				components.add((RocketComponent) mount);
+			}
 		}
+
+		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
 	protected void updateButtonState() {
@@ -261,86 +269,140 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 
 	public void selectMotor() {
-		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationId fcid= getSelectedConfigurationId();
-        if ( (null == fcid )||( null == curMount )){
-            return;
-        }
+		List<MotorMount> mounts = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
+			return;
+		}
 
-        if( fcid.equals( FlightConfigurationId.DEFAULT_VALUE_FCID)){
-        	throw new IllegalStateException("Attempting to set a motor on the default FCID.");
-        }
+		boolean update = false;
+		MotorMount initMount = mounts.get(0);
+		FlightConfigurationId initFcId = fcIds.get(0);
 
-        double initDelay = curMount.getMotorConfig(fcid).getEjectionDelay();
+		for (FlightConfigurationId fcId : fcIds) {
+			if (fcId.equals( FlightConfigurationId.DEFAULT_VALUE_FCID)) {
+				throw new IllegalStateException("Attempting to set a motor on the default FCID.");
+			}
+		}
 
-		motorChooserDialog.setMotorMountAndConfig( fcid, curMount );
+        double initDelay = initMount.getMotorConfig(initFcId).getEjectionDelay();
+
+		motorChooserDialog.setMotorMountAndConfig(initFcId, initMount);
 		motorChooserDialog.setVisible(true);
 
         Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
-		if (mtr != null) {
-			if (mtr == curMount.getMotorConfig(fcid).getMotor() && d == initDelay) {
-				return;
-			}
-	        final MotorConfiguration templateConfig = curMount.getMotorConfig(fcid);
-	        final MotorConfiguration newConfig = new MotorConfiguration( curMount, fcid, templateConfig);
-	        newConfig.setMotor(mtr);
-			newConfig.setEjectionDelay(d);
-			curMount.setMotorConfig( newConfig, fcid);
 
+
+		if (mtr != null) {
+			for (MotorMount mount : mounts) {
+				for (FlightConfigurationId fcId : fcIds) {
+					if (mtr != mount.getMotorConfig(fcId).getMotor() || d != initDelay) {
+						update = true;
+
+						final MotorConfiguration templateConfig = mount.getMotorConfig(fcId);
+						final MotorConfiguration newConfig = new MotorConfiguration(mount, fcId, templateConfig);
+						newConfig.setMotor(mtr);
+						newConfig.setEjectionDelay(d);
+						mount.setMotorConfig(newConfig, fcId);
+					}
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		}
 	}
 
 	private void removeMotor() {
-		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationId fcid= getSelectedConfigurationId();
-        if ( (null == fcid )||( null == curMount )){
+		List<MotorMount> mounts = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
             return;
         }
-        
-        curMount.setMotorConfig( null, fcid); 
+
+		for (MotorMount mount : mounts) {
+			for (FlightConfigurationId fcId : fcIds) {
+				mount.setMotorConfig(null, fcId);
+			}
+		}
 		
 		fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 
 	private void selectIgnition() {
-		MotorMount curMount = getSelectedComponent();
-		FlightConfigurationId fcid = getSelectedConfigurationId();
-		if ((null == fcid) || (null == curMount)) {
+		List<MotorMount> mounts = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
 			return;
 		}
 
-		MotorConfiguration curInstance = curMount.getMotorConfig(fcid);
-		IgnitionEvent initialIgnitionEvent = curInstance.getIgnitionEvent();
-		double initialIgnitionDelay = curInstance.getIgnitionDelay();
+		boolean update = false;
+		MotorMount initMount = mounts.get(0);
+		FlightConfigurationId initFcId = fcIds.get(0);
+
+		MotorConfiguration initConfig = initMount.getMotorConfig(initFcId);
+		IgnitionEvent initialIgnitionEvent = initConfig.getIgnitionEvent();
+		double initialIgnitionDelay = initConfig.getIgnitionDelay();
 
 		// this call also performs the update changes
 		IgnitionSelectionDialog ignitionDialog = new IgnitionSelectionDialog(
 				SwingUtilities.getWindowAncestor(this.flightConfigurationPanel),
-				fcid,
-				curMount);
+				initFcId,
+				initMount);
 		ignitionDialog.setVisible(true);
 
-		if (!initialIgnitionEvent.equals(curInstance.getIgnitionEvent()) || (initialIgnitionDelay != curInstance.getIgnitionDelay())) {
+		if (!initialIgnitionEvent.equals(initConfig.getIgnitionEvent()) || (initialIgnitionDelay != initConfig.getIgnitionDelay())) {
+			update = true;
+		}
+
+		for (int i = 0; i < mounts.size(); i++) {
+			for (int j = 0; j < fcIds.size(); j++) {
+				if ((i == 0) && (j == 0)) break;
+
+				MotorConfiguration config = mounts.get(i).getMotorConfig(fcIds.get(j));
+				initialIgnitionEvent = config.getIgnitionEvent();
+				initialIgnitionDelay = config.getIgnitionDelay();
+
+				config.setIgnitionEvent(initConfig.getIgnitionEvent());
+				config.setIgnitionDelay(initConfig.getIgnitionDelay());
+
+				if (!initialIgnitionEvent.equals(config.getIgnitionEvent()) || (initialIgnitionDelay != config.getIgnitionDelay())) {
+					update = true;
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		}
 	}
 
 
 	private void resetIgnition() {
-		MotorMount curMount = getSelectedComponent();		
-		FlightConfigurationId fcid= getSelectedConfigurationId();
-        if ( (null == fcid )||( null == curMount )){
-            return;
-        }
-        MotorConfiguration curInstance = curMount.getMotorConfig(fcid);
-		IgnitionEvent initialIgnitionEvent = curInstance.getIgnitionEvent();
-		double initialIgnitionDelay = curInstance.getIgnitionDelay();
-		
-        curInstance.useDefaultIgnition();
+		List<MotorMount> mounts = getSelectedComponents();
+		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
+		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
+			return;
+		}
 
-		if (!initialIgnitionEvent.equals(curInstance.getIgnitionEvent()) || (initialIgnitionDelay != curInstance.getIgnitionDelay())) {
+		boolean update = false;
+		for (MotorMount mount : mounts) {
+			for (FlightConfigurationId fcId : fcIds) {
+				MotorConfiguration config = mount.getMotorConfig(fcId);
+				IgnitionEvent initialIgnitionEvent = config.getIgnitionEvent();
+				double initialIgnitionDelay = config.getIgnitionDelay();
+
+				config.useDefaultIgnition();
+
+				if (!initialIgnitionEvent.equals(config.getIgnitionEvent()) || (initialIgnitionDelay != config.getIgnitionDelay())) {
+					update = true;
+				}
+			}
+		}
+
+		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		}
 	}

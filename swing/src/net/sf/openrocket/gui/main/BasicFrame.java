@@ -1694,6 +1694,11 @@ public class BasicFrame extends JFrame {
 		this.selectionModel.setSelectedComponent(component);
 	}
 
+	public void setSelectedComponents(List<RocketComponent> components) {
+		this.selectionModel.setSelectedComponents(components);
+	}
+
+
 	public void stateChanged(ChangeEvent e) {
 		JTabbedPane tabSource = (JTabbedPane) e.getSource();
 		int tab = tabSource.getSelectedIndex();
