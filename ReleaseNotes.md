@@ -3,7 +3,8 @@ Release Notes
 
 OpenRocket 22.00.beta.01
 ------------------------
-(through PR1132)
+(through PR1142)
+
 ### Application
 * Update to Java 11 
 * Distributed as packaged installers
