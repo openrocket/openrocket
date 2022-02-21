@@ -32,7 +32,7 @@ public class BulkHeadDTO extends BaseComponentDTO {
      *
      * @param thePreset  the preset
      *
-     * @throws net.sf.openrocket.util.BugException thrown if the expected bulk head keys are not in the preset
+     * @throws net.sf.openrocket.util.BugException thrown if the expected bulkhead keys are not in the preset
      */
     public BulkHeadDTO(final ComponentPreset thePreset) {
         super(thePreset);
