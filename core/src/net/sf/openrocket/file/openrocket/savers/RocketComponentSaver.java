@@ -111,7 +111,7 @@ public class RocketComponentSaver {
 			if (c instanceof FinSet || c instanceof TubeFinSet) {
 				elements.add("<rotation>" + angleOffset + "</rotation>");
 			}
-			else if (!(c instanceof RailButton)) {
+			else if (!(c instanceof RailButton) && !(c instanceof PodSet)) {
 				elements.add("<radialdirection>" + angleOffset + "</radialdirection>");
 			}
 		}
