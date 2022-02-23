@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-OpenRocket 22.00.beta.01
+OpenRocket 22.02.beta.01
 ------------------------
 (through PR1155)
 
