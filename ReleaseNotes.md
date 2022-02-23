@@ -1,6 +1,83 @@
 Release Notes
 =============
 
+OpenRocket 22.02.beta.01
+------------------------
+(through PR1155)
+
+### Application
+* Update to Java 11 
+* Distributed as packaged installers
+
+### New Rocket Design Capabilities
+* **Pods**
+* **Drop-off Boosters**
+* **Rail buttons**
+* **Attach freeform fins to nose cones and transitions**
+* **Coefficient of Drag override**
+* **Added Dave Cook's rocket component library**
+
+### Staging Improvements
+* Update CG correctly when stages are toggled
+* Display stage names instead of numbers in Stage enable buttons
+* Reported length reflects length of selected stages only
+* More reliable deployment of booster stage recovery device
+* Fixed booster tumbling behavior
+* Eliminate exceptions during multi-stage simulation
+* Improved accuracy of nose cone simulation
+
+### Simulation Improvements
+* Assorted CP calculation fixes
+* Improved nose cone drag calculations
+* Properly run all simulations when any design change is made
+* Use actual burn time for determination of burnout event
+* Improve mass calculation accuracy for motors
+* Correct linear interpolation of motor CG
+* Copy Simulation results to clipboard
+* Report wind speed correctly
+* Improved ground hit velocity calculations
+* Run simulations all the way to the end
+* No more warning if recovery device is deployed while motor is coasting
+
+### Rocket Appearance
+* Support rendering of transparent or translucent components
+* Separate inside and outside color for tube components
+* Separate left and right appearance for fin components
+
+### User Interface
+* Multi-select/copy/paste components in the tree
+* Option to display rocket stability as percentage of length
+* Improved layout on many windows and dialogs
+* Now use "Export" to save to RKT format
+* Improved File Dialog behavior
+* Multi-select/delete motor configurations
+* Improved UI appearance on Mac
+* Motor Selection
+  * Automatically open motor selection dialog when adding new motor configuation
+  * Added checkbox to hide motors which are out of production
+  * Highlight motor mount in rocket display when motor is selected
+* Many improvements to freeform fin editor, including
+  * More accurate insertion of new points
+  * Highlight coordinates of selected point
+  * Export fin profile to CSV file
+  * Fixed scrolling and zooming
+* Improvements to Photo Studio
+  * Respond instantly to design changes
+  * Settings saved per rocket
+  * Settings layout improved
+  * Settings values can now be entered via keyboard
+
+### Misc
+* Updated motor list to latest data from Thrustcurve.org
+* Added additional fields to motors
+* Disable fin-thickness warnings on phantom tubes
+* Added warning message for phantom body tubes
+* Updated print dialog to allow simulation control
+* Improved Rocksim import
+* Added or improved Spanish, Dutch, and simplified Chinese translations
+
+..._plus many, many additional bug fixes and refinements_
+
 OpenRocket 15.03 (2015-03-28)
 -----------------------------
 
