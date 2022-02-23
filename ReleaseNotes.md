@@ -3,7 +3,7 @@ Release Notes
 
 OpenRocket 22.00.beta.01
 ------------------------
-(through PR1142)
+(through PR1155)
 
 ### Application
 * Update to Java 11 
@@ -28,6 +28,7 @@ OpenRocket 22.00.beta.01
 
 ### Simulation Improvements
 * Assorted CP calculation fixes
+* Improved nose cone drag calculations
 * Properly run all simulations when any design change is made
 * Use actual burn time for determination of burnout event
 * Improve mass calculation accuracy for motors
