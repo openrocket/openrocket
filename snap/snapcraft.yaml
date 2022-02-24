@@ -47,6 +47,7 @@ parts:
   openrocket:
     plugin: ant
     source: .
+    source-type: git
     ant-build-targets:
       - clean
       - check
