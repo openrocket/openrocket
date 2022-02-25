@@ -28,6 +28,7 @@ public class AssetHandler {
         mapExtensionToPlatform.put(".dmg", UpdatePlatform.MAC_OS);
         mapExtensionToPlatform.put(".exe", UpdatePlatform.WINDOWS);
         mapExtensionToPlatform.put(".AppImage", UpdatePlatform.LINUX);
+        mapExtensionToPlatform.put(".sh", UpdatePlatform.LINUX);
         mapExtensionToPlatform.put(".jar", UpdatePlatform.JAR);
 
         mapPlatformToName.put(UpdatePlatform.MAC_OS, "Mac OS");
