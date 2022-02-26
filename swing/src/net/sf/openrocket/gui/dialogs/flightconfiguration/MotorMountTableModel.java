@@ -78,7 +78,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 	public Object getValueAt(int row, int column) {
 		switch (column) {
 		case 0:
-			return Boolean.valueOf(potentialMounts.get(row).isMotorMount());
+			return new Boolean(potentialMounts.get(row).isMotorMount());
 			
 		case 1:
 			return potentialMounts.get(row).toString();
