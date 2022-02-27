@@ -157,9 +157,22 @@ public class GUIUtil {
 	 * @param dialog	the dialog for which to install the action.
 	 */
 	public static void installEscapeCloseOperation(final JDialog dialog) {
+		installEscapeCloseOperation(dialog, null);
+	}
+
+	/**
+	 * Add the correct action to close a JDialog when the ESC key is pressed.
+	 * The dialog is closed by sending it a WINDOW_CLOSING event.
+	 *
+	 * An additional action can be passed which will be executed upon the close action key.
+	 *
+	 * @param dialog	the dialog for which to install the action.
+	 * @param action	action to execute upon the close action
+	 */
+	public static void installEscapeCloseOperation(final JDialog dialog, Action action) {
 		Action dispatchClosing = new AbstractAction() {
 			/**
-			 * 
+			 *
 			 */
 			private static final long serialVersionUID = 9196153713666242274L;
 
@@ -172,6 +185,9 @@ public class GUIUtil {
 		JRootPane root = dialog.getRootPane();
 		root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ESCAPE, CLOSE_ACTION_KEY);
 		root.getActionMap().put(CLOSE_ACTION_KEY, dispatchClosing);
+		if (action != null) {
+			root.getActionMap().put(CLOSE_ACTION_KEY, action);
+		}
 	}
 	
 	
