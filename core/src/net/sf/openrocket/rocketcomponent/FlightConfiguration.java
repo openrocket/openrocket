@@ -716,6 +716,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
         copy.modID = this.modID;
         copy.boundsModID = -1;
         copy.refLengthModID = -1;
+		copy.configurationName = configurationName;
         return copy;
     }
 
