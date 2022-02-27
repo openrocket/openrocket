@@ -534,7 +534,7 @@ public class SimulationPlotPanel extends JPanel {
 		public Object getValueAt(int row, int column) {
 			switch (column) {
 			case 0:
-				return new Boolean(configuration.isEventActive(eventTypes[row]));
+				return Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
 				
 			case 1:
 				return eventTypes[row].toString();
