@@ -115,6 +115,10 @@ public class UpdateInfoRetriever {
 		private static final Logger log = LoggerFactory.getLogger(UpdateInfoFetcher.class);
 		private static final Translator trans = Application.getTranslator();
 
+		private final String preTag = null;       		// Change e.g. to 'android' for Android release
+		private final String[] filterTags = null;		// Change to e.g. ["beta"] to only retrieve beta releases
+		private final boolean onlyOfficial = false;		// Change to false for beta testing
+
 		private volatile UpdateInfo info;
 		
 		@Override
@@ -133,13 +137,10 @@ public class UpdateInfoRetriever {
 		 */
 		public void runUpdateFetcher() throws UpdateCheckerException {
 			String buildVersion = BuildProperties.getVersion();
-			String preTag = null;       	// Change e.g. to 'android' for Android release
-			String[] tags = null;			// Change to e.g. ["beta"] for only beta releases
-			boolean onlyOfficial = true;	// Change to false for beta testing
 
 			// Get the latest release name from the GitHub release page
 			JsonArray jsonArr = retrieveAllReleaseObjects();
-			JsonObject latestObj = getLatestReleaseJSON(jsonArr, preTag, tags, onlyOfficial);
+			JsonObject latestObj = getLatestReleaseJSON(jsonArr, preTag, filterTags, onlyOfficial);
 			ReleaseInfo release = new ReleaseInfo(latestObj);
 			String latestName = release.getReleaseName();
 
