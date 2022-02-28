@@ -149,7 +149,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		updateFields();
 		
-		this.add(buttonPanel, "newline, spanx, growx, height 32!");
+		this.add(buttonPanel, "newline, spanx, growx");
 	}
 	
 	
