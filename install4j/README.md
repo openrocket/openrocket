@@ -1,11 +1,16 @@
 # OpenRocket Installer Files
-Repo that contains the [Install4j](https://www.ej-technologies.com/products/install4j/overview.html) configuration files for each release of OpenRocket.
+Originally a separate repository of Justin Hanna's, now a directory
+with its own commit history in the openrocket repository.
 
 # OpenRocket Supported Installers
-The [OpenRocket](http://www.openrocket.info) project will do its best to publish installers for the following platforms.
+The [OpenRocket](http://www.openrocket.info) project will do its best
+to publish installers for the following platforms.
+
 * Windows, 64-bit
 * macOS, 64-bit
+* Linux, 64-bit
 
 # Maintainers
 * Neil Weinstock 
 * Justin Hanney
+* Joe Pfeiffer
