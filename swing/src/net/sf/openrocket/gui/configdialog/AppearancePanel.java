@@ -549,7 +549,7 @@ public class AppearancePanel extends JPanel {
 		// Shine
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 		DoubleModel shineModel = new DoubleModel(builder, "Shine",
-				UnitGroup.UNITS_RELATIVE);
+				UnitGroup.UNITS_RELATIVE, 0, 1);
 		JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		BasicSlider slide = new BasicSlider(shineModel.getSliderModel(0, 1));
@@ -583,10 +583,10 @@ public class AppearancePanel extends JPanel {
 		// Opacity
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.opacity")));
 		DoubleModel opacityModel = new DoubleModel(builder, "Opacity",
-				UnitGroup.UNITS_RELATIVE);
+				UnitGroup.UNITS_RELATIVE, 0, 1);
 		JSpinner spinOpacity = new JSpinner(opacityModel.getSpinnerModel());
 		spinOpacity.setEditor(new SpinnerEditor(spinOpacity));
-		JSlider slideOpacity = new JSlider(opacityModel.getSliderModel(0, 1));
+		BasicSlider slideOpacity = new BasicSlider(opacityModel.getSliderModel(0, 1));
 		UnitSelector unitOpacity = new UnitSelector(opacityModel);
 
 		mDefault.addEnableComponent(slideOpacity, false);
