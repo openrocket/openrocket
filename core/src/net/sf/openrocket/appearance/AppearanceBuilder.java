@@ -51,7 +51,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	Clears the builder cache and set to build blank appearances
 	*/
 	private void resetToDefaults() {
-		paint = new Color(127, 127, 127);
+		paint = new Color(187, 187, 187);
 		shine = 0.3;
 		offsetU = offsetV = 0;
 		centerU = centerV = 0;
