@@ -30,7 +30,7 @@ public class RenameConfigDialog extends JDialog {
 		
 		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name")), "span, wrap rel");
 		
-		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(fcid).getName());
+		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(fcid).getNameRaw());
 		panel.add(textbox, "span, w 200lp, growx, wrap para");
 		
 		panel.add(new JPanel(), "growx");

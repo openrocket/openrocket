@@ -861,7 +861,7 @@ public class Rocket extends ComponentAssembly {
 			if( this.selectedConfiguration.equals( config)){
 				shortKey = "=>" + shortKey;
 			}
-			buf.append(String.format(fmt, shortKey, config.getName() ));
+			buf.append(String.format(fmt, shortKey, config.getNameRaw() ));
 		}
 		return buf.toString();
 	}

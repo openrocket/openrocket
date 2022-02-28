@@ -112,14 +112,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		setMotorMountAndConfig( fcid, mount );
 
 	}
-	
-	/**
-	 * Sole constructor.
-	 * 
-	 * @param current	the currently selected ThrustCurveMotor, or <code>null</code> for none.
-	 * @param delay		the currently selected ejection charge delay.
-	 * @param diameter	the diameter of the motor mount.
-	 */
+
 	public ThrustCurveMotorSelectionPanel() {
 		super(new MigLayout("fill", "[grow][]"));
 
@@ -264,17 +257,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					int row = table.getSelectedRow();
-					if (row >= 0) {
-						row = table.convertRowIndexToModel(row);
-						ThrustCurveMotorSet motorSet = model.getMotorSet(row);
-						log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
-						if (motorSet != selectedMotorSet) {
-							select(selectMotor(motorSet));
-						}
-					} else {
-						log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");
-					}
+					selectMotorFromTable();
 				}
 			});
 			table.addMouseListener(new MouseAdapter() {
@@ -606,6 +589,23 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		// No motor has been used
 		Collections.sort(list, MOTOR_COMPARATOR);
 		return list.get(0);
+	}
+
+	/**
+	 * Selects a new motor based on the selection in the motor table
+	 */
+	public void selectMotorFromTable() {
+		int row = table.getSelectedRow();
+		if (row >= 0) {
+			row = table.convertRowIndexToModel(row);
+			ThrustCurveMotorSet motorSet = model.getMotorSet(row);
+			log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
+			if (motorSet != selectedMotorSet) {
+				select(selectMotor(motorSet));
+			}
+		} else {
+			log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");
+		}
 	}
 
 

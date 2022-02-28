@@ -220,7 +220,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		if (fcIds == null) return;
 		FlightConfigurationId initFcId = fcIds.get(0);
 		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId).setVisible(true);
-		String newName = rocket.getFlightConfiguration(initFcId).getName();
+		String newName = rocket.getFlightConfiguration(initFcId).getNameRaw();
 		for (int i = 1; i < fcIds.size(); i++) {
 			rocket.getFlightConfiguration(fcIds.get(i)).setName(newName);
 		}
