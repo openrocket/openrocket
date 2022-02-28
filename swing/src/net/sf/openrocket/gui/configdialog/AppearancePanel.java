@@ -553,18 +553,18 @@ public class AppearancePanel extends JPanel {
 		// Set the initial value to the reset state, not the shine value of the default appearance of this component
 		if (mDefault.getValue() && previousUserSelectedAppearance != null)
 			shineModel.setValue(previousUserSelectedAppearance.getShine());
-		JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		BasicSlider slide = new BasicSlider(shineModel.getSliderModel(0, 1));
-		UnitSelector unit = new UnitSelector(shineModel);
+		final JSpinner spinShine = new JSpinner(shineModel.getSpinnerModel());
+		spinShine.setEditor(new SpinnerEditor(spinShine));
+		final BasicSlider slideShine = new BasicSlider(shineModel.getSliderModel(0, 1));
+		final UnitSelector unitShine = new UnitSelector(shineModel);
 
-		mDefault.addEnableComponent(slide, false);
-		mDefault.addEnableComponent(spin, false);
-		mDefault.addEnableComponent(unit, false);
+		mDefault.addEnableComponent(slideShine, false);
+		mDefault.addEnableComponent(spinShine, false);
+		mDefault.addEnableComponent(unitShine, false);
 
-		panel.add(spin, "split 3, w 50");
-		panel.add(unit);
-		panel.add(slide, "w 50");
+		panel.add(spinShine, "split 3, w 50");
+		panel.add(unitShine);
+		panel.add(slideShine, "w 50");
 
 		// Offset
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
