@@ -147,6 +147,11 @@ class FinSetHandler extends AbstractElementHandler {
 	private final RockSimAppearanceBuilder appearanceBuilder;
 
 	/**
+	 * Checks whether the location is already loaded in or not
+	 */
+	private boolean locationLoaded = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param c the parent
@@ -180,12 +185,27 @@ class FinSetHandler extends AbstractElementHandler {
 				finish = RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket();
 			}
 			if (RocksimCommonConstants.XB.equals(element)) {
-				// Opposite value accounts for the different relative distance directions used
+				location = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+
+				// Account for the different relative distance directions used
 				// Issue Ref: https://github.com/openrocket/openrocket/issues/881
-				location = -Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				if (axialMethod != null) {
+					if (axialMethod == AxialMethod.BOTTOM) {
+						location = -location;
+					}
+				}
+
+				this.locationLoaded = true;
 			}
 			if (RocksimCommonConstants.LOCATION_MODE.equals(element)) {
 				axialMethod = RocksimLocationMode.fromCode(Integer.parseInt(content)).asOpenRocket();
+
+				// If the location is loaded before the axialMethod, we still need to correct for the different relative distance directions
+				if (locationLoaded) {
+					if (axialMethod == AxialMethod.BOTTOM) {
+						location = -location;
+					}
+				}
 			}
 			if (RocksimCommonConstants.FIN_COUNT.equals(element)) {
 				finCount = Integer.parseInt(content);
