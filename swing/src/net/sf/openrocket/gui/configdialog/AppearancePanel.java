@@ -18,7 +18,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
-import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
@@ -553,7 +552,7 @@ public class AppearancePanel extends JPanel {
 				UnitGroup.UNITS_RELATIVE);
 		JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
+		BasicSlider slide = new BasicSlider(shineModel.getSliderModel(0, 1));
 		UnitSelector unit = new UnitSelector(shineModel);
 
 		mDefault.addEnableComponent(slide, false);
