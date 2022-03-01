@@ -107,7 +107,7 @@ public class SwingStartup {
 				if (IntStream.of(Application.SUPPORTED_JRE_VERSIONS).noneMatch(c -> c == version)) {
 					String title = "Unsupported Java version";
 					String message1 = "Unsupported Java version: %s";
-					String message2 = "Supported versions: %s";
+					String message2 = "Supported version(s): %s";
 					String message3 = "Please change the Java Runtime Environment version or install OpenRocket using a packaged installer.";
 
 					StringBuilder message = new StringBuilder();
