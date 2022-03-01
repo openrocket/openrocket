@@ -34,7 +34,7 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 			for (ThrustCurveMotor m : set.getMotors()) {
 				boolean matchDescription = true;
 				boolean matchDigest = true;
-
+				
 				// unlike the description, digest must be present in search criteria to get a match
 				if (digest == null || digest != m.getDigest())
 					matchDigest = false;
@@ -45,8 +45,8 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 				else if (manufacturer != null && !m.getManufacturer().matches(manufacturer))
 					matchDescription = false;
 				else if (designation != null &&
-						 !designation.equalsIgnoreCase(m.getDesignation()) &&
-						 !designation.equalsIgnoreCase(m.getCommonName()))
+						 !m.getDesignation().toUpperCase().contains(designation.toUpperCase()) &&
+						 !designation.toUpperCase().contains(m.getCommonName().toUpperCase()))
 					matchDescription = false;
 				else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.005))
 					matchDescription = false;
