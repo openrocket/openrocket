@@ -55,7 +55,7 @@ public class RocketSaver extends RocketComponentSaver {
 			}
 			
 			if (flightConfig.isNameOverridden()){
-				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(flightConfig.getName())
+				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(flightConfig.getNameRaw())
 						+ "</name></motorconfiguration>";
 			} else {
 				str += "/>";

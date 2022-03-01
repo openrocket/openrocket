@@ -18,7 +18,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
-import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
@@ -550,19 +549,22 @@ public class AppearancePanel extends JPanel {
 		// Shine
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 		DoubleModel shineModel = new DoubleModel(builder, "Shine",
-				UnitGroup.UNITS_RELATIVE);
-		JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
-		UnitSelector unit = new UnitSelector(shineModel);
+				UnitGroup.UNITS_RELATIVE, 0, 1);
+		// Set the initial value to the reset state, not the shine value of the default appearance of this component
+		if (mDefault.getValue() && previousUserSelectedAppearance != null)
+			shineModel.setValue(previousUserSelectedAppearance.getShine());
+		final JSpinner spinShine = new JSpinner(shineModel.getSpinnerModel());
+		spinShine.setEditor(new SpinnerEditor(spinShine));
+		final BasicSlider slideShine = new BasicSlider(shineModel.getSliderModel(0, 1));
+		final UnitSelector unitShine = new UnitSelector(shineModel);
 
-		mDefault.addEnableComponent(slide, false);
-		mDefault.addEnableComponent(spin, false);
-		mDefault.addEnableComponent(unit, false);
+		mDefault.addEnableComponent(slideShine, false);
+		mDefault.addEnableComponent(spinShine, false);
+		mDefault.addEnableComponent(unitShine, false);
 
-		panel.add(spin, "split 3, w 50");
-		panel.add(unit);
-		panel.add(slide, "w 50");
+		panel.add(spinShine, "split 3, w 50");
+		panel.add(unitShine);
+		panel.add(slideShine, "w 50");
 
 		// Offset
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
@@ -581,15 +583,22 @@ public class AppearancePanel extends JPanel {
 		mDefault.addEnableComponent(offsetV, false);
 		panel.add(offsetV, "wrap, w 40");
 
-		// Repeat
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
-		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
-		System.arraycopy(EdgeMode.values(), 0, list, 0,
-				EdgeMode.values().length);
-		JComboBox<EdgeMode> combo = new JComboBox<EdgeMode>(new EnumModel<EdgeMode>(builder,
-				"EdgeMode", list));
-		mDefault.addEnableComponent(combo, false);
-		panel.add(combo);
+		// Opacity
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.opacity")));
+		DoubleModel opacityModel = new DoubleModel(builder, "Opacity",
+				UnitGroup.UNITS_RELATIVE, 0, 1);
+		JSpinner spinOpacity = new JSpinner(opacityModel.getSpinnerModel());
+		spinOpacity.setEditor(new SpinnerEditor(spinOpacity));
+		BasicSlider slideOpacity = new BasicSlider(opacityModel.getSliderModel(0, 1));
+		UnitSelector unitOpacity = new UnitSelector(opacityModel);
+
+		mDefault.addEnableComponent(slideOpacity, false);
+		mDefault.addEnableComponent(spinOpacity, false);
+		mDefault.addEnableComponent(unitOpacity, false);
+
+		panel.add(spinOpacity, "split 3, w 50");
+		panel.add(unitOpacity);
+		panel.add(slideOpacity, "w 50");
 
 		// Rotation
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
@@ -604,5 +613,15 @@ public class AppearancePanel extends JPanel {
 				-Math.PI, Math.PI));
 		mDefault.addEnableComponent(bs, false);
 		panel.add(bs, "w 50, wrap");
+
+		// Repeat
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2");
+		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
+		System.arraycopy(EdgeMode.values(), 0, list, 0,
+				EdgeMode.values().length);
+		JComboBox<EdgeMode> combo = new JComboBox<EdgeMode>(new EnumModel<EdgeMode>(builder,
+				"EdgeMode", list));
+		mDefault.addEnableComponent(combo, false);
+		panel.add(combo, "wrap");
 	}
 }

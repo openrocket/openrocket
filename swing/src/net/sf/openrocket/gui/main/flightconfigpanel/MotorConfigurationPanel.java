@@ -288,7 +288,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
         double initDelay = initMount.getMotorConfig(initFcId).getEjectionDelay();
 
 		motorChooserDialog.setMotorMountAndConfig(initFcId, initMount);
-		motorChooserDialog.setVisible(true);
+		motorChooserDialog.open();
 
         Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();

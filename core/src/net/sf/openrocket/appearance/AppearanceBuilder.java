@@ -51,8 +51,8 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	Clears the builder cache and set to build blank appearances
 	*/
 	private void resetToDefaults() {
-		paint = new Color(0, 0, 0);
-		shine = 0;
+		paint = new Color(187, 187, 187);
+		shine = 0.3;
 		offsetU = offsetV = 0;
 		centerU = centerV = 0;
 		scaleU = scaleV = 1;
@@ -159,6 +159,34 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*/
 	public void setShine(double shine) {
 		this.shine = shine;
+		fireChangeEvent();
+	}
+
+	/**
+	 * Returns the opacity of the paint color, expressed in percentages, where 0 is fully transparent and 1 is fully opaque
+	 * @return opacity value of the pain color, expressed in a percentage
+	 */
+	public double getOpacity() {
+		if (this.paint == null) {
+			return 100;
+		}
+		return (double) this.paint.getAlpha() / 255;
+	}
+
+	/**
+	 * Sets the opacity/alpha of the paint color.
+	 *
+	 * @param opacity new opacity value expressed in a percentage, where 0 is fully transparent and 1 is fully opaque
+	 */
+	public void setOpacity(double opacity) {
+		if (this.paint == null) {
+			return;
+		}
+
+		// Clamp opacity between 0 and 1
+		opacity = Math.max(0, Math.min(1, opacity));
+
+		this.paint.setAlpha((int) (opacity * 255));
 		fireChangeEvent();
 	}
 	

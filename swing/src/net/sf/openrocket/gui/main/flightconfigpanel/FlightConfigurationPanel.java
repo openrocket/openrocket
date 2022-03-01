@@ -170,7 +170,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	 * create simulation for new configuration
 	 */
 	private void addOrCopyConfiguration(boolean copy) {
-		Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
+		final Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
 
 		// create or copy configuration
 		if (copy) {
@@ -198,20 +198,22 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			newConfigs.put(newId, newConfig);
 		}
 
-		for (FlightConfigurationId newId : newConfigs.keySet()) {
+		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
+		if (doc == null) return;
+
+		for (Map.Entry<FlightConfigurationId, FlightConfiguration> config : newConfigs.entrySet()) {
 			// associate configuration with Id and select it
-			rocket.setFlightConfiguration(newId, newConfigs.get(newId));
+			rocket.setFlightConfiguration(config.getKey(), config.getValue());
+			rocket.setSelectedConfiguration(config.getKey());
 
 			// create simulation for configuration
 			Simulation newSim = new Simulation(rocket);
 
-			OpenRocketDocument doc = BasicFrame.findDocument(rocket);
-			if (doc != null) {
-				newSim.setName(doc.getNextSimulationName());
-				doc.addSimulation(newSim);
-			}
+			newSim.setName(doc.getNextSimulationName());
+			doc.addSimulation(newSim);
 		}
 
+		// Reset to first selected flight config
 		rocket.setSelectedConfiguration((FlightConfigurationId) newConfigs.keySet().toArray()[0]);
 	}
 	
@@ -220,7 +222,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		if (fcIds == null) return;
 		FlightConfigurationId initFcId = fcIds.get(0);
 		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId).setVisible(true);
-		String newName = rocket.getFlightConfiguration(initFcId).getName();
+		String newName = rocket.getFlightConfiguration(initFcId).getNameRaw();
 		for (int i = 1; i < fcIds.size(); i++) {
 			rocket.getFlightConfiguration(fcIds.get(i)).setName(newName);
 		}
