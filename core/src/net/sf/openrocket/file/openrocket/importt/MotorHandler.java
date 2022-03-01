@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.openrocket.importt;
 
+import java.lang.Double;
+
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -42,7 +44,7 @@ class MotorHandler extends AbstractElementHandler {
 	 * Return the motor to use, or null.
 	 */
 	public Motor getMotor(WarningSet warnings) {
-		return context.getMotorFinder().findMotor(type, manufacturer, designation, diameter, length, digest, warnings);
+		return context.getMotorFinder().findMotor(type, manufacturer, designation, Double.NaN, Double.NaN, digest, warnings);
 	}
 	
 	/**
