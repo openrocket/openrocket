@@ -1598,28 +1598,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.checkComponentStructure();
 		return children.clone();
 	}
-
-	/**
-	 * Returns all children of this component, as well as the children of the children etc.
-	 * @return all the children (direct and indirect) of this component
-	 */
-	public final List<RocketComponent> getChildrenRecursive() {
-		checkState();
-		List<RocketComponent> children = getChildren();
-
-		if (children == null) {
-			return null;
-		}
-
-		for (RocketComponent child : new ArrayList<>(children)) {
-			List<RocketComponent> temp = child.getChildrenRecursive();
-			if (temp != null && temp.size() > 0) {
-				children.addAll(temp);
-			}
-		}
-
-		return children;
-	}
 	
 	
 	/**
@@ -1720,14 +1698,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final List<RocketComponent> getChildAssemblies() {
 		checkState();
 
-		List<RocketComponent> children = getChildrenRecursive();
-		if (children == null) {
-			return null;
-		}
+		Iterator<RocketComponent> children = iterator(false);
 
 		List<RocketComponent> result = new ArrayList<>();
 
-		for (RocketComponent child : children) {
+		while (children.hasNext()) {
+			RocketComponent child = children.next();
 			if (child instanceof ComponentAssembly) {
 				result.add(child);
 			}
