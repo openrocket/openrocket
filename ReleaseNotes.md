@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-OpenRocket 22.02.beta.02
+OpenRocket 22.02.beta.02 (2022-03-xx)
 ------------------------
 (through PR1203)
 
@@ -20,7 +20,7 @@ OpenRocket 22.02.beta.02
 * Set default color for all components to #BBBBBB, with Shine=30 (closes issue 1192)
 * Update Mac installer style to more standard "drag app to Applications folder"
 
-OpenRocket 22.02.beta.01
+OpenRocket 22.02.beta.01 (2022-02-25)
 ------------------------
 (through PR1155)
 
