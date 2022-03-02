@@ -1,6 +1,25 @@
 Release Notes
 =============
 
+OpenRocket 22.02.beta.02
+------------------------
+(through PR1203)
+
+### New Features
+* Opacity slider on appearance panel
+* Check Java version at startup (requires Java 11)
+
+### Bug Fixes
+* Corrected position offsets when important and exporting Rocksim files (fixes issue 1164)
+* Eliminated warning when loading designs with boosters (fixes issue 1196)
+* More reliable creation of simulation when creating a new configuration (fixes issue 1163)
+* No longer need to click on motor config to get flight data (fixes issue 1175)
+* Motor database search more robust, especially for CTI (fixes issue 1174)
+
+### Other
+* Set default color for all components to #BBBBBB, with Shine=30 (closes issue 1192)
+* Update Mac installer style to more standard "drag app to Applications folder"
+
 OpenRocket 22.02.beta.01
 ------------------------
 (through PR1155)
