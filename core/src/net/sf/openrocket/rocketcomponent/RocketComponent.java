@@ -1588,11 +1588,37 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.checkComponentStructure();
 		return children.get(n);
 	}
-	
+
+	/**
+	 * Returns all the direct children of this component. The result is a clone of the children list and may be edited.
+	 * @return direct children of this component.
+	 */
 	public final List<RocketComponent> getChildren() {
 		checkState();
 		this.checkComponentStructure();
 		return children.clone();
+	}
+
+	/**
+	 * Returns all children of this component, as well as the children of the children etc.
+	 * @return all the children (direct and indirect) of this component
+	 */
+	public final List<RocketComponent> getChildrenRecursive() {
+		checkState();
+		List<RocketComponent> children = getChildren();
+
+		if (children == null) {
+			return null;
+		}
+
+		for (RocketComponent child : new ArrayList<>(children)) {
+			List<RocketComponent> temp = child.getChildrenRecursive();
+			if (temp != null && temp.size() > 0) {
+				children.addAll(temp);
+			}
+		}
+
+		return children;
 	}
 	
 	
@@ -1683,9 +1709,30 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		while ( null != curComponent ) {
 			if( ComponentAssembly.class.isAssignableFrom( curComponent.getClass()))
 				return (ComponentAssembly) curComponent;
-			curComponent = curComponent.parent;
 		}
 		throw new IllegalStateException("getAssembly() called on hierarchy without a ComponentAssembly.");
+	}
+
+	/**
+	 * Return all the component assemblies that are a child of this component
+	 * @return list of ComponentAssembly components that are a child of this component
+	 */
+	public final List<RocketComponent> getChildAssemblies() {
+		checkState();
+
+		List<RocketComponent> children = getChildrenRecursive();
+		if (children == null) {
+			return null;
+		}
+
+		List<RocketComponent> result = new ArrayList<>();
+
+		for (RocketComponent child : children) {
+			if (child instanceof ComponentAssembly) {
+				result.add(child);
+			}
+		}
+		return result;
 	}
 	
 	
