@@ -852,8 +852,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private void buildCalcMap(FlightConfiguration configuration) {
 		calcMap = new HashMap<>();
 
-		// because this is not a per-instance iteration... this usage of 'getActiveComponents' is probably fine.
-		for (RocketComponent comp: configuration.getActiveComponents()) {
+		for (RocketComponent comp: configuration.getAllComponents()) {
 			if (!comp.isAerodynamic())
 				continue;
 
