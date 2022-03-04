@@ -49,8 +49,8 @@ import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.TextAnchor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,7 +198,7 @@ public class OptimizationPlotDialog extends JDialog {
 		
 
 		XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, true);
-		lineRenderer.setBaseShapesVisible(true);
+		lineRenderer.setDefaultShapesVisible(true);
 		lineRenderer.setSeriesShapesFilled(0, false);
 		//lineRenderer.setSeriesShape(0, shapeRenderer.getBaseShape());
 		lineRenderer.setSeriesOutlinePaint(0, PATH_COLOR);
@@ -206,7 +206,7 @@ public class OptimizationPlotDialog extends JDialog {
 		lineRenderer.setUseOutlinePaint(true);
 		CustomXYToolTipGenerator tooltipGenerator = new CustomXYToolTipGenerator();
 		tooltipGenerator.addToolTipSeries(tooltips);
-		lineRenderer.setBaseToolTipGenerator(tooltipGenerator);
+		lineRenderer.setDefaultToolTipGenerator(tooltipGenerator);
 		
 		XYPlot plot = chart.getXYPlot();
 		
@@ -343,22 +343,21 @@ public class OptimizationPlotDialog extends JDialog {
 		shapeRenderer.setUseFillPaint(true);
 		CustomXYToolTipGenerator tooltipGenerator = new CustomXYToolTipGenerator();
 		tooltipGenerator.addToolTipSeries(evalTooltips);
-		shapeRenderer.setBaseToolTipGenerator(tooltipGenerator);
-		
+		shapeRenderer.setDefaultToolTipGenerator(tooltipGenerator);
 
 		shapeRenderer.getLegendItem(0, 0);
 		
 
 		XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, true);
-		lineRenderer.setBaseShapesVisible(true);
+		lineRenderer.setDefaultShapesVisible(true);
 		lineRenderer.setSeriesShapesFilled(0, false);
-		lineRenderer.setSeriesShape(0, shapeRenderer.getBaseShape());
+		lineRenderer.setSeriesShape(0, shapeRenderer.getDefaultShape());
 		lineRenderer.setSeriesOutlinePaint(0, PATH_COLOR);
 		lineRenderer.setSeriesPaint(0, PATH_COLOR);
 		lineRenderer.setUseOutlinePaint(true);
 		tooltipGenerator = new CustomXYToolTipGenerator();
 		tooltipGenerator.addToolTipSeries(pathTooltips);
-		lineRenderer.setBaseToolTipGenerator(tooltipGenerator);
+		lineRenderer.setDefaultToolTipGenerator(tooltipGenerator);
 		
 
 		XYPlot plot = chart.getXYPlot();
