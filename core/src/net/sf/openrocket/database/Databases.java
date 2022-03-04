@@ -119,6 +119,8 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 6.4 mm, 1/4 in)", 0.00254));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2 mm, 1/16 in)", 0.0035));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2.5 mm, 3/32 in)", 0.0038));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 10 mm, 3/8 in)", 0.00381));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 13 mm, 1/2 in)", 0.00551172));
 		
 		
 		// Add user-defined materials
