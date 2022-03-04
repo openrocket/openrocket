@@ -117,7 +117,7 @@
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.10.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-core-1.2.10.jar"/>
-			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
+			<zipfileset src="${lib.dir}/rsyntaxtextarea-3.1.6.jar"/>
 			<zipfileset src="${core.dir}/lib/yasson-2.0.4.jar"/>
 
 			<!-- JOGL libraries need to be jar-in-jar -->
