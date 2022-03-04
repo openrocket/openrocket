@@ -1623,6 +1623,23 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		return parent;
 	}
+
+	/**
+	 * Get all the parent and super-parent components of this component.
+	 * @return parent and super-parents of this component
+	 */
+	public final List<RocketComponent> getParents() {
+		checkState();
+		List<RocketComponent> result = new LinkedList<>();
+		RocketComponent currComp = this;
+
+		while (currComp.parent != null) {
+			currComp = currComp.parent;
+			result.add(currComp);
+		}
+
+		return result;
+	}
 	
 	/**
 	 * Get the root component of the component tree.
@@ -1708,6 +1725,26 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				result.add(child);
 			}
 		}
+		return result;
+	}
+
+	/**
+	 * Return all the component assemblies that are a parent or super-parent of this component
+	 * @return list of ComponentAssembly components that are a parent or super-parent of this component
+	 */
+	public final List<RocketComponent> getParentAssemblies() {
+		checkState();
+
+		List<RocketComponent> result = new LinkedList<>();
+		RocketComponent currComp = this;
+
+		while (currComp.parent != null) {
+			currComp = currComp.parent;
+			if (currComp instanceof ComponentAssembly) {
+				result.add(currComp);
+			}
+		}
+
 		return result;
 	}
 	
