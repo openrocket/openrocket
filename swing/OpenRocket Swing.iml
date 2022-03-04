@@ -90,51 +90,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="iText-5.0.2.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/iText-5.0.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="jcommon-1.0.18.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jcommon-1.0.18.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="jfreechart-1.0.15.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jfreechart-1.0.15.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="aopalliance.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/aopalliance.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="javax.inject.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/javax.inject.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="resources">
         <CLASSES>
           <root url="file://$MODULE_DIR$/../core/resources" />
@@ -153,96 +108,33 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="miglayout-4.0-swing.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/miglayout-4.0-swing.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/reference/miglayout-4.0-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="rsyntaxtextarea-2.5.6.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/rsyntaxtextarea-2.5.6.jar!/" />
+          <root url="file://$MODULE_DIR$/../core/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../core/lib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/guava-26.0-jre.jar!/" />
+          <root url="file://$MODULE_DIR$/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/logback-classic-1.2.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/logback-core-1.2.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/slf4j-api-1.7.30.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="jogl">
         <CLASSES>
           <root url="file://$MODULE_DIR$/lib/jogl" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
         <jarDirectory url="file://$MODULE_DIR$/lib/jogl" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/jaxb-api.2.3.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/jaxb-runtime.2.3.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/guice-4.2.3-no_aop.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
       </library>
     </orderEntry>
   </component>
