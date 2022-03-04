@@ -112,6 +112,13 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing lg. (14 mm, 9/16 in)", 0.02723097));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing lg. (25 mm, 1 in)", 0.03969816));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Paraline small IIIA (6.4 mm, 1.4 in)", 0.00371829));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic rubber band (flat 3.2 mm, 1/8 in)", 0.00297638));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic rubber band (flat 6.4 mm, 1/4 in)", 0.00613107));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 3.2 mm, 1/8 in)", 0.00106));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 4 mm, 5/32 in)", 0.002));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 6.4 mm, 1/4 in)", 0.00254));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2 mm, 1/16 in)", 0.0035));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2.5 mm, 3/32 in)", 0.0038));
 		
 		
 		// Add user-defined materials
