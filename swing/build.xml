@@ -97,6 +97,7 @@
 			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/commonmark-0.18.2.jar"/>
+			<zipfileset src="${core.dir}/lib/commons-lang3-3.12.0.jar"/>
 			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-runtime.jar"/>
