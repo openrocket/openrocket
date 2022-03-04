@@ -93,8 +93,9 @@
 			<!-- Libraries to extract into base JAR -->
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
 			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
-			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
-			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
+			<zipfileset src="${core.dir}/lib/failureaccess-1.0.1.jar" />
+			<zipfileset src="${core.dir}/lib/guava-30.1-jre.jar" />
+			<zipfileset src="${core.dir}/lib/guice-5.1.0.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/commonmark-0.18.2.jar"/>
 			<zipfileset src="${core.dir}/lib/commons-lang3-3.12.0.jar"/>
