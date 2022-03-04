@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;

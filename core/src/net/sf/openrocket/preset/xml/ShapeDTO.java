@@ -3,7 +3,7 @@ package net.sf.openrocket.preset.xml;
 
 import net.sf.openrocket.rocketcomponent.Transition;
 
-import javax.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnum;
 
 /**
  * A mirror class to Transition.Shape to adapt that class to/from XML.
