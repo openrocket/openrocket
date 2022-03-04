@@ -338,8 +338,8 @@ public class RocketComponentConfig extends JPanel {
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
 		// Calculate suitable length for slider
 		DoubleModel length;
-		if (component instanceof ComponentAssembly) {
-			Iterator<RocketComponent> iterator = component.iterator(false);
+		if (component.getChildCount() > 0) {
+			Iterator<RocketComponent> iterator = component.iterator(true);
 			double minL = Double.MAX_VALUE;
 			double maxL = Double.MIN_VALUE;
 
