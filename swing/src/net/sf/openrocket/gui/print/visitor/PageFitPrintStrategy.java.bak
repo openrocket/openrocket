@@ -141,8 +141,7 @@ public class PageFitPrintStrategy {
      * @return a Graphics2D instance
      */
     Graphics2D createGraphics(final float theWPage, final float theHPage, final PdfContentByte theCb) {
-        // TODO: Deprecated (External Dependency)
-        return new PdfGraphics2D(theCb, theWPage, theHPage);
+        return theCb.createGraphics(theWPage, theHPage);
     }
 
     /**

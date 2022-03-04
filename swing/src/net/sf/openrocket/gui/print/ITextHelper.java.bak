@@ -224,6 +224,7 @@ public final class ITextHelper {
         while (true) {
             BufferedImage subImage = ((BufferedImage) image).getSubimage((int) crop.getX(), (int) crop.getY(),
                                                                          (int) crop.getWidth(), (int) crop.getHeight());
+
             // TODO: Deprecated (External Dependency)
             Graphics2D g2 = new PdfGraphics2D(content, pageSize.getWidth(), pageSize.getHeight());
             g2.drawImage(subImage, margin, ymargin, null);

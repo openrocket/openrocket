@@ -341,6 +341,7 @@ public class DesignReport {
 		
 		final DefaultFontMapper mapper = new DefaultFontMapper();
 		// TODO: Deprecated (External Dependency)
+		//Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
 		Graphics2D g2d = new PdfGraphics2D(theCanvas, thePageImageableWidth, thePageImageableHeight * 2, mapper);
 		final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeight() / 2;
 		int y = PrintUnit.POINTS_PER_INCH;
