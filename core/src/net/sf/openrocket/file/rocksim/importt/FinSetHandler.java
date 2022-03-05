@@ -6,6 +6,7 @@ package net.sf.openrocket.file.rocksim.importt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.xml.sax.SAXException;
@@ -359,17 +360,25 @@ class FinSetHandler extends AbstractElementHandler {
 	 * @return an array of OpenRocket Coordinates
 	 */
 	private Coordinate[] toCoordinates(String newPointList, WarningSet warnings) {
-		List<Coordinate> result = new ArrayList<Coordinate>();
+		List<Coordinate> result = new LinkedList<>();
 		if (newPointList != null && newPointList.length() > 0) {
 			String[] points = newPointList.split("\\Q|\\E");
-			for (String point : points) {
-				String[] aPoint = point.split(",");
+			for (int i = 0; i < points.length; i++) {
+				String[] aPoint = points[i].split(",");
 				try {
 					if (aPoint.length > 1) {
 						Coordinate c = new Coordinate(
 								Double.parseDouble(aPoint[0]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
 								Double.parseDouble(aPoint[1]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-						result.add(c);
+						if (result.size() == 0) {
+							result.add(c);
+							continue;
+						}
+						Coordinate lastCoord = result.get(result.size() - 1);
+						// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
+						if (! ((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
+							result.add(c);
+						}
 					}
 					else {
 						warnings.add("Invalid fin point pair.");
