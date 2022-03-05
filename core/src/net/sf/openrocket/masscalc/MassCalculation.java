@@ -495,11 +495,6 @@ public class MassCalculation {
 					entry.updateAverageCM(compCM);
 				}
 			}
-
-			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
-			final RigidBody componentInertia = new RigidBody(compCM, compIx, compIt, compIt);
-			this.addInertia(componentInertia);
 		}
 
 		
