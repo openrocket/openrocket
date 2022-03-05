@@ -71,6 +71,10 @@ public class MassCalculation {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
 		}
 	}
+
+	public void addMass(double mass) {
+		this.centerOfMass = this.centerOfMass.setWeight(getMass() + mass);
+	}
 	
 	public MassCalculation copy( final RocketComponent _root, final Transformation _transform){
 		return new MassCalculation( this.type, this.config, this.simulationTime, this.activeMotorList, _root, _transform, this.analysisMap);
@@ -82,6 +86,10 @@ public class MassCalculation {
 	
 	public double getMass() {
 		return this.centerOfMass.weight;
+	}
+
+	public void setMass(double mass) {
+		this.centerOfMass = this.centerOfMass.setWeight(mass);
 	}
 	
 	public double getLongitudinalInertia() {
@@ -407,6 +415,13 @@ public class MassCalculation {
 		final int instanceCount = component.getInstanceCount();
 		Coordinate[] instanceLocations = component.getInstanceLocations();
 
+		if (analysisMap != null) {
+			if (this.config.isComponentActive(component) && (!analysisMap.containsKey(component.hashCode()))) {
+				CMAnalysisEntry entry = new CMAnalysisEntry(component);
+				analysisMap.put(component.hashCode(), entry);
+			}
+		}
+
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) ){
 //			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
@@ -448,6 +463,45 @@ public class MassCalculation {
 			this.merge( children );
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
 		}
+
+		if (this.config.isComponentActive(component) ){
+			Coordinate compCM = component.getComponentCG();
+
+			// mass data for *this component only* in the rocket-frame
+			compCM = parentTransform.transform(compCM.add(component.getPosition()));
+
+			// setting zero as the CG position means the top of the component, which is component.getPosition()
+			final Coordinate compZero = parentTransform.transform( component.getPosition() );
+
+			if (component.getOverrideSubcomponents()) {
+				if (component.isCGOverridden()) {
+					this.setCM(this.getCM().setX(compZero.x + component.getOverrideCGX()));
+				}
+			} else {
+				if (component.isCGOverridden()) {
+					compCM = compCM.setX(compZero.x + component.getOverrideCGX());
+				}
+			}
+
+			if (null != analysisMap) {
+				final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+				if (component.getChildCount() > 0) {
+					// For parent components, record the _assembly_ information
+					entry.updateEachMass(children.getMass() / component.getInstanceCount());
+					entry.updateAverageCM(this.centerOfMass);
+				} else {
+					// For actual components, record the mass of the component, and disregard children
+					entry.updateEachMass(compCM.weight);
+					entry.updateAverageCM(compCM);
+				}
+			}
+
+			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
+			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			final RigidBody componentInertia = new RigidBody(compCM, compIx, compIt, compIt);
+			this.addInertia(componentInertia);
+		}
+
 		
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
