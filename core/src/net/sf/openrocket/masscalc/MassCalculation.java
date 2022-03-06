@@ -415,13 +415,6 @@ public class MassCalculation {
 		final int instanceCount = component.getInstanceCount();
 		Coordinate[] instanceLocations = component.getInstanceLocations();
 
-		if (analysisMap != null) {
-			if (this.config.isComponentActive(component) && (!analysisMap.containsKey(component.hashCode()))) {
-				CMAnalysisEntry entry = new CMAnalysisEntry(component);
-				analysisMap.put(component.hashCode(), entry);
-			}
-		}
-
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) ){
 //			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
@@ -462,39 +455,6 @@ public class MassCalculation {
 		if( MIN_MASS < children.getMass() ) {
 			this.merge( children );
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
-		}
-
-		if (this.config.isComponentActive(component) ){
-			Coordinate compCM = component.getComponentCG();
-
-			// mass data for *this component only* in the rocket-frame
-			compCM = parentTransform.transform(compCM.add(component.getPosition()));
-
-			// setting zero as the CG position means the top of the component, which is component.getPosition()
-			final Coordinate compZero = parentTransform.transform( component.getPosition() );
-
-			if (component.getOverrideSubcomponents()) {
-				if (component.isCGOverridden()) {
-					this.setCM(this.getCM().setX(compZero.x + component.getOverrideCGX()));
-				}
-			} else {
-				if (component.isCGOverridden()) {
-					compCM = compCM.setX(compZero.x + component.getOverrideCGX());
-				}
-			}
-
-			if (null != analysisMap) {
-				final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
-				if (component.getChildCount() > 0) {
-					// For parent components, record the _assembly_ information
-					entry.updateEachMass(children.getMass() / component.getInstanceCount());
-					entry.updateAverageCM(this.centerOfMass);
-				} else {
-					// For actual components, record the mass of the component, and disregard children
-					entry.updateEachMass(compCM.weight);
-					entry.updateAverageCM(compCM);
-				}
-			}
 		}
 
 		
