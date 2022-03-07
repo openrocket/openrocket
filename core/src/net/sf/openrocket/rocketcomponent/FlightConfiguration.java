@@ -63,6 +63,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected HashMap<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
 	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
 	
 	private int boundsModID = -1;
 	private BoundingBox cachedBounds = new BoundingBox();
@@ -499,18 +500,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public Collection<MotorConfiguration> getActiveMotors() {
-		Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
-		for( MotorConfiguration config : this.motors.values() ){
-			if( isComponentActive( config.getMount() )){
-				activeMotors.add( config );
-			}
-		}
 		
 		return activeMotors;
 	}
 
 	private void updateMotors() {
-		this.motors.clear();
+		motors.clear();
 		
 		for ( RocketComponent comp : getActiveComponents() ){
 			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){
@@ -520,10 +515,16 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					continue;
 				}
 				
-				this.motors.put( motorConfig.getMID(), motorConfig);
+				motors.put( motorConfig.getMID(), motorConfig);
 			}
 		}
 		
+		activeMotors.clear();
+		for( MotorConfiguration config : motors.values() ){
+			if( isComponentActive( config.getMount() )){
+				activeMotors.add( config );
+			}
+		}
 	}
 
 	@Override
