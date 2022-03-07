@@ -71,6 +71,10 @@ public class MassCalculation {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
 		}
 	}
+
+	public void addMass(double mass) {
+		this.centerOfMass = this.centerOfMass.setWeight(getMass() + mass);
+	}
 	
 	public MassCalculation copy( final RocketComponent _root, final Transformation _transform){
 		return new MassCalculation( this.type, this.config, this.simulationTime, this.activeMotorList, _root, _transform, this.analysisMap);
@@ -82,6 +86,10 @@ public class MassCalculation {
 	
 	public double getMass() {
 		return this.centerOfMass.weight;
+	}
+
+	public void setMass(double mass) {
+		this.centerOfMass = this.centerOfMass.setWeight(mass);
 	}
 	
 	public double getLongitudinalInertia() {
@@ -448,6 +456,7 @@ public class MassCalculation {
 			this.merge( children );
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
 		}
+
 		
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
