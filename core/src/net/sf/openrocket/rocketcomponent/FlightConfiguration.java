@@ -109,23 +109,23 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	
 	public void clearAllStages() {
 		this._setAllStages(false);
-		this.updateMotors();
 	}
 	
 	public void setAllStages() {
 		this._setAllStages(true);
-		this.updateMotors();
 	}
 
 	private void _setAllStages(final boolean _active) {
 		for (StageFlags cur : stages.values()) {
 			cur.active = _active;
 		}
+		updateMotors();
 	}
 
 	public void copyStages(FlightConfiguration other) {
 		for (StageFlags cur : other.stages.values())
 			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.active));
+		updateMotors();
 	}
 	
 	/** 
@@ -135,6 +135,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
+		updateMotors();
 	}
 	
 	/**
@@ -196,7 +197,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			flags.active = !flags.active;
 			return;
 		}
-		this.updateMotors();
+		updateMotors();
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
 	}
 
