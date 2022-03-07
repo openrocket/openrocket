@@ -378,10 +378,17 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(new DoubleModel(0), length));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap 35lp");
+		panel.add(bs, "growx 5, w 100lp, wrap");
 		
 
 		//END OVERRIDES CG ---------------------------------------------------
+
+		// Override subcomponents checkbox
+		bm = new BooleanModel(component, "OverrideSubcomponents");
+		check = new JCheckBox(bm);
+		//// Override mass and CG of all subcomponents
+		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
+		panel.add(check, "spanx, wrap 35lp");
 
 
         //BEGIN OVERRIDES CD ---------------------------------------------------
@@ -408,22 +415,12 @@ public class RocketComponentConfig extends JPanel {
 
 		//END OVERRIDES CP --------------------------------------------------
 
-
-
-		
-		// Override subcomponents checkbox
-		bm = new BooleanModel(component, "OverrideSubcomponents");
-		check = new JCheckBox(bm);
-		//// Override mass and CG of all subcomponents
-		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
-		panel.add(check, "gap para, spanx, wrap para");
-		
-		//// <html>The overridden mass does not include motors.<br>
+		//// The overridden mass does not include motors.
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +
-				//// The center of gravity is measured from the front end of the
-				trans.get("RocketCompCfg.lbl.longB2") + " " +
-				component.getComponentName().toLowerCase(Locale.getDefault()) + ".", -1),
-				"spanx, wrap, gap para, height 0::30lp");
+						//// The center of gravity is measured from the front end of the
+						trans.get("RocketCompCfg.lbl.longB2") + " " +
+						component.getComponentName().toLowerCase(Locale.getDefault()) + ".", -1),
+				"spanx, pushy, aligny bottom");
 		
 		return panel;
 	}
