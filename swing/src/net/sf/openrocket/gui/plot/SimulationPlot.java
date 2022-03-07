@@ -307,7 +307,6 @@ public class SimulationPlot {
 				plot.setDataset(axisno, data[axisno]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
 				renderers.add(r);
-//				r.setBaseToolTipGenerator(tooltipGenerator);
 				r.setDefaultToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
 				r.setDefaultShapesVisible(initialShowPoints);
