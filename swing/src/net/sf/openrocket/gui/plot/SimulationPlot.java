@@ -239,7 +239,6 @@ public class SimulationPlot {
 		plot.setDomainGridlinesVisible(true);
 		plot.setDomainGridlinePaint(Color.lightGray);
 
-		int axisno = 0;
 		Color[] colors = {new Color(0,114,189),		// Colors for data lines
 				new Color(217,83,25),
 				new Color(237,177,32),
@@ -247,20 +246,20 @@ public class SimulationPlot {
 				new Color(119,172,48),
 				new Color(77,190,238),
 				new Color(162,20,47)};
-		for (int i = 0; i < 2; i++) {
+		for (int axisno = 0; axisno < 2; axisno++) {
 			// Check whether axis has any data
-			if (data[i].getSeriesCount() > 0) {
+			if (data[axisno].getSeriesCount() > 0) {
 				// Create and set axis
-				double min = axes.get(i).getMinValue();
-				double max = axes.get(i).getMaxValue();
+				double min = axes.get(axisno).getMinValue();
+				double max = axes.get(axisno).getMaxValue();
 				NumberAxis axis = new PresetNumberAxis(min, max);
-				axis.setLabel(axisLabel[i]);
+				axis.setLabel(axisLabel[axisno]);
 				//				axis.setRange(axes.get(i).getMinValue(), axes.get(i).getMaxValue());
 				plot.setRangeAxis(axisno, axis);
 				axis.setLabelFont(new Font("Dialog", Font.BOLD, 14));
 
-				double domainMin = data[i].getDomainLowerBound(true);
-				double domainMax = data[i].getDomainUpperBound(true);
+				double domainMin = data[axisno].getDomainLowerBound(true);
+				double domainMax = data[axisno].getDomainUpperBound(true);
 
 				plot.setDomainAxis(new PresetNumberAxis(domainMin, domainMax));
 
@@ -269,7 +268,11 @@ public class SimulationPlot {
 				StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
 					@Override
 					public String generateToolTip(XYDataset dataset, int series, int item) {
-						XYSeries ser = data[finalAxisno].getSeries(series);
+						XYSeriesCollection collection = data[finalAxisno];
+						if (collection.getSeriesCount() == 0) {
+							return null;
+						}
+						XYSeries ser = collection.getSeries(series);
 						String name = ser.getDescription();
 						// Extract the unit from the last part of the series description, between parenthesis
 						Matcher m = Pattern.compile(".*\\((.*?)\\)").matcher(name);
@@ -301,23 +304,23 @@ public class SimulationPlot {
 				};
 
 				// Add data and map to the axis
-				plot.setDataset(axisno, data[i]);
+				plot.setDataset(axisno, data[axisno]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
 				renderers.add(r);
 				r.setBaseToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
-				r.setSeriesPaint(0, colors[i]);
-				r.setSeriesPaint(1, colors[i+2]);
-				r.setSeriesPaint(2, colors[i+4]);
-				for (int j = 0; j < data[i].getSeriesCount(); j++) {
+				r.setSeriesPaint(0, colors[axisno]);
+				r.setSeriesPaint(1, colors[axisno+2]);
+				r.setSeriesPaint(2, colors[axisno+4]);
+				for (int j = 0; j < data[axisno].getSeriesCount(); j++) {
 					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
 					r.setSeriesStroke(j, lineStroke);
 				}
 				// Now we pull the colors for the legend.
-				for (int j = 0; j < data[i].getSeriesCount(); j += branchCount) {
-					String name = data[i].getSeries(j).getDescription();
+				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
+					String name = data[axisno].getSeries(j).getDescription();
 					this.legendItems.lineLabels.add(name);
 					Paint linePaint = r.lookupSeriesPaint(j);
 					this.legendItems.linePaints.add(linePaint);
@@ -328,7 +331,6 @@ public class SimulationPlot {
 				}
 
 				plot.mapDatasetToRangeAxis(axisno, axisno);
-				axisno++;
 			}
 		}
 
