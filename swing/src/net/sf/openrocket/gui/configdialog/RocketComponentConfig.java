@@ -393,8 +393,7 @@ public class RocketComponentConfig extends JPanel {
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
-		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_NONE, 0);
-		
+		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 
 		spin.setEditor(new SpinnerEditor(spin));
