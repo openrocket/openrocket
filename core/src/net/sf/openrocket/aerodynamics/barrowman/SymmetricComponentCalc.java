@@ -379,16 +379,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			}
 		}
 
-		// dump transonic/supersonic knots, in a format easily imported into python
-		String vel = "vel = [ ";
-		String cd = "cd = [ ";
-		for (double m : interpolator.getXPoints()) {
-			vel = vel + m + ", ";
-			cd = cd + interpolator.getValue(m) + ", ";
-		}
-		log.debug(vel + "]");
-		log.debug(cd + "]");
-
 		/*
 		 * Now the transonic/supersonic region is ok.  We still need to interpolate
 		 * the subsonic region, if the values are non-zero.
@@ -403,9 +393,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		
 		double cdMach0 = 0.8 * pow2(sinphi);
 		double minDeriv = (interpolator.getValue(min + 0.01) - minValue) / 0.01;
-
-		log.debug("cdMach0 = " + cdMach0);
-		log.debug("minDeriv = " + minDeriv);
 		
 		// These should not occur, but might cause havoc for the interpolation
 		if ((cdMach0 >= minValue - 0.01) || (minDeriv <= 0.01)) {
