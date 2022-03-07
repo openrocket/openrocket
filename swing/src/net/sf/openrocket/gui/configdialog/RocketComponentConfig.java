@@ -384,12 +384,12 @@ public class RocketComponentConfig extends JPanel {
 		//END OVERRIDES CG ---------------------------------------------------
 
 
-                //BEGIN OVERRIDES CD ---------------------------------------------------
+        //BEGIN OVERRIDES CD ---------------------------------------------------
 
 
 		bm = new BooleanModel(component, "CDOverridden");
 		check = new JCheckBox(bm);
-		//// Override mass:
+		//// Override coefficient of drag:
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
@@ -402,7 +402,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(spin, "growx 1");
 		
 		
-		bs = new BasicSlider(m.getSliderModel(0, 0.01, 1.0));
+		bs = new BasicSlider(m.getSliderModel(0, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 
