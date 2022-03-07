@@ -20,6 +20,9 @@ public final class Application {
 	private static ExceptionHandler exceptionHandler;
 	
 	private static Injector injector;
+
+	// Supported Java Runtime Environment versions in which OR is allowed to run (e.g. '11' for Java 11)
+	public static int[] SUPPORTED_JRE_VERSIONS = {11};
 	
 	/**
 	 * Return whether to use additional safety code checks.
