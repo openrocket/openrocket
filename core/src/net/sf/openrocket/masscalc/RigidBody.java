@@ -76,6 +76,11 @@ public class RigidBody {
 				MathUtil.equals(this.Izz, other.Izz)) ;
 	}
 
+	/**
+	 * Rebase the current moment of inertia from this.cm reference system to newLocation reference system
+	 * @param newLocation new moment of inertia reference system
+	 * @return RigidBody with rebased moment of inertia
+	 */
 	public RigidBody rebase( final Coordinate newLocation ){
 		final Coordinate delta = this.cm.sub( newLocation ).setWeight(0.);
 		double x2 = pow2(delta.x);
