@@ -25,6 +25,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 
 import net.sf.openrocket.utils.DecimalFormatter;
@@ -48,7 +49,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -252,9 +252,16 @@ public class SimulationPlot {
 				// Create and set axis
 				double min = axes.get(axisno).getMinValue();
 				double max = axes.get(axisno).getMaxValue();
+
+				for (Object series : data[axisno].getSeries()) {
+					if (series instanceof XYSeries) {
+						min = Math.min(min, ((XYSeries) series).getMinY());
+						max = Math.max(max, ((XYSeries) series).getMaxY());
+					}
+				}
+
 				NumberAxis axis = new PresetNumberAxis(min, max);
 				axis.setLabel(axisLabel[axisno]);
-				//				axis.setRange(axes.get(i).getMinValue(), axes.get(i).getMaxValue());
 				plot.setRangeAxis(axisno, axis);
 				axis.setLabelFont(new Font("Dialog", Font.BOLD, 14));
 
