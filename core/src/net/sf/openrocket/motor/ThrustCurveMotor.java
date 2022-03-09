@@ -338,11 +338,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		int timeIndex = 0;
 		
-		while( timeIndex < time.length-2 && startTime > time[timeIndex+1] ) {
+		while( timeIndex < time.length-1 && startTime > time[timeIndex+1] ) {
 			timeIndex++;
 		}
 		
-		if ( timeIndex == time.length ) {
+		if ( timeIndex == time.length-1 ) {
 			return 0.0;
 		}
 		

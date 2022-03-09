@@ -5,7 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
@@ -49,7 +52,7 @@ public class SwingStartup {
 	 * OpenRocket startup main method.
 	 */
 	public static void main(final String[] args) throws Exception {
-		
+
 		// Check for "openrocket.debug" property before anything else
 		checkDebugStatus();
 
@@ -60,6 +63,11 @@ public class SwingStartup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
+
+		// Check JRE version
+		if (!checkJREVersion()) {
+			return;
+		}
 		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");
@@ -84,7 +92,45 @@ public class SwingStartup {
 		log.info("Startup complete");
 		
 	}
-	
+
+	/**
+	 * Checks whether the Java Runtime Engine version is supported.
+	 *
+	 * @return true if the JRE is supported, false if not
+	 */
+	private static boolean checkJREVersion() {
+		String JREVersion = System.getProperty("java.version");
+		if (JREVersion != null) {
+			try {
+				// We're only interested in the big decimal part of the JRE version
+				int version = Integer.parseInt(JREVersion.split("\\.")[0]);
+				if (IntStream.of(Application.SUPPORTED_JRE_VERSIONS).noneMatch(c -> c == version)) {
+					String title = "Unsupported Java version";
+					String message1 = "Unsupported Java version: %s";
+					String message2 = "Supported version(s): %s";
+					String message3 = "Please change the Java Runtime Environment version or install OpenRocket using a packaged installer.";
+
+					StringBuilder message = new StringBuilder();
+					message.append(String.format(message1, JREVersion));
+					message.append("\n");
+					String[] supported = Arrays.stream(Application.SUPPORTED_JRE_VERSIONS)
+							.mapToObj(String::valueOf)
+							.toArray(String[]::new);
+					message.append(String.format(message2, String.join(", ", supported)));
+					message.append("\n\n");
+					message.append(message3);
+
+					JOptionPane.showMessageDialog(null, message.toString(),
+							title, JOptionPane.ERROR_MESSAGE);
+					return false;
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Malformed JRE version - " + JREVersion);
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Set proper system properties if openrocket.debug is defined.
 	 */

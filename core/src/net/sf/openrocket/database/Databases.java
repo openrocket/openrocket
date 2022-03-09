@@ -90,6 +90,37 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Tubular nylon (11 mm, 7/16 in)", 0.013));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Tubular nylon (14 mm, 9/16 in)", 0.016));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Tubular nylon (25 mm, 1 in)", 0.029));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar thread 138  (0.4 mm, 1/64 in)", 0.00014808));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar thread 207  (0.5 mm, 1/64 in)", 0.00023622));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar thread 346  (0.7 mm, 1/32 in)", 0.00047243));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar thread 415  (0.8 mm, 1/32 in)", 0.00055117));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar thread 800 (1.1 mm, 3/64 in)", 0.00099211));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (3.2 mm, 1/8 in)", 0.00967306));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (4.8 mm, 3/16 in)", 0.01785797));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (6.4 mm, 1/4 in)", 0.02976328));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (7.9 mm, 5/16 in)", 0.04464491));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (10 mm, 3/8 in)", 0.05952655));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (11 mm, 7/16 in)", 0.07440819));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (13 mm, 1/2 in)", 0.11607678));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (14 mm, 9/16 in)", 0.20834293));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (16 mm, 5/8 in)", 0.28721562));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (19 mm, 3/4 in)", 0.3497185));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Kevlar 12-strand (25 mm, 1 in)", 0.45686629));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing md. (10 mm, 3/8 in)", 0.00951444));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing md. (13 mm, 1/2  in)", 0.01334208));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing md. (16 mm, 5/8 in)", 0.01618548));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing lg. (14 mm, 9/16 in)", 0.02723097));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Nylon flat webbing lg. (25 mm, 1 in)", 0.03969816));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Paraline small IIIA (6.4 mm, 1.4 in)", 0.00371829));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic rubber band (flat 3.2 mm, 1/8 in)", 0.00297638));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic rubber band (flat 6.4 mm, 1/4 in)", 0.00613107));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 3.2 mm, 1/8 in)", 0.00106));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 4 mm, 5/32 in)", 0.002));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 6.4 mm, 1/4 in)", 0.00254));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2 mm, 1/16 in)", 0.0035));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2.5 mm, 3/32 in)", 0.0038));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 10 mm, 3/8 in)", 0.00381));
+		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 13 mm, 1/2 in)", 0.00551172));
 		
 		
 		// Add user-defined materials

@@ -670,7 +670,6 @@ public class SimulationPlot {
 				Font labelFont = marker.getLabelFont();
 				g2.setFont(labelFont);
 				g2.setPaint(marker.getLabelPaint());
-
 				Point2D coordinates = calculateDomainMarkerTextAnchorPoint(g2,
 						orientation, dataArea, line.getBounds2D(), marker
 								.getLabelOffset(), org.jfree.chart.ui.LengthAdjustmentType.EXPAND, anchor);
