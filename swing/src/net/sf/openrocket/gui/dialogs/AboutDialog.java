@@ -57,25 +57,24 @@ public class AboutDialog extends JDialog {
 		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
 		"Sibo Van Gool (Dutch)<br>" +
 		"<br>" +
-		"See all contributors at <br>" +
-		href("https://github.com/openrocket/openrocket/graphs/contributors", false) + "<br>" + 
+		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket utilizes the following libraries:</b><br>" +
 		"<br>" +
-		"MiG Layout "                                        + href("http://www.miglayout.com/", true)                     + "<br>" +
-		"JFreeChart "                                        + href("http://www.jfree.org/jfreechart/", true)              + "<br>" +
-		"iText "                                             + href("http://www.itextpdf.com/", true)                      + "<br>" +
-		"exp4j "                                             + href("http://projects.congrace.de/exp4j/index.html", true)  + "<br>" +
-		"JOGL "                                              + href("http://jogamp.org/jogl/www/", true)                   + "<br>" +
-		"Guava "                                             + href("https://github.com/google/guava", true)               + "<br>" +
-		"Opencsv "                                           + href("http://opencsv.sourceforge.net/", true)               + "<br>" +
-		"Simple Logging Facade for Java "                    + href("http://www.slf4j.org/", true)                         + "<br>" +
+		"MiG Layout " + href("http://www.miglayout.com", true) + "<br>" +
+		"JFreeChart " + href("http://www.jfree.org/jfreechart", true) + "<br>" +
+		"iText " + href("http://www.itextpdf.com", true) + "<br>" +
+		"exp4j " + href("http://projects.congrace.de/exp4j/index.html", true) + "<br>" +
+		"JOGL " + href("http://jogamp.org/jogl/www", true) + "<br>" +
+		"Guava " + href("https://github.com/google/guava", true) + "<br>" +
+		"Opencsv " + href("http://opencsv.sourceforge.net", true) + "<br>" +
+		"Simple Logging Facade for Java " + href("http://www.slf4j.org/", true) + "<br>" +
 		"Java library for parsing and rendering CommonMark " + href("https://github.com/commonmark/commonmark-java", true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
-		"Rocket Motor Data "                         + href("https://www.thrustcurve.org/", true)                   + "<br>" +
-		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database/", true)  +
+		"Rocket Motor Data " + href("https://www.thrustcurve.org", true) + "<br>" +
+		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database", true) +
 		"</center></html>";
 
 	private String href(String url, boolean delimiters) {
