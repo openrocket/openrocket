@@ -75,7 +75,8 @@ public class AboutDialog extends JDialog {
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
 		"Rocket Motor Data ("                         + href("https://www.thrustcurve.org/")                   + ")<br>" +
-		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database/") + ")<br>";
+		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database/") + ")" +
+	    "</center></html>";
 
 	private String href(String url) {
 		return "<a href=\"" + url + "\">" + url + "</a>";
