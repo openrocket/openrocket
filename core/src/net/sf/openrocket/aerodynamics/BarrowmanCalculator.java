@@ -19,6 +19,7 @@ import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
@@ -448,7 +449,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			// Consider only SymmetricComponents and FinSets:
 			if (!(c instanceof SymmetricComponent) &&
-					!(c instanceof FinSet))
+				!(c instanceof FinSet) &&
+				!(c instanceof TubeFinSet))
 				continue;
 
 			// iterate across component instances
@@ -524,8 +526,26 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						map.get(c).setFrictionCD(cd / conditions.getRefArea());
 					}
 					
+				} else if (c instanceof TubeFinSet) {
+					TubeFinSet f = (TubeFinSet) c;
+
+					// surface area of interior of tubes.  It's assumed they're stubby enough
+					// there isn't a pressure effect
+					double inArea = 2.0 * Math.PI * f.getInnerRadius() * f.getLength() * f.getFinCount();
+
+					// surface area of exterior of tubes.  Don't consider areas in the "concave delta" between
+					// the TubeFinSet and the body tube; result is we only consider half of the total area
+					double outArea = Math.PI * f.getOuterRadius() * f.getLength() * f.getFinCount();
+
+					// no airflow past section of body tube "masked" by the TubeFinSet.
+					double bodyArea = 2.0 * Math.PI * ((SymmetricComponent) c.getParent()).getForeRadius() * f.getLength();
+
+					double area = inArea + outArea - bodyArea;
+
+					if (map != null) {
+						map.get(c).setFrictionCD(componentCf * area / conditions.getRefArea());
+					}
 				}
-				
 			}
 		}
 		
