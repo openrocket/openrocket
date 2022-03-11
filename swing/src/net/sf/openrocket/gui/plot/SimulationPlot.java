@@ -134,7 +134,11 @@ public class SimulationPlot {
 		// Fill the auto-selections based on first branch selected.
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
 		this.filled = config.fillAutoAxes(mainBranch);
-		List<Axis> axes = filled.getAllAxes();
+
+		// Compute the axes based on the min and max value of all branches
+		PlotConfiguration plotConfig = filled.clone();
+		plotConfig.fitAxes(simulation.getSimulatedData().getBranches());
+		List<Axis> minMaxAxes = plotConfig.getAllAxes();
 
 		// Create the data series for both axes
 		XYSeriesCollection[] data = new XYSeriesCollection[2];
@@ -250,15 +254,8 @@ public class SimulationPlot {
 			// Check whether axis has any data
 			if (data[axisno].getSeriesCount() > 0) {
 				// Create and set axis
-				double min = axes.get(axisno).getMinValue();
-				double max = axes.get(axisno).getMaxValue();
-
-				for (Object series : data[axisno].getSeries()) {
-					if (series instanceof XYSeries) {
-						min = Math.min(min, ((XYSeries) series).getMinY());
-						max = Math.max(max, ((XYSeries) series).getMaxY());
-					}
-				}
+				double min = minMaxAxes.get(axisno).getMinValue();
+				double max = minMaxAxes.get(axisno).getMaxValue();
 
 				NumberAxis axis = new PresetNumberAxis(min, max);
 				axis.setLabel(axisLabel[axisno]);

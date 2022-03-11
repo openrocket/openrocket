@@ -137,6 +137,10 @@ public class FlightData {
 	public FlightDataBranch getBranch(int n) {
 		return branches.get(n);
 	}
+
+	public List<FlightDataBranch> getBranches() {
+		return branches;
+	}
 	
 	
 
