@@ -298,9 +298,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	private InstanceMap getActiveContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
-		final boolean active = this.isComponentActive(component);
-		if (!active)
-			return results;
+
 		final int instanceCount = component.getInstanceCount();
 		final Coordinate[] allOffsets = component.getInstanceOffsets();
 		final double[] allAngles = component.getInstanceAngles();
@@ -314,9 +312,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			final Transformation angleTransform = Transformation.getAxialRotation(allAngles[currentInstanceNumber]);
 			final Transformation currentTransform = componentTransform.applyTransformation(offsetTransform)
 				.applyTransformation(angleTransform);
-			
-			// constructs entry in-place
-			results.emplace(component, active, currentInstanceNumber, currentTransform);
+
+			// constructs entry in-place if this component is active
+			if (this.isComponentActive(component)) {
+				results.emplace(component, this.isComponentActive(component), currentInstanceNumber, currentTransform);
+			}
 
 			for(RocketComponent child : component.getChildren()) {
 				getActiveContextListAt(child, results, currentTransform);
