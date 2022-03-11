@@ -57,28 +57,30 @@ public class AboutDialog extends JDialog {
 		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
 		"Sibo Van Gool (Dutch)<br>" +
 		"<br>" +
-		"See all contributors at <br>" +
-		href("https://github.com/openrocket/openrocket/graphs/contributors") + "<br>" + 
+		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket utilizes the following libraries:</b><br>" +
 		"<br>" +
-		"MiG Layout ("                                        + href("http://www.miglayout.com/")                     + ")<br>" +
-		"JFreeChart ("                                        + href("http://www.jfree.org/jfreechart/")              + ")<br>" +
-		"iText ("                                             + href("http://www.itextpdf.com/")                      + ")<br>" +
-		"exp4j ("                                             + href("http://projects.congrace.de/exp4j/index.html")  + ")<br>" +
-		"JOGL ("                                              + href("http://jogamp.org/jogl/www/")                   + ")<br>" +
-		"Guava ("                                             + href("https://github.com/google/guava")               + ")<br>" +
-		"Opencsv ("                                           + href("http://opencsv.sourceforge.net/")               + ")<br>" +
-		"Simple Logging Facade for Java ("                    + href("http://www.slf4j.org/")                         + ")<br>" +
-		"Java library for parsing and rendering CommonMark (" + href("https://github.com/commonmark/commonmark-java") + ")<br>" +
+		"MiG Layout" + href("http://www.miglayout.com", true, true) + "<br>" +
+		"JFreeChart" + href("http://www.jfree.org/jfreechart", true, true) + "<br>" +
+		"iText" + href("http://www.itextpdf.com", true, true) + "<br>" +
+		"exp4j" + href("http://projects.congrace.de/exp4j/index.html", true, true) + "<br>" +
+		"JOGL" + href("http://jogamp.org/jogl/www", true, true) + "<br>" +
+		"Guava" + href("https://github.com/google/guava", true, true) + "<br>" +
+		"Opencsv" + href("http://opencsv.sourceforge.net", true, true) + "<br>" +
+		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
+		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
+		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
+		"yasson" + href("https://eclipse-ee4j.github.io/yasson", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
-		"Rocket Motor Data ("                         + href("https://www.thrustcurve.org/")                   + ")<br>" +
-		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database/") + ")<br>";
+		"Rocket Motor Data" + href("https://www.thrustcurve.org", true, true) + "<br>" +
+		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database", true, true) +
+		"</center></html>";
 
-	private String href(String url) {
-		return "<a href=\"" + url + "\">" + url + "</a>";
+	private String href(String url, boolean delimiters, boolean leadingSpace) {
+		return (leadingSpace ? " " : "") + (delimiters ? "(" : "") + "<a href=\"" + url + "\">" + url + "</a>" + (delimiters ? ")" : "");
 	}
 	
 	public AboutDialog(JFrame parent) {
