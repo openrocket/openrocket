@@ -604,35 +604,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 
 				for (InstanceContext context : contexts) {
-					/*
-					 * If the instance is not active in the current context, then
-					 * skip the bound calculations. This is mildly confusing since
-					 * getActiveInstances() implies that it will only return the
-					 * instances that are active, but it returns all instances and
-					 * the context indicates if it is active or not.
-					 */
-					if (!context.active) {
-						// break out of per-instance loop.
-						break;
-					}
-
 					componentBounds.update(instanceBounds.transform(context.transform));
 				}
 			} else {
 				// Legacy Case: These components do not implement the BoxBounded Interface.
 				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
 				for (InstanceContext context : contexts) {
-					/*
-					 * If the instance is not active in the current context, then
-					 * skip the bound calculations. This is mildly confusing since
-					 * getActiveInstances() implies that it will only return the
-					 * instances that are active, but it returns all instances and
-					 * the context indicates if it is active or not.
-					 */
-					if (!context.active) {
-						continue;
-					}
-
 					Collection<Coordinate> transformedCoords = new ArrayList<>(instanceCoordinates);
 					// mutating.  Transforms coordinates in place.
 					context.transform.transform(instanceCoordinates);

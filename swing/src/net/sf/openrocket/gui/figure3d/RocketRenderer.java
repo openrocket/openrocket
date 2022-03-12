@@ -186,7 +186,7 @@ public abstract class RocketRenderer {
 
 			for(InstanceContext context: contextList ) {
 				Geometry instanceGeometry = cr.getComponentGeometry( comp, context.transform );
-				instanceGeometry.active = context.active;
+				instanceGeometry.active = true;
 				treeGeometry.add( instanceGeometry );
 			}
 		}
