@@ -85,21 +85,19 @@ public abstract class RocketRenderer {
 			if (ignore != null && ignore.contains(comp))
 				continue;
 
-			if( geom.active ) {
-				final int hashCode = comp.hashCode();
-
-				selectionMap.put(hashCode, comp);
-
-				gl.glColor4ub((byte) ((hashCode >> 24) & 0xFF),  // red channel (LSB)
-							  (byte) ((hashCode >> 16) & 0xFF),  // green channel
-							  (byte) ((hashCode >> 8) & 0xFF),  // blue channel
-							  (byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
-
-				if (isDrawnTransparent(comp)) {
-					geom.render(gl, Surface.INSIDE);
-				} else {
-					geom.render(gl, Surface.ALL);
-				}
+			final int hashCode = comp.hashCode();
+			
+			selectionMap.put(hashCode, comp);
+			
+			gl.glColor4ub((byte) ((hashCode >> 24) & 0xFF),  // red channel (LSB)
+						  (byte) ((hashCode >> 16) & 0xFF),  // green channel
+						  (byte) ((hashCode >> 8) & 0xFF),  // blue channel
+						  (byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
+			
+			if (isDrawnTransparent(comp)) {
+				geom.render(gl, Surface.INSIDE);
+			} else {
+				geom.render(gl, Surface.ALL);
 			}
 		}
 
@@ -186,7 +184,6 @@ public abstract class RocketRenderer {
 
 			for(InstanceContext context: contextList ) {
 				Geometry instanceGeometry = cr.getComponentGeometry( comp, context.transform );
-				instanceGeometry.active = true;
 				treeGeometry.add( instanceGeometry );
 			}
 		}
@@ -196,19 +193,15 @@ public abstract class RocketRenderer {
 	private void renderTree( GL2 gl, final Collection<Geometry> geometryList){
 		//cycle through opaque components first, then transparent to preserve proper depth testing
 		for(Geometry geom: geometryList ) {
-			if( geom.active ) {
-				//if not transparent
-				if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
-					renderComponent(gl, geom, 1.0f);
-				}
+			//if not transparent
+			if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
+				renderComponent(gl, geom, 1.0f);
 			}
 		}
 		for(Geometry geom: geometryList ) {
-			if( geom.active ) {
-				if( isDrawnTransparent( (RocketComponent)geom.obj) ){
-					// Draw T&T front faces blended, without depth test
-					renderComponent(gl, geom, 0.2f);
-				}
+			if( isDrawnTransparent( (RocketComponent)geom.obj) ){
+				// Draw T&T front faces blended, without depth test
+				renderComponent(gl, geom, 0.2f);
 			}
 		}
 	}
