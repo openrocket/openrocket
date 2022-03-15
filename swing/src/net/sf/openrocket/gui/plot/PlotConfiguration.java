@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.plot;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -424,19 +425,19 @@ public class PlotConfiguration implements Cloneable {
 		
 		return new Pair<PlotConfiguration, Double>(best, bestValue);
 	}
-	
-	
-	
-	
-	
+
+
+	protected void fitAxes(FlightDataBranch data) {
+		this.fitAxes(Collections.singletonList(data));
+	}
+
 	/**
 	 * Fit the axes to hold the provided data.  All of the plotDataAxis elements must
 	 * be non-negative.
 	 * <p>
 	 * NOTE: This method assumes that only two axes are used.
 	 */
-	protected void fitAxes(FlightDataBranch data) {
-		
+	public void fitAxes(List<FlightDataBranch> data) {
 		// Reset axes
 		for (Axis a : allAxes) {
 			a.reset();
@@ -453,13 +454,18 @@ public class PlotConfiguration implements Cloneable {
 			}
 			Axis axis = allAxes.get(index);
 			
-			double min = unit.toUnit(data.getMinimum(type));
-			double max = unit.toUnit(data.getMaximum(type));
+			double min = unit.toUnit(data.get(0).getMinimum(type));
+			double max = unit.toUnit(data.get(0).getMaximum(type));
+
+			for (int j = 1; j < data.size(); j++) {
+				min = Math.min(min, unit.toUnit(data.get(j).getMinimum(type)));
+				max = Math.max(max, unit.toUnit(data.get(j).getMaximum(type)));
+			}
 			
 			axis.addBound(min);
 			axis.addBound(max);
 		}
-		
+
 		// Ensure non-zero (or NaN) range, add a few percent range, include zero if it is close
 		for (Axis a : allAxes) {
 			if (MathUtil.equals(a.getMinValue(), a.getMaxValue())) {
@@ -491,41 +497,28 @@ public class PlotConfiguration implements Cloneable {
 		
 		
 		//// Compute common zero
-		// TODO: MEDIUM: This algorithm may require tweaking
 		
 		double min1 = left.getMinValue();
 		double max1 = left.getMaxValue();
 		double min2 = right.getMinValue();
 		double max2 = right.getMaxValue();
-		
-		// Calculate and round scaling factor
-		double scale = Math.max(left.getRangeLength(), right.getRangeLength()) /
-				Math.min(left.getRangeLength(), right.getRangeLength());
-		
-		//System.out.println("Scale: " + scale);
-		
-		scale = roundScale(scale);
-		if (right.getRangeLength() > left.getRangeLength()) {
-			scale = 1 / scale;
+
+		// Get the zero locations, scaled down to a value from 0 to 1 (0 = bottom of y axis, 1 = top)
+		double zeroLoc1 = -min1 / left.getRangeLength();
+		double zeroLoc2 = -min2 / right.getRangeLength();
+
+		// Scale the right axis
+		if (zeroLoc1 > zeroLoc2) {
+			min2 = -max2 * (zeroLoc1 / (1 - zeroLoc1));
+		} else {
+			max2 = min2 * (-1 / zeroLoc1 + 1);
 		}
-		//System.out.println("Rounded scale: " + scale);
-		
-		// Scale right axis, enlarge axes if necessary and scale back
-		min2 *= scale;
-		max2 *= scale;
-		min1 = Math.min(min1, min2);
-		min2 = min1;
-		max1 = Math.max(max1, max2);
-		max2 = max1;
-		min2 /= scale;
-		max2 /= scale;
-		
+
 		// Apply scale
 		left.addBound(min1);
 		left.addBound(max1);
 		right.addBound(min2);
 		right.addBound(max2);
-		
 	}
 	
 	

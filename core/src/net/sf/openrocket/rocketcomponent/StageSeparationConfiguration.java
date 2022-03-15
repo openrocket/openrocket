@@ -98,7 +98,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	private static final Translator trans = Application.getTranslator();
 	
 	
-	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
+	private SeparationEvent separationEvent = SeparationEvent.EJECTION;
 	private double separationDelay = 0;
 
 	private final List<StageSeparationConfiguration> configListeners = new LinkedList<>();
