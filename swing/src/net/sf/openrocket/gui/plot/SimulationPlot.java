@@ -25,6 +25,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 
 import net.sf.openrocket.utils.DecimalFormatter;
@@ -48,7 +49,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -134,7 +134,11 @@ public class SimulationPlot {
 		// Fill the auto-selections based on first branch selected.
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
 		this.filled = config.fillAutoAxes(mainBranch);
-		List<Axis> axes = filled.getAllAxes();
+
+		// Compute the axes based on the min and max value of all branches
+		PlotConfiguration plotConfig = filled.clone();
+		plotConfig.fitAxes(simulation.getSimulatedData().getBranches());
+		List<Axis> minMaxAxes = plotConfig.getAllAxes();
 
 		// Create the data series for both axes
 		XYSeriesCollection[] data = new XYSeriesCollection[2];
@@ -250,11 +254,11 @@ public class SimulationPlot {
 			// Check whether axis has any data
 			if (data[axisno].getSeriesCount() > 0) {
 				// Create and set axis
-				double min = axes.get(axisno).getMinValue();
-				double max = axes.get(axisno).getMaxValue();
+				double min = minMaxAxes.get(axisno).getMinValue();
+				double max = minMaxAxes.get(axisno).getMaxValue();
+
 				NumberAxis axis = new PresetNumberAxis(min, max);
 				axis.setLabel(axisLabel[axisno]);
-				//				axis.setRange(axes.get(i).getMinValue(), axes.get(i).getMaxValue());
 				plot.setRangeAxis(axisno, axis);
 				axis.setLabelFont(new Font("Dialog", Font.BOLD, 14));
 
