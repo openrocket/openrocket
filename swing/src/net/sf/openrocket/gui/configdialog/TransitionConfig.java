@@ -15,6 +15,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.adaptors.TransitionShapeModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -54,18 +55,15 @@ public class TransitionConfig extends RocketComponentConfig {
 		//// Transition shape:
 		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionshape")));
 		
-		Transition.Shape selected = ((Transition) component).getType();
-		Transition.Shape[] typeList = Transition.Shape.values();
-		
-		typeBox = new JComboBox<Transition.Shape>(typeList);
+		typeBox = new JComboBox<>(new TransitionShapeModel(c));
 		typeBox.setEditable(false);
-		typeBox.setSelectedItem(selected);
 		typeBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Transition.Shape s = (Transition.Shape) typeBox.getSelectedItem();
-				((Transition) component).setType(s);
-				description.setText(PREDESC + s.getTransitionDescription());
+				if (s != null) {
+					description.setText(PREDESC + s.getTransitionDescription());
+				}
 				updateEnabled();
 			}
 		});
