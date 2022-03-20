@@ -296,7 +296,8 @@ public class FreeformFinSet extends FinSet {
 			if (c.y > max)
 				max = c.y;
 		}
-		return max;
+
+		return max - Math.min(points.get(points.size() - 1).y, 0);
 	}
 	
 	@Override
