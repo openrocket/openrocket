@@ -378,11 +378,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 			for(InstanceContext context: contextList ) {
 				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
-				
-		        // generate shape for this component, if active
-		        if( context.active ) {
-		        	allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
-		        }
+				allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
 			}
         }
 	}

@@ -26,9 +26,8 @@ public class InstanceContext {
 		return component.hashCode();
 	}
 
-	public InstanceContext(final RocketComponent _component, final boolean _active, final int _instanceNumber, final Transformation _transform) {
+	public InstanceContext(final RocketComponent _component, final int _instanceNumber, final Transformation _transform) {
 		component = _component;
-		active = _active;
 		instanceNumber = _instanceNumber;
 		transform = _transform;
 		
@@ -48,7 +47,6 @@ public class InstanceContext {
 
 	// ==== public ====
 	final public RocketComponent component;
-	final public boolean active;
 	final public int instanceNumber;
 	final public Transformation transform;
 	
