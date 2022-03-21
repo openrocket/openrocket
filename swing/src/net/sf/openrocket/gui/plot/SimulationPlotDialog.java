@@ -117,7 +117,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 
 		//// Print chart button
-		button = new SelectColorButton("Save As Image");
+		button = new SelectColorButton(trans.get("PlotDialog.btn.saveAsImage"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -171,7 +171,7 @@ public class SimulationPlotDialog extends JDialog {
 		chooser.setFileFilter(FileHelper.PNG_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 
-		/* Ensures No Problems When Choosing File */
+		//// Ensures No Problems When Choosing File
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return false;
 
@@ -184,7 +184,7 @@ public class SimulationPlotDialog extends JDialog {
 			return false;
 		}
 
-		/* Uses JFreeChart Built In PNG Export Method */
+		//// Uses JFreeChart Built In PNG Export Method
 		try{
 			ChartUtilities.saveChartAsPNG(file, chart, chartPanel.getWidth(), chartPanel.getHeight());
 		} catch(Exception e){
