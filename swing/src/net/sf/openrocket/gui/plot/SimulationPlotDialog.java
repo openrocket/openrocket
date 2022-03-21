@@ -117,7 +117,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 
 		//// Print chart button
-		button = new SelectColorButton(trans.get("PlotDialog.btn.saveAsImage"));
+		button = new SelectColorButton(trans.get("PlotDialog.btn.exportImage"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
