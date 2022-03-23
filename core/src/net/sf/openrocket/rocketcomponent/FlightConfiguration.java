@@ -64,6 +64,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	final protected HashMap<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
 	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
+	final private InstanceMap activeInstances = new InstanceMap();
 	
 	private int boundsModID = -1;
 	private BoundingBox cachedBounds = new BoundingBox();
@@ -101,6 +102,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		updateStages();
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	public Rocket getRocket() {
@@ -121,12 +123,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			cur.active = _active;
 		}
 		updateMotors();
+		updateActiveInstances();
 	}
 
 	public void copyStages(FlightConfiguration other) {
 		for (StageFlags cur : other.stages.values())
 			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.active));
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	/** 
@@ -137,6 +141,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	/**
@@ -163,6 +168,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			_setStageActive(i, true);
 		}
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	/** 
@@ -174,6 +180,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		_setAllStages(false);
 		_setStageActive(stageNumber, true);
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	/** 
@@ -196,9 +203,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			StageFlags flags = stages.get(stageNumber);
 			flags.active = !flags.active;
+			updateMotors();
+			updateActiveInstances();
+			
 			return;
 		}
-		updateMotors();
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
 	}
 
@@ -286,21 +295,22 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return toReturn;
 	}
 
+	public InstanceMap getActiveInstances() {
+		return activeInstances;
+	}
+	
 	/*
 	 * Generates a read-only, instance-aware collection of the components for this rocket & configuration
 	 * 
 	 *  TODO: swap in this function for the 'getActiveComponents() function, above;  ONLY WHEN READY / MATURE! 
 	 */
-	public InstanceMap getActiveInstances() {
-		InstanceMap contexts = new InstanceMap();
-		getActiveContextListAt( this.rocket, contexts, Transformation.IDENTITY);
-		return contexts;
+	private void updateActiveInstances() {
+		activeInstances.clear();
+		getActiveContextListAt( this.rocket, activeInstances, Transformation.IDENTITY);
 	}
 
 	private InstanceMap getActiveContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
-		final boolean active = this.isComponentActive(component);
-		if (!active)
-			return results;
+
 		final int instanceCount = component.getInstanceCount();
 		final Coordinate[] allOffsets = component.getInstanceOffsets();
 		final double[] allAngles = component.getInstanceAngles();
@@ -314,9 +324,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			final Transformation angleTransform = Transformation.getAxialRotation(allAngles[currentInstanceNumber]);
 			final Transformation currentTransform = componentTransform.applyTransformation(offsetTransform)
 				.applyTransformation(angleTransform);
-			
-			// constructs entry in-place
-			results.emplace(component, active, currentInstanceNumber, currentTransform);
+
+			// constructs entry in-place if this component is active
+			if (this.isComponentActive(component)) {
+				results.emplace(component, this.isComponentActive(component), currentInstanceNumber, currentTransform);
+			}
 
 			for(RocketComponent child : component.getChildren()) {
 				getActiveContextListAt(child, results, currentTransform);
@@ -401,6 +413,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		updateStages();
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	private void updateStages() {
@@ -531,6 +544,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void update(){
 		updateStages();
 		updateMotors();
+		updateActiveInstances();
 	}
 	
 	///////////////  Helper methods  ///////////////
@@ -604,35 +618,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 
 				for (InstanceContext context : contexts) {
-					/*
-					 * If the instance is not active in the current context, then
-					 * skip the bound calculations. This is mildly confusing since
-					 * getActiveInstances() implies that it will only return the
-					 * instances that are active, but it returns all instances and
-					 * the context indicates if it is active or not.
-					 */
-					if (!context.active) {
-						// break out of per-instance loop.
-						break;
-					}
-
 					componentBounds.update(instanceBounds.transform(context.transform));
 				}
 			} else {
 				// Legacy Case: These components do not implement the BoxBounded Interface.
 				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
 				for (InstanceContext context : contexts) {
-					/*
-					 * If the instance is not active in the current context, then
-					 * skip the bound calculations. This is mildly confusing since
-					 * getActiveInstances() implies that it will only return the
-					 * instances that are active, but it returns all instances and
-					 * the context indicates if it is active or not.
-					 */
-					if (!context.active) {
-						continue;
-					}
-
 					Collection<Coordinate> transformedCoords = new ArrayList<>(instanceCoordinates);
 					// mutating.  Transforms coordinates in place.
 					context.transform.transform(instanceCoordinates);
