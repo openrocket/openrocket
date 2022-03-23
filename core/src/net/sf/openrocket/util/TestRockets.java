@@ -66,7 +66,6 @@ import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 
 public class TestRockets {
-	
 	public final static FlightConfigurationId TEST_FCID_0 = new FlightConfigurationId("d010716e-ce0e-469d-ae46-190f3653ebbf");
 	public final static FlightConfigurationId TEST_FCID_1 = new FlightConfigurationId("f41bee5b-ebb8-4d92-bce7-53001577a313");
 	public final static FlightConfigurationId TEST_FCID_2 = new FlightConfigurationId("3e8d1280-53c2-4234-89a7-de215ef5cd69");
@@ -1705,30 +1704,32 @@ public class TestRockets {
 
 		// find the body and fins
 		final InstanceMap imap = rocket.getSelectedConfiguration().getActiveInstances();
-	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {		
-			RocketComponent c = entry.getKey();
+		RocketComponent c = null;
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			c = entry.getKey();
 			if (c instanceof TrapezoidFinSet) {
-				final TrapezoidFinSet fins = (TrapezoidFinSet) c;
-				final BodyTube body = (BodyTube) fins.getParent();
-				body.removeChild(fins);
-				
-				// create a PodSet to hook the fins to
-				PodSet podset = new PodSet();
-				podset.setInstanceCount(fins.getFinCount());
-				
-				body.addChild(podset);
-				
-				// put a phantom body tube on the pods
-				BodyTube podBody = new BodyTube(fins.getRootChord(), 0);
-				podBody.setName("Pod Body");
-				podset.addChild(podBody);
-				
-				// change the number of fins to 1 and put the revised
-				// finset on the podbody
-				fins.setFinCount(1);
-				podBody.addChild(fins);
+				break;
 			}
 		}
+		final TrapezoidFinSet fins = (TrapezoidFinSet) c;
+		final BodyTube body = (BodyTube) fins.getParent();
+		body.removeChild(fins);
+		
+		// create a PodSet to hook the fins to
+		PodSet podset = new PodSet();
+		podset.setInstanceCount(fins.getFinCount());
+		
+		body.addChild(podset);
+		
+		// put a phantom body tube on the pods
+		BodyTube podBody = new BodyTube(fins.getRootChord(), 0);
+		podBody.setName("Pod Body");
+		podset.addChild(podBody);
+		
+		// change the number of fins to 1 and put the revised
+		// finset on the podbody
+		fins.setFinCount(1);
+		podBody.addChild(fins);
 
 		return rocket;
 	}

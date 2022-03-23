@@ -34,7 +34,7 @@ public class InstanceMap extends HashMap<RocketComponent, ArrayList<InstanceCont
 			put(key, new ArrayList<InstanceContext>());
 		}
 
-		final InstanceContext context = new InstanceContext(component, active, number, xform);
+		final InstanceContext context = new InstanceContext(component, number, xform);
 		get(key).add(context);
 	}
 
