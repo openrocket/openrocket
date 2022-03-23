@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.plot;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -58,6 +60,12 @@ public class SimulationPlotDialog extends JDialog {
 		final ChartPanel chartPanel = new SimulationChart(myPlot.getJFreeChart());
 		final JFreeChart jChart = myPlot.getJFreeChart();
 		panel.add(chartPanel, "grow, wrap 20lp");
+
+		// Ensures normal aspect-ratio of chart elements when resizing the panel
+		chartPanel.setMinimumDrawWidth(0);
+		chartPanel.setMaximumDrawWidth(Integer.MAX_VALUE);
+		chartPanel.setMinimumDrawHeight(0);
+		chartPanel.setMaximumDrawHeight(Integer.MAX_VALUE);
 		
 		//// Description text
 		JLabel label = new StyledLabel(trans.get("PlotDialog.lbl.Chart"), -2);
