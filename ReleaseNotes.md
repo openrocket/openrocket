@@ -1,13 +1,16 @@
 Release Notes
 =============
 
-OpenRocket 22.02.beta.02 (2022-03-xx)
+OpenRocket 22.02.beta.02
 ------------------------
-(through PR1240)
+(through PR1261)
+
+NOTE: Tube fin simulation is currently broken, and will be fixed in a future beta.
 
 ### New Features
-* Opacity slider on appearance panel
 * Check Java version at startup (requires Java 11)
+* Opacity slider on appearance panel
+* Export sim plots as PNG images
 
 ### Notable Bug Fixes
 * Rocksim Import/Export
@@ -21,11 +24,13 @@ OpenRocket 22.02.beta.02 (2022-03-xx)
 * More reliable creation of simulation when creating a new configuration (fixes issue 1163)
 * No longer need to click on motor config to get flight data (fixes issue 1175)
 * Motor database search more robust, especially for CTI (fixes issue 1174)
+* More accurate and reliable simulation of fins on transitions (fixes issues 1173 and 1243)
 * _plus other miscellaneous fixes_
 
 ### Other
 * Set default color for all components to #BBBBBB, with Shine=30 (closes issue 1192)
 * Update Mac installer style to more standard "drag app to Applications folder"
+
 
 OpenRocket 22.02.beta.01 (2022-02-25)
 ------------------------
