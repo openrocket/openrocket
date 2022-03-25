@@ -56,6 +56,10 @@ public final class FileHelper {
 	public static final FileFilter CSV_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.CSV_FILTER"), ".csv");
 
+	/** File filter for PNG files (*.png) */
+	public static final FileFilter PNG_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
+
 
 
 
