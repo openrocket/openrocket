@@ -14,13 +14,13 @@ NOTE: Tube fin simulation is currently broken, and will be fixed in a future bet
 
 ### Notable Bug Fixes
 * Rocksim Import/Export
-** Corrected position offsets when importing and exporting (fixes issue 1164)
-** Corrected fin shape when importing (fixes issue 1220)
+  * Corrected position offsets when importing and exporting (fixes issue 1164)
+  * Corrected fin shape when importing (fixes issue 1220)
 * Side boosters
-** Added stage selector for side boosters (fixes issue 1208)
-** Fixed simulation bug with side boosters (fixes issue 1210)
-** Eliminated warning when loading designs with boosters (fixes issue 1196)
-** Fixed Simulation Plot range with boosters (fixes issue 1228)
+  * Added stage selector for side boosters (fixes issue 1208)
+  * Fixed simulation bug with side boosters (fixes issue 1210)
+  * Eliminated warning when loading designs with boosters (fixes issue 1196)
+  * Fixed Simulation Plot range with boosters (fixes issue 1228)
 * More reliable creation of simulation when creating a new configuration (fixes issue 1163)
 * No longer need to click on motor config to get flight data (fixes issue 1175)
 * Motor database search more robust, especially for CTI (fixes issue 1174)
