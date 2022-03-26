@@ -18,7 +18,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 22.02.beta.01" id="59" icnsFile="OpenRocket.icns">
+    <launcher name="OpenRocket 22.02.beta.02" id="59" icnsFile="OpenRocket.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../core/resources-src/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo legalCopyright="Copyright 2007-2022 Sampo Niskanen and Others" />
       </executable>
