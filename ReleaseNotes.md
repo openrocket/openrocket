@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-OpenRocket 22.02.beta.02
+OpenRocket 22.02.beta.02 (2022-03-26)
 ------------------------
 (through PR1261)
 
