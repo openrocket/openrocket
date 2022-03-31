@@ -179,7 +179,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	private LinearInterpolator interpolator = null;
 	
 	@Override
-	public double calculatePressureDragForce(FlightConditions conditions,
+	public double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
 		
 		// Check for simple cases first
