@@ -31,7 +31,7 @@ public class LaunchLugCalc extends RocketComponentCalc {
 	}
 
 	@Override
-	public double calculatePressureDragForce(FlightConditions conditions,
+	public double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
 
 		return CDmul*stagnationCD * refArea / conditions.getRefArea();
