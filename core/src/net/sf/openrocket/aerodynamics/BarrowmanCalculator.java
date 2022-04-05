@@ -351,44 +351,44 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
+			
+			//Handle Overriden CD for Whole Rocket
+			if(c.isCDOverridden()) {
+				continue;
+			}
 
+			// Calculate the roughness-limited friction coefficient
+			Finish finish = ((ExternalComponent) c).getFinish();
+			if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
+				roughnessLimited[finish.ordinal()] =
+					0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
+					roughnessCorrection;
+			}
+			
+			/*
+			 * Actual Cf is maximum of Cf and the roughness-limited value.
+			 * For perfect finish require additionally that Re > 1e6
+			 */
+			double componentCf;
+			if (configuration.getRocket().isPerfectFinish()) {
+				
+				// For perfect finish require Re > 1e6
+				if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
+					componentCf = roughnessLimited[finish.ordinal()];
+				} else {
+					componentCf = Cf;
+				}
+				
+			} else {
+				
+				// For fully turbulent use simple max
+				componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
+				
+			}
+			
 			// iterate across component instances
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
-			
-				// Calculate the roughness-limited friction coefficient
-				Finish finish = ((ExternalComponent) c).getFinish();
-				if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
-					roughnessLimited[finish.ordinal()] =
-						0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
-						roughnessCorrection;
-				}
-			
-				/*
-				 * Actual Cf is maximum of Cf and the roughness-limited value.
-				 * For perfect finish require additionally that Re > 1e6
-				 */
-				double componentCf;
-				if (configuration.getRocket().isPerfectFinish()) {
-					
-					// For perfect finish require Re > 1e6
-					if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
-						componentCf = roughnessLimited[finish.ordinal()];
-					} else {
-						componentCf = Cf;
-					}
-					
-				} else {
-					
-					// For fully turbulent use simple max
-					componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
-					
-				}
-			
-				//Handle Overriden CD for Whole Rocket
-				if(c.isCDOverridden()) {
-					continue;
-				}
 			
 			
 				// Calculate the friction drag:
