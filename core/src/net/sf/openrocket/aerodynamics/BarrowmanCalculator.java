@@ -324,108 +324,14 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 */
 	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
-		double c1 = 1.0, c2 = 1.0;
 		
 		double mach = conditions.getMach();
-		double Re;
-		double Cf;
+		double Re = calculateReynoldsNumber(configuration, conditions);
+		double Cf = calculateFrictionCoefficient(configuration, mach, Re);
+		double roughnessCorrection = calculateRoughnessCorrection(mach);
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
-
-		Re = conditions.getVelocity() * configuration.getLength() /
-				conditions.getAtmosphericConditions().getKinematicViscosity();
-		
-		// Calculate the skin friction coefficient (assume non-roughness limited)
-		if (configuration.getRocket().isPerfectFinish()) {
-			
-			// Assume partial laminar layer.  Roughness-limitation is checked later.
-			if (Re < 1e4) {
-				// Too low, constant
-				Cf = 1.33e-2;
-			} else if (Re < 5.39e5) {
-				// Fully laminar
-				Cf = 1.328 / MathUtil.safeSqrt(Re);
-			} else {
-				// Transitional
-				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6) - 1700 / Re;
-			}
-			
-			// Compressibility correction
-			
-			if (mach < 1.1) {
-				// Below Re=1e6 no correction
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c1 = 1 - 0.1 * pow2(mach) * (Re - 1e6) / 2e6; // transition to turbulent
-					} else {
-						c1 = 1 - 0.1 * pow2(mach);
-					}
-				}
-			}
-			if (mach > 0.9) {
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1e6) / 2e6;
-					} else {
-						c2 = 1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25);
-					}
-				}
-			}
-			
-			// Applying continuously around Mach 1
-			if (mach < 0.9) {
-				Cf *= c1;
-			} else if (mach < 1.1) {
-				Cf *= (c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2);
-			} else {
-				Cf *= c2;
-			}
-			
-			
-		} else {
-			
-			// Assume fully turbulent.  Roughness-limitation is checked later.
-			if (Re < 1e4) {
-				// Too low, constant
-				Cf = 1.48e-2;
-			} else {
-				// Turbulent
-				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6);
-			}
-			
-			// Compressibility correction
-			
-			if (mach < 1.1) {
-				c1 = 1 - 0.1 * pow2(mach);
-			}
-			if (mach > 0.9) {
-				c2 = 1 / Math.pow(1 + 0.15 * pow2(mach), 0.58);
-			}
-			// Applying continuously around Mach 1
-			if (mach < 0.9) {
-				Cf *= c1;
-			} else if (mach < 1.1) {
-				Cf *= c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
-			} else {
-				Cf *= c2;
-			}
-			
-		}
-		
-		// Roughness-limited value correction term
-		double roughnessCorrection;
-		if (mach < 0.9) {
-			roughnessCorrection = 1 - 0.1 * pow2(mach);
-		} else if (mach > 1.1) {
-			roughnessCorrection = 1 / (1 + 0.18 * pow2(mach));
-		} else {
-			c1 = 1 - 0.1 * pow2(0.9);
-			c2 = 1.0 / (1 + 0.18 * pow2(1.1));
-			roughnessCorrection = c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
-		}
-		
-		
 		
 		/*
 		 * Calculate the friction drag coefficient.
@@ -445,11 +351,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
-			
-			// Consider only SymmetricComponents and FinSets:
-			if (!(c instanceof SymmetricComponent) &&
-					!(c instanceof FinSet))
-				continue;
 
 			// iterate across component instances
 			final ArrayList<InstanceContext> contextList = entry.getValue();
@@ -542,7 +443,134 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
 	}
+
+
+	/**
+	 * Calculation of Reynolds Number
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @return                  Reynolds Number
+	 */
+	private double calculateReynoldsNumber(FlightConfiguration configuration, FlightConditions conditions) {
+		return conditions.getVelocity() * configuration.getLength() /
+			conditions.getAtmosphericConditions().getKinematicViscosity();
+	}
 	
+	/**
+	 * Calculation of skin friction coefficient
+	 *
+	 *
+	 * return skin friction coefficient
+	 */
+	private double calculateFrictionCoefficient(FlightConfiguration configuration, double mach, double Re) {
+		double Cf;
+		double c1 = 1.0, c2 = 1.0;
+		
+		// Calculate the skin friction coefficient (assume non-roughness limited)
+		if (configuration.getRocket().isPerfectFinish()) {
+			
+			// Assume partial laminar layer.  Roughness-limitation is checked later.
+			if (Re < 1e4) {
+				// Too low, constant
+				Cf = 1.33e-2;
+			} else if (Re < 5.39e5) {
+				// Fully laminar
+				Cf = 1.328 / MathUtil.safeSqrt(Re);
+			} else {
+				// Transitional
+				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6) - 1700 / Re;
+			}
+			
+			// Compressibility correction
+			
+			if (mach < 1.1) {
+				// Below Re=1e6 no correction
+				if (Re > 1e6) {
+					if (Re < 3e6) {
+						c1 = 1 - 0.1 * pow2(mach) * (Re - 1e6) / 2e6; // transition to turbulent
+					} else {
+						c1 = 1 - 0.1 * pow2(mach);
+					}
+				}
+			}
+			if (mach > 0.9) {
+				if (Re > 1e6) {
+					if (Re < 3e6) {
+						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1e6) / 2e6;
+					} else {
+						c2 = 1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25);
+					}
+				}
+			}
+			
+			// Applying continuously around Mach 1
+			if (mach < 0.9) {
+				Cf *= c1;
+			} else if (mach < 1.1) {
+				Cf *= (c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2);
+			} else {
+				Cf *= c2;
+			}
+			
+			
+		} else {
+			
+			// Assume fully turbulent.  Roughness-limitation is checked later.
+			if (Re < 1e4) {
+				// Too low, constant
+				Cf = 1.48e-2;
+			} else {
+				// Turbulent
+				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6);
+			}
+			
+			// Compressibility correction
+			
+			if (mach < 1.1) {
+				c1 = 1 - 0.1 * pow2(mach);
+			}
+			if (mach > 0.9) {
+				c2 = 1 / Math.pow(1 + 0.15 * pow2(mach), 0.58);
+			}
+			// Applying continuously around Mach 1
+			if (mach < 0.9) {
+				Cf *= c1;
+			} else if (mach < 1.1) {
+				Cf *= c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
+			} else {
+				Cf *= c2;
+			}
+			
+		}
+
+		return Cf;
+	}
+
+	/**
+	 * Calculation of correction for roughness
+	 *
+	 * @param  mach
+	 * @return roughness correction
+	 **/
+
+	private double calculateRoughnessCorrection(double mach) {
+		double c1, c2;
+		
+		// Roughness-limited value correction term
+		double roughnessCorrection;
+		if (mach < 0.9) {
+			roughnessCorrection = 1 - 0.1 * pow2(mach);
+		} else if (mach > 1.1) {
+			roughnessCorrection = 1 / (1 + 0.18 * pow2(mach));
+		} else {
+			c1 = 1 - 0.1 * pow2(0.9);
+			c2 = 1.0 / (1 + 0.18 * pow2(1.1));
+			roughnessCorrection = c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
+		}
+
+		return roughnessCorrection;
+	}
 	
 	/**
 	 * Calculation of drag coefficient due to pressure
