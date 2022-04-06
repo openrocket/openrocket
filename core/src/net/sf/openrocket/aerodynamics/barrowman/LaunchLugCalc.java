@@ -31,6 +31,12 @@ public class LaunchLugCalc extends RocketComponentCalc {
 	}
 
 	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		// launch lug doesn't add enough area to worry about
+		return 0;
+	}
+
+	@Override
 	public double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
 

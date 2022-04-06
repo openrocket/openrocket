@@ -28,6 +28,16 @@ public abstract class RocketComponentCalc {
 	public abstract void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 												 AerodynamicForces forces, WarningSet warnings);
 
+
+	/**
+	 * Calculates the friction drag of the component.
+	 *
+	 * @param conditions    the flight conditions
+	 * @param componentCF   component coefficient of friction, calculated in BarrowmanCalculator
+	 * @param warnings      set in which to to store possible warnings
+	 * @return              the friction drag coefficient of the component
+	 */
+	public abstract double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings);
 	
 	/**
 	 * Calculates the pressure drag of the component.  This component does NOT include
@@ -37,7 +47,7 @@ public abstract class RocketComponentCalc {
 	 * @param stagnationCD	the current stagnation drag coefficient
 	 * @param baseCD		the current base drag coefficient
 	 * @param warnings		set in which to store possible warnings
-	 * @return				the pressure drag of the component
+	 * @return				the pressure drag coefficient of the component
 	 */
 	public abstract double calculatePressureCD(FlightConditions conditions, 
 			double stagnationCD, double baseCD, WarningSet warnings);

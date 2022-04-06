@@ -621,6 +621,12 @@ public class FinSetCalc extends RocketComponentCalc {
 	//		}
 	//		
 	//	}
+
+	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		double cd = componentCf * (1 + 2 * thickness / macLength) * 2;
+		return cd;
+	}
 	
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,

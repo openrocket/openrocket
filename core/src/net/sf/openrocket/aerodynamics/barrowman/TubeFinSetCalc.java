@@ -672,5 +672,11 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		
 		return 3 * component.getFinCount();
 	}
+
+	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		// launch lug doesn't add enough area to worry about
+		return 0;
+	}
 	
 }

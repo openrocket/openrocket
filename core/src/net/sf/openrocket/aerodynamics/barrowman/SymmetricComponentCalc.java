@@ -45,6 +45,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	private final double frontalArea;
 	private final double fullVolume;
 	private final double planformArea, planformCenter;
+	private final double wetArea;
 	private final double sinphi;
 	
 	public SymmetricComponentCalc(RocketComponent c) {
@@ -53,7 +54,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			throw new IllegalArgumentException("Illegal component type " + c);
 		}
 		SymmetricComponent component = (SymmetricComponent) c;
-		
 
 		length = component.getLength();
 		foreRadius = component.getForeRadius();
@@ -63,6 +63,8 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		fullVolume = component.getFullVolume();
 		planformArea = component.getComponentPlanformArea();
 		planformCenter = component.getComponentPlanformCenter();
+
+		wetArea = component.getComponentWetArea();
 		
 		if (component instanceof BodyTube) {
 			shape = null;
@@ -174,7 +176,10 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				conditions.getSinAOA() * conditions.getSincAOA()); // sin(aoa)^2 / aoa
 	}
 	
-	
+	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warningSet) {
+		return componentCf * wetArea / conditions.getRefArea();
+	}
 
 	private LinearInterpolator interpolator = null;
 	

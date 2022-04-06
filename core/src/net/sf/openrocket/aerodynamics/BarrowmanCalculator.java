@@ -323,7 +323,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return friction drag for entire rocket
 	 */
 	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
-			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
+			Map<RocketComponent, AerodynamicForces> map, WarningSet warningSet) {
 		
 		double mach = conditions.getMach();
 		double Re = calculateReynoldsNumber(configuration, conditions);
@@ -341,8 +341,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		 * for thickness as we go on.
 		 */
 		
-		double finFriction = 0;
-		double bodyFriction = 0;
+		double finFrictionCD = 0;
+		double bodyFrictionCD = 0;
 		double maxR = 0, minX = Double.MAX_VALUE, maxX = 0;
 		
 		double[] roughnessLimited = new double[Finish.values().length];
@@ -351,8 +351,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
-			
-			//Handle Overriden CD for Whole Rocket
+
+			if (!c.isAerodynamic())
+				continue;
+
+			// Handle Overriden CD for Whole Rocket
 			if(c.isCDOverridden()) {
 				continue;
 			}
@@ -389,20 +392,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			// iterate across component instances
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
-			
-			
-				// Calculate the friction drag:
+				double componentFrictionCD = calcMap.get(c).calculateFrictionCD(conditions, componentCf, warningSet);
+
 				if (c instanceof SymmetricComponent) {
-				
 					SymmetricComponent s = (SymmetricComponent) c;
-					
-					bodyFriction += componentCf * s.getComponentWetArea();
-				
-					if (map != null) {
-						// Corrected later
-						map.get(c).setFrictionCD(componentCf * s.getComponentWetArea()
-												 / conditions.getRefArea());
-					}
+					bodyFrictionCD += componentFrictionCD;
 
 					final double componentMinX = context.getLocation().x;
 					minX = Math.min(minX, componentMinX);
@@ -414,16 +408,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					maxR = Math.max(maxR, componentMaxR);
 					
 				} else if (c instanceof FinSet) {
-				
-					FinSet f = (FinSet) c;
-					double mac = ((FinSetCalc) calcMap.get(c)).getMACLength();
-					double cd = componentCf * (1 + 2 * f.getThickness() / mac) *
-						2 * f.getPlanformArea();
-					finFriction += cd;
-					
-					if (map != null) {
-						map.get(c).setFrictionCD(cd / conditions.getRefArea());
-					}
+					finFrictionCD += componentFrictionCD;
+				}
+
+				if (map != null) {
+					map.get(c).setFrictionCD(componentFrictionCD);
 				}
 			}
 		}
@@ -441,7 +430,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 		}
 		
-		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
+		return finFrictionCD + correction * bodyFrictionCD;
 	}
 
 
