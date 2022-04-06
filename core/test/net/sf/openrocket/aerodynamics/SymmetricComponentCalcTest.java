@@ -136,7 +136,7 @@ public class SymmetricComponentCalcTest {
 			double m = i/20.0;
 			String buf = "SymmetricComponentCalc produces bad Cd at index " + i + "(m=" + m +")";
 			conditions.setMach(m);
-			double testcd = calcObj.calculatePressureDragForce(conditions, 0.0,  0.0, warnings) *
+			double testcd = calcObj.calculatePressureCD(conditions, 0.0,  0.0, warnings) *
 				conditions.getRefArea() / frontalArea;
 			assertEquals(buf, cd[(int) Math.round(m*20)], testcd, EPSILON);
 	    }
