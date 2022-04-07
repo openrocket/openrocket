@@ -82,11 +82,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		// Calculate non-axial force data
 		calculateForceAnalysis(conditions, configuration.getRocket(), instMap, eachMap, assemblyMap, warnings);
 
-		// Calculate friction data
+		// Calculate drag coefficient data
 		AerodynamicForces rocketForces = assemblyMap.get(configuration.getRocket());
-		rocketForces.setFrictionCD(calculateFrictionDrag(configuration, conditions, eachMap, warnings));
-		rocketForces.setPressureCD(calculatePressureDrag(configuration, conditions, eachMap, warnings));
-		rocketForces.setBaseCD(calculateBaseDrag(configuration, conditions, eachMap, warnings));
+		rocketForces.setFrictionCD(calculateFrictionCD(configuration, conditions, eachMap, warnings));
+		rocketForces.setPressureCD(calculatePressureCD(configuration, conditions, eachMap, warnings));
+		rocketForces.setBaseCD(calculateBaseCD(configuration, conditions, eachMap, warnings));
 
 		Map<RocketComponent, AerodynamicForces> finalMap = new LinkedHashMap<>();
 		for(final RocketComponent comp : instMap.keySet()){
@@ -117,7 +117,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				f.setFrictionCD(0);
 
 			f.setCD(f.getBaseCD() + f.getPressureCD() + f.getFrictionCD());
-			f.setCaxial(calculateAxialDrag(conditions, f.getCD()));
+			f.setCDaxial(calculateAxialCD(conditions, f.getCD()));
 
 			finalMap.put(comp, f);
 		}
@@ -177,13 +177,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		AerodynamicForces total = calculateNonAxialForces(configuration, conditions, warnings);
 		
 		// Calculate friction data
-		total.setFrictionCD(calculateFrictionDrag(configuration, conditions, null, warnings));
-		total.setPressureCD(calculatePressureDrag(configuration, conditions, null, warnings));
-		total.setBaseCD(calculateBaseDrag(configuration, conditions, null, warnings));
+		total.setFrictionCD(calculateFrictionCD(configuration, conditions, null, warnings));
+		total.setPressureCD(calculatePressureCD(configuration, conditions, null, warnings));
+		total.setBaseCD(calculateBaseCD(configuration, conditions, null, warnings));
 		
 		total.setCD(total.getFrictionCD() + total.getPressureCD() + total.getBaseCD());
 		
-		total.setCaxial(calculateAxialDrag(conditions, total.getCD()));
+		total.setCDaxial(calculateAxialCD(conditions, total.getCD()));
 		
 		// Calculate pitch and yaw damping moments
 		calculateDampingMoments(configuration, conditions, total);
@@ -322,7 +322,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @param set				Set to handle 
 	 * @return friction drag for entire rocket
 	 */
-	private double calculateFrictionDrag(FlightConfiguration configuration, FlightConditions conditions,
+	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
 		double c1 = 1.0, c2 = 1.0;
 		
@@ -523,9 +523,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					if (map != null) {
 						map.get(c).setFrictionCD(cd / conditions.getRefArea());
 					}
-					
 				}
-				
 			}
 		}
 		
@@ -555,7 +553,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @param warningSet			all current warnings
 	 * @return
 	 */
-	private double calculatePressureDrag(FlightConfiguration configuration, FlightConditions conditions,
+	private double calculatePressureCD(FlightConfiguration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> forceMap, WarningSet warningSet) {
 		
 		double stagnation, base, total;
@@ -578,8 +576,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			for(InstanceContext context: contextList ) {
 
 				// Pressure fore drag
-				double cd = calcMap.get(c).calculatePressureDragForce(conditions, stagnation, base,
-																	  warningSet);
+				double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
+															   warningSet);
 				total += cd;
 
 				if (forceMap != null) {
@@ -624,8 +622,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @param warnings				all current warnings
 	 * @return
 	 */
-	private double calculateBaseDrag(FlightConfiguration configuration, FlightConditions conditions,
-									 Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
+	private double calculateBaseCD(FlightConfiguration configuration, FlightConditions conditions,
+								   Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		double base, total;
 		
@@ -687,8 +685,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		return total;
 	}
 	
-	
-	
 	/**
 	 * gets CD by the speed
 	 * @param m		Mach number for calculation
@@ -739,13 +735,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	
 	/**
-	 * Calculate the axial drag from the total drag coefficient.
+	 * Calculate the axial drag coefficient from the total drag coefficient.
 	 * 
 	 * @param conditions
 	 * @param cd
 	 * @return
 	 */
-	private double calculateAxialDrag(FlightConditions conditions, double cd) {
+	private double calculateAxialCD(FlightConditions conditions, double cd) {
 		double aoa = MathUtil.clamp(conditions.getAOA(), 0, Math.PI);
 		double mul;
 		
