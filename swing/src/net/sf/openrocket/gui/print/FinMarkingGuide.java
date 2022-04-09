@@ -23,6 +23,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.RailButton; // IMPORT Rail Button
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -119,7 +120,9 @@ public class FinMarkingGuide extends JPanel {
 			if (next instanceof BodyTube) {
 				current = (BodyTube) next;
 			}
-			else if (next instanceof FinSet || next instanceof LaunchLug) {
+
+			// IF Fin Set, Launch Lug, or Rail Button
+			else if (next instanceof FinSet || next instanceof LaunchLug || next instanceof RailButton) {
 				java.util.List<ExternalComponent> list = results.get(current);
 				if (list == null && current != null) {
 					list = new ArrayList<ExternalComponent>();
@@ -202,8 +205,8 @@ public class FinMarkingGuide extends JPanel {
 	 *   |       |                  +                            +
 	 *   |       |                  +                            +
 	 *   |       |                  +<------Launch Lug --------->+
-	 *   |       |                  +                            +
-	 *   |       |                  +                            +
+	 *   |       |                  +         and/or             +
+	 *   |       |                  +      Rail Buttons          +
 	 *   |       |                  +                            +
 	 *   |       |                  +<----------Fin------------->+
 	 *   |       |                  +                            +
@@ -285,6 +288,7 @@ public class FinMarkingGuide extends JPanel {
 							//   }
 						}
 					}
+					// BEGIN Launch Lug
 					else if (externalComponent instanceof LaunchLug) {
 						LaunchLug lug = (LaunchLug) externalComponent;
 						double angle = lug.getAngleOffset() - radialOrigin;
@@ -294,8 +298,21 @@ public class FinMarkingGuide extends JPanel {
 						int yLLOffset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
 						drawDoubleArrowLine(g2, x, (int) yLLOffset, x + width, (int) yLLOffset);
 						g2.drawString(lug.getName(), x + (width / 3), (int) yLLOffset - 2);
-						
 					}
+					// END Launch Lug
+
+					// BEGIN Rail Button
+					else if (externalComponent instanceof RailButton) {
+						RailButton button = (RailButton) externalComponent;
+						double angle = button.getAngleOffset() - radialOrigin;
+						while (angle < 0) {
+							angle += TWO_PI;
+						}
+						int yLLOffset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
+						drawDoubleArrowLine(g2, x, (int) yLLOffset, x + width, (int) yLLOffset);
+						g2.drawString(button.getName(), x + (width / 3), (int) yLLOffset - 2);
+					}
+					// END Launch Lug
 				}
 				//Only if the tube has a lug or multiple finsets does the orientation of the marking guide matter. So print 'Front'.
 				if (hasMultipleComponents) {
@@ -329,13 +346,23 @@ public class FinMarkingGuide extends JPanel {
 		ArrayList<Double> positions = new ArrayList<Double>(3 * components.size());
 		
 		for (ExternalComponent component : components) {
-			
+
+			// BEGIN Launch Lug
 			if (component instanceof LaunchLug) {
 				double componentPosition = ((LaunchLug) component).getAngleOffset();
 				
 				positions.add(makeZeroTwoPi(componentPosition));
 			}
-			
+			// END Launch Lug
+
+			// BEGIN Rail Button
+			if (component instanceof RailButton) {
+				double componentPosition = ((RailButton) component).getAngleOffset();
+
+				positions.add(makeZeroTwoPi(componentPosition));
+			}
+			// END Rail Button
+
 			if (component instanceof FinSet) {
 				FinSet fins = (FinSet) component;
 				double basePosition = fins.getBaseRotation();
