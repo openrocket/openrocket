@@ -39,6 +39,6 @@ public abstract class RocketComponentCalc {
 	 * @param warnings		set in which to store possible warnings
 	 * @return				the pressure drag of the component
 	 */
-	public abstract double calculatePressureCD(FlightConditions conditions, 
+	public abstract double calculatePressureDragForce(FlightConditions conditions, 
 			double stagnationCD, double baseCD, WarningSet warnings);
 }
