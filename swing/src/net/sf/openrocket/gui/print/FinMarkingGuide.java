@@ -301,7 +301,7 @@ public class FinMarkingGuide extends JPanel {
 					}
 					// END Launch Lug
 
-					// BEGIN Rail Button
+ 					// BEGIN Rail Button
 					else if (externalComponent instanceof RailButton) {
 						RailButton button = (RailButton) externalComponent;
 						double angle = button.getAngleOffset() - radialOrigin;
@@ -312,7 +312,8 @@ public class FinMarkingGuide extends JPanel {
 						drawDoubleArrowLine(g2, x, (int) yLLOffset, x + width, (int) yLLOffset);
 						g2.drawString(button.getName(), x + (width / 3), (int) yLLOffset - 2);
 					}
-					// END Launch Lug
+					// END Rail Button
+
 				}
 				//Only if the tube has a lug or multiple finsets does the orientation of the marking guide matter. So print 'Front'.
 				if (hasMultipleComponents) {
