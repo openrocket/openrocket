@@ -623,11 +623,11 @@ public class FinSetCalc extends RocketComponentCalc {
 	//	}
 	
 	@Override
-	public double calculatePressureCD(FlightConditions conditions,
-									  double stagnationCD, double baseCD, WarningSet warnings) {
+	public double calculatePressureDragForce(FlightConditions conditions,
+			double stagnationCD, double baseCD, WarningSet warnings) {
 		
 		double mach = conditions.getMach();
-		double cd = 0;
+		double drag = 0;
 		
 		// Pressure fore-drag
 		if (crossSection == FinSet.CrossSection.AIRFOIL ||
@@ -635,34 +635,34 @@ public class FinSetCalc extends RocketComponentCalc {
 			
 			// Round leading edge
 			if (mach < 0.9) {
-				cd = Math.pow(1 - pow2(mach), -0.417) - 1;
+				drag = Math.pow(1 - pow2(mach), -0.417) - 1;
 			} else if (mach < 1) {
-				cd = 1 - 1.785 * (mach - 0.9);
+				drag = 1 - 1.785 * (mach - 0.9);
 			} else {
-				cd = 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
+				drag = 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
 			}
 			
 		} else if (crossSection == FinSet.CrossSection.SQUARE) {
-			cd = stagnationCD;
+			drag = stagnationCD;
 		} else {
 			throw new UnsupportedOperationException("Unsupported fin profile: " + crossSection);
 		}
 		
 		// Slanted leading edge
-		cd *= pow2(cosGammaLead);
+		drag *= pow2(cosGammaLead);
 		
 		// Trailing edge drag
 		if (crossSection == FinSet.CrossSection.SQUARE) {
-			cd += baseCD;
+			drag += baseCD;
 		} else if (crossSection == FinSet.CrossSection.ROUNDED) {
-			cd += baseCD / 2;
+			drag += baseCD / 2;
 		}
 		// Airfoil assumed to have zero base drag
 		
 		// Scale to correct reference area
-		cd *= cd * span * thickness / conditions.getRefArea();
+		drag *= span * thickness / conditions.getRefArea();
 		
-		return cd;
+		return drag;
 	}
 	
 	private void calculateInterferenceFinCount(FinSet component) {
