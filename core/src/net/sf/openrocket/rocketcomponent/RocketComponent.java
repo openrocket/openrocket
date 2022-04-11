@@ -97,8 +97,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	// Override mass/CG
-	private double overrideMass = 0;
-	private boolean massOverridden = false;
+	protected double overrideMass = 0;
+	protected boolean massOverridden = false;
 	private double overrideCGX = 0;
 	private boolean cgOverridden = false;
 	private double overrideCD = 0;
@@ -108,7 +108,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	// User-given name of the component
-	private String name = null;
+	protected String name = null;
 	
 	// User-specified comment
 	private String comment = "";

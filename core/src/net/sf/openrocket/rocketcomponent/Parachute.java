@@ -22,7 +22,6 @@ public class Parachute extends RecoveryDevice {
 	public Parachute() {
 		this.diameter = 0.3;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
-		this.lineLength = 0.3;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
@@ -171,6 +170,32 @@ public class Parachute extends RecoveryDevice {
 		if( preset.has( ComponentPreset.LINE_MATERIAL )) {
 			this.lineMaterial = preset.get( ComponentPreset.LINE_MATERIAL );
 		}
+
+		// BEGIN Activate Override Mass
+		if (preset.has(ComponentPreset.MASS)) {
+			this.overrideMass = (preset.get(ComponentPreset.MASS));
+			if (overrideMass > 0.0) {       // If the preset mass value > 0
+				massOverridden = true;
+			} else {                        // If the preset mass value <= 0
+				this.overrideMass = 0;
+				massOverridden = false;
+			}
+		} else {                            // If the preset mass value field does not exist
+			this.overrideMass = 0;
+			massOverridden = false;
+		}
+		// END Activate Preset Override Mass
+
+		//BEGIN Substitute parachute description for component name
+		if (preset.has(ComponentPreset.DESCRIPTION)) {
+			String temporaryName = preset.get(ComponentPreset.DESCRIPTION);
+			int size = temporaryName.length();
+			if (size > 0) {
+				this.name = preset.get(ComponentPreset.DESCRIPTION);
+			}
+		}
+		//END Substitute parachute description for component name
+
 		super.loadFromPreset(preset);
 	}
 
