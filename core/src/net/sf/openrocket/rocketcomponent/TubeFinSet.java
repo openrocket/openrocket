@@ -95,12 +95,12 @@ public class TubeFinSet extends ExternalComponent implements AxialPositionable, 
 	}
 
 	/**
-	 * Return whether the tubes are touching
+	 * Return distance between tubes.
 	 *
-	 * @return true if touching, false if not
+	 * @return distance between tubes.  0 if touching, negative if overlap
 	 */
-	public boolean getTubesTouching() {
-		return getOuterRadius() > getTouchingRadius() - MathUtil.EPSILON;
+	public double getTubeSeparation() {
+		return 2.0*(getTouchingRadius() - getOuterRadius());
 	}
 
 	/**
