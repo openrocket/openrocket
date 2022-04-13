@@ -660,7 +660,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Airfoil assumed to have zero base drag
 		
 		// Scale to correct reference area
-		cd *= cd * span * thickness / conditions.getRefArea();
+		cd *= span * thickness / conditions.getRefArea();
 		
 		return cd;
 	}
