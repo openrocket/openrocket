@@ -341,7 +341,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 
 		// Linear forces in rocket coordinates
-		store.dragForce = store.forces.getCaxial() * dynP * refArea;
+		store.dragForce = store.forces.getCDaxial() * dynP * refArea;
 		double fN = store.forces.getCN() * dynP * refArea;
 		double fSide = store.forces.getCside() * dynP * refArea;
 		
@@ -646,7 +646,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		if (store.forces != null) {
 			data.setValue(FlightDataType.TYPE_DRAG_COEFF, store.forces.getCD());
-			data.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, store.forces.getCaxial());
+			data.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, store.forces.getCDaxial());
 			data.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, store.forces.getFrictionCD());
 			data.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, store.forces.getPressureCD());
 			data.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, store.forces.getBaseCD());
