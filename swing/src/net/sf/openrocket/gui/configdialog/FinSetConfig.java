@@ -129,6 +129,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 							copy.setFinCount(1);
 							copy.setBaseRotation(base + i * 2 * Math.PI / count);
 							copy.setName(copy.getName() + " #" + (i + 1));
+							copy.setOverrideMass(((FinSet) component).getOverrideMass()/((FinSet) component).getFinCount());
 							parent.addChild(copy, index + i);
 						}
 					}
