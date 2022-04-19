@@ -23,6 +23,12 @@ public class ParachuteDTO extends BaseComponentDTO {
     private AnnotatedLengthDTO diameter;
     @XmlElement(name = "Sides")
     private Integer sides;
+	@XmlElement(name = "PackedDiameter")
+	private AnnotatedLengthDTO PackedDiameter;
+	@XmlElement(name = "PackedLength")
+	private AnnotatedLengthDTO PackedLength;
+	@XmlElement(name = "DragCoefficient")
+	private AnnotatedLengthDTO DragCoefficient;
     @XmlElement(name = "LineCount")
     private Integer lineCount;
     @XmlElement(name = "LineLength")
@@ -56,6 +62,38 @@ public class ParachuteDTO extends BaseComponentDTO {
 	public void setSides(Integer sides) {
 		this.sides = sides;
 	}
+
+
+	public double getPackedDiameter() {
+		return PackedDiameter.getValue();
+	}
+
+	public void setPackedDiameter(AnnotatedLengthDTO PackedDiameter) {
+		this.PackedDiameter = PackedDiameter;
+	}
+	public void setPackedDiameter(double PackedDiameter) {
+		this.PackedDiameter = new AnnotatedLengthDTO(PackedDiameter);
+	}
+
+	public double getPackedLength() {
+		return PackedLength.getValue();
+	}
+
+	public void setPackedLength(AnnotatedLengthDTO PackedLength) {
+		this.PackedLength = PackedLength;
+	}
+	public void setPackedLength(double PackedLength) {
+		this.PackedLength = new AnnotatedLengthDTO(PackedLength);
+	}
+
+	public double getDragCoefficient() {
+		return DragCoefficient.getValue();
+	}
+
+	public void setDragCoefficient(AnnotatedLengthDTO DragCoefficient) {
+		this.DragCoefficient = DragCoefficient;
+	}
+	public void setDragCoefficient(double DragCoefficient) { this.DragCoefficient = new AnnotatedLengthDTO(DragCoefficient); }
 
 	public Integer getLineCount() {
 		return lineCount;
@@ -102,6 +140,15 @@ public class ParachuteDTO extends BaseComponentDTO {
         if ( preset.has(ComponentPreset.SIDES)) {
         	setSides(preset.get(ComponentPreset.SIDES));
         }
+		if ( preset.has(ComponentPreset.PACKED_DIAMETER)) {
+			setPackedDiameter(preset.get(ComponentPreset.PACKED_DIAMETER));
+		}
+		if ( preset.has(ComponentPreset.PACKED_LENGTH)) {
+			setPackedLength(preset.get(ComponentPreset.PACKED_LENGTH));
+		}
+		if ( preset.has(ComponentPreset.PARACHUTE_CD)) {
+			setDragCoefficient(preset.get(ComponentPreset.PARACHUTE_CD));
+		}
         if ( preset.has(ComponentPreset.LINE_MATERIAL)) {
         	setLineMaterial(new AnnotatedMaterialDTO(preset.get(ComponentPreset.LINE_MATERIAL)));
         }
@@ -120,6 +167,15 @@ public class ParachuteDTO extends BaseComponentDTO {
         // need to fix the MATERIAL packed into the componentpreset.
         props.put(ComponentPreset.TYPE, type);
         props.put(ComponentPreset.DIAMETER, this.getDiameter());
+		if ( this.PackedDiameter != null ) {
+			props.put(ComponentPreset.PACKED_DIAMETER, this.getPackedDiameter());
+		}
+		if ( this.PackedLength != null ) {
+			props.put(ComponentPreset.PACKED_LENGTH, this.getPackedLength());
+		}
+		if ( this.PackedLength != null ) {
+			props.put(ComponentPreset.PARACHUTE_CD, this.getDragCoefficient());
+		}
         props.put(ComponentPreset.LINE_COUNT, this.getLineCount());
         if ( this.lineLength != null ) {
         	props.put(ComponentPreset.LINE_LENGTH, this.getLineLength());
