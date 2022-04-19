@@ -10,19 +10,19 @@ import net.sf.openrocket.util.MathUtil;
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
 	
-	public static final double DEFAULT_CD = 0.8;
+	public static double DEFAULT_CD = 0.8;
 	
 	private double diameter;
-	
+	private final double InitialPackedLength = this.length;
+	private final double InitialPackedRadius = this.radius;
+
 	private Material lineMaterial;
 	private int lineCount = 6;
 	private double lineLength = 0.3;
-	
-	
+
 	public Parachute() {
 		this.diameter = 0.3;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
-		this.lineLength = 0.3;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
@@ -159,25 +159,135 @@ public class Parachute extends RecoveryDevice {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if( preset.has( ComponentPreset.DIAMETER )) {
-			this.diameter = preset.get( ComponentPreset.DIAMETER );
+
+		// BEGIN Substitute parachute description for component name
+		if (preset.has(ComponentPreset.DESCRIPTION)) {			  		// If the preset has a Description field
+			String temporaryName = preset.get(ComponentPreset.DESCRIPTION);
+			int size = temporaryName.length();
+			if (size > 0) {                                       		// If the preset description => 1 character
+				this.name = preset.get(ComponentPreset.DESCRIPTION);
+			} else {                                              		// If the preset description = 0 characters
+				this.name = getComponentName();
+			}
+		} else {                                                  		// Fail safe - no preset description field
+			this.name = getComponentName();
 		}
-		if( preset.has( ComponentPreset.LINE_COUNT )) {
-			this.lineCount = preset.get( ComponentPreset.LINE_COUNT );
+		// END Substitute parachute description for component name
+
+		if (preset.has(ComponentPreset.DIAMETER)) {
+			this.diameter = preset.get(ComponentPreset.DIAMETER);
 		}
-		if( preset.has( ComponentPreset.LINE_LENGTH )) {
-			this.lineLength = preset.get( ComponentPreset.LINE_LENGTH );
+
+		 // BEGIN Implement parachute cd
+		 if (preset.has(ComponentPreset.PARACHUTE_CD)) {          		// If the preset has a DragCoefficient field
+			 if (preset.get(ComponentPreset.PARACHUTE_CD) > 0) {     	// If the preset DragCoefficient > 0
+		 		cdAutomatic = false;
+		 		cd = preset.get(ComponentPreset.PARACHUTE_CD);
+		 		}
+			 else {                         							// If the preset DragCoefficient <= 0
+				 cdAutomatic = true;
+				 cd = Parachute.DEFAULT_CD;
+		 		}
+		 } else {                                                 		// Fail-safe - no preset DragCoefficient field
+			 cdAutomatic = true;
+			 cd = Parachute.DEFAULT_CD;
+		 }
+		 // END Implement parachute cd
+
+		// BEGIN Implement parachute length, diameter, and volume
+		//// BEGIN Implement parachute packed length
+		if (preset.has(ComponentPreset.PACKED_LENGTH)) {				// If the preset has a PackedLength field
+			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
+			if (PackedLength > 0) {                               		// If the preset PackedLength length > 0
+				length = PackedLength;
+			}
+			if (PackedLength <= 0) {                               		// If the preset PackedLength length <= 0
+				length = InitialPackedLength;
+			}
+		} else {                                                  		// fail-safe - no preset PackedLength field
+			length = InitialPackedLength;
 		}
-		if( preset.has( ComponentPreset.LINE_MATERIAL )) {
-			this.lineMaterial = preset.get( ComponentPreset.LINE_MATERIAL );
+		//// END Implement parachute packed length
+		//// BEGIN Implement parachute packed diameter
+		if (preset.has(ComponentPreset.PACKED_DIAMETER)) {				// If the preset has a PackedDiameter field
+			this.PackedDiameter = preset.get(ComponentPreset.PACKED_DIAMETER);
+			if (PackedDiameter > 0) {                             		// If the preset PackedDiameter length > 0
+				radius = PackedDiameter / 2;
+			}
+			if (PackedDiameter <= 0) {                             		// If the preset PackedDiameter length <= 0
+				radius = InitialPackedRadius;
+			}
+		} else {                                             		    // Fail safe - no preset PackedDiameter field
+			radius = InitialPackedRadius;
+	}
+		//// END Implement parachute packed diameter
+		//// BEGIN Size parachute packed diameter within parent inner diameter
+		if (length > 0 && radius > 0) {                            		// If preset parachute length & diameter
+			double innerRadius;
+			double parachuteVolume;
+			double trimPackedRadius = .975;
+			parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
+
+			if (parent instanceof BodyComponent) {                    	// If parent is a body tube
+				innerRadius = ((BodyComponent) parent).getInnerRadius();
+				radius = innerRadius * trimPackedRadius;
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			}
+			if (parent instanceof InnerTube) {                        	// If parent is an inner tube
+				innerRadius = ((InnerTube) parent).getInnerRadius();
+				radius = innerRadius * trimPackedRadius;
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			}
+			if (parent instanceof TubeCoupler) {                       	// If parent is a tube coupler
+				innerRadius = ((TubeCoupler) parent).getInnerRadius();
+				radius = innerRadius * trimPackedRadius;
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			}
+			if (parent instanceof NoseCone) { 							// If parent is nose cone
+				innerRadius = ((NoseCone) parent).getAftRadius();
+				radius = innerRadius * Math.pow((trimPackedRadius), 2);
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			}
+			if (parent instanceof Transition) {                       	// If parent is nose cone|transition
+				double foreRadius = ((Transition) parent).getForeRadius();
+				double aftRadius = ((Transition) parent).getAftRadius();
+				innerRadius = (Math.max(foreRadius, aftRadius));
+				radius = innerRadius * Math.pow((trimPackedRadius), 2);
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			}
+		}
+		//// END Size parachute packed diameter within parent inner diameter
+		// END Implement parachute length, diameter, and volume
+
+		// BEGIN Activate Override Mass Preset
+		if (preset.has(ComponentPreset.MASS)) {                        	// If the preset has a mass field
+			this.overrideMass = (preset.get(ComponentPreset.MASS));
+			if (overrideMass > 0) {                                    	// If the preset mass value > 0
+				massOverridden = true;
+			} else {                                                   	// If the preset mass value <= 0
+				this.overrideMass = 0;
+				massOverridden = false;
+			}
+		} else {                                                      	// Fail safe - no mass value field
+			this.overrideMass = 0;
+			massOverridden = false;
+		}
+		// END Activate Override Mass Preset
+
+		if (preset.has(ComponentPreset.LINE_COUNT)) {
+			this.lineCount = preset.get(ComponentPreset.LINE_COUNT);
+		}
+		if (preset.has(ComponentPreset.LINE_LENGTH)) {
+			this.lineLength = preset.get(ComponentPreset.LINE_LENGTH);
+		}
+		if (preset.has(ComponentPreset.LINE_MATERIAL)) {
+			this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
 		}
 		super.loadFromPreset(preset);
 	}
 
-
 	@Override
 	public Type getPresetType() {
-		return ComponentPreset.Type.PARACHUTE;
+		return Type.PARACHUTE;
 	}
-	
 }

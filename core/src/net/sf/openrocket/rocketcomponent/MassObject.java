@@ -21,7 +21,7 @@ import net.sf.openrocket.util.MathUtil;
  */
 public abstract class MassObject extends InternalComponent {
 	
-	private double radius;
+	protected double radius;
 	
 	private double radialPosition;
 	private double radialDirection;
