@@ -17,11 +17,6 @@
 			Lightweight 1.1oz mil-spec calendared ripstop nylon - compact and lightweight.		
 				Lightweight 1.1oz mil-spec calendared ripstop nylon at 1.15 oz/yd^2	
 				Type: #200 Spectra at .6 g/yd	
-				Length: Shroud line are 150% of the canopy dyameter	
-					
-				NEEDED	Weight is the total finished weight of the parachute
-				NEEDED	Packing volume is dia, length, and in^3
-				NEEDED	Rating is the weight at a certain descent rate (ex. 5lbs at 20fps)
 					
 			FR3-12-12		FR3-12-12 Ellipsoid Canopy Shape for Mid-Power or HP Drogue
 					Elliptical Parachute [Cd 1.5 ( oz) 4.1 in^3]
@@ -291,7 +286,7 @@
 			<PartNumber>FR3-12-12</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (.35oz) 4.1 in^3]]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00035274</Mass>		
+			<Mass Unit="oz">.35</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">12</Diameter>		
@@ -300,8 +295,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">18</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.4</PackedDiameter>		
-			<PackedLength>2.8</PackedLength>		
+			<PackedDiameter Unit="in">1.4</PackedDiameter>		
+			<PackedLength Unit="in">2.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -309,7 +304,7 @@
 			<PartNumber>FR3-12-15</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (.49 oz) 4.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00049384</Mass>		
+			<Mass Unit="oz">.49</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">15</Diameter>		
@@ -318,8 +313,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">22.5</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.4</PackedDiameter>		
-			<PackedLength>3.0</PackedLength>		
+			<PackedDiameter Unit="in">1.4</PackedDiameter>		
+			<PackedLength Unit="in">3.0</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -327,7 +322,7 @@
 			<PartNumber>FR3-12-18</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (.71 oz) 6.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00070548</Mass>		
+			<Mass Unit="oz">.71</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">18</Diameter>		
@@ -336,8 +331,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">27</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>3.0</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">3.0</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -345,7 +340,7 @@
 			<PartNumber>FR3-12-24</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (1.13 oz) 7.7 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00112827</Mass>		
+			<Mass Unit="oz">1.13</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">24</Diameter>		
@@ -354,8 +349,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">36</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>3.9</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">3.9</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -363,7 +358,7 @@
 			<PartNumber>FR3-12-30</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (1.48 oz) 9.7 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00148151</Mass>		
+			<Mass Unit="oz">1.48</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">30</Diameter>		
@@ -372,8 +367,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">45</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>4.8</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">4.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -381,7 +376,7 @@
 			<PartNumber>FR3-12-36</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (1.9 oz) 10.7 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00190479</Mass>		
+			<Mass Unit="oz">1.9</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">36</Diameter>		
@@ -390,8 +385,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">54</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>5.5</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">5.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -399,7 +394,7 @@
 			<PartNumber>FR3-12-42</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (2.65 oz) 4.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00264555</Mass>		
+			<Mass Unit="oz">2.65</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">42</Diameter>		
@@ -408,8 +403,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">63</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>5.7</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">5.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -417,7 +412,7 @@
 			<PartNumber>FR3-12-48</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (3.25 oz) 18.8 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00324520</Mass>		
+			<Mass Unit="oz">3.25</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">48</Diameter>		
@@ -426,8 +421,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">72</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.2</PackedDiameter>		
-			<PackedLength>5.1</PackedLength>		
+			<PackedDiameter Unit="in">2.2</PackedDiameter>		
+			<PackedLength Unit="in">5.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -435,7 +430,7 @@
 			<PartNumber>FR3-12-60</PartNumber>		
 			<Description>Elliptical 12-Gore Parachute [Cd 1.5 (4.59 oz) 26.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00458561</Mass>		
+			<Mass Unit="oz">4.59</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">48</Diameter>		
@@ -444,8 +439,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">90</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.4</PackedDiameter>		
-			<PackedLength>6.1</PackedLength>		
+			<PackedDiameter Unit="in">2.4</PackedDiameter>		
+			<PackedLength Unit="in">6.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -453,7 +448,7 @@
 			<PartNumber>FR3-16-36</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (2.12 oz) 10.7 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00211644</Mass>		
+			<Mass Unit="oz">2.12</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">36</Diameter>		
@@ -462,8 +457,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">54</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>5.5</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">5.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -471,7 +466,7 @@
 			<PartNumber>FR3-16-42</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (2.65 oz) 15.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00264555</Mass>		
+			<Mass Unit="oz">2.65</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">42</Diameter>		
@@ -480,8 +475,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">63</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>5.7</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">5.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -489,7 +484,7 @@
 			<PartNumber>FR3-16-48</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (3.39 oz) 18.8 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00338630</Mass>		
+			<Mass Unit="oz">3.39</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">48</Diameter>		
@@ -498,8 +493,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">72</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.2</PackedDiameter>		
-			<PackedLength>5.1</PackedLength>		
+			<PackedDiameter Unit="in">2.2</PackedDiameter>		
+			<PackedLength Unit="in">5.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -507,7 +502,7 @@
 			<PartNumber>FR3-16-60</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (4.59 oz) 26.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00458561</Mass>		
+			<Mass Unit="oz">4.59</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">60</Diameter>		
@@ -516,8 +511,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">90</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.4</PackedDiameter>		
-			<PackedLength>6.1</PackedLength>		
+			<PackedDiameter Unit="in">2.4</PackedDiameter>		
+			<PackedLength Unit="in">6.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -525,7 +520,7 @@
 			<PartNumber>FR3-16-72</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (6.63 oz) 34.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00663155</Mass>		
+			<Mass Unit="oz">6.63</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">72</Diameter>		
@@ -534,8 +529,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">108</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>6.7</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">6.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -543,7 +538,7 @@
 			<PartNumber>FR3-16-84</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (8.29 oz) 42.5 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.00828938</Mass>		
+			<Mass Unit="oz">8.29</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">84</Diameter>		
@@ -552,8 +547,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">126</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.8</PackedDiameter>		
-			<PackedLength>7.1</PackedLength>		
+			<PackedDiameter Unit="in">2.8</PackedDiameter>		
+			<PackedLength Unit="in">7.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -561,7 +556,7 @@
 			<PartNumber>FR3-16-96</PartNumber>		
 			<Description>Elliptical 16-Gore Parachute [Cd 1.5 (11.15 oz) 61.3 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
-			<Mass Unit="kg">.01114657</Mass>		
+			<Mass Unit="oz">11.15</Mass>		
 			<Finish></Finish>		
 			<CG></CG>		
 			<Diameter Unit="in">96</Diameter>		
@@ -570,8 +565,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">144</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>3.1</PackedDiameter>		
-			<PackedLength>7.9</PackedLength>		
+			<PackedDiameter Unit="in">3.1</PackedDiameter>		
+			<PackedLength Unit="in">7.9</PackedLength>		
 		</Parachute>			
 					
 	</Components>				
