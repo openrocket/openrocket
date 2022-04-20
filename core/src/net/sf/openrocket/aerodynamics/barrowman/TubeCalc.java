@@ -8,12 +8,12 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-public class LaunchLugCalc extends TubeCalc {
+public abstract class TubeCalc extends RocketComponentCalc {
 
 	private final double CDmul;
-	private final double refArea;
+	protected final double refArea;
 	
-	public LaunchLugCalc(RocketComponent component) {
+	public TubeCalc(RocketComponent component) {
 		super(component);
 		
 		LaunchLug lug = (LaunchLug)component;
@@ -22,25 +22,6 @@ public class LaunchLugCalc extends TubeCalc {
 		CDmul = Math.max(1.3 - ld, 1);
 		refArea = Math.PI * MathUtil.pow2(lug.getOuterRadius()) - 
 				  Math.PI * MathUtil.pow2(lug.getInnerRadius()) * Math.max(1 - ld, 0);
-	}
-
-	@Override
-	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
-			AerodynamicForces forces, WarningSet warnings) {
-		// Nothing to be done
-	}
-
-	@Override
-	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
-		// launch lug doesn't add enough area to worry about
-		return 0;
-	}
-
-	@Override
-	public double calculatePressureCD(FlightConditions conditions,
-			double stagnationCD, double baseCD, WarningSet warnings) {
-
-		return CDmul*stagnationCD * refArea / conditions.getRefArea();
 	}
 
 }
