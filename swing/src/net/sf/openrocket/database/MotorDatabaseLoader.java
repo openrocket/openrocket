@@ -146,8 +146,10 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 			}
 			catch (IllegalArgumentException e) {
 				Translator trans = Application.getTranslator();
+				File thrustCurveDir = ((SwingPreferences) Application.getPreferences()).getDefaultUserThrustCurveFile();
+				File fullPath = new File(thrustCurveDir, f.getU());
 				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
-						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), f.getU()) +
+						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), fullPath.getPath()) +
 						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
 				JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
 				JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
