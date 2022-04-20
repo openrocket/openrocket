@@ -1,5 +1,6 @@
 package net.sf.openrocket.database;
 
+import java.awt.Dialog;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
@@ -147,8 +149,10 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
 						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), f.getU()) +
 						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
-				JOptionPane.showMessageDialog(null,
-						message, trans.get("MotorDbLoaderDlg.title"), JOptionPane.WARNING_MESSAGE);
+				JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
+				JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
+				dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+				dialog.setVisible(true);
 			}
 			f.getV().close();
 		} catch (IOException e) {
