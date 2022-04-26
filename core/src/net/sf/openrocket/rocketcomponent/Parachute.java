@@ -161,15 +161,15 @@ public class Parachute extends RecoveryDevice {
 	protected void loadFromPreset(ComponentPreset preset) {
 
 		// BEGIN Substitute parachute description for component name
-		if (preset.has(ComponentPreset.DESCRIPTION)) {			  		// If the preset has a Description field
+		if (preset.has(ComponentPreset.DESCRIPTION)) {
 			String temporaryName = preset.get(ComponentPreset.DESCRIPTION);
 			int size = temporaryName.length();
-			if (size > 0) {                                       		// If the preset description => 1 character
+			if (size > 0) {
 				this.name = preset.get(ComponentPreset.DESCRIPTION);
-			} else {                                              		// If the preset description = 0 characters
+			} else {
 				this.name = getComponentName();
 			}
-		} else {                                                  		// Fail safe - no preset description field
+		} else {
 			this.name = getComponentName();
 		}
 		// END Substitute parachute description for component name
@@ -179,16 +179,16 @@ public class Parachute extends RecoveryDevice {
 		}
 
 		 // BEGIN Implement parachute cd
-		 if (preset.has(ComponentPreset.PARACHUTE_CD)) {          		// If the preset has a DragCoefficient field
-			 if (preset.get(ComponentPreset.PARACHUTE_CD) > 0) {     	// If the preset DragCoefficient > 0
+		 if (preset.has(ComponentPreset.PARACHUTE_CD)) {
+			 if (preset.get(ComponentPreset.PARACHUTE_CD) > 0) {
 		 		cdAutomatic = false;
 		 		cd = preset.get(ComponentPreset.PARACHUTE_CD);
 		 		}
-			 else {                         							// If the preset DragCoefficient <= 0
+			 else {
 				 cdAutomatic = true;
 				 cd = Parachute.DEFAULT_CD;
 		 		}
-		 } else {                                                 		// Fail-safe - no preset DragCoefficient field
+		 } else {
 			 cdAutomatic = true;
 			 cd = Parachute.DEFAULT_CD;
 		 }
@@ -196,79 +196,68 @@ public class Parachute extends RecoveryDevice {
 
 		// BEGIN Implement parachute length, diameter, and volume
 		//// BEGIN Implement parachute packed length
-		if (preset.has(ComponentPreset.PACKED_LENGTH)) {				// If the preset has a PackedLength field
+		if (preset.has(ComponentPreset.PACKED_LENGTH)) {
 			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
-			if (PackedLength > 0) {                               		// If the preset PackedLength length > 0
+			if (PackedLength > 0) {
 				length = PackedLength;
 			}
-			if (PackedLength <= 0) {                               		// If the preset PackedLength length <= 0
+			if (PackedLength <= 0) {
 				length = InitialPackedLength;
 			}
-		} else {                                                  		// fail-safe - no preset PackedLength field
+		} else {
 			length = InitialPackedLength;
 		}
 		//// END Implement parachute packed length
 		//// BEGIN Implement parachute packed diameter
-		if (preset.has(ComponentPreset.PACKED_DIAMETER)) {				// If the preset has a PackedDiameter field
+		if (preset.has(ComponentPreset.PACKED_DIAMETER)) {
 			this.PackedDiameter = preset.get(ComponentPreset.PACKED_DIAMETER);
-			if (PackedDiameter > 0) {                             		// If the preset PackedDiameter length > 0
+			if (PackedDiameter > 0) {
 				radius = PackedDiameter / 2;
 			}
-			if (PackedDiameter <= 0) {                             		// If the preset PackedDiameter length <= 0
+			if (PackedDiameter <= 0) {
 				radius = InitialPackedRadius;
 			}
-		} else {                                             		    // Fail safe - no preset PackedDiameter field
+		} else {
 			radius = InitialPackedRadius;
 	}
 		//// END Implement parachute packed diameter
 		//// BEGIN Size parachute packed diameter within parent inner diameter
-		if (length > 0 && radius > 0) {                            		// If preset parachute length & diameter
-			double innerRadius;
+		if (length > 0 && radius > 0) {
 			double parachuteVolume;
 			double trimPackedRadius = .975;
 			parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
 
-			if (parent instanceof BodyComponent) {                    	// If parent is a body tube
-				innerRadius = ((BodyComponent) parent).getInnerRadius();
-				radius = innerRadius * trimPackedRadius;
+			if (parent instanceof NoseCone) {
+				radius = ((NoseCone) parent).getAftRadius();
 				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			}
-			if (parent instanceof InnerTube) {                        	// If parent is an inner tube
-				innerRadius = ((InnerTube) parent).getInnerRadius();
-				radius = innerRadius * trimPackedRadius;
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			}
-			if (parent instanceof TubeCoupler) {                       	// If parent is a tube coupler
-				innerRadius = ((TubeCoupler) parent).getInnerRadius();
-				radius = innerRadius * trimPackedRadius;
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			}
-			if (parent instanceof NoseCone) { 							// If parent is nose cone
-				innerRadius = ((NoseCone) parent).getAftRadius();
-				radius = innerRadius * Math.pow((trimPackedRadius), 2);
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			}
-			if (parent instanceof Transition) {                       	// If parent is nose cone|transition
+			} else if (parent instanceof Transition) {
 				double foreRadius = ((Transition) parent).getForeRadius();
 				double aftRadius = ((Transition) parent).getAftRadius();
-				innerRadius = (Math.max(foreRadius, aftRadius));
+				double innerRadius = (Math.max(foreRadius, aftRadius));
 				radius = innerRadius * Math.pow((trimPackedRadius), 2);
 				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			} else if (parent instanceof BodyComponent) {
+				radius = ((BodyComponent) parent).getInnerRadius();
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
+			} else if (parent instanceof RingComponent) {
+				radius = ((RingComponent) parent).getInnerRadius();
+				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
 			}
+
 		}
 		//// END Size parachute packed diameter within parent inner diameter
 		// END Implement parachute length, diameter, and volume
 
 		// BEGIN Activate Override Mass Preset
-		if (preset.has(ComponentPreset.MASS)) {                        	// If the preset has a mass field
+		if (preset.has(ComponentPreset.MASS)) {
 			this.overrideMass = (preset.get(ComponentPreset.MASS));
-			if (overrideMass > 0) {                                    	// If the preset mass value > 0
+			if (overrideMass > 0) {
 				massOverridden = true;
-			} else {                                                   	// If the preset mass value <= 0
+			} else {
 				this.overrideMass = 0;
 				massOverridden = false;
 			}
-		} else {                                                      	// Fail safe - no mass value field
+		} else {
 			this.overrideMass = 0;
 			massOverridden = false;
 		}
