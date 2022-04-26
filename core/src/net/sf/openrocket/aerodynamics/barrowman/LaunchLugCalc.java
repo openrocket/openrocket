@@ -10,18 +10,8 @@ import net.sf.openrocket.util.Transformation;
 
 public class LaunchLugCalc extends TubeCalc {
 
-	private final double CDmul;
-	private final double refArea;
-	
 	public LaunchLugCalc(RocketComponent component) {
 		super(component);
-		
-		LaunchLug lug = (LaunchLug)component;
-		double ld = lug.getLength() / (2*lug.getOuterRadius());
-		
-		CDmul = Math.max(1.3 - ld, 1);
-		refArea = Math.PI * MathUtil.pow2(lug.getOuterRadius()) - 
-				  Math.PI * MathUtil.pow2(lug.getInnerRadius()) * Math.max(1 - ld, 0);
 	}
 
 	@Override
@@ -35,12 +25,4 @@ public class LaunchLugCalc extends TubeCalc {
 		// launch lug doesn't add enough area to worry about
 		return 0;
 	}
-
-	@Override
-	public double calculatePressureCD(FlightConditions conditions,
-			double stagnationCD, double baseCD, WarningSet warnings) {
-
-		return CDmul*stagnationCD * refArea / conditions.getRefArea();
-	}
-
 }

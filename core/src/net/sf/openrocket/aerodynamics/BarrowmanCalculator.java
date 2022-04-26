@@ -585,6 +585,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
+			log.debug("component " + c);
 
 			if (!c.isAerodynamic())
 				continue;
@@ -593,7 +594,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 
-				// Pressure fore drag
+				// Pressure drag
 				double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
 															   warningSet);
 				total += cd;
