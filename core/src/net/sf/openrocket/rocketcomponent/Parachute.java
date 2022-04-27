@@ -15,6 +15,7 @@ public class Parachute extends RecoveryDevice {
 	private double diameter;
 	private final double InitialPackedLength = this.length;
 	private final double InitialPackedRadius = this.radius;
+	private boolean autoRadius;
 
 	private Material lineMaterial;
 	private int lineCount = 6;
@@ -145,6 +146,64 @@ public class Parachute extends RecoveryDevice {
 		//// Parachute
 		return trans.get("Parachute.Parachute");
 	}
+
+	@Override
+	public void setRadius(double radius) {
+		radius = Math.max(radius, 0);
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadius(radius);
+			}
+		}
+
+		if (MathUtil.equals(this.radius, radius) && (!autoRadius))
+			return;
+
+		this.autoRadius = false;
+		this.radius = radius;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public double getRadius() {
+		if (autoRadius) {
+			if (parent == null) {
+				return radius;
+			}
+			if (parent instanceof NoseCone) {
+				return ((NoseCone) parent).getAftRadius();
+			} else if (parent instanceof Transition) {
+				double foreRadius = ((Transition) parent).getForeRadius();
+				double aftRadius = ((Transition) parent).getAftRadius();
+				return (Math.max(foreRadius, aftRadius));
+			} else if (parent instanceof BodyComponent) {
+				return ((BodyComponent) parent).getInnerRadius();
+			} else if (parent instanceof RingComponent) {
+				return ((RingComponent) parent).getInnerRadius();
+			}
+		}
+		return radius;
+	}
+
+	public boolean isRadiusAutomatic() {
+		return autoRadius;
+	}
+
+	public void setRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Parachute) {
+				((Parachute) listener).setRadiusAutomatic(auto);
+			}
+		}
+
+		if (autoRadius == auto)
+			return;
+
+		autoRadius = auto;
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 	
 	@Override
 	public boolean allowsChildren() {
@@ -223,26 +282,9 @@ public class Parachute extends RecoveryDevice {
 		//// END Implement parachute packed diameter
 		//// BEGIN Size parachute packed diameter within parent inner diameter
 		if (length > 0 && radius > 0) {
-			double parachuteVolume;
-			double trimPackedRadius = .975;
-			parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
-
-			if (parent instanceof NoseCone) {
-				radius = ((NoseCone) parent).getAftRadius();
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			} else if (parent instanceof Transition) {
-				double foreRadius = ((Transition) parent).getForeRadius();
-				double aftRadius = ((Transition) parent).getAftRadius();
-				double innerRadius = (Math.max(foreRadius, aftRadius));
-				radius = innerRadius * Math.pow((trimPackedRadius), 2);
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			} else if (parent instanceof BodyComponent) {
-				radius = ((BodyComponent) parent).getInnerRadius();
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			} else if (parent instanceof RingComponent) {
-				radius = ((RingComponent) parent).getInnerRadius();
-				length = parachuteVolume / (Math.PI * Math.pow((radius), 2));
-			}
+			double parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
+			setRadiusAutomatic(true);
+			length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
 
 		}
 		//// END Size parachute packed diameter within parent inner diameter

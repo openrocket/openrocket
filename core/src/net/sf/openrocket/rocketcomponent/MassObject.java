@@ -66,12 +66,12 @@ public abstract class MassObject extends InternalComponent {
 	}
 	
 	
-	public final double getRadius() {
+	public double getRadius() {
 		return radius;
 	}
 	
 	
-	public final void setRadius(double radius) {
+	public void setRadius(double radius) {
 		radius = Math.max(radius, 0);
 
 		for (RocketComponent listener : configListeners) {
