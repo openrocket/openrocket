@@ -153,6 +153,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.DIAMETER,
 				ComponentPreset.SIDES,
+				ComponentPreset.PARACHUTE_CD,
+				ComponentPreset.PACKED_DIAMETER,
+				ComponentPreset.PACKED_LENGTH,
 				ComponentPreset.LINE_COUNT,
 				ComponentPreset.LINE_LENGTH,
 				ComponentPreset.LINE_MATERIAL,
@@ -208,6 +211,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
 	public final static TypedKey<Double> DIAMETER = new TypedKey<Double>("Diameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Integer> SIDES = new TypedKey<Integer>("Sides", Integer.class);
+	public static final TypedKey<Double> PARACHUTE_CD = new TypedKey<Double>("DragCoefficient", Double.class, UnitGroup.UNITS_COEFFICIENT);
+	public final static TypedKey<Double> PACKED_LENGTH = new TypedKey<Double>("PackedLength", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> PACKED_DIAMETER = new TypedKey<Double>("PackedDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Integer> LINE_COUNT = new TypedKey<Integer>("LineCount", Integer.class);
 	public final static TypedKey<Double> LINE_LENGTH = new TypedKey<Double>("LineLength", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Material> LINE_MATERIAL = new TypedKey<Material>("LineMaterial", Material.class);
@@ -237,6 +243,11 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			FILLED,
 			DIAMETER,
 			SIDES,
+			/** DO NOT add new presets to this list without defining table.column
+			PARACHUTE_CD,
+			PACKED_LENGTH,
+			PACKED_DIAMETER,
+			*/
 			LINE_COUNT,
 			LINE_LENGTH,
 			LINE_MATERIAL,

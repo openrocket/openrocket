@@ -112,8 +112,11 @@ public class ShockCordConfig extends RocketComponentConfig {
 		
 		panel2.add(new UnitSelector(od), "growx");
 		panel2.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
-		
 
+		////// Automatic
+		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		panel2.add(checkAutoPackedRadius, "skip, span 2, wrap");
 
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("ShockCordCfg.tab.General"), null, panel,

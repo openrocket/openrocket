@@ -58,7 +58,7 @@ public class Streamer extends RecoveryDevice {
 		if (MathUtil.equals(this.stripWidth, stripWidth))
 			return;
 		this.stripWidth = stripWidth;
-		this.length = stripWidth;
+
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
