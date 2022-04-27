@@ -22,6 +22,7 @@ import net.sf.openrocket.util.MathUtil;
 public abstract class MassObject extends InternalComponent {
 	
 	protected double radius;
+	private boolean autoRadius = false;
 	
 	private double radialPosition;
 	private double radialDirection;
@@ -67,6 +68,22 @@ public abstract class MassObject extends InternalComponent {
 	
 	
 	public double getRadius() {
+		if (autoRadius) {
+			if (parent == null) {
+				return radius;
+			}
+			if (parent instanceof NoseCone) {
+				return ((NoseCone) parent).getAftRadius();
+			} else if (parent instanceof Transition) {
+				double foreRadius = ((Transition) parent).getForeRadius();
+				double aftRadius = ((Transition) parent).getAftRadius();
+				return (Math.max(foreRadius, aftRadius));
+			} else if (parent instanceof BodyComponent) {
+				return ((BodyComponent) parent).getInnerRadius();
+			} else if (parent instanceof RingComponent) {
+				return ((RingComponent) parent).getInnerRadius();
+			}
+		}
 		return radius;
 	}
 	
@@ -80,14 +97,32 @@ public abstract class MassObject extends InternalComponent {
 			}
 		}
 
-		if (MathUtil.equals(this.radius, radius)) {
+		if (MathUtil.equals(this.radius, radius) && (!autoRadius))
 			return;
-		}
+
+		this.autoRadius = false;
 		this.radius = radius;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+	public boolean isRadiusAutomatic() {
+		return autoRadius;
+	}
+
+	public void setRadiusAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Parachute) {
+				((Parachute) listener).setRadiusAutomatic(auto);
+			}
+		}
+
+		if (autoRadius == auto)
+			return;
+
+		autoRadius = auto;
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 	
 	public final double getRadialPosition() {
 		return radialPosition;
