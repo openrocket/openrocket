@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -177,7 +179,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Packed diameter:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packeddiam")));
 		
-		DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
 		// Diameter = 2*Radius
 		
 		spin = new JSpinner(od.getSpinnerModel());
@@ -185,7 +187,12 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 30lp");
+		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+
+		////// Automatic
+		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 30lp");
 		
 		
 		//// Deployment
