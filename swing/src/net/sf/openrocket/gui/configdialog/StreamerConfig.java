@@ -160,7 +160,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				"w 100lp, wrap");
 		
 		
-		////  Spatial length:
+		////  Packed length:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")));
 		
 		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
