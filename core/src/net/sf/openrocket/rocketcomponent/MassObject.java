@@ -86,7 +86,10 @@ public abstract class MassObject extends InternalComponent {
 		}
 		return radius;
 	}
-	
+
+	public double getRadiusNoAuto() {
+		return radius;
+	}
 	
 	public void setRadius(double radius) {
 		radius = Math.max(radius, 0);
