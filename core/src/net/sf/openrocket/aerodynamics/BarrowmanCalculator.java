@@ -341,7 +341,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		 * for thickness as we go on.
 		 */
 		
-		double finFrictionCD = 0;
+		double otherFrictionCD = 0;
 		double bodyFrictionCD = 0;
 		double maxR = 0, minX = Double.MAX_VALUE, maxX = 0;
 		
@@ -407,8 +407,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					final double componentMaxR = Math.max(s.getForeRadius(), s.getAftRadius());
 					maxR = Math.max(maxR, componentMaxR);
 					
-				} else if (c instanceof FinSet) {
-					finFrictionCD += componentFrictionCD;
+				} else {
+					otherFrictionCD += componentFrictionCD;
 				}
 
 				if (map != null) {
@@ -430,7 +430,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 		}
 		
-		return finFrictionCD + correction * bodyFrictionCD;
+		return otherFrictionCD + correction * bodyFrictionCD;
 	}
 
 
@@ -585,6 +585,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
+			log.debug("component " + c);
 
 			if (!c.isAerodynamic())
 				continue;
@@ -593,7 +594,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 
-				// Pressure fore drag
+				// Pressure drag
 				double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
 															   warningSet);
 				total += cd;

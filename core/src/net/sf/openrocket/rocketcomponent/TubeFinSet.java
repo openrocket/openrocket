@@ -17,7 +17,7 @@ import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.*;
 
-public class TubeFinSet extends ExternalComponent implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
+public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final static double DEFAULT_RADIUS = 0.025;

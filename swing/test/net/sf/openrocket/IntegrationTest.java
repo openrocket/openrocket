@@ -124,7 +124,7 @@ public class IntegrationTest {
 		// Compute cg+cp + altitude
 	    //   double cgx, double mass, double cpx, double cna)
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
-		checkAlt(48.2);
+		checkAlt(49.0);
 		
 		// Mass modification
 		document.addUndoPosition("Modify mass");
@@ -157,7 +157,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.163, 0.0613, 0.275, 9.95);
-		checkAlt(45.0);
+		checkAlt(45.6);
 		
 		// Undo "Remove component" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
@@ -183,7 +183,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
-		checkAlt(48.2);
+		checkAlt(48.87);
 		
 		// Redo "Modify mass" change
 		redoAction.actionPerformed(new ActionEvent(this, 0, "foo"));

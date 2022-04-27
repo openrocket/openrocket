@@ -17,7 +17,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
-public class LaunchLug extends ExternalComponent implements AnglePositionable, BoxBounded, Coaxial, LineInstanceable, InsideColorComponent {
+public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, LineInstanceable, InsideColorComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 	
