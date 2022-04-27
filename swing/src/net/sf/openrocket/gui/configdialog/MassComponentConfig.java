@@ -110,7 +110,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 30lp");
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap");
 
 		
 		////  Position
