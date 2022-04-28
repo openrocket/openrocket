@@ -532,6 +532,7 @@ public class BasicFrame extends JFrame {
 
 		//// Import Rocksim
 		item = new JMenuItem(trans.get("main.menu.file.import"));
+		item.setIcon(Icons.FILE_IMPORT);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -544,6 +545,7 @@ public class BasicFrame extends JFrame {
 
 		//// Export Rocksim
 		item = new JMenuItem(trans.get("main.menu.file.export"));
+		item.setIcon(Icons.FILE_EXPORT_AS);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.export.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -1275,7 +1277,7 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
 	 * @param displayName	the file name to display in dialogs.
-	 * @param file		the File to set the document to (may be null).
+//	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
