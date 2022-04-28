@@ -35,7 +35,7 @@ public abstract class TubeCalc extends RocketComponentCalc {
 		final double Q = conditions.getVelocity() * refArea;
 
 		// pressure drop
-		final double deltap = 1.6 * 1000 * Math.pow(Q, 1.85) * Math.pow(Q, 1.85) * length /
+		final double deltap = 1.6 * Math.pow(Q, 1.85) * length /
 			(Math.pow(diameter, 5) * conditions.getAtmosphericConditions().getPressure());
 
 		// convert to CD and return
