@@ -1,20 +1,16 @@
 package net.sf.openrocket.gui.util;
 
+import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
-import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.Application;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class Icons {
 	private static final Logger log = LoggerFactory.getLogger(Icons.class);
@@ -90,8 +86,15 @@ public class Icons {
 	
 	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
-	
-	
+
+	// MANUFACTURER Product Icons
+
+	public static final Icon RASAERO_ICON = loadImageIcon("pix/icons/RASAero_016.png", "RASAero icon");
+
+	public static final Icon ROCKSIM_ICON = loadImageIcon("pix/icons/Rocksim_016.png", "Rocksim icon");
+
+
+
 	static {
 		log.debug("Icons loaded");
 	}
