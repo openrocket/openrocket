@@ -1,19 +1,16 @@
 package net.sf.openrocket.gui.util;
 
+import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
-import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.Application;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class Icons {
@@ -52,6 +49,8 @@ public class Icons {
 	public static final Icon FILE_OPEN_EXAMPLE = loadImageIcon("pix/icons/document-open-example.png", "Open example document");
 	public static final Icon FILE_SAVE = loadImageIcon("pix/icons/document-save.png", "Save document");
 	public static final Icon FILE_SAVE_AS = loadImageIcon("pix/icons/document-save-as.png", "Save document as");
+	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
+	public static final Icon FILE_EXPORT_AS = loadImageIcon("pix/icons/model_export.png", "Export model as...");
 	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/document-print.png", "Print document");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
@@ -88,8 +87,12 @@ public class Icons {
 	
 	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
-	
-	
+
+// MANUFACTURERS ICONS
+	public static final Icon RASAERO_ICON = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
+	public static final Icon ROCKSIM_ICON = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
+
+
 	static {
 		log.debug("Icons loaded");
 	}

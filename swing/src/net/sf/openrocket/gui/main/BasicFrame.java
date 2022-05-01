@@ -1,75 +1,8 @@
 package net.sf.openrocket.gui.main;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EventObject;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
-import net.sf.openrocket.appearance.DecalImage;
-import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
-import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.util.DecalNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
@@ -79,16 +12,7 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
-import net.sf.openrocket.gui.dialogs.AboutDialog;
-import net.sf.openrocket.gui.dialogs.BugReportDialog;
-import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
-import net.sf.openrocket.gui.dialogs.DebugLogDialog;
-import net.sf.openrocket.gui.dialogs.DetailDialog;
-import net.sf.openrocket.gui.dialogs.LicenseDialog;
-import net.sf.openrocket.gui.dialogs.PrintDialog;
-import net.sf.openrocket.gui.dialogs.ScaleDialog;
-import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
-import net.sf.openrocket.gui.dialogs.WarningDialog;
+import net.sf.openrocket.gui.dialogs.*;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
@@ -96,27 +20,42 @@ import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.gui.util.FileHelper;
-import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.OpenFileWorker;
-import net.sf.openrocket.gui.util.SaveFileWorker;
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.*;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.MemoryManagement;
+import net.sf.openrocket.util.*;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
-import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.StateChangeListener;
-import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.utils.ComponentPresetEditor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 public class BasicFrame extends JFrame {
@@ -214,7 +153,7 @@ public class BasicFrame extends JFrame {
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 
 		// Add change listener to catch when the tabs are changed.  This is to run simulations 
-		// automagically when the simulation tab is selected.
+		// automatically when the simulation tab is selected.
 		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
 
 
@@ -531,8 +470,11 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 		//// Import Rocksim
+		JMenuItem importMenu;
+
 		item = new JMenuItem(trans.get("main.menu.file.import"));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
+		item.setIcon(Icons.FILE_IMPORT);
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -542,17 +484,40 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Export Rocksim
-		item = new JMenuItem(trans.get("main.menu.file.export"));
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.export.desc"));
-		item.addActionListener(new ActionListener() {
+// BEGIN Create, add options to, and implement File > "Export as..." menu and submenu
+
+	//	INITIALIZE "Export as..." submenu with options list
+		JMenu exportSubMenu = new JMenu();
+		JMenuItem exportMenu = new JMenuItem(),
+				RASAero= new JMenuItem("RASAero - Future"),
+				Rocksim = new JMenuItem("Rocksim");
+
+	//	CREATE File > "Export as..." menu line with icon
+		exportSubMenu = new JMenu(trans.get("main.menu.file.export_as"));
+		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.export_as.desc"));
+		exportSubMenu.setIcon(Icons.FILE_EXPORT_AS);
+
+	//	CREATE "Export as..." submenu
+	//	ADD Export option items with icons to submenu
+		exportSubMenu.add(Rocksim);
+			Rocksim.setIcon(Icons.ROCKSIM_ICON);
+		exportSubMenu.add(RASAero);
+			RASAero.setIcon(Icons.RASAERO_ICON);
+
+	// ADD Listeners
+		RASAero.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Export... selected");
-				exportAction();
-			}
-		});
-		menu.add(item);
+				exportRASAeroAction();}});
+		Rocksim.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportRocksimAction();}});
+
+	//	ADD Export options submenu to export menu
+		menu.add(exportSubMenu);
+
+// END Create and implement File > "Export as..." menu and submenu
 
 		//// Export decal...
 		item = new JMenuItem(trans.get("main.menu.file.exportDecal"));
@@ -1169,7 +1134,7 @@ public class BasicFrame extends JFrame {
 		}
 	}
 
-	private void importAction() {
+	public void importAction() {
 		JFileChooser chooser = new JFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
@@ -1275,7 +1240,7 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
 	 * @param displayName	the file name to display in dialogs.
-	 * @param file		the File to set the document to (may be null).
+//	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
@@ -1376,20 +1341,35 @@ public class BasicFrame extends JFrame {
 			log.info("Document does not contain file, opening save as dialog instead");
 			return saveAsAction();
 		}
-		
 		log.info("Saving document to " + file);
-
 		return saveAsOpenRocket(file);
 	}
 
 
-	/**
-	 * "Export" action.
+	//	BEGIN RASAERO Export Action							*** UNDER CONSTRUCTION -- CURRENTLY FOR TESTING ONLY ***
+	 /**
+	 * MODEL "Export as" RASAero file format
 	 *
-	 * @return true if the file was saved, false otherwise
+	 *	@return true if the file was saved, false otherwise
 	 */
-	private boolean exportAction() {
-		File file = null;
+	public boolean exportRASAeroAction() {
+	return false;
+	}
+	//	END RASAERO Export Action
+
+	public void actionPerformed(ActionEvent e) {
+		log.info(Markers.USER_MARKER, "Import... selected");
+		importAction();
+	}
+
+		//	BEGIN ROCKSIM Export Action
+	/**
+	* MODEL "Export as" RASAero file format
+	*
+	* @return true if the file was saved, false otherwise
+	*/
+	public boolean exportRocksimAction() {
+		File file;
 
 		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.ROCKSIM);
 
@@ -1414,6 +1394,7 @@ public class BasicFrame extends JFrame {
 		}
 		return false;
 	}
+	//	END ROCKSIM Export Action
 
 	/**
 	 * Perform the writing of the design to the given file in Rocksim format.
@@ -1473,7 +1454,7 @@ public class BasicFrame extends JFrame {
 			if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
 				decal.setIgnored(true);
 			}
-			return saveRocksimFile(file, options);	// Resave
+			return saveRocksimFile(file, options);	// Re-save
 		}
 	}
 
@@ -1565,7 +1546,7 @@ public class BasicFrame extends JFrame {
 				if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
 					decal.setIgnored(true);
 				}
-				return saveAsOpenRocket(file);	// Resave
+				return saveAsOpenRocket(file);	// Re-save
 
 			} else {
 				Reflection.handleWrappedException(e);
@@ -1734,8 +1715,10 @@ public class BasicFrame extends JFrame {
 			simulationPanel.activating();
 		}
 	}
-}
 
+	public void open() {
+	}
+}
 
 class BasicFrame_changeAdapter implements javax.swing.event.ChangeListener {
 	BasicFrame adaptee;
@@ -1747,4 +1730,3 @@ class BasicFrame_changeAdapter implements javax.swing.event.ChangeListener {
 		adaptee.stateChanged(e);
 	}
 }
-
