@@ -4,6 +4,10 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -78,7 +82,13 @@ public class CustomMaterialDialog extends JDialog {
 		// Material type (if not known)
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialtype")));
 		if (material == null) {
-			typeBox = new JComboBox<Material.Type>(Material.Type.values());
+			// Remove the CUSTOM material option from the dropdown box
+			Material.Type[] values = Material.Type.values();
+			List<Material.Type> values_list = new LinkedList<>(Arrays.asList(values));
+			values_list.remove(Material.Type.CUSTOM);
+			values = values_list.toArray(new Material.Type[0]);
+
+			typeBox = new JComboBox<>(values);
 			typeBox.setSelectedItem(Material.Type.BULK);
 			typeBox.setEditable(false);
 			typeBox.addActionListener(new ActionListener() {
