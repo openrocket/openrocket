@@ -1240,7 +1240,7 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
 	 * @param displayName	the file name to display in dialogs.
-//	 * @param file		the File to set the document to (may be null).
+	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
