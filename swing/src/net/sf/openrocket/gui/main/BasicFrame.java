@@ -499,10 +499,10 @@ public class BasicFrame extends JFrame {
 
 	//	CREATE "Export as..." submenu
 	//	ADD Export option items with icons to submenu
+		/* exportSubMenu.add(RASAero);
+			RASAero.setIcon(Icons.RASAERO_ICON); */
 		exportSubMenu.add(Rocksim);
 			Rocksim.setIcon(Icons.ROCKSIM_ICON);
-		exportSubMenu.add(RASAero);
-			RASAero.setIcon(Icons.RASAERO_ICON);
 
 	// ADD Listeners
 		RASAero.addActionListener(new ActionListener() {
