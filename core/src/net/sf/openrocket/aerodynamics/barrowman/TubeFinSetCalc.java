@@ -101,9 +101,9 @@ public class TubeFinSetCalc extends TubeCalc {
 		// body tube, only consider the other half of the area
 		final double outerArea = tubes.getLength() * Math.PI * tubes.getOuterRadius();
 			
-		// Surface area of the portion of the body tube masked by the tube fins
+		// Surface area of the portion of the body tube masked by the tube fins, per tube
 		final BodyTube parent = (BodyTube) tubes.getParent();
-		final double maskedArea = tubes.getLength() * 2.0 * Math.PI * parent.getOuterRadius();
+		final double maskedArea = tubes.getLength() * 2.0 * Math.PI * parent.getOuterRadius() / tubes.getFinCount();
 		
 		wettedArea = outerArea - maskedArea;
 		log.debug("wetted area of tube fins " + wettedArea);
