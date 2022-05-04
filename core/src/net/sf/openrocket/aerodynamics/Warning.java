@@ -395,4 +395,5 @@ public abstract class Warning {
 	public static final Warning TUBE_STABILITY = new Other(trans.get("Warning.TUBE_STABILITY"));
 	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"));
 	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"));
+	public static final Warning ZERO_INNER_RADIUS = new Other(trans.get("Warning.ZERO_INNER_RADIUS"));
 }
