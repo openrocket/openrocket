@@ -37,7 +37,7 @@ public abstract class TubeCalc extends RocketComponentCalc {
 		// These calculations come from a mix of theoretical and empirical
 		// results, and are marked with (t) for theoretical and (e) for empirical.
 		// The theoretical results should not be modified; the empirical can be adjusted
-		// to better simulate real rockets.
+		// to better simulate real rockets as we get data.
 
 		// Temperature
 		final double T = conditions.getAtmosphericConditions().getTemperature();
