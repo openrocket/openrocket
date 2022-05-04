@@ -1,9 +1,6 @@
 package net.sf.openrocket.gui.main;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,35 +19,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EventObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -59,17 +31,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
-import net.sf.openrocket.appearance.DecalImage;
-import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
-import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.util.DecalNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
@@ -83,6 +47,7 @@ import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.DebugLogDialog;
+import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
@@ -102,8 +67,10 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -111,12 +78,14 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.DecalNotFoundException;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
 import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.TestRockets;
 import net.sf.openrocket.utils.ComponentPresetEditor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class BasicFrame extends JFrame {
@@ -179,22 +148,20 @@ public class BasicFrame extends JFrame {
 		this.rocket = document.getRocket();
 		this.rocket.getSelectedConfiguration().setAllStages();
 
-		// Create the component tree selection model that will be used
+		//	Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
-		// Obtain the simulation selection model that will be used
+		//	Obtain the simulation selection model that will be used
 		simulationPanel = new SimulationPanel(document);
 		simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
 
-		// Combine into a DocumentSelectionModel
+		//	Combine into a DocumentSelectionModel
 		selectionModel = new DocumentSelectionModel(document);
 		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
 		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
 
-
 		actions = new RocketActions(document, selectionModel, this);
-
 
 		log.debug("Constructing the BasicFrame UI");
 
@@ -203,8 +170,7 @@ public class BasicFrame extends JFrame {
 		vertical.setResizeWeight(0.5);
 		this.add(vertical);
 
-
-		// The top tabbed pane
+		//	The top tabbed pane
 		tabbedPane = new JTabbedPane();
 		//// Rocket design
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designTab());
@@ -213,14 +179,11 @@ public class BasicFrame extends JFrame {
 		//// Flight simulations
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 
-		// Add change listener to catch when the tabs are changed.  This is to run simulations 
-		// automatically when the simulation tab is selected.
+		//	Add change listener to catch when the tabs are changed.  This is to run simulations
+		//	automatically when the simulation tab is selected.
 		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
 
-
 		vertical.setTopComponent(tabbedPane);
-
-
 
 		//  Bottom segment, rocket figure
 
@@ -228,7 +191,6 @@ public class BasicFrame extends JFrame {
 		vertical.setBottomComponent(rocketpanel);
 
 		rocketpanel.setSelectionModel(tree.getSelectionModel());
-
 
 		createMenu();
 
@@ -282,6 +244,7 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("BasicFrame instantiation complete");
 	}
+
 
 	/**
 	 * Construct the "Rocket design" tab.  This contains a horizontal split pane
@@ -404,7 +367,6 @@ public class BasicFrame extends JFrame {
 	}
 
 
-
 	/**
 	 * Return the currently selected rocket component, or <code>null</code> if none selected.
 	 */
@@ -416,6 +378,7 @@ public class BasicFrame extends JFrame {
 
 		return (RocketComponent) path.getLastPathComponent();
 	}
+
 
 	/**
 	 * Return the currently selected rocket component, or <code>null</code> if none selected.
@@ -434,7 +397,6 @@ public class BasicFrame extends JFrame {
 
 		return result;
 	}
-
 
 	/**
 	 * Creates the menu for the window.
@@ -528,60 +490,53 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		menu.addSeparator();
+		////	BEGIN CREATE and implement File > "Export as" menu and submenu
 
-		//// Import Rocksim
-		JMenuItem importMenu;
-
-		item = new JMenuItem(trans.get("main.menu.file.import"));
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
-		item.setIcon(Icons.FILE_IMPORT);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Import... selected");
-				importAction();
-			}
-		});
-		menu.add(item);
-
-// BEGIN Create, add options to, and implement File > "Export as..." menu and submenu
-
-	//	INITIALIZE "Export as..." submenu with options list
+		//	//	INITIALIZE "Export as" submenu with options list
 		JMenu exportSubMenu = new JMenu();
 		JMenuItem exportMenu = new JMenuItem(),
-				RASAero= new JMenuItem("RASAero - Future"),
-				Rocksim = new JMenuItem("Rocksim");
+				RASAero= new JMenuItem("RASAero (Unavailable)"),
+				Rocksim = new JMenuItem("Rocksim"),
+				Print3D = new JMenuItem("Exterior airframe");
 
-	//	CREATE File > "Export as..." menu line with icon
+		//	//	CREATE File > "Export as" menu line with icon, and "Export as" submenu
 		exportSubMenu = new JMenu(trans.get("main.menu.file.export_as"));
 		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.export_as.desc"));
 		exportSubMenu.setIcon(Icons.FILE_EXPORT_AS);
 
-	//	CREATE "Export as..." submenu
-	//	ADD Export option items with icons to submenu
-		/* exportSubMenu.add(RASAero);
-			RASAero.setIcon(Icons.RASAERO_ICON); */
-		exportSubMenu.add(Rocksim);
-			Rocksim.setIcon(Icons.ROCKSIM_ICON);
+/*		//	//	PENDING Future development
+		//	//	ADD RASAero to "Export as" exportSubMenu options
+		exportSubMenu.add(RASAero);
+		RASAero.setForeground(Color.lightGray);
 
-	// ADD Listeners
+		//	//	PENDING Future development
+		//	//	CREATE RASAero listener
 		RASAero.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				exportRASAeroAction();}});
+*/
+		//	//	ADD Rocksim to "Export as" exportSubMenu options
+		exportSubMenu.add(Rocksim);
+
+		//	//	CREATE Rocksim listener
 		Rocksim.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				exportRocksimAction();}});
 
-	//	ADD Export options submenu to export menu
+		//	//	ADD Export options in exportSubMenu to "Export as" menu
 		menu.add(exportSubMenu);
 
-// END Create and implement File > "Export as..." menu and submenu
+		//	//	END CREATE and implement File > "Export as" menu and submenu
 
-		//// Export decal...
+		////	BEGIN CREATE na implement File > "Save decal image. . . menu and submenu
+
+		menu.addSeparator();
+
+		////	Save decal image...
 		item = new JMenuItem(trans.get("main.menu.file.exportDecal"));
+		item.setIcon(Icons.SAVE_DECAL);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportDecal.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -591,21 +546,24 @@ public class BasicFrame extends JFrame {
 		});
 		item.setEnabled(document.getDecalList().size() > 0);
 		final JMenuItem exportMenuItem = item;
+/**
 		document.getRocket().addChangeListener(new StateChangeListener() {
 
-			@Override
-			public void stateChanged(EventObject e) {
-				exportMenuItem.setEnabled(document.getDecalList().size() > 0);
-			}
-
+		@Override
+		public void stateChanged(EventObject e) {
+			exportMenuItem.setEnabled(document.getDecalList().size() > 0);
+		}
 		});
+ */
 		menu.add(item);
 
+		////	END CREATE na implement File > "Save decal image. . . menu and submenu
 
-		//// Print...
+		////	BEGIN PRINT Design specifications, including parts list and templates
+
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_KEY));
-		//// Print parts list and fin template
+		//// Print specifications, including parts list and fin template
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.FILE_PRINT);
 		item.addActionListener(new ActionListener() {
@@ -617,10 +575,58 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
+		////	END PRINT Design specifications, including parts list and templates
+
+/*		////	THE IMPORT ROCKSIM .RKT FEATURE IS FULLY WITHIN THE SCOPE OF THE "OPEN" FEATURE
+ 		////	THIS FEATURE IS BEING DEACTIVATED PENDING REMOVAL
 
 		menu.addSeparator();
 
-		//// Close
+		////	BEGIN IMPORT Rocksim RKT design file
+		JMenuItem importMenu;
+		item = new JMenuItem(trans.get("main.menu.file.import"));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
+		item.setIcon(Icons.FILE_IMPORT);
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Import... selected");
+				importAction();
+			}
+		});
+		menu.add(item);
+		////	END IMPORT Rocksim RKT design file
+*/
+
+/* 		////	PENDING Future development
+		////	BEGIN CREATE and implement File > "Encode 3D" menu and submenu
+
+		//	//	INITIALIZE "Encode 3D" submenu with options list
+		JMenu encode3dSubmenu = new JMenu();
+		JMenuItem encodeMenu = new JMenuItem(),
+				External_Airframe = new JMenuItem("External airframe (unavailable)"),
+				Single_Component = new JMenuItem("Component (unavailable)");
+
+		//	//	CREATE File > "Encode 3D" menu line with icon
+		JMenuItem encode3dSubMenu = new JMenu(trans.get("main.menu.file.encode_3d"));
+		encode3dSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.encode_3d.desc"));
+				encode3dSubMenu.setForeground(Color.lightGray);
+				encode3dSubMenu.setIcon(Icons.ENCODE_3D);
+
+		//	//	CREATE "Encode 3D" submenu
+		//	//	ADD Encode 3D option items to submenu
+		encode3dSubMenu.add(External_Airframe);
+				External_Airframe.setForeground(Color.lightGray);
+		encode3dSubMenu.add(Single_Component);
+				Single_Component.setForeground(Color.lightGray);
+
+		//	//	ADD Listeners
+
+		////	END CREATE and implement File > "Encode 3D" menu and submenu
+*/
+		menu.addSeparator();
+
+		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_KEY));
 		//// Close the current rocket design
@@ -633,11 +639,12 @@ public class BasicFrame extends JFrame {
 				closeAction();
 			}
 		});
+
 		menu.add(item);
 
 		menu.addSeparator();
 
-		//// Quit
+		////	Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_KEY));
 		//// Quit the program
@@ -652,21 +659,20 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
-
-		////  Edit
+		////	Edit
 		menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
-		//// Rocket editing
+
+		////	Rocket editing
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
 		menubar.add(menu);
-
 
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_U);
-		//// Undo the previous operation
+
+		////	Undo the previous operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 
 		menu.add(item);
@@ -675,7 +681,8 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_R);
-		//// Redo the previously undone operation
+
+		////	Redo the previously undone operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.redo.desc"));
 		menu.add(item);
 
@@ -697,7 +704,6 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 
-
 		item = new JMenuItem(trans.get("main.menu.edit.resize"));
 		item.setIcon(Icons.EDIT_SCALE);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
@@ -713,11 +719,11 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 
-
-		//// Preferences
+		////	Preferences
 		item = new JMenuItem(trans.get("main.menu.edit.preferences"));
 		item.setIcon(Icons.PREFERENCES);
-		//// Setup the application preferences
+
+		////	Setup the application preferences
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.preferences.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -728,7 +734,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Edit Component Preset File
+		////	Edit Component Preset File
 		if (System.getProperty("openrocket.preseteditor.menu") != null) {
 			item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
 			item.addActionListener(new ActionListener() {
@@ -745,17 +751,18 @@ public class BasicFrame extends JFrame {
 		}
 
 
-		////  Analyze
+		////	Analyze
 		menu = new JMenu(trans.get("main.menu.analyze"));
 		menu.setMnemonic(KeyEvent.VK_A);
-		//// Analyzing the rocket
+
+		////	Analyzing the rocket
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.desc"));
 		menubar.add(menu);
 
-
-		//// Component analysis
+		////	Component analysis
 		item = new JMenuItem(trans.get("main.menu.analyze.componentAnalysis"), KeyEvent.VK_C);
-		//// Analyze the rocket components separately
+
+		////	Analyze the rocket components separately
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.componentAnalysis.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -766,7 +773,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Optimize
+		////	Optimize
 		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
 		item.addActionListener(new ActionListener() {
@@ -782,7 +789,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Custom expressions
+		////	Custom expressions
 		item = new JMenuItem(trans.get("main.menu.analyze.customExpressions"), KeyEvent.VK_E);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.customExpressions.desc"));
 		item.addActionListener(new ActionListener() {
@@ -806,24 +813,19 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		////  Debug
-		// (shown if openrocket.debug.menu is defined)
+		////	Debug
+		//	//	(shown if openrocket.debug.menu is defined)
 		if (System.getProperty("openrocket.debug.menu") != null) {
 			menubar.add(makeDebugMenu());
 		}
 
-
-
-		////  Help
-
+		////	Help
 		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
 		menubar.add(menu);
 
-
-		// Guided tours
-
+		////	Guided tours
 		item = new JMenuItem(trans.get("main.menu.help.tours"), KeyEvent.VK_L);
 		item.setIcon(Icons.HELP_TOURS);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.tours.desc"));
@@ -838,7 +840,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-		//// Bug report
+		////	Bug report
 		item = new JMenuItem(trans.get("main.menu.help.bugReport"), KeyEvent.VK_B);
 		item.setIcon(Icons.HELP_BUG_REPORT);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.bugReport.desc"));
@@ -851,9 +853,9 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Debug log
+		////	Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
-		item.setIcon(Icons.HELP_DEBUG_LOG); 
+		item.setIcon(Icons.HELP_DEBUG_LOG);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_KEY));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
@@ -867,8 +869,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-
-		//// License
+		////	License
 		item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
 		item.setIcon(Icons.HELP_LICENSE);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.license.desc"));
@@ -881,8 +882,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
-		//// About
+		////	About
 		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
 		item.setIcon(Icons.HELP_ABOUT);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.about.desc"));
@@ -895,7 +895,6 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
 		this.setJMenuBar(menubar);
 	}
 
@@ -907,12 +906,13 @@ public class BasicFrame extends JFrame {
 		 * This menu is intentionally left untranslated.
 		 */
 
-		////  Debug menu
+		////	Debug menu
 		menu = new JMenu("Debug");
-		//// OpenRocket debugging tasks
+
+		////	OpenRocket debugging tasks
 		menu.getAccessibleContext().setAccessibleDescription("OpenRocket debugging tasks");
 
-		//// What is this menu?
+		////	What is this menu?
 		item = new JMenuItem("What is this menu?");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -932,7 +932,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-		//// Create test rocket
+		////	Create test rocket
 		item = new JMenuItem("Create test rocket");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -965,7 +965,6 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 
-
 		item = new JMenuItem("Create 'Iso-Haisu'");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -979,7 +978,6 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		menu.add(item);
-
 
 		item = new JMenuItem("Create 'Big Blue'");
 		item.addActionListener(new ActionListener() {
@@ -997,14 +995,13 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-
 		item = new JMenuItem("Memory statistics");
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Memory statistics selected");
 
-				// Get discarded but remaining objects (this also runs System.gc multiple times)
+				//	//	Get discarded but remaining objects (this also runs System.gc multiple times)
 				List<MemoryData> objects = MemoryManagement.getRemainingCollectableObjects();
 				StringBuilder sb = new StringBuilder();
 				sb.append("Objects that should have been garbage-collected but have not been:\n");
@@ -1016,7 +1013,7 @@ public class BasicFrame extends JFrame {
 					sb.append("Age ").append(System.currentTimeMillis() - data.getRegistrationTime())
 					.append(" ms:  ").append(o).append('\n');
 					count++;
-					// Explicitly null the strong reference to avoid possibility of invisible references
+					//	//	Explicitly null the strong reference to avoid possibility of invisible references
 					o = null;
 				}
 				sb.append("Total: " + count);
@@ -1039,7 +1036,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		//// Exhaust memory
+		////	Exhaust memory
 		item = new JMenuItem("Exhaust memory");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -1069,10 +1066,9 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
 		menu.addSeparator();
 
-		//// Exception here
+		////	Exception here
 		item = new JMenuItem("Exception here");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -1127,7 +1123,6 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-
 		item = new JMenuItem("Test popup");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -1143,9 +1138,6 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		menu.add(item);
-
-
-
 
 		return menu;
 	}
@@ -1239,6 +1231,7 @@ public class BasicFrame extends JFrame {
 
 	}
 
+
 	/**
 	 * Open a file based on a URL.
 	 * @param url		the file to open.
@@ -1273,8 +1266,7 @@ public class BasicFrame extends JFrame {
 			displayName = displayName.substring(displayName.lastIndexOf('/') + 1);
 		}
 
-
-		// Open the file
+		////	Open the file
 		log.info("Opening file from url=" + url + " filename=" + displayName);
 
 		OpenFileWorker worker = new OpenFileWorker(url);
@@ -1307,16 +1299,15 @@ public class BasicFrame extends JFrame {
 	 * @return
 	 */
 	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
-		// Open the file in a Swing worker thread
+		////	Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
 		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
-			// User cancelled the operation
+			//	//	User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
 			return false;
 		}
 
-
-		// Handle the document
+		////	Handle the document
 		OpenRocketDocument doc = null;
 		try {
 
@@ -1358,22 +1349,22 @@ public class BasicFrame extends JFrame {
 		}
 
 
-		// Show warnings
+		////	Show warnings
 		WarningSet warnings = worker.getRocketLoader().getWarnings();
 		if (!warnings.isEmpty()) {
 			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
-							//// The following problems were encountered while opening
+							//	//	The following problems were encountered while opening
 							trans.get("BasicFrame.WarningDialog.txt1") + " " + displayName + ".",
-							//// Some design features may not have been loaded correctly.
+							//	//	Some design features may not have been loaded correctly.
 							trans.get("BasicFrame.WarningDialog.txt2")
 			},
-					//// Warnings while opening file
+					//	//	Warnings while opening file
 					trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
 
-		// Open the frame
+		////	Open the frame
 		log.debug("Opening new frame with the document");
 		BasicFrame frame = new BasicFrame(doc);
 		frame.setVisible(true);
@@ -1387,6 +1378,7 @@ public class BasicFrame extends JFrame {
 
 		return true;
 	}
+
 
 	/**
 	 * "Save" action.  If the design is new, then this is identical to "Save As", with a default file filter for .ork.
@@ -1407,23 +1399,28 @@ public class BasicFrame extends JFrame {
 	}
 
 
-	//	BEGIN RASAERO Export Action							*** UNDER CONSTRUCTION -- CURRENTLY FOR TESTING ONLY ***
+	////	BEGIN RASAERO Export Action							*** UNDER CONSTRUCTION -- CURRENTLY FOR TESTING ONLY ***
 	 /**
 	 * MODEL "Export as" RASAero file format
 	 *
 	 *	@return true if the file was saved, false otherwise
 	 */
+
+	 /*
 	public boolean exportRASAeroAction() {
-	return false;
+		Object exportRASAeroAction = ExportFileTranslator_RASAero.exportRASAeroAction;
+		return false;
 	}
-	//	END RASAERO Export Action
+	*/
+	////	END RASAERO Export Action
 
 	public void actionPerformed(ActionEvent e) {
 		log.info(Markers.USER_MARKER, "Import... selected");
 		importAction();
 	}
 
-		//	BEGIN ROCKSIM Export Action
+
+	////	BEGIN ROCKSIM Export Action
 	/**
 	* MODEL "Export as" RASAero file format
 	*
@@ -1456,6 +1453,7 @@ public class BasicFrame extends JFrame {
 		return false;
 	}
 	//	END ROCKSIM Export Action
+
 
 	/**
 	 * Perform the writing of the design to the given file in Rocksim format.
@@ -1496,6 +1494,7 @@ public class BasicFrame extends JFrame {
 		return saveRocksimFile(file, options);
 	}
 
+
 	/**
 	 * Perform the actual saving of the Rocksim file
 	 * @param file file to be stored
@@ -1518,6 +1517,7 @@ public class BasicFrame extends JFrame {
 			return saveRocksimFile(file, options);	// Re-save
 		}
 	}
+
 
 	/**
 	 * "Save As" action.
@@ -1553,6 +1553,7 @@ public class BasicFrame extends JFrame {
 		}
 		return result;
 	}
+
 
 	/**
 	 * Perform the writing of the design to the given file in OpenRocket format.
@@ -1673,6 +1674,7 @@ public class BasicFrame extends JFrame {
 		new PrintDialog(this, document, rotation).setVisible(true);
 	}
 
+
 	/**
 	 * Open a new design window with a basic rocket+stage.
 	 */
@@ -1685,6 +1687,7 @@ public class BasicFrame extends JFrame {
 		frame.replaceable = true;
 		frame.setVisible(true);
 	}
+
 
 	/**
 	 * Quit the application.  Confirms saving unsaved designs.  The action of File->Quit.
@@ -1723,7 +1726,6 @@ public class BasicFrame extends JFrame {
 
 		setTitle(title);
 	}
-
 
 
 	/**

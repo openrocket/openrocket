@@ -49,12 +49,13 @@ public class Icons {
 	public static final Icon FILE_OPEN_EXAMPLE = loadImageIcon("pix/icons/document-open-example.png", "Open example document");
 	public static final Icon FILE_SAVE = loadImageIcon("pix/icons/document-save.png", "Save document");
 	public static final Icon FILE_SAVE_AS = loadImageIcon("pix/icons/document-save-as.png", "Save document as");
-	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
-	public static final Icon FILE_EXPORT_AS = loadImageIcon("pix/icons/model_export.png", "Export model as...");
-	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/document-print.png", "Print document");
+	public static final Icon SAVE_DECAL = loadImageIcon("pix/icons/Painting-Transparent-PNG_16.png", "Save decal image");
+	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/document-print-specs.png", "Print specifications");
+//	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
+	public static final Icon FILE_EXPORT_AS = loadImageIcon("pix/icons/model_export.png", "Export model as");
+	public static final Icon ENCODE_3D = loadImageIcon("pix/icons/model_encode3d.png", "Encode 3D");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
-	
 	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", trans.get("Icons.Undo"));
 	public static final Icon EDIT_REDO = loadImageIcon("pix/icons/edit-redo.png", trans.get("Icons.Redo"));
 	public static final Icon EDIT_CUT = loadImageIcon("pix/icons/edit-cut.png", "Cut");
@@ -104,7 +105,7 @@ public class Icons {
 	 * 
 	 * @param file	the file to load.
 	 * @param name	the description of the icon.
-	 * @return		the ImageIcon, or null if could not be loaded (after the user closes the dialog)
+	 * @return		the ImageIcon, or null if the ImageIcon could not be loaded (after the user closes the dialog)
 	 */
 	public static ImageIcon loadImageIcon(String file, String name) {
 		if (System.getProperty("openrocket.unittest") != null) {
