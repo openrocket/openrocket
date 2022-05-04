@@ -1,7 +1,6 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Tube;
@@ -35,16 +34,10 @@ public abstract class TubeCalc extends RocketComponentCalc {
 		// Volume flow rate
 		final double Q = conditions.getVelocity() * refArea;
 
-		// pressure drop.
-		final double deltap;
-		if (refArea == 0) {
-			warnings.add(Warning.ZERO_INNER_RADIUS);
-			deltap = 0;
-		} else {
-			deltap = 1.6 * Math.pow(Q, 1.85) * length /
+		// pressure drop
+		final double deltap = 1.6 * Math.pow(Q, 1.85) * length /
 			(Math.pow(diameter, 5) * conditions.getAtmosphericConditions().getPressure());
-		}
-		
+
 		// convert to CD and return
 		return deltap * refArea / conditions.getRefArea();
 	}
