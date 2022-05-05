@@ -114,15 +114,15 @@ public class TubeFinSetCalc extends TubeCalc {
 		// area of disk passing through tube fin centers
 		final double tubeDiskArea = Math.PI * MathUtil.pow2(bodyRadius + tubes.getOuterRadius());
 
-		// half of combined area of tube fin interiors.  
-		final double tubeInnerArea = tubes.getFinCount() * Math.PI * MathUtil.pow2(tubes.getInnerRadius()) / 2.0;
+		// half of combined area of tube fin exteriors.  Deliberately using the outer radius here since we
+		// calculate pressure drag from the tube walls in TubeCalc
+		final double tubeOuterArea = tubes.getFinCount() * Math.PI * MathUtil.pow2(tubes.getOuterRadius()) / 2.0;
 
 		// body tube area
 		final double bodyTubeArea = Math.PI * MathUtil.pow2(bodyRadius);
 
 		// area of an interstice
-		intersticeArea = (tubeDiskArea - tubeInnerArea - bodyTubeArea) / tubes.getFinCount();
-		log.debug("interstice area " + intersticeArea);
+		intersticeArea = (tubeDiskArea - tubeOuterArea - bodyTubeArea) / tubes.getFinCount();
 		
 		thickness = fin.getThickness();
 		finCount = 3 * fin.getFinCount();

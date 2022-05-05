@@ -51,4 +51,19 @@ public abstract class RocketComponentCalc {
 	 */
 	public abstract double calculatePressureCD(FlightConditions conditions, 
 			double stagnationCD, double baseCD, WarningSet warnings);
+
+
+
+	/**
+	 * Calculation of Reynolds Number
+	 * 
+	 * @param length			characteristic length
+	 * @param conditions		Flight conditions taken into account
+	 * @return                  Reynolds Number
+	 */
+	public double calculateReynoldsNumber(double length, FlightConditions conditions) {
+		return conditions.getVelocity() * length /
+			conditions.getAtmosphericConditions().getKinematicViscosity();
+	}
+	
 }
