@@ -201,6 +201,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private JTextField pcDescTextField;
 	private DoubleModel pcDiameter;
 	private DoubleModel pcSpillDia;
+	private JTextField pcCanopyShapeTextField;
 	private DoubleModel pcSurfaceArea;
 	private DoubleModel pcDragCoefficient;
 	//	Canopy material = private MaterialChooser materialChooser;
@@ -1603,10 +1604,6 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				typeCombo.setSelectedItem(trans.get(PARACHUTE_KEY));
 				pcPartNoTextField.setText(preset.get(ComponentPreset.PARTNO));
 				pcDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
-				/*
-				if (preset.has(ComponentPreset.CANOPY_SHAPE)) {
-					pcCanopyShapeTextField.setText(preset.get(ComponentPreset.CANOPY_SHAPE));
-				} */
 				if (preset.has(ComponentPreset.DIAMETER)) {
 					pcDiameter.setValue(preset.get(ComponentPreset.DIAMETER));
 					pcDiameter.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
@@ -1614,6 +1611,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				if (preset.has(ComponentPreset.SPILL_DIA)) {
 					pcSpillDia.setValue(preset.get(ComponentPreset.SPILL_DIA));
 					pcSpillDia.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+				}
+				if (preset.has(ComponentPreset.CANOPY_SHAPE)) {
+					pcCanopyShapeTextField.setText(preset.get(ComponentPreset.CANOPY_SHAPE));
 				}
 				if (preset.has(ComponentPreset.SURFACE_AREA)) {
 					pcSurfaceArea.setValue(preset.get(ComponentPreset.SURFACE_AREA));
@@ -2188,9 +2188,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(mfgTextField.getText()));
 			props.put(ComponentPreset.PARTNO, pcPartNoTextField.getText());
 			props.put(ComponentPreset.DESCRIPTION, pcDescTextField.getText());
-			//	INSERT Canopy Shape
 			props.put(ComponentPreset.DIAMETER, pcDiameter.getValue());
 			props.put(ComponentPreset.SPILL_DIA, pcSpillDia.getValue());
+			props.put(ComponentPreset.CANOPY_SHAPE, pcCanopyShape.getText()));
 			props.put(ComponentPreset.SURFACE_AREA, pcSurfaceArea.getValue());
 			props.put(ComponentPreset.PARACHUTE_CD, pcDragCoefficient.getValue());
 			Material material = (Material) materialChooser.getSelectedItem();
