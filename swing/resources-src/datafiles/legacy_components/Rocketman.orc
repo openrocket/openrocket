@@ -559,7 +559,7 @@
 			<LineLength Unit="in">150</LineLength>		
 			<LineMaterial Type="LINE">Braided Nylon #250 [Flat 6.35 mm, 1/4 in]</LineMaterial>		
 			<PackedDiameter Unit="in">3.0</PackedDiameter>		
-			<PackedLength Unit="in">849</PackedLength>		
+			<PackedLength Unit="in">8.49</PackedLength>		
 		</Parachute>			
 					
 		<!--	END Rocketman Hexagon parachutes, 9" to 120"		
