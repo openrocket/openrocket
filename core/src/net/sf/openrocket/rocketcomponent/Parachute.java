@@ -195,41 +195,41 @@ public class Parachute extends RecoveryDevice {
 		 // END Implement parachute cd
 
 		// BEGIN Implement parachute length, diameter, and volume
-		//// BEGIN Implement parachute packed length
+		//	// BEGIN Implement parachute packed length
 		if (preset.has(ComponentPreset.PACKED_LENGTH)) {
 			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
 			if (PackedLength > 0) {
-				length = PackedLength;
+				length = PackedLength;				// Conditions: PackedLength exists, PackedLength > 0
 			}
-			if (PackedLength <= 0) {
-				length = InitialPackedLength;
+			else
+				length = InitialPackedLength;		// Conditions: PackedLength exists, PackedLength !> 0
 			}
-		} else {
-			length = InitialPackedLength;
+		else {
+			length = InitialPackedLength;			// Conditions: PackedLength does not exist
 		}
-		//// END Implement parachute packed length
-		//// BEGIN Implement parachute packed diameter
+		//	// END Implement parachute packed length
+		//	// BEGIN Implement parachute packed diameter
 		if (preset.has(ComponentPreset.PACKED_DIAMETER)) {
 			this.PackedDiameter = preset.get(ComponentPreset.PACKED_DIAMETER);
 			if (PackedDiameter > 0) {
-				radius = PackedDiameter / 2;
+				radius = PackedDiameter / 2;		// Conditions: PackedDiameter exists, PackedDiameter > 0
 			}
-			if (PackedDiameter <= 0) {
-				radius = InitialPackedRadius;
-			}
-		} else {
-			radius = InitialPackedRadius;
-	}
-		//// END Implement parachute packed diameter
-		//// BEGIN Size parachute packed diameter within parent inner diameter
+			else
+				radius = InitialPackedRadius;		// Conditions: PackedDiameter exists, PackedDiameter !> 0
+		}
+		else {
+			radius = InitialPackedRadius;			// Conditions: PackedDiameter does not exist
+		}
+		//	// END Implement parachute packed diameter
+		//	// BEGIN Size parachute packed diameter within parent inner diameter
 		if (length > 0 && radius > 0) {
 			double parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
 			setRadiusAutomatic(true);
 			length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
 
 		}
-		//// END Size parachute packed diameter within parent inner diameter
-		// END Implement parachute length, diameter, and volume
+		//	// END Size parachute packed diameter within parent inner diameter
+		//// END Implement parachute length, diameter, and volume
 
 		// BEGIN Activate Override Mass Preset
 		if (preset.has(ComponentPreset.MASS)) {
