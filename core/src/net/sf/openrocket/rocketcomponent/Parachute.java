@@ -199,13 +199,13 @@ public class Parachute extends RecoveryDevice {
 		if (preset.has(ComponentPreset.PACKED_LENGTH)) {
 			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
 			if (PackedLength > 0) {
-				length = PackedLength;
+				length = PackedLength;				// Conditions: PackedLength exists, PackedLength > 0
 			}
-			if (PackedLength <= 0) {
-				length = InitialPackedLength;
+			else {
+				length = InitialPackedLength;		// Conditions: PackedLength exists, PackedLength !> 0
 			}
 		} else {
-			length = InitialPackedLength;
+			length = InitialPackedLength;			// Conditions: PackedLength does not exist
 		}
 		//// END Implement parachute packed length
 		//// BEGIN Implement parachute packed diameter
