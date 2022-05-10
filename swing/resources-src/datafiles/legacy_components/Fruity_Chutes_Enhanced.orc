@@ -4,8 +4,8 @@
 	database file for OpenRocket				
 					
 	Data for this file was derived from information provided by Gene Engelgau - CEO Fruity Chutes Inc				
-				
-	Copyright 2022 by H. Craig Miller   NAR #89750    TRA #09190    hcraigmiller@gmail.com				
+					
+	Copyright 2022 by H. Craig Miller  NAR #89750  TRA #09190  hcraigmiller@gmail.com				
 					
 	See the file LICENSE in this distribution for license information.				
 					
@@ -203,8 +203,8 @@
 			Compact, fits into smaller spaces than elliptical parachutes.		
 				Type: #200 Nylon IIa paraline at 2.7 g/yd	
 				Type: #400 Nylon IIIa paraline at 3.4 g/yd	
-				Length: Outer shroud line are 115% of the canopy dyameter	
-				Length: Inner shroud lines are 25% of the canopy dyameter	
+				Length: Outer shroud line are 115% of the canopy diameter	
+				Length: Inner shroud lines are 25% of the canopy diameter	
 				Length: Combined length is 140% of the canopy diameter	
 				Type: 36" dia and less, outer shroud lines utilize #200 Paraline at .6 g/yd	
 				Type: 36" dia and less, inner shroud lines utilize #200 Paraline at .6 g/yd	
@@ -297,7 +297,7 @@
 			IFC-30-SL		Iris Ultra Light Parachute (Spectra Lines and Bridle)
 					Iris Ultra Light Parachute [Cd 2.2 (1.6 oz) 9.0 in^3]
 					Cd 2.2
-					Bridal: Spectra loop; Shroud Lines: 200lb Spectra
+					Shroud Lines: 200lb Spectra
 					Weight: 1.6oz (46 grams)
 					Packing Volume: 1.9d x 3.2l: 9.0in^3
 					Rating: 2.26lb @ 15fps
@@ -306,7 +306,7 @@
 			IFC-36-SL		Iris Ultra Light Parachute (Spectra Lines and Bridle)
 					Iris Ultra Light Parachute [Cd 2.2 (2.1 oz) 11.9 in^3]
 					Cd 2.2
-					Bridal: Spectra loop; Shroud Lines: 200lb Spectra
+					Shroud Lines: 200lb Spectra
 					Weight: 2.1oz (60.8 grams)
 					Packing Volume: 1.9d x 4.2l: 11.9in^3
 					Rating: 4lbs @ 15fps
@@ -315,7 +315,7 @@
 			IFC-42-SL		Iris Ultra Light Parachute (Spectra Lines and Bridle)
 					Iris Ultra Light Parachute [Cd 2.2 (2.9 oz) 16.1 in^3]
 					Cd 2.2
-					Bridal: Spectra loop; Shroud Lines: 200lb Spectra
+					Shroud Lines: 200lb Spectra
 					Weight: 2.9oz (84 grams)
 					Packing Volume: 1.9d x 5.7l: 16.1in^3
 					Rating: 5.5lbs @ 15fps
@@ -441,7 +441,7 @@
 					
 <OpenRocketComponent>					
 					
-	<Version>1.1</Version>				
+	<Version>0.1</Version>				
 					
 	<Materials>				
 					
@@ -504,7 +504,7 @@
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-12-N</PartNumber>		
+			<PartNumber>CFC-012-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (1.3 oz) 7.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.03685438</Mass>		
@@ -516,13 +516,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">13.8</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>2.6</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">2.6</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-15-N</PartNumber>		
+			<PartNumber>CFC-015-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (1.5 oz) 8.2 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.04252428</Mass>		
@@ -534,13 +534,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">17.25</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>2.9</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">2.9</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-18-N</PartNumber>		
+			<PartNumber>CFC-018-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (1.7 oz) 9.67 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.04819419</Mass>		
@@ -552,13 +552,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">20.7</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>3.5</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">3.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-24-N</PartNumber>		
+			<PartNumber>CFC-024-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (2.2 oz) 12.2 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.06236895</Mass>		
@@ -570,13 +570,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">27.6</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>4.3</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">4.3</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-30-N</PartNumber>		
+			<PartNumber>CFC-030-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (3.1 oz) 15.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.08788352</Mass>		
@@ -588,13 +588,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">34.5</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>3</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">3</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-36-N</PartNumber>		
+			<PartNumber>CFC-036-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (4.5 oz) 21.2 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">0.12757285</Mass>		
@@ -606,13 +606,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Nylon #400 IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>4.0</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">4.0</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-42-N</PartNumber>		
+			<PartNumber>CFC-042-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (5.7 oz) 31.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">0.16159228</Mass>		
@@ -624,13 +624,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">48.3</LineLength>		
 			<LineMaterial Type="LINE">Nylon #400 IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>6.0</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">6.0</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-48-N</PartNumber>		
+			<PartNumber>CFC-048-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (7.3 oz) 37.2 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.20695152</Mass>		
@@ -642,13 +642,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">55.2</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>7.0</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">7.0</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-60-N</PartNumber>		
+			<PartNumber>CFC-060-N</PartNumber>		
 			<Description>Elliptical Parachute [Cd 1.55 (10.0 oz) 66.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.28349523</Mass>		
@@ -660,13 +660,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">69.0</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>4.0</PackedDiameter>		
-			<PackedLength>5.3</PackedLength>		
+			<PackedDiameter Unit="in">4.0</PackedDiameter>		
+			<PackedLength Unit="in">5.3</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-72-N</PartNumber>		
+			<PartNumber>CFC-072-N</PartNumber>		
 			<Description>L3 Elliptical Parachute [Cd 1.55 (17.0 oz) 81.7 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.48194189</Mass>		
@@ -678,13 +678,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">82.8</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>4.0</PackedDiameter>		
-			<PackedLength>6.5</PackedLength>		
+			<PackedDiameter Unit="in">4.0</PackedDiameter>		
+			<PackedLength Unit="in">6.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-84-N</PartNumber>		
+			<PartNumber>CFC-084-N</PartNumber>		
 			<Description>L3 Elliptical Parachute [Cd 1.55 (21.0 oz) 106.8 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.59533998</Mass>		
@@ -696,13 +696,13 @@
 			<LineCount>14</LineCount>		
 			<LineLength Unit="in">96.6</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>4</PackedDiameter>		
-			<PackedLength>8.5</PackedLength>		
+			<PackedDiameter Unit="in">4</PackedDiameter>		
+			<PackedLength Unit="in">8.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-96-N</PartNumber>		
+			<PartNumber>CFC-096-N</PartNumber>		
 			<Description>L3 Elliptical Parachute [Cd 1.55 (30 oz) 151.2 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.85048569</Mass>		
@@ -714,8 +714,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">110.4</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>4</PackedDiameter>		
-			<PackedLength>12</PackedLength>		
+			<PackedDiameter Unit="in">4</PackedDiameter>		
+			<PackedLength Unit="in">12</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -732,8 +732,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">138.0</LineLength>		
 			<LineMaterial Type="LINE">Nylon #200 IIa Paraline [flat 4.0 mm, 5/32 in]</LineMaterial>		
-			<PackedDiameter>5.5</PackedDiameter>		
-			<PackedLength>8</PackedLength>		
+			<PackedDiameter Unit="in">5.5</PackedDiameter>		
+			<PackedLength Unit="in">8</PackedLength>		
 		</Parachute>			
 					
 		<!-- 	Fruity Chutes Classic and Compact Elliptical Parachutes, 12" to 36"		
@@ -741,7 +741,7 @@
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-12-S</PartNumber>		
+			<PartNumber>CFC-012-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (.85 oz) 4.7 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.02409710</Mass>		
@@ -753,13 +753,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">13.8</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>2.4</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">2.4</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-15-S</PartNumber>		
+			<PartNumber>CFC-015-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (1 oz) 6.4 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.02834952</Mass>		
@@ -771,13 +771,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">17.25</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>3.2</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">3.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-18-S</PartNumber>		
+			<PartNumber>CFC-018-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (1.16 oz) 6.4 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.03288545</Mass>		
@@ -789,13 +789,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">20.7</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>3.2</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">3.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-24-S</PartNumber>		
+			<PartNumber>CFC-024-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (1.6 oz) 8.8 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.045335924</Mass>		
@@ -807,13 +807,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">27.6</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>1.6</PackedDiameter>		
-			<PackedLength>4.4</PackedLength>		
+			<PackedDiameter Unit="in">1.6</PackedDiameter>		
+			<PackedLength Unit="in">4.4</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-30-S</PartNumber>		
+			<PartNumber>CFC-030-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (2.1 oz) 11.6 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.05953400</Mass>		
@@ -825,13 +825,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">34.5</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>4.1</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">4.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>CFC-36-S</PartNumber>		
+			<PartNumber>CFC-036-S</PartNumber>		
 			<Description>Compact Elliptical Parachute [Cd 1.55 (3.3 oz) 18.0 in^3)</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.09355343</Mass>		
@@ -843,8 +843,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>3.4</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">3.4</PackedLength>		
 		</Parachute>			
 					
 		<!-- 	Fruity Chutes Iris Ultra Standard All Nylon Parachutes, 36" to 120"		
@@ -852,7 +852,7 @@
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-36-N</PartNumber>		
+			<PartNumber>IFC-036-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (5.0 oz) 27.6 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.14174762</Mass>		
@@ -864,13 +864,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>5.2</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">5.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-48-N</PartNumber>		
+			<PartNumber>IFC-048-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (7.5 oz) 41.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.21262142</Mass>		
@@ -882,13 +882,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">55.2</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>7.8</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">7.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-60-N</PartNumber>		
+			<PartNumber>IFC-060-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (10.9 oz) 60.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.30900980</Mass>		
@@ -900,13 +900,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">69</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>5.1</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">5.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-72-N</PartNumber>		
+			<PartNumber>IFC-072-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (13.4 oz) 74.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.37988361</Mass>		
@@ -918,13 +918,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">82.8</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>6.2</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">6.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-84-N</PartNumber>		
+			<PartNumber>IFC-084-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (19.0 oz) 105.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.53864094</Mass>		
@@ -936,13 +936,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">96.6</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>8.8</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">8.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-96-N</PartNumber>		
+			<PartNumber>IFC-096-N</PartNumber>		
 			<Description>Iris Ultra Parachute [Cd 2.2 (25.0 oz) 139.5 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.70873808</Mass>		
@@ -954,8 +954,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">110.4</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>4.9</PackedDiameter>		
-			<PackedLength>7.4</PackedLength>		
+			<PackedDiameter Unit="in">4.9</PackedDiameter>		
+			<PackedLength Unit="in">7.4</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -972,8 +972,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">138</LineLength>		
 			<LineMaterial Type="LINE">Nylon IIIa Paraline [flat 6.4 mm, 1/4 in]</LineMaterial>		
-			<PackedDiameter>4.9</PackedDiameter>		
-			<PackedLength>10.6</PackedLength>		
+			<PackedDiameter Unit="in">4.9</PackedDiameter>		
+			<PackedLength Unit="in">10.6</PackedLength>		
 		</Parachute>			
 					
 		<!-- 	Fruity Chutes Iris Ultra Light Parachutes, 30" to 42"		
@@ -981,7 +981,7 @@
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-30-SL</PartNumber>		
+			<PartNumber>IFC-030-SL</PartNumber>		
 			<Description>Iris Ultra Light Parachute [Cd 2.2 (1.6 oz) 9.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.04535924</Mass>		
@@ -993,13 +993,13 @@
 			<LineCount>6</LineCount>		
 			<LineLength Unit="in">34.5</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>3.2</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">3.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-36-SL</PartNumber>		
+			<PartNumber>IFC-036-SL</PartNumber>		
 			<Description>Iris Ultra Light Parachute [Cd 2.2 (2.1 oz) 11.9 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.05953400</Mass>		
@@ -1011,13 +1011,13 @@
 			<LineCount>6</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>4.2</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">4.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-42-SL</PartNumber>		
+			<PartNumber>IFC-042-SL</PartNumber>		
 			<Description>Iris Ultra Light Parachute [Cd 2.2 (2.9 oz) 16.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.08221362</Mass>		
@@ -1029,8 +1029,8 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">48.3</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>5.7</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">5.7</PackedLength>		
 		</Parachute>			
 					
 		<!-- 	Fruity Chutes Iris Ultra Compact Parachutes, 30" to 240"		
@@ -1038,7 +1038,7 @@
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-30-S</PartNumber>		
+			<PartNumber>IFC-030-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (1.88 oz) 10.5 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.05329710</Mass>		
@@ -1050,13 +1050,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">34.5</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>1.9</PackedDiameter>		
-			<PackedLength>3.7</PackedLength>		
+			<PackedDiameter Unit="in">1.9</PackedDiameter>		
+			<PackedLength Unit="in">3.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-36-S</PartNumber>		
+			<PartNumber>IFC-036-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (2.41 oz) 13.4 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.06832235</Mass>		
@@ -1068,13 +1068,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Spectra #200 [Round 1.5 mm, 1/16 in]</LineMaterial>		
-			<PackedDiameter>2.15</PackedDiameter>		
-			<PackedLength>3.7</PackedLength>		
+			<PackedDiameter Unit="in">2.15</PackedDiameter>		
+			<PackedLength Unit="in">3.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-36-SR</PartNumber>		
+			<PartNumber>IFC-036-SR</PartNumber>		
 			<Description>Iris Ultra HP Compact Parachute [Cd 2.2 (2.9 oz) 16.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.08221362</Mass>		
@@ -1086,13 +1086,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">41.4</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>2.15</PackedDiameter>		
-			<PackedLength>4.4</PackedLength>		
+			<PackedDiameter Unit="in">2.15</PackedDiameter>		
+			<PackedLength Unit="in">4.4</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-48-S</PartNumber>		
+			<PartNumber>IFC-048-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (4.3 oz) 26.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.12190295</Mass>		
@@ -1104,13 +1104,13 @@
 			<LineCount>8</LineCount>		
 			<LineLength Unit="in">55.2</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>2.6</PackedDiameter>		
-			<PackedLength>4.9</PackedLength>		
+			<PackedDiameter Unit="in">2.6</PackedDiameter>		
+			<PackedLength Unit="in">4.9</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-60-S</PartNumber>		
+			<PartNumber>IFC-060-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (4.3 oz) 26.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.19277676</Mass>		
@@ -1122,13 +1122,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">69</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>3.2</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">3.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-72-S</PartNumber>		
+			<PartNumber>IFC-072-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (8.8 oz) 49.0 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.24947580</Mass>		
@@ -1140,13 +1140,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">82.8</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>4.1</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">4.1</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-84-S</PartNumber>		
+			<PartNumber>IFC-084-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (13.4 oz) 74.1 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.37988361</Mass>		
@@ -1158,13 +1158,13 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">96.6</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>3.9</PackedDiameter>		
-			<PackedLength>6.2</PackedLength>		
+			<PackedDiameter Unit="in">3.9</PackedDiameter>		
+			<PackedLength Unit="in">6.2</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
 			<Manufacturer>Fruity Chutes</Manufacturer>		
-			<PartNumber>IFC-96-S</PartNumber>		
+			<PartNumber>IFC-096-S</PartNumber>		
 			<Description>Iris Ultra Compact Parachute [Cd 2.2 (16.3 oz) 90.5 in^3]</Description>		
 			<Material Type="SURFACE">Ripstop nylon, lightweight, 3 mil</Material>		
 			<Mass Unit="kg">.046209723</Mass>		
@@ -1176,8 +1176,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">110.4</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>4.9</PackedDiameter>		
-			<PackedLength>4.8</PackedLength>		
+			<PackedDiameter Unit="in">4.9</PackedDiameter>		
+			<PackedLength Unit="in">4.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -1194,8 +1194,8 @@
 			<LineCount>12</LineCount>		
 			<LineLength Unit="in">138</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>4.9</PackedDiameter>		
-			<PackedLength>6.8</PackedLength>		
+			<PackedDiameter Unit="in">4.9</PackedDiameter>		
+			<PackedLength Unit="in">6.8</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -1212,8 +1212,8 @@
 			<LineCount>14</LineCount>		
 			<LineLength Unit="in">165.0</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>5.9</PackedDiameter>		
-			<PackedLength>6.3</PackedLength>		
+			<PackedDiameter Unit="in">5.9</PackedDiameter>		
+			<PackedLength Unit="in">6.3</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -1230,8 +1230,8 @@
 			<LineCount>16</LineCount>		
 			<LineLength Unit="in">193.2</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>7.4</PackedDiameter>		
-			<PackedLength>5.7</PackedLength>		
+			<PackedDiameter Unit="in">7.4</PackedDiameter>		
+			<PackedLength Unit="in">5.7</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -1248,8 +1248,8 @@
 			<LineCount>18</LineCount>		
 			<LineLength Unit="in">220.8</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>7.4</PackedDiameter>		
-			<PackedLength>7.5</PackedLength>		
+			<PackedDiameter Unit="in">7.4</PackedDiameter>		
+			<PackedLength Unit="in">7.5</PackedLength>		
 		</Parachute>			
 					
 		 <Parachute>			
@@ -1266,8 +1266,8 @@
 			<LineCount>24</LineCount>		
 			<LineLength Unit="in">276</LineLength>		
 			<LineMaterial Type="LINE">Spectra #400 [Oval 2.55 mm, 3/32in]</LineMaterial>		
-			<PackedDiameter>7.5</PackedDiameter>		
-			<PackedLength>10.7</PackedLength>		
+			<PackedDiameter Unit="in">7.5</PackedDiameter>		
+			<PackedLength Unit="in">10.7</PackedLength>		
 		</Parachute>			
 					
 	</Components>				
