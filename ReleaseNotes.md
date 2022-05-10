@@ -15,11 +15,13 @@ OpenRocket 22.02.beta.03 (2022-05-XX)
   * Parachute component name is automatically populated with preset description
 
 ### Notable bug Fixes
-* __Tube fins are fixed__, we think. Please test and let us know! (fixes issue xxx)
+* __Tube fin simulation has been massively rewritten and is now fixed__... we think. Please test and let us know! (fixes issue 1207)
 * Rail buttons now included in Fin Marking Guide (fixes issue 1259)
 * Tube fin sets now included in Fin Marking Guide (fixes issue... ah, there wasn't one)
 * Override mass now divides when fin set is split (fixes issue 1292)
+* Fixes exception when splitting fin sets (fixes issue 1302)
 * Hovering over pod set reports total mass of pod set (fixes issue 1291)
+* Fixes exception when putting fins on transitions (fixes issue 1247)
 
 ### Other
 * Major cleanup of File menu.  Let us know how you like it.
