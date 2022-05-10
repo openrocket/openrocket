@@ -22,6 +22,7 @@ OpenRocket 22.02.beta.03 (2022-05-XX)
 * Fixes exception when splitting fin sets (fixes issue 1302)
 * Hovering over pod set reports total mass of pod set (fixes issue 1291)
 * Fixes exception when putting fins on transitions (fixes issue 1247)
+* Opacity slider now stays in sync with alpha changes in color selector (fixes issue 1326)
 
 ### Other
 * Major cleanup of File menu.  Let us know how you like it.
