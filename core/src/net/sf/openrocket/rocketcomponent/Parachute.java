@@ -201,7 +201,7 @@ public class Parachute extends RecoveryDevice {
 			if (PackedLength > 0) {
 				length = PackedLength;
 			}
-			if (PackedLength <= 0) {
+			else {
 				length = InitialPackedLength;
 			}
 		} else {
