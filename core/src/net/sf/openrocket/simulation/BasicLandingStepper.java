@@ -82,7 +82,6 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			final double a = linearAcceleration.z;
 			final double v = status.getRocketVelocity().z;
 			final double z0 = status.getRocketPosition().z;
-			final double z = linearAcceleration.x;
 
 			// The new timestep is the solution of
 			// 1/2 at^2 + vt + z0 = 0
