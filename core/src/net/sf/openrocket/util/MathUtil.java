@@ -331,13 +331,13 @@ public class MathUtil {
 		}
 		
 		int length = domain.size();
-		if (length <= 1 || t < domain.get(0) || t > domain.get(length - 1)) {
+		if (length <= 1 || t < domain.get(0) || t > domain.get(length - 1) + EPSILON) {
 			return Double.NaN;
 		}
 		
 		// Look for the index of the right end point.
 		int right = 1;
-		while (t > domain.get(right)) {
+		while (t > domain.get(right) + EPSILON) {
 			right++;
 		}
 		int left = right - 1;

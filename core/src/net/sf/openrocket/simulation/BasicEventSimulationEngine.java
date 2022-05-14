@@ -173,7 +173,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				} else {
 					
 					// Check ground hit after liftoff
-					if ((currentStatus.getRocketPosition().z < 0) && !currentStatus.isLanded()) {
+					if ((currentStatus.getRocketPosition().z < MathUtil.EPSILON) && !currentStatus.isLanded()) {
 						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
 						
 						// addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
