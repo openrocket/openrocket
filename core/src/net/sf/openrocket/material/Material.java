@@ -19,11 +19,11 @@ import net.sf.openrocket.util.MathUtil;
 public abstract class Material implements Comparable<Material> {
 	
 	private static final Translator trans = Application.getTranslator();
-	
+
 	public enum Type {
-		LINE("Databases.materials.types.Line", UnitGroup.UNITS_DENSITY_LINE),
-		SURFACE("Databases.materials.types.Surface", UnitGroup.UNITS_DENSITY_SURFACE),
 		BULK("Databases.materials.types.Bulk", UnitGroup.UNITS_DENSITY_BULK),
+		SURFACE("Databases.materials.types.Surface", UnitGroup.UNITS_DENSITY_SURFACE),
+		LINE("Databases.materials.types.Line", UnitGroup.UNITS_DENSITY_LINE),
 		CUSTOM("Databases.materials.types.Custom", UnitGroup.UNITS_DENSITY_BULK);
 		
 		private final String name;

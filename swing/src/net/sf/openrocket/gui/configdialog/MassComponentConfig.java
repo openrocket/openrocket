@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -105,7 +106,12 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
-		
+
+		////// Automatic
+		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap");
+
 		
 		////  Position
 		//// Position relative to:

@@ -418,7 +418,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 
-		// Add the data updater to listen to changes in aoa and theta
+		// Add the data updater to listen to changes
+		rkt.addChangeListener(this);
 		mach.addChangeListener(this);
 		theta.addChangeListener(this);
 		aoa.addChangeListener(this);
@@ -434,9 +435,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				theta.setValue(initTheta);
 
 				//System.out.println("Closing method called: " + this);
+				rkt.removeChangeListener(ComponentAnalysisDialog.this);
+				mach.removeChangeListener(ComponentAnalysisDialog.this);
 				theta.removeChangeListener(ComponentAnalysisDialog.this);
 				aoa.removeChangeListener(ComponentAnalysisDialog.this);
-				mach.removeChangeListener(ComponentAnalysisDialog.this);
 				roll.removeChangeListener(ComponentAnalysisDialog.this);
 				//System.out.println("SETTING NAN VALUES");
 				rocketPanel.setCPAOA(Double.NaN);

@@ -28,8 +28,11 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * Maximum allowed cant of fins.
 	 */
 	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
-	
-	public enum CrossSection {
+
+    public void setOverrideMass() {
+    }
+
+    public enum CrossSection {
 		//// Square
 		SQUARE(trans.get("FinSet.CrossSection.SQUARE"), 1.00),
 		//// Rounded

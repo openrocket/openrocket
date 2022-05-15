@@ -90,15 +90,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Defaults to (0,0,0)
 	 */
 	protected Coordinate position = new Coordinate();
-	
+
 	// Color of the component, null means to use the default color
 	private Color color = null;
 	private LineStyle lineStyle = null;
 	
 	
 	// Override mass/CG
-	private double overrideMass = 0;
-	private boolean massOverridden = false;
+    protected double overrideMass = 0;
+	protected boolean massOverridden = false;
 	private double overrideCGX = 0;
 	private boolean cgOverridden = false;
 	private double overrideCD = 0;
@@ -108,7 +108,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	// User-given name of the component
-	private String name = null;
+    protected String name = null;
 	
 	// User-specified comment
 	private String comment = "";
@@ -1377,7 +1377,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			massSubtotal += rc.getSectionMass();
 		}
 		
-		return massSubtotal;
+		return massSubtotal * getInstanceCount();
 	}
 	
 	/**

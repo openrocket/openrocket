@@ -10,6 +10,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.Warning.Other;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
@@ -28,14 +29,14 @@ import org.slf4j.LoggerFactory;
  * Uses a complete clone of FinSetCalc modelling each tube fin as 3 individual fins.  It does not correctly account for
  * fin & tube fin interference.
  * 
- * Changes to BarrowmanCalculator's calculateFrictionDrag are also probably required.
- * 
  * @author kruland
  *
  */
-public class TubeFinSetCalc extends RocketComponentCalc {
+public class TubeFinSetCalc extends TubeCalc {
 	
-	private final static Logger logger = LoggerFactory.getLogger(FinSetCalc.class);
+	private final static Logger log = LoggerFactory.getLogger(TubeFinSetCalc.class);
+
+	final double intersticeArea;
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	
@@ -56,8 +57,12 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 	protected double[] chordLead = new double[DIVISIONS];
 	protected double[] chordTrail = new double[DIVISIONS];
 	protected double[] chordLength = new double[DIVISIONS];
-	
+		
+	protected final WarningSet geometryWarnings = new WarningSet();
+
 	private final double[] poly = new double[6];
+
+	private final double wettedArea;
 	
 	private final double thickness;
 	private final double bodyRadius;
@@ -73,9 +78,53 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 			throw new IllegalArgumentException("Illegal component type " + component);
 		}
 		
-		TubeFinSet fin = (TubeFinSet) component;
+		final TubeFinSet tubes = (TubeFinSet) component;
+		final TubeFinSet fin = tubes; // keep this around while we're still leveraging FinSet
+
+		geometryWarnings.add(Warning.TUBE_STABILITY);
+		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.TUBE_SEPARATION);
+		} else if (tubes.getTubeSeparation() < -MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.TUBE_OVERLAP);
+		}
+
+		// precompute geometry.  This will be the geometry of a single tube, since BarrowmanCalculator
+		// iterates across them.  Doesn't consider interference between them; that should only be relevant for
+		// fins that are either separated or overlapping.
+		bodyRadius = tubes.getBodyRadius();
+
+		// 1.  wetted area for friction drag calculation.  We don't consider the inner surface of the tube;
+		// that affects the pressure drop through the tube and so (indirecctly) affects the pressure drag.
+			
+		// Area of the outer surface of tubes.  Since roughly half
+		// of the area is "masked" by the interstices between the tubes and the
+		// body tube, only consider the other half of the area
+		final double outerArea = tubes.getLength() * Math.PI * tubes.getOuterRadius();
+			
+		// Surface area of the portion of the body tube masked by the tube fins, per tube
+		final BodyTube parent = (BodyTube) tubes.getParent();
+		final double maskedArea = tubes.getLength() * 2.0 * Math.PI * parent.getOuterRadius() / tubes.getFinCount();
+		
+		wettedArea = outerArea - maskedArea;
+		log.debug("wetted area of tube fins " + wettedArea);
+
+		// 2.  frontal area of interstices between tubes for pressure drag calculation.
+		// We'll treat them as a closed blunt object.
+
+		// area of disk passing through tube fin centers
+		final double tubeDiskArea = Math.PI * MathUtil.pow2(bodyRadius + tubes.getOuterRadius());
+
+		// half of combined area of tube fin exteriors.  Deliberately using the outer radius here since we
+		// calculate pressure drag from the tube walls in TubeCalc
+		final double tubeOuterArea = tubes.getFinCount() * Math.PI * MathUtil.pow2(tubes.getOuterRadius()) / 2.0;
+
+		// body tube area
+		final double bodyTubeArea = Math.PI * MathUtil.pow2(bodyRadius);
+
+		// area of an interstice
+		intersticeArea = (tubeDiskArea - tubeOuterArea - bodyTubeArea) / tubes.getFinCount();
+		
 		thickness = fin.getThickness();
-		bodyRadius = fin.getBodyRadius();
 		finCount = 3 * fin.getFinCount();
 		baseRotation = fin.getBaseRotation();
 		cantAngle = 0;
@@ -94,7 +143,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 	 */
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
-			AerodynamicForces forces, WarningSet warnings) {
+										AerodynamicForces forces, WarningSet warnings) {
 		
 		if (span < 0.001) {
 			forces.setCm(0);
@@ -113,14 +162,13 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
 			warnings.add(Warning.THICK_FIN);
 		}
-		warnings.add(new Other("Tube fin support is experimental"));
 		
 		//////// Calculate CNa.  /////////
 		
 		// One fin without interference (both sub- and supersonic):
 		double cna1 = calculateFinCNa1(conditions);
 		
-		//		logger.debug("Component cna1 = {}", cna1);
+		//		log.debug("Component cna1 = {}", cna1);
 		
 		// Multiple fins with fin-fin interference
 		double cna;
@@ -141,7 +189,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 			cna = cna1 * finCount / 2.0;
 		}
 		
-		//		logger.debug("Component cna = {}", cna);
+		//		log.debug("Component cna = {}", cna);
 		
 		// Take into account fin-fin interference effects
 		switch (interferenceFinCount) {
@@ -182,7 +230,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 			tau = 0;
 		cna *= 1 + tau; // Classical Barrowman
 		//		cna *= pow2(1 + tau);	// Barrowman thesis (too optimistic??)
-		//		logger.debug("Component cna = {}", cna);
+		//		log.debug("Component cna = {}", cna);
 		
 		// TODO: LOW: check for fin tip mach cone interference
 		// (Barrowman thesis pdf-page 40)
@@ -191,9 +239,9 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		
 		// Calculate CP position
 		double x = macLead + calculateCPPos(conditions) * macLength;
-		//		logger.debug("Component macLead = {}", macLead);
-		//		logger.debug("Component macLength = {}", macLength);
-		//		logger.debug("Component x = {}", x);
+		//		log.debug("Component macLead = {}", macLead);
+		//		log.debug("Component macLength = {}", macLength);
+		//		log.debug("Component x = {}", x);
 		
 		
 		// Calculate roll forces, reduce forcing above stall angle
@@ -352,7 +400,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 			double y = i * dy;
 			
 			macLength += length * length;
-			logger.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
+			log.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
 			macSpan += y * length;
 			macLead += chordLead[i] * length;
 			area += length;
@@ -368,7 +416,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		}
 		
 		macLength *= dy;
-		logger.debug("macLength = {}", macLength);
+		log.debug("macLength = {}", macLength);
 		macSpan *= dy;
 		macLead *= dy;
 		area *= dy;
@@ -537,7 +585,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 	 */
 	private double calculateCPPos(FlightConditions cond) {
 		double m = cond.getMach();
-		//		logger.debug("m = {} ", m);
+		//		log.debug("m = {} ", m);
 		if (m <= 0.5) {
 			// At subsonic speeds CP at quarter chord
 			return 0.25;
@@ -556,7 +604,7 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 			val += poly[i] * x;
 			x *= m;
 		}
-		//		logger.debug("val = {}", val);
+		//		log.debug("val = {}", val);
 		return val;
 	}
 	
@@ -586,83 +634,27 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		poly[1] = (-31.6049 * (-0.705375 + ar) * (-0.198476 + ar)) / denom;
 		poly[0] = (9.16049 * (-0.588838 + ar) * (-0.20624 + ar)) / denom;
 	}
-	
-	
-	//	@SuppressWarnings("null")
-	//	public static void main(String arg[]) {
-	//		Rocket rocket = TestRocket.makeRocket();
-	//		FinSet finset = null;
-	//		
-	//		Iterator<RocketComponent> iter = rocket.deepIterator();
-	//		while (iter.hasNext()) {
-	//			RocketComponent c = iter.next();
-	//			if (c instanceof FinSet) {
-	//				finset = (FinSet)c;
-	//				break;
-	//			}
-	//		}
-	//		
-	//		((TrapezoidFinSet)finset).setHeight(0.10);
-	//		((TrapezoidFinSet)finset).setRootChord(0.10);
-	//		((TrapezoidFinSet)finset).setTipChord(0.10);
-	//		((TrapezoidFinSet)finset).setSweep(0.0);
-	//
-	//		
-	//		FinSetCalc calc = new FinSetCalc(finset);
-	//		
-	//		calc.calculateFinGeometry();
-	//		FlightConditions cond = new FlightConditions(new Configuration(rocket));
-	//		for (double m=0; m < 3; m+=0.05) {
-	//			cond.setMach(m);
-	//			cond.setAOA(0.0*Math.PI/180);
-	//			double cna = calc.calculateFinCNa1(cond);
-	//			System.out.printf("%5.2f "+cna+"\n", m);
-	//		}
-	//		
-	//	}
-	
+
+	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		warnings.addAll(geometryWarnings);
+		
+		final double frictionCD =  componentCf * wettedArea / conditions.getRefArea();
+		log.debug("frictionCD " + frictionCD);
+		return frictionCD;
+	}
+
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
-			double stagnationCD, double baseCD, WarningSet warnings) {
+					  double stagnationCD, double baseCD, WarningSet warnings) {
 		
-		double mach = conditions.getMach();
-		double cd = 0;
-		
-		// Pressure fore-drag
-		if (crossSection == FinSet.CrossSection.AIRFOIL ||
-				crossSection == FinSet.CrossSection.ROUNDED) {
-			
-			// Round leading edge
-			if (mach < 0.9) {
-				cd = Math.pow(1 - pow2(mach), -0.417) - 1;
-			} else if (mach < 1) {
-				cd = 1 - 1.785 * (mach - 0.9);
-			} else {
-				cd = 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
-			}
-			
-		} else if (crossSection == FinSet.CrossSection.SQUARE) {
-			cd = stagnationCD;
-		} else {
-			throw new UnsupportedOperationException("Unsupported fin profile: " + crossSection);
+	    warnings.addAll(geometryWarnings);
+		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
+			(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
+	    log.debug("pressure CD " + cd);
+	    
+	    return cd;
 		}
-		
-		// Slanted leading edge
-		cd *= pow2(cosGammaLead);
-		
-		// Trailing edge drag
-		if (crossSection == FinSet.CrossSection.SQUARE) {
-			cd += baseCD;
-		} else if (crossSection == FinSet.CrossSection.ROUNDED) {
-			cd += baseCD / 2;
-		}
-		// Airfoil assumed to have zero base drag
-		
-		// Scale to correct reference area
-		cd *= finCount * span * thickness / conditions.getRefArea();
-		
-		return cd;
-	}
 	
 	private static int calculateInterferenceFinCount(TubeFinSet component) {
 		RocketComponent parent = component.getParent();
@@ -672,5 +664,4 @@ public class TubeFinSetCalc extends RocketComponentCalc {
 		
 		return 3 * component.getFinCount();
 	}
-	
 }

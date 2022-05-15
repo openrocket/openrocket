@@ -14,7 +14,11 @@ public class MassObjectSaver extends InternalComponentSaver {
 		MassObject mass = (MassObject) c;
 
 		elements.add("<packedlength>" + mass.getLength() + "</packedlength>");
-		elements.add("<packedradius>" + mass.getRadius() + "</packedradius>");
+		if (mass.isRadiusAutomatic()) {
+			elements.add("<packedradius>auto " + mass.getRadiusNoAuto() + "</packedradius>");
+		} else {
+			elements.add("<packedradius>" + mass.getRadiusNoAuto() + "</packedradius>");
+		}
 		elements.add("<radialposition>" + mass.getRadialPosition() + "</radialposition>");
 		elements.add("<radialdirection>" + (mass.getRadialDirection() * 180.0 / Math.PI)
 				+ "</radialdirection>");

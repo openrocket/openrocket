@@ -10,19 +10,19 @@ import net.sf.openrocket.util.MathUtil;
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
 	
-	public static final double DEFAULT_CD = 0.8;
+	public static double DEFAULT_CD = 0.8;
 	
 	private double diameter;
-	
+	private final double InitialPackedLength = this.length;
+	private final double InitialPackedRadius = this.radius;
+
 	private Material lineMaterial;
 	private int lineCount = 6;
 	private double lineLength = 0.3;
-	
-	
+
 	public Parachute() {
 		this.diameter = 0.3;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
-		this.lineLength = 0.3;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
@@ -159,25 +159,107 @@ public class Parachute extends RecoveryDevice {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if( preset.has( ComponentPreset.DIAMETER )) {
-			this.diameter = preset.get( ComponentPreset.DIAMETER );
+
+		// BEGIN Substitute parachute description for component name
+		if (preset.has(ComponentPreset.DESCRIPTION)) {
+			String temporaryName = preset.get(ComponentPreset.DESCRIPTION);
+			int size = temporaryName.length();
+			if (size > 0) {
+				this.name = preset.get(ComponentPreset.DESCRIPTION);
+			} else {
+				this.name = getComponentName();
+			}
+		} else {
+			this.name = getComponentName();
 		}
-		if( preset.has( ComponentPreset.LINE_COUNT )) {
-			this.lineCount = preset.get( ComponentPreset.LINE_COUNT );
+		// END Substitute parachute description for component name
+
+		if (preset.has(ComponentPreset.DIAMETER)) {
+			this.diameter = preset.get(ComponentPreset.DIAMETER);
 		}
-		if( preset.has( ComponentPreset.LINE_LENGTH )) {
-			this.lineLength = preset.get( ComponentPreset.LINE_LENGTH );
+
+		 // BEGIN Implement parachute cd
+		 if (preset.has(ComponentPreset.PARACHUTE_CD)) {
+			 if (preset.get(ComponentPreset.PARACHUTE_CD) > 0) {
+		 		cdAutomatic = false;
+		 		cd = preset.get(ComponentPreset.PARACHUTE_CD);
+		 		}
+			 else {
+				 cdAutomatic = true;
+				 cd = Parachute.DEFAULT_CD;
+		 		}
+		 } else {
+			 cdAutomatic = true;
+			 cd = Parachute.DEFAULT_CD;
+		 }
+		 // END Implement parachute cd
+
+		// BEGIN Implement parachute length, diameter, and volume
+		//// BEGIN Implement parachute packed length
+		if (preset.has(ComponentPreset.PACKED_LENGTH)) {
+			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
+			if (PackedLength > 0) {
+				length = PackedLength;
+			}
+			else {
+				length = InitialPackedLength;
+			}
+		} else {
+			length = InitialPackedLength;
 		}
-		if( preset.has( ComponentPreset.LINE_MATERIAL )) {
-			this.lineMaterial = preset.get( ComponentPreset.LINE_MATERIAL );
+		//// END Implement parachute packed length
+		//// BEGIN Implement parachute packed diameter
+		if (preset.has(ComponentPreset.PACKED_DIAMETER)) {
+			this.PackedDiameter = preset.get(ComponentPreset.PACKED_DIAMETER);
+			if (PackedDiameter > 0) {
+				radius = PackedDiameter / 2;
+			}
+			if (PackedDiameter <= 0) {
+				radius = InitialPackedRadius;
+			}
+		} else {
+			radius = InitialPackedRadius;
+	}
+		//// END Implement parachute packed diameter
+		//// BEGIN Size parachute packed diameter within parent inner diameter
+		if (length > 0 && radius > 0) {
+			double parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
+			setRadiusAutomatic(true);
+			length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
+
+		}
+		//// END Size parachute packed diameter within parent inner diameter
+		// END Implement parachute length, diameter, and volume
+
+		// BEGIN Activate Override Mass Preset
+		if (preset.has(ComponentPreset.MASS)) {
+			this.overrideMass = (preset.get(ComponentPreset.MASS));
+			if (overrideMass > 0) {
+				massOverridden = true;
+			} else {
+				this.overrideMass = 0;
+				massOverridden = false;
+			}
+		} else {
+			this.overrideMass = 0;
+			massOverridden = false;
+		}
+		// END Activate Override Mass Preset
+
+		if (preset.has(ComponentPreset.LINE_COUNT)) {
+			this.lineCount = preset.get(ComponentPreset.LINE_COUNT);
+		}
+		if (preset.has(ComponentPreset.LINE_LENGTH)) {
+			this.lineLength = preset.get(ComponentPreset.LINE_LENGTH);
+		}
+		if (preset.has(ComponentPreset.LINE_MATERIAL)) {
+			this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
 		}
 		super.loadFromPreset(preset);
 	}
 
-
 	@Override
 	public Type getPresetType() {
-		return ComponentPreset.Type.PARACHUTE;
+		return Type.PARACHUTE;
 	}
-	
 }

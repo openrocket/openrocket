@@ -621,6 +621,12 @@ public class FinSetCalc extends RocketComponentCalc {
 	//		}
 	//		
 	//	}
+
+	@Override
+	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		double cd = componentCf * (1 + 2 * thickness / macLength) * 2 * finArea / conditions.getRefArea();
+		return cd;
+	}
 	
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
@@ -660,7 +666,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Airfoil assumed to have zero base drag
 		
 		// Scale to correct reference area
-		cd *= cd * span * thickness / conditions.getRefArea();
+		cd *= span * thickness / conditions.getRefArea();
 		
 		return cd;
 	}

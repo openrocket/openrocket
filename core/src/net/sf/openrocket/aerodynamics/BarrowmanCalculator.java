@@ -323,18 +323,138 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return friction drag for entire rocket
 	 */
 	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
-			Map<RocketComponent, AerodynamicForces> map, WarningSet set) {
-		double c1 = 1.0, c2 = 1.0;
+			Map<RocketComponent, AerodynamicForces> map, WarningSet warningSet) {
 		
 		double mach = conditions.getMach();
-		double Re;
-		double Cf;
+		double Re = calculateReynoldsNumber(configuration, conditions);
+		double Cf = calculateFrictionCoefficient(configuration, mach, Re);
+		double roughnessCorrection = calculateRoughnessCorrection(mach);
 		
 		if (calcMap == null)
 			buildCalcMap(configuration);
+		
+		/*
+		 * Calculate the friction drag coefficient.
+		 * 
+		 * The body wetted area is summed up and finally corrected with the rocket
+		 * fineness ratio (calculated in the same iteration).  The fins are corrected
+		 * for thickness as we go on.
+		 */
+		
+		double otherFrictionCD = 0;
+		double bodyFrictionCD = 0;
+		double maxR = 0, minX = Double.MAX_VALUE, maxX = 0;
+		
+		double[] roughnessLimited = new double[Finish.values().length];
+		Arrays.fill(roughnessLimited, Double.NaN);
 
-		Re = conditions.getVelocity() * configuration.getLength() /
-				conditions.getAtmosphericConditions().getKinematicViscosity();
+		final InstanceMap imap = configuration.getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent c = entry.getKey();
+
+			if (!c.isAerodynamic())
+				continue;
+
+			// Handle Overriden CD for Whole Rocket
+			if(c.isCDOverridden()) {
+				continue;
+			}
+
+			// Calculate the roughness-limited friction coefficient
+			Finish finish = ((ExternalComponent) c).getFinish();
+			if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
+				roughnessLimited[finish.ordinal()] =
+					0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
+					roughnessCorrection;
+			}
+			
+			/*
+			 * Actual Cf is maximum of Cf and the roughness-limited value.
+			 * For perfect finish require additionally that Re > 1e6
+			 */
+			double componentCf;
+			if (configuration.getRocket().isPerfectFinish()) {
+				
+				// For perfect finish require Re > 1e6
+				if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
+					componentCf = roughnessLimited[finish.ordinal()];
+				} else {
+					componentCf = Cf;
+				}
+				
+			} else {
+				
+				// For fully turbulent use simple max
+				componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
+				
+			}
+			
+			// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
+				double componentFrictionCD = calcMap.get(c).calculateFrictionCD(conditions, componentCf, warningSet);
+
+				if (c instanceof SymmetricComponent) {
+					SymmetricComponent s = (SymmetricComponent) c;
+					bodyFrictionCD += componentFrictionCD;
+
+					final double componentMinX = context.getLocation().x;
+					minX = Math.min(minX, componentMinX);
+
+					final double componentMaxX = componentMinX + c.getLength();
+					maxX = Math.max(maxX, componentMaxX);
+
+					final double componentMaxR = Math.max(s.getForeRadius(), s.getAftRadius());
+					maxR = Math.max(maxR, componentMaxR);
+					
+				} else {
+					otherFrictionCD += componentFrictionCD;
+				}
+
+				if (map != null) {
+					map.get(c).setFrictionCD(componentFrictionCD);
+				}
+			}
+		}
+		
+		// fB may be POSITIVE_INFINITY, but that's ok for us
+		double fB = (maxX - minX + 0.0001) / maxR;
+		double correction = (1 + 1.0 / (2 * fB));
+		
+		// Correct body data in map
+		if (map != null) {
+			for (RocketComponent c : map.keySet()) {
+				if (c instanceof SymmetricComponent) {
+					map.get(c).setFrictionCD(map.get(c).getFrictionCD() * correction);
+				}
+			}
+		}
+		
+		return otherFrictionCD + correction * bodyFrictionCD;
+	}
+
+
+	/**
+	 * Calculation of Reynolds Number
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @return                  Reynolds Number
+	 */
+	private double calculateReynoldsNumber(FlightConfiguration configuration, FlightConditions conditions) {
+		return conditions.getVelocity() * configuration.getLength() /
+			conditions.getAtmosphericConditions().getKinematicViscosity();
+	}
+	
+	/**
+	 * Calculation of skin friction coefficient
+	 *
+	 *
+	 * return skin friction coefficient
+	 */
+	private double calculateFrictionCoefficient(FlightConfiguration configuration, double mach, double Re) {
+		double Cf;
+		double c1 = 1.0, c2 = 1.0;
 		
 		// Calculate the skin friction coefficient (assume non-roughness limited)
 		if (configuration.getRocket().isPerfectFinish()) {
@@ -412,6 +532,19 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 			
 		}
+
+		return Cf;
+	}
+
+	/**
+	 * Calculation of correction for roughness
+	 *
+	 * @param  mach
+	 * @return roughness correction
+	 **/
+
+	private double calculateRoughnessCorrection(double mach) {
+		double c1, c2;
 		
 		// Roughness-limited value correction term
 		double roughnessCorrection;
@@ -424,125 +557,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			c2 = 1.0 / (1 + 0.18 * pow2(1.1));
 			roughnessCorrection = c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
 		}
-		
-		
-		
-		/*
-		 * Calculate the friction drag coefficient.
-		 * 
-		 * The body wetted area is summed up and finally corrected with the rocket
-		 * fineness ratio (calculated in the same iteration).  The fins are corrected
-		 * for thickness as we go on.
-		 */
-		
-		double finFriction = 0;
-		double bodyFriction = 0;
-		double maxR = 0, minX = Double.MAX_VALUE, maxX = 0;
-		
-		double[] roughnessLimited = new double[Finish.values().length];
-		Arrays.fill(roughnessLimited, Double.NaN);
 
-		final InstanceMap imap = configuration.getActiveInstances();
-	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
-			final RocketComponent c = entry.getKey();
-			
-			// Consider only SymmetricComponents and FinSets:
-			if (!(c instanceof SymmetricComponent) &&
-					!(c instanceof FinSet))
-				continue;
-
-			// iterate across component instances
-			final ArrayList<InstanceContext> contextList = entry.getValue();
-			for(InstanceContext context: contextList ) {
-			
-				// Calculate the roughness-limited friction coefficient
-				Finish finish = ((ExternalComponent) c).getFinish();
-				if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
-					roughnessLimited[finish.ordinal()] =
-						0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
-						roughnessCorrection;
-				}
-			
-				/*
-				 * Actual Cf is maximum of Cf and the roughness-limited value.
-				 * For perfect finish require additionally that Re > 1e6
-				 */
-				double componentCf;
-				if (configuration.getRocket().isPerfectFinish()) {
-					
-					// For perfect finish require Re > 1e6
-					if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
-						componentCf = roughnessLimited[finish.ordinal()];
-					} else {
-						componentCf = Cf;
-					}
-					
-				} else {
-					
-					// For fully turbulent use simple max
-					componentCf = Math.max(Cf, roughnessLimited[finish.ordinal()]);
-					
-				}
-			
-				//Handle Overriden CD for Whole Rocket
-				if(c.isCDOverridden()) {
-					continue;
-				}
-			
-			
-				// Calculate the friction drag:
-				if (c instanceof SymmetricComponent) {
-				
-					SymmetricComponent s = (SymmetricComponent) c;
-					
-					bodyFriction += componentCf * s.getComponentWetArea();
-				
-					if (map != null) {
-						// Corrected later
-						map.get(c).setFrictionCD(componentCf * s.getComponentWetArea()
-												 / conditions.getRefArea());
-					}
-
-					final double componentMinX = context.getLocation().x;
-					minX = Math.min(minX, componentMinX);
-
-					final double componentMaxX = componentMinX + c.getLength();
-					maxX = Math.max(maxX, componentMaxX);
-
-					final double componentMaxR = Math.max(s.getForeRadius(), s.getAftRadius());
-					maxR = Math.max(maxR, componentMaxR);
-					
-				} else if (c instanceof FinSet) {
-				
-					FinSet f = (FinSet) c;
-					double mac = ((FinSetCalc) calcMap.get(c)).getMACLength();
-					double cd = componentCf * (1 + 2 * f.getThickness() / mac) *
-						2 * f.getPlanformArea();
-					finFriction += cd;
-					
-					if (map != null) {
-						map.get(c).setFrictionCD(cd / conditions.getRefArea());
-					}
-				}
-			}
-		}
-		
-		// fB may be POSITIVE_INFINITY, but that's ok for us
-		double fB = (maxX - minX + 0.0001) / maxR;
-		double correction = (1 + 1.0 / (2 * fB));
-		
-		// Correct body data in map
-		if (map != null) {
-			for (RocketComponent c : map.keySet()) {
-				if (c instanceof SymmetricComponent) {
-					map.get(c).setFrictionCD(map.get(c).getFrictionCD() * correction);
-				}
-			}
-		}
-		
-		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
+		return roughnessCorrection;
 	}
-	
 	
 	/**
 	 * Calculation of drag coefficient due to pressure
@@ -568,6 +585,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
+
 			if (!c.isAerodynamic())
 				continue;
 
@@ -575,11 +593,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 
-				// Pressure fore drag
+				// Pressure drag
 				double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
 															   warningSet);
 				total += cd;
-
+				
 				if (forceMap != null) {
 					forceMap.get(c).setPressureCD(cd);
 				}
@@ -608,7 +626,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 			}
 		}
-			
+		
 		return total;
 	}
 	

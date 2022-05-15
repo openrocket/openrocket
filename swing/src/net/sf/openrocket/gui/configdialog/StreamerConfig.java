@@ -160,7 +160,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				"w 100lp, wrap");
 		
 		
-		////  Spatial length:
+		////  Packed length:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")));
 		
 		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
@@ -185,8 +185,13 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 30lp");
-		
+		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+
+		////// Automatic
+		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 30lp");
+
 		
 		//// Deployment
 		//// Deploys at:

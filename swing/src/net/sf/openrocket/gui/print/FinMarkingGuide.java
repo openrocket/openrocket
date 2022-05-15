@@ -22,17 +22,19 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 /**
- * This is the core Swing representation of a fin marking guide.  It can handle multiple fin sets on the same or
- * different body tubes. One marking guide will be created for any body tube that has a finset.  If a tube has multiple
- * finsets, then they are combined onto one marking guide. It also includes launch lug marking line(s) if lugs are
- * present. If (and only if) a launch lug exists, then the word 'Front' is affixed to the leading edge of the guide to
- * give orientation.
+ * This is the core Swing representation of a fin marking guide.  It can handle multiple fin and/or tube fin sets
+ * on the same or different body tubes. One marking guide will be created for each body tube that has a fin set.
+ * If a tube has multiple fin and/or tube fin sets, then they are combined onto one marking guide. It also includes
+ * launch lugs and/or rail button marking line(s) if lugs or buttons are present. If (and only if) a launch lug and/or
+ * rail button exists, then the word 'Front' is affixed to the leading edge of the guide to give orientation.
  * <p/>
  */
 @SuppressWarnings("serial")
@@ -77,12 +79,13 @@ public class FinMarkingGuide extends JPanel {
 	private static final int MARGIN = (int) PrintUnit.INCHES.toPoints(0.25f);
 	
 	/**
-	 * The height (circumference) of the biggest body tube with a finset.
+	 * The height (circumference) of the biggest body tube with a fin and/or tube fin set.
 	 */
 	private int maxHeight = 0;
 	
 	/**
-	 * A map of body tubes, to a list of components that contains finsets and launch lugs.
+	 * A map of body tubes, to a list of components that contain fin and/or tube fin sets and launch lugs and/or
+	 * rail buttons.
 	 */
 	private Map<BodyTube, java.util.List<ExternalComponent>> markingGuideItems;
 	
@@ -100,11 +103,12 @@ public class FinMarkingGuide extends JPanel {
 	}
 	
 	/**
-	 * Initialize the marking guide class by iterating over a rocket and finding all finsets.
+	 * Initialize the marking guide class by iterating over a rocket and finding all fin and/or tube fin sets.
 	 *
-	 * @param component the root rocket component - this is iterated to find all finset and launch lugs
+	 * @param component the root rocket component - this is iterated to find all fin and/or tube fin sets and
+	 * launch lugs and/or rail buttons.
 	 *
-	 * @return a map of body tubes to lists of finsets and launch lugs.
+	 * @return a map of body tubes to lists of fin and/or tube fin sets and launch lugs and/or rail buttons.
 	 */
 	private Map<BodyTube, java.util.List<ExternalComponent>> init(Rocket component) {
 		Iterator<RocketComponent> iter = component.iterator(false);
@@ -119,7 +123,9 @@ public class FinMarkingGuide extends JPanel {
 			if (next instanceof BodyTube) {
 				current = (BodyTube) next;
 			}
-			else if (next instanceof FinSet || next instanceof LaunchLug) {
+
+			// IF Existence of FinSet or TubeFinSet or LaunchLug or RailButton
+			else if (next instanceof FinSet || next instanceof TubeFinSet || next instanceof LaunchLug || next instanceof RailButton) {
 				java.util.List<ExternalComponent> list = results.get(current);
 				if (list == null && current != null) {
 					list = new ArrayList<ExternalComponent>();
@@ -202,8 +208,8 @@ public class FinMarkingGuide extends JPanel {
 	 *   |       |                  +                            +
 	 *   |       |                  +                            +
 	 *   |       |                  +<------Launch Lug --------->+
-	 *   |       |                  +                            +
-	 *   |       |                  +                            +
+	 *   |       |                  +         and/or             +
+	 *   |       |                  +      Rail Buttons          +
 	 *   |       |                  +                            +
 	 *   |       |                  +<----------Fin------------->+
 	 *   |       |                  +                            +
@@ -217,8 +223,8 @@ public class FinMarkingGuide extends JPanel {
 	 * yLLOffset is computed from the difference between the base rotation of the fin and the radial direction of the
 	 * lug.
 	 *
-	 * Note: There is a current limitation that a tube with multiple launch lugs may not render the lug lines
-	 * correctly.
+	 * Note: There is a current limitation that a tube with multiple launch lugs and/or rail buttons may not render
+	 * the lug and/or button lines correctly.
 	 * </pre>
 	 *
 	 * @param g the Graphics context
@@ -258,6 +264,8 @@ public class FinMarkingGuide extends JPanel {
 				
 				//fin1: 42  fin2: 25
 				for (ExternalComponent externalComponent : componentList) {
+
+					// BEGIN If FinSet instance
 					if (externalComponent instanceof FinSet) {
 						FinSet fins = (FinSet) externalComponent;
 						int finCount = fins.getFinCount();
@@ -285,6 +293,39 @@ public class FinMarkingGuide extends JPanel {
 							//   }
 						}
 					}
+					// END If FinSet instance
+
+					// BEGIN If TubeFinSet instance
+					if (externalComponent instanceof TubeFinSet) {
+						TubeFinSet fins = (TubeFinSet) externalComponent;
+						int finCount = fins.getFinCount();
+						double baseAngularSpacing = (TWO_PI / finCount);
+						double baseAngularOffset = fins.getBaseRotation();
+						//Draw the fin marking lines.
+						for (int fin = 0; fin < finCount; fin++) {
+							double angle = baseAngularOffset + fin * baseAngularSpacing - radialOrigin;
+							// Translate angle into pixels using a linear transformation:
+							// radialOrigin -> y
+							// radialOrigin + TWO_PI -> y + circumferenceInPoints
+
+							while (angle < 0) {
+								angle += TWO_PI;
+							}
+							while (angle > TWO_PI) {
+								angle -= TWO_PI;
+							}
+
+							int offset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
+
+							drawDoubleArrowLine(g2, x, offset, x + width, offset);
+							//   if (hasMultipleComponents) {
+							g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
+							//   }
+						}
+					}
+					// END If TubeFinSet instance
+
+					// BEGIN If LaunchLug instance
 					else if (externalComponent instanceof LaunchLug) {
 						LaunchLug lug = (LaunchLug) externalComponent;
 						double angle = lug.getAngleOffset() - radialOrigin;
@@ -296,13 +337,29 @@ public class FinMarkingGuide extends JPanel {
 						g2.drawString(lug.getName(), x + (width / 3), (int) yLLOffset - 2);
 						
 					}
+					// END If LaunchLug instance
+
+					// BEGIN If RailButton instance
+					else if (externalComponent instanceof RailButton) {
+						RailButton button = (RailButton) externalComponent;
+						double angle = button.getAngleOffset() - radialOrigin;
+						while (angle < 0) {
+							angle += TWO_PI;
+						}
+						int yLLOffset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
+						drawDoubleArrowLine(g2, x, (int) yLLOffset, x + width, (int) yLLOffset);
+						g2.drawString(button.getName(), x + (width / 3), (int) yLLOffset - 2);
+
+					}
+					// END If RailButton instance
 				}
-				//Only if the tube has a lug or multiple finsets does the orientation of the marking guide matter. So print 'Front'.
+				// Only if the tube has a lug or button or multiple fin and/or tube fin sets does the orientation of
+				// the marking guide matter. So print 'Front'.
 				if (hasMultipleComponents) {
 					drawFrontIndication(g2, x, y, 0, (int) circumferenceInPoints, width);
 				}
 				
-				//At most, two marking guides horizontally.  After that, move down and back to the left margin.
+				// At most, two marking guides horizontally.  After that, move down and back to the left margin.
 				column++;
 				if (column % 2 == 0) {
 					x = MARGIN;
@@ -316,10 +373,10 @@ public class FinMarkingGuide extends JPanel {
 	}
 	
 	/**
-	 * This function finds a origin in radians for the template so no component is on the template seam.
+	 * This function finds an origin in radians for the template so no component is on the template seam.
 	 * 
-	 * If no fin or launch lug is at 0.0 radians, then the origin is 0.  If there is one, then half the distance
-	 * between the two are taken.
+	 * If no fin, or launch lug or rail button is at 0.0 radians, then the origin is 0.  If there is one, then half
+	 * the distance between the two are taken.
 	 * 
 	 * @param components
 	 * @return
@@ -329,15 +386,29 @@ public class FinMarkingGuide extends JPanel {
 		ArrayList<Double> positions = new ArrayList<Double>(3 * components.size());
 		
 		for (ExternalComponent component : components) {
-			
-			if (component instanceof LaunchLug) {
+
+			if (component instanceof LaunchLug) {  			      // Instance of LaunchLug
 				double componentPosition = ((LaunchLug) component).getAngleOffset();
-				
 				positions.add(makeZeroTwoPi(componentPosition));
 			}
-			
-			if (component instanceof FinSet) {
+
+			if (component instanceof RailButton) { 			      // Instance of RailButton
+				double componentPosition = ((RailButton) component).getAngleOffset();
+				positions.add(makeZeroTwoPi(componentPosition));
+			}
+
+			if (component instanceof FinSet) {                // Instance of FinSet
 				FinSet fins = (FinSet) component;
+				double basePosition = fins.getBaseRotation();
+				double angle = TWO_PI / fins.getFinCount();
+				for (int i = fins.getFinCount(); i > 0; i--) {
+					positions.add(makeZeroTwoPi(basePosition));
+					basePosition += angle;
+				}
+			}
+
+			if (component instanceof TubeFinSet) {            // Instance of TubeFinSet
+				TubeFinSet fins = (TubeFinSet) component;
 				double basePosition = fins.getBaseRotation();
 				double angle = TWO_PI / fins.getFinCount();
 				for (int i = fins.getFinCount(); i > 0; i--) {
@@ -386,16 +457,19 @@ public class FinMarkingGuide extends JPanel {
 	}
 	
 	/**
-	 * Determines if the list contains a FinSet.
+	 * Determine if the list contains a FinSet or TubeFinSet.
 	 *
 	 * @param list a list of ExternalComponent
 	 *
-	 * @return true if the list contains at least one FinSet
+	 * @return true if the list contains at least one FinSet or TubeFinSet
 	 */
 	private boolean hasFins(List<ExternalComponent> list) {
 		for (ExternalComponent externalComponent : list) {
-			if (externalComponent instanceof FinSet) {
+			if (externalComponent instanceof FinSet) {           // ACTION Existence of FinSet
 				return true;
+			}
+			if (externalComponent instanceof TubeFinSet) {       // ACTION Existence of TubeFinSet
+					return true;
 			}
 		}
 		return false;
@@ -434,8 +508,9 @@ public class FinMarkingGuide extends JPanel {
 	}
 	
 	/**
-	 * Draw a vertical string indicating the front of the rocket.  This is necessary when a launch lug exists to give
-	 * proper orientation of the guide (assuming that the lug is asymmetrically positioned with respect to a fin).
+	 * Draw a vertical string indicating the front of the rocket.  This is necessary when a launch lug and/or
+	 * rail button exists to give proper orientation of the guide (assuming that the lug and/or button is
+	 * asymmetrically positioned with respect to a fin).
 	 *
 	 * @param g2      the graphics context
 	 * @param x       the starting x coordinate
