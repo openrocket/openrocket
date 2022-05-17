@@ -236,7 +236,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	//	Parachute Mass declaration see: MASS
 
 	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.asList(
-		//	DO NOT add to this list without redefining “table.column”
+		//	DO NOT add to this list without redefining "table.column"
 			LEGACY,
 			MANUFACTURER,
 			PARTNO,
