@@ -188,13 +188,20 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private DoubleModel stMass;
 	private ImageIcon stImage;
 	private JButton stImageBtn;
-	
+
+	//	Parachute Specific
 	private JTextField pcPartNoTextField;
 	private JTextField pcDescTextField;
+	private DoubleModel pcDiameter;
+	private DoubleModel pcSpillDia;
+	private DoubleModel pcSurfaceArea;
+	private DoubleModel pcDragCoefficient;
+	//	Canopy material = private MaterialChooser materialChooser;
 	private JTextField pcSides;
 	private JTextField pcLineCount;
-	private DoubleModel pcDiameter;
 	private DoubleModel pcLineLength;
+	private DoubleModel pcPackedLength;
+	private DoubleModel pcPackedDiameter;
 	private MaterialChooser pcLineMaterialChooser;
 	private DoubleModel pcMass;
 	private ImageIcon pcImage;
@@ -1597,34 +1604,46 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		case PARACHUTE:
 			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
 			typeCombo.setSelectedItem(trans.get(PARACHUTE_KEY));
+			pcPartNoTextField.setText(preset.get(ComponentPreset.PARTNO));
 			pcDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
-			if (preset.has(ComponentPreset.LINE_COUNT)) {
-				pcLineCount.setText(preset.get(ComponentPreset.LINE_COUNT).toString());
-			}
-			if (preset.has(ComponentPreset.SIDES)) {
-				pcSides.setText(preset.get(ComponentPreset.SIDES).toString());
-			}
-			if (preset.has(ComponentPreset.MASS)) {
-				pcMass.setValue(preset.get(ComponentPreset.MASS));
-				pcMass.setCurrentUnit(UnitGroup.UNITS_MASS.getDefaultUnit());
-			}
 			if (preset.has(ComponentPreset.DIAMETER)) {
 				pcDiameter.setValue(preset.get(ComponentPreset.DIAMETER));
 				pcDiameter.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.PARACHUTE_CD)) {
+				pcDragCoefficient.setValue(preset.get(ComponentPreset.PARACHUTE_CD));
+				pcDragCoefficient.setCurrentUnit(UnitGroup.UNITS_COEFFICIENT.getDefaultUnit());
+			}
+			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
+			if (preset.has(ComponentPreset.SIDES)) {
+				pcSides.setText(preset.get(ComponentPreset.SIDES).toString());
+			}
+			if (preset.has(ComponentPreset.LINE_COUNT)) {
+				pcLineCount.setText(preset.get(ComponentPreset.LINE_COUNT).toString());
 			}
 			if (preset.has(ComponentPreset.LINE_LENGTH)) {
 				pcLineLength.setValue(preset.get(ComponentPreset.LINE_LENGTH));
 				pcLineLength.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
-			pcPartNoTextField.setText(preset.get(ComponentPreset.PARTNO));
+			setMaterial(pcLineMaterialChooser, preset, matHolder, Material.Type.LINE, ComponentPreset.LINE_MATERIAL);
+			//    pcLineMaterialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.LINE));
+			//    pcLineMaterialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.LINE_MATERIAL));
+			if (preset.has(ComponentPreset.PACKED_LENGTH)) {
+				pcPackedLength.setValue(preset.get(ComponentPreset.PACKED_LENGTH));
+				pcPackedLength.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.PACKED_DIAMETER)) {
+				pcPackedDiameter.setValue(preset.get(ComponentPreset.PACKED_DIAMETER));
+				pcPackedDiameter.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+			}
+			if (preset.has(ComponentPreset.MASS)) {
+				pcMass.setValue(preset.get(ComponentPreset.MASS));
+				pcMass.setCurrentUnit(UnitGroup.UNITS_MASS.getDefaultUnit());
+			}
 			if (preset.has(ComponentPreset.IMAGE)) {
 				pcImage = new ImageIcon(byteArrayToImage(preset.get(ComponentPreset.IMAGE)));
 				pcImageBtn.setIcon(pcImage);
 			}
-			setMaterial(pcLineMaterialChooser, preset, matHolder, Material.Type.LINE, ComponentPreset.LINE_MATERIAL);
-			//                pcLineMaterialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.LINE));
-			
-			//                pcLineMaterialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.LINE_MATERIAL));
 			break;
 		case STREAMER:
 			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
@@ -2157,17 +2176,10 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		TypedPropertyMap props = new TypedPropertyMap();
 		try {
 			props.put(ComponentPreset.TYPE, ComponentPreset.Type.PARACHUTE);
-			props.put(ComponentPreset.DIAMETER, pcDiameter.getValue());
-			props.put(ComponentPreset.DESCRIPTION, pcDescTextField.getText());
-			props.put(ComponentPreset.PARTNO, pcPartNoTextField.getText());
 			props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(mfgTextField.getText()));
-			if (!pcLineCount.getText().equals("")) {
-				props.put(ComponentPreset.LINE_COUNT, Integer.parseInt(pcLineCount.getText()));
-			}
-			if (!pcSides.getText().equals("")) {
-				props.put(ComponentPreset.SIDES, Integer.parseInt(pcSides.getText()));
-			}
-			props.put(ComponentPreset.LINE_LENGTH, pcLineLength.getValue());
+			props.put(ComponentPreset.PARTNO, pcPartNoTextField.getText());
+			props.put(ComponentPreset.DESCRIPTION, pcDescTextField.getText());
+			props.put(ComponentPreset.PARACHUTE_CD, pcDragCoefficient.getValue());
 			Material material = (Material) materialChooser.getSelectedItem();
 			if (material != null) {
 				props.put(ComponentPreset.MATERIAL, material);
@@ -2176,6 +2188,13 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
+			if (!pcLineCount.getText().equals("")) {
+				props.put(ComponentPreset.LINE_COUNT, Integer.parseInt(pcLineCount.getText()));
+			}
+			if (!pcSides.getText().equals("")) {
+				props.put(ComponentPreset.SIDES, Integer.parseInt(pcSides.getText()));
+			}
+			props.put(ComponentPreset.LINE_LENGTH, pcLineLength.getValue());
 			material = (Material) pcLineMaterialChooser.getSelectedItem();
 			if (material != null) {
 				props.put(ComponentPreset.LINE_MATERIAL, material);
