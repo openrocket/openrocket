@@ -3,7 +3,7 @@ Release Notes
 
 OpenRocket 22.02.beta.03 (2022-05-XX)
 ------------------------
-(through PR1347)
+(through PR1361)
 
 ### New Features
 * Big improvements to parachutes:
@@ -14,7 +14,8 @@ OpenRocket 22.02.beta.03 (2022-05-XX)
   * Parachute component name is automatically populated with preset description
 
 ### Notable bug Fixes
-* __Tube fin drag simulation has been extensively rewritten__.  This should fix flight simulations of tube fin models.  Please test your sims and let us know how it works for you (fixes issue 1207).  Note that CP calculations for tube fins are still not fixed. 
+* __Tube fin drag simulation has been extensively rewritten__.  This should fix flight simulations of tube fin models.  Please test your sims and let us know how it works for you (fixes issue 1207).  _Note that CP calculations for tube fins are still not fixed._
+* Improved ground hit velocity estimation (partially fixes issue 1349)
 * Rail buttons now included in Fin Marking Guide (fixes issue 1259)
 * Tube fin sets now included in Fin Marking Guide (fixes issue... ah, there wasn't one)
 * Override mass now divides when fin set is split (fixes issue 1292)
@@ -25,6 +26,7 @@ OpenRocket 22.02.beta.03 (2022-05-XX)
 
 ### Other
 * Major cleanup of File menu.  Let us know how you like it.
+* Improved time step selection for descent
 * Java 17 is now included in the packaged installers and supported by the JAR file.
 
 OpenRocket 22.02.beta.02 (2022-03-26)
