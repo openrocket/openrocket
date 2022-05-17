@@ -190,7 +190,6 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private JButton stImageBtn;
 
 	//	Parachute Specific
-	//	Manufacturer see: private JTextField mfgTextField;
 	private JTextField pcPartNoTextField;
 	private JTextField pcDescTextField;
 	private DoubleModel pcDiameter;
