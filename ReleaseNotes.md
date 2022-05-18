@@ -1,6 +1,34 @@
 Release Notes
 =============
 
+OpenRocket 22.02.beta.03 (2022-05-XX)
+------------------------
+(through PR1361)
+
+### New Features
+* Big improvements to parachutes:
+  * Added manufacturers: Front Range, Fruity Chutes, Rocketman, b2 Rocketry, Spherachutes
+  * Added additional fields to preset DB (e.g. spill holes)
+  * Automatic packed size calculation (for select chute manufacturers only)
+  * Parachute mass is automatically overridden with manufacturer data (when available)
+  * Parachute component name is automatically populated with preset description
+
+### Notable bug Fixes
+* __Tube fin drag simulation has been extensively rewritten__.  This should fix flight simulations of tube fin models.  Please test your sims and let us know how it works for you (fixes issue 1207).  _Note that CP calculations for tube fins are still not fixed._
+* Improved ground hit velocity estimation (partially fixes issue 1349)
+* Rail buttons now included in Fin Marking Guide (fixes issue 1259)
+* Tube fin sets now included in Fin Marking Guide (fixes issue... ah, there wasn't one)
+* Override mass now divides when fin set is split (fixes issue 1292)
+* Fixes exception when splitting fin sets (fixes issue 1302)
+* Hovering over pod set reports total mass of pod set (fixes issue 1291)
+* Fixes exception when putting fins on transitions (fixes issue 1247)
+* Opacity slider now stays in sync with alpha changes in color selector (fixes issue 1326)
+
+### Other
+* Major cleanup of File menu.  Let us know how you like it.
+* Improved time step selection for descent
+* Java 17 is now included in the packaged installers and supported by the JAR file.
+
 OpenRocket 22.02.beta.02 (2022-03-26)
 ------------------------
 (through PR1261)
