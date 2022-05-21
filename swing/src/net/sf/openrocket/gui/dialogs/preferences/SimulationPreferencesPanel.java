@@ -116,6 +116,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) gcsCombo
 						.getSelectedItem();
 				gcsCombo.setToolTipText(gcs.getDescription());
+				gcsCombo.setSelectedItem(gcsCombo.getSelectedItem());
 			}
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
