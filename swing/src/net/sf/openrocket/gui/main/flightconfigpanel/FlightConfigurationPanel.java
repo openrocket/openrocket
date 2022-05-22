@@ -139,7 +139,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 		updateButtonState();
 
-		this.add(tabs, "spanx, grow, wrap rel");
+		this.add(tabs, "spanx, grow, pushy, wrap rel");
 	}
 
 	/**
