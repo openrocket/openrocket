@@ -105,10 +105,12 @@ public class Parachute extends RecoveryDevice {
 		if (MathUtil.equals(this.lineLength, length))
 			return;
 		this.lineLength = length;
-		if (getLineCount() != 0)
+		if (getLineCount() != 0) {
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-		else
+			clearPreset();
+		} else {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		}
 	}
 
 	public final Material getLineMaterial() {
@@ -127,8 +129,10 @@ public class Parachute extends RecoveryDevice {
 		if (mat.equals(lineMaterial))
 			return;
 		this.lineMaterial = mat;
-		if (getLineCount() != 0)
+		if (getLineCount() != 0) {
+			clearPreset();
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		}
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
