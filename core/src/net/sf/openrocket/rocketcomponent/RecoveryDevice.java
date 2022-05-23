@@ -64,6 +64,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 			return;
 		this.cd = cd;
 		this.cdAutomatic = false;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
