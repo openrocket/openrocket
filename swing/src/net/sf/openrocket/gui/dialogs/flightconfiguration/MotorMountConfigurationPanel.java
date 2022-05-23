@@ -35,7 +35,7 @@ public class MotorMountConfigurationPanel extends JPanel {
 		
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
 		JScrollPane scroll = new JScrollPane(table);
-		this.add(scroll, "w 200lp, h 150lp, grow");
+		this.add(scroll, "w 200lp, h 150lp, grow, pushy");
 
 	}
 }

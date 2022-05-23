@@ -41,7 +41,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		super(flightConfigurationPanel,rocket);
 
 		JScrollPane scroll = new JScrollPane(table);
-		this.add(scroll, "span, grow, wrap");
+		this.add(scroll, "span, grow, pushy, wrap");
 
 		//// Select deployment
 		selectDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectdeployment"));
