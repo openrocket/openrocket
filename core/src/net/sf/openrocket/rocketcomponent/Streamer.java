@@ -156,6 +156,7 @@ public class Streamer extends RecoveryDevice {
 	@Override
 	public double getComponentCD(double mach) {
 		double density = this.getMaterial().getDensity();
+		double cd;	
 		cd = 0.034 * ((density + 0.025) / 0.105) * (stripLength + 1) / stripLength;
 		cd = MathUtil.min(cd, MAX_COMPUTED_CD);
 		return cd;
