@@ -17,13 +17,14 @@ public class Parachute extends RecoveryDevice {
 	private final int DEFAULT_LINE_COUNT = 6;
 	private int lineCount;
 	private final double DEFAULT_LINE_LENGTH = 0.3;
-	private double lineLength = DEFAULT_LINE_LENGTH;
+	private double lineLength;
 	private final double InitialPackedLength = this.length;
 	private final double InitialPackedRadius = this.radius;
 
 	public Parachute() {
 		this.diameter = DEFAULT_DIAMETER;
 		lineCount = DEFAULT_LINE_COUNT;
+		lineLength = DEFAULT_LINE_LENGTH;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
 		DEFAULT_LINE_MATERIAL = lineMaterial;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
