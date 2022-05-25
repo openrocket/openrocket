@@ -9,22 +9,23 @@ import net.sf.openrocket.util.MathUtil;
 
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
-	private final double defaultDiameter = 0.3;
+	private final double DEFAULT_DIAMETER = 0.3;
 	private double diameter;
 	public static double DEFAULT_CD = 0.8;
-	private final Material defaultLineMaterial;
+	private final Material DEFAULT_LINE_MATERIAL;
 	private Material lineMaterial;
-	private final int defaultLineCount = 6;
-	private int lineCount = defaultLineCount;
-	private final double defaultLineLength = 0.3;
-	private double lineLength = defaultLineLength;
+	private final int DEFAULT_LINE_COUNT = 6;
+	private int lineCount;
+	private final double DEFAULT_LINE_LENGTH = 0.3;
+	private double lineLength = DEFAULT_LINE_LENGTH;
 	private final double InitialPackedLength = this.length;
 	private final double InitialPackedRadius = this.radius;
 
 	public Parachute() {
-		this.diameter = defaultDiameter;
+		this.diameter = DEFAULT_DIAMETER;
+		lineCount = DEFAULT_LINE_COUNT;
 		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
-		defaultLineMaterial= lineMaterial;
+		DEFAULT_LINE_MATERIAL = lineMaterial;
 		super.displayOrder_side = 11;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 9;		// Order for displaying the component in the 2D back view
 	}
@@ -173,7 +174,7 @@ public class Parachute extends RecoveryDevice {
 		if ((preset.has(ComponentPreset.DIAMETER)) && preset.get(ComponentPreset.DIAMETER) > 0) {
 			this.diameter = preset.get(ComponentPreset.DIAMETER);
 		} else {
-			this.diameter = defaultDiameter;
+			this.diameter = DEFAULT_DIAMETER;
 		}
 		//	//	Set preset parachute drag coefficient
 		 if ((preset.has(ComponentPreset.PARACHUTE_CD)) && preset.get(ComponentPreset.PARACHUTE_CD) > 0){
@@ -187,13 +188,13 @@ public class Parachute extends RecoveryDevice {
 		if ((preset.has(ComponentPreset.LINE_COUNT)) && preset.get(ComponentPreset.LINE_COUNT) > 0) {
 			this.lineCount = preset.get(ComponentPreset.LINE_COUNT);
 		} else {
-			this.lineCount = defaultLineCount;
+			this.lineCount = DEFAULT_LINE_COUNT;
 		}
 		//	//	Set preset parachute line length
 		if ((preset.has(ComponentPreset.LINE_LENGTH)) && preset.get(ComponentPreset.LINE_LENGTH) > 0) {
 			this.lineLength = preset.get(ComponentPreset.LINE_LENGTH);
 		} else {
-			this.lineLength = defaultLineLength;
+			this.lineLength = DEFAULT_LINE_LENGTH;
 		}
 		//	//	Set preset parachute line material
 			//	NEED a better way to set preset if field is empty ----
@@ -203,10 +204,10 @@ public class Parachute extends RecoveryDevice {
 			if (count > 12 ) {
 				this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
 			} else {
-				this.lineMaterial = defaultLineMaterial;
+				this.lineMaterial = DEFAULT_LINE_MATERIAL;
 			}
 		} else {
-			this.lineMaterial = defaultLineMaterial;
+			this.lineMaterial = DEFAULT_LINE_MATERIAL;
 		}
 
 		//	//	Set preset parachute packed length
