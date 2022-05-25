@@ -154,6 +154,7 @@ public class ComponentPresetTable extends JTable {
 		this.setModel(tableModel);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.setRowSorter(sorter);
+		sorter.toggleSortOrder(2);		// Sort by the first column (manufacturer) by default
 
 		for ( TableColumn hiddenColumn : hiddenColumns ) {
 			tableColumnModel.setColumnVisible(hiddenColumn, false);
