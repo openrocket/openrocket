@@ -70,8 +70,14 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 
 
 		// Select tentative time step
-		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
-		
+		double timeStep = RECOVERY_TIME_STEP;
+
+		// adjust based on change in acceleration (ie jerk)
+		final double jerk = linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length();
+		if (jerk > MathUtil.EPSILON) {
+			timeStep = Math.min(timeStep, 1.0/jerk);
+		}
+
 		// Perform Euler integration
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 			add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
@@ -94,12 +100,12 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			newPosition = newPosition.setZ(0);
 		}
 		
-		status.setRocketPosition(newPosition);
-			
-		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
-		airSpeed = status.getRocketVelocity().add(windSpeed);
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
-		
+		status.setPreviousTimeStep(timeStep);
+
+		status.setRocketPosition(newPosition);
+		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
+		status.setRocketAcceleration(linearAcceleration);
 
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
@@ -116,6 +122,8 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
+
+		airSpeed = status.getRocketVelocity().add(windSpeed);
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
