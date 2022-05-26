@@ -383,16 +383,16 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		UnitSelector us = new UnitSelector(rotationModel, true);
 		us.setHorizontalAlignment(JLabel.CENTER);
 		add(us, "alignx 50%, growx");
+		us.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 
 		// Add the rocket figure
 		add(figureHolder, "grow, spany 2, wmin 300lp, hmin 100lp, wrap");
 
 		// Add rotation slider
-		// Minimum size to fit "360deg"
+		// Dummy label to find the minimum size to fit "360deg"
 		JLabel l = new JLabel("360" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 
-		// TODO: tooltip
 		add(rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
 				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
 		rotationSlider.addChangeListener(new ChangeListener() {
@@ -401,6 +401,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				updateExtras();
 			}
 		});
+		rotationSlider.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
+
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
 		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
