@@ -262,10 +262,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder.add(figure3d, BorderLayout.CENTER);
 		rotationSlider.setEnabled(false);
 		scaleSelector.setEnabled(false);
-		zoomLabel.repaint();	// Makes sure the zoom label is above the scaleSelector
 
 		revalidate();
 		figureHolder.revalidate();
+
+		zoomLabel.repaint();	// Makes sure the zoom label is above the scaleSelector
 
 		figure3d.repaint();
 	}
