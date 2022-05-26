@@ -31,6 +31,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -298,6 +299,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		setPreferredSize(new Dimension(800, 300));
 
+		// MacOS has a larger y gap than other OS'es, so this fixes that
+		int gap = 0;
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			gap = -10;
+		}
+		JPanel ribbon = new JPanel(new MigLayout(String.format("inset 0, gapy %d, fill", gap)));
+
 		// View Type drop-down
 		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
 
@@ -315,26 +323,42 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				}
 			}
 		};
-		add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "spanx, split");
-		add(new JComboBox<VIEW_TYPE>(cm));
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "cell 0 0");
+		ribbon.add(new JComboBox<VIEW_TYPE>(cm), "cell 0 1");
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
-		add(scaleSelector);
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 1 0, center");
+		ribbon.add(scaleSelector, "cell 1 1");
+
+		// Show CG/CP
+		JCheckBox showCGCP = new JCheckBox();
+		showCGCP.setText(trans.get("RocketPanel.checkbox.ShowCGCP"));
+		showCGCP.setSelected(true);
+		ribbon.add(showCGCP, "cell 2 1, gapleft para");
+
+		// Vertical separator
+		JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
+		Dimension d_sep = sep.getPreferredSize();
+		d_sep.height = (int) (0.7 * ribbon.getPreferredSize().height);
+		sep.setPreferredSize(d_sep);
+		ribbon.add(sep, "cell 3 0, spany 2, gapleft para, gapright para");
 
 		// Stage selector
 		StageSelector stageSelector = new StageSelector( rkt );
 		rkt.addChangeListener(stageSelector);
-		add(stageSelector);
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 4 0, pushx");
+		ribbon.add(stageSelector, "cell 4 1, pushx");
 
 		// Flight configuration selector
 		//// Flight configuration:
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
-		label.setHorizontalAlignment(JLabel.RIGHT);
-		add(label, "growx, right");
+		ribbon.add(label, "cell 5 0");
 
 		final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
-		add(configComboBox, "wrap, width 16%, wmin 100");
+		ribbon.add(configComboBox, "cell 5 1, width 16%, wmin 100");
+
+		add(ribbon, "growx, span, wrap");
 
 		// Create slider and scroll pane
 		rotationModel = new DoubleModel(figure, "Rotation", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
@@ -350,6 +374,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel l = new JLabel("360" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 
+		// TODO: tooltip
 		add(rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
 				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
 		rotationSlider.addChangeListener(new ChangeListener() {
