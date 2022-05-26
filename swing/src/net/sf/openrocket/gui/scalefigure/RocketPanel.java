@@ -5,6 +5,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -120,6 +122,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private final ScaleScrollPane scrollPane;
 
 	private final JPanel figureHolder;
+	private JLabel zoomLabel;
 
 	private JLabel infoMessage;
 
@@ -259,6 +262,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder.add(figure3d, BorderLayout.CENTER);
 		rotationSlider.setEnabled(false);
 		scaleSelector.setEnabled(false);
+		zoomLabel.repaint();	// Makes sure the zoom label is above the scaleSelector
 
 		revalidate();
 		figureHolder.revalidate();
@@ -328,7 +332,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 1 0, center");
+		zoomLabel = new JLabel(trans.get("RocketPanel.lbl.Zoom"));
+		ribbon.add(zoomLabel, "cell 1 0, center");
 		ribbon.add(scaleSelector, "cell 1 1");
 
 		// Show CG/CP
@@ -336,6 +341,19 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		showCGCP.setText(trans.get("RocketPanel.checkbox.ShowCGCP"));
 		showCGCP.setSelected(true);
 		ribbon.add(showCGCP, "cell 2 1, gapleft para");
+
+		showCGCP.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (figure != null) {
+					figure.setDrawCarets(showCGCP.isSelected());
+				}
+				if (figure3d != null) {
+					figure3d.setDrawCarets(showCGCP.isSelected());
+				}
+				updateFigures();
+			}
+		});
 
 		// Vertical separator
 		JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
