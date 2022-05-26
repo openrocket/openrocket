@@ -8,7 +8,11 @@ import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.WorldCoordinate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BasicLandingStepper extends AbstractSimulationStepper {
+	private static final Logger log = LoggerFactory.getLogger(BasicLandingStepper.class);
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
@@ -65,15 +69,43 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		
 
 
-		// Select time step
-		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
-		
+		// Select tentative time step
+		double timeStep = RECOVERY_TIME_STEP;
+
+		// adjust based on change in acceleration (ie jerk)
+		final double jerk = linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length();
+		if (jerk > MathUtil.EPSILON) {
+			timeStep = Math.min(timeStep, 1.0/jerk);
+		}
+
 		// Perform Euler integration
-		status.setRocketPosition(status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
-				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2)));
-		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
-		status.setSimulationTime(status.getSimulationTime() + timeStep);
+		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
+			add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+
+		// If I've hit the ground, recalculate time step and position
+		if (newPosition.z < 0) {
+
+			final double a = linearAcceleration.z;
+			final double v = status.getRocketVelocity().z;
+			final double z0 = status.getRocketPosition().z;
+
+			// The new timestep is the solution of
+			// 1/2 at^2 + vt + z0 = 0
+			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
+			
+			newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
+				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+
+			// avoid rounding error in new altitude
+			newPosition = newPosition.setZ(0);
+		}
 		
+		status.setSimulationTime(status.getSimulationTime() + timeStep);
+		status.setPreviousTimeStep(timeStep);
+
+		status.setRocketPosition(newPosition);
+		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
+		status.setRocketAcceleration(linearAcceleration);
 
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
@@ -90,6 +122,8 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
+
+		airSpeed = status.getRocketVelocity().add(windSpeed);
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
@@ -139,6 +173,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 		data.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
 				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
+		log.debug("time " + data.getLast(FlightDataType.TYPE_TIME) + ", altitude " + data.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + data.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 	
 }

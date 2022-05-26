@@ -75,12 +75,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 					"<html><b>" + trans.get("lbl.motorMounts") + "</b></html>"));
 
 			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this, rocket);
-			subpanel.add(mountConfigPanel, "grow");
-			this.add(subpanel, "split, growy");
+			subpanel.add(mountConfigPanel, "grow, pushy");
+			this.add(subpanel, "split, growy, pushy");
 		}
 
 		cards = new JPanel(new CardLayout());
-		this.add(cards);
+		this.add(cards, "pushy");
 
 		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
 		cards.add(helpText, HELP_LABEL );
@@ -90,7 +90,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				BorderFactory.createEtchedBorder(),
 				"<html><b>" + trans.get("MotorConfigurationPanel.lbl.motorConfiguration") + "</b></html>"));
 		JScrollPane scroll = new JScrollPane(table);
-		configurationPanel.add(scroll, "spanx, grow, wrap");
+		configurationPanel.add(scroll, "spanx, grow, pushy, wrap");
 
 		//// Select motor
 		selectMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
@@ -134,7 +134,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		cards.add(configurationPanel, TABLE_LABEL );
 
-		this.add(cards, "gapleft para, grow, wrap");
+		this.add(cards, "gapleft para, grow, pushy, wrap");
 
 		// Set 'Enter' key action to open the motor selection dialog
 		table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(

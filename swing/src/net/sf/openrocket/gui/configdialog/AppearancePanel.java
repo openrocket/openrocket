@@ -446,18 +446,6 @@ public class AppearancePanel extends JPanel {
 
 		JButton colorButton = new SelectColorButton(new ColorIcon(builder.getPaint()));
 
-		builder.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				colorButton.setIcon(new ColorIcon(builder.getPaint()));
-				if (!insideBuilder)
-					c.setAppearance(builder.getAppearance());
-				else
-					((InsideColorComponent)c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
-				decalModel.refresh();
-			}
-		});
-
 		colorButton.addActionListener(new ColorActionListener(builder, "Paint"));
 
 		// Texture Header Row
@@ -623,5 +611,22 @@ public class AppearancePanel extends JPanel {
 				"EdgeMode", list));
 		mDefault.addEnableComponent(combo, false);
 		panel.add(combo, "wrap");
+
+		builder.addChangeListener(new StateChangeListener() {
+			double lastOpacity = builder.getOpacity();
+			@Override
+			public void stateChanged(EventObject e) {
+				colorButton.setIcon(new ColorIcon(builder.getPaint()));
+				if (lastOpacity != builder.getOpacity()) {
+					opacityModel.stateChanged(null);
+					lastOpacity = builder.getOpacity();
+				}
+				if (!insideBuilder)
+					c.setAppearance(builder.getAppearance());
+				else
+					((InsideColorComponent)c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
+				decalModel.refresh();
+			}
+		});
 	}
 }
