@@ -16,6 +16,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -32,10 +33,13 @@ public class MassComponentConfig extends RocketComponentConfig {
 	
 	public MassComponentConfig(OpenRocketDocument d, RocketComponent component) {
 		super(d, component);
-		
-		
+
+		//// Left side
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
+
+		//// Attributes
+		panel.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Mass component type
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.type")));
 		
@@ -51,7 +55,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 								MassComponent.MassComponentType.RECOVERYHARDWARE,
 								MassComponent.MassComponentType.BATTERY}));
 		
-		panel.add(typecombo, "spanx, growx, wrap");
+		panel.add(typecombo, "spanx, wrap");
 		
 		////  Mass
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Mass")));
@@ -112,24 +116,31 @@ public class MassComponentConfig extends RocketComponentConfig {
 		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap");
 
-		
-		////  Position
+
+		//// Right side
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+
+		//// Placement
+		panel2.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Position relative to:
-		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
+		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 		
         final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
-		panel.add(methodCombo, "spanx, growx, wrap");
+		panel2.add(methodCombo, "spanx, growx, wrap");
+
 		//// plus
-		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
+		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
 		
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
+		panel2.add(spin, "growx");
 		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+		panel2.add(new UnitSelector(m), "growx");
+		panel2.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
