@@ -28,7 +28,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 	@XmlElement(name = "PackedLength")
 	private AnnotatedLengthDTO PackedLength;
 	@XmlElement(name = "DragCoefficient")
-	private AnnotatedLengthDTO DragCoefficient;
+	private AnnotatedLengthDTO dragCoefficient;
     @XmlElement(name = "LineCount")
     private Integer lineCount;
     @XmlElement(name = "LineLength")
@@ -87,13 +87,13 @@ public class ParachuteDTO extends BaseComponentDTO {
 	}
 
 	public double getDragCoefficient() {
-		return DragCoefficient.getValue();
+		return dragCoefficient.getValue();
 	}
 
 	public void setDragCoefficient(AnnotatedLengthDTO DragCoefficient) {
-		this.DragCoefficient = DragCoefficient;
+		this.dragCoefficient = DragCoefficient;
 	}
-	public void setDragCoefficient(double DragCoefficient) { this.DragCoefficient = new AnnotatedLengthDTO(DragCoefficient); }
+	public void setDragCoefficient(double DragCoefficient) { this.dragCoefficient = new AnnotatedLengthDTO(DragCoefficient); }
 
 	public Integer getLineCount() {
 		return lineCount;
@@ -173,7 +173,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		if ( this.PackedLength != null ) {
 			props.put(ComponentPreset.PACKED_LENGTH, this.getPackedLength());
 		}
-		if ( this.PackedLength != null ) {
+		if ( this.dragCoefficient != null ) {
 			props.put(ComponentPreset.PARACHUTE_CD, this.getDragCoefficient());
 		}
         props.put(ComponentPreset.LINE_COUNT, this.getLineCount());
