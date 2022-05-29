@@ -35,6 +35,8 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.DefaultEditorKit;
 
@@ -565,8 +567,16 @@ public class SimulationPanel extends JPanel {
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1){
                     doPopup(e);
-				} else {
+				}
+			}
+		});
+
+		simulationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			private int previousRow = -1;
+			public void valueChanged(ListSelectionEvent event) {
+				if (simulationTable.getSelectedRow() != previousRow) {
 					updateButtonStates();
+					previousRow = simulationTable.getSelectedRow();
 				}
 			}
 		});
