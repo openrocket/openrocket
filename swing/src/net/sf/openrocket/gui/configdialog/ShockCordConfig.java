@@ -9,6 +9,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -28,14 +29,17 @@ public class ShockCordConfig extends RocketComponentConfig {
 	
 	public ShockCordConfig(OpenRocketDocument d, RocketComponent component) {
 		super(d, component);
-		
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+
 		JLabel label;
 		DoubleModel m;
 		JSpinner spin;	
 
 		//////  Left side
-		
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+
+		////	Attributes
+		panel.add(new StyledLabel(trans.get("ShockCordCfg.lbl.ShockcordAttributes"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		// Cord length
 		//// Shock cord length
 		label = new JLabel(trans.get("ShockCordCfg.lbl.Shockcordlength"));
@@ -49,7 +53,6 @@ public class ShockCordConfig extends RocketComponentConfig {
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 1, 10)), "w 100lp, wrap");
-		
 
 		// Material
 		//// Shock cord material:
@@ -61,8 +64,9 @@ public class ShockCordConfig extends RocketComponentConfig {
 		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
+		////  Placement
+		panel2.add(new StyledLabel(trans.get("ShockCordCfg.lbl.ShockcordPlacement"), StyledLabel.Style.BOLD), "wrap unrel");
 
-		////  Position
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Posrelativeto")));
 		

@@ -31,7 +31,6 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -44,12 +43,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
 		Parachute parachute = (Parachute) component;
-		
+
+		// Left Side
 		JPanel primary = new JPanel(new MigLayout());
-		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		
-		
+
 		//// Canopy
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Canopy"), Style.BOLD), "wrap unrel");
 		
@@ -63,7 +61,30 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
-		
+
+		// TODO COMPLETE Spill hole development
+/*		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.SpillDia") + CommonStrings.daggerDouble));
+
+		m = new DoubleModel(component, "SpillDia", UnitGroup.UNITS_LENGTH, 0, 0.08);
+			// The "max" value does not affect the slider maximum, and manual entry above that value is possible.
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.01, .1)), "w 100lp, wrap");
+			// The slider maximum value is "max", however, manual entry above that value is possible.
+*/
+		// TODO END Spill hole development
+
+		//// Material:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
+
+		JComboBox<Material> surfaceMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component,
+				Material.Type.SURFACE));
+		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
+		panel.add( surfaceMaterialCombo, "spanx 3, growx, wrap 15lp");
+
 		// CD
 		JLabel label = new HtmlLabel(trans.get("ParachuteCfg.lbl.longA1"));
 		String tip = trans.get("ParachuteCfg.lbl.longB1") +
@@ -88,19 +109,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				p.setCD(Parachute.DEFAULT_CD);
 			}
 		});
-		panel.add(button, "spanx, wrap para");
-		
-		//// Material:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
-		
-		JComboBox<Material> surfaceMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component,
-				Material.Type.SURFACE));
-		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
-		panel.add( surfaceMaterialCombo, "spanx 3, growx, wrap 30lp");
-		
-		
-		
-		
+		panel.add(button, "spanx, wrap 32lp");
+
 		////  Shroud lines
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Shroudlines"), Style.BOLD), "wrap unrel");
 		
@@ -126,23 +136,23 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
 		
-		JComboBox<Material> shroudMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component, Material.Type.LINE,
-				"LineMaterial"));
-		panel.add( shroudMaterialCombo, "spanx 3, growx, wrap");
+		JComboBox<Material> shroudMaterialCombo =
+				new JComboBox<Material>(new MaterialModel(panel, component, Material.Type.LINE, "LineMaterial"));
+		panel.add( shroudMaterialCombo, "spanx 3, growx, wrap 15lp");
+
 		
-		
-		
+		// Right side
 		primary.add(panel, "grow, gapright 20lp");
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		
-		
-		
-		
-		//// Position
+
+		//// Placement
+		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Placement"), Style.BOLD), "wrap unrel");
+
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Posrelativeto")));
 		
-		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+		final EnumModel<AxialMethod> methodModel =
+				new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
 		
@@ -159,7 +169,6 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
-		
 		
 		////  Spatial length
 		//// Packed length:
@@ -192,17 +201,20 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 30lp");
-		
-		
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
+
 		//// Deployment
+		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Deployment"), Style.BOLD), "wrap unrel");
+
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
 		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfigurations().getDefault();
 		// this issues a warning because EnumModel ipmlements ComboBoxModel without a parameter...
-		ComboBoxModel<DeploymentConfiguration.DeployEvent> deployOptionsModel = new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent");
-		JComboBox<DeploymentConfiguration.DeployEvent> eventCombo = new JComboBox<DeploymentConfiguration.DeployEvent>( deployOptionsModel );
+		ComboBoxModel<DeploymentConfiguration.DeployEvent> deployOptionsModel =
+				new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent");
+		JComboBox<DeploymentConfiguration.DeployEvent> eventCombo =
+				new JComboBox<DeploymentConfiguration.DeployEvent>( deployOptionsModel );
 		if( (component.getStageNumber() + 1 ) == d.getRocket().getStageCount() ){
 			//	This is the bottom stage:  Restrict deployment options.
 			eventCombo.removeItem( DeployEvent.LOWER_STAGE_SEPARATION );
@@ -221,7 +233,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// seconds
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
 		
-		// Altitude:
+		//// Altitude:
 		label = new JLabel(trans.get("ParachuteCfg.lbl.Altitude") + CommonStrings.dagger);
 		altitudeComponents.add(label);
 		panel.add(label);
@@ -252,10 +264,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				trans.get("ParachuteCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
-	
-	
-	
-	
+
+
 	protected JPanel positionTab() {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
