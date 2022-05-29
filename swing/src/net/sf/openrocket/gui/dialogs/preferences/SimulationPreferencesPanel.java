@@ -116,7 +116,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) gcsCombo
 						.getSelectedItem();
 				gcsCombo.setToolTipText(gcs.getDescription());
-				gcsCombo.repaint() // On some machines, the combobox did not visually update to the selected item
+				gcsCombo.repaint(); // On some machines, the combobox did not visually update to the selected item
 			}
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
