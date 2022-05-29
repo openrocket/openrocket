@@ -45,7 +45,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		super(flightConfigurationPanel,rocket);
 		
 		JScrollPane scroll = new JScrollPane(table);
-		this.add(scroll, "span, grow, wrap");
+		this.add(scroll, "span, grow, pushy, wrap");
 		
 		//// Select deployment
 		selectSeparationButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectseparation"));

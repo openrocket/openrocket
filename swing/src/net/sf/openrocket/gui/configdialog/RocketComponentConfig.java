@@ -214,7 +214,7 @@ public class RocketComponentConfig extends JPanel {
 					String finishString, 
 					String partName) {
 		
-	    JPanel subPanel = new JPanel(new MigLayout());
+	    JPanel subPanel = new JPanel(new MigLayout("insets 0"));
 	    	JLabel label = new JLabel(materialString);
 		//// The component material affects the weight of the component.
 		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
