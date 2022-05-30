@@ -54,7 +54,7 @@ public class ScaleSelector extends JPanel {
 				setZoomText();
 			}
 		});
-		add(button, "gap");
+		add(button);
 
 		// Zoom level selector
 		String[] settings = SCALE_LABELS;
@@ -94,7 +94,7 @@ public class ScaleSelector extends JPanel {
 				update();
 			}
 		});
-		add(scaleSelector, "gap rel");
+		add(scaleSelector);
 
 		// Zoom in button
 		button = new SelectColorButton(Icons.ZOOM_IN);
@@ -107,7 +107,7 @@ public class ScaleSelector extends JPanel {
 				update();
 			}
 		});
-		add(button, "gapleft rel");
+		add(button);
 
 	}
 
