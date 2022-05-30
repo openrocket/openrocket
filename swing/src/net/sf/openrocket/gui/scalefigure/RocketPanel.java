@@ -304,10 +304,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		setPreferredSize(new Dimension(800, 300));
 
-		// MacOS has a larger y gap than other OS'es, so this fixes that
+		// MacOS and Windows have a larger y gap than Linux, so this fixes that
 		int gap = 0;
 		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
 			gap = -10;
+		} else if (SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS) {
+			gap = -5;
 		}
 		JPanel ribbon = new JPanel(new MigLayout(String.format("inset 0, gapy %d, fill", gap)));
 
