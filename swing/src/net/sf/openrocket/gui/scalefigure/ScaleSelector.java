@@ -36,7 +36,7 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private final ScaleScrollPane scrollPane;
-	private JComboBox<String> scaleSelector;
+	private final JComboBox<String> scaleSelector;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
 		super(new MigLayout());
@@ -57,9 +57,7 @@ public class ScaleSelector extends JPanel {
 		add(button);
 
 		// Zoom level selector
-		String[] settings = SCALE_LABELS;
-		
-		scaleSelector = new JComboBox<>(settings);
+		scaleSelector = new JComboBox<>(SCALE_LABELS);
 		scaleSelector.setEditable(true);
 		setZoomText();
 		scaleSelector.addActionListener(new ActionListener() {
@@ -67,6 +65,7 @@ public class ScaleSelector extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					String text = (String) scaleSelector.getSelectedItem();
+					if (text == null) return;
 					text = text.replaceAll("%", "").trim();
 
 					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
@@ -144,8 +143,7 @@ public class ScaleSelector extends JPanel {
 		}
 		if (currentScale > SCALE_LEVELS[SCALE_LEVELS.length / 2]) {
 			// scale is large, give next full 100%
-			double nextScale = Math.floor(currentScale + 1.05);
-			return nextScale;
+			return Math.floor(currentScale + 1.05);
 		}
 		return currentScale * 1.5;
 	}
