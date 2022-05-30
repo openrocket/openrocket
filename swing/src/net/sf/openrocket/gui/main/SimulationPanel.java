@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -137,17 +138,7 @@ public class SimulationPanel extends JPanel {
 		editButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0) {
-					return;
-				}
-				
-				Simulation[] sims = new Simulation[selection.length];
-				for (int i = 0; i < selection.length; i++) {
-					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
-					sims[i] = document.getSimulation(selection[i]);
-				}
-				openDialog(false, sims);
+				editSimulationAction();
 			}
 		});
 		this.add(editButton, "gapright para");
@@ -159,21 +150,7 @@ public class SimulationPanel extends JPanel {
 		runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0) {
-					return;
-				}
-				Simulation[] sims = new Simulation[selection.length];
-				for (int i = 0; i < selection.length; i++) {
-					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
-					sims[i] = document.getSimulation(selection[i]);
-				}
-
-				long t = System.currentTimeMillis();
-				new SimulationRunDialog(SwingUtilities.getWindowAncestor(
-						SimulationPanel.this), document, sims).setVisible(true);
-				log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
-				fireMaintainSelection();
+				runSimulationAction();
 			}
 		});
 		this.add(runButton, "gapright para");
@@ -185,50 +162,7 @@ public class SimulationPanel extends JPanel {
 		deleteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0) {
-					return;
-				}
-				// Verify deletion
-				boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
-				if (verify) {
-
-					JPanel panel = new JPanel(new MigLayout());
-					//// Do not ask me again
-					JCheckBox dontAsk = new JCheckBox(trans.get("simpanel.checkbox.donotask"));
-					panel.add(dontAsk, "wrap");
-					//// You can change the default operation in the preferences.
-					panel.add(new StyledLabel(trans.get("simpanel.lbl.defpref"), -2));
-
-					int ret = JOptionPane.showConfirmDialog(SimulationPanel.this,
-							new Object[] {
-							//// Delete the selected simulations?
-							trans.get("simpanel.dlg.lbl.DeleteSim1"),
-							//// <html><i>This operation cannot be undone.</i>
-							trans.get("simpanel.dlg.lbl.DeleteSim2"),
-							"",
-							panel },
-							//// Delete simulations
-							trans.get("simpanel.dlg.lbl.DeleteSim3"),
-							JOptionPane.OK_CANCEL_OPTION,
-							JOptionPane.WARNING_MESSAGE);
-					if (ret != JOptionPane.OK_OPTION)
-						return;
-
-					if (dontAsk.isSelected()) {
-						Application.getPreferences().putBoolean(Preferences.CONFIRM_DELETE_SIMULATION, false);
-					}
-				}
-
-				// Delete simulations
-				for (int i = 0; i < selection.length; i++) {
-					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
-				}
-				Arrays.sort(selection);
-				for (int i = selection.length - 1; i >= 0; i--) {
-					document.removeSimulation(selection[i]);
-				}
-				simulationTableModel.fireTableDataChanged();
+				deleteSimulationAction();
 			}
 		});
 		this.add(deleteButton, "gapright para");
@@ -239,26 +173,7 @@ public class SimulationPanel extends JPanel {
 		plotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int selected = simulationTable.getSelectedRow();
-				if (selected < 0) {
-					return; 
-				}
-				selected = simulationTable.convertRowIndexToModel(selected);
-				simulationTable.clearSelection();
-				simulationTable.addRowSelectionInterval(selected, selected);
-
-
-				Simulation sim = document.getSimulations().get(selected);
-
-				if (!sim.hasSimulationData()) {
-					new SimulationRunDialog(SwingUtilities.getWindowAncestor(
-							SimulationPanel.this), document, sim).setVisible(true);
-				}
-
-				fireMaintainSelection();
-
-				openDialog(true, sim);
-
+				plotSimulationAction();
 			}
 		});
 		this.add(plotButton, "wrap para");
@@ -537,7 +452,13 @@ public class SimulationPanel extends JPanel {
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 		
 		 pm = new JPopupMenu();
-         pm.add(new CopyAction(simulationTable));
+		 pm.add(new EditSimulationAction());
+		 pm.add(new DuplicateSimulationAction());
+		 pm.add(new DeleteSimulationAction());
+		 pm.addSeparator();
+		 pm.add(new RunSimulationAction());
+		 pm.add(new PlotSimulationAction());
+
 
 		// Mouse listener to act on double-clicks
 		simulationTable.addMouseListener(new MouseAdapter() {
@@ -561,6 +482,10 @@ public class SimulationPanel extends JPanel {
 						openDialog(document.getSimulations().get(selected));
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1){
+					int selectedRow = simulationTable.getSelectedRow();
+					if (selectedRow < 0) {
+						return;
+					}
                     doPopup(e);
 				}
 			}
@@ -601,6 +526,159 @@ public class SimulationPanel extends JPanel {
 		this.add(scrollpane, "spanx, grow, wrap rel");
 
 		updateButtonStates();
+	}
+
+	private void plotSimulationAction() {
+		int selected = simulationTable.getSelectedRow();
+		if (selected < 0) {
+			return;
+		}
+		selected = simulationTable.convertRowIndexToModel(selected);
+		simulationTable.clearSelection();
+		simulationTable.addRowSelectionInterval(selected, selected);
+
+
+		Simulation sim = document.getSimulations().get(selected);
+
+		if (!sim.hasSimulationData()) {
+			new SimulationRunDialog(SwingUtilities.getWindowAncestor(
+					SimulationPanel.this), document, sim).setVisible(true);
+		}
+
+		fireMaintainSelection();
+
+		openDialog(true, sim);
+	}
+
+	private void deleteSimulationAction() {
+		int[] selection = simulationTable.getSelectedRows();
+		if (selection.length == 0) {
+			return;
+		}
+		// Verify deletion
+		boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
+		if (verify) {
+
+			JPanel panel = new JPanel(new MigLayout());
+			//// Do not ask me again
+			JCheckBox dontAsk = new JCheckBox(trans.get("simpanel.checkbox.donotask"));
+			panel.add(dontAsk, "wrap");
+			//// You can change the default operation in the preferences.
+			panel.add(new StyledLabel(trans.get("simpanel.lbl.defpref"), -2));
+
+			int ret = JOptionPane.showConfirmDialog(SimulationPanel.this,
+					new Object[] {
+					//// Delete the selected simulations?
+					trans.get("simpanel.dlg.lbl.DeleteSim1"),
+					//// <html><i>This operation cannot be undone.</i>
+					trans.get("simpanel.dlg.lbl.DeleteSim2"),
+					"",
+					panel },
+					//// Delete simulations
+					trans.get("simpanel.dlg.lbl.DeleteSim3"),
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+			if (ret != JOptionPane.OK_OPTION)
+				return;
+
+			if (dontAsk.isSelected()) {
+				Application.getPreferences().putBoolean(Preferences.CONFIRM_DELETE_SIMULATION, false);
+			}
+		}
+
+		// Delete simulations
+		for (int i = 0; i < selection.length; i++) {
+			selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
+		}
+		Arrays.sort(selection);
+		for (int i = selection.length - 1; i >= 0; i--) {
+			document.removeSimulation(selection[i]);
+		}
+		simulationTableModel.fireTableDataChanged();
+	}
+
+	private void runSimulationAction() {
+		Simulation[] sims = getSelectedSimulations();
+		if (sims == null) return;
+
+		long t = System.currentTimeMillis();
+		new SimulationRunDialog(SwingUtilities.getWindowAncestor(
+				SimulationPanel.this), document, sims).setVisible(true);
+		log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
+		fireMaintainSelection();
+	}
+
+	private void editSimulationAction() {
+		Simulation[] sims = getSelectedSimulations();
+		if (sims == null) return;
+
+		openDialog(false, sims);
+	}
+
+	private Simulation[] getSelectedSimulations() {
+		int[] selection = simulationTable.getSelectedRows();
+		if (selection.length == 0) {
+			return null;
+		}
+
+		Simulation[] sims = new Simulation[selection.length];
+		for (int i = 0; i < selection.length; i++) {
+			selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
+			sims[i] = document.getSimulation(selection[i]);
+		}
+		return sims;
+	}
+
+
+	private void copySimulationAction() {
+		int numCols=simulationTable.getColumnCount();
+		int numRows=simulationTable.getSelectedRowCount();
+		int[] rowsSelected=simulationTable.getSelectedRows();
+
+		if (numRows!=rowsSelected[rowsSelected.length-1]-rowsSelected[0]+1 || numRows!=rowsSelected.length) {
+
+			JOptionPane.showMessageDialog(null, "Invalid Copy Selection", "Invalid Copy Selection", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		StringBuilder excelStr =new StringBuilder();
+		for (int k = 1; k < numCols; k++) {
+			excelStr.append(simulationTable.getColumnName(k));
+			if (k < numCols-1) {
+				excelStr.append("\t");
+			}
+		}
+		excelStr.append("\n");
+		for (int i = 0; i < numRows; i++) {
+			for (int j = 1; j < numCols; j++) {
+				excelStr.append(simulationTable.getValueAt(rowsSelected[i], j));
+				if (j < numCols-1) {
+					excelStr.append("\t");
+				}
+			}
+			excelStr.append("\n");
+		}
+
+		StringSelection sel = new StringSelection(excelStr.toString());
+
+		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+		cb.setContents(sel, sel);
+	}
+
+	private void duplicateSimulationAction() {
+		Simulation[] sims = getSelectedSimulations();
+		if (sims == null) return;
+
+		for (Simulation s: sims) {
+			Simulation copy = s.duplicateSimulation(document.getRocket());
+			String name = copy.getName();
+			if (name.matches(OpenRocketDocument.SIMULATION_NAME_PREFIX + "[0-9]+ *")) {
+				copy.setName(document.getNextSimulationName());
+			}
+			document.addSimulation(copy);
+		}
+		simulationTable.getSelectionModel().setSelectionInterval(simulationTable.getRowCount()-sims.length,simulationTable.getRowCount()-1);
+
 	}
 
 	protected void doPopup(MouseEvent e) {
@@ -695,53 +773,60 @@ public class SimulationPanel extends JPanel {
 			simulationTable.addRowSelectionInterval(row, row);
 		}
 	}
-	
-	class CopyAction extends AbstractAction {
 
-        private JTable table;
+	class EditSimulationAction extends AbstractAction {
+		public EditSimulationAction() {
+			putValue(NAME, trans.get("simpanel.pop.edit"));
+		}
 
-        public CopyAction(JTable table) {
-            this.table = table;
-            putValue(NAME, "Copy");
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			editSimulationAction();
+		}
+	}
+
+	class RunSimulationAction extends AbstractAction {
+		public RunSimulationAction() {
+			putValue(NAME, trans.get("simpanel.pop.run"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			runSimulationAction();
+		}
+	}
+
+	class DeleteSimulationAction extends AbstractAction {
+		public DeleteSimulationAction() {
+			putValue(NAME, trans.get("simpanel.pop.delete"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			deleteSimulationAction();
+		}
+	}
+
+	class PlotSimulationAction extends AbstractAction {
+		public PlotSimulationAction() {
+			putValue(NAME, trans.get("simpanel.pop.plot"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			plotSimulationAction();
+		}
+	}
+
+	class DuplicateSimulationAction extends AbstractAction {
+        public DuplicateSimulationAction() {
+            putValue(NAME, trans.get("simpanel.pop.duplicate"));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            int numCols=table.getColumnCount();
-            int numRows=table.getSelectedRowCount(); 
-            int[] rowsSelected=table.getSelectedRows(); 
-          
-            if (numRows!=rowsSelected[rowsSelected.length-1]-rowsSelected[0]+1 || numRows!=rowsSelected.length ) {
-
-                    JOptionPane.showMessageDialog(null, "Invalid Copy Selection", "Invalid Copy Selection", JOptionPane.ERROR_MESSAGE);
-                    return; 
-            } 
-
-            StringBuffer excelStr=new StringBuffer(); 
-            for (int k=1; k<numCols; k++) {
-            	excelStr.append(table.getColumnName(k));
-            	if (k<numCols-1) {
-            		excelStr.append("\t");
-            	}
-            }
-            excelStr.append("\n");
-            for (int i=0; i<numRows; i++) { 
-                    for (int j=1; j<numCols; j++) { 
-                            excelStr.append(table.getValueAt(rowsSelected[i], j)); 
-                            if (j<numCols-1) { 
-                                    excelStr.append("\t"); 
-                            } 
-                    } 
-                    excelStr.append("\n"); 
-            } 
-
-            StringSelection sel  = new StringSelection(excelStr.toString()); 
-	        	
-            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
-            cb.setContents(sel, sel);
+			duplicateSimulationAction();
         }
-
     }
 	
 	public static class CellTransferable implements Transferable {
