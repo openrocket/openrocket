@@ -39,7 +39,7 @@ public class ScaleSelector extends JPanel {
 	private final JComboBox<String> scaleSelector;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
-		super(new MigLayout());
+		super(new MigLayout("insets 0"));
 
 		this.scrollPane = scroll;
 

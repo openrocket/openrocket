@@ -122,7 +122,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private final ScaleScrollPane scrollPane;
 
 	private final JPanel figureHolder;
-	private JLabel zoomLabel;
 
 	private JLabel infoMessage;
 
@@ -266,8 +265,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		revalidate();
 		figureHolder.revalidate();
 
-		zoomLabel.repaint();	// Makes sure the zoom label is above the scaleSelector
-
 		figure3d.repaint();
 	}
 
@@ -304,14 +301,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		setPreferredSize(new Dimension(800, 300));
 
-		// MacOS and Windows have a larger y gap than Linux, so this fixes that
-		int gap = 0;
-		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
-			gap = -10;
-		} else if (SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS) {
-			gap = -5;
-		}
-		JPanel ribbon = new JPanel(new MigLayout(String.format("inset 0, gapy %d, fill", gap)));
+		JPanel ribbon = new JPanel(new MigLayout("insets 0, fill"));
 
 		// View Type drop-down
 		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
@@ -335,9 +325,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
-		zoomLabel = new JLabel(trans.get("RocketPanel.lbl.Zoom"));
-		ribbon.add(zoomLabel, "cell 1 0, center");
-		ribbon.add(scaleSelector, "cell 1 1");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 1 0, center");
+		ribbon.add(scaleSelector, "gapleft para, cell 1 1");
 
 		// Show CG/CP
 		JCheckBox showCGCP = new JCheckBox();
