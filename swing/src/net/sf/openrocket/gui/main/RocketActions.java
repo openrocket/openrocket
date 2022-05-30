@@ -646,7 +646,7 @@ public class RocketActions {
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_C);
 			this.putValue(ACCELERATOR_KEY, COPY_KEY_STROKE);
 			//// Copy this component (and subcomponents) to the clipboard.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.Copy"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.ttip.Copy"));
 			this.putValue(SMALL_ICON, Icons.EDIT_COPY);
 			clipboardChanged();
 		}
