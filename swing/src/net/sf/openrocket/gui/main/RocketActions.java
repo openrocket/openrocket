@@ -44,11 +44,14 @@ import net.sf.openrocket.util.Pair;
 public class RocketActions {
 
 	public static final KeyStroke CUT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_X,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke COPY_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_C,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke PASTE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+
+	public static final KeyStroke DUPLICATE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_D,
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
@@ -62,7 +65,9 @@ public class RocketActions {
 	private final RocketAction cutAction;
 	private final RocketAction copyAction;
 	private final RocketAction pasteAction;
+	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
+	private final RocketAction editActionNoIcon;
 	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
@@ -83,7 +88,10 @@ public class RocketActions {
 		this.cutAction = new CutAction();
 		this.copyAction = new CopyAction();
 		this.pasteAction = new PasteAction();
+		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
+		this.editActionNoIcon = new EditAction();
+		this.editActionNoIcon.putValue(Action.SMALL_ICON, null);
 		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -115,7 +123,9 @@ public class RocketActions {
 		cutAction.clipboardChanged();
 		copyAction.clipboardChanged();
 		pasteAction.clipboardChanged();
+		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
+		editActionNoIcon.clipboardChanged();
 		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -147,9 +157,17 @@ public class RocketActions {
 	public Action getPasteAction() {
 		return pasteAction;
 	}
+
+	public Action getDuplicateAction() {
+		return duplicateAction;
+	}
 	
 	public Action getEditAction() {
 		return editAction;
+	}
+
+	public Action getEditActionNoIcon() {
+		return editActionNoIcon;
 	}
 	
 	public Action getNewStageAction() {
@@ -667,12 +685,12 @@ public class RocketActions {
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
-			} else if (sims.length > 0) {
-
+			} else if (sims != null && sims.length > 0) {
 				Simulation[] simsCopy = new Simulation[sims.length];
 				for (int i=0; i < sims.length; i++) {
 					simsCopy[i] = sims[i].copy();
 				}
+
 				OpenRocketClipboard.setClipboard(simsCopy);
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			}
@@ -765,9 +783,81 @@ public class RocketActions {
 					(OpenRocketClipboard.getClipboardSimulations() != null));
 		}
 	}
-	
-	
-	
+
+
+	/**
+	 * Action that duplicates the selected component.
+	 */
+	private class DuplicateAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public DuplicateAction() {
+			//// Copy
+			this.putValue(NAME, trans.get("RocketActions.DuplicateAct.Duplicate"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+			this.putValue(ACCELERATOR_KEY, DUPLICATE_KEY_STROKE);
+			//// Copy this component (and subcomponents) to the clipboard.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DuplicateAct.ttip.Duplicate"));
+			this.putValue(SMALL_ICON, Icons.EDIT_DUPLICATE);
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components != null) {
+				components = new ArrayList<>(components);
+				fillInMissingSelections(components);
+
+				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+			}
+			Simulation[] sims = selectionModel.getSelectedSimulations();
+
+			if (isCopyable(components)) {
+				List<RocketComponent> duplicateComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+
+				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
+				for (RocketComponent component : duplicateComponents) {
+					positions.add(getPastePosition(component));
+				}
+
+				if (duplicateComponents.size() == 1) {
+					document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
+				} else {
+					document.addUndoPosition("Duplicate components");
+				}
+
+				for (int i = 0; i < duplicateComponents.size(); i++) {
+					positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
+				}
+
+				selectionModel.setSelectedComponents(duplicateComponents);
+			} else if (sims != null && sims.length > 0) {
+				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
+
+				for (Simulation s: sims) {
+					Simulation copy = s.duplicateSimulation(rocket);
+					String name = copy.getName();
+					if (name.matches(OpenRocketDocument.SIMULATION_NAME_PREFIX + "[0-9]+ *")) {
+						copy.setName(document.getNextSimulationName());
+					}
+					document.addSimulation(copy);
+					copySims.add(copy);
+				}
+				// TODO: undo
+				selectionModel.setSelectedSimulations(copySims.toArray(new Simulation[0]));
+
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			}
+		}
+
+		@Override
+		public void clipboardChanged() {
+			this.setEnabled(isCopyable(selectionModel.getSelectedComponent()) ||
+					isSimulationSelected());
+		}
+
+	}
 	
 
 	
@@ -782,6 +872,7 @@ public class RocketActions {
 			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
 			//// Edit the selected component.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
+			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
 			clipboardChanged();
 		}
 
