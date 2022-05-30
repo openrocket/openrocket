@@ -167,7 +167,7 @@ public class BasicFrame extends JFrame {
 		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
 		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
 
-		actions = new RocketActions(document, selectionModel, this);
+		actions = new RocketActions(document, selectionModel, this, simulationPanel);
 
 		// Populate the popup menu
 		popupMenu = new JPopupMenu();
@@ -708,7 +708,7 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 
-		item = new JMenuItem(actions.getEditAction(simulationPanel));
+		item = new JMenuItem(actions.getEditAction());
 		menu.add(item);
 
 		item = new JMenuItem(actions.getCutAction());

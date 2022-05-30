@@ -61,6 +61,7 @@ public class RocketActions {
 	private final Rocket rocket;
 	private final BasicFrame parentFrame;
 	private final DocumentSelectionModel selectionModel;
+	private final SimulationPanel simulationPanel;
 
 
 	private final RocketAction deleteComponentAction;
@@ -81,11 +82,12 @@ public class RocketActions {
 
 
 	public RocketActions(OpenRocketDocument document, DocumentSelectionModel selectionModel,
-			BasicFrame parentFrame) {
+			BasicFrame parentFrame, SimulationPanel simulationPanel) {
 		this.document = document;
 		this.rocket = document.getRocket();
 		this.selectionModel = selectionModel;
 		this.parentFrame = parentFrame;
+		this.simulationPanel = simulationPanel;
 
 		// Add action also to updateActions()
 		this.deleteAction = new DeleteAction();
@@ -173,10 +175,6 @@ public class RocketActions {
 	}
 	
 	public Action getEditAction() {
-		return editAction;
-	}
-	public Action getEditAction(SimulationPanel simulationPanel) {
-		((EditAction) editAction).setSimulationPanel(simulationPanel);
 		return editAction;
 	}
 
@@ -884,7 +882,6 @@ public class RocketActions {
 	 */
 	private class EditAction extends RocketAction {
 		private static final long serialVersionUID = 1L;
-		private SimulationPanel simulationPanel = null;
 
 		public EditAction() {
 			//// Edit
@@ -895,10 +892,6 @@ public class RocketActions {
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
 			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
 			clipboardChanged();
-		}
-
-		public void setSimulationPanel(SimulationPanel simulationPanel) {
-			this.simulationPanel = simulationPanel;
 		}
 
 		@Override
