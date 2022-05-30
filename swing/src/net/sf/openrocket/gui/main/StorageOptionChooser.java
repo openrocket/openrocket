@@ -38,8 +38,8 @@ public class StorageOptionChooser extends JPanel {
 	private JRadioButton noneButton;
 	
 	private JSpinner timeSpinner;
-	
-	private JLabel estimateLabel;
+
+	private JLabel infoLabel;
 	
 	
 	private boolean artificialEvent = false;
@@ -50,17 +50,11 @@ public class StorageOptionChooser extends JPanel {
 		
 		this.document = doc;
 		
-		
-		ChangeListener changeUpdater = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				updateEstimate();
-			}
-		};
+
 		ActionListener actionUpdater = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				updateEstimate();
+				updateInfoLabel();
 			}
 		};
 		
@@ -103,7 +97,6 @@ public class StorageOptionChooser extends JPanel {
 			}
 		});
 		this.add(timeSpinner, "wmin 55lp");
-		timeSpinner.addChangeListener(changeUpdater);
 		
 		//// seconds
 		JLabel label = new JLabel(trans.get("StorageOptChooser.lbl.seconds"));
@@ -120,12 +113,10 @@ public class StorageOptionChooser extends JPanel {
 		noneButton.addActionListener(actionUpdater);
 		this.add(noneButton, "spanx, wrap 20lp");
 		
-		// Estimate is updated in loadOptions(opts)
-		estimateLabel = new JLabel("");
-		//// An estimate on how large the resulting file would
-		//// be with the present options.
-		estimateLabel.setToolTipText(trans.get("StorageOptChooser.lbl.longD1"));
-		this.add(estimateLabel, "spanx");
+		// File size info label
+		infoLabel = new JLabel("");
+		infoLabel.setToolTipText(trans.get("StorageOptChooser.lbl.longD1"));
+		this.add(infoLabel, "spanx");
 		
 		
 		this.setBorder(BorderFactory.createCompoundBorder(
@@ -156,8 +147,8 @@ public class StorageOptionChooser extends JPanel {
 		artificialEvent = true;
 		timeSpinner.setValue(t);
 		artificialEvent = false;
-		
-		updateEstimate();
+
+		updateInfoLabel();
 	}
 	
 	
@@ -176,36 +167,16 @@ public class StorageOptionChooser extends JPanel {
 		
 		opts.setExplicitlySet(true);
 	}
-	
-	
-	
-	// TODO: MEDIUM: The estimation method always uses OpenRocketSaver!
-	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
-	
-	private void updateEstimate() {
-		StorageOptions opts = new StorageOptions();
-		
-		storeOptions(opts);
-		long size = ROCKET_SAVER.estimateFileSize(document, opts);
-		size = Math.max((size+512)/1024, 1);
 
-		String formatted;
-		
-		if (size >= 10000) {
-			formatted = (size/1000) + " MB";
-		} else if (size >= 1000){
-			formatted = (size/1000) + "." + ((size/100)%10) + " MB";
-		} else if (size >= 100) {
-			formatted = ((size/10)*10) + " kB";
+	private void updateInfoLabel() {
+		if (allButton.isSelected()) {
+			infoLabel.setText(trans.get("StorageOptChooser.lbl.info1"));
+		} else if (noneButton.isSelected()) {
+			infoLabel.setText(trans.get("StorageOptChooser.lbl.info3"));
 		} else {
-			formatted = size + " kB";
+			infoLabel.setText(trans.get("StorageOptChooser.lbl.info2"));
 		}
-
-		//// Estimated file size:
-		estimateLabel.setText(trans.get("StorageOptChooser.lbl.Estfilesize") + " " + formatted);
 	}
-	
-	
 	
 	/**
 	 * Asks the user the storage options using a modal dialog window if the document

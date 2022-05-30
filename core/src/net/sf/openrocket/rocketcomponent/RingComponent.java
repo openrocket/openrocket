@@ -100,6 +100,7 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 			return;
 		
 		this.length = l;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	

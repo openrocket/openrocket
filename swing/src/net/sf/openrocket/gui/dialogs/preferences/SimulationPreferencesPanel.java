@@ -64,7 +64,6 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		JPanel sub, subsub;
 		String tip;
 		JLabel label;
-		DoubleModel m;
 		JSpinner spin;
 		UnitSelector unit;
 		BasicSlider slider;
@@ -116,6 +115,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) gcsCombo
 						.getSelectedItem();
 				gcsCombo.setToolTipText(gcs.getDescription());
+				gcsCombo.repaint(); // On some machines, the combobox did not visually update to the selected item
 			}
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
@@ -134,18 +134,18 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
 
-		m = new DoubleModel(preferences, "TimeStep", UnitGroup.UNITS_TIME_STEP,
+		DoubleModel m_ts = new DoubleModel(preferences, "TimeStep", UnitGroup.UNITS_TIME_STEP,
 				0, 1);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(m_ts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		subsub.add(spin, "");
 
-		unit = new UnitSelector(m);
+		unit = new UnitSelector(m_ts);
 		unit.setToolTipText(tip);
 		subsub.add(unit, "");
-		slider = new BasicSlider(m.getSliderModel(0, 0.2));
+		slider = new BasicSlider(m_ts.getSliderModel(0, 0.2));
 		slider.setToolTipText(tip);
 		subsub.add(slider, "w 100");
 
@@ -161,10 +161,9 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				preferences
-						.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP);
-				preferences
-						.setGeodeticComputation(GeodeticComputationStrategy.SPHERICAL);
+				m_ts.setValue(RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+				gcsModel.setSelectedItem(GeodeticComputationStrategy.SPHERICAL);
+				gcsCombo.repaint();
 			}
 		});
 
