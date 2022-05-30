@@ -65,6 +65,9 @@ public class Icons {
 	public static final Icon EDIT_DUPLICATE = loadImageIcon("pix/icons/edit-duplicate.png", "Duplicate");
 	public static final Icon EDIT_DELETE = loadImageIcon("pix/icons/edit-delete.png", "Delete");
 	public static final Icon EDIT_SCALE = loadImageIcon("pix/icons/edit-scale.png", "Scale");
+
+	public static final Icon SIM_RUN = loadImageIcon("pix/icons/sim-run.png", "Run");
+	public static final Icon SIM_PLOT = loadImageIcon("pix/icons/sim-plot.png", "Plot");
 	
 	public static final Icon HELP_ABOUT = loadImageIcon("pix/icons/help-about.png", "About");
 	public static final Icon HELP_LICENSE = loadImageIcon("pix/icons/help-license.png", "License");

@@ -773,6 +773,9 @@ public class SimulationPanel extends JPanel {
 	class EditSimulationAction extends AbstractAction {
 		public EditSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.edit"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
+			this.putValue(ACCELERATOR_KEY, RocketActions.EDIT_KEY_STROKE);
+			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
 		}
 
 		@Override
@@ -784,6 +787,7 @@ public class SimulationPanel extends JPanel {
 	class RunSimulationAction extends AbstractAction {
 		public RunSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.run"));
+			putValue(SMALL_ICON, Icons.SIM_RUN);
 		}
 
 		@Override
@@ -795,6 +799,9 @@ public class SimulationPanel extends JPanel {
 	class DeleteSimulationAction extends AbstractAction {
 		public DeleteSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.delete"));
+			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+			putValue(SMALL_ICON, Icons.EDIT_DELETE);
 		}
 
 		@Override
@@ -806,6 +813,7 @@ public class SimulationPanel extends JPanel {
 	class PlotSimulationAction extends AbstractAction {
 		public PlotSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.plot"));
+			putValue(SMALL_ICON, Icons.SIM_PLOT);
 		}
 
 		@Override
@@ -817,6 +825,9 @@ public class SimulationPanel extends JPanel {
 	class DuplicateSimulationAction extends AbstractAction {
         public DuplicateSimulationAction() {
             putValue(NAME, trans.get("simpanel.pop.duplicate"));
+			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+			putValue(ACCELERATOR_KEY, RocketActions.DUPLICATE_KEY_STROKE);
+			putValue(SMALL_ICON, Icons.EDIT_DUPLICATE);
         }
 
         @Override
