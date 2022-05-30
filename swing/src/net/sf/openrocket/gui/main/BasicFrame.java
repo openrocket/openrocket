@@ -177,6 +177,8 @@ public class BasicFrame extends JFrame {
 		popupMenu.add(actions.getPasteAction());
 		popupMenu.add(actions.getDuplicateAction());
 		popupMenu.add(actions.getDeleteAction());
+		popupMenu.addSeparator();
+		popupMenu.add(actions.getScaleAction());
 
 		log.debug("Constructing the BasicFrame UI");
 
