@@ -21,8 +21,10 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -32,7 +34,8 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Pair;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -69,10 +72,12 @@ public class RocketActions {
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
 	private final RocketAction editActionNoIcon;
+	private final RocketAction scaleAction;
 	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
 
 	public RocketActions(OpenRocketDocument document, DocumentSelectionModel selectionModel,
@@ -92,6 +97,7 @@ public class RocketActions {
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
 		this.editActionNoIcon = new EditAction();
+		this.scaleAction = new ScaleAction();
 		this.editActionNoIcon.putValue(Action.SMALL_ICON, null);
 		this.editActionNoIcon.putValue(Action.MNEMONIC_KEY, null);
 		this.editActionNoIcon.putValue(Action.ACCELERATOR_KEY, null);
@@ -129,6 +135,7 @@ public class RocketActions {
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
 		editActionNoIcon.clipboardChanged();
+		scaleAction.clipboardChanged();
 		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -171,6 +178,10 @@ public class RocketActions {
 
 	public Action getEditActionNoIcon() {
 		return editActionNoIcon;
+	}
+
+	public Action getScaleAction() {
+		return scaleAction;
 	}
 	
 	public Action getNewStageAction() {
@@ -924,7 +935,33 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to scale the currently selected component.
+	 */
+	private class ScaleAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
 
+		public ScaleAction() {
+			//// Scale
+			this.putValue(NAME, trans.get("RocketActions.ScaleAct.Scale"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.ScaleAct.ttip.Scale"));
+			this.putValue(SMALL_ICON, Icons.EDIT_SCALE);
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			log.info(Markers.USER_MARKER, "Scale... selected");
+			ScaleDialog dialog = new ScaleDialog(document, selectionModel.getSelectedComponents(), null);
+			dialog.setVisible(true);
+			dialog.dispose();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			this.setEnabled(true);
+		}
+	}
 	
 	
 	

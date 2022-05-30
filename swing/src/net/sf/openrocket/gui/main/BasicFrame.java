@@ -726,19 +726,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-
-		item = new JMenuItem(trans.get("main.menu.edit.resize"));
-		item.setIcon(Icons.EDIT_SCALE);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Scale... selected");
-				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponents(), BasicFrame.this);
-				dialog.setVisible(true);
-				dialog.dispose();
-			}
-		});
+		item = new JMenuItem(actions.getScaleAction());
 		menu.add(item);
 
 
