@@ -49,8 +49,9 @@ public class RocketActions {
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke PASTE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V,
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
-
 	public static final KeyStroke DUPLICATE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_D,
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+	public static final KeyStroke EDIT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_E,
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	
 	private final OpenRocketDocument document;
@@ -92,6 +93,8 @@ public class RocketActions {
 		this.editAction = new EditAction();
 		this.editActionNoIcon = new EditAction();
 		this.editActionNoIcon.putValue(Action.SMALL_ICON, null);
+		this.editActionNoIcon.putValue(Action.MNEMONIC_KEY, null);
+		this.editActionNoIcon.putValue(Action.ACCELERATOR_KEY, null);
 		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -870,6 +873,8 @@ public class RocketActions {
 		public EditAction() {
 			//// Edit
 			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
+			this.putValue(ACCELERATOR_KEY, EDIT_KEY_STROKE);
 			//// Edit the selected component.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
 			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
