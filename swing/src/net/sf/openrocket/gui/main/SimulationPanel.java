@@ -464,11 +464,12 @@ public class SimulationPanel extends JPanel {
 		simulationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				int selectedRow = simulationTable.getSelectedRow();
+				if (selectedRow < 0) {
+					return;
+				}
+
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-					int selectedRow = simulationTable.getSelectedRow();
-					if (selectedRow < 0) {
-						return;
-					}
 					int selected = simulationTable.convertRowIndexToModel(selectedRow);
 
 					int column = simulationTable.columnAtPoint(e.getPoint());
@@ -481,11 +482,7 @@ public class SimulationPanel extends JPanel {
 
 						openDialog(document.getSimulations().get(selected));
 					}
-				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1){
-					int selectedRow = simulationTable.getSelectedRow();
-					if (selectedRow < 0) {
-						return;
-					}
+				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
                     doPopup(e);
 				}
 			}
