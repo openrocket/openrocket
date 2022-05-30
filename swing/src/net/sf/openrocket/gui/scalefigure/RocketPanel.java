@@ -325,14 +325,19 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 1 0, center");
-		ribbon.add(scaleSelector, "gapleft para, cell 1 1");
+		JButton zoomOutButton = scaleSelector.getZoomOutButton();
+		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
+		JButton zoomInButton = scaleSelector.getZoomInButton();
+		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 2 0, spanx 2");
+		ribbon.add(scaleSelectorCombo, "cell 2 1");
+		ribbon.add(zoomInButton, "cell 3 1");
 
 		// Show CG/CP
 		JCheckBox showCGCP = new JCheckBox();
 		showCGCP.setText(trans.get("RocketPanel.checkbox.ShowCGCP"));
 		showCGCP.setSelected(true);
-		ribbon.add(showCGCP, "cell 2 1, gapleft para");
+		ribbon.add(showCGCP, "cell 4 1, gapleft para");
 
 		showCGCP.addActionListener(new ActionListener() {
 			@Override
@@ -352,21 +357,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		Dimension d_sep = sep.getPreferredSize();
 		d_sep.height = (int) (0.7 * ribbon.getPreferredSize().height);
 		sep.setPreferredSize(d_sep);
-		ribbon.add(sep, "cell 3 0, spany 2, gapleft para, gapright para");
+		ribbon.add(sep, "cell 5 0, spany 2, gapleft para, gapright para");
 
 		// Stage selector
 		StageSelector stageSelector = new StageSelector( rkt );
 		rkt.addChangeListener(stageSelector);
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 4 0, pushx");
-		ribbon.add(stageSelector, "cell 4 1, pushx");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 6 0, pushx");
+		ribbon.add(stageSelector, "cell 6 1, pushx");
 
 		// Flight configuration selector
 		//// Flight configuration:
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
-		ribbon.add(label, "cell 5 0");
+		ribbon.add(label, "cell 7 0");
 
 		final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
-		ribbon.add(configComboBox, "cell 5 1, width 16%, wmin 100");
+		ribbon.add(configComboBox, "cell 7 1, width 16%, wmin 100");
 
 		add(ribbon, "growx, span, wrap");
 
