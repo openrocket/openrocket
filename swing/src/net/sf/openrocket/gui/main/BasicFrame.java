@@ -706,6 +706,9 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 
+		item = new JMenuItem(actions.getEditAction());
+		menu.add(item);
+
 		item = new JMenuItem(actions.getCutAction());
 		menu.add(item);
 
