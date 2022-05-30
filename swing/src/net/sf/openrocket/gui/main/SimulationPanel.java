@@ -604,7 +604,7 @@ public class SimulationPanel extends JPanel {
 		fireMaintainSelection();
 	}
 
-	private void editSimulationAction() {
+	public void editSimulationAction() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
 

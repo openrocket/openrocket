@@ -175,6 +175,10 @@ public class RocketActions {
 	public Action getEditAction() {
 		return editAction;
 	}
+	public Action getEditAction(SimulationPanel simulationPanel) {
+		((EditAction) editAction).setSimulationPanel(simulationPanel);
+		return editAction;
+	}
 
 	public Action getEditActionNoIcon() {
 		return editActionNoIcon;
@@ -880,6 +884,7 @@ public class RocketActions {
 	 */
 	private class EditAction extends RocketAction {
 		private static final long serialVersionUID = 1L;
+		private SimulationPanel simulationPanel = null;
 
 		public EditAction() {
 			//// Edit
@@ -892,28 +897,35 @@ public class RocketActions {
 			clipboardChanged();
 		}
 
+		public void setSimulationPanel(SimulationPanel simulationPanel) {
+			this.simulationPanel = simulationPanel;
+		}
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (!checkAllClassesEqual(components))
-				return;
+			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			// Do nothing if the config dialog is already visible
-			if (ComponentConfigDialog.isDialogVisible())
-				return;
+			if ((components != null) && (components.size() > 0) && checkAllClassesEqual(components)) {
+				// Do nothing if the config dialog is already visible
+				if (ComponentConfigDialog.isDialogVisible())
+					return;
 
-			List<RocketComponent> listeners = null;
-			if (components.size() > 1) {
-				listeners = components.subList(1, components.size());
+				List<RocketComponent> listeners = null;
+				if (components.size() > 1) {
+					listeners = components.subList(1, components.size());
+				}
+				ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
+			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
+				simulationPanel.editSimulationAction();
 			}
-			ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
 		}
 
 		@Override
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 
-			this.setEnabled(checkAllClassesEqual(components));
+			this.setEnabled(checkAllClassesEqual(components) || isSimulationSelected());
 		}
 
 		/**
