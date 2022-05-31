@@ -337,6 +337,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JCheckBox showCGCP = new JCheckBox();
 		showCGCP.setText(trans.get("RocketPanel.checkbox.ShowCGCP"));
 		showCGCP.setSelected(true);
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stability")), "cell 4 0, gapleft para");
 		ribbon.add(showCGCP, "cell 4 1, gapleft para");
 
 		showCGCP.addActionListener(new ActionListener() {
