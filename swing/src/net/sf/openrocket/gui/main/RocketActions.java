@@ -72,7 +72,6 @@ public class RocketActions {
 	private final RocketAction pasteAction;
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
-	private final RocketAction editActionNoIcon;
 	private final RocketAction scaleAction;
 	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
@@ -98,11 +97,7 @@ public class RocketActions {
 		this.pasteAction = new PasteAction();
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
-		this.editActionNoIcon = new EditAction();
 		this.scaleAction = new ScaleAction();
-		this.editActionNoIcon.putValue(Action.SMALL_ICON, null);
-		this.editActionNoIcon.putValue(Action.MNEMONIC_KEY, null);
-		this.editActionNoIcon.putValue(Action.ACCELERATOR_KEY, null);
 		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -136,7 +131,6 @@ public class RocketActions {
 		pasteAction.clipboardChanged();
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
-		editActionNoIcon.clipboardChanged();
 		scaleAction.clipboardChanged();
 		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
@@ -176,10 +170,6 @@ public class RocketActions {
 	
 	public Action getEditAction() {
 		return editAction;
-	}
-
-	public Action getEditActionNoIcon() {
-		return editActionNoIcon;
 	}
 
 	public Action getScaleAction() {
