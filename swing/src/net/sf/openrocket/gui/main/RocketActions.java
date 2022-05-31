@@ -830,24 +830,35 @@ public class RocketActions {
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
 			if (isCopyable(components)) {
-				List<RocketComponent> duplicateComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				ComponentConfigDialog.disposeDialog();
+				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+
+				OpenRocketClipboard.setClipboard(copiedComponents);
+
+				copiedComponents = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
+				List<RocketComponent> pasted = new LinkedList<>();
+				for (RocketComponent component : copiedComponents) {
+					pasted.add(component.copy());
+				}
 
 				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : duplicateComponents) {
+				for (RocketComponent component : pasted) {
 					positions.add(getPastePosition(component));
 				}
 
-				if (duplicateComponents.size() == 1) {
-					document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
+				if (pasted.size() == 1) {
+					document.addUndoPosition("Duplicate " + pasted.get(0).getComponentName());
 				} else {
 					document.addUndoPosition("Duplicate components");
 				}
 
-				for (int i = 0; i < duplicateComponents.size(); i++) {
-					positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
+				for (int i = 0; i < pasted.size(); i++) {
+					positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
 				}
 
-				selectionModel.setSelectedComponents(duplicateComponents);
+				selectionModel.setSelectedComponents(pasted);
+
+				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
 			} else if (sims != null && sims.length > 0) {
 				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
 
