@@ -72,6 +72,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private double rotation;
 	private Transformation axialRotation;
+
+	private boolean drawCarets = true;
     
 	/**
 	 * The shapes to be drawn are stored in this Priority Queue, where the first shape to be drawn is the one with
@@ -320,9 +322,12 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 
 		// Draw relative extras
-		for (FigureElement e : relativeExtra) {
-			e.paint(g2, scale);
+		if (drawCarets) {
+			for (FigureElement e : relativeExtra) {
+				e.paint(g2, scale);
+			}
 		}
+
 		
 		// Draw absolute extras
 		g2.setTransform(baseTransform);
@@ -485,6 +490,14 @@ public class RocketFigure extends AbstractScaleFigure {
 			final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
 			originLocation_px = new Point(newOriginX, newOriginY);
 		}
+	}
+
+	public boolean isDrawCarets() {
+		return drawCarets;
+	}
+
+	public void setDrawCarets(boolean drawCarets) {
+		this.drawCarets = drawCarets;
 	}
 
 }

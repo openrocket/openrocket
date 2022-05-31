@@ -28,7 +28,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
 	
 	public StageSelector(Rocket _rkt) {
-		super(new MigLayout("gap 0!"));
+		super(new MigLayout("gap 0!, insets 0"));
 		this.rocket = _rkt;
 		
 		updateButtons( this.rocket.getSelectedConfiguration() );
