@@ -911,7 +911,7 @@ public class BasicFrame extends JFrame {
 		this.setJMenuBar(menubar);
 	}
 
-	protected void doComponentTreePopup(MouseEvent e) {
+	public void doComponentTreePopup(MouseEvent e) {
 		popupMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 

@@ -510,16 +510,24 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	public static final int CYCLE_SELECTION_MODIFIER = InputEvent.SHIFT_DOWN_MASK;
 
 	private void handleMouseClick(MouseEvent event) {
-		if (event.getButton() != MouseEvent.BUTTON1)
-			return;
-		Point p0 = event.getPoint();
-		Point p1 = scrollPane.getViewport().getViewPosition();
-		int x = p0.x + p1.x;
-		int y = p0.y + p1.y;
+		if (event.getButton() == MouseEvent.BUTTON1) {
+			// Get the component that is clicked on
+			Point p0 = event.getPoint();
+			Point p1 = scrollPane.getViewport().getViewPosition();
+			int x = p0.x + p1.x;
+			int y = p0.y + p1.y;
 
-		RocketComponent[] clicked = figure.getComponentsByPoint(x, y);
+			RocketComponent[] clicked = figure.getComponentsByPoint(x, y);
 
-		handleComponentClick(clicked, event);
+			handleComponentClick(clicked, event);
+		} else if (event.getButton() == MouseEvent.BUTTON3) {
+			List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
+					.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
+
+			if (selectedComponents.size() == 0) return;
+
+			basicFrame.doComponentTreePopup(event);
+		}
 	}
 
 	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event) {
