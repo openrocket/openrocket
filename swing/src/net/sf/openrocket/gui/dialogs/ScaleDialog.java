@@ -345,17 +345,22 @@ public class ScaleDialog extends JDialog {
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
 
+		// Select the 'scale component / scale selection and all subcomponents' if a component is selected
+		if (selection != null && selection.size() > 0) {
+			selectionOption.setSelectedIndex(1);
+		}
+
 		// Change the offset checkbox to false when 'Scale selection' is selection and only one component is selected,
 		// since this is a common action.
-		selectionOption.addItemListener(new ItemListener() {
+		ItemListener listener = new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (SCALE_SELECTION.equals(selectionOption.getSelectedItem()) && (selection != null) &&
-						(selection.size() == 1) && (scaleOffsets != null)) {
-					scaleOffsets.setSelected(false);
-				}
+				if (scaleOffsets == null) return;
+
+				scaleOffsets.setSelected(!SCALE_SELECTION.equals(selectionOption.getSelectedItem()));
 			}
-		});
+		};
+		selectionOption.addItemListener(listener);
 		
 		
 		// Scale multiplier
@@ -424,7 +429,7 @@ public class ScaleDialog extends JDialog {
 		// Scale offsets
 		scaleOffsets = new JCheckBox(trans.get("checkbox.scaleOffsets"));
 		scaleOffsets.setToolTipText(trans.get("checkbox.scaleOffsets.ttip"));
-		scaleOffsets.setSelected(true);
+		listener.itemStateChanged(null);		// Triggers the selection state of scaleOffsets
 		panel.add(scaleOffsets, "span, wrap para*3");
 		
 		
@@ -457,7 +462,7 @@ public class ScaleDialog extends JDialog {
 		});
 		panel.add(cancel, "right, gap para");
 		
-		
+
 		
 		GUIUtil.setDisposableDialogOptions(this, scale);
 	}
