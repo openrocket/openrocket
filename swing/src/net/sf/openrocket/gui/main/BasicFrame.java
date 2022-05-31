@@ -51,7 +51,6 @@ import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
-import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
