@@ -39,12 +39,15 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	public StreamerConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
 		Streamer streamer = (Streamer) component;
-		
+
+		//	Left side
 		JPanel primary = new JPanel(new MigLayout());
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-		
+		////	Attributes
+		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Strip length:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
 		
@@ -65,10 +68,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 100lp, wrap 20lp");
-		
-		
-		
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 100lp, wrap 10lp");
+
 		//// Strip area:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
 		
@@ -89,9 +90,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		//		panel.add(new UnitSelector(m),"growx");
-		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 100lp, wrap 20lp");
-		
-		
+		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 100lp, wrap 10lp");
+
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 		
@@ -99,10 +99,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				Material.Type.SURFACE));
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
-		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 20lp");
-		
-		
-		
+		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
+
 		// CD
 		//// <html>Drag coefficient C<sub>D</sub>:
 		JLabel label = new HtmlLabel(trans.get("StreamerCfg.lbl.longA1"));
@@ -127,17 +125,16 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		//// The drag coefficient is relative to the area of the streamer.
 		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
-				-2), "span, wrap");
+				-1), "span, wrap");
 		
-		
-		
+
+		//	Right side
 		primary.add(panel, "grow, gapright 20lp");
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-		
-		
-		
-		//// Position
+		//// Placement
+		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Posrelativeto")));
 		
@@ -190,10 +187,12 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
-		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 30lp");
+		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
 
 		
 		//// Deployment
+		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.Deployment"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
@@ -234,8 +233,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		BasicSlider slider = new BasicSlider(m.getSliderModel(100, 1000));
 		altitudeComponents.add(slider);
 		panel.add(slider, "w 100lp, wrap");
-		
-		panel.add(new StyledLabel(CommonStrings.override_description, -1), "skip 1, spanx, wrap para");
+
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
 		primary.add(panel, "grow");
 		
@@ -257,7 +256,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	protected JPanel positionTab() {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
-		////  Radial position
+		//// Radial position
 		//// Radial distance:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdistance")));
 		
@@ -269,9 +268,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
-		
-		
-		//// Radial direction
+
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdirection")));
 		
