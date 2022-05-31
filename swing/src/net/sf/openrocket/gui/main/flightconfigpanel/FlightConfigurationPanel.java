@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketvisitors.ListComponents;
 import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -43,7 +41,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private final Rocket rocket;
 
 	private final BasicFrame basicFrame;
-	private final JButton newConfButton, renameConfButton, removeConfButton, copyConfButton;
+	private final JButton newConfButton, renameConfButton, removeConfButton, duplicateConfButton;
 	
 	private final JTabbedPane tabs;
 	private final MotorConfigurationPanel motorConfigurationPanel;
@@ -83,7 +81,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				newOrCopyConfigAction(false);
+				newOrDuplicateConfigAction(false);
 			}
 			
 		});
@@ -110,14 +108,14 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		});
 		this.add(removeConfButton,"gapright para");
 		
-		copyConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
-		copyConfButton.addActionListener(new ActionListener() {
+		duplicateConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Duplicateconfiguration"));
+		duplicateConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				newOrCopyConfigAction(true);
+				newOrDuplicateConfigAction(true);
 			}
 		});
-		this.add(copyConfButton, "wrap");
+		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
 			@Override
@@ -143,11 +141,11 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	/**
-	 * Action for when the new configuration or copy configuration button is pressed.
-	 * @param copy if True, then copy configuration operation, if False then create a new configuration
+	 * Action for when the new configuration or duplicate configuration button is pressed.
+	 * @param duplicate if True, then duplicate configuration operation, if False then create a new configuration
 	 */
-	private void newOrCopyConfigAction(boolean copy) {
-		addOrCopyConfiguration(copy);
+	private void newOrDuplicateConfigAction(boolean duplicate) {
+		addOrDuplicateConfiguration(duplicate);
 		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		stateChanged(null);
 		switch (tabs.getSelectedIndex()) {
@@ -165,15 +163,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	/**
-	 * either create or copy configuration
+	 * either create or duplicate configuration
 	 * set new configuration as current
 	 * create simulation for new configuration
 	 */
-	private void addOrCopyConfiguration(boolean copy) {
+	private void addOrDuplicateConfiguration(boolean duplicate) {
 		final Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
 
-		// create or copy configuration
-		if (copy) {
+		// create or duplicate configuration
+		if (duplicate) {
 			List<FlightConfigurationId> oldIds = getSelectedConfigurationIds();
 			if (oldIds == null || oldIds.size() == 0) return;
 
@@ -248,10 +246,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	
 	private void updateButtonState() {
 		FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		// Enable the remove/rename/copy buttons only when a configuration is selected.
+		// Enable the remove/rename/duplicate buttons only when a configuration is selected.
 		removeConfButton.setEnabled(currentId.isValid());
 		renameConfButton.setEnabled(currentId.isValid());
-		copyConfButton.setEnabled(currentId.isValid());
+		duplicateConfButton.setEnabled(currentId.isValid());
 		
 		// Count the number of motor mounts
 		int motorMountCount = rocket.accept(new ListMotorMounts()).size();
