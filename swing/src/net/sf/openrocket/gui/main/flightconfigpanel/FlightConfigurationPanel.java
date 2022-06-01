@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
@@ -144,7 +143,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		stateChanged(null);
 		switch (tabs.getSelectedIndex()) {
 			case MOTOR_TAB_INDEX:
-				motorConfigurationPanel.selectMotorAction();
+				motorConfigurationPanel.selectMotor();
 				break;
 			case RECOVERY_TAB_INDEX:
 				recoveryConfigurationPanel.selectDeployment();

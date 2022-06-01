@@ -137,7 +137,7 @@ public class SimulationPanel extends JPanel {
 		editButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				editSimulationAction();
+				editSimulation();
 			}
 		});
 		this.add(editButton, "gapright para");
@@ -149,7 +149,7 @@ public class SimulationPanel extends JPanel {
 		runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				runSimulationAction();
+				runSimulation();
 			}
 		});
 		this.add(runButton, "gapright para");
@@ -161,7 +161,7 @@ public class SimulationPanel extends JPanel {
 		deleteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				deleteSimulationAction();
+				deleteSimulation();
 			}
 		});
 		this.add(deleteButton, "gapright para");
@@ -172,7 +172,7 @@ public class SimulationPanel extends JPanel {
 		plotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				plotSimulationAction();
+				plotSimulation();
 			}
 		});
 		this.add(plotButton, "wrap para");
@@ -524,7 +524,7 @@ public class SimulationPanel extends JPanel {
 		updateButtonStates();
 	}
 
-	private void plotSimulationAction() {
+	private void plotSimulation() {
 		int selected = simulationTable.getSelectedRow();
 		if (selected < 0) {
 			return;
@@ -546,7 +546,7 @@ public class SimulationPanel extends JPanel {
 		openDialog(true, sim);
 	}
 
-	private void deleteSimulationAction() {
+	private void deleteSimulation() {
 		int[] selection = simulationTable.getSelectedRows();
 		if (selection.length == 0) {
 			return;
@@ -593,7 +593,7 @@ public class SimulationPanel extends JPanel {
 		simulationTableModel.fireTableDataChanged();
 	}
 
-	private void runSimulationAction() {
+	private void runSimulation() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
 
@@ -604,7 +604,7 @@ public class SimulationPanel extends JPanel {
 		fireMaintainSelection();
 	}
 
-	public void editSimulationAction() {
+	public void editSimulation() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
 
@@ -661,7 +661,7 @@ public class SimulationPanel extends JPanel {
 		cb.setContents(sel, sel);
 	}
 
-	private void duplicateSimulationAction() {
+	private void duplicateSimulation() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
 
@@ -780,7 +780,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			editSimulationAction();
+			editSimulation();
 		}
 	}
 
@@ -792,7 +792,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			runSimulationAction();
+			runSimulation();
 		}
 	}
 
@@ -806,7 +806,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			deleteSimulationAction();
+			deleteSimulation();
 		}
 	}
 
@@ -818,7 +818,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			plotSimulationAction();
+			plotSimulation();
 		}
 	}
 
@@ -832,7 +832,7 @@ public class SimulationPanel extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-			duplicateSimulationAction();
+			duplicateSimulation();
         }
     }
 	

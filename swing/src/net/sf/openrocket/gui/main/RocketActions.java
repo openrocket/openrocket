@@ -911,7 +911,7 @@ public class RocketActions {
 				}
 				ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
 			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
-				simulationPanel.editSimulationAction();
+				simulationPanel.editSimulation();
 			}
 		}
 

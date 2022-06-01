@@ -148,7 +148,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		table.getActionMap().put("Enter", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				selectMotorAction();
+				selectMotor();
 			}
 		});
 
@@ -208,7 +208,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 					if (selectedColumn > 0) {
-						selectMotorAction();
+						selectMotor();
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
 					if (selectedColumn > 0) {
@@ -285,7 +285,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-	public void selectMotorAction() {
+	public void selectMotor() {
 		List<MotorMount> mounts = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
@@ -332,7 +332,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-	private void removeMotorAction() {
+	private void removeMotor() {
 		List<MotorMount> mounts = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
@@ -348,7 +348,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 
-	private void selectIgnitionAction() {
+	private void selectIgnition() {
 		List<MotorMount> mounts = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
@@ -397,7 +397,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 
 
-	private void resetIgnitionAction() {
+	private void resetIgnition() {
 		List<MotorMount> mounts = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
@@ -432,7 +432,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			selectMotorAction();
+			selectMotor();
 		}
 	}
 
@@ -443,7 +443,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			removeMotorAction();
+			removeMotor();
 		}
 	}
 
@@ -454,7 +454,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			selectIgnitionAction();
+			selectIgnition();
 		}
 	}
 
@@ -465,7 +465,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			resetIgnitionAction();
+			resetIgnition();
 		}
 	}
 
