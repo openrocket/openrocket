@@ -585,7 +585,7 @@ public class ScaleDialog extends JDialog {
 	 */
 	private void scaleChildren(RocketComponent component, List<RocketComponent> scaledComponents, double mul, boolean scaleMass) {
 		for (RocketComponent child : component.getChildren()) {
-			if (!scaledComponents.contains(component)) {
+			if (!scaledComponents.contains(child)) {
 				scale(child, mul, scaleMass, scaleOffsets.isSelected());
 				scaledComponents.add(child);
 				scaleChildren(child, scaledComponents, mul, scaleMass);
