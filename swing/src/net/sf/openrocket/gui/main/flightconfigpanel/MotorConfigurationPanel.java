@@ -98,6 +98,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		popupMenuFull = new JPopupMenu();
 		popupMenuFull.add(selectMotorAction);
 		popupMenuFull.add(removeMotorAction);
+		popupMenuFull.addSeparator();
 		popupMenuFull.add(selectIgnitionAction);
 		popupMenuFull.add(resetIgnitionAction);
 		popupMenuFull.addSeparator();
