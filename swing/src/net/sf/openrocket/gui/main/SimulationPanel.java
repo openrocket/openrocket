@@ -464,9 +464,6 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int selectedRow = simulationTable.getSelectedRow();
-				if (selectedRow < 0) {
-					return;
-				}
 
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 					int selected = simulationTable.convertRowIndexToModel(selectedRow);
@@ -475,13 +472,24 @@ public class SimulationPanel extends JPanel {
 					if (column == 0) {
 						SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
 					} else {
-
 						simulationTable.clearSelection();
 						simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
 
 						openDialog(document.getSimulations().get(selected));
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Get the row that the right-click action happened on
+					int r = simulationTable.rowAtPoint(e.getPoint());
+
+					// Select new row
+					if (!simulationTable.isRowSelected(r)) {
+						if (r >= 0 && r < simulationTable.getRowCount()) {
+							simulationTable.setRowSelectionInterval(r, r);
+						} else {
+							return;
+						}
+					}
+
                     doPopup(e);
 				}
 			}
