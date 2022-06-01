@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -36,6 +36,13 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
 
+	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
+	private final AbstractAction selectDeploymentAction;
+	private final AbstractAction resetDeploymentAction;
+	private final AbstractAction renameConfigAction;
+	private final AbstractAction removeConfigAction;
+	private final AbstractAction duplicateConfigAction;
+
 
 	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
@@ -43,26 +50,30 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, pushy, wrap");
 
+		// Get all the actions
+		selectDeploymentAction = new SelectDeploymentAction();
+		resetDeploymentAction = new ResetDeploymentAction();
+		renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+
+		// Populate the popup menu
+		popupMenuFull = new JPopupMenu();
+		popupMenuFull.add(selectDeploymentAction);
+		popupMenuFull.add(resetDeploymentAction);
+		popupMenuFull.addSeparator();
+		popupMenuFull.add(renameConfigAction);
+		popupMenuFull.add(removeConfigAction);
+		popupMenuFull.add(duplicateConfigAction);
+
 		//// Select deployment
-		selectDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectdeployment"));
+		selectDeploymentButton = new SelectColorButton(selectDeploymentAction);
 		selectDeploymentButton.setEnabled(false);
-		selectDeploymentButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				selectDeployment();
-			}
-		});
 		this.add(selectDeploymentButton, "split, align right, sizegroup button");
 
 		//// Reset deployment
-		resetDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Resetdeployment"));
+		resetDeploymentButton = new SelectColorButton(resetDeploymentAction);
 		resetDeploymentButton.setEnabled(false);
-		resetDeploymentButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				resetDeployment();
-			}
-		});
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 
 		// Set 'Enter' key action to open the recovery selection dialog
@@ -88,10 +99,18 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
+				int selectedColumn = table.getSelectedColumn();
 
-				if (e.getClickCount() == 2) {
-					// Double-click edits 
-					selectDeployment();
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+					if (selectedColumn > 0) {
+						selectDeployment();
+					}
+				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					if (selectedColumn > 0) {
+						doPopupFull(e);
+					} else {
+						flightConfigurationPanel.doPopupConfig(e);
+					}
 				}
 			}
 		});
@@ -185,6 +204,10 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		}
 	}
 
+	private void doPopupFull(MouseEvent e) {
+		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
+	}
+
 	public void updateButtonState() {
 		boolean componentSelected = getSelectedComponent() != null;
 		selectDeploymentButton.setEnabled(componentSelected);
@@ -218,6 +241,27 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			}
 
 			return str;
+		}
+	}
+
+	private class SelectDeploymentAction extends AbstractAction {
+		public SelectDeploymentAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Selectdeployment"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectDeployment();
+		}
+	}
+	private class ResetDeploymentAction extends AbstractAction {
+		public ResetDeploymentAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Resetdeployment"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resetDeployment();
 		}
 	}
 
