@@ -347,7 +347,16 @@ public class ScaleDialog extends JDialog {
 
 		// Select the 'scale component / scale selection and all subcomponents' if a component is selected
 		if (selection != null && selection.size() > 0) {
-			selectionOption.setSelectedIndex(1);
+			boolean entireRocket = false;	// Flag to scale entire rocket
+			for (RocketComponent component : selection) {
+				if (component instanceof Rocket || (component instanceof AxialStage && !(component instanceof ParallelStage))) {
+					entireRocket = true;
+					break;
+				}
+			}
+			if (!entireRocket) {
+				selectionOption.setSelectedIndex(1);
+			}
 		}
 
 		// Change the offset checkbox to false when 'Scale selection' is selection and only one component is selected,
