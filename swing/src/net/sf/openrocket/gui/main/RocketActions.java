@@ -267,20 +267,10 @@ public class RocketActions {
 
 		for (int i = 0; i < components.size(); i++) {
 			if (components.contains(components.get(i).getParent())) {
-				RocketComponent oldChild = components.get(i);
-				RocketComponent oldParent = oldChild.getParent();
+				RocketComponent originalParent = components.get(i).getParent();
+				int originalParentIdx = components.indexOf(originalParent);
 
-				int index = components.indexOf(oldParent);
-				int childPos = oldParent.getChildPosition(oldChild);
-
-				RocketComponent newChild = result.get(i);
-				RocketComponent newParent = result.get(index);
-
-				// Add the newly copied child to the parent
-				newParent.addChild(newChild, childPos);
-
-				// Remove the old child from the parent
-				newParent.removeChild(oldChild);
+				result.get(originalParentIdx).addChild(result.get(i));
 			}
 		}
 
