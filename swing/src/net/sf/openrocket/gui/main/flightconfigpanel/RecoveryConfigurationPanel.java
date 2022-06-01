@@ -35,13 +35,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	private FlightConfigurableTableModel<RecoveryDevice> recoveryTableModel;
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
-
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
-	private final AbstractAction selectDeploymentAction;
-	private final AbstractAction resetDeploymentAction;
-	private final AbstractAction renameConfigAction;
-	private final AbstractAction removeConfigAction;
-	private final AbstractAction duplicateConfigAction;
 
 
 	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
@@ -51,11 +45,11 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		this.add(scroll, "span, grow, pushy, wrap");
 
 		// Get all the actions
-		selectDeploymentAction = new SelectDeploymentAction();
-		resetDeploymentAction = new ResetDeploymentAction();
-		renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
-		duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+		AbstractAction selectDeploymentAction = new SelectDeploymentAction();
+		AbstractAction resetDeploymentAction = new ResetDeploymentAction();
+		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
 		popupMenuFull = new JPopupMenu();

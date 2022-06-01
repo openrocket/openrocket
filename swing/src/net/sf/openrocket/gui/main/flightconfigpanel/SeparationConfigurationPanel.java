@@ -39,15 +39,9 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	private FlightConfigurableTableModel<AxialStage> separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
-
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
-	private final AbstractAction selectSeparationAction;
-	private final AbstractAction resetSeparationAction;
-	private final AbstractAction renameConfigAction;
-	private final AbstractAction removeConfigAction;
-	private final AbstractAction duplicateConfigAction;
-	
-	
+
+
 	SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
 		
@@ -55,11 +49,11 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		this.add(scroll, "span, grow, pushy, wrap");
 
 		// Get all the actions
-		selectSeparationAction = new SelectSeparationAction();
-		resetSeparationAction = new ResetSeparationAction();
-		renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
-		duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+		AbstractAction selectSeparationAction = new SelectSeparationAction();
+		AbstractAction resetSeparationAction = new ResetSeparationAction();
+		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
 		popupMenuFull = new JPopupMenu();

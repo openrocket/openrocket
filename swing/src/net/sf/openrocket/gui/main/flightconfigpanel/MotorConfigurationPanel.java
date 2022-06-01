@@ -63,13 +63,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
-	private final AbstractAction selectMotorAction;
-	private final AbstractAction removeMotorAction;
-	private final AbstractAction selectIgnitionAction;
-	private final AbstractAction resetIgnitionAction;
-	private final AbstractAction renameConfigAction;
-	private final AbstractAction removeConfigAction;
-	private final AbstractAction duplicateConfigAction;
 
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
@@ -93,13 +86,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		this.add(cards, "pushy");
 
 		// Get all the actions
-		selectMotorAction = new SelectMotorAction();
-		removeMotorAction = new RemoveMotorAction();
-		selectIgnitionAction = new SelectIgnitionAction();
-		resetIgnitionAction = new ResetIgnitionAction();
-		renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
-		duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+		AbstractAction selectMotorAction = new SelectMotorAction();
+		AbstractAction removeMotorAction = new RemoveMotorAction();
+		AbstractAction selectIgnitionAction = new SelectIgnitionAction();
+		AbstractAction resetIgnitionAction = new ResetIgnitionAction();
+		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
 		popupMenuFull = new JPopupMenu();
