@@ -842,6 +842,13 @@ public class RocketActions {
 			} else if (sims != null && sims.length > 0) {
 				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
 
+				// TODO: the undoing doesn't do anything...
+				if (sims.length == 1) {
+					document.addUndoPosition("Duplicate " + sims[0].getName());
+				} else {
+					document.addUndoPosition("Duplicate simulations");
+				}
+
 				for (Simulation s: sims) {
 					Simulation copy = s.duplicateSimulation(rocket);
 					String name = copy.getName();
@@ -851,7 +858,7 @@ public class RocketActions {
 					document.addSimulation(copy);
 					copySims.add(copy);
 				}
-				// TODO: undo
+
 				selectionModel.setSelectedSimulations(copySims.toArray(new Simulation[0]));
 
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
