@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -802,41 +803,40 @@ public class RocketActions {
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 			if (components != null) {
+				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
-
-				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
 			if (isCopyable(components)) {
 				ComponentConfigDialog.disposeDialog();
-				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
 
+				List<RocketComponent> copiedComponents = copyComponentsMaintainParent(components);
 				OpenRocketClipboard.setClipboard(copiedComponents);
-
 				copiedComponents = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
-				List<RocketComponent> pasted = new LinkedList<>();
+
+				List<RocketComponent> duplicateComponents = new LinkedList<>();
 				for (RocketComponent component : copiedComponents) {
-					pasted.add(component.copy());
+					duplicateComponents.add(component.copy());
 				}
 
 				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : pasted) {
+				for (RocketComponent component : duplicateComponents) {
 					positions.add(getPastePosition(component));
 				}
 
-				if (pasted.size() == 1) {
-					document.addUndoPosition("Duplicate " + pasted.get(0).getComponentName());
+				if (duplicateComponents.size() == 1) {
+					document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
 				} else {
 					document.addUndoPosition("Duplicate components");
 				}
 
-				for (int i = 0; i < pasted.size(); i++) {
-					positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
+				for (int i = 0; i < duplicateComponents.size(); i++) {
+					positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
 				}
 
-				selectionModel.setSelectedComponents(pasted);
+				selectionModel.setSelectedComponents(duplicateComponents);
 
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
 			} else if (sims != null && sims.length > 0) {
