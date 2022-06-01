@@ -194,10 +194,27 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		configurationTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
 
+		ListSelectionListener listener = new ListSelectionListener() {
+			private int previousRow = -1;
+			private int previousColumn = -1;
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				if (table != null && (configurationTable.getSelectedRow() != previousRow ||
+						configurationTable.getSelectedColumn() != previousColumn)) {
+					updateButtonState();
+					previousRow = configurationTable.getSelectedRow();
+					previousColumn = configurationTable.getSelectedColumn();
+				}
+			}
+		};
+
+		configurationTable.getSelectionModel().addListSelectionListener(listener);
+		configurationTable.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
 				int selectedColumn = table.getSelectedColumn();
 
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {

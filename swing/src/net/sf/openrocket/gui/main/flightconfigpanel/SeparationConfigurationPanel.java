@@ -17,6 +17,8 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
@@ -109,10 +111,28 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		separationTable.getTableHeader().setReorderingAllowed(false);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+		ListSelectionListener listener = new ListSelectionListener() {
+			private int previousRow = -1;
+			private int previousColumn = -1;
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				if (table != null && (separationTable.getSelectedRow() != previousRow ||
+						separationTable.getSelectedColumn() != previousColumn)) {
+					updateButtonState();
+					previousRow = separationTable.getSelectedRow();
+					previousColumn = separationTable.getSelectedColumn();
+				}
+			}
+		};
+
+		separationTable.getSelectionModel().addListSelectionListener(listener);
+		separationTable.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+
 		separationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
 				int selectedColumn = table.getSelectedColumn();
 
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
@@ -128,6 +148,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 				}
 			}
 		});
+
 		separationTable.setDefaultRenderer(Object.class, new SeparationTableCellRenderer());
 		
 		return separationTable;

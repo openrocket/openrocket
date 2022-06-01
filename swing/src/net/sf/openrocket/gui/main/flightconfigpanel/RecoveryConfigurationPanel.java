@@ -17,6 +17,8 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
@@ -89,10 +91,28 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		recoveryTable.getTableHeader().setReorderingAllowed(false);
 		recoveryTable.setCellSelectionEnabled(true);
 		recoveryTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+		ListSelectionListener listener = new ListSelectionListener() {
+			private int previousRow = -1;
+			private int previousColumn = -1;
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				if (table != null && (recoveryTable.getSelectedRow() != previousRow ||
+						recoveryTable.getSelectedColumn() != previousColumn)) {
+					updateButtonState();
+					previousRow = recoveryTable.getSelectedRow();
+					previousColumn = recoveryTable.getSelectedColumn();
+				}
+			}
+		};
+
+		recoveryTable.getSelectionModel().addListSelectionListener(listener);
+		recoveryTable.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+
 		recoveryTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
 				int selectedColumn = table.getSelectedColumn();
 
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
@@ -108,6 +128,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 				}
 			}
 		});
+
 		rocket.addComponentChangeListener(cce -> {
 			final RocketComponent source = cce.getSource();
 			if(source instanceof FlightConfigurableComponent) {
