@@ -156,7 +156,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 						}
 					}
 
-					if (selectedColumn > 0) {
+					if (c > 0) {
 						doPopupFull(e);
 					} else {
 						flightConfigurationPanel.doPopupConfig(e);

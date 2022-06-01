@@ -238,7 +238,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 						}
 					}
 
-					if (selectedColumn > 0) {
+					if (c > 0) {
 						doPopupFull(e);
 					} else {
 						flightConfigurationPanel.doPopupConfig(e);
