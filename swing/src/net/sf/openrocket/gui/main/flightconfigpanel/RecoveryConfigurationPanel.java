@@ -120,6 +120,22 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 						selectDeployment();
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Get the row and column of the selected cell
+					int r = recoveryTable.rowAtPoint(e.getPoint());
+					int c = recoveryTable.columnAtPoint(e.getPoint());
+
+					// Select new cell
+					if (!recoveryTable.isCellSelected(r, c)) {
+						if (r >= 0 && r < recoveryTable.getRowCount() &&
+								c >= 0 && c < recoveryTable.getColumnCount()) {
+							recoveryTable.setRowSelectionInterval(r, r);
+							recoveryTable.setColumnSelectionInterval(c, c);
+						} else {
+							recoveryTable.clearSelection();
+							return;
+						}
+					}
+
 					if (selectedColumn > 0) {
 						doPopupFull(e);
 					} else {

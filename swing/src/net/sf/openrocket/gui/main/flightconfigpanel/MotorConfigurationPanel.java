@@ -222,6 +222,22 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 						selectMotor();
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Get the row and column of the selected cell
+					int r = configurationTable.rowAtPoint(e.getPoint());
+					int c = configurationTable.columnAtPoint(e.getPoint());
+
+					// Select new cell
+					if (!configurationTable.isCellSelected(r, c)) {
+						if (r >= 0 && r < configurationTable.getRowCount() &&
+								c >= 0 && c < configurationTable.getColumnCount()) {
+							configurationTable.setRowSelectionInterval(r, r);
+							configurationTable.setColumnSelectionInterval(c, c);
+						} else {
+							configurationTable.clearSelection();
+							return;
+						}
+					}
+
 					if (selectedColumn > 0) {
 						doPopupFull(e);
 					} else {

@@ -140,6 +140,22 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 						selectSeparation();
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Get the row and column of the selected cell
+					int r = separationTable.rowAtPoint(e.getPoint());
+					int c = separationTable.columnAtPoint(e.getPoint());
+
+					// Select new cell
+					if (!separationTable.isCellSelected(r, c)) {
+						if (r >= 0 && r < separationTable.getRowCount() &&
+								c >= 0 && c < separationTable.getColumnCount()) {
+							separationTable.setRowSelectionInterval(r, r);
+							separationTable.setColumnSelectionInterval(c, c);
+						} else {
+							separationTable.clearSelection();
+							return;
+						}
+					}
+
 					if (selectedColumn > 0) {
 						doPopupFull(e);
 					} else {

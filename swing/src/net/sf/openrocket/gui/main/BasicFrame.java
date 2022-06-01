@@ -304,8 +304,15 @@ public class BasicFrame extends JFrame {
 						ComponentConfigDialog.showDialog(BasicFrame.this,
 								BasicFrame.this.document, c);
 					} else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
+						if (!tree.isPathSelected(selPath)) {
+							// Select new path
+							tree.setSelectionPath(selPath);
+						}
+
 						doComponentTreePopup(e);
 					}
+				} else {
+					tree.clearSelection();
 				}
 			}
 		};
