@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -39,6 +39,13 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	private FlightConfigurableTableModel<AxialStage> separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
+
+	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
+	private final AbstractAction selectSeparationAction;
+	private final AbstractAction resetSeparationAction;
+	private final AbstractAction renameConfigAction;
+	private final AbstractAction removeConfigAction;
+	private final AbstractAction duplicateConfigAction;
 	
 	
 	SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
@@ -46,27 +53,31 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		
 		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, pushy, wrap");
+
+		// Get all the actions
+		selectSeparationAction = new SelectSeparationAction();
+		resetSeparationAction = new ResetSeparationAction();
+		renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+
+		// Populate the popup menu
+		popupMenuFull = new JPopupMenu();
+		popupMenuFull.add(selectSeparationAction);
+		popupMenuFull.add(resetSeparationAction);
+		popupMenuFull.addSeparator();
+		popupMenuFull.add(renameConfigAction);
+		popupMenuFull.add(removeConfigAction);
+		popupMenuFull.add(duplicateConfigAction);
 		
-		//// Select deployment
-		selectSeparationButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectseparation"));
+		//// Select separation
+		selectSeparationButton = new SelectColorButton(selectSeparationAction);
 		selectSeparationButton.setEnabled(false);
-		selectSeparationButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				selectSeparation();
-			}
-		});
 		this.add(selectSeparationButton, "split, align right, sizegroup button");
 		
-		//// Reset deployment
-		resetDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Resetseparation"));
+		//// Reset separation
+		resetDeploymentButton = new SelectColorButton(resetSeparationAction);
 		resetDeploymentButton.setEnabled(false);
-		resetDeploymentButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				resetSeparation();
-			}
-		});
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 
 		// Set 'Enter' key action to open the separation selection dialog
@@ -108,9 +119,18 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
-				if (e.getClickCount() == 2) {
-					// Double-click edits 
-					selectSeparation();
+				int selectedColumn = table.getSelectedColumn();
+
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+					if (selectedColumn > 0) {
+						selectSeparation();
+					}
+				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					if (selectedColumn > 0) {
+						doPopupFull(e);
+					} else {
+						flightConfigurationPanel.doPopupConfig(e);
+					}
 				}
 			}
 		});
@@ -192,6 +212,11 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
 		}
 	}
+
+	private void doPopupFull(MouseEvent e) {
+		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
+	}
+
 	public void updateButtonState() {
 		boolean componentSelected = getSelectedComponent() != null;
 		selectSeparationButton.setEnabled(componentSelected);
@@ -226,6 +251,26 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 
 		}
 	}
-	
+
+	private class SelectSeparationAction extends AbstractAction {
+		public SelectSeparationAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Selectseparation"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectSeparation();
+		}
+	}
+	private class ResetSeparationAction extends AbstractAction {
+		public ResetSeparationAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Resetseparation"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resetSeparation();
+		}
+	}
 	
 }
