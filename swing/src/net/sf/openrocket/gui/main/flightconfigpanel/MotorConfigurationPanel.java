@@ -126,7 +126,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		//// Select Ignition button
 		selectIgnitionButton = new SelectColorButton(selectIgnitionAction);
-		configurationPanel.add(selectIgnitionButton, "sizegroup button");
+		configurationPanel.add(selectIgnitionButton, "sizegroup button, gapleft para");
 
 		//// Reset Ignition button
 		resetIgnitionButton = new SelectColorButton(resetIgnitionAction);
