@@ -55,6 +55,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 	
 	private static final String CHECK_UPDATES = "CheckUpdates";
+
+	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
@@ -139,6 +141,14 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	public final boolean getCheckBetaUpdates() {
+		return this.getBoolean(CHECK_BETA_UPDATES, BuildProperties.getDefaultCheckBetaUpdates());
+	}
+
+	public final void setCheckBetaUpdates(boolean check) {
+		this.putBoolean(CHECK_BETA_UPDATES, check);
 	}
 	
 	public final boolean getConfirmSimDeletion() {
