@@ -1,9 +1,13 @@
 package net.sf.openrocket.simulation;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -46,27 +50,33 @@ public class BasicTumbleStatus extends SimulationStatus {
 		// compute the fin and body tube projected areas
 		double aFins = 0.0;
 		double aBt = 0.0;
-		Rocket r = this.getConfiguration().getRocket();
-		Iterator<RocketComponent> componentIterator = r.iterator();
-		while (componentIterator.hasNext()) {
-			RocketComponent component = componentIterator.next();
+		final InstanceMap imap = this.getConfiguration().getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent component = entry.getKey();
+			
 			if (!component.isAerodynamic()) {
 				continue;
 			}
-			if (component instanceof FinSet) {
-				final FinSet finComponent = ((FinSet) component);
-				final double finArea = finComponent.getPlanformArea();
-				int finCount = finComponent.getFinCount();
+			
+			// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
 				
-				// check bounds on finCount.
-				if (finCount >= finEff.length) {
-					finCount = finEff.length - 1;
+				if (component instanceof FinSet) {
+					final FinSet finComponent = ((FinSet) component);
+					final double finArea = finComponent.getPlanformArea();
+					int finCount = finComponent.getFinCount();
+					
+					// check bounds on finCount.
+					if (finCount >= finEff.length) {
+						finCount = finEff.length - 1;
+					}
+					
+					aFins += finArea * finEff[finCount] / finComponent.getFinCount();
+					
+				} else if (component instanceof SymmetricComponent) {
+					aBt += ((SymmetricComponent) component).getComponentPlanformArea();
 				}
-				
-				aFins += finArea * finEff[finCount];
-				
-			} else if (component instanceof SymmetricComponent) {
-				aBt += ((SymmetricComponent) component).getComponentPlanformArea();
 			}
 		}
 		
