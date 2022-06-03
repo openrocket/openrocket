@@ -83,6 +83,26 @@ public class SimulationPlotDialog extends JDialog {
 			}
 		});
 		panel.add(check, "split, left");
+
+		//// Add series selection box
+		ArrayList<String> stages = new ArrayList<String>();
+		stages.add("All");
+		stages.addAll(Util.generateSeriesLabels(simulation));
+
+		final JComboBox<String> stageSelection = new JComboBox<>(stages.toArray(new String[0]));
+		stageSelection.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				int selectedStage = stageSelection.getSelectedIndex() - 1;
+				myPlot.setShowBranch(selectedStage);
+			}
+
+		});
+		if (stages.size() > 2) {
+			// Only show the combo box if there are at least 3 entries (ie, "All", "Main", and one other one)
+			panel.add(stageSelection, "gapleft rel");
+		}
 		
 		//// Zoom in button
 		JButton button = new SelectColorButton(Icons.ZOOM_IN);
@@ -134,29 +154,6 @@ public class SimulationPlotDialog extends JDialog {
 		});
 		panel.add(button, "gapleft rel");
 		
-		//// Add series selection box
-		ArrayList<String> stages = new ArrayList<String>();
-		stages.add("All");
-		stages.addAll(Util.generateSeriesLabels(simulation));
-		
-		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
-		stageSelection.addItemListener(new ItemListener() {
-			
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				int selectedStage = stageSelection.getSelectedIndex() - 1;
-				myPlot.setShowBranch(selectedStage);
-			}
-			
-		});
-		if (stages.size() > 2) {
-			// Only show the combo box if there are at least 3 entries (ie, "All", "Main", and one other one
-			panel.add(stageSelection, "gapleft rel");
-		}
-		
-		//// Spacer for layout to push close button to the right.
-		panel.add(new JPanel(), "growx");
-		
 		//// Close button
 		button = new SelectColorButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
@@ -165,7 +162,7 @@ public class SimulationPlotDialog extends JDialog {
 				SimulationPlotDialog.this.dispose();
 			}
 		});
-		panel.add(button, "right");
+		panel.add(button, "gapbefore push, right");
 		this.setLocationByPlatform(true);
 		this.pack();
 		
