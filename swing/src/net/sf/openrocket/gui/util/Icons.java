@@ -58,11 +58,16 @@ public class Icons {
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
 	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", trans.get("Icons.Undo"));
 	public static final Icon EDIT_REDO = loadImageIcon("pix/icons/edit-redo.png", trans.get("Icons.Redo"));
+	public static final Icon EDIT_EDIT = loadImageIcon("pix/icons/edit-edit.png", "Edit");
 	public static final Icon EDIT_CUT = loadImageIcon("pix/icons/edit-cut.png", "Cut");
 	public static final Icon EDIT_COPY = loadImageIcon("pix/icons/edit-copy.png", "Copy");
 	public static final Icon EDIT_PASTE = loadImageIcon("pix/icons/edit-paste.png", "Paste");
+	public static final Icon EDIT_DUPLICATE = loadImageIcon("pix/icons/edit-duplicate.png", "Duplicate");
 	public static final Icon EDIT_DELETE = loadImageIcon("pix/icons/edit-delete.png", "Delete");
 	public static final Icon EDIT_SCALE = loadImageIcon("pix/icons/edit-scale.png", "Scale");
+
+	public static final Icon SIM_RUN = loadImageIcon("pix/icons/sim-run.png", "Run");
+	public static final Icon SIM_PLOT = loadImageIcon("pix/icons/sim-plot.png", "Plot");
 	
 	public static final Icon HELP_ABOUT = loadImageIcon("pix/icons/help-about.png", "About");
 	public static final Icon HELP_LICENSE = loadImageIcon("pix/icons/help-license.png", "License");

@@ -51,7 +51,6 @@ import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
-import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
@@ -87,6 +86,8 @@ import net.sf.openrocket.utils.ComponentPresetEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
+
 
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 948877655223365313L;
@@ -98,7 +99,10 @@ public class BasicFrame extends JFrame {
 	private static final Translator trans = Application.getTranslator();
 	private static final Preferences prefs = Application.getPreferences();
 
-	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+
+	private static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
+			SHIFT_DOWN_MASK;
 
 	public static final int COMPONENT_TAB = 0;
 	public static final int CONFIGURATION_TAB = 1;
@@ -124,6 +128,7 @@ public class BasicFrame extends JFrame {
 	private JTabbedPane tabbedPane;
 	private RocketPanel rocketpanel;
 	private ComponentTree tree = null;
+	private final JPopupMenu popupMenu;
 
 	private final DocumentSelectionModel selectionModel;
 	private final TreeSelectionModel componentSelectionModel;
@@ -161,7 +166,18 @@ public class BasicFrame extends JFrame {
 		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
 		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
 
-		actions = new RocketActions(document, selectionModel, this);
+		actions = new RocketActions(document, selectionModel, this, simulationPanel);
+
+		// Populate the popup menu
+		popupMenu = new JPopupMenu();
+		popupMenu.add(actions.getEditAction());
+		popupMenu.add(actions.getCutAction());
+		popupMenu.add(actions.getCopyAction());
+		popupMenu.add(actions.getPasteAction());
+		popupMenu.add(actions.getDuplicateAction());
+		popupMenu.add(actions.getDeleteAction());
+		popupMenu.addSeparator();
+		popupMenu.add(actions.getScaleAction());
 
 		log.debug("Constructing the BasicFrame UI");
 
@@ -278,16 +294,25 @@ public class BasicFrame extends JFrame {
 		// Double-click opens config dialog
 		MouseListener ml = new MouseAdapter() {
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 				if (selRow != -1) {
-					if ((e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
+					if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
 						// Double-click
 						RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
 						ComponentConfigDialog.showDialog(BasicFrame.this,
 								BasicFrame.this.document, c);
+					} else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
+						if (!tree.isPathSelected(selPath)) {
+							// Select new path
+							tree.setSelectionPath(selPath);
+						}
+
+						doComponentTreePopup(e);
 					}
+				} else {
+					tree.clearSelection();
 				}
 			}
 		};
@@ -334,6 +359,13 @@ public class BasicFrame extends JFrame {
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
 		button = new SelectColorButton(actions.getEditAction());
+		button.setIcon(null);
+		button.setMnemonic(0);
+		panel.add(button, "sizegroup buttons, gaptop 20%");
+
+		button = new SelectColorButton(actions.getDuplicateAction());
+		button.setIcon(null);
+		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
 		button = new SelectColorButton(actions.getDeleteAction());
@@ -689,6 +721,9 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 
+		item = new JMenuItem(actions.getEditAction());
+		menu.add(item);
+
 		item = new JMenuItem(actions.getCutAction());
 		menu.add(item);
 
@@ -698,24 +733,15 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(actions.getPasteAction());
 		menu.add(item);
 
+		item = new JMenuItem(actions.getDuplicateAction());
+		menu.add(item);
+
 		item = new JMenuItem(actions.getDeleteAction());
 		menu.add(item);
 
 		menu.addSeparator();
 
-
-		item = new JMenuItem(trans.get("main.menu.edit.resize"));
-		item.setIcon(Icons.EDIT_SCALE);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Scale... selected");
-				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponents(), BasicFrame.this);
-				dialog.setVisible(true);
-				dialog.dispose();
-			}
-		});
+		item = new JMenuItem(actions.getScaleAction());
 		menu.add(item);
 
 
@@ -856,7 +882,7 @@ public class BasicFrame extends JFrame {
 		////	Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
 		item.setIcon(Icons.HELP_DEBUG_LOG);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_KEY));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHIFT_SHORTCUT_KEY));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -896,6 +922,10 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		this.setJMenuBar(menubar);
+	}
+
+	public void doComponentTreePopup(MouseEvent e) {
+		popupMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	private JMenu makeDebugMenu() {

@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,8 +22,10 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
@@ -32,7 +35,8 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Pair;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,16 +48,21 @@ import net.sf.openrocket.util.Pair;
 public class RocketActions {
 
 	public static final KeyStroke CUT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_X,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke COPY_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_C,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke PASTE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+	public static final KeyStroke DUPLICATE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_D,
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+	public static final KeyStroke EDIT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_E,
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
 	private final BasicFrame parentFrame;
 	private final DocumentSelectionModel selectionModel;
+	private final SimulationPanel simulationPanel;
 
 
 	private final RocketAction deleteComponentAction;
@@ -62,19 +71,23 @@ public class RocketActions {
 	private final RocketAction cutAction;
 	private final RocketAction copyAction;
 	private final RocketAction pasteAction;
+	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
+	private final RocketAction scaleAction;
 	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
 
 	public RocketActions(OpenRocketDocument document, DocumentSelectionModel selectionModel,
-			BasicFrame parentFrame) {
+			BasicFrame parentFrame, SimulationPanel simulationPanel) {
 		this.document = document;
 		this.rocket = document.getRocket();
 		this.selectionModel = selectionModel;
 		this.parentFrame = parentFrame;
+		this.simulationPanel = simulationPanel;
 
 		// Add action also to updateActions()
 		this.deleteAction = new DeleteAction();
@@ -83,7 +96,9 @@ public class RocketActions {
 		this.cutAction = new CutAction();
 		this.copyAction = new CopyAction();
 		this.pasteAction = new PasteAction();
+		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
+		this.scaleAction = new ScaleAction();
 		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -115,7 +130,9 @@ public class RocketActions {
 		cutAction.clipboardChanged();
 		copyAction.clipboardChanged();
 		pasteAction.clipboardChanged();
+		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
+		scaleAction.clipboardChanged();
 		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -147,9 +164,17 @@ public class RocketActions {
 	public Action getPasteAction() {
 		return pasteAction;
 	}
+
+	public Action getDuplicateAction() {
+		return duplicateAction;
+	}
 	
 	public Action getEditAction() {
 		return editAction;
+	}
+
+	public Action getScaleAction() {
+		return scaleAction;
 	}
 	
 	public Action getNewStageAction() {
@@ -243,20 +268,10 @@ public class RocketActions {
 
 		for (int i = 0; i < components.size(); i++) {
 			if (components.contains(components.get(i).getParent())) {
-				RocketComponent oldChild = components.get(i);
-				RocketComponent oldParent = oldChild.getParent();
+				RocketComponent originalParent = components.get(i).getParent();
+				int originalParentIdx = components.indexOf(originalParent);
 
-				int index = components.indexOf(oldParent);
-				int childPos = oldParent.getChildPosition(oldChild);
-
-				RocketComponent newChild = result.get(i);
-				RocketComponent newParent = result.get(index);
-
-				// Add the newly copied child to the parent
-				newParent.addChild(newChild, childPos);
-
-				// Remove the old child from the parent
-				newParent.removeChild(oldChild);
+				result.get(originalParentIdx).addChild(result.get(i));
 			}
 		}
 
@@ -646,7 +661,7 @@ public class RocketActions {
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_C);
 			this.putValue(ACCELERATOR_KEY, COPY_KEY_STROKE);
 			//// Copy this component (and subcomponents) to the clipboard.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.Copy"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.ttip.Copy"));
 			this.putValue(SMALL_ICON, Icons.EDIT_COPY);
 			clipboardChanged();
 		}
@@ -667,12 +682,12 @@ public class RocketActions {
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
-			} else if (sims.length > 0) {
-
+			} else if (sims != null && sims.length > 0) {
 				Simulation[] simsCopy = new Simulation[sims.length];
 				for (int i=0; i < sims.length; i++) {
 					simsCopy[i] = sims[i].copy();
 				}
+
 				OpenRocketClipboard.setClipboard(simsCopy);
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			}
@@ -765,9 +780,98 @@ public class RocketActions {
 					(OpenRocketClipboard.getClipboardSimulations() != null));
 		}
 	}
-	
-	
-	
+
+
+	/**
+	 * Action that duplicates the selected component.
+	 */
+	private class DuplicateAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public DuplicateAction() {
+			//// Copy
+			this.putValue(NAME, trans.get("RocketActions.DuplicateAct.Duplicate"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+			this.putValue(ACCELERATOR_KEY, DUPLICATE_KEY_STROKE);
+			//// Copy this component (and subcomponents) to the clipboard.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DuplicateAct.ttip.Duplicate"));
+			this.putValue(SMALL_ICON, Icons.EDIT_DUPLICATE);
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components != null) {
+				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
+				components = new ArrayList<>(components);
+				fillInMissingSelections(components);
+			}
+			Simulation[] sims = selectionModel.getSelectedSimulations();
+
+			if (isCopyable(components)) {
+				ComponentConfigDialog.disposeDialog();
+
+				List<RocketComponent> copiedComponents = copyComponentsMaintainParent(components);
+				OpenRocketClipboard.setClipboard(copiedComponents);
+				copiedComponents = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
+
+				List<RocketComponent> duplicateComponents = new LinkedList<>();
+				for (RocketComponent component : copiedComponents) {
+					duplicateComponents.add(component.copy());
+				}
+
+				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
+				for (RocketComponent component : duplicateComponents) {
+					positions.add(getPastePosition(component));
+				}
+
+				if (duplicateComponents.size() == 1) {
+					document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
+				} else {
+					document.addUndoPosition("Duplicate components");
+				}
+
+				for (int i = 0; i < duplicateComponents.size(); i++) {
+					positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
+				}
+
+				selectionModel.setSelectedComponents(duplicateComponents);
+
+				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+			} else if (sims != null && sims.length > 0) {
+				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
+
+				// TODO: the undoing doesn't do anything...
+				if (sims.length == 1) {
+					document.addUndoPosition("Duplicate " + sims[0].getName());
+				} else {
+					document.addUndoPosition("Duplicate simulations");
+				}
+
+				for (Simulation s: sims) {
+					Simulation copy = s.duplicateSimulation(rocket);
+					String name = copy.getName();
+					if (name.matches(OpenRocketDocument.SIMULATION_NAME_PREFIX + "[0-9]+ *")) {
+						copy.setName(document.getNextSimulationName());
+					}
+					document.addSimulation(copy);
+					copySims.add(copy);
+				}
+
+				selectionModel.setSelectedSimulations(copySims.toArray(new Simulation[0]));
+
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			}
+		}
+
+		@Override
+		public void clipboardChanged() {
+			this.setEnabled(isCopyable(selectionModel.getSelectedComponent()) ||
+					isSimulationSelected());
+		}
+
+	}
 	
 
 	
@@ -780,33 +884,39 @@ public class RocketActions {
 		public EditAction() {
 			//// Edit
 			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
+			this.putValue(ACCELERATOR_KEY, EDIT_KEY_STROKE);
 			//// Edit the selected component.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
+			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
 			clipboardChanged();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (!checkAllClassesEqual(components))
-				return;
+			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			// Do nothing if the config dialog is already visible
-			if (ComponentConfigDialog.isDialogVisible())
-				return;
+			if ((components != null) && (components.size() > 0) && checkAllClassesEqual(components)) {
+				// Do nothing if the config dialog is already visible
+				if (ComponentConfigDialog.isDialogVisible())
+					return;
 
-			List<RocketComponent> listeners = null;
-			if (components.size() > 1) {
-				listeners = components.subList(1, components.size());
+				List<RocketComponent> listeners = null;
+				if (components.size() > 1) {
+					listeners = components.subList(1, components.size());
+				}
+				ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
+			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
+				simulationPanel.editSimulation();
 			}
-			ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
 		}
 
 		@Override
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 
-			this.setEnabled(checkAllClassesEqual(components));
+			this.setEnabled(checkAllClassesEqual(components) || isSimulationSelected());
 		}
 
 		/**
@@ -828,7 +938,33 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to scale the currently selected component.
+	 */
+	private class ScaleAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
 
+		public ScaleAction() {
+			//// Scale
+			this.putValue(NAME, trans.get("RocketActions.ScaleAct.Scale"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.ScaleAct.ttip.Scale"));
+			this.putValue(SMALL_ICON, Icons.EDIT_SCALE);
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			log.info(Markers.USER_MARKER, "Scale... selected");
+			ScaleDialog dialog = new ScaleDialog(document, selectionModel.getSelectedComponents(), null);
+			dialog.setVisible(true);
+			dialog.dispose();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			this.setEnabled(true);
+		}
+	}
 	
 	
 	

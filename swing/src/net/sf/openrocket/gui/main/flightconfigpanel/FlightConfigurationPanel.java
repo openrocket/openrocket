@@ -1,15 +1,16 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -31,7 +32,6 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketvisitors.ListComponents;
 import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -43,12 +43,18 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private final Rocket rocket;
 
 	private final BasicFrame basicFrame;
-	private final JButton newConfButton, renameConfButton, removeConfButton, copyConfButton;
+	private final JButton newConfButton, renameConfButton, removeConfButton, duplicateConfButton;
 	
 	private final JTabbedPane tabs;
 	private final MotorConfigurationPanel motorConfigurationPanel;
 	private final RecoveryConfigurationPanel recoveryConfigurationPanel;
 	private final SeparationConfigurationPanel separationConfigurationPanel;
+
+	private final JPopupMenu popupMenuConfig;
+	private final AbstractAction newConfigAction;
+	private final AbstractAction renameConfigAction;
+	private final AbstractAction removeConfigAction;
+	private final AbstractAction duplicateConfigAction;
 
 	private final static int MOTOR_TAB_INDEX = 0;
 	private final static int RECOVERY_TAB_INDEX = 1;
@@ -61,8 +67,17 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.document = doc;
 		this.rocket = doc.getRocket();
 		this.rocket.addChangeListener(this);
-		
-		//JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
+
+		// Populate the popup menu
+		popupMenuConfig = new JPopupMenu();
+		newConfigAction = new NewConfigAction();
+		renameConfigAction = new RenameConfigAction();
+		removeConfigAction = new RemoveConfigAction();
+		duplicateConfigAction = new DuplicateConfigAction();
+		popupMenuConfig.add(newConfigAction);
+		popupMenuConfig.add(renameConfigAction);
+		popupMenuConfig.add(removeConfigAction);
+		popupMenuConfig.add(duplicateConfigAction);
 		
 		//// Tabs for advanced view.
 		tabs = new JTabbedPane();
@@ -79,45 +94,21 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		separationConfigurationPanel = new SeparationConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 
-		newConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
-		newConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				newOrCopyConfigAction(false);
-			}
-			
-		});
-		
+		//// New configuration
+		newConfButton = new SelectColorButton(newConfigAction);
 		this.add(newConfButton,"skip 1,gapright para");
-		
-		renameConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
-		renameConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				renameConfiguration();
-				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-			}
-		});
+
+		//// Rename configuration
+		renameConfButton = new SelectColorButton(renameConfigAction);
 		this.add(renameConfButton,"gapright para");
-		
-		removeConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
-		removeConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				removeConfiguration();
-				configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-			}
-		});
+
+		//// Remove configuration
+		removeConfButton = new SelectColorButton(removeConfigAction);
 		this.add(removeConfButton,"gapright para");
-		
-		copyConfButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
-		copyConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				newOrCopyConfigAction(true);
-			}
-		});
-		this.add(copyConfButton, "wrap");
+
+		//// Duplicate configuration
+		duplicateConfButton = new SelectColorButton(duplicateConfigAction);
+		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
 			@Override
@@ -143,11 +134,11 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	/**
-	 * Action for when the new configuration or copy configuration button is pressed.
-	 * @param copy if True, then copy configuration operation, if False then create a new configuration
+	 * Action for when the new configuration or duplicate configuration button is pressed.
+	 * @param duplicate if True, then duplicate configuration operation, if False then create a new configuration
 	 */
-	private void newOrCopyConfigAction(boolean copy) {
-		addOrCopyConfiguration(copy);
+	private void newOrDuplicateConfigAction(boolean duplicate) {
+		addOrDuplicateConfiguration(duplicate);
 		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		stateChanged(null);
 		switch (tabs.getSelectedIndex()) {
@@ -165,15 +156,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	/**
-	 * either create or copy configuration
+	 * either create or duplicate configuration
 	 * set new configuration as current
 	 * create simulation for new configuration
 	 */
-	private void addOrCopyConfiguration(boolean copy) {
+	private void addOrDuplicateConfiguration(boolean duplicate) {
 		final Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
 
-		// create or copy configuration
-		if (copy) {
+		// create or duplicate configuration
+		if (duplicate) {
 			List<FlightConfigurationId> oldIds = getSelectedConfigurationIds();
 			if (oldIds == null || oldIds.size() == 0) return;
 
@@ -217,7 +208,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		rocket.setSelectedConfiguration((FlightConfigurationId) newConfigs.keySet().toArray()[0]);
 	}
 	
-	private void renameConfiguration() {
+	private void renameConfigurationAction() {
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if (fcIds == null) return;
 		FlightConfigurationId initFcId = fcIds.get(0);
@@ -226,9 +217,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		for (int i = 1; i < fcIds.size(); i++) {
 			rocket.getFlightConfiguration(fcIds.get(i)).setName(newName);
 		}
+		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
-	private void removeConfiguration() {
+	private void removeConfigurationAction() {
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if (fcIds == null || fcIds.size() == 0)
 			return;
@@ -239,7 +231,27 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	public void doPopupConfig(MouseEvent e) {
+		popupMenuConfig.show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	public AbstractAction getNewConfigAction() {
+		return newConfigAction;
+	}
+
+	public AbstractAction getRenameConfigAction() {
+		return renameConfigAction;
+	}
+
+	public AbstractAction getRemoveConfigAction() {
+		return removeConfigAction;
+	}
+
+	public AbstractAction getDuplicateConfigAction() {
+		return duplicateConfigAction;
+	}
+
 	private void configurationChanged(int cce) {
 		motorConfigurationPanel.fireTableDataChanged(cce);
 		recoveryConfigurationPanel.fireTableDataChanged(cce);
@@ -248,10 +260,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	
 	private void updateButtonState() {
 		FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		// Enable the remove/rename/copy buttons only when a configuration is selected.
+		// Enable the remove/rename/duplicate buttons only when a configuration is selected.
 		removeConfButton.setEnabled(currentId.isValid());
 		renameConfButton.setEnabled(currentId.isValid());
-		copyConfButton.setEnabled(currentId.isValid());
+		duplicateConfButton.setEnabled(currentId.isValid());
 		
 		// Count the number of motor mounts
 		int motorMountCount = rocket.accept(new ListMotorMounts()).size();
@@ -309,5 +321,49 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		motorConfigurationPanel.synchronizeConfigurationSelection();
 		recoveryConfigurationPanel.synchronizeConfigurationSelection();
 		separationConfigurationPanel.synchronizeConfigurationSelection();
+	}
+
+	private class NewConfigAction extends AbstractAction {
+		public NewConfigAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Newconfiguration"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			newOrDuplicateConfigAction(false);
+		}
+	}
+
+	private class RenameConfigAction extends AbstractAction {
+		public RenameConfigAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Renameconfiguration"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			renameConfigurationAction();
+		}
+	}
+
+	private class RemoveConfigAction extends AbstractAction {
+		public RemoveConfigAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			removeConfigurationAction();
+		}
+	}
+
+	private class DuplicateConfigAction extends AbstractAction {
+		public DuplicateConfigAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Duplicateconfiguration"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			newOrDuplicateConfigAction(true);
+		}
 	}
 }

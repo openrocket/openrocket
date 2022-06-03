@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -19,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -62,6 +62,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final MotorChooserDialog motorChooserDialog;
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
+	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
+
+
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel, rocket);
 
@@ -82,6 +85,27 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		cards = new JPanel(new CardLayout());
 		this.add(cards, "pushy");
 
+		// Get all the actions
+		AbstractAction selectMotorAction = new SelectMotorAction();
+		AbstractAction removeMotorAction = new RemoveMotorAction();
+		AbstractAction selectIgnitionAction = new SelectIgnitionAction();
+		AbstractAction resetIgnitionAction = new ResetIgnitionAction();
+		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
+
+		// Populate the popup menu
+		popupMenuFull = new JPopupMenu();
+		popupMenuFull.add(selectMotorAction);
+		popupMenuFull.add(removeMotorAction);
+		popupMenuFull.addSeparator();
+		popupMenuFull.add(selectIgnitionAction);
+		popupMenuFull.add(resetIgnitionAction);
+		popupMenuFull.addSeparator();
+		popupMenuFull.add(renameConfigAction);
+		popupMenuFull.add(removeConfigAction);
+		popupMenuFull.add(duplicateConfigAction);
+
 		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
 		cards.add(helpText, HELP_LABEL );
 
@@ -93,43 +117,19 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		configurationPanel.add(scroll, "spanx, grow, pushy, wrap");
 
 		//// Select motor
-		selectMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
-		selectMotorButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				selectMotor();
-			}
-		});
+		selectMotorButton = new SelectColorButton(selectMotorAction);
 		configurationPanel.add(selectMotorButton, "split, align right, sizegroup button");
 
 		//// Remove motor button
-		removeMotorButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.removeMotor"));
-		removeMotorButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				removeMotor();
-			}
-		});
+		removeMotorButton = new SelectColorButton(removeMotorAction);
 		configurationPanel.add(removeMotorButton, "sizegroup button");
 
 		//// Select Ignition button
-		selectIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.selectIgnition"));
-		selectIgnitionButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				selectIgnition();
-			}
-		});
-		configurationPanel.add(selectIgnitionButton, "sizegroup button");
+		selectIgnitionButton = new SelectColorButton(selectIgnitionAction);
+		configurationPanel.add(selectIgnitionButton, "sizegroup button, gapleft para");
 
 		//// Reset Ignition button
-		resetIgnitionButton = new SelectColorButton(trans.get("MotorConfigurationPanel.btn.resetIgnition"));
-		resetIgnitionButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				resetIgnition();
-			}
-		});
+		resetIgnitionButton = new SelectColorButton(resetIgnitionAction);
 		configurationPanel.add(resetIgnitionButton, "sizegroup button, wrap");
 
 		cards.add(configurationPanel, TABLE_LABEL );
@@ -194,14 +194,54 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		configurationTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
 
+		ListSelectionListener listener = new ListSelectionListener() {
+			private int previousRow = -1;
+			private int previousColumn = -1;
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				if (table != null && (configurationTable.getSelectedRow() != previousRow ||
+						configurationTable.getSelectedColumn() != previousColumn)) {
+					updateButtonState();
+					previousRow = configurationTable.getSelectedRow();
+					previousColumn = configurationTable.getSelectedColumn();
+				}
+			}
+		};
+
+		configurationTable.getSelectionModel().addListSelectionListener(listener);
+		configurationTable.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
 				int selectedColumn = table.getSelectedColumn();
-				if (e.getClickCount() == 2) {
+
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 					if (selectedColumn > 0) {
 						selectMotor();
+					}
+				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Get the row and column of the selected cell
+					int r = configurationTable.rowAtPoint(e.getPoint());
+					int c = configurationTable.columnAtPoint(e.getPoint());
+
+					// Select new cell
+					if (!configurationTable.isCellSelected(r, c)) {
+						if (r >= 0 && r < configurationTable.getRowCount() &&
+								c >= 0 && c < configurationTable.getColumnCount()) {
+							configurationTable.setRowSelectionInterval(r, r);
+							configurationTable.setColumnSelectionInterval(c, c);
+						} else {
+							configurationTable.clearSelection();
+							return;
+						}
+					}
+
+					if (c > 0) {
+						doPopupFull(e);
+					} else {
+						flightConfigurationPanel.doPopupConfig(e);
 					}
 				}
 			}
@@ -232,6 +272,10 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 			}
 		});
+	}
+
+	private void doPopupFull(MouseEvent e) {
+		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	public void updateComponentSelection(ListSelectionEvent e) {
@@ -407,6 +451,50 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
+
+	private class SelectMotorAction extends AbstractAction {
+		public SelectMotorAction() {
+			putValue(NAME, trans.get("MotorConfigurationPanel.btn.selectMotor"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectMotor();
+		}
+	}
+
+	private class RemoveMotorAction extends AbstractAction {
+		public RemoveMotorAction() {
+			putValue(NAME, trans.get("MotorConfigurationPanel.btn.removeMotor"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			removeMotor();
+		}
+	}
+
+	private class SelectIgnitionAction extends AbstractAction {
+		public SelectIgnitionAction() {
+			putValue(NAME, trans.get("MotorConfigurationPanel.btn.selectIgnition"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectIgnition();
+		}
+	}
+
+	private class ResetIgnitionAction extends AbstractAction {
+		public ResetIgnitionAction() {
+			putValue(NAME, trans.get("MotorConfigurationPanel.btn.resetIgnition"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resetIgnition();
+		}
+	}
 
 	private class MotorTableCellRenderer extends FlightConfigurablePanel<MotorMount>.FlightConfigurableCellRenderer {
 

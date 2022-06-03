@@ -554,8 +554,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	public static final int CYCLE_SELECTION_MODIFIER = InputEvent.SHIFT_DOWN_MASK;
 
 	private void handleMouseClick(MouseEvent event) {
-		if (event.getButton() != MouseEvent.BUTTON1)
-			return;
+		// Get the component that is clicked on
 		Point p0 = event.getPoint();
 		Point p1 = scrollPane.getViewport().getViewPosition();
 		int x = p0.x + p1.x;
@@ -563,16 +562,40 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		RocketComponent[] clicked = figure.getComponentsByPoint(x, y);
 
-		handleComponentClick(clicked, event);
-	}
-
-	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event) {
 		// If no component is clicked, do nothing
 		if (clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
 			return;
 		}
 
+		if (event.getButton() == MouseEvent.BUTTON1) {
+			handleComponentClick(clicked, event);
+		} else if (event.getButton() == MouseEvent.BUTTON3) {
+			List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
+					.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
+
+			boolean newClick = true;
+			for (RocketComponent component : clicked) {
+				if (selectedComponents.contains(component)) {
+					newClick = false;
+					break;
+				}
+			}
+
+			if (newClick) {
+				for (RocketComponent rocketComponent : clicked) {
+					if (!selectedComponents.contains(rocketComponent)) {
+						TreePath path = ComponentTreeModel.makeTreePath(rocketComponent);
+						selectionModel.setSelectionPath(path);
+					}
+				}
+			}
+
+			basicFrame.doComponentTreePopup(event);
+		}
+	}
+
+	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event) {
 		List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
 				.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
 
