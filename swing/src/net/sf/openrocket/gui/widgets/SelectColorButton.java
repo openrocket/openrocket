@@ -38,6 +38,10 @@ public class SelectColorButton extends JButton {
         if (UIManager.getColor("Button.selectForeground") == null
                 || UIManager.getColor("Button.foreground") == null)
             return;
+
+        // Fixes the issue of the background of the button not being blue when selected on macOS
+        putClientProperty("JButton.buttonType", "segmented-only");
+
         addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
