@@ -117,7 +117,6 @@ public class UpdateInfoRetriever {
 
 		private final String preTag = null;       		// Change e.g. to 'android' for Android release
 		private final String[] filterTags = null;		// Change to e.g. ["beta"] to only retrieve beta releases
-		private final boolean onlyOfficial = false;		// Change to false for beta testing
 
 		private volatile UpdateInfo info;
 		
@@ -140,7 +139,7 @@ public class UpdateInfoRetriever {
 
 			// Get the latest release name from the GitHub release page
 			JsonArray jsonArr = retrieveAllReleaseObjects();
-			JsonObject latestObj = getLatestReleaseJSON(jsonArr, preTag, filterTags, onlyOfficial);
+			JsonObject latestObj = getLatestReleaseJSON(jsonArr, preTag, filterTags, !Application.getPreferences().getCheckBetaUpdates());
 			ReleaseInfo release = new ReleaseInfo(latestObj);
 			String latestName = release.getReleaseName();
 
