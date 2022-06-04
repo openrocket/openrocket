@@ -64,6 +64,9 @@ public class SelectColorToggleButton extends JToggleButton {
                 || UIManager.getColor("ToggleButton.foreground") == null)
             return;
 
+        // Fixes the issue of the background of the button not being blue when selected on macOS
+        putClientProperty("JButton.buttonType", "segmented-only");
+
         // Case: frame goes out of focus
         addPropertyChangeListener("Frame.active", new PropertyChangeListener() {
             @Override
