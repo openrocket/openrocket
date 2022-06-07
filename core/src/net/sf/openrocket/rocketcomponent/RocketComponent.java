@@ -1640,6 +1640,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		return result;
 	}
+
+	/**
+	 * Iteratively checks whether the list of components contains the parent or super-parent (parent of parent of parent of...)
+	 * of component.
+	 * @param components list of components that may contain the parent
+	 * @param component component to check the parent for
+	 * @return true if the list contains the parent, false if not
+	 */
+	public static boolean listContainsParent(List<RocketComponent> components, RocketComponent component) {
+		RocketComponent c = component;
+		while (c.getParent() != null) {
+			if (components.contains(c.getParent())) {
+				return true;
+			}
+			c = c.getParent();
+		}
+		return false;
+	}
 	
 	/**
 	 * Get the root component of the component tree.
