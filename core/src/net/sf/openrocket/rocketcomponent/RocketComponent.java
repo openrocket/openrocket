@@ -1377,7 +1377,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			massSubtotal += rc.getSectionMass();
 		}
 		
-		return massSubtotal * getInstanceCount();
+		return massSubtotal;
 	}
 	
 	/**
