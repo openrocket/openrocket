@@ -41,14 +41,14 @@ public class TubeFinSetCalc extends TubeCalc {
 	private final double outerRadius;
 	private final int tubeCount;
 	private final double baseRotation;
+	// at present tubes are only allowed a cant angle of 0
+	private final double cantAngle;
 	
 	// values we can precompute once
 	private final double ar;
 	private final double intersticeArea;
 	private final double wettedArea;
 	private final double cnaconst;
-	
-	protected double rollSum = Double.NaN; // Roll damping sum term
 		
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
@@ -60,7 +60,6 @@ public class TubeFinSetCalc extends TubeCalc {
 		
 		final TubeFinSet tubes = (TubeFinSet) component;
 
-		geometryWarnings.add(Warning.TUBE_STABILITY);
 		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
 			geometryWarnings.add(Warning.TUBE_SEPARATION);
 		} else if (tubes.getTubeSeparation() < -MathUtil.EPSILON) {
@@ -73,6 +72,9 @@ public class TubeFinSetCalc extends TubeCalc {
 		outerRadius = tubes.getOuterRadius();
 		tubeCount = tubes.getFinCount();
 		baseRotation = tubes.getBaseRotation();
+		// at present, tube cant angle can only be 0
+		cantAngle = 0;
+		// cantAngle = tubes.getCantAngle();
 		
 		// precompute geometry.  This will be the geometry of a single tube, since BarrowmanCalculator
 		// iterates across them.  Doesn't consider interference between them; that should only be relevant for
@@ -149,11 +151,19 @@ public class TubeFinSetCalc extends TubeCalc {
 		double x = calculateCPPos(conditions) * chord;
 		// log.debug("CP position " + x);
 		
-		// We aren't allowing tube fins to have any cant angle at present, so no roll force
-		forces.setCrollForce(0);
+		// Roll forces
+		// This isn't really tested, since the cant angle is required to be 0.
+		forces.setCrollForce((bodyRadius + outerRadius) * cna * cantAngle /
+							 conditions.getRefLength());
+		
+		if (conditions.getAOA() > STALL_ANGLE) {
+			//			log.debug("Tube stalling in roll");
+			forces.setCrollForce(forces.getCrollForce() *
+								 MathUtil.clamp(1 - (conditions.getAOA() - STALL_ANGLE) / (STALL_ANGLE / 2), 0, 1));
+		}
 
-		// Worry about roll damping later
-		forces.setCrollDamp(0);
+		forces.setCrollDamp((bodyRadius + outerRadius) * conditions.getRollRate()/conditions.getVelocity() * cna / conditions.getRefLength());
+		
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 		
 		forces.setCNa(cna);
