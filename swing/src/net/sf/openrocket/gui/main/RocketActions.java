@@ -279,24 +279,6 @@ public class RocketActions {
 	}
 
 	/**
-	 * Iteratively checks whether the list of components contains the parent or super-parent (parent of parent of parent of...)
-	 * of component.
-	 * @param components list of components that may contain the parent
-	 * @param component component to check the parent for
-	 * @return true if the list contains the parent, false if not
-	 */
-	public static boolean listContainsParent(List<RocketComponent> components, RocketComponent component) {
-		RocketComponent c = component;
-		while (c.getParent() != null) {
-			if (components.contains(c.getParent())) {
-				return true;
-			}
-			c = c.getParent();
-		}
-		return false;
-	}
-
-	/**
 	 * If the children of a parent are not selected, add them to the selection. Do this recursively for the children
 	 * of the children as well.
 	 * @param selections list of currently selected components
@@ -340,7 +322,7 @@ public class RocketActions {
 			// If there is a component in the selection, but its parent (or the parent of the parent) is still
 			// not selected, add it to the selection
 			RocketComponent temp = component;
-			if (listContainsParent(selections, temp) && !selections.contains(temp.getParent())) {
+			if (RocketComponent.listContainsParent(selections, temp) && !selections.contains(temp.getParent())) {
 				while (!selections.contains(temp.getParent())) {
 					selections.add(temp.getParent());
 					temp = temp.getParent();
@@ -1038,7 +1020,7 @@ public class RocketActions {
 
 			for (RocketComponent component : components) {
 				// Only move top components, don't move its children
-				if (!listContainsParent(components, component)) {
+				if (!RocketComponent.listContainsParent(components, component)) {
 					moveUp(component);
 				}
 			}
@@ -1075,7 +1057,7 @@ public class RocketActions {
 				return false;
 
 			for (RocketComponent component : components) {
-				if (!listContainsParent(components, component) && !canMove(component))
+				if (!RocketComponent.listContainsParent(components, component) && !canMove(component))
 					return false;
 			}
 			return true;
@@ -1113,7 +1095,7 @@ public class RocketActions {
 
 			for (RocketComponent component : components) {
 				// Only move top components, don't move its children
-				if (!listContainsParent(components, component)) {
+				if (!RocketComponent.listContainsParent(components, component)) {
 					moveDown(component);
 				}
 			}
@@ -1150,7 +1132,7 @@ public class RocketActions {
 				return false;
 
 			for (RocketComponent component : components) {
-				if (!listContainsParent(components, component) && !canMove(component))
+				if (!RocketComponent.listContainsParent(components, component) && !canMove(component))
 					return false;
 			}
 			return true;

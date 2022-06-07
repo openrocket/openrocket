@@ -16,7 +16,6 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.sf.openrocket.gui.main.RocketActions;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 
 		// When the parent of a child is in the selection, don't include the child in components
 		for (RocketComponent component : new ArrayList<>(components)) {
-			if (RocketActions.listContainsParent(components, component)) {
+			if (RocketComponent.listContainsParent(components, component)) {
 				components.remove(component);
 			}
 		}
