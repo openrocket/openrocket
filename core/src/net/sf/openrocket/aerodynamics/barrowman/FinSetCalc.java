@@ -188,7 +188,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
 		// With body-fin interference effect:
-		forces.setCrollForce(finCount * (macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
+		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
 			//			System.out.println("Fin stalling in roll");
@@ -481,17 +481,17 @@ public class FinSetCalc extends RocketComponentCalc {
 					(conditions.getRefArea() * conditions.getRefLength());
 			
 			//			System.out.println("SPECIAL: " + 
-			//					(MathUtil.sign(rollRate) *component.getFinCount() * sum));
-			return MathUtil.sign(rollRate) * finCount * sum;
+			//					(MathUtil.sign(rollRate) * sum));
+			return MathUtil.sign(rollRate) * sum;
 		}
 		
 		if (mach <= CNA_SUBSONIC) {
 			//			System.out.println("BASIC:   "+
-			//					(component.getFinCount() * 2*Math.PI * rollRate * rollSum / 
+			//					(2*Math.PI * rollRate * rollSum / 
 			//			(conditions.getRefArea() * conditions.getRefLength() * 
 			//					conditions.getVelocity() * conditions.getBeta())));
 			
-			return finCount * 2 * Math.PI * rollRate * rollSum /
+			return 2 * Math.PI * rollRate * rollSum /
 					(conditions.getRefArea() * conditions.getRefLength() *
 							conditions.getVelocity() * conditions.getBeta());
 		}
@@ -512,7 +512,7 @@ public class FinSetCalc extends RocketComponentCalc {
 						* chordLength[i] * (bodyRadius + y);
 			}
 			
-			return finCount * sum * span / (DIVISIONS - 1) /
+			return sum * span / (DIVISIONS - 1) /
 					(conditions.getRefArea() * conditions.getRefLength());
 		}
 		
