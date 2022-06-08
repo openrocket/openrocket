@@ -101,7 +101,7 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
 			
 			double Re = airSpeed.length() *
-					status.getConfiguration().getLength() /
+					status.getConfiguration().getLengthAerodynamic() /
 					atmosphere.getKinematicViscosity();
 			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		}

@@ -582,7 +582,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			
 			if (store.flightConditions != null) {
 				double Re = (store.flightConditions.getVelocity() *
-						status.getConfiguration().getLength() /
+						status.getConfiguration().getLengthAerodynamic() /
 						store.flightConditions.getAtmosphericConditions().getKinematicViscosity());
 				data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 			}
