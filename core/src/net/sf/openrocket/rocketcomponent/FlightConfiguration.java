@@ -601,12 +601,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			final RocketComponent component = entry.getKey();
 			final BoundingBox componentBounds = new BoundingBox();
 			final List<InstanceContext> contexts = entry.getValue();
-			
-			if( ! component.isAerodynamic()){
-//				System.err.println("    << non-aerodynamic");
-				// all non-aerodynamic components should be surrounded by aerodynamic ones
-				continue;
-			}
 
 			// FinSets already provide a bounding box, so let's use that.
 			if (component instanceof BoxBounded) {
