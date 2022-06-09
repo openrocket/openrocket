@@ -189,7 +189,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		//			Stage refStage = (Stage) this.parent;
 		//			System.err.println("      >>refStageName: " + refStage.getName() + "\n");
 		//			System.err.println("      ..refCenterX: " + refStage.position.x + "\n");
-		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
+		//			System.err.println("      ..refLength: " + refStage.getLengthAerodynamic() + "\n");
 		//		}
 		return buf;
 	}
