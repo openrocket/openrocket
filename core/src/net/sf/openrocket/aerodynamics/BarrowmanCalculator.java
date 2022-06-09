@@ -299,7 +299,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				//		warnings.add(Warning.DISCONTINUITY);
 				//		radius = 0;
                 //}
-				//componentX = component.toAbsolute(new Coordinate(component.getLength()))[0].x;
+				//componentX = component.toAbsolute(new Coordinate(component.getLengthAerodynamic()))[0].x;
 						
 				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
@@ -364,7 +364,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			Finish finish = ((ExternalComponent) c).getFinish();
 			if (Double.isNaN(roughnessLimited[finish.ordinal()])) {
 				roughnessLimited[finish.ordinal()] =
-					0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
+					0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLengthAerodynamic(), 0.2) *
 					roughnessCorrection;
 			}
 			
@@ -442,7 +442,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return                  Reynolds Number
 	 */
 	private double calculateReynoldsNumber(FlightConfiguration configuration, FlightConditions conditions) {
-		return conditions.getVelocity() * configuration.getLength() /
+		return conditions.getVelocity() * configuration.getLengthAerodynamic() /
 			conditions.getAtmosphericConditions().getKinematicViscosity();
 	}
 	
