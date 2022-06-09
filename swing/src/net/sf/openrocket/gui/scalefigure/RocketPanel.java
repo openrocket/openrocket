@@ -596,6 +596,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
 				.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
 
+		if (clicked == null || clicked.length == 0) return;
+
 		// If the shift-button is held, add a newly clicked component to the selection path
 		if ((event.isShiftDown() || event.isMetaDown()) && event.getClickCount() == 1) {
 			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
