@@ -515,9 +515,11 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// Calculate the distance needed to fit the bounds in both the X and Y
 		// direction
 		// Add 10% for space around it.
+		final double maxR = Math.max( Math.hypot(b.min.y, b.min.z),
+				Math.hypot(b.max.y, b.max.z));
 		final double dX = (b.span().x * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovX / 2.0));
-		final double dY = ((b.span().y - b.min.y) * 1.2 / 2.0)
+		final double dY = (2*maxR * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovY / 2.0));
 		
 		// Move back the greater of the 2 distances
