@@ -424,7 +424,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		this.stages.clear();
 		for (AxialStage curStage : this.rocket.getStageList()) {
-			
+			if (curStage == null) continue;
 			StageFlags flagsToAdd = new StageFlags( curStage.getStageNumber(), true);
 			this.stages.put(curStage.getStageNumber(), flagsToAdd);
 		}
