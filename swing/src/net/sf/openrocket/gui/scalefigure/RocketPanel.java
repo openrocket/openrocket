@@ -219,6 +219,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			public void stateChanged(EventObject e) {
 				updateExtras();
 				updateFigures();
+				scrollPane.componentResized(null);	// Triggers a resize so that when the rocket becomes smaller, the scrollPane updates its size
 			}
 		});
 
