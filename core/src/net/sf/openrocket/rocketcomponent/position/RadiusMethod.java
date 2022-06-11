@@ -16,6 +16,11 @@ public enum RadiusMethod implements DistanceMethod {
 		public double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
 			return 0.;
 		}
+
+		@Override
+		public double getAsOffset(final RocketComponent parentComponent, final RocketComponent thisComponent, double radius) {
+			return 0;
+		}
 	},
 	
 	FREE(Application.getTranslator().get("RocketComponent.Position.Method.Radius.FREE") ){
@@ -25,6 +30,11 @@ public enum RadiusMethod implements DistanceMethod {
 		@Override
 		public double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
 			return requestedOffset;
+		}
+
+		@Override
+		public double getAsOffset(final RocketComponent parentComponent, final RocketComponent thisComponent, double radius) {
+			return radius;
 		}
 	},
 	
@@ -43,6 +53,18 @@ public enum RadiusMethod implements DistanceMethod {
 			}
 			return radius;
 		}
+
+		@Override
+		public double getAsOffset(final RocketComponent parentComponent, final RocketComponent thisComponent, double radius) {
+			double offset = radius;
+			if (parentComponent instanceof BodyTube) {
+				offset -= ((BodyTube)parentComponent).getOuterRadius();
+			}
+			if (thisComponent instanceof RadiusPositionable) {
+				offset -= ((RadiusPositionable)thisComponent).getBoundingRadius();
+			}
+			return offset;
+		}
 	},
 
 	// Defines placement relative to the outside of the target component
@@ -60,10 +82,15 @@ public enum RadiusMethod implements DistanceMethod {
 			}
 			return radius;
 		}
+
+		@Override
+		public double getAsOffset(RocketComponent parentComponent, RocketComponent thisComponent, double radius) {
+			return 0;
+		}
 	};
 
 	public static final RadiusMethod[] choices(){
-		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE }; 
+		return new RadiusMethod[]{ RadiusMethod.FREE, RadiusMethod.RELATIVE };
 	}
 	
 	public final String description;
@@ -82,5 +109,15 @@ public enum RadiusMethod implements DistanceMethod {
 	@Override
 	public boolean clampToZero() { return true; }
 	
-	public abstract double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset );
+	public abstract double getRadius(final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset );
+
+	/**
+	 * Returns the radius offset argument (starting from the center of its parent) as an offset value for this
+	 * RadiusMethod.
+	 * @param parentComponent parent of this component
+	 * @param thisComponent the component for which the offset is requested
+	 * @param radius the radius offset argument
+	 * @return the offset value of this RadiusMethod that yields the given radius
+	 */
+	public abstract double getAsOffset(final RocketComponent parentComponent, final RocketComponent thisComponent, final double radius);
 }
