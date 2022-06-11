@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="9.0.6" transformSequenceNumber="9">
-  <directoryPresets config="./macOS_resources" />
+  <directoryPresets config="../../core/resources-src/pix/icon" />
   <application name="OpenRocket 22.02.beta.03" applicationId="8434-9327-1469-6373" mediaDir="media" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="22.02.beta.03" allPathsRelative="true" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11" javaMaxVersion="11" jdkMode="jdk" jdkName="JDK 11.0">
     <jreBundles jdkProviderId="Liberica" release="11/11.0.15+10">
       <modules>
@@ -175,16 +175,6 @@ return console.askOkCancel(message, true);
           </screen>
           <screen id="8" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" rollbackBarrierExitCode="0">
             <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
-            <actions>
-              <action id="11" beanClass="com.install4j.runtime.beans.actions.misc.LoadResponseFileAction" rollbackBarrierExitCode="0" multiExec="true">
-                <serializedBean>
-                  <property name="excludedVariables" type="array" elementType="string" length="1">
-                    <element index="0">sys.installationDir</element>
-                  </property>
-                </serializedBean>
-                <condition>context.getVariable("sys.responseFile") == null</condition>
-              </action>
-            </actions>
             <formComponents>
               <formComponent id="9" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" insetBottom="25">
                 <serializedBean>
@@ -211,30 +201,40 @@ return console.askOkCancel(message, true);
               </formComponent>
             </formComponents>
           </screen>
-          <screen id="12" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" rollbackBarrierExitCode="0">
+          <screen id="234" beanClass="com.install4j.runtime.beans.screens.FileAssociationsScreen" rollbackBarrierExitCode="0">
             <formComponents>
-              <formComponent id="13" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
+              <formComponent id="235" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
                 <serializedBean>
-                  <property name="labelText" type="string">${i18n:SelectComponentsLabel2}</property>
+                  <property name="labelText" type="string">${i18n:SelectAssociationsLabel}</property>
                 </serializedBean>
-                <visibilityScript>!context.isConsole()</visibilityScript>
               </formComponent>
-              <formComponent id="14" beanClass="com.install4j.runtime.beans.formcomponents.ComponentSelectorComponent" useExternalParametrization="true" externalParametrizationName="Installation Components" externalParametrizationMode="include">
+              <formComponent id="236" beanClass="com.install4j.runtime.beans.formcomponents.FileAssociationsComponent" useExternalParametrization="true" externalParametrizationName="File Associations" externalParametrizationMode="include">
                 <serializedBean>
                   <property name="fillVertical" type="boolean" value="true" />
                 </serializedBean>
                 <externalParametrizationPropertyNames>
-                  <propertyName>selectionChangedScript</propertyName>
+                  <propertyName>showSelectionButtons</propertyName>
+                  <propertyName>selectionButtonPosition</propertyName>
                 </externalParametrizationPropertyNames>
               </formComponent>
-              <formComponent name="Add a desktop link" id="196" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+            </formComponents>
+          </screen>
+          <screen id="226" beanClass="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" rollbackBarrierExitCode="0">
+            <formComponents>
+              <formComponent id="227" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" insetBottom="10">
+                <serializedBean>
+                  <property name="labelText" type="string">${form:confirmationMessage}</property>
+                </serializedBean>
+                <visibilityScript>!context.isConsole()</visibilityScript>
+              </formComponent>
+              <formComponent name="Add a desktop link" id="228" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                 <serializedBean>
                   <property name="checkboxText" type="string">${i18n:CreateDesktopIcon}</property>
                   <property name="initiallySelected" type="boolean" value="true" />
                   <property name="variableName" type="string">createDesktopLinkAction</property>
                 </serializedBean>
               </formComponent>
-              <formComponent name="Add an executable to the dock" id="198" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+              <formComponent name="Add an executable to the dock" id="232" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                 <serializedBean>
                   <property name="checkboxText" type="string">${i18n:AddToDock}</property>
                   <property name="initiallySelected" type="boolean" value="true" />
@@ -244,21 +244,17 @@ return console.askOkCancel(message, true);
               </formComponent>
             </formComponents>
           </screen>
-          <screen id="164" beanClass="com.install4j.runtime.beans.screens.FileAssociationsScreen" rollbackBarrierExitCode="0">
+          <screen id="15" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true" rollbackBarrierExitCode="0">
             <actions>
-              <action id="202" beanClass="com.install4j.runtime.beans.actions.desktop.AddToDockAction" actionElevationType="none" rollbackBarrierExitCode="0">
+              <action id="17" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit" errorMessage="${i18n:FileCorrupted}" />
+              <action id="18" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="executable">
-                    <object class="java.io.File">
-                      <string>OpenRocket</string>
-                    </object>
-                  </property>
+                  <property name="uninstallerMenuName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
                 </serializedBean>
-                <condition>context.getBooleanVariable("addToDockAction")</condition>
+                <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action id="205" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action id="230" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
                 <serializedBean>
-                  <property name="categories" type="string">Education;Science</property>
                   <property name="entryName" type="string">OpenRocket</property>
                   <property name="file">
                     <object class="java.io.File">
@@ -278,7 +274,17 @@ return console.askOkCancel(message, true);
                 </serializedBean>
                 <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action id="199" beanClass="com.install4j.runtime.beans.actions.desktop.CreateDesktopLinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action id="231" beanClass="com.install4j.runtime.beans.actions.desktop.AddToDockAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="askQuit">
+                <serializedBean>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>OpenRocket</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>context.getBooleanVariable("addToDockAction")</condition>
+              </action>
+              <action id="229" beanClass="com.install4j.runtime.beans.actions.desktop.CreateDesktopLinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
                 <serializedBean>
                   <property name="description" type="string">OpenRocket Model Rocket Simulator</property>
                   <property name="file">
@@ -286,7 +292,6 @@ return console.askOkCancel(message, true);
                       <string>OpenRocket</string>
                     </object>
                   </property>
-                  <property name="macSingleBundleTarget" type="boolean" value="false" />
                   <property name="name" type="string">${compiler:sys.fullName}</property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
@@ -301,7 +306,7 @@ return console.askOkCancel(message, true);
                 </serializedBean>
                 <condition>context.getBooleanVariable("createDesktopLinkAction")</condition>
               </action>
-              <action id="206" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action id="233" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
                 <serializedBean>
                   <property name="description" type="string">OpenRocket Design</property>
                   <property name="extension" type="string">ork</property>
@@ -325,49 +330,6 @@ return console.askOkCancel(message, true);
                     </object>
                   </property>
                 </serializedBean>
-              </action>
-            </actions>
-            <formComponents>
-              <formComponent id="165" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
-                <serializedBean>
-                  <property name="labelText" type="string">${i18n:SelectAssociationsLabel}</property>
-                </serializedBean>
-              </formComponent>
-              <formComponent id="166" beanClass="com.install4j.runtime.beans.formcomponents.FileAssociationsComponent" useExternalParametrization="true" externalParametrizationName="File Associations" externalParametrizationMode="include">
-                <serializedBean>
-                  <property name="fillVertical" type="boolean" value="true" />
-                  <property name="showSelectionButtons" type="boolean" value="true" />
-                </serializedBean>
-                <externalParametrizationPropertyNames>
-                  <propertyName>selectionButtonPosition</propertyName>
-                  <propertyName>showSelectionButtons</propertyName>
-                </externalParametrizationPropertyNames>
-              </formComponent>
-              <formComponent name="Add a desktop link" id="200" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
-                <serializedBean>
-                  <property name="checkboxText" type="string">${i18n:CreateDesktopIcon}</property>
-                  <property name="initiallySelected" type="boolean" value="true" />
-                  <property name="variableName" type="string">createDesktopLinkAction</property>
-                </serializedBean>
-              </formComponent>
-              <formComponent name="Add an executable to the dock" id="203" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
-                <serializedBean>
-                  <property name="checkboxText" type="string">${i18n:AddToDock}</property>
-                  <property name="initiallySelected" type="boolean" value="true" />
-                  <property name="variableName" type="string">addToDockAction</property>
-                </serializedBean>
-                <visibilityScript>Util.isMacOS()</visibilityScript>
-              </formComponent>
-            </formComponents>
-          </screen>
-          <screen id="15" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true" rollbackBarrierExitCode="0">
-            <actions>
-              <action id="17" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="quit" errorMessage="${i18n:FileCorrupted}" />
-              <action id="18" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="uninstallerMenuName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
-                </serializedBean>
-                <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
               <action id="19" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
