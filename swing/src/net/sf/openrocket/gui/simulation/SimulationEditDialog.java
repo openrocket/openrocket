@@ -277,9 +277,11 @@ public class SimulationEditDialog extends JDialog {
 					switch (selectedIndex) {
 					case 0:
 						ok.setText(trans.get("SimulationEditDialog.btn.plot"));
+						plotExportPanel.revalidate();
 						break;
 					case 1:
 						ok.setText(trans.get("SimulationEditDialog.btn.export"));
+						plotExportPanel.revalidate();
 						break;
 					}
 				}
