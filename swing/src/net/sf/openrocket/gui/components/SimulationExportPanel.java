@@ -212,6 +212,8 @@ public class SimulationExportPanel extends JPanel {
 
 		String commentChar = csvOptions.getCommentCharacter();
 		String fieldSep = csvOptions.getFieldSeparator();
+		int decimalPlaces = csvOptions.getDecimalPlaces();
+		boolean isExponentialNotation = csvOptions.isExponentialNotation();
 		boolean simulationComment = csvOptions.getSelectionOption(OPTION_SIMULATION_COMMENTS);
 		boolean fieldComment = csvOptions.getSelectionOption(OPTION_FIELD_DESCRIPTIONS);
 		boolean eventComment = csvOptions.getSelectionOption(OPTION_FLIGHT_EVENTS);
@@ -245,8 +247,8 @@ public class SimulationExportPanel extends JPanel {
 		}
 		
 
-		SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep,
-				commentChar, simulationComment, fieldComment, eventComment,
+		SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, decimalPlaces,
+				isExponentialNotation, commentChar, simulationComment, fieldComment, eventComment,
 				SwingUtilities.getWindowAncestor(this));
 	}
 	
