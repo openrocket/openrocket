@@ -54,9 +54,9 @@ public class CsvOptionPanel extends JPanel {
 
 		// TODO: HIGH: Rename the translation keys
 		
-		// Storage settings panel
+		// Format settings panel
 		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.StorageSettings")));
+		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.FormatSettings")));
 
 		//// Field separation
 		label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
