@@ -132,7 +132,13 @@ public class CSVExport {
 			// Store CSV line
 			for (int i = 0; i < fields.length; i++) {
 				double value = fieldValues.get(i).get(pos);
-				writer.print(TextUtil.doubleToString(units[i].toUnit(value)));
+				// The latitude and longitude fields need a bit more accurate formatting
+				if (fields[i] == FlightDataType.TYPE_LATITUDE || fields[i] == FlightDataType.TYPE_LONGITUDE) {
+					writer.print(TextUtil.doubleToString(units[i].toUnit(value), 5));
+				} else {
+					writer.print(TextUtil.doubleToString(units[i].toUnit(value)));
+				}
+
 				if (i < fields.length - 1) {
 					writer.print(fieldSeparator);
 				}

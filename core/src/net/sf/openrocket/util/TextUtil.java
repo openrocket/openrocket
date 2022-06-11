@@ -40,6 +40,52 @@ public class TextUtil {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Return a string of the double value with suitable precision for storage.
+	 * The string is the shortest representation of the value including at least
+	 * 5 digits of precision.
+	 *
+	 * @param d		the value to present.
+	 * @return		a representation with suitable precision.
+	 */
+	public static final String doubleToString(double d, int decimalPlaces) {
+		// Check for special cases
+		if (MathUtil.equals(d, 0))
+			return "0";
+
+		if (Double.isNaN(d))
+			return "NaN";
+
+		if (Double.isInfinite(d)) {
+			if (d < 0)
+				return "-Inf";
+			else
+				return "Inf";
+		}
+
+		final String sign = (d < 0) ? "-" : "";
+		double abs = Math.abs(d);
+
+		// Small and large values always in exponential notation
+		if (abs < 0.001 || abs >= 100000000) {
+			return sign + exponentialFormat(abs);
+		}
+
+		// Check whether decimal or exponential notation is shorter
+		String exp = exponentialFormat(abs);
+		String dec;
+		if (decimalPlaces < 0) {
+			dec = decimalFormat(abs);
+		} else {
+			dec = decimalFormat(abs, decimalPlaces);
+		}
+
+		if (dec.length() <= exp.length())
+			return sign + dec;
+		else
+			return sign + exp;
+	}
 	
 	/**
 	 * Return a string of the double value with suitable precision for storage.
@@ -50,39 +96,7 @@ public class TextUtil {
 	 * @return		a representation with suitable precision.
 	 */
 	public static final String doubleToString(double d) {
-		
-		// Check for special cases
-		if (MathUtil.equals(d, 0))
-			return "0";
-		
-		if (Double.isNaN(d))
-			return "NaN";
-		
-		if (Double.isInfinite(d)) {
-			if (d < 0)
-				return "-Inf";
-			else
-				return "Inf";
-		}
-		
-		
-		final String sign = (d < 0) ? "-" : "";
-		double abs = Math.abs(d);
-		
-		// Small and large values always in exponential notation
-		if (abs < 0.001 || abs >= 100000000) {
-			return sign + exponentialFormat(abs);
-		}
-		
-		// Check whether decimal or exponential notation is shorter
-		
-		String exp = exponentialFormat(abs);
-		String dec = decimalFormat(abs);
-		
-		if (dec.length() <= exp.length())
-			return sign + dec;
-		else
-			return sign + exp;
+		return doubleToString(d, -1);
 	}
 	
 	
@@ -120,6 +134,16 @@ public class TextUtil {
 			decimals++;
 		}
 		
+		return shortDecimal(value, decimals);
+	}
+
+	/*
+	 * value must be positive and not zero!
+	 */
+	private static String decimalFormat(double value, int decimals) {
+		if (value >= 10000)
+			return "" + (int) (value + 0.5);
+
 		return shortDecimal(value, decimals);
 	}
 	
