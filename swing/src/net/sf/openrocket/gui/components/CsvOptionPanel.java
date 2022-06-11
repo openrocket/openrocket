@@ -10,6 +10,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.SaveCSVWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -75,17 +76,17 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
 		panel.add(label, "gapright unrel");
 
-		SpinnerModel dpModel = new SpinnerNumberModel(3, 0, 15, 1);
+		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(Preferences.EXPORT_DECIMAL_PLACES, SaveCSVWorker.DEFAULT_DECIMAL_PLACES),
+				0, 15, 1);
 		decimalPlacesSpinner = new JSpinner(dpModel);
 		decimalPlacesSpinner.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
 		panel.add(decimalPlacesSpinner, "growx, wrap");
-		// TODO: preferences + action
 
 		//// Exponential notation
 		exponentialNotationCheckbox = new JCheckBox(trans.get("SimExpPan.lbl.ExponentialNotation"));
 		exponentialNotationCheckbox.setToolTipText(trans.get("SimExpPan.lbl.ExponentialNotation.ttip"));
+		exponentialNotationCheckbox.setSelected(Application.getPreferences().getBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, true));
 		panel.add(exponentialNotationCheckbox);
-		// TODO: preferences + action
 
 		this.add(panel, "growx, wrap unrel");
 		
@@ -149,6 +150,8 @@ public class CsvOptionPanel extends JPanel {
 	 */
 	public void storePreferences() {
 		Application.getPreferences().putString(Preferences.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
+		Application.getPreferences().putInt(Preferences.EXPORT_DECIMAL_PLACES, getDecimalPlaces());
+		Application.getPreferences().putBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, isExponentialNotation());
 		Application.getPreferences().putString(Preferences.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
 		for (int i = 0; i < options.length; i++) {
 			Application.getPreferences().putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());

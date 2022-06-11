@@ -23,7 +23,7 @@ import net.sf.openrocket.util.BugException;
 public class SaveCSVWorker extends SwingWorker<Void, Void> {
 	
 	private static final int BYTES_PER_FIELD_PER_POINT = 7;
-	private static final int DEFAULT_DECIMAL_PLACES = 3;
+	public static final int DEFAULT_DECIMAL_PLACES = 3;
 
 	private final File file;
 	private final Simulation simulation;

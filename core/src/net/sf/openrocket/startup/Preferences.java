@@ -46,6 +46,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
+	public static final String EXPORT_DECIMAL_PLACES = "ExportDecimalPlaces";
+	public static final String EXPORT_EXPONENTIAL_NOTATION = "ExportExponentialNotation";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
 	public static final String EXPORT_FIELD_NAME_COMMENT = "ExportFieldDescriptionComment";
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
