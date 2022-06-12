@@ -11,26 +11,26 @@ Introducción
 <p>Puede navegar utilizando los botones <b>Siguiente</b> y <b>Anterior</b>, o utilizando las flechas de desplazamiento <b><em>izq.</em></b> y <b><em>der.</em></b> de su teclado.
 
 
-[02_main_window_startup_screen_es.png]
+[02_main_window_startup_screen.png]
 
 <p>Esta es la pantalla de inicio desde la que puedes crear un nuevo diseño de cohete o abrir los diseños existentes.
 
 <p>Para este recorrido, vamos a abrir un diseño de ejemplo llamado <em>A simple model rocket</em>.
 
 
-[03_main_window_simple_es.png]
+[03_main_window_simple.png]
 
 <p>Esta es la pantalla principal de OpenRocket que está dividida horizontalmente en dos partes:  En la parte superior se muestra el diseño del cohete (pestaña <em>Diseño del cohete</em>), o Las simulaciones de vuelo (pestaña <em>Simulaciones de vuelo</em>). En la parte inferior siempre verá un dibujo del diseño del cohete.
 
 
-[04_main_window_simple_top_es.png]
+[04_main_window_simple_top.png]
 
 <p>Parte superior a la izquierda, aparece el árbol del diseño con los componentes ya instalados. En él puede ver cómo están relacionados los componentes entre sí, y su organización jerárquica.
 
 <p>En la parte superior derecha hay botones de componentes que le permiten añadir diferentes tipos de componentes nuevos al cohete.
 
 
-[05_main_window_simple_bottom_es.png]
+[05_main_window_simple_bottom.png]
 
 <p>La mitad inferior de la ventana contiene un esquema del diseño actual del cohete.
 
@@ -41,14 +41,14 @@ También hay tres vistas en 3D, <em>3D Figure</em>, <em>3D Unfinished</em>, y <e
 # <a href="FIXME">Viewing options</a> tour.
 
 
-[06_flight_simulations_top_es.png]
+[06_flight_simulations_top.png]
 
 <p>Cuando seleccione la pestaña <b>Simulaciones de vuelo</b>, la parte superior de la ventana cambia para mostrar las simulaciones que se han definido para el cohete.
 
 <p>Puede definir varias simulaciones para diferentes configuraciones de motor y diferentes condiciones de lanzamiento como: viento, ángulo de inclinación de la rampa de lanzamiento, etc.
 
 
-[07_simulation_edit_es.png]
+[07_simulation_edit.png]
 
 <p>Haciendo doble clic sobre una simulación, abrirá la ventana de <em>Editar simulación</em>. En las dos primeras pestañas puede definir las <b>condiciones de lanzamiento</b> y otras <b>opciones de Simulación</b>.
 
@@ -58,11 +58,11 @@ También hay tres vistas en 3D, <em>3D Figure</em>, <em>3D Unfinished</em>, y <e
 
 <p>Haciendo doble clic en la pestaña <b>Datos de trazado</b> podrá seleccionar entre las configuraciones de trazado preestablecidas o establecer sus propios plot parameters. Haciendo doble clic en la pestaña <b>Exportar datos</b>, se puede exportar el resultado de la simulación utilizando numerosos puntos de datos, e incluso establecer de forma personalizada la colocación del punto decimal para la salida numérica.
 
-[09_component_analysis_es.png]
+[09_component_analysis.png]
 
 <p>Otras funciones avanzadas incluyen <b>Análisis de componentes</b>...
 
-[10_rocket_optimization_es.png]
+[10_rocket_optimization.png]
 
 <p> y la optimización automática de <b>Rocket</b>.
 

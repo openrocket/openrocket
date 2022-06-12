@@ -15,7 +15,7 @@ Boutons <b>Précédent</b>, ou en utilisant les touches <em>gauche</em> et <em>d
 flèches</em> sur votre clavier.
 
 
-[02_main_window_startup_screen_fr.png]
+[02_main_window_startup_screen.png]
 
 <p>Ceci est l'écran de démarrage à partir duquel vous pouvez créer une nouvelle fusée
 concevoir ou ouvrir des conceptions existantes.
@@ -23,14 +23,14 @@ concevoir ou ouvrir des conceptions existantes.
 <p>Pour cette visite guidée, ouvrons un exemple de conception appelé <em>A simple model rocket</em>.
 
 
-[03_main_window_simple_fr.png]
+[03_main_window_simple.png]
 
 <p>Ceci est l'écran principal d'OpenRocket. Il est divisé horizontalement
 en deux parties : la partie conception de fusée/simulation de vol et la partie
 vue de conception de fusée.
 
 
-[04_main_window_simple_top_fr.png]
+[04_main_window_simple_top.png]
 
 <p>En haut à gauche se trouve l'arbre des composants de la conception de la fusée.
 Il affiche quels composants sont attachés à quels composants.
@@ -39,7 +39,7 @@ Il affiche quels composants sont attachés à quels composants.
 types de nouveaux composants pour la fusée.
 
 
-[05_main_window_simple_bottom_fr.png]
+[05_main_window_simple_bottom.png]
 
 <p>La moitié inférieure de la fenêtre contient un diagramme de l'actuel
 conception de fusée.
@@ -51,7 +51,7 @@ Il existe également trois vues 3D, <em>Figure 3D</em>, <em>3D inachevé</em> et
 # Visite <a href="FIXME">Options d'affichage</a>.
 
 
-[06_flight_simulations_top_fr.png]
+[06_flight_simulations_top.png]
 
 <p>Lorsque vous sélectionnez l'onglet <b>Simulations de vol</b>, la partie supérieure de
 la fenêtre change pour montrer les simulations qui ont été définies pour
@@ -62,7 +62,7 @@ configurations et conditions de lancement différentes, telles que le vent et
 angle de la tige de lancement.
 
 
-[07_simulation_edit_fr.png]
+[07_simulation_edit.png]
 
 <p>En double-cliquant sur une simulation, vous ouvrez la boîte de dialogue <b>Modifier la simulation</b>.
 Sur les deux premiers onglets, vous pouvez définir les <b>conditions de lancement</b> et d'autres <b>options de simulation</b>.
@@ -71,7 +71,7 @@ Sur les deux premiers onglets, vous pouvez définir les <b>conditions de lanceme
 # Tour <a href="FIXME">Simuler un vol</a>.
 
 
-[08_simulation_plot_fr.png]
+[08_simulation_plot.png]
 
 <p>Pour tracer ou exporter des résultats de simulation, ouvrez la boîte de dialogue <b>Tracer / Exporter la simulation</b> en
 en double-cliquant sur le bouton <b>Simuler et tracer</b> dans le coin inférieur droit de la
@@ -82,12 +82,12 @@ paramètres du tracé. En double-cliquant sur l'onglet <b>Exporter les données<
 points de données, et même personnaliser le placement de la virgule décimale pour la sortie numérique.
 
 
-[09_component_analysis_fr.png]
+[09_component_analysis.png]
 
 <p>Les autres fonctionnalités avancées incluent l'<b>analyse des composants</b>...
 
 
-[10_rocket_optimization_fr.png]
+[10_rocket_optimization.png]
 
 <p> et l'<b>optimisation automatique des fusées</b>.
 
