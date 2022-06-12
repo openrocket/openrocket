@@ -46,7 +46,7 @@ types of new components to the rocket.
 <p>The bottom half of the window contains a diagram of the current
 rocket design.
 
-<p>OpenRocket allows you to view a design in 2D from the side and back.
+<p>OpenRocket allows you to view a design in 2D from the <em>Side</em> and <em>Back</em>.
 There are also three 3D views, <em>3D Figure</em>, <em>3D Unfinished</em>, and <em>3D Finished</em>.
 
 # <p>The different viewing options are described in detail in the
@@ -72,12 +72,12 @@ On the first two tabs you can define the <b>Launch conditions</b> and other <b>S
 # <p>Simulating a rocket is described in detail in the
 # <a href="FIXME">Simulating a flight</a> tour.
 
-
-[08_simulation_plot.png]
-
 <p>To plot or export simulation results, open the <b>Plot / Export simulation</b> dialog by
 double-clicking the <b>Simulate & Plot</b> button in the lower right-hand corner of the
 <b>Edit simulation</b> dialog (next to the <em> Close</em> button).
+
+
+[08_simulation_plot.png]
 
 <p>Double-clicking the <b>Plot data</b> tab allows you to select from preset plot configurations or set your own
 plot parameters. By double-clicking on the <b>Export data</b> tab, you can export the simulation result using numerous
