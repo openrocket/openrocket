@@ -3,7 +3,7 @@ Crear un diseño de cohete simple
 <p>Este recorrido muestra cómo crear un diseño de cohete simple desde cero.
 
 
-[01_pantalla_de_inicio_principal_es.png]
+[01_pantalla_de_inicio_principal.png]
 
 <p>Cuando elige crear un nuevo diseño, se le presenta un espacio en blanco
 ventana de diseño, y al hacer doble clic en la etiqueta <em>Rocket</em> (el componente raíz) en el
@@ -14,7 +14,7 @@ diseñador, comentarios y crear un historial de revisión. Por ejemplo, el <em>n
 y, si cambia el nombre del diseño, el nuevo nombre del diseño se muestra como el componente raíz en el árbol de componentes.
 
 
-[02_main_rocket_configuration_dialog_es.png]
+[02_main_rocket_configuration_dialog.png]
 
 <p>Los botones de los componentes aparecen atenuados hasta que estén disponibles. Entonces, para comenzar a agregar componentes a su nuevo diseño,
 primero, haga clic izquierdo en la etiqueta <em>Sustainer</em> en el árbol de componentes para activar los botones de componentes básicos.
@@ -22,38 +22,38 @@ primero, haga clic izquierdo en la etiqueta <em>Sustainer</em> en el árbol de c
 <p>A continuación, agregue un <em>cono nasal</em> al diseño haciendo clic en el botón del componente correspondiente.
 
 
-[03_principal_nariz_es.png]
+[03_principal_nariz.png]
 
 <p>Esto abre el cuadro de diálogo <b>Configuración de nariz cónica</b>. El cuadro de diálogo de configuración contiene ajustes para el
 Forma, dimensiones y material del cono de la nariz.
 
 
-[04_dialog_nariz_es.png]
+[04_dialog_nariz.png]
 
 <p>Establezca la <em>longitud</em> del cono de la nariz en 10&nbsp;cm, el <em>diámetro de la base</em> en 2,5&nbsp;cm y el <em>material</em>
 al poliestireno (plástico). Para usar pulgadas en una unidad de medida diferente, haga clic en la unidad para cambiarla o cambie
 las unidades predeterminadas yendo a <em>Editar > Preferencias > Unidades</em>. Cierre el cuadro de diálogo para mostrar el cono de la nariz.
 
 
-[05_cuerpo_principal_tubo_es.png]
+[05_cuerpo_principal_tubo.png]
 
 <p>A continuación, agregue un <em>Body Tube</em> al diseño.
 
 
-[06_dialog_cuerpo_tubo_es.png]
+[06_dialog_cuerpo_tubo.png]
 
 <p>Cambie la longitud del tubo del cuerpo a 25&nbsp;cm. La opción <em>Automático</em> para el diámetro exterior
 está marcado por defecto, en cuyo caso el diámetro es automáticamente el mismo que el del cono de nariz.
 Cierre el cuadro de diálogo para mostrar el tubo del cuerpo.
 
 
-[07_main_trapezoidal_fin_set_es.png]
+[07_main_trapezoidal_fin_set.png]
 
 <p>Luego, agregue un <em>conjunto de aletas trapezoidales</em> al cohete. El cuerpo
 se debe seleccionar el tubo para agregar el componente.
 
 
-[08_dialog_trapezoidal_fin_set_es.png]
+[08_dialog_trapezoidal_fin_set.png]
 
 <p>El conjunto de aletas trapezoidales tiene numerosos parámetros de dimensión. los
 más importantes son la raíz y la cuerda de la punta (longitud junto al cuerpo
@@ -62,20 +62,20 @@ tubo y punta), altura y barrido.
 <p>Los valores predeterminados están bien para el diseño de ejemplo.
 
 
-[09_main_inner_tube_es.png]
+[09_main_inner_tube.png]
 
 <p>A continuación, agregue un <em>tubo interior</em> como soporte de motor. Seleccione el cuerpo
 tubo y, a continuación, haga clic en el botón de adición de componentes.
 
 
-[10_dialog_inner_tube_es.png]
+[10_dialog_inner_tube.png]
 
 <p>Las dimensiones predeterminadas son adecuadas para motores Estes A-C. Tener
 el montaje del motor sobresale un poco, cambie el parámetro de posición a
 <em>Parte inferior del componente principal</em> más 0,5&nbsp;cm.
 
 
-[11_principal_centrado_anillo_es.png]
+[11_principal_centrado_anillo.png]
 
 <p>Para agregar anillos de centrado para mantener la montura en su lugar, seleccione
 el tubo del cuerpo y haga clic en el botón <em>Anillo de centrado</em>.
@@ -85,7 +85,7 @@ Se agregará un anillo dentro del tubo interior. Utilice <b>Editar</b> &rarr;
 <b>Deshacer</b> para deshacer la última acción).
 
 
-[12_dialog_centering_ring_es.png]
+[12_dialog_centering_ring.png]
 
 <p>El anillo de centrado selecciona automáticamente el exterior y el
 diámetro interior cuando las casillas de verificación <em>Automático</em> están seleccionadas.
@@ -98,12 +98,12 @@ el parámetro de posición a <em>Parte inferior del componente principal</em> m�
 parámetro cero.
 
 
-[13_principal_paracaídas_es.png]
+[13_principal_paracaídas.png]
 
 <p>A continuación, agregue un <em>paracaídas</em> al tubo del cuerpo.
 
 
-[14_dialog_paracaídas_es.png]
+[14_dialog_paracaídas.png]
 
 <p>El <em>diámetro del dosel</em> y el <em>coeficiente de arrastre</em>
 determina cuánto frena el paracaídas al cohete durante el descenso.
@@ -118,7 +118,7 @@ La opción desplegará el paracaídas cuando se dispare la carga de eyección, c
 es típico en modelos pequeños de cohetes.
 
 
-[15_principal_cohete_básico_es.png]
+[15_principal_cohete_básico.png]
 
 <p>Ahora los aspectos funcionales del diseño del cohete están completos.
 
@@ -128,7 +128,7 @@ es típico en modelos pequeños de cohetes.
 lugar.
 
 
-[16_principal_cohete_completo_es.png]
+[16_principal_cohete_completo.png]
 
 <p>Ahora el diseño del cohete está completo.
 

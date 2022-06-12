@@ -3,7 +3,7 @@ Creazione di un semplice design a razzo
 <p>Questo tour mostra come creare un semplice progetto di razzo da zero.
 
 
-[01_main_startup_screen_it.png]
+[01_main_startup_screen.png]
 
 <p>Quando scegli di creare un nuovo design, ti viene presentato uno spazio vuoto
 finestra di progettazione e quando fai doppio clic sull'etichetta <em>Rocket</em> (il componente principale) nel file
@@ -14,7 +14,7 @@ designer, commenti e crea una cronologia delle revisioni. Ad esempio, l'iniziale
 e, se si cambia il nome del progetto, il nuovo nome del progetto viene visualizzato come componente principale nell'albero dei componenti.
 
 
-[02_main_rocket_configuration_dialog_it.png]
+[02_main_rocket_configuration_dialog.png]
 
 <p>I pulsanti dei componenti sono disattivati ​​finché non sono disponibili. Quindi, per iniziare ad aggiungere componenti al tuo nuovo design,
 per prima cosa, fai clic con il pulsante sinistro del mouse sull'etichetta <em>Sustainer</em> nell'albero dei componenti per attivare i pulsanti dei componenti di base.
@@ -22,38 +22,38 @@ per prima cosa, fai clic con il pulsante sinistro del mouse sull'etichetta <em>S
 <p>Quindi, aggiungi un <em>Naso</em> al disegno facendo clic sul pulsante del componente corrispondente.
 
 
-[03_main_nosecone_it.png]
+[03_main_nosecone.png]
 
 <p>Si apre la finestra di dialogo <b>Configurazione del cono del naso</b>. La finestra di configurazione contiene le impostazioni per il
 forma a cono, dimensioni e materiale.
 
 
-[04_dialog_nosecone_it.png]
+[04_dialog_nosecone.png]
 
 <p>Imposta la <em>lunghezza</em> del cono a 10&nbsp;cm, il <em>Diametro della base</em> a 2,5&nbsp;cm e il <em>Materiale</em>
 al polistirolo (plastica). Per utilizzare in pollici un'unità di misura diversa, fare clic sull'unità per cambiarla o cambiarla
 le unità predefinite andando su <em>Modifica > Preferenze > Unità</em>. Chiudere la finestra di dialogo per visualizzare l'ogiva.
 
 
-[05_main_body_tube_it.png]
+[05_main_body_tube.png]
 
 <p>Quindi, aggiungi un <em>Body Tube</em> al design.
 
 
-[06_dialog_body_tube_it.png]
+[06_dialog_body_tube.png]
 
 <p>Cambia la lunghezza del tubo del corpo a 25&nbsp;cm. L'opzione <em>Automatica</em> per il diametro esterno
 è spuntato di default, nel qual caso il diametro è automaticamente uguale a quello del nasello.
 Chiudere la finestra di dialogo per visualizzare il tubo del corpo.
 
 
-[07_main_trapezoidal_fin_set_it.png]
+[07_main_trapezoidal_fin_set.png]
 
 <p>Quindi, aggiungi un <em>set di pinne trapezoidali</em> al razzo. Il corpo
 è necessario selezionare il tubo per aggiungere il componente.
 
 
-[08_dialog_trapezoidal_fin_set_it.png]
+[08_dialog_trapezoidal_fin_set.png]
 
 <p>Il set di pinne trapezoidali ha numerosi parametri dimensionali. Il
 i più importanti sono l'accordo fondamentale e di punta (lunghezza vicino al corpo
@@ -62,20 +62,20 @@ tubo e punta), altezza e spazzata.
 <p>I valori predefiniti vanno bene per il progetto di esempio.
 
 
-[09_main_inner_tube_it.png]
+[09_main_inner_tube.png]
 
 <p>Quindi, aggiungi una <em>Camera d'aria</em> come supporto motore. Seleziona il corpo
 tubo, quindi fare clic sul pulsante di aggiunta del componente.
 
 
-[10_dialog_inner_tube_it.png]
+[10_dialog_inner_tube.png]
 
 <p>Le dimensioni predefinite sono adatte ai motori Estes AC. Avere
 il supporto del motore sporge un po', modificare il parametro di posizione su
 <em>Parte inferiore del componente principale</em> più 0,5&nbsp;cm.
 
 
-[11_main_centering_ring_it.png]
+[11_main_centering_ring.png]
 
 <p>Per aggiungere anelli di centraggio per mantenere la montatura in posizione, seleziona
 il tubo del corpo e fare clic sul pulsante <em>Anello di centraggio</em>.
@@ -85,7 +85,7 @@ l'anello verrà aggiunto all'interno della camera d'aria. Usa <b>Modifica</b> &r
 <b>Annulla</b> per annullare l'ultima azione.)
 
 
-[12_dialog_centering_ring_it.png]
+[12_dialog_centering_ring.png]
 
 <p>L'anello di centraggio seleziona automaticamente l'esterno appropriato e
 diametro interno quando sono selezionate le caselle di controllo <em>Automatico</em>.
@@ -98,12 +98,12 @@ il parametro position su <em>In basso del componente principale</em> più
 parametro zero.
 
 
-[13_main_parachute_it.png]
+[13_main_parachute.png]
 
 <p>Quindi aggiungi un <em>paracadute</em> al tubo del corpo.
 
 
-[14_dialog_parachute_it.png]
+[14_dialog_parachute.png]
 
 <p>Il <em>diametro della calotta</em> e il <em>coefficiente di resistenza</em>
 determinare quanto il paracadute rallenta il razzo durante la discesa.
@@ -118,7 +118,7 @@ opzione dispiegherà il paracadute quando viene sparata la carica di espulsione,
 è tipico nei modellini di razzi di piccole dimensioni.
 
 
-[15_main_rocket_basic_it.png]
+[15_main_rocket_basic.png]
 
 <p>Ora gli aspetti funzionali del design del razzo sono completi.
 
@@ -128,7 +128,7 @@ opzione dispiegherà il paracadute quando viene sparata la carica di espulsione,
 posto.
 
 
-[16_main_rocket_complete_it.png]
+[16_main_rocket_complete.png]
 
 <p>Ora il design del razzo è completo.
 
