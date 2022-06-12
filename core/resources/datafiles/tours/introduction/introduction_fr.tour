@@ -1,83 +1,99 @@
 Introduction
 
-<p>Ce premier tour d'horizon donne un apperçu rapide des écrans et fonctionnalités 
-d'OpenRocket.
+<p>Cette première visite donne un aperçu rapide des écrans d'OpenRocket et
+Caractéristiques.
 
 
-[logo_fr.png]
+[01_logo_fr.png]
 
-<p><b>OpenRocket</b> est une application pour concevoir,
-simuler et optimiser des fusées modèle réduit.  Ce premier tour d'horizon
-montre une vue globale des écrans et fonctionnalités d'OpenRocket.
+<p><b>OpenRocket</b> est une application polyvalente pour concevoir,
+simulation et optimisation de fusées miniatures. Cette première tournée offre une
+aperçu des écrans et des fonctionnalités d'OpenRocket.
 
-<p>Vous pouvez vous déplacer dans le tour d'horizon en utilisant les boutons <b>Suivant</b> 
-et <b>Précédant</b>, ou en utilisant les flèches <em>gauche</em> et <em>droite
-</em> sur votre clavier.
-
-
-#[none]
-## FIXME: Add screenshot after dialog is complete
-#
-#<p>Ceci est l'écran de démarrage depuis lequel vous pouvez créer une nouvelle fusée
-#ou ouvrir des projets existant.
-#
-#<p>Pour ce tour d'horizon, ouvrons le projet exemple nommé <em>A simple model
-#rocket</em>.
+<p>Vous pouvez parcourir la visite en utilisant les boutons <b>Suivant</b> et
+Boutons <b>Précédent</b>, ou en utilisant les touches <em>gauche</em> et <em>droite
+flèches</em> sur votre clavier.
 
 
-[main_window.jpg]
+[02_main_window_startup_screen.png]
 
-<p>Ceci est l'écran principal d'OpenRocket.  Il est divisé horizontalement en 
-deux parties:  la partie projet fusée / simulation de vol 
-et la partie conception fusée.
+<p>Ceci est l'écran de démarrage à partir duquel vous pouvez créer une nouvelle fusée
+concevoir ou ouvrir des conceptions existantes.
+
+<p>Pour cette visite guidée, ouvrons un exemple de conception appelé <em>A simple model rocket</em>.
 
 
+[03_main_window_simple.png]
 
-[main_window_top.jpg]
+<p>Ceci est l'écran principal d'OpenRocket. Il est divisé horizontalement
+en deux parties : la partie conception de fusée/simulation de vol et la partie
+vue de conception de fusée.
 
-<p>En haut à gauche il y a l'arborescence de pièces du projet fusée.
-Il montre quelles pièces sont attachées à quelles pièces.
 
-<p>Juste à coté les buttons permettent d'ajouter de nouvelles pièces à 
+[04_main_window_simple_top.png]
+
+<p>En haut à gauche se trouve l'arbre des composants de la conception de la fusée.
+Il affiche quels composants sont attachés à quels composants.
+
+<p>En haut à droite se trouvent des boutons de composants qui vous permettent d'ajouter différents
+types de nouveaux composants pour la fusée.
+
+
+[05_main_window_simple_bottom.png]
+
+<p>La moitié inférieure de la fenêtre contient un diagramme de l'actuel
+conception de fusée.
+
+<p>OpenRocket vous permet de visualiser un dessin en 2D de côté et de dos.
+Il existe également trois vues 3D, <em>Figure 3D</em>, <em>3D inachevé</em> et <em>3D fini</em>.
+
+# <p>Les différentes options de visualisation sont décrites en détail dans le
+# Visite <a href="FIXME">Options d'affichage</a>.
+
+
+[06_flight_simulations_top.png]
+
+<p>Lorsque vous sélectionnez l'onglet <b>Simulations de vol</b>, la partie supérieure de
+la fenêtre change pour montrer les simulations qui ont été définies pour
 la fusée.
 
-
-[main_window_bottom.jpg]
-
-<p>La partie basse de la fenêtre contient un diagramme du projet fusée 
-en cour.
-
-<p>Les différentes options de visualisation sont décrites en détail dans le tour
-d'horizon <a href="FIXME">Options de visualisation</a>. 
+<p>Vous pouvez définir diverses simulations avec différents moteurs
+configurations et conditions de lancement différentes, telles que le vent et
+angle de la tige de lancement.
 
 
-[flight_simulations.jpg]
+[07_simulation_edit.png]
 
-<p>Lorsque vous sélectionnez l'onglet <b>Simulations de vol</b>, la partie haute de
-la fenêtre change pour montrer les simulations qui ont été programmées pour
-la fusée.
+<p>En double-cliquant sur une simulation, vous ouvrez la boîte de dialogue <b>Modifier la simulation</b>.
+Sur les deux premiers onglets, vous pouvez définir les <b>conditions de lancement</b> et d'autres <b>options de simulation</b>.
 
-<p>Vous pouvez définir plusieurs simulations avec des configurations moteurs différentes
-et en modifiant les conditions de lancement, comme le vent et l'inclinaison 
-de la rampe de lancement.
+# <p>La simulation d'une fusée est décrite en détail dans le
+# Tour <a href="FIXME">Simuler un vol</a>.
 
 
-[simulation_edit.png]
+[08_simulation_plot.png]
 
-<p>En double cliquant sur une simulation vous ouvrez <em>la fenêtre de dialogue de modification 
-de Simulation </em>.  Sur les deux premiers onglets vous pouvez définir les options de simulation,
-dans les deux derniers onglets vous pouvez tracer ou exporter les résultats.
+<p>Pour tracer ou exporter des résultats de simulation, ouvrez la boîte de dialogue <b>Tracer / Exporter la simulation</b> en
+en double-cliquant sur le bouton <b>Simuler et tracer</b> dans le coin inférieur droit de la
+Boîte de dialogue <b>Modifier la simulation</b> (à côté du bouton <em> Fermer</em>).
 
-<p>La simulation d'une fusée est décrite en détail dans le tour d'horizon
-<a href="FIXME">Simulation d'un vol</a>.
+<p>Double-cliquer sur l'onglet <b>Données de tracé</b> vous permet de choisir parmi des configurations de tracé prédéfinies ou de définir les vôtres
+paramètres du tracé. En double-cliquant sur l'onglet <b>Exporter les données</b>, vous pouvez exporter le résultat de la simulation à l'aide de nombreux
+points de données, et même personnaliser le placement de la virgule décimale pour la sortie numérique.
 
 
-[advanced_features.jpg]
+[09_component_analysis.png]
 
-<p>D'autres fonctionnalités avancées incluant l'analyse des pièces et une
-optimisation automatique du projet sont traités dans d'autres tours d'horizon.
+<p>Les autres fonctionnalités avancées incluent l'<b>analyse des composants</b>...
 
-<p>Ensuite vous pouvez voir <a href="creating_design/creating_design.tour">Créer un projet fusée
-</a>, survoler d'autres tours d'horizons ou commencer à expérimenter le
-logiciel.
 
+[10_rocket_optimization.png]
+
+<p> et l'<b>optimisation automatique des fusées</b>.
+
+<p>Ensuite, vous pouvez faire un tour sur <a href="creating_design/creating_design.tour">Créer une fusée simple
+conception</a>,
+
+# parcourir d'autres circuits
+
+ou commencer à expérimenter avec le logiciel.
