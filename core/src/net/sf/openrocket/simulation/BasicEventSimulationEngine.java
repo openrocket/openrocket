@@ -344,6 +344,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 
+			// Add a warning if there is no recovery device defined.
+			if (!currentStatus.getConfiguration().hasRecoveryDevice()) {
+				currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
+			}
+			
 			// Handle event
 			log.trace("Handling event " + event);			
 			switch (event.getType()) {

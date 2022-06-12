@@ -427,6 +427,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
+	/**
+	 * Return true if any of this component's children are a RecoveryDevice
+	 */
+	public boolean hasRecoveryDevice() {
+	  Iterator<RocketComponent> iterator = this.iterator();
+	  while (iterator.hasNext()) {
+	    RocketComponent child = iterator.next();
+	    if (child instanceof RecoveryDevice) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
 	
 	//////////////  Methods that may not be overridden  ////////////
 	

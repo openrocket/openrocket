@@ -375,6 +375,8 @@ public abstract class Warning {
 	////Recovery device opened while motor still burning.
 	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING = new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
 	
+	////No recovery device for simulation
+	public static final Warning NO_RECOVERY_DEVICE = new Other(trans.get("Warning.NO_RECOVERY_DEVICE"));
 	
 	//// Invalid parameter encountered, ignoring.
 	public static final Warning FILE_INVALID_PARAMETER = new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));

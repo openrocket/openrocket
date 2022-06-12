@@ -547,7 +547,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 		updateActiveInstances();
 	}
-	
+
+	/**
+	 * Return true if rocket has a RecoveryDevice
+	 */
+	public boolean hasRecoveryDevice() {
+	  if (fcid.hasError()) {
+	    return false;
+	  }
+
+	  return this.getRocket().hasRecoveryDevice();
+	}
+
 	///////////////  Helper methods  ///////////////
 	
 	/**
