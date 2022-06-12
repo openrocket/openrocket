@@ -3,67 +3,68 @@ Introduzione
 
 <p>Questo primo tour fornisce una veloce panoramica sulle finestre e le caratteristiche di OpenRocket
 
-[logo.png]
+[01_logo.png]
 
-<p><b>OpenRocket</b> è una versatile applicazione per disegnare, simulare ed ottimizzare modelli di razzi.  Questo primo tour fornisce una panoramica sulle finestre e le caratteristiche di OpenRocket.
+<p><b>OpenRocket</b> è un'applicazione versatile per la progettazione, la simulazione e l'ottimizzazione di modellini di razzi. Questo primo tour fornisce una panoramica delle schermate e delle funzioni di OpenRocket.
 
-<p>Ti puoi spostare all'interno del tour usando i bottoni <b>Prossimo</b> e
-<b>Precedente</b> , o usando le frecce <em>sinistra</em> e <em>destra</em> della tua tastiera.
+<p>You can browse through the tour using the Next and Previous buttons, or using the left and  right arrows on your keyboard.
 
+[02_main_window_startup_screen.png]
 
-#[none]
-## FIXME: Add screenshot after dialog is complete
-#
-#<p>Questa è la finestra di avvio dalla quale puoi creare il disegno di un nuovo razzo o aprirne uno esistente.
-#
-#<p>Per questo tour, lasciami aprire un esempio chiamato <em>A simple model
-#rocket</em>.
+<p>Questa è la schermata di avvio da cui è possibile creare un nuovo progetto di razzo o aprire progetti esistenti.
 
+<p>Per questo tour, apriamo un progetto di esempio chiamato <em>A simple model rocket</em>.
 
-[main_window.jpg]
+[03_main_window_simple.png]
 
-<p>Questa è la finestra principale di OpenRocket.  E' divisa orrizzontamente in due parti: la sezione  parti del razzo / simulazione di volo e la vista del razzo stesso.
+<p>Questa è la schermata principale di OpenRocket. È divisa orizzontalmente in due parti: la sezione di progettazione del razzo/simulazione di volo e la vista di progettazione del razzo.
 
+[04_main_window_simple_top.png]
 
-[main_window_top.jpg]
+<p>On the top left is the component tree of the rocket design. Mostra quali componenti sono collegati a quali componenti.
 
-<p>In alto a sinistra c'è l'alero dei componenti del progeto del razzo.
-Mostra le connessioni tra i componenti.
+<p>In alto a destra si trovano i pulsanti dei componenti che consentono di aggiungere diversi tipi di nuovi componenti al razzo.
 
-<p>Vicino ad esso ci sono i pulsanti che permettono di aggiungere nuovi componenti al razzo.
+[05_main_window_simple_bottom.png]
 
+<p>La metà inferiore della finestra contiene un diagramma del progetto del razzo corrente.
 
-[main_window_bottom.jpg]
+<p>OpenRocket consente di visualizzare un progetto in 2D dal lato e dal retro.
+Sono disponibili anche tre viste 3D, <em>Figura 3D</em>, <em>Non finito 3D</em>e <em>Finito 3D</em>.
 
-<p>La metà sotto della finestra contiene un diagramma del disegno attuale.
+# <p>The different viewing options are described in detail in the
+# <a href="FIXME">Viewing options</a> tour.
 
-<p>Le opzioni che mostrano    sono descritte in dettaglio nel tour 
-<a href="FIXME">Opzioni di visualizazione</a> . 
+[06_flight_simulations_top.png]
 
+<p>Selezionando la scheda <b>Simulazioni di volo</b>, la parte superiore della finestra cambia per mostrare le simulazioni definite per il razzo.
 
-[flight_simulations.jpg]
+<p>È possibile definire varie simulazioni con diverse e diverse condizioni di lancio, come il vento e l'angolo dell'asta di lancio.
 
-<p>Quando selezioni la scheda <b>Simulazioni di volo</b> , La parte alta della finestra si adatta per mostrare le simulazioni che sono state definite per il razzo.
+[07_simulation_edit.png]
 
-<p>Puoi definire diverse simulazioni con diferse configurazioni del motore e differenti condizioni di lancio, come ,per esempio, il vento e l'inclinazione della rampa di lancio.
+<p>Facendo doppio clic su una simulazione si apre la finestra di dialogo Modifica simulazione.
+Nelle prime due schede è possibile definire le condizioni di lancio e altre <b>opzioni di simulazione</b>.
 
+# <p> La simulazione di un razzo è descritta in dettaglio nella sezione
+# <a href="FIXME">Simulating a flight</a> tour.
 
-[simulation_edit.png]
+[08_simulation_plot.png]
 
-<p>Facendo doppio click su una simulazione si apre la finestra di dialogo <em>Modifica simulazioni
-</em>.  Nelle prime due schede puoi definire le opzioni di simulazione, nelle ultime due puoi mostrare i grafici o esportare i risultati 
-.
+<p>Per tracciare o esportare i risultati della simulazione, aprire la finestra di dialogo Traccia / Esporta simulazione facendo doppio clic sul pulsante Simula e traccia nell'angolo inferiore destro della finestra di dialogo Modifica simulazione (accanto al pulsante Chiudi).
 
-<p>La simulazione è descritta in dettaglio nel tour
-<a href="FIXME">Simulare un volo</a> .
+<p>Facendo doppio clic sulla scheda Dati di tracciato è possibile scegliere tra le configurazioni di tracciato preimpostate o impostare i propri parametri di tracciato. Facendo doppio clic sulla scheda Esporta dati, è possibile esportare i risultati della simulazione utilizzando numerosi punti dati e persino impostare in modo personalizzato la posizione del punto decimale per l'output numerico.
 
+[09_component_analysis.png]
 
-[advanced_features.jpg]
+<p>Altre funzioni avanzate includono <b>l'analisi dei componenti</b>...
 
-<p>Altri tour trattano nello specifico diverse caratteristiche avanzate tra le quali l'analisi dei compononti e l'ottimizzazione automatica del progetto.
+[10_rocket_optimization.png]
 
-<p>Puoi cominciare un tour da <a href="creating_design/creating_design.tour">Creating a rocket
-design</a>, fai altri tour e comincia a prendere confidenza col programma.
+<p>e l'ottimizzazione automatica del razzo
 
+<p>Successivamente è possibile fare un tour su <a href="creating_design/creating_design.tour">Creazione di un semplice design di razzo</a>,
 
+# browse other tours
 
+o iniziare a sperimentare con il software.

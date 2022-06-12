@@ -5,7 +5,7 @@ Introduction
 features.
 
 
-[logo.png]
+[01_logo.png]
 
 <p><b>OpenRocket</b> is a versatile application for designing,
 simulating and optimizing model rockets.  This first tour provides an
@@ -16,42 +16,44 @@ overview of the OpenRocket screens and features.
 arrows</em> on your keyboard.
 
 
-#[none]
-## FIXME: Add screenshot after dialog is complete
-#
-#<p>This is the startup screen from which you can create a new rocket
-#design or open existing designs.
-#
-#<p>For this tour, let's open an example design called <em>A simple model
-#rocket</em>.
+[02_main_window_startup_screen.png]
+
+<p>This is the startup screen from which you can create a new rocket
+design or open existing designs.
+
+<p>For this tour, let's open an example design called <em>A simple model
+rocket</em>.
 
 
-[main_window.jpg]
+[03_main_window_simple.png]
 
 <p>This is the main screen of OpenRocket.  It is divided horizontally
 into two parts:  the rocket design / flight simulation section and the
 rocket design view.
 
 
-[main_window_top.jpg]
+[04_main_window_simple_top.png]
 
 <p>On the top left is the component tree of the rocket design.
 It displays which components are attached to what components.
 
-<p>Next to it are buttons which allow adding new components to the
-rocket.
+<p>On the top right are component buttons which allow you to add different
+types of new components to the rocket.
 
 
-[main_window_bottom.jpg]
+[05_main_window_simple_bottom.png]
 
 <p>The bottom half of the window contains a diagram of the current
 rocket design.
 
-<p>The different viewing options are described in detail in the
-<a href="FIXME">Viewing options</a> tour. 
+<p>OpenRocket allows you to view a design in 2D from the <em>Side</em> and <em>Back</em>.
+There are also three 3D views, <em>3D Figure</em>, <em>3D Unfinished</em>, and <em>3D Finished</em>.
+
+# <p>The different viewing options are described in detail in the
+# <a href="FIXME">Viewing options</a> tour.
 
 
-[flight_simulations.jpg]
+[06_flight_simulations_top.png]
 
 <p>When you select the <b>Flight simulations</b> tab, the top part of
 the window changes to show the simulations that have been defined for
@@ -62,23 +64,40 @@ configurations and differing launch conditions, such as wind and
 launch rod angle.
 
 
-[simulation_edit.png]
+[07_simulation_edit.png]
 
-<p>By double-clicking on a simulation you open the <em>Simulation edit
-dialog</em>.  On the first two tabs you can define simulation options,
-on the last two tabs you can plot or export the results.
+<p>By double-clicking on a simulation you open the <b>Edit simulation</b> dialog.
+On the first two tabs you can define the <b>Launch conditions</b> and other <b>Simulation options</b>.
 
-<p>Simulating a rocket is described in detail in the
-<a href="FIXME">Simulating a flight</a> tour.
+# <p>Simulating a rocket is described in detail in the
+# <a href="FIXME">Simulating a flight</a> tour.
+
+<p>To plot or export simulation results, open the <b>Plot / Export simulation</b> dialog by
+double-clicking the <b>Simulate & Plot</b> button in the lower right-hand corner of the
+<b>Edit simulation</b> dialog (next to the <em> Close</em> button).
 
 
-[advanced_features.jpg]
+[08_simulation_plot.png]
 
-<p>Other advanced features include component analysis and automatic
-design optimization, which are covered by separate tours.
+<p>Double-clicking the <b>Plot data</b> tab allows you to select from preset plot configurations or set your own
+plot parameters. By double-clicking on the <b>Export data</b> tab, you can export the simulation result using numerous
+data points, and even custom set the decimal point placement for numerical output.
 
-<p>Next you can take a tour on <a href="creating_design/creating_design.tour">Creating a rocket
-design</a>, browse other tours or start experimenting with the
-software.
+
+[09_component_analysis.png]
+
+<p>Other advanced features include <b>Component analysis</b>...
+
+
+[10_rocket_optimization.png]
+
+<p> and automatic <b>Rocket optimization</b>.
+
+<p>Next you can take a tour on <a href="creating_design/creating_design.tour">Creating a simple rocket
+design</a>,
+
+# browse other tours
+
+or start experimenting with the software.
 
 
