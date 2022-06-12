@@ -54,6 +54,8 @@ También hay tres vistas en 3D, <em>3D Figure</em>, <em>3D Unfinished</em>, y <e
 
 #<p>La simulación del vuelo de un cohete se describe con detalle en el tema <a href="FIXME">Simulación del vuelo</a>.
 
+[08_simulation_plot.png]
+
 <p>Para trazar o exportar los resultados de la simulación, abra el cuadro de diálogo <b>Trazar / Exportar simulación</b> haciendo doble clic en el botón <b>Simular y Trazar</b> situado en la esquina inferior derecha del cuadro de diálogo <b>Editar simulación</b> (junto al botón <em>Cerrar</em>).
 
 <p>Haciendo doble clic en la pestaña <b>Datos de trazado</b> podrá seleccionar entre las configuraciones de trazado preestablecidas o establecer sus propios plot parameters. Haciendo doble clic en la pestaña <b>Exportar datos</b>, se puede exportar el resultado de la simulación utilizando numerosos puntos de datos, e incluso establecer de forma personalizada la colocación del punto decimal para la salida numérica.

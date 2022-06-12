@@ -49,7 +49,7 @@ Nelle prime due schede è possibile definire le condizioni di lancio e altre <b>
 # <p> La simulazione di un razzo è descritta in dettaglio nella sezione
 # <a href="FIXME">Simulating a flight</a> tour.
 
-[08_simulation_results.png]
+[08_simulation_plot.png]
 
 <p>Per tracciare o esportare i risultati della simulazione, aprire la finestra di dialogo Traccia / Esporta simulazione facendo doppio clic sul pulsante Simula e traccia nell'angolo inferiore destro della finestra di dialogo Modifica simulazione (accanto al pulsante Chiudi).
 
