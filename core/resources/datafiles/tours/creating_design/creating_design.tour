@@ -11,7 +11,7 @@ design window, and when you double-click on the <em>Rocket</em> label (the root 
 component tree, the <b>Rocket configuration</b> dialog opens.
 
 <p>This is where you can enter general information on the rocket design, such as the design name,
-designer, comments, and create a revision history. For example, the initial <em>Design name</em? is "Rocket"
+designer, comments, and create a revision history. For example, the initial <em>Design Name</em> is "Rocket"
 and, if you change the design name, the new design name is displayed as the root component in the component tree.
 
 
