@@ -549,21 +549,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	/**
-	 * Return true if a rocket has a configured Recovery Device
+	 * Return true if rocket has a RecoveryDevice
 	 */
 	public boolean hasRecoveryDevice() {
-		Rocket rkt = this.getRocket();
-		RocketComponent nextComponent = rkt.getNextComponent();
+	  if (fcid.hasError()) {
+	    return false;
+	  }
 
-		while(nextComponent != null) {
-			if(nextComponent instanceof RecoveryDevice) {
-				return true;
-			}
-			
-			nextComponent = nextComponent.getNextComponent();
-		}
-		
-		return false;
+	  return this.getRocket().hasRecoveryDevice();
 	}
 
 	///////////////  Helper methods  ///////////////
