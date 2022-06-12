@@ -51,7 +51,7 @@ public class AboutDialog extends JDialog {
 		"Tripoli France (French)<br>" +
 		"Stefan Lobas / ERIG e.V. (German)<br>" +
 		"Tripoli Spain (Spanish)<br>" +
-		"Sky Dart Team (Russian)<br>" +
+		"Sky Dart Team / Ruslan V. Uss (Russian)<br>" +
 		"Mauro Biasutti (Italian)<br>" +
 		"Vladimir Beran (Czech)<br>" +
 		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
