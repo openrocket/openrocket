@@ -48,7 +48,7 @@ public class SlideShowDialog extends JDialog {
 		
 		slideShowComponent = new SlideShowComponent();
 		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(parent));
-		panel.add(slideShowComponent, "spanx, grow, wrap para");
+		panel.add(slideShowComponent, "spanx, pushy, grow, wrap para");
 		
 		
 		JPanel sub = new JPanel(new MigLayout("ins 0, fill"));
@@ -77,7 +77,8 @@ public class SlideShowDialog extends JDialog {
 		
 		
 		sub.add(new JPanel(), "growx");
-		
+
+		panel.add(sub, "pushx, center");
 		
 		closeButton = new SelectColorButton(trans.get("button.close"));
 		closeButton.addActionListener(new ActionListener() {
@@ -86,11 +87,8 @@ public class SlideShowDialog extends JDialog {
 				SlideShowDialog.this.dispose();
 			}
 		});
-		sub.add(closeButton, "right");
-		
-		
-		panel.add(sub, "growx");
-		
+		panel.add(closeButton, "wrap");
+
 		this.add(panel);
 		updateEnabled();
 		addKeyActions();
