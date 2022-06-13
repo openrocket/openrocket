@@ -432,12 +432,12 @@ public class AppearancePanel extends JPanel {
 		BooleanModel mDefault;
 		if (!insideBuilder) {
 			builder = ab;
-			mDefault = new BooleanModel(c.getAppearance() == null);
+			mDefault = new BooleanModel(c.getAppearance() == null || defaultAppearance.equals(c.getAppearance()));
 		}
 		else if (c instanceof InsideColorComponent) {
 			builder = insideAb;
-			mDefault = new BooleanModel(
-					((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance() == null);
+			Appearance appearance = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
+			mDefault = new BooleanModel(appearance == null || defaultAppearance.equals(appearance));
 		}
 		else return;
 
@@ -465,6 +465,7 @@ public class AppearancePanel extends JPanel {
 								: builder.getAppearance();
 					}
 					builder.setAppearance(defaultAppearance);
+					c.setAppearance(null);
 				} else {
 					if (!insideBuilder)
 						builder.setAppearance(previousUserSelectedAppearance);
