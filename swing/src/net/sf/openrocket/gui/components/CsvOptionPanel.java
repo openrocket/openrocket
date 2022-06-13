@@ -10,10 +10,10 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.util.SaveCSVWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.TextUtil;
 
 /**
  * A panel that shows options for saving CSV files.
@@ -76,7 +76,7 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
 		panel.add(label, "gapright unrel");
 
-		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(Preferences.EXPORT_DECIMAL_PLACES, SaveCSVWorker.DEFAULT_DECIMAL_PLACES),
+		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(Preferences.EXPORT_DECIMAL_PLACES, TextUtil.DEFAULT_DECIMAL_PLACES),
 				0, 15, 1);
 		decimalPlacesSpinner = new JSpinner(dpModel);
 		decimalPlacesSpinner.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));

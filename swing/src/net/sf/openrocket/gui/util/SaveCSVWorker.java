@@ -18,12 +18,12 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.TextUtil;
 
 
 public class SaveCSVWorker extends SwingWorker<Void, Void> {
 	
 	private static final int BYTES_PER_FIELD_PER_POINT = 7;
-	public static final int DEFAULT_DECIMAL_PLACES = 3;
 
 	private final File file;
 	private final Simulation simulation;
@@ -94,7 +94,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 								 FlightDataType[] fields, Unit[] units, String fieldSeparator,
 								 String commentStarter, boolean simulationComments,
 								 boolean fieldComments, boolean eventComments, Window parent) {
-		return export(file, simulation, branch, fields, units, fieldSeparator, DEFAULT_DECIMAL_PLACES, true,
+		return export(file, simulation, branch, fields, units, fieldSeparator, TextUtil.DEFAULT_DECIMAL_PLACES, true,
 				commentStarter, simulationComments, fieldComments, eventComments, parent);
 	}
 	
