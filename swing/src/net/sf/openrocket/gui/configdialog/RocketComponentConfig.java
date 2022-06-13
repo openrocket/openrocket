@@ -268,6 +268,26 @@ public class RocketComponentConfig extends JPanel {
 		}
 		return subPanel;
 	}
+
+	public String getSelectedTabName() {
+		if (tabbedPane != null) {
+			return tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+		} else {
+			return "";
+		}
+	}
+
+	public void setSelectedTab(String tabName) {
+		if (tabbedPane != null) {
+			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+				if (tabbedPane.getTitleAt(i).equals(tabName)) {
+					tabbedPane.setSelectedIndex(i);
+					return;
+				}
+			}
+			tabbedPane.setSelectedIndex(0);
+		}
+	}
 	
 	protected JPanel instanceablePanel( Instanceable inst ){
 		JPanel panel = new JPanel( new MigLayout("fill"));
