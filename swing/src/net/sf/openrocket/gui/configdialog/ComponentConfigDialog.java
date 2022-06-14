@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -217,7 +218,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			previousSelectedTab = dialog.getSelectedTabName();
 			dialog.dispose();
 		}
-		if (!rememberPreviousTab) {
+		final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+		if (preferences.isAlwaysOpenLeftmostTab() || !rememberPreviousTab) {
 			previousSelectedTab = null;
 		}
 

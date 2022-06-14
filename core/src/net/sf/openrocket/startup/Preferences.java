@@ -67,6 +67,7 @@ public abstract class Preferences implements ChangeSource {
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
+	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
 	
 	//Preferences related to 3D graphics
@@ -451,6 +452,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final boolean isAutoOpenLastDesignOnStartupEnabled() {
 		return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
+	}
+
+	/**
+	 * Enable/Disable the opening the leftmost tab on the component design panel, or using the tab that was opened last time.
+	 */
+	public final void setAlwaysOpenLeftmostTab(boolean enabled) {
+		this.putBoolean(OPEN_LEFTMOST_DESIGN_TAB, enabled);
+	}
+
+	/**
+	 * Answer if the always open leftmost tab is enabled.
+	 *
+	 * @return true if the application should always open the leftmost tab in the component design panel.
+	 */
+	public final boolean isAlwaysOpenLeftmostTab() {
+		return this.getBoolean(OPEN_LEFTMOST_DESIGN_TAB, false);
 	}
 	
 	/**
