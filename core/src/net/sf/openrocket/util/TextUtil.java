@@ -2,10 +2,12 @@ package net.sf.openrocket.util;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.Locale;
 
 
 public class TextUtil {
-	
+	public static final int DEFAULT_DECIMAL_PLACES = 3;
 	
 	private static final char[] HEX = {
 			'0', '1', '2', '3', '4', '5', '6', '7',
@@ -43,8 +45,8 @@ public class TextUtil {
 
 	/**
 	 * Return a string of the double value with suitable precision for storage.
-	 * The string is the shortest representation of the value including at least
-	 * 5 digits of precision.
+	 * If exponential notation is used, values smaller than 0.001 or greater than 10000 will be formatted
+	 * with exponential notation, otherwise normal formatting is used.
 	 *
 	 * @param d		the value to present.
 	 * @param decimalPlaces the number of decimal places to save the value with.
@@ -66,27 +68,15 @@ public class TextUtil {
 				return "Inf";
 		}
 
-		final String sign = (d < 0) ? "-" : "";
-		double abs = Math.abs(d);
+		String format = "%." + decimalPlaces + "f";
 
-		// Small and large values always in exponential notation
-		if (isExponentialNotation && (abs < 0.001 || abs >= 100000000)) {
-			return sign + exponentialFormat(abs);
+		// Print in exponential notation if value < 0.001 or >= 10000
+		if (isExponentialNotation && (Math.abs(d) < 0.001 || Math.abs(d) >= 10000)) {
+			format = "%." + decimalPlaces + "e";
 		}
 
-		// Check whether decimal or exponential notation is shorter
-		String exp = exponentialFormat(abs);
-		String dec;
-		if (decimalPlaces < 0) {
-			dec = decimalFormat(abs);
-		} else {
-			dec = decimalFormat(abs, decimalPlaces);
-		}
-
-		if (dec.length() <= exp.length() || !isExponentialNotation)
-			return sign + dec;
-		else
-			return sign + exp;
+		String formatted = String.format(Locale.ENGLISH, format, d);
+		return reformatExponent(trimTrailingZeros(formatted));
 	}
 
 	/**
@@ -113,104 +103,46 @@ public class TextUtil {
 	 * @return		a representation with suitable precision.
 	 */
 	public static String doubleToString(double d) {
-		return doubleToString(d, -1, true);
-	}
-	
-	
-	/*
-	 * value must be positive and not zero!
-	 */
-	private static String exponentialFormat(double value) {
-		int exp;
-		
-		exp = 0;
-		while (value < 1.0) {
-			value *= 10;
-			exp--;
-		}
-		while (value >= 10.0) {
-			value /= 10;
-			exp++;
-		}
-		
-		return shortDecimal(value, 4) + "e" + exp;
-	}
-	
-	
-	/*
-	 * value must be positive and not zero!
-	 */
-	private static String decimalFormat(double value) {
-		if (value >= 10000)
-			return "" + (int) (value + 0.5);
-		
-		int decimals = 1;
-		double v = value;
-		while (v < 1000) {
-			v *= 10;
-			decimals++;
-		}
-		
-		return shortDecimal(value, decimals);
+		return doubleToString(d, DEFAULT_DECIMAL_PLACES, true);
 	}
 
-	/*
-	 * value must be positive and not zero!
+	/**
+	 * Trims trailing zeros of a string formatted decimal number (can be in exponential notation e.g. 1.2000E+06).
+	 * @param number the String formatted decimal number.
+	 * @return the String formatted decimal number without trailing zeros.
 	 */
-	private static String decimalFormat(double value, int decimals) {
-		if (value >= 10000)
-			return "" + (int) (value + 0.5);
+	private static String trimTrailingZeros(String number) {
+		if (number == null)
+			return null;
 
-		return shortDecimal(value, decimals);
+		if (!number.contains(".")) {
+			return number;
+		}
+
+		// Deal with exponential notation
+		if (number.contains("e")) {
+			String[] split = number.split("e");
+			number = split[0];
+			String exponent = split[1];
+			return number.replaceAll("\\.?0*$", "") + "e" + exponent;
+		}
+
+		return number.replaceAll("\\.?0*$", "");
 	}
-	
-	
-	
-	
-	/*
-	 * value must be positive!
+
+	/**
+	 * Replaces Java's default exponential notation (e.g. e+06 or e-06) with a custom notation (e.g. e6 or e-6).
+	 * @param number exponential formatted number (e.g. 3.1415927e+06).
+	 * @return the exponential formatted number, with custom exponential notation (e.g. 3.1415927e6).
 	 */
-	private static String shortDecimal(double value, int decimals) {
-		
-		// Calculate rounding and limit values (rounding slightly smaller)
-		int rounding = 1;
-		double limit = 0.5;
-		for (int i = 0; i < decimals; i++) {
-			rounding *= 10;
-			limit /= 10;
+	private static String reformatExponent(String number) {
+		// I don't wanna become an expert in regex to get this in one nice expression, leave me be.
+		if (number.contains("e+")) {
+			return number.replaceAll("e\\+?0*", "e");
+		} else if (number.contains("e-")) {
+			return number.replaceAll("e-?0*", "e-");
 		}
-		
-		// Round value
-		value = (Math.rint(value * rounding) + 0.1) / rounding;
-		
-		
-		int whole = (int) value;
-		value -= whole;
-		
-		
-		if (value < limit)
-			return "" + whole;
-		limit *= 10;
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("" + whole);
-		sb.append('.');
-		
-		
-		for (int i = 0; i < decimals; i++) {
-			
-			value *= 10;
-			whole = (int) value;
-			value -= whole;
-			sb.append((char) ('0' + whole));
-			
-			if (value < limit)
-				return sb.toString();
-			limit *= 10;
-			
-		}
-		
-		return sb.toString();
+		return number;
 	}
 	
 	/**
