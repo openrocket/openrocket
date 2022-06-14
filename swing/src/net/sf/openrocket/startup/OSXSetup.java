@@ -39,9 +39,8 @@ final class OSXSetup {
 	 * The handler for file associations
 	 */
 	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
-		System.out.println("Received open files event "+e.toString());
-		MRUDesignFile opts = MRUDesignFile.getInstance();
-		opts.addFile(e.getFiles().get(0).getAbsolutePath());
+		log.info("Opening file from association: " + e.getFiles().get(0));
+		BasicFrame.open(e.getFiles().get(0), null);
 	};
 	
 	/**
