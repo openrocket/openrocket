@@ -90,6 +90,21 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(autoOpenDesignFile, "wrap, growx, span 2");
 
+		// // Always open leftmost tab when opening a component edit dialog
+		final JCheckBox alwaysOpenLeftmostTab = new JCheckBox(
+				trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost"));
+
+		alwaysOpenLeftmostTab.setSelected(preferences.isAlwaysOpenLeftmostTab());
+		alwaysOpenLeftmostTab.setToolTipText(trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost.ttip"));
+		alwaysOpenLeftmostTab.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAlwaysOpenLeftmostTab(alwaysOpenLeftmostTab
+						.isSelected());
+			}
+		});
+		this.add(alwaysOpenLeftmostTab, "wrap, growx, span 2");
+
 		// // Update flight estimates in the design window
 		final JCheckBox updateEstimates = new JCheckBox(
 				trans.get("pref.dlg.checkbox.Updateestimates"));
@@ -102,6 +117,5 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(updateEstimates, "wrap, growx, sg combos ");
-
 	}
 }
