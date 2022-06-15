@@ -216,10 +216,10 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		// Clamp opacity between 0 and 1
 		opacity = Math.max(0, Math.min(1, opacity));
 
-		this.paint.setAlpha((int) (opacity * 255));
-		if (!bypassAppearanceChangeEvent) {
-			fireChangeEvent();
-		}
+		// Instead of simply setting the alpha, we need to create a new color with the new alpha value, otherwise undoing
+		// the setOpacity will not work correctly. (don't ask me why)
+		Color c = new Color(paint.getRed(), paint.getGreen(), paint.getBlue(), (int) (opacity * 255));
+		setPaint(c);
 	}
 	
 	/**
