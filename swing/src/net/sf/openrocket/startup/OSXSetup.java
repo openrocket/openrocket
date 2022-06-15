@@ -2,11 +2,9 @@ package net.sf.openrocket.startup;
 
 import java.awt.*;
 import java.awt.desktop.AboutHandler;
-import java.awt.desktop.OpenFilesEvent;
 import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
-import java.lang.reflect.InvocationTargetException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.MRUDesignFile;
 
 import javax.swing.*;
 
