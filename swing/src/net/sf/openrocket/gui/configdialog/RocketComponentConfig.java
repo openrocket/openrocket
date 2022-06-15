@@ -149,7 +149,7 @@ public class RocketComponentConfig extends JPanel {
 		buttonPanel = new JPanel(new MigLayout("fillx, ins 5"));
 
 		//// Multi-comp edit label
-		multiCompEditLabel = new StyledLabel(" ", 0, Style.BOLD);
+		multiCompEditLabel = new StyledLabel(" ", -1, Style.BOLD);
 		//multiCompEditLabel.setFontColor(new Color(0, 0, 239));
 		multiCompEditLabel.setFontColor(new Color(170, 0, 100));
 		buttonPanel.add(multiCompEditLabel, "split 2");
