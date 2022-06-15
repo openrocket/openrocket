@@ -133,11 +133,6 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
 
-		// Set the default tab to 'Appearance' for a different-type multi-comp dialog (this is the most prominent use case)
-		if (listeners != null && listeners.size() > 0 && !allSameType) {
-			tabbedPane.setSelectedIndex(1);
-		}
-
 		addButtons();
 
 		updateFields();
@@ -326,6 +321,12 @@ public class RocketComponentConfig extends JPanel {
 			return tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
 		} else {
 			return "";
+		}
+	}
+
+	public void setSelectedTabIndex(int index) {
+		if (tabbedPane != null) {
+			tabbedPane.setSelectedIndex(index);
 		}
 	}
 

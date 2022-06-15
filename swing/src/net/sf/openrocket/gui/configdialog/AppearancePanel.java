@@ -3,6 +3,9 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
@@ -58,7 +61,7 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
-public class AppearancePanel extends JPanel {
+public class AppearancePanel extends JPanel implements WindowListener {
 	private static final long serialVersionUID = 2709187552673202019L;
 
 	private static final Translator trans = Application.getTranslator();
@@ -106,6 +109,34 @@ public class AppearancePanel extends JPanel {
 	}
 
 	private static final JColorChooser colorChooser = new JColorChooser();
+
+	@Override
+	public void windowOpened(WindowEvent e) {}
+
+	@Override
+	public void windowClosing(WindowEvent e) {}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		if (ab != null) {
+			ab.clearConfigListeners();
+		}
+		if (insideAb != null) {
+			insideAb.clearConfigListeners();
+		}
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {}
+
+	@Override
+	public void windowActivated(WindowEvent e) {}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {}
 
 	private class ColorActionListener implements ActionListener {
 		private final String valueName;
@@ -198,22 +229,43 @@ public class AppearancePanel extends JPanel {
 
 		previousUserSelectedAppearance = c.getAppearance();
 		if (previousUserSelectedAppearance == null) {
-			previousUserSelectedAppearance = new AppearanceBuilder()
-					.getAppearance();
+			previousUserSelectedAppearance = new AppearanceBuilder().getAppearance();
 			ab = new AppearanceBuilder(defaultAppearance);
 		} else {
 			ab = new AppearanceBuilder(previousUserSelectedAppearance);
 		}
+		for (RocketComponent listener : c.getConfigListeners()) {
+			Appearance a = listener.getAppearance();
+			AppearanceBuilder appearanceBuilder = new AppearanceBuilder(a);
+			ab.addConfigListener(listener, appearanceBuilder);
+		}
 
-		if (c instanceof InsideColorComponent) {
+		// Check if all InsideColorComponent
+		boolean allInsideColor = c instanceof InsideColorComponent;
+		if (allInsideColor) {
+			for (RocketComponent listener :  c.getConfigListeners()) {
+				if (!(listener instanceof InsideColorComponent)) {
+					allInsideColor = false;
+					break;
+				}
+			}
+		}
+
+		if (allInsideColor) {
 			previousUserSelectedInsideAppearance = ((InsideColorComponent) c).getInsideColorComponentHandler()
 					.getInsideAppearance();
 			if (previousUserSelectedInsideAppearance == null) {
-				previousUserSelectedInsideAppearance = new AppearanceBuilder()
-						.getAppearance();
+				previousUserSelectedInsideAppearance = new AppearanceBuilder().getAppearance();
 				insideAb = new AppearanceBuilder(defaultAppearance);
 			} else {
 				insideAb = new AppearanceBuilder(previousUserSelectedInsideAppearance);
+			}
+
+			for (RocketComponent listener : c.getConfigListeners()) {
+				Appearance a = ((InsideColorComponent) listener).getInsideColorComponentHandler()
+						.getInsideAppearance();
+				AppearanceBuilder appearanceBuilder = new AppearanceBuilder(a);
+				insideAb.addConfigListener(listener, appearanceBuilder);
 			}
 		}
 
@@ -317,7 +369,7 @@ public class AppearancePanel extends JPanel {
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
 		// Display a tabbed panel for choosing the outside and inside appearance, if the object is of type InsideColorComponent
-		if (c instanceof InsideColorComponent) {
+		if (allInsideColor) {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 
 			// Get translator keys
@@ -464,13 +516,31 @@ public class AppearancePanel extends JPanel {
 						previousUserSelectedInsideAppearance = (builder == null) ? null
 								: builder.getAppearance();
 					}
+
+					// Set the listeners' appearance to the default appearance
+					for (RocketComponent listener : builder.getConfigListeners().keySet()) {
+						builder.getConfigListeners().get(listener).setAppearance(defaultAppearance);
+						listener.setAppearance(null);
+					}
+
+					// Set this component's appearance to the default appearance
 					builder.setAppearance(defaultAppearance);
 					c.setAppearance(null);
 				} else {
-					if (!insideBuilder)
+					if (!insideBuilder) {
+						// Set the listeners' appearance to the previous user selected appearance
+						for (AppearanceBuilder listener : builder.getConfigListeners().values()) {
+							listener.setAppearance(previousUserSelectedAppearance);
+						}
 						builder.setAppearance(previousUserSelectedAppearance);
-					else
+					}
+					else {
+						// Set the listeners' inside appearance to the previous user selected appearance
+						for (AppearanceBuilder listener : builder.getConfigListeners().values()) {
+							listener.setAppearance(previousUserSelectedInsideAppearance);
+						}
 						builder.setAppearance(previousUserSelectedInsideAppearance);
+					}
 				}
 			}
 		});
@@ -622,10 +692,24 @@ public class AppearancePanel extends JPanel {
 					opacityModel.stateChanged(null);
 					lastOpacity = builder.getOpacity();
 				}
-				if (!insideBuilder)
+				if (!insideBuilder) {
+					// Set the listeners' outside appearance
+					for (RocketComponent listener : builder.getConfigListeners().keySet()) {
+						listener.setAppearance(builder.getConfigListeners().get(listener).getAppearance());
+					}
+					// Set this component's outside appearance
 					c.setAppearance(builder.getAppearance());
-				else
-					((InsideColorComponent)c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
+				}
+				else {
+					// Set the listeners' inside appearance
+					for (RocketComponent listener : builder.getConfigListeners().keySet()) {
+						if (!(listener instanceof InsideColorComponent)) continue;
+						((InsideColorComponent) listener).getInsideColorComponentHandler()
+								.setInsideAppearance(builder.getConfigListeners().get(listener).getAppearance());
+					}
+					// Set this component's inside appearance
+					((InsideColorComponent) c).getInsideColorComponentHandler().setInsideAppearance(builder.getAppearance());
+				}
 				decalModel.refresh();
 			}
 		});

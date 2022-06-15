@@ -101,11 +101,16 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		this.setContentPane(configurator);
 		configurator.updateFields();
 
-		// Set the selected tab
-		configurator.setSelectedTab(previousSelectedTab);
+		List<RocketComponent> listeners = component.getConfigListeners();
+
+		// Set the default tab to 'Appearance' for a different-type multi-comp dialog (this is the most prominent use case)
+		if (listeners != null && listeners.size() > 0 && !component.checkAllClassesEqual(listeners)) {
+			configurator.setSelectedTabIndex(1);
+		} else {
+			configurator.setSelectedTab(previousSelectedTab);
+		}
 
 		//// configuration
-		List<RocketComponent> listeners = component.getConfigListeners();
 		if (component.checkAllClassesEqual(listeners)) {
 			if (listeners != null && listeners.size() > 0) {
 				setTitle("(" + trans.get("ComponentCfgDlg.MultiComponent") + ") " +
