@@ -3,9 +3,6 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
@@ -61,7 +58,7 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
-public class AppearancePanel extends JPanel implements WindowListener {
+public class AppearancePanel extends JPanel {
 	private static final long serialVersionUID = 2709187552673202019L;
 
 	private static final Translator trans = Application.getTranslator();
@@ -110,14 +107,7 @@ public class AppearancePanel extends JPanel implements WindowListener {
 
 	private static final JColorChooser colorChooser = new JColorChooser();
 
-	@Override
-	public void windowOpened(WindowEvent e) {}
-
-	@Override
-	public void windowClosing(WindowEvent e) {}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
+	public void clearConfigListeners() {
 		if (ab != null) {
 			ab.clearConfigListeners();
 		}
@@ -125,18 +115,6 @@ public class AppearancePanel extends JPanel implements WindowListener {
 			insideAb.clearConfigListeners();
 		}
 	}
-
-	@Override
-	public void windowIconified(WindowEvent e) {}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {}
-
-	@Override
-	public void windowActivated(WindowEvent e) {}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {}
 
 	private class ColorActionListener implements ActionListener {
 		private final String valueName;

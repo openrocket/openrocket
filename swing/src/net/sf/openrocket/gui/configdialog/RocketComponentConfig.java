@@ -66,6 +66,7 @@ public class RocketComponentConfig extends JPanel {
 	private final TextFieldListener textFieldListener;
 	
 	private JPanel buttonPanel;
+	private AppearancePanel appearancePanel = null;
 	
 	private JLabel infoLabel;
 	private StyledLabel multiCompEditLabel;
@@ -125,7 +126,8 @@ public class RocketComponentConfig extends JPanel {
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (allMassive) {
 			//// Appearance options
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, new AppearancePanel(document, component),
+			appearancePanel = new AppearancePanel(document, component);
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
 					"Appearance Tool Tip");
 		}
 
@@ -237,7 +239,12 @@ public class RocketComponentConfig extends JPanel {
 			multiCompEditLabel.setText("");
 		}
 	}
-	
+
+	public void clearConfigListeners() {
+		if (appearancePanel != null) {
+			appearancePanel.clearConfigListeners();
+		}
+	}
 	
 	protected JPanel materialPanel(Material.Type type) {
 		////Component material: and Component finish:

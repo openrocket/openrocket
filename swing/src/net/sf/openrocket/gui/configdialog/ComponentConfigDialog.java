@@ -17,6 +17,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -64,6 +65,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			 *  In fact, it should trigger for any method of closing the dialog.
 			 */
 			public void windowClosed(WindowEvent e){
+				configurator.clearConfigListeners();
 				configurator.invalidate();
 				document.getRocket().removeComponentChangeListener(ComponentConfigDialog.this);
 				ComponentConfigDialog.this.dispose();
@@ -231,9 +233,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
 		if (dialog != null) {
-			// Don't remember the previous tab for stages, because this will leave you in the override tab for
+			// Don't remember the previous tab for rockets or stages, because this will leave you in the override tab for
 			// the next component, which is generally not what you want.
-			if (dialog.getComponent() instanceof AxialStage && !(component instanceof AxialStage)) {
+			if (dialog.getComponent() instanceof Rocket ||
+				(dialog.getComponent() instanceof AxialStage && !(component instanceof AxialStage))) {
 				previousSelectedTab = null;
 			} else {
 				previousSelectedTab = dialog.getSelectedTabName();
