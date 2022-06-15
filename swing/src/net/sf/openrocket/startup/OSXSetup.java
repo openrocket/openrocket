@@ -2,7 +2,6 @@ package net.sf.openrocket.startup;
 
 import java.awt.*;
 import java.awt.desktop.AboutHandler;
-import java.awt.desktop.OpenFilesEvent;
 import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
@@ -15,7 +14,6 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.MRUDesignFile;
 
 import javax.swing.*;
 
@@ -92,7 +90,6 @@ final class OSXSetup {
 			
 			// Set handlers
 			osxDesktop.setAboutHandler(ABOUT_HANDLER);
-			osxDesktop.setOpenFileHandler(OPEN_FILE_HANDLER);
 			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
 
@@ -113,6 +110,22 @@ final class OSXSetup {
 			// so at worst case log an error and continue
 			log.warn("Error setting up OSX UI:", t);
 		}
+	}
+
+	/**
+	 * Sets up the open file handler, which handles file association on macOS.
+	 */
+	public static void setupOSXOpenFileHandler() {
+		if (SystemInfo.getPlatform() != Platform.MAC_OS) {
+			log.warn("Attempting to set up OSX file handler on non-MAC_OS");
+		}
+		final Desktop osxDesktop = Desktop.getDesktop();
+		if (osxDesktop == null) {
+			// Application is null: Something is wrong, give up on OS setup
+			throw new NullPointerException("com.apple.eawt.Application.getApplication() returned NULL. "
+					+ "Aborting OSX UI Setup.");
+		}
+		osxDesktop.setOpenFileHandler(OPEN_FILE_HANDLER);
 	}
 
 }

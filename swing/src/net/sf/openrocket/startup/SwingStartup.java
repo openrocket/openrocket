@@ -85,6 +85,8 @@ public class SwingStartup {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
+				// Set up the OSX file open handler here so that it can handle files that are opened when OR is not yet running.
+				OSXSetup.setupOSXOpenFileHandler();
 				runner.runInEDT(args);
 			}
 		});
