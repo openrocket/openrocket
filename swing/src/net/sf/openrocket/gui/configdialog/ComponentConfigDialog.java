@@ -37,14 +37,15 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private static ComponentConfigDialog dialog = null;
 	
 	private OpenRocketDocument document = null;
-	private RocketComponent component = null;
+	protected static RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
+
+	protected static boolean clearConfigListeners = true;
 	
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
 	
-	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component,
-								  List<RocketComponent> listeners) {
+	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
 		super(parent);
 		this.parent = parent;
 		
@@ -63,21 +64,15 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				configurator.invalidate();
 				document.getRocket().removeComponentChangeListener(ComponentConfigDialog.this);
 				ComponentConfigDialog.this.dispose();
-				component.clearConfigListeners();
+				if (clearConfigListeners) {
+					component.clearConfigListeners();
+				}
 			}
-			
-			public void windowClosing(WindowEvent e){}
 
 			@Override
 			public void windowOpened(WindowEvent e) {
 				super.windowOpened(e);
-				// Add config listeners
-				component.clearConfigListeners();
-				if (listeners != null) {
-					for (RocketComponent listener : listeners) {
-						component.addConfigListener(listener);
-					}
-				}
+				clearConfigListeners = true;
 			}
 		});
 	}
@@ -104,7 +99,17 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		configurator.updateFields();
 		
 		//// configuration
-		setTitle(trans.get("ComponentCfgDlg.configuration1") + " " + component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (component.checkAllClassesEqual(listeners)) {
+			if (listeners != null && listeners.size() > 0) {
+				setTitle("(" + trans.get("ComponentCfgDlg.MultiComponent") + ") " +
+						component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
+			} else {
+				setTitle(component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
+			}
+		} else {
+			setTitle(trans.get("ComponentCfgDlg.MultiComponentConfig"));
+		}
 		
 		this.pack();
 	}
@@ -118,14 +123,18 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * Return the configurator panel of the current component.
 	 */
 	private RocketComponentConfig getDialogContents() {
-		Constructor<? extends RocketComponentConfig> c =
+		List<RocketComponent> listeners = component.getConfigListeners();
+		boolean isSameClass = component.checkAllClassesEqual(listeners);
+		if (!isSameClass) {
+			return new RocketComponentConfig(document, component);
+		}
+
+		Constructor<? extends RocketComponentConfig> constructor =
 				findDialogContentsConstructor(component);
-		if (c != null) {
+		if (constructor != null) {
 			try {
-				return c.newInstance(document, component);
-			} catch (InstantiationException e) {
-				throw new BugException("BUG in constructor reflection", e);
-			} catch (IllegalAccessException e) {
+				return constructor.newInstance(document, component);
+			} catch (InstantiationException | IllegalAccessException e) {
 				throw new BugException("BUG in constructor reflection", e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
@@ -196,48 +205,35 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 
 	//////////  Static dialog  /////////
-	
+
 	/**
 	 * A singleton configuration dialog.  Will create and show a new dialog if one has not 
 	 * previously been used, or update the dialog and show it if a previous one exists.
 	 * 
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
-	 * @param listeners		config listeners for the component
 	 */
 	public static void showDialog(Window parent, OpenRocketDocument document,
-			RocketComponent component, List<RocketComponent> listeners) {
-		if (dialog != null)
+			RocketComponent component) {
+		if (dialog != null) {
+			// If the component is the same as the ComponentConfigDialog component, and the dialog is still visible,
+			// that means that the user did a ctr/cmd click on a new component => don't remove the config listeners of component
+			if (component.equals(ComponentConfigDialog.component)) {
+				ComponentConfigDialog.clearConfigListeners = false;
+			}
 			dialog.dispose();
+		}
 
-		dialog = new ComponentConfigDialog(parent, document, component, listeners);
+		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
 		
 		////Modify
 		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 	}
 
-	/**
-	 * A singleton configuration dialog.  Will create and show a new dialog if one has not
-	 * previously been used, or update the dialog and show it if a previous one exists.
-	 *
-	 * @param document		the document to configure.
-	 * @param component		the component to configure.
-	 */
-	public static void showDialog(Window parent, OpenRocketDocument document,
-								  RocketComponent component) {
-		ComponentConfigDialog.showDialog(parent, document, component, null);
-	}
-	
-	
-	/* package */
-	static void showDialog(RocketComponent component, List<RocketComponent> listeners) {
-		showDialog(dialog.parent, dialog.document, component, listeners);
-	}
-
 	/* package */
 	static void showDialog(RocketComponent component) {
-		ComponentConfigDialog.showDialog(component, null);
+		ComponentConfigDialog.showDialog(dialog.parent, dialog.document, component);
 	}
 	
 	/**

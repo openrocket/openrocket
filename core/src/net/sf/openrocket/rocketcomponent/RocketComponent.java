@@ -1671,6 +1671,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		return false;
 	}
+
+	/**
+	 * Checks whether all components in the list have the same class as this component.
+	 * @param components list to check
+	 * @return true if all components are of the same class, false if not
+	 */
+	public boolean checkAllClassesEqual(List<RocketComponent> components) {
+		if (components == null || components.size() == 0) {
+			return true;
+		}
+		Class<? extends RocketComponent> myClass = this.getClass();
+		for (RocketComponent c : components) {
+			if (!c.getClass().equals(myClass)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	/**
 	 * Get the root component of the component tree.
@@ -1970,7 +1988,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent listener) {
-		if (listener == null || !this.getClass().equals(listener.getClass())) {
+		if (listener == null) {
 			return false;
 		}
 		configListeners.add(listener);
