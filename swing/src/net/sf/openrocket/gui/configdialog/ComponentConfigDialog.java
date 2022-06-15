@@ -258,7 +258,11 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		dialog.setVisible(true);
 
 		////Modify
-		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
+		if (component.getConfigListeners().size() == 0) {
+			document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
+		} else {
+			document.addUndoPosition(trans.get("ComponentCfgDlg.ModifyComponents"));
+		}
 	}
 
 	/**
