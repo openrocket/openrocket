@@ -2,6 +2,8 @@ package net.sf.openrocket.startup;
 
 import java.awt.*;
 import java.awt.desktop.AboutHandler;
+import java.awt.desktop.OpenFilesEvent;
+import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 
@@ -13,6 +15,7 @@ import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.gui.main.MRUDesignFile;
 
 import javax.swing.*;
 
@@ -31,6 +34,14 @@ final class OSXSetup {
 	
 	// The image resource to use for the Dock Icon
 	private static final String ICON_RSRC = "/pix/icon/icon-256.png";
+
+	/**
+	 * The handler for file associations
+	 */
+	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
+		log.info("Opening file from association: " + e.getFiles().get(0));
+		BasicFrame.open(e.getFiles().get(0), null);
+	};
 	
 	/**
 	 * The handler for the Quit item in the OSX app menu
@@ -81,6 +92,7 @@ final class OSXSetup {
 			
 			// Set handlers
 			osxDesktop.setAboutHandler(ABOUT_HANDLER);
+			osxDesktop.setOpenFileHandler(OPEN_FILE_HANDLER);
 			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
 
