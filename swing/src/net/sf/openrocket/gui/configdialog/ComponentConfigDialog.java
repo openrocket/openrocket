@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -24,7 +25,7 @@ import net.sf.openrocket.util.Reflection;
  * A dialog that contains the configuration elements of one component.
  * The contents of the dialog are instantiated from CONFIGDIALOGPACKAGE according
  * to the current component.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
@@ -32,25 +33,26 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private static final long serialVersionUID = 1L;
 	private static final String CONFIGDIALOGPACKAGE = "net.sf.openrocket.gui.configdialog";
 	private static final String CONFIGDIALOGPOSTFIX = "Config";
-	
+
 	// Static Value -- This is a singleton value, and we should only have zero or one active at any time
 	private static ComponentConfigDialog dialog = null;
-	
+
 	private OpenRocketDocument document = null;
 	protected static RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
-
 	protected static boolean clearConfigListeners = true;
-	
+	private static String previousSelectedTab = null;	// Name of the previous selected tab
+
+
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
 		super(parent);
 		this.parent = parent;
-		
+
 		setComponent(document, component);
-		
+
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
 
@@ -76,12 +78,12 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			}
 		});
 	}
-	
-	
+
+
 	/**
 	 * Set the component being configured.  The listening connections of the old configurator
 	 * will be removed and the new ones created.
-	 * 
+	 *
 	 * @param component  Component to configure.
 	 */
 	private void setComponent(OpenRocketDocument document, RocketComponent component) {
@@ -89,15 +91,18 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			// Remove listeners by setting all applicable models to null
 			GUIUtil.setNullModels(configurator); // null-safe
 		}
-		
+
 		this.document = document;
 		this.component = component;
 		this.document.getRocket().addComponentChangeListener(this);
-		
+
 		configurator = getDialogContents();
 		this.setContentPane(configurator);
 		configurator.updateFields();
-		
+
+		// Set the selected tab
+		configurator.setSelectedTab(previousSelectedTab);
+
 		//// configuration
 		List<RocketComponent> listeners = component.getConfigListeners();
 		if (component.checkAllClassesEqual(listeners)) {
@@ -110,7 +115,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		} else {
 			setTitle(trans.get("ComponentCfgDlg.MultiComponentConfig"));
 		}
-		
+
 		this.pack();
 	}
 
@@ -140,19 +145,19 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				throw Reflection.handleWrappedException(e);
 			}
 		}
-		
+
 		// Should never be reached, since RocketComponentConfig should catch all
 		// components without their own configurator.
 		throw new BugException("Unable to find any configurator for " + component);
 	}
-	
+
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isTreeChange() || e.isUndoChange()) {
-			
+
 			// Hide dialog in case of tree or undo change
 			disposeDialog();
-			
+
 		} else {
 			/*
 			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)
@@ -164,10 +169,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				configurator.updateFields();
 		}
 	}
-	
-	
+
+
 	/**
-	 * Finds the Constructor of the given component's config dialog panel in 
+	 * Finds the Constructor of the given component's config dialog panel in
 	 * CONFIGDIALOGPACKAGE.
 	 */
 	@SuppressWarnings("unchecked")
@@ -175,10 +180,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		Class<?> currentclass;
 		String currentclassname;
 		String configclassname;
-		
+
 		Class<?> configclass;
 		Constructor<? extends RocketComponentConfig> c;
-		
+
 		currentclass = component.getClass();
 		while ((currentclass != null) && (currentclass != Object.class)) {
 			currentclassname = currentclass.getCanonicalName();
@@ -187,7 +192,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				currentclassname = currentclassname.substring(index + 1);
 			configclassname = CONFIGDIALOGPACKAGE + "." + currentclassname +
 					CONFIGDIALOGPOSTFIX;
-			
+
 			try {
 				configclass = Class.forName(configclassname);
 				c = (Constructor<? extends RocketComponentConfig>)
@@ -195,27 +200,28 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				return c;
 			} catch (Exception ignore) {
 			}
-			
+
 			currentclass = currentclass.getSuperclass();
 		}
 		return null;
 	}
-	
-	
+
+
 
 
 	//////////  Static dialog  /////////
 
 	/**
-	 * A singleton configuration dialog.  Will create and show a new dialog if one has not 
+	 * A singleton configuration dialog.  Will create and show a new dialog if one has not
 	 * previously been used, or update the dialog and show it if a previous one exists.
-	 * 
+	 *
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
+	 * @param rememberPreviousTab if true, the previous tab will be remembered and used for the new dialog
 	 */
-	public static void showDialog(Window parent, OpenRocketDocument document,
-			RocketComponent component) {
+	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
 		if (dialog != null) {
+			previousSelectedTab = dialog.getSelectedTabName();
 			// If the component is the same as the ComponentConfigDialog component, and the dialog is still visible,
 			// that means that the user did a ctr/cmd click on a new component => don't remove the config listeners of component
 			if (component.equals(ComponentConfigDialog.component)) {
@@ -224,18 +230,40 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			dialog.dispose();
 		}
 
+		final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+		if (preferences.isAlwaysOpenLeftmostTab() || !rememberPreviousTab) {
+			previousSelectedTab = null;
+		}
+
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
-		
+
 		////Modify
 		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 	}
 
+	/**
+	 * A singleton configuration dialog.  Will create and show a new dialog if one has not
+	 * previously been used, or update the dialog and show it if a previous one exists.
+	 * By default, the previous tab is remembered.
+	 *
+	 * @param document		the document to configure.
+	 * @param component		the component to configure.
+	 */
+	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
+		ComponentConfigDialog.showDialog(parent, document, component, true);
+	}
+
+	static void showDialog(RocketComponent component, boolean rememberPreviousTab) {
+		showDialog(dialog.parent, dialog.document, component, rememberPreviousTab);
+	}
+
+
 	/* package */
 	static void showDialog(RocketComponent component) {
-		ComponentConfigDialog.showDialog(dialog.parent, dialog.document, component);
+		showDialog(dialog.parent, dialog.document, component, true);
 	}
-	
+
 	/**
 	 * Disposes the configuration dialog.  May be used even if not currently visible.
 	 */
@@ -244,13 +272,21 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			dialog.dispose();
 		}
 	}
-	
-	
+
+
 	/**
 	 * Returns whether the singleton configuration dialog is currently visible or not.
 	 */
 	public static boolean isDialogVisible() {
 		return (dialog != null) && (dialog.isVisible());
+	}
+
+	public String getSelectedTabName() {
+		if (configurator != null) {
+			return configurator.getSelectedTabName();
+		} else {
+			return null;
+		}
 	}
 	
 }
