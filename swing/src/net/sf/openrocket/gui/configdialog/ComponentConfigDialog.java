@@ -14,6 +14,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -38,7 +39,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private static ComponentConfigDialog dialog = null;
 
 	private OpenRocketDocument document = null;
-	protected static RocketComponent component = null;
+	protected RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
 	protected static boolean clearConfigListeners = true;
 	private static String previousSelectedTab = null;	// Name of the previous selected tab
@@ -117,6 +118,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		}
 
 		this.pack();
+	}
+
+	public RocketComponent getComponent() {
+		return component;
 	}
 
 	public static ComponentConfigDialog getDialog() {
@@ -221,10 +226,16 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
 		if (dialog != null) {
-			previousSelectedTab = dialog.getSelectedTabName();
+			// Don't remember the previous tab for stages, because this will leave you in the override tab for
+			// the next component, which is generally not what you want.
+			if (dialog.getComponent() instanceof AxialStage && !(component instanceof AxialStage)) {
+				previousSelectedTab = null;
+			} else {
+				previousSelectedTab = dialog.getSelectedTabName();
+			}
 			// If the component is the same as the ComponentConfigDialog component, and the dialog is still visible,
 			// that means that the user did a ctr/cmd click on a new component => don't remove the config listeners of component
-			if (component.equals(ComponentConfigDialog.component)) {
+			if (component == dialog.getComponent()) {
 				ComponentConfigDialog.clearConfigListeners = false;
 			}
 			dialog.dispose();
@@ -279,6 +290,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static boolean isDialogVisible() {
 		return (dialog != null) && (dialog.isVisible());
+	}
+
+	public int getSelectedTabIndex() {
+		return configurator.getSelectedTabIndex();
 	}
 
 	public String getSelectedTabName() {

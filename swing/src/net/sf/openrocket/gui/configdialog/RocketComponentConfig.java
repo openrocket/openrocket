@@ -317,6 +317,10 @@ public class RocketComponentConfig extends JPanel {
 		return subPanel;
 	}
 
+	public int getSelectedTabIndex() {
+		return tabbedPane.getSelectedIndex();
+	}
+
 	public String getSelectedTabName() {
 		if (tabbedPane != null) {
 			return tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
