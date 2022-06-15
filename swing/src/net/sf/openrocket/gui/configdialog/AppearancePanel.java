@@ -613,9 +613,9 @@ public class AppearancePanel extends JPanel {
 		mDefault.addEnableComponent(spinShine, false);
 		mDefault.addEnableComponent(unitShine, false);
 
-		panel.add(spinShine, "split 3, w 50");
+		panel.add(spinShine, "split 3, w 60");
 		panel.add(unitShine);
-		panel.add(slideShine, "w 50");
+		panel.add(slideShine, "w 50, growx");
 
 		// Offset
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
@@ -647,9 +647,9 @@ public class AppearancePanel extends JPanel {
 		mDefault.addEnableComponent(spinOpacity, false);
 		mDefault.addEnableComponent(unitOpacity, false);
 
-		panel.add(spinOpacity, "split 3, w 50");
+		panel.add(spinOpacity, "split 3, w 60");
 		panel.add(unitOpacity);
-		panel.add(slideOpacity, "w 50");
+		panel.add(slideOpacity, "w 50, growx");
 
 		// Rotation
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
