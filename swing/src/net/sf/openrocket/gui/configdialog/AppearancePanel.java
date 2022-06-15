@@ -496,6 +496,20 @@ public class AppearancePanel extends JPanel implements WindowListener {
 		DecalModel decalModel = new DecalModel(panel, document, builder);
 		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
 
+		// We need to add this action listener that triggers a decalModel update when the same item is selected, because
+		// for multi-comp edits, the listeners' decals may not be updated otherwise
+		textureDropDown.addActionListener(new ActionListener() {
+			private DecalImage previousSelection = (DecalImage) decalModel.getSelectedItem();
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DecalImage decal = (DecalImage) textureDropDown.getSelectedItem();
+				if (decal == previousSelection) {
+					decalModel.setSelectedItem(decal);
+				}
+				previousSelection = decal;
+			}
+		});
+
 		JButton colorButton = new SelectColorButton(new ColorIcon(builder.getPaint()));
 
 		colorButton.addActionListener(new ColorActionListener(builder, "Paint"));
