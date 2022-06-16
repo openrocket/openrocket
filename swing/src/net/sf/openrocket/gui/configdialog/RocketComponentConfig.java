@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.*;
@@ -39,7 +40,6 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -66,22 +66,42 @@ public class RocketComponentConfig extends JPanel {
 	private final TextFieldListener textFieldListener;
 	
 	private JPanel buttonPanel;
+	private AppearancePanel appearancePanel = null;
 	
 	private JLabel infoLabel;
-	
-	
+	private StyledLabel multiCompEditLabel;
+
+	private boolean allSameType;		// Checks whether all listener components are of the same type as <component>
+	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
+
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
 		setLayout(new MigLayout("fill, gap 4!, ins panel", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
 
 		this.document = document;
 		this.component = component;
-		
+
+		// Check the listeners for the same type and massive status
+		allSameType = true;
+		allMassive = component.isMassive();
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (listeners != null && listeners.size() > 0) {
+			allSameType = component.checkAllClassesEqual(listeners);
+			if (allMassive) {	// Only check if <component> is already massive
+				for (RocketComponent listener : listeners) {
+					if (!listener.isMassive()) {
+						allMassive = false;
+						break;
+					}
+				}
+			}
+		}
+
 		//// Component name:
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
 		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
 		this.add(label, "spanx, height 32!, split");
-		
+
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
 		componentNameField.addActionListener(textFieldListener);
@@ -89,34 +109,34 @@ public class RocketComponentConfig extends JPanel {
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
 		this.add(componentNameField, "growx");
-		
-		if (component.getPresetType() != null) {
+
+		if (allSameType && component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
 			presetComboBox = new JComboBox(presetModel);
 			presetComboBox.setEditable(false);
 			this.add(presetComboBox, "");
 		}
-		
-		
+
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, "newline, span, growx, growy 100, wrap");
-		
+
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
-		if (component.isMassive()) {
+		if (allMassive) {
 			//// Appearance options
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, new AppearancePanel(document, component),
+			appearancePanel = new AppearancePanel(document, component);
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
 					"Appearance Tool Tip");
 		}
-		
+
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
-		
+
 		addButtons();
-		
+
 		updateFields();
 	}
 	
@@ -127,6 +147,12 @@ public class RocketComponentConfig extends JPanel {
 		}
 		
 		buttonPanel = new JPanel(new MigLayout("fillx, ins 5"));
+
+		//// Multi-comp edit label
+		multiCompEditLabel = new StyledLabel(" ", -1, Style.BOLD);
+		//multiCompEditLabel.setFontColor(new Color(0, 0, 239));
+		multiCompEditLabel.setFontColor(new Color(170, 0, 100));
+		buttonPanel.add(multiCompEditLabel, "split 2");
 
 		//// Mass:
 		infoLabel = new StyledLabel(" ", -1);
@@ -159,16 +185,17 @@ public class RocketComponentConfig extends JPanel {
 	public void updateFields() {
 		// Component name
 		componentNameField.setText(component.getName());
-		
+
 		// Info label
 		StringBuilder sb = new StringBuilder();
-		
-		if (component.getPresetComponent() != null) {
+
+		if (allSameType && component.getPresetComponent() != null) {
 			ComponentPreset preset = component.getPresetComponent();
 			sb.append(preset.getManufacturer() + " " + preset.getPartNo() + "      ");
 		}
-		
-		if (component.isMassive()) {
+
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (allMassive && (listeners == null || listeners.size() == 0)) {	// TODO: support aggregate mass display for current component and listeners?
 			sb.append(trans.get("RocketCompCfg.lbl.Componentmass") + " ");
 			sb.append(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 					component.getComponentMass()));
@@ -193,8 +220,31 @@ public class RocketComponentConfig extends JPanel {
 		} else {
 			infoLabel.setText("");
 		}
+
+		// Multi-comp edit label
+		if (listeners != null && listeners.size() > 0) {
+			multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
+
+			StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
+			components.append(component.getName()).append(", ");
+			for (int i = 0; i < listeners.size(); i++) {
+				if (i < listeners.size() - 1) {
+					components.append(listeners.get(i).getName()).append(", ");
+				} else {
+					components.append(listeners.get(i).getName());
+				}
+			}
+			multiCompEditLabel.setToolTipText(components.toString());
+		} else {
+			multiCompEditLabel.setText("");
+		}
 	}
-	
+
+	public void clearConfigListeners() {
+		if (appearancePanel != null) {
+			appearancePanel.clearConfigListeners();
+		}
+	}
 	
 	protected JPanel materialPanel(Material.Type type) {
 		////Component material: and Component finish:
@@ -269,11 +319,21 @@ public class RocketComponentConfig extends JPanel {
 		return subPanel;
 	}
 
+	public int getSelectedTabIndex() {
+		return tabbedPane.getSelectedIndex();
+	}
+
 	public String getSelectedTabName() {
 		if (tabbedPane != null) {
 			return tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
 		} else {
 			return "";
+		}
+	}
+
+	public void setSelectedTabIndex(int index) {
+		if (tabbedPane != null) {
+			tabbedPane.setSelectedIndex(index);
 		}
 	}
 

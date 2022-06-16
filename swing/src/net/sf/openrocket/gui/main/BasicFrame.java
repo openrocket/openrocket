@@ -338,16 +338,16 @@ public class BasicFrame extends JFrame {
 
 				if (!ComponentConfigDialog.isDialogVisible())
 					return;
+				else
+					ComponentConfigDialog.disposeDialog();
+
 				RocketComponent c = (RocketComponent) paths[0].getLastPathComponent();
-				List<RocketComponent> listeners = new ArrayList<>();
+				c.clearConfigListeners();
 				for (int i = 1; i < paths.length; i++) {
 					RocketComponent listener = (RocketComponent) paths[i].getLastPathComponent();
-					if (listener.getClass().equals(c.getClass())) {
-						listeners.add((RocketComponent) paths[i].getLastPathComponent());
-					}
+					c.addConfigListener(listener);
 				}
-				ComponentConfigDialog.showDialog(BasicFrame.this,
-						BasicFrame.this.document, c, listeners);
+				ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, c);
 			}
 		});
 
@@ -1332,7 +1332,6 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
 	 * @param displayName	the file name to display in dialogs.
-	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return

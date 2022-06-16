@@ -5,7 +5,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -879,16 +878,17 @@ public class RocketActions {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if ((components != null) && (components.size() > 0) && checkAllClassesEqual(components)) {
-				// Do nothing if the config dialog is already visible
+			if ((components != null) && (components.size() > 0)) {
 				if (ComponentConfigDialog.isDialogVisible())
-					return;
+					ComponentConfigDialog.disposeDialog();
 
-				List<RocketComponent> listeners = null;
+				RocketComponent component = components.get(0);
 				if (components.size() > 1) {
-					listeners = components.subList(1, components.size());
+					for (int i = 1; i < components.size(); i++) {
+						component.addConfigListener(components.get(i));
+					}
 				}
-				ComponentConfigDialog.showDialog(parentFrame, document, components.get(0), listeners);
+				ComponentConfigDialog.showDialog(parentFrame, document, component);
 			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
 				simulationPanel.editSimulation();
 			}
@@ -898,25 +898,7 @@ public class RocketActions {
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 
-			this.setEnabled(checkAllClassesEqual(components) || isSimulationSelected());
-		}
-
-		/**
-		 * Checks whether all components in the list have the same class
-		 * @param components list to check
-		 * @return true if all components are of the same class, false if not
-		 */
-		private boolean checkAllClassesEqual(List<RocketComponent> components) {
-			if (components == null || components.size() == 0) {
-				return false;
-			}
-			Class<? extends RocketComponent> myClass = components.get(0).getClass();
-			for (int i = 1; i < components.size(); i++) {
-				if (!components.get(i).getClass().equals(myClass)) {
-					return false;
-				}
-			}
-			return true;
+			this.setEnabled((components != null && components.size() > 0) || isSimulationSelected());
 		}
 	}
 

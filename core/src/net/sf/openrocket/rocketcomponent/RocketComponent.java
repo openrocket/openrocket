@@ -123,7 +123,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private Appearance appearance = null;
 
 	// If true, component change events will not be fired
-	private boolean ignoreComponentChange = false;
+	private boolean bypassComponentChangeEvent = false;
 	
 	
 	/**
@@ -464,10 +464,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param appearance
 	 */
 	public void setAppearance(Appearance appearance) {
-		for (RocketComponent listener : configListeners) {
-			listener.setAppearance(appearance);
-		}
-
 		this.appearance = appearance;
 		if (this.appearance != null) {
 			Decal d = this.appearance.getTexture();
@@ -581,9 +577,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setMassOverridden(boolean o) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setMassOverridden(o);
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 		}
 
 		if (massOverridden == o) {
@@ -655,9 +651,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setCGOverridden(boolean o) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setCGOverridden(o);
-			listener.setIgnoreComponentChange(true);
+			listener.setBypassChangeEvent(true);
 		}
 
 		if (cgOverridden == o) {
@@ -806,9 +802,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setName(String name) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setName(name);
-			listener.setIgnoreComponentChange(true);
+			listener.setBypassChangeEvent(true);
 		}
 
 		if (this.name.equals(name)) {
@@ -1671,6 +1667,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		return false;
 	}
+
+	/**
+	 * Checks whether all components in the list have the same class as this component.
+	 * @param components list to check
+	 * @return true if all components are of the same class, false if not
+	 */
+	public boolean checkAllClassesEqual(List<RocketComponent> components) {
+		if (components == null || components.size() == 0) {
+			return true;
+		}
+		Class<? extends RocketComponent> myClass = this.getClass();
+		for (RocketComponent c : components) {
+			if (!c.getClass().equals(myClass)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	/**
 	 * Get the root component of the component tree.
@@ -1936,7 +1950,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
 		checkState();
-		if (parent == null || ignoreComponentChange) {
+		if (parent == null || bypassComponentChangeEvent) {
 			/* Ignore if root invalid. */
 			return;
 		}
@@ -1955,37 +1969,36 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 
-	public void setIgnoreComponentChange(boolean newValue) {
-		this.ignoreComponentChange = newValue;
+	public void setBypassChangeEvent(boolean newValue) {
+		this.bypassComponentChangeEvent = newValue;
 	}
 
-	public boolean getIgnoreComponentChange() {
-		return this.ignoreComponentChange;
+	public boolean getBypassComponentChangeEvent() {
+		return this.bypassComponentChangeEvent;
 	}
 
 	/**
-	 * Add a new config listener that will undergo the same configuration changes as this.component. Listener must be
-	 * of the same class as this.component.
+	 * Add a new config listener that will undergo the same configuration changes as this.component.
 	 * @param listener new config listener
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent listener) {
-		if (listener == null || !this.getClass().equals(listener.getClass())) {
+		if (listener == null) {
 			return false;
 		}
 		configListeners.add(listener);
-		listener.setIgnoreComponentChange(true);
+		listener.setBypassChangeEvent(true);
 		return true;
 	}
 
 	public void removeConfigListener(RocketComponent listener) {
 		configListeners.remove(listener);
-		listener.setIgnoreComponentChange(false);
+		listener.setBypassChangeEvent(false);
 	}
 
 	public void clearConfigListeners() {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 		}
 		configListeners.clear();
 	}

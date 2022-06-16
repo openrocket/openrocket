@@ -1,9 +1,13 @@
 package net.sf.openrocket.appearance;
 
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Use this class to build an immutable Appearance object in a friendly way. Set
@@ -28,6 +32,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	private Decal.EdgeMode edgeMode;
 	
 	private boolean batch;
+
+	/**
+	 * List of appearance builders that will set their appearance properties to the same as the current appearance
+	 */
+	private final Map<RocketComponent, AppearanceBuilder> configListeners = new LinkedHashMap<>();
+	// If true, appearance change events will not be fired
+	private boolean bypassAppearanceChangeEvent = false;
 	
 	/**
 	*	Default constructor
@@ -59,7 +70,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		rotation = 0;
 		image = null;
 		edgeMode = EdgeMode.REPEAT;
-		fireChangeEvent();//shouldn't this fire change event?
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -88,6 +101,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param d The decal
 	*/
 	public void setDecal(Decal d){
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setDecal(d);
+		}
 		if (d != null) {
 			setOffset(d.getOffset().x, d.getOffset().y);
 			setCenter(d.getCenter().x, d.getCenter().y);
@@ -96,7 +112,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			setEdgeMode(d.getEdgeMode());
 			setImage(d.getImage());
 		}
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -137,9 +155,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param paint the new color
 	*/
 	public void setPaint(Color paint) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setPaint(paint);
+		}
 		this.paint = paint;
-		fireChangeEvent();
-		
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -158,8 +180,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param shine	the new shine for template
 	*/
 	public void setShine(double shine) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setShine(shine);
+		}
 		this.shine = shine;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 
 	/**
@@ -179,6 +206,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	 * @param opacity new opacity value expressed in a percentage, where 0 is fully transparent and 1 is fully opaque
 	 */
 	public void setOpacity(double opacity) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setOpacity(opacity);
+		}
 		if (this.paint == null) {
 			return;
 		}
@@ -186,8 +216,10 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		// Clamp opacity between 0 and 1
 		opacity = Math.max(0, Math.min(1, opacity));
 
-		this.paint.setAlpha((int) (opacity * 255));
-		fireChangeEvent();
+		// Instead of simply setting the alpha, we need to create a new color with the new alpha value, otherwise undoing
+		// the setOpacity will not work correctly. (don't ask me why)
+		Color c = new Color(paint.getRed(), paint.getGreen(), paint.getBlue(), (int) (opacity * 255));
+		setPaint(c);
 	}
 	
 	/**
@@ -207,8 +239,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param offsetU	the new offset to be used
 	*/
 	public void setOffsetU(double offsetU) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setOffsetU(offsetU);
+		}
 		this.offsetU = offsetU;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -227,8 +264,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param offsetV	the new offset to be used
 	*/
 	public void setOffsetV(double offsetV) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setOffsetV(offsetV);
+		}
 		this.offsetV = offsetV;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -259,8 +301,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param centerU	value of axis U for center
 	*/
 	public void setCenterU(double centerU) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setCenterU(centerU);
+		}
 		this.centerU = centerU;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -276,11 +323,16 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	set a new value for axis V for center in template
 	*	fires change event
 	*
-	*	@param centerU	value of axis V for center
+	*	@return	value of axis V for center
 	*/
 	public void setCenterV(double centerV) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setCenterV(centerV);
+		}
 		this.centerV = centerV;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -311,8 +363,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param scaleU new value of scalling in axis U
 	*/
 	public void setScaleU(double scaleU) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setScaleU(scaleU);
+		}
 		this.scaleU = scaleU;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -331,8 +388,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param scaleV new value of scalling in axis V
 	*/
 	public void setScaleV(double scaleV) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setScaleV(scaleV);
+		}
 		this.scaleV = scaleV;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -379,7 +441,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	sets a new value of axis Y for scalling in template
 	*	fires change event
 	*
-	*	@param scaleX the new value for axis Y
+	*	@param scaleY the new value for axis Y
 	*/	
 	public void setScaleY(double scaleY) {
 		setScaleV(1.0 / scaleY);
@@ -401,14 +463,19 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param rotation	the new value for rotation in template
 	*/
 	public void setRotation(double rotation) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setRotation(rotation);
+		}
 		this.rotation = rotation;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
 	*	gets the current image in template
 	*
-	*	@param the current image in template
+	*	@return the current image in template
 	*/
 	public DecalImage getImage() {
 		return image;
@@ -421,8 +488,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param image	the new image to be used as template
 	*/	
 	public void setImage(DecalImage image) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setImage(image);
+		}
 		this.image = image;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -441,8 +513,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	@param edgeMode	the new edgeMode to be used
 	*/
 	public void setEdgeMode(Decal.EdgeMode edgeMode) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setEdgeMode(edgeMode);
+		}
 		this.edgeMode = edgeMode;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
 	}
 	
 	/**
@@ -455,15 +532,55 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	}
 	
 	/**
-	*	function that garantees that chenges event only occurs after all changes are made
+	*	function that guarantees that changes event only occurs after all changes are made
 	*
 	*	param r	the functor to be executed
 	*/
 	public void batch(Runnable r) {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.batch(r);
+		}
 		batch = true;
 		r.run();
 		batch = false;
-		fireChangeEvent();
+		if (!bypassAppearanceChangeEvent) {
+			fireChangeEvent();
+		}
+	}
+
+	/**
+	 * Add a new config listener that will undergo the same configuration changes as this AppearanceBuilder.
+	 * @param component the component to add as a config listener
+	 * @param ab new AppearanceBuilder config listener
+	 * @return true if listener was successfully added, false if not
+	 */
+	public boolean addConfigListener(RocketComponent component, AppearanceBuilder ab) {
+		if (component == null || ab == null) {
+			return false;
+		}
+		configListeners.put(component, ab);
+		ab.setBypassChangeEvent(true);
+		return true;
+	}
+
+	public void removeConfigListener(RocketComponent listener) {
+		configListeners.remove(listener);
+		listener.setBypassChangeEvent(false);
+	}
+
+	public void clearConfigListeners() {
+		for (AppearanceBuilder listener : configListeners.values()) {
+			listener.setBypassChangeEvent(false);
+		}
+		configListeners.clear();
+	}
+
+	public Map<RocketComponent, AppearanceBuilder> getConfigListeners() {
+		return configListeners;
+	}
+
+	public void setBypassChangeEvent(boolean newValue) {
+		this.bypassAppearanceChangeEvent = newValue;
 	}
 	
 }
