@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="9.0.6" transformSequenceNumber="9">
   <directoryPresets config="../../core/resources-src/pix/icon" />
-  <application name="OpenRocket 22.02.beta.03" applicationId="8434-9327-1469-6373" mediaDir="media" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="22.02.beta.03" allPathsRelative="true" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11" javaMaxVersion="11" jdkMode="jdk" jdkName="JDK 11.0">
+  <application name="OpenRocket 22.02.beta.04" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="22.02.beta.04" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="11" javaMaxVersion="11" jdkMode="jdk" jdkName="JDK 11.0">
     <jreBundles jdkProviderId="Liberica" release="11/11.0.15+10">
       <modules>
         <defaultModules set="jre" />
@@ -18,7 +18,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 22.02.beta.03" id="59" icnsFile="OpenRocket.icns">
+    <launcher name="OpenRocket 22.02.beta.04" id="59" icnsFile="OpenRocket.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../core/resources-src/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo legalCopyright="Copyright 2007-2022 Sampo Niskanen and Others" />
       </executable>
@@ -652,22 +652,22 @@ return console.askYesNo(message, true);
     </styles>
   </installerGui>
   <mediaSets>
-    <windows name="Windows" id="60">
+    <windows name="Windows" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-Windows">
       <jreBundle>
         <modules>
           <module name="java.scripting" />
         </modules>
       </jreBundle>
     </windows>
-    <unixInstaller name="Unix Installer" id="168" />
-    <macosArchive name="macOS Single Bundle Archive (Intel)" id="213" mediaFileName="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" launcherId="59">
+    <unixInstaller name="Unix Installer" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-Linux" />
+    <macosArchive name="macOS Single Bundle Archive (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS" launcherId="59">
       <topLevelFiles>
         <file name=".DS_Store" file="./macOS_resources/DS_Store" />
         <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
         <symlink name="Applications" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
-    <macos name="macOS Single Bundle" id="224" mediaFileName="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}-installer" launcherId="59" />
+    <macos name="macOS Single Bundle" id="224" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS_ARM" launcherId="59" />
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="60" />
