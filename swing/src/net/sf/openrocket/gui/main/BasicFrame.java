@@ -61,6 +61,7 @@ import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
@@ -100,9 +101,9 @@ public class BasicFrame extends JFrame {
 	private static final Translator trans = Application.getTranslator();
 	private static final Preferences prefs = Application.getPreferences();
 
-	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 
-	private static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
+	public static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
 			SHIFT_DOWN_MASK;
 
 	public static final int COMPONENT_TAB = 0;
@@ -1189,6 +1190,10 @@ public class BasicFrame extends JFrame {
 
 
 	private void openAction() {
+		openAction(this);
+	}
+
+	public static void openAction(Window parent) {
 		JFileChooser chooser = new JFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
@@ -1198,7 +1203,7 @@ public class BasicFrame extends JFrame {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		int option = chooser.showOpenDialog(this);
+		int option = chooser.showOpenDialog(parent);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
 			return;
@@ -1211,7 +1216,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, this)) {
+			if (open(file, parent)) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1688,10 +1693,14 @@ public class BasicFrame extends JFrame {
 		ComponentAnalysisDialog.hideDialog();
 
 		frames.remove(this);
-		// Don't quit the application on macOS
-		if (frames.isEmpty() && (SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS)) {
-			log.info("Last frame closed, exiting");
-			System.exit(0);
+		if (frames.isEmpty()) {
+			// Don't quit the application on macOS, but keep the application open
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+				DummyFrameMenuOSX.createDummyDialog();
+			} else {
+				log.info("Last frame closed, exiting");
+				System.exit(0);
+			}
 		}
 		return true;
 	}
@@ -1801,6 +1810,14 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Checks whether all the BasicFrames are closed.
+	 * @return true if all the BasicFrames are closed, false if not
+	 */
+	public static boolean isFramesEmpty() {
+		return frames.isEmpty();
 	}
 
 	/**

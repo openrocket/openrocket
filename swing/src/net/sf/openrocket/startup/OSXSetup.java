@@ -7,6 +7,7 @@ import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 import java.awt.desktop.AppReopenedListener;
 
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +53,10 @@ final class OSXSetup {
 	};
 
 	private static final AppReopenedListener APP_REOPENED_HANDLER = (e) -> {
-		log.info("App re-opened");
-		BasicFrame.reopen();
+		if (BasicFrame.isFramesEmpty()) {
+			log.info("App re-opened");
+			BasicFrame.reopen();
+		}
 	};
 
 	/**
