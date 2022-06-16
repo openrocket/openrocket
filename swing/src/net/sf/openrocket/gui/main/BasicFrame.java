@@ -34,6 +34,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
@@ -60,6 +61,7 @@ import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
@@ -99,9 +101,9 @@ public class BasicFrame extends JFrame {
 	private static final Translator trans = Application.getTranslator();
 	private static final Preferences prefs = Application.getPreferences();
 
-	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 
-	private static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
+	public static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
 			SHIFT_DOWN_MASK;
 
 	public static final int COMPONENT_TAB = 0;
@@ -1191,6 +1193,10 @@ public class BasicFrame extends JFrame {
 
 
 	private void openAction() {
+		openAction(this);
+	}
+
+	public static void openAction(Window parent) {
 		JFileChooser chooser = new JFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
@@ -1200,7 +1206,7 @@ public class BasicFrame extends JFrame {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		int option = chooser.showOpenDialog(this);
+		int option = chooser.showOpenDialog(parent);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
 			return;
@@ -1213,7 +1219,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, this)) {
+			if (open(file, parent)) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1691,8 +1697,13 @@ public class BasicFrame extends JFrame {
 
 		frames.remove(this);
 		if (frames.isEmpty()) {
-			log.info("Last frame closed, exiting");
-			System.exit(0);
+			// Don't quit the application on macOS, but keep the application open
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+				DummyFrameMenuOSX.createDummyDialog();
+			} else {
+				log.info("Last frame closed, exiting");
+				System.exit(0);
+			}
 		}
 		return true;
 	}
@@ -1705,6 +1716,31 @@ public class BasicFrame extends JFrame {
 	public void printAction() {
 		double rotation = rocketpanel.getFigure().getRotation();
 		new PrintDialog(this, document, rotation).setVisible(true);
+	}
+
+	/**
+	 * Opens a new design file or the last design file, if set in the preferences.
+	 * Can be used for reopening the application or opening it the first time.
+	 */
+	public static void reopen() {
+		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
+			BasicFrame.newAction();
+		} else {
+			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
+			if (lastFile != null) {
+				log.info("Opening last design file: " + lastFile);
+				if (!BasicFrame.open(new File(lastFile), null)) {
+					MRUDesignFile.getInstance().removeFile(lastFile);
+					BasicFrame.newAction();
+				}
+				else {
+					MRUDesignFile.getInstance().addFile(lastFile);
+				}
+			}
+			else {
+				BasicFrame.newAction();
+			}
+		}
 	}
 
 
@@ -1777,6 +1813,14 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Checks whether all the BasicFrames are closed.
+	 * @return true if all the BasicFrames are closed, false if not
+	 */
+	public static boolean isFramesEmpty() {
+		return frames.isEmpty();
 	}
 
 	/**

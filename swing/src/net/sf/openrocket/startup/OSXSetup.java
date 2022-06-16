@@ -5,7 +5,9 @@ import java.awt.desktop.AboutHandler;
 import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
+import java.awt.desktop.AppReopenedListener;
 
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,13 @@ final class OSXSetup {
 		r.cancelQuit();
 	};
 
+	private static final AppReopenedListener APP_REOPENED_HANDLER = (e) -> {
+		if (BasicFrame.isFramesEmpty()) {
+			log.info("App re-opened");
+			BasicFrame.reopen();
+		}
+	};
+
 	/**
 	 * The handler for the About item in the OSX app menu
 	 */
@@ -92,6 +101,7 @@ final class OSXSetup {
 			osxDesktop.setAboutHandler(ABOUT_HANDLER);
 			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
+			osxDesktop.addAppEventListener(APP_REOPENED_HANDLER);
 
 			// Set the dock icon to the largest icon
 			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(

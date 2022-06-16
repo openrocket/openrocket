@@ -216,28 +216,14 @@ public class SwingStartup {
 		Databases.fakeMethod();
 
 		// Set up the OSX file open handler here so that it can handle files that are opened when OR is not yet running.
-		OSXSetup.setupOSXOpenFileHandler();
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			OSXSetup.setupOSXOpenFileHandler();
+		}
 		
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
-			if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-				BasicFrame.newAction();
-			} else {
-				String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
-				if (lastFile != null) {
-					if (!BasicFrame.open(new File(lastFile), null)) {
-						MRUDesignFile.getInstance().removeFile(lastFile);
-						BasicFrame.newAction();
-					}
-					else {
-						MRUDesignFile.getInstance().addFile(lastFile);
-					}
-				}
-				else {
-					BasicFrame.newAction();
-				}
-			}
+			BasicFrame.reopen();
 		}
 		
 		// Check whether update info has been fetched or whether it needs more time
