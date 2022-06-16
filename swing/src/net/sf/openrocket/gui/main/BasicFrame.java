@@ -139,6 +139,8 @@ public class BasicFrame extends JFrame {
 
 	private SimulationPanel simulationPanel;
 
+	public static BasicFrame lastFrameInstance = null;		// Latest BasicFrame that was created
+
 
 	/**
 	 * Sole constructor.  Creates a new frame based on the supplied document
@@ -152,6 +154,7 @@ public class BasicFrame extends JFrame {
 		this.document = document;
 		this.rocket = document.getRocket();
 		this.rocket.getSelectedConfiguration().setAllStages();
+		BasicFrame.lastFrameInstance = this;
 
 		//	Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
