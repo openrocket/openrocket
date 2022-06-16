@@ -40,7 +40,7 @@ final class OSXSetup {
 	 */
 	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
 		log.info("Opening file from association: " + e.getFiles().get(0));
-		BasicFrame.open(e.getFiles().get(0), null);
+		BasicFrame.open(e.getFiles().get(0), BasicFrame.lastFrameInstance);
 	};
 	
 	/**
