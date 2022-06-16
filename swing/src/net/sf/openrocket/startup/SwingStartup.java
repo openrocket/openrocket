@@ -220,23 +220,7 @@ public class SwingStartup {
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
-			if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-				BasicFrame.newAction();
-			} else {
-				String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
-				if (lastFile != null) {
-					if (!BasicFrame.open(new File(lastFile), null)) {
-						MRUDesignFile.getInstance().removeFile(lastFile);
-						BasicFrame.newAction();
-					}
-					else {
-						MRUDesignFile.getInstance().addFile(lastFile);
-					}
-				}
-				else {
-					BasicFrame.newAction();
-				}
-			}
+			BasicFrame.reopen();
 		}
 		
 		// Check whether update info has been fetched or whether it needs more time

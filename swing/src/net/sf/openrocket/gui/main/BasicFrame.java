@@ -34,6 +34,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
@@ -1687,7 +1688,8 @@ public class BasicFrame extends JFrame {
 		ComponentAnalysisDialog.hideDialog();
 
 		frames.remove(this);
-		if (frames.isEmpty()) {
+		// Don't quit the application on macOS
+		if (frames.isEmpty() && (SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS)) {
 			log.info("Last frame closed, exiting");
 			System.exit(0);
 		}
@@ -1702,6 +1704,31 @@ public class BasicFrame extends JFrame {
 	public void printAction() {
 		double rotation = rocketpanel.getFigure().getRotation();
 		new PrintDialog(this, document, rotation).setVisible(true);
+	}
+
+	/**
+	 * Opens a new design file or the last design file, if set in the preferences.
+	 * Can be used for reopening the application or opening it the first time.
+	 */
+	public static void reopen() {
+		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
+			BasicFrame.newAction();
+		} else {
+			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
+			if (lastFile != null) {
+				log.info("Opening last design file: " + lastFile);
+				if (!BasicFrame.open(new File(lastFile), null)) {
+					MRUDesignFile.getInstance().removeFile(lastFile);
+					BasicFrame.newAction();
+				}
+				else {
+					MRUDesignFile.getInstance().addFile(lastFile);
+				}
+			}
+			else {
+				BasicFrame.newAction();
+			}
+		}
 	}
 
 
