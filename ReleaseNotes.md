@@ -5,20 +5,21 @@ OpenRocket 22.02.beta.04 (2022-06-17)
 ------------------------
 (through PR1456)
 
-For this new beta, the packaged installers are now back to using Java 11, due to multiple bug reports related to Java 17.  The JAR file still allows Java 17, so if you want to keep trying it feel free.
+**Please note:** For this new beta, the packaged installers are now back to using Java 11, due to multiple bug reports related to Java 17.
+However, the JAR file will still allow Java 11 *or* 17, so if you want to keep experimenting with Java 17 then feel free.
 
 ### New Features
-* File association now works on all platforms! (fixes #1135)
-* Contextual menus now available via right-click throughout the program
-* Ability to hide CG/CP markings in rocket display
-* Edit multiple selected items at once (great for appearance editing!)
-* Add support for custom decimal places and exponential notation in simulation exports (fixes #1307 and #1354)
-* Add warning to simulation when no recovery device is enabled (fixes #1436)
+* **File association now works on all platforms** (fixes #1135)
+* **Contextual menus now available via right-click throughout the program**
+* **Edit multiple selected items at once (great for appearance editing!)**
+* Show/hide CG/CP markings in rocket display
+* Support for custom decimal places and exponential notation in simulation exports (fixes #1307 and #1354)
+* Simulation warning when no recovery device is enabled (fixes #1436)
 * Remember previously selected tab when opening component edit dialog (fixes #974)
-* Mac multi-document model now supported
+* On Mac, app remains open when last window is closed (normal Mac behavior)
 
 ### Notable Bug Fixes
-* Tube fins are fixed! Both CP and drag calculations should be good now. So good that we are no longer calling tube fin support "experimental".  Feedback please! (fixes #1258)
+* **Tube fins are fixed!** Both CP and drag calculations should be good now. So good that we are no longer calling tube fin support "experimental".  Feedback please! (fixes #1258)
 * Guarantee fit in rocket view (fixes #1231 and #1351) 
 * Corrected mass display in some situations (fixes #1409)
 * Show combined mass of multi-selected components when hovering (fixes #1411)
