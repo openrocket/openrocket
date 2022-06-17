@@ -30,7 +30,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	public LaunchLug() {
 		super(AxialMethod.MIDDLE);
@@ -332,5 +332,10 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 }

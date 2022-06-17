@@ -791,7 +791,8 @@ public class RocketActions {
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
 			if (isCopyable(components)) {
-				ComponentConfigDialog.disposeDialog();
+				if (ComponentConfigDialog.isDialogVisible())
+					ComponentConfigDialog.disposeDialog();
 
 				List<RocketComponent> copiedComponents = copyComponentsMaintainParent(components);
 				OpenRocketClipboard.setClipboard(copiedComponents);
@@ -885,7 +886,9 @@ public class RocketActions {
 				RocketComponent component = components.get(0);
 				if (components.size() > 1) {
 					for (int i = 1; i < components.size(); i++) {
-						component.addConfigListener(components.get(i));
+						RocketComponent listener = components.get(i);
+						listener.clearConfigListeners();	// Make sure all the listeners are cleared (should not be possible, but just in case)
+						component.addConfigListener(listener);
 					}
 				}
 				ComponentConfigDialog.showDialog(parentFrame, document, component);

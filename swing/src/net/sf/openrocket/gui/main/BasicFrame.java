@@ -345,6 +345,7 @@ public class BasicFrame extends JFrame {
 				c.clearConfigListeners();
 				for (int i = 1; i < paths.length; i++) {
 					RocketComponent listener = (RocketComponent) paths[i].getLastPathComponent();
+					listener.clearConfigListeners();
 					c.addConfigListener(listener);
 				}
 				ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, c);
