@@ -134,7 +134,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * List of components that will set their properties to the same as the current component
 	 */
-	protected final List<RocketComponent> configListeners = new LinkedList<>();
+	protected List<RocketComponent> configListeners = new LinkedList<>();
 
 
 	/**
@@ -425,6 +425,20 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		} finally {
 			mutex.unlock("copyWithOriginalID");
 		}
+	}
+
+	@Override
+	public RocketComponent clone() throws CloneNotSupportedException {
+		RocketComponent clone = (RocketComponent) super.clone();
+		// Make sure the InsideColorComponentHandler is cloned
+		if (clone instanceof InsideColorComponent && this instanceof InsideColorComponent) {
+			InsideColorComponentHandler icch = new InsideColorComponentHandler(clone);
+			icch.copyFrom(((InsideColorComponent) this).getInsideColorComponentHandler());
+			((InsideColorComponent) clone).setInsideColorComponentHandler(icch);
+		}
+		// Make sure the config listeners aren't cloned
+		clone.configListeners = new LinkedList<>();
+		return clone;
 	}
 	
 	/**
@@ -1983,7 +1997,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent listener) {
-		if (listener == null) {
+		if (listener == null || configListeners.contains(listener) || listener == this) {
 			return false;
 		}
 		configListeners.add(listener);
@@ -2247,6 +2261,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.id = src.id;
 		this.displayOrder_side = src.displayOrder_side;
 		this.displayOrder_back = src.displayOrder_back;
+		this.configListeners = new LinkedList<>();
+		if (this instanceof InsideColorComponent && src instanceof InsideColorComponent) {
+			InsideColorComponentHandler icch = new InsideColorComponentHandler(this);
+			icch.copyFrom(((InsideColorComponent) src).getInsideColorComponentHandler());
+			((InsideColorComponent) this).setInsideColorComponentHandler(icch);
+		}
 		
 		// Add source components to invalidation tree
 		for (RocketComponent c : src) {

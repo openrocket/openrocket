@@ -22,4 +22,6 @@ public interface InsideColorComponent {
      * @return the InsideColorComponentHandler
      */
     InsideColorComponentHandler getInsideColorComponentHandler();
+
+    void setInsideColorComponentHandler(InsideColorComponentHandler handler);
 }

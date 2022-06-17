@@ -555,7 +555,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent component, AppearanceBuilder ab) {
-		if (component == null || ab == null) {
+		if (component == null || ab == null || configListeners.values().contains(ab) || ab == this) {
 			return false;
 		}
 		configListeners.put(component, ab);

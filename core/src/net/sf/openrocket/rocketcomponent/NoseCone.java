@@ -20,7 +20,7 @@ import java.util.EventObject;
 public class NoseCone extends Transition implements InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/********* Constructors **********/
 	public NoseCone() {
@@ -154,5 +154,10 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 }

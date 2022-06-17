@@ -44,7 +44,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	// Used to cache the clip length
 	private double clipLength = -1;
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 
 	public Transition() {
 		super();
@@ -730,6 +730,11 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 
 	/**

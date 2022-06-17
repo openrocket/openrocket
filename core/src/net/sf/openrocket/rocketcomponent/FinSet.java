@@ -123,7 +123,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	private double totalVolume = Double.NaN;
 	private Coordinate centerOfMass = Coordinate.NaN;
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/**
 	 * New FinSet with given number of fins and given base rotation angle.
@@ -1368,5 +1368,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 }
