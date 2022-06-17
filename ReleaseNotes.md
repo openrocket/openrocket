@@ -1,9 +1,9 @@
 Release Notes
 =============
 
-OpenRocket 22.02.beta.04 (2022-06-xx)
+OpenRocket 22.02.beta.04 (2022-06-17)
 ------------------------
-(through PRXXX)
+(through PR1456)
 
 For this new beta, the packaged installers are now back to using Java 11, due to multiple bug reports related to Java 17.  The JAR file still allows Java 17, so if you want to keep trying it feel free.
 
