@@ -123,7 +123,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private Appearance appearance = null;
 
 	// If true, component change events will not be fired
-	private boolean ignoreComponentChange = false;
+	private boolean bypassComponentChangeEvent = false;
 	
 	
 	/**
@@ -134,7 +134,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * List of components that will set their properties to the same as the current component
 	 */
-	protected final List<RocketComponent> configListeners = new LinkedList<>();
+	protected List<RocketComponent> configListeners = new LinkedList<>();
 
 
 	/**
@@ -426,7 +426,34 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			mutex.unlock("copyWithOriginalID");
 		}
 	}
+
+	@Override
+	public RocketComponent clone() throws CloneNotSupportedException {
+		RocketComponent clone = (RocketComponent) super.clone();
+		// Make sure the InsideColorComponentHandler is cloned
+		if (clone instanceof InsideColorComponent && this instanceof InsideColorComponent) {
+			InsideColorComponentHandler icch = new InsideColorComponentHandler(clone);
+			icch.copyFrom(((InsideColorComponent) this).getInsideColorComponentHandler());
+			((InsideColorComponent) clone).setInsideColorComponentHandler(icch);
+		}
+		// Make sure the config listeners aren't cloned
+		clone.configListeners = new LinkedList<>();
+		return clone;
+	}
 	
+	/**
+	 * Return true if any of this component's children are a RecoveryDevice
+	 */
+	public boolean hasRecoveryDevice() {
+	  Iterator<RocketComponent> iterator = this.iterator();
+	  while (iterator.hasNext()) {
+	    RocketComponent child = iterator.next();
+	    if (child instanceof RecoveryDevice) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
 	
 	//////////////  Methods that may not be overridden  ////////////
 	
@@ -451,10 +478,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param appearance
 	 */
 	public void setAppearance(Appearance appearance) {
-		for (RocketComponent listener : configListeners) {
-			listener.setAppearance(appearance);
-		}
-
 		this.appearance = appearance;
 		if (this.appearance != null) {
 			Decal d = this.appearance.getTexture();
@@ -568,9 +591,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setMassOverridden(boolean o) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setMassOverridden(o);
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 		}
 
 		if (massOverridden == o) {
@@ -642,9 +665,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setCGOverridden(boolean o) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setCGOverridden(o);
-			listener.setIgnoreComponentChange(true);
+			listener.setBypassChangeEvent(true);
 		}
 
 		if (cgOverridden == o) {
@@ -793,9 +816,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void setName(String name) {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 			listener.setName(name);
-			listener.setIgnoreComponentChange(true);
+			listener.setBypassChangeEvent(true);
 		}
 
 		if (this.name.equals(name)) {
@@ -1377,7 +1400,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			massSubtotal += rc.getSectionMass();
 		}
 		
-		return massSubtotal * getInstanceCount();
+		return massSubtotal;
 	}
 	
 	/**
@@ -1639,6 +1662,42 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		return result;
+	}
+
+	/**
+	 * Iteratively checks whether the list of components contains the parent or super-parent (parent of parent of parent of...)
+	 * of component.
+	 * @param components list of components that may contain the parent
+	 * @param component component to check the parent for
+	 * @return true if the list contains the parent, false if not
+	 */
+	public static boolean listContainsParent(List<RocketComponent> components, RocketComponent component) {
+		RocketComponent c = component;
+		while (c.getParent() != null) {
+			if (components.contains(c.getParent())) {
+				return true;
+			}
+			c = c.getParent();
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether all components in the list have the same class as this component.
+	 * @param components list to check
+	 * @return true if all components are of the same class, false if not
+	 */
+	public boolean checkAllClassesEqual(List<RocketComponent> components) {
+		if (components == null || components.size() == 0) {
+			return true;
+		}
+		Class<? extends RocketComponent> myClass = this.getClass();
+		for (RocketComponent c : components) {
+			if (!c.getClass().equals(myClass)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -1905,7 +1964,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
 		checkState();
-		if (parent == null || ignoreComponentChange) {
+		if (parent == null || bypassComponentChangeEvent) {
 			/* Ignore if root invalid. */
 			return;
 		}
@@ -1924,37 +1983,36 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 
-	public void setIgnoreComponentChange(boolean newValue) {
-		this.ignoreComponentChange = newValue;
+	public void setBypassChangeEvent(boolean newValue) {
+		this.bypassComponentChangeEvent = newValue;
 	}
 
-	public boolean getIgnoreComponentChange() {
-		return this.ignoreComponentChange;
+	public boolean getBypassComponentChangeEvent() {
+		return this.bypassComponentChangeEvent;
 	}
 
 	/**
-	 * Add a new config listener that will undergo the same configuration changes as this.component. Listener must be
-	 * of the same class as this.component.
+	 * Add a new config listener that will undergo the same configuration changes as this.component.
 	 * @param listener new config listener
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent listener) {
-		if (listener == null || !this.getClass().equals(listener.getClass())) {
+		if (listener == null || configListeners.contains(listener) || listener == this) {
 			return false;
 		}
 		configListeners.add(listener);
-		listener.setIgnoreComponentChange(true);
+		listener.setBypassChangeEvent(true);
 		return true;
 	}
 
 	public void removeConfigListener(RocketComponent listener) {
 		configListeners.remove(listener);
-		listener.setIgnoreComponentChange(false);
+		listener.setBypassChangeEvent(false);
 	}
 
 	public void clearConfigListeners() {
 		for (RocketComponent listener : configListeners) {
-			listener.setIgnoreComponentChange(false);
+			listener.setBypassChangeEvent(false);
 		}
 		configListeners.clear();
 	}
@@ -2203,6 +2261,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.id = src.id;
 		this.displayOrder_side = src.displayOrder_side;
 		this.displayOrder_back = src.displayOrder_back;
+		this.configListeners = new LinkedList<>();
+		if (this instanceof InsideColorComponent && src instanceof InsideColorComponent) {
+			InsideColorComponentHandler icch = new InsideColorComponentHandler(this);
+			icch.copyFrom(((InsideColorComponent) src).getInsideColorComponentHandler());
+			((InsideColorComponent) this).setInsideColorComponentHandler(icch);
+		}
 		
 		// Add source components to invalidation tree
 		for (RocketComponent c : src) {

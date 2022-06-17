@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.dialogs;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -61,6 +62,7 @@ public class UpdateInfoDialog extends JDialog {
 		final JTextPane textPane = new JTextPane();
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
+		textPane.setMargin(new Insets(10, 10, 40, 10));
 		textPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 
 		ReleaseInfo release = info.getLatestRelease();
@@ -99,6 +101,7 @@ public class UpdateInfoDialog extends JDialog {
 			  });
 
 		textPane.setText(sb.toString());
+		textPane.setCaretPosition(0);	// Scroll to the top
 
 		panel.add(new JScrollPane(textPane), "left, grow, span, push, gapleft 40px, gapbottom 6px, wrap");
 

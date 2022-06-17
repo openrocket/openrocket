@@ -1,6 +1,43 @@
 Release Notes
 =============
 
+OpenRocket 22.02.beta.04 (2022-06-17)
+------------------------
+(through PR1456)
+
+**Please note:** For this new beta, the packaged installers are now back to using Java 11, due to multiple bug reports related to Java 17.
+However, the JAR file will still allow Java 11 *or* 17, so if you want to keep experimenting with Java 17 then feel free.
+
+### New Features
+* **File association now works on all platforms** (fixes #1135)
+* **Contextual menus now available via right-click throughout the program**
+* **Edit multiple selected items at once (great for appearance editing!)**
+* Show/hide CG/CP markings in rocket display
+* Support for custom decimal places and exponential notation in simulation exports (fixes #1307 and #1354)
+* Simulation warning when no recovery device is enabled (fixes #1436)
+* Remember previously selected tab when opening component edit dialog (fixes #974)
+* On Mac, app remains open when last window is closed (normal Mac behavior)
+
+### Notable Bug Fixes
+* **Tube fins are fixed!** Both CP and drag calculations should be good now. So good that we are no longer calling tube fin support "experimental".  Feedback please! (fixes #1258)
+* Guarantee fit in rocket view (fixes #1231 and #1351) 
+* Corrected mass display in some situations (fixes #1409)
+* Show combined mass of multi-selected components when hovering (fixes #1411)
+* Fix greyed-out buttons on Mac (fixes #1099)
+* Improve scalability of Motors and Configurations tab (fixes #1285)
+
+### Other
+* Many component edit dialogs reorganized for consistency and clarity
+* Loads more tweaks to parachute and streamer config dialog
+* Modified file size estimation in Save dialog. Feedback please!
+* Improved layout of rocket view ribbon
+* Improved icons for zoom buttons, and launch lugs and tube fins
+* Added sliders to Pod Set config
+* Preset dialog now sorted by manufacturer by default
+* Updated guided tours
+* Improved Russian translation
+
+
 OpenRocket 22.02.beta.03 (2022-05-18)
 ------------------------
 (through PR1361)

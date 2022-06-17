@@ -34,6 +34,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
@@ -51,7 +52,6 @@ import net.sf.openrocket.gui.dialogs.DecalNotFoundDialog;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
-import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
@@ -61,6 +61,7 @@ import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
@@ -87,6 +88,8 @@ import net.sf.openrocket.utils.ComponentPresetEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
+
 
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 948877655223365313L;
@@ -98,7 +101,10 @@ public class BasicFrame extends JFrame {
 	private static final Translator trans = Application.getTranslator();
 	private static final Preferences prefs = Application.getPreferences();
 
-	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+
+	public static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
+			SHIFT_DOWN_MASK;
 
 	public static final int COMPONENT_TAB = 0;
 	public static final int CONFIGURATION_TAB = 1;
@@ -124,6 +130,7 @@ public class BasicFrame extends JFrame {
 	private JTabbedPane tabbedPane;
 	private RocketPanel rocketpanel;
 	private ComponentTree tree = null;
+	private final JPopupMenu popupMenu;
 
 	private final DocumentSelectionModel selectionModel;
 	private final TreeSelectionModel componentSelectionModel;
@@ -133,6 +140,8 @@ public class BasicFrame extends JFrame {
 	private final RocketActions actions;
 
 	private SimulationPanel simulationPanel;
+
+	public static BasicFrame lastFrameInstance = null;		// Latest BasicFrame that was created
 
 
 	/**
@@ -147,6 +156,7 @@ public class BasicFrame extends JFrame {
 		this.document = document;
 		this.rocket = document.getRocket();
 		this.rocket.getSelectedConfiguration().setAllStages();
+		BasicFrame.lastFrameInstance = this;
 
 		//	Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
@@ -161,7 +171,18 @@ public class BasicFrame extends JFrame {
 		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
 		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
 
-		actions = new RocketActions(document, selectionModel, this);
+		actions = new RocketActions(document, selectionModel, this, simulationPanel);
+
+		// Populate the popup menu
+		popupMenu = new JPopupMenu();
+		popupMenu.add(actions.getEditAction());
+		popupMenu.add(actions.getCutAction());
+		popupMenu.add(actions.getCopyAction());
+		popupMenu.add(actions.getPasteAction());
+		popupMenu.add(actions.getDuplicateAction());
+		popupMenu.add(actions.getDeleteAction());
+		popupMenu.addSeparator();
+		popupMenu.add(actions.getScaleAction());
 
 		log.debug("Constructing the BasicFrame UI");
 
@@ -278,16 +299,25 @@ public class BasicFrame extends JFrame {
 		// Double-click opens config dialog
 		MouseListener ml = new MouseAdapter() {
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 				if (selRow != -1) {
-					if ((e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
+					if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
 						// Double-click
 						RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
 						ComponentConfigDialog.showDialog(BasicFrame.this,
 								BasicFrame.this.document, c);
+					} else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
+						if (!tree.isPathSelected(selPath)) {
+							// Select new path
+							tree.setSelectionPath(selPath);
+						}
+
+						doComponentTreePopup(e);
 					}
+				} else {
+					tree.clearSelection();
 				}
 			}
 		};
@@ -308,16 +338,17 @@ public class BasicFrame extends JFrame {
 
 				if (!ComponentConfigDialog.isDialogVisible())
 					return;
+				else
+					ComponentConfigDialog.disposeDialog();
+
 				RocketComponent c = (RocketComponent) paths[0].getLastPathComponent();
-				List<RocketComponent> listeners = new ArrayList<>();
+				c.clearConfigListeners();
 				for (int i = 1; i < paths.length; i++) {
 					RocketComponent listener = (RocketComponent) paths[i].getLastPathComponent();
-					if (listener.getClass().equals(c.getClass())) {
-						listeners.add((RocketComponent) paths[i].getLastPathComponent());
-					}
+					listener.clearConfigListeners();
+					c.addConfigListener(listener);
 				}
-				ComponentConfigDialog.showDialog(BasicFrame.this,
-						BasicFrame.this.document, c, listeners);
+				ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, c);
 			}
 		});
 
@@ -334,6 +365,13 @@ public class BasicFrame extends JFrame {
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
 		button = new SelectColorButton(actions.getEditAction());
+		button.setIcon(null);
+		button.setMnemonic(0);
+		panel.add(button, "sizegroup buttons, gaptop 20%");
+
+		button = new SelectColorButton(actions.getDuplicateAction());
+		button.setIcon(null);
+		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
 		button = new SelectColorButton(actions.getDeleteAction());
@@ -689,6 +727,9 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 
+		item = new JMenuItem(actions.getEditAction());
+		menu.add(item);
+
 		item = new JMenuItem(actions.getCutAction());
 		menu.add(item);
 
@@ -698,24 +739,15 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(actions.getPasteAction());
 		menu.add(item);
 
+		item = new JMenuItem(actions.getDuplicateAction());
+		menu.add(item);
+
 		item = new JMenuItem(actions.getDeleteAction());
 		menu.add(item);
 
 		menu.addSeparator();
 
-
-		item = new JMenuItem(trans.get("main.menu.edit.resize"));
-		item.setIcon(Icons.EDIT_SCALE);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Scale... selected");
-				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponents(), BasicFrame.this);
-				dialog.setVisible(true);
-				dialog.dispose();
-			}
-		});
+		item = new JMenuItem(actions.getScaleAction());
 		menu.add(item);
 
 
@@ -856,7 +888,7 @@ public class BasicFrame extends JFrame {
 		////	Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
 		item.setIcon(Icons.HELP_DEBUG_LOG);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_KEY));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHIFT_SHORTCUT_KEY));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -896,6 +928,10 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		this.setJMenuBar(menubar);
+	}
+
+	public void doComponentTreePopup(MouseEvent e) {
+		popupMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	private JMenu makeDebugMenu() {
@@ -1158,6 +1194,10 @@ public class BasicFrame extends JFrame {
 
 
 	private void openAction() {
+		openAction(this);
+	}
+
+	public static void openAction(Window parent) {
 		JFileChooser chooser = new JFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
@@ -1167,7 +1207,7 @@ public class BasicFrame extends JFrame {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		int option = chooser.showOpenDialog(this);
+		int option = chooser.showOpenDialog(parent);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
 			return;
@@ -1180,7 +1220,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, this)) {
+			if (open(file, parent)) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1293,7 +1333,6 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
 	 * @param displayName	the file name to display in dialogs.
-	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
@@ -1658,8 +1697,13 @@ public class BasicFrame extends JFrame {
 
 		frames.remove(this);
 		if (frames.isEmpty()) {
-			log.info("Last frame closed, exiting");
-			System.exit(0);
+			// Don't quit the application on macOS, but keep the application open
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+				DummyFrameMenuOSX.createDummyDialog();
+			} else {
+				log.info("Last frame closed, exiting");
+				System.exit(0);
+			}
 		}
 		return true;
 	}
@@ -1672,6 +1716,31 @@ public class BasicFrame extends JFrame {
 	public void printAction() {
 		double rotation = rocketpanel.getFigure().getRotation();
 		new PrintDialog(this, document, rotation).setVisible(true);
+	}
+
+	/**
+	 * Opens a new design file or the last design file, if set in the preferences.
+	 * Can be used for reopening the application or opening it the first time.
+	 */
+	public static void reopen() {
+		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
+			BasicFrame.newAction();
+		} else {
+			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
+			if (lastFile != null) {
+				log.info("Opening last design file: " + lastFile);
+				if (!BasicFrame.open(new File(lastFile), null)) {
+					MRUDesignFile.getInstance().removeFile(lastFile);
+					BasicFrame.newAction();
+				}
+				else {
+					MRUDesignFile.getInstance().addFile(lastFile);
+				}
+			}
+			else {
+				BasicFrame.newAction();
+			}
+		}
 	}
 
 
@@ -1744,6 +1813,14 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Checks whether all the BasicFrames are closed.
+	 * @return true if all the BasicFrames are closed, false if not
+	 */
+	public static boolean isFramesEmpty() {
+		return frames.isEmpty();
 	}
 
 	/**

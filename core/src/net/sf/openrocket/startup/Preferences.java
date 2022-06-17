@@ -46,6 +46,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
+	public static final String EXPORT_DECIMAL_PLACES = "ExportDecimalPlaces";
+	public static final String EXPORT_EXPONENTIAL_NOTATION = "ExportExponentialNotation";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
 	public static final String EXPORT_FIELD_NAME_COMMENT = "ExportFieldDescriptionComment";
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
@@ -55,6 +57,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 	
 	private static final String CHECK_UPDATES = "CheckUpdates";
+
+	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
@@ -63,6 +67,7 @@ public abstract class Preferences implements ChangeSource {
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
+	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
 	
 	//Preferences related to 3D graphics
@@ -139,6 +144,14 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	public final boolean getCheckBetaUpdates() {
+		return this.getBoolean(CHECK_BETA_UPDATES, BuildProperties.getDefaultCheckBetaUpdates());
+	}
+
+	public final void setCheckBetaUpdates(boolean check) {
+		this.putBoolean(CHECK_BETA_UPDATES, check);
 	}
 	
 	public final boolean getConfirmSimDeletion() {
@@ -439,6 +452,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final boolean isAutoOpenLastDesignOnStartupEnabled() {
 		return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
+	}
+
+	/**
+	 * Enable/Disable the opening the leftmost tab on the component design panel, or using the tab that was opened last time.
+	 */
+	public final void setAlwaysOpenLeftmostTab(boolean enabled) {
+		this.putBoolean(OPEN_LEFTMOST_DESIGN_TAB, enabled);
+	}
+
+	/**
+	 * Answer if the always open leftmost tab is enabled.
+	 *
+	 * @return true if the application should always open the leftmost tab in the component design panel.
+	 */
+	public final boolean isAlwaysOpenLeftmostTab() {
+		return this.getBoolean(OPEN_LEFTMOST_DESIGN_TAB, false);
 	}
 	
 	/**

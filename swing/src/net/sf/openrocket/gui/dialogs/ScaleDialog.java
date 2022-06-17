@@ -345,17 +345,31 @@ public class ScaleDialog extends JDialog {
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
 
-		// Change the offset checkbox to false when 'Scale selection' is selection and only one component is selected,
-		// since this is a common action.
-		selectionOption.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (SCALE_SELECTION.equals(selectionOption.getSelectedItem()) && (selection != null) &&
-						(selection.size() == 1) && (scaleOffsets != null)) {
-					scaleOffsets.setSelected(false);
+		// Select the 'scale component / scale selection and all subcomponents' if a component is selected
+		if (selection != null && selection.size() > 0) {
+			boolean entireRocket = false;	// Flag to scale entire rocket
+			for (RocketComponent component : selection) {
+				if (component instanceof Rocket || (component instanceof AxialStage && !(component instanceof ParallelStage))) {
+					entireRocket = true;
+					break;
 				}
 			}
-		});
+			if (!entireRocket) {
+				selectionOption.setSelectedIndex(1);
+			}
+		}
+
+		// Change the offset checkbox to false when 'Scale selection' is selection and only one component is selected,
+		// since this is a common action.
+		ItemListener listener = new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (scaleOffsets == null) return;
+
+				scaleOffsets.setSelected(!SCALE_SELECTION.equals(selectionOption.getSelectedItem()));
+			}
+		};
+		selectionOption.addItemListener(listener);
 		
 		
 		// Scale multiplier
@@ -424,7 +438,7 @@ public class ScaleDialog extends JDialog {
 		// Scale offsets
 		scaleOffsets = new JCheckBox(trans.get("checkbox.scaleOffsets"));
 		scaleOffsets.setToolTipText(trans.get("checkbox.scaleOffsets.ttip"));
-		scaleOffsets.setSelected(true);
+		listener.itemStateChanged(null);		// Triggers the selection state of scaleOffsets
 		panel.add(scaleOffsets, "span, wrap para*3");
 		
 		
@@ -457,7 +471,7 @@ public class ScaleDialog extends JDialog {
 		});
 		panel.add(cancel, "right, gap para");
 		
-		
+
 		
 		GUIUtil.setDisposableDialogOptions(this, scale);
 	}
@@ -571,7 +585,7 @@ public class ScaleDialog extends JDialog {
 	 */
 	private void scaleChildren(RocketComponent component, List<RocketComponent> scaledComponents, double mul, boolean scaleMass) {
 		for (RocketComponent child : component.getChildren()) {
-			if (!scaledComponents.contains(component)) {
+			if (!scaledComponents.contains(child)) {
 				scale(child, mul, scaleMass, scaleOffsets.isSelected());
 				scaledComponents.add(child);
 				scaleChildren(child, scaledComponents, mul, scaleMass);

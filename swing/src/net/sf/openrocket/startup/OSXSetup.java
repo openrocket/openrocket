@@ -2,9 +2,12 @@ package net.sf.openrocket.startup;
 
 import java.awt.*;
 import java.awt.desktop.AboutHandler;
+import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
+import java.awt.desktop.AppReopenedListener;
 
+import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,14 @@ final class OSXSetup {
 	
 	// The image resource to use for the Dock Icon
 	private static final String ICON_RSRC = "/pix/icon/icon-256.png";
+
+	/**
+	 * The handler for file associations
+	 */
+	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
+		log.info("Opening file from association: " + e.getFiles().get(0));
+		BasicFrame.open(e.getFiles().get(0), BasicFrame.lastFrameInstance);
+	};
 	
 	/**
 	 * The handler for the Quit item in the OSX app menu
@@ -39,6 +50,13 @@ final class OSXSetup {
 		BasicFrame.quitAction();
 		// if we get here the user canceled
 		r.cancelQuit();
+	};
+
+	private static final AppReopenedListener APP_REOPENED_HANDLER = (e) -> {
+		if (BasicFrame.isFramesEmpty()) {
+			log.info("App re-opened");
+			BasicFrame.reopen();
+		}
 	};
 
 	/**
@@ -83,6 +101,7 @@ final class OSXSetup {
 			osxDesktop.setAboutHandler(ABOUT_HANDLER);
 			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
+			osxDesktop.addAppEventListener(APP_REOPENED_HANDLER);
 
 			// Set the dock icon to the largest icon
 			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
@@ -101,6 +120,22 @@ final class OSXSetup {
 			// so at worst case log an error and continue
 			log.warn("Error setting up OSX UI:", t);
 		}
+	}
+
+	/**
+	 * Sets up the open file handler, which handles file association on macOS.
+	 */
+	public static void setupOSXOpenFileHandler() {
+		if (SystemInfo.getPlatform() != Platform.MAC_OS) {
+			log.warn("Attempting to set up OSX file handler on non-MAC_OS");
+		}
+		final Desktop osxDesktop = Desktop.getDesktop();
+		if (osxDesktop == null) {
+			// Application is null: Something is wrong, give up on OS setup
+			throw new NullPointerException("com.apple.eawt.Application.getApplication() returned NULL. "
+					+ "Aborting OSX UI Setup.");
+		}
+		osxDesktop.setOpenFileHandler(OPEN_FILE_HANDLER);
 	}
 
 }

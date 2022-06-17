@@ -203,7 +203,7 @@ public class ComponentRenderer {
 			if (t.getForeShoulderLength() > 0) {
 				gl.glPushMatrix();
 				gl.glRotated(180, 0, 1.0, 0);
-				//gl.glTranslated(t.getLength(), 0, 0);
+				//gl.glTranslated(t.getLengthAerodynamic(), 0, 0);
 				double iR = (t.isFilled() || t.isForeShoulderCapped()) ? 0 : t.getForeShoulderRadius() - t.getForeShoulderThickness();
 				if (which == Surface.EDGES) {
 					renderTube(gl, Surface.OUTSIDE, t.getForeShoulderRadius(), iR, t.getForeShoulderLength());

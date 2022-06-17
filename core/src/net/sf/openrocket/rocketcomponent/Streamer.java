@@ -63,17 +63,6 @@ public class Streamer extends RecoveryDevice {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	@Override
-	public void setLength(double length) {
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Streamer) {
-				((Streamer) listener).setStripWidth(length);
-			}
-		}
-
-		setStripWidth(length);
-	}
-	
 	
 	public double getAspectRatio() {
 		if (stripWidth > 0.0001)

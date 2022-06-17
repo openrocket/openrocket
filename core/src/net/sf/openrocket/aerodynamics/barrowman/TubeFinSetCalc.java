@@ -25,52 +25,32 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Preliminary computation of tube fin aerodynamics.
- * 
- * Uses a complete clone of FinSetCalc modelling each tube fin as 3 individual fins.  It does not correctly account for
- * fin & tube fin interference.
- * 
- * @author kruland
  *
  */
 public class TubeFinSetCalc extends TubeCalc {
-	
 	private final static Logger log = LoggerFactory.getLogger(TubeFinSetCalc.class);
-
-	final double intersticeArea;
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
+	private final double[] poly = new double[6];
 	
-	/** Number of divisions in the fin chords. */
-	protected static final int DIVISIONS = 48;
+	// parameters straight from configuration; we'll be grabbing them once
+	// so code is a bit shorter elsewhere
+	private final double bodyRadius;
+	private final double chord;
+	private final double innerRadius;
+	private final double outerRadius;
+	private final int tubeCount;
+	private final double baseRotation;
+	// at present tubes are only allowed a cant angle of 0
+	private final double cantAngle;
 	
-	protected double macLength = Double.NaN; // MAC length
-	protected double macLead = Double.NaN; // MAC leading edge position
-	protected double macSpan = Double.NaN; // MAC spanwise position
-	protected double finArea = Double.NaN; // Fin area
-	protected double ar = Double.NaN; // Fin aspect ratio
-	protected double span = Double.NaN; // Fin span
-	protected double cosGamma = Double.NaN; // Cosine of midchord sweep angle
-	protected double cosGammaLead = Double.NaN; // Cosine of leading edge sweep angle
-	protected double rollSum = Double.NaN; // Roll damping sum term
-	
-	
-	protected double[] chordLead = new double[DIVISIONS];
-	protected double[] chordTrail = new double[DIVISIONS];
-	protected double[] chordLength = new double[DIVISIONS];
+	// values we can precompute once
+	private final double ar;
+	private final double intersticeArea;
+	private final double wettedArea;
+	private final double cnaconst;
 		
 	protected final WarningSet geometryWarnings = new WarningSet();
-
-	private final double[] poly = new double[6];
-
-	private final double wettedArea;
-	
-	private final double thickness;
-	private final double bodyRadius;
-	private final int finCount;
-	private final double baseRotation;
-	private final double cantAngle;
-	protected final int interferenceFinCount;
-	private final FinSet.CrossSection crossSection;
 	
 	public TubeFinSetCalc(RocketComponent component) {
 		super(component);
@@ -79,62 +59,67 @@ public class TubeFinSetCalc extends TubeCalc {
 		}
 		
 		final TubeFinSet tubes = (TubeFinSet) component;
-		final TubeFinSet fin = tubes; // keep this around while we're still leveraging FinSet
 
-		geometryWarnings.add(Warning.TUBE_STABILITY);
 		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
 			geometryWarnings.add(Warning.TUBE_SEPARATION);
 		} else if (tubes.getTubeSeparation() < -MathUtil.EPSILON) {
 			geometryWarnings.add(Warning.TUBE_OVERLAP);
 		}
 
+		bodyRadius = tubes.getBodyRadius();
+		chord = tubes.getLength();
+		innerRadius = tubes.getInnerRadius();
+		outerRadius = tubes.getOuterRadius();
+		tubeCount = tubes.getFinCount();
+		baseRotation = tubes.getBaseRotation();
+		// at present, tube cant angle can only be 0
+		cantAngle = 0;
+		// cantAngle = tubes.getCantAngle();
+		
 		// precompute geometry.  This will be the geometry of a single tube, since BarrowmanCalculator
 		// iterates across them.  Doesn't consider interference between them; that should only be relevant for
 		// fins that are either separated or overlapping.
-		bodyRadius = tubes.getBodyRadius();
 
-		// 1.  wetted area for friction drag calculation.  We don't consider the inner surface of the tube;
+		// aspect ratio.
+		ar = 2 * innerRadius / chord;
+		
+		// wetted area for friction drag calculation.  We don't consider the inner surface of the tube;
 		// that affects the pressure drop through the tube and so (indirecctly) affects the pressure drag.
 			
 		// Area of the outer surface of tubes.  Since roughly half
 		// of the area is "masked" by the interstices between the tubes and the
-		// body tube, only consider the other half of the area
-		final double outerArea = tubes.getLength() * Math.PI * tubes.getOuterRadius();
+		// body tube, only consider the other half of the area (so only multiplying by pi instead of 2*pi)
+		final double outerArea = chord * Math.PI * outerRadius;
 			
 		// Surface area of the portion of the body tube masked by the tube fins, per tube
 		final BodyTube parent = (BodyTube) tubes.getParent();
-		final double maskedArea = tubes.getLength() * 2.0 * Math.PI * parent.getOuterRadius() / tubes.getFinCount();
+		final double maskedArea = chord * 2.0 * Math.PI * bodyRadius / tubeCount;
 		
 		wettedArea = outerArea - maskedArea;
 		log.debug("wetted area of tube fins " + wettedArea);
 
-		// 2.  frontal area of interstices between tubes for pressure drag calculation.
+		// frontal area of interstices between tubes for pressure drag calculation.
 		// We'll treat them as a closed blunt object.
 
 		// area of disk passing through tube fin centers
-		final double tubeDiskArea = Math.PI * MathUtil.pow2(bodyRadius + tubes.getOuterRadius());
+		final double tubeDiskArea = Math.PI * MathUtil.pow2(bodyRadius + outerRadius);
 
 		// half of combined area of tube fin exteriors.  Deliberately using the outer radius here since we
 		// calculate pressure drag from the tube walls in TubeCalc
-		final double tubeOuterArea = tubes.getFinCount() * Math.PI * MathUtil.pow2(tubes.getOuterRadius()) / 2.0;
+		final double tubeOuterArea = tubeCount * Math.PI * MathUtil.pow2(outerRadius) / 2.0;
 
 		// body tube area
 		final double bodyTubeArea = Math.PI * MathUtil.pow2(bodyRadius);
 
 		// area of an interstice
-		intersticeArea = (tubeDiskArea - tubeOuterArea - bodyTubeArea) / tubes.getFinCount();
-		
-		thickness = fin.getThickness();
-		finCount = 3 * fin.getFinCount();
-		baseRotation = fin.getBaseRotation();
-		cantAngle = 0;
-		span = 2 * fin.getOuterRadius();
-		finArea = span * fin.getLength();
-		crossSection = FinSet.CrossSection.SQUARE;
-		
-		calculateFinGeometry(fin);
-		calculatePoly();
-		interferenceFinCount = calculateInterferenceFinCount(fin);
+		intersticeArea = (tubeDiskArea - tubeOuterArea - bodyTubeArea) / tubeCount;
+
+		// Precompute most of CNa.  Equation comes from Ribner, "The ring airfoil in nonaxial
+		// flow", Journal of the Aeronautical Sciences 14(9) pp 529-530 (1947) equation (5).
+		// As stated in techdoc.pdf, it's normalized by (1/2) rho v^2 (see section 3.1.1)
+		final double arprime = 2 * ar / Math.PI;
+		cnaconst = 2 * (arprime / (1 + arprime)) * Math.PI * Math.PI * innerRadius * chord;
+		log.debug("ar " + ar + ", cnaconst " + cnaconst);
 	}
 	
 	/*
@@ -144,8 +129,8 @@ public class TubeFinSetCalc extends TubeCalc {
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 										AerodynamicForces forces, WarningSet warnings) {
-		
-		if (span < 0.001) {
+
+		if (outerRadius < 0.001) {
 			forces.setCm(0);
 			forces.setCN(0);
 			forces.setCNa(0);
@@ -158,111 +143,28 @@ public class TubeFinSetCalc extends TubeCalc {
 			return;
 		}
 		
-		// Add warnings  (radius/2 == diameter/4)
-		if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
-			warnings.add(Warning.THICK_FIN);
-		}
-		
-		//////// Calculate CNa.  /////////
-		
-		// One fin without interference (both sub- and supersonic):
-		double cna1 = calculateFinCNa1(conditions);
-		
-		//		log.debug("Component cna1 = {}", cna1);
-		
-		// Multiple fins with fin-fin interference
-		double cna;
-		double theta = conditions.getTheta();
-		double angle = baseRotation + transform.getXrotation();
-		
-		// Compute basic CNa without interference effects
-		if (finCount == 1 || finCount == 2) {
-			// Basic CNa from geometry
-			double mul = 0;
-			for (int i = 0; i < finCount; i++) {
-				mul += MathUtil.pow2(Math.sin(theta - angle));
-				angle += 2 * Math.PI / finCount;
-			}
-			cna = cna1 * mul;
-		} else {
-			// Basic CNa assuming full efficiency
-			cna = cna1 * finCount / 2.0;
-		}
-		
-		//		log.debug("Component cna = {}", cna);
-		
-		// Take into account fin-fin interference effects
-		switch (interferenceFinCount) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-			// No interference effect
-			break;
-		
-		case 5:
-			cna *= 0.948;
-			break;
-		
-		case 6:
-			cna *= 0.913;
-			break;
-		
-		case 7:
-			cna *= 0.854;
-			break;
-		
-		case 8:
-			cna *= 0.81;
-			break;
-		
-		default:
-			// Assume 75% efficiency
-			cna *= 0.75;
-			break;
-		}
-		
-		
-		// Body-fin interference effect
-		double r = bodyRadius;
-		double tau = r / (span + r);
-		if (Double.isNaN(tau) || Double.isInfinite(tau))
-			tau = 0;
-		cna *= 1 + tau; // Classical Barrowman
-		//		cna *= pow2(1 + tau);	// Barrowman thesis (too optimistic??)
-		//		log.debug("Component cna = {}", cna);
-		
-		// TODO: LOW: check for fin tip mach cone interference
-		// (Barrowman thesis pdf-page 40)
-		
-		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
+		// Calculate CNa
+		log.debug("body radius " + bodyRadius + ", ref area " + conditions.getRefArea());
+		final double cna = cnaconst / conditions.getRefArea();
 		
 		// Calculate CP position
-		double x = macLead + calculateCPPos(conditions) * macLength;
-		//		log.debug("Component macLead = {}", macLead);
-		//		log.debug("Component macLength = {}", macLength);
-		//		log.debug("Component x = {}", x);
+		double x = calculateCPPos(conditions) * chord;
+		// log.debug("CP position " + x);
 		
-		
-		// Calculate roll forces, reduce forcing above stall angle
-		
-		// Without body-fin interference effect:
-		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
-		//			conditions.getRefLength();
-		// With body-fin interference effect:
-		forces.setCrollForce(finCount * (macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
+		// Roll forces
+		// This isn't really tested, since the cant angle is required to be 0.
+		forces.setCrollForce((bodyRadius + outerRadius) * cna * cantAngle /
+							 conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
-			//			System.out.println("Fin stalling in roll");
-			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
-					1 - (conditions.getAOA() - STALL_ANGLE) / (STALL_ANGLE / 2), 0, 1));
+			//			log.debug("Tube stalling in roll");
+			forces.setCrollForce(forces.getCrollForce() *
+								 MathUtil.clamp(1 - (conditions.getAOA() - STALL_ANGLE) / (STALL_ANGLE / 2), 0, 1));
 		}
-		forces.setCrollDamp(calculateDampingMoment(conditions));
-		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
+
+		forces.setCrollDamp((bodyRadius + outerRadius) * conditions.getRollRate()/conditions.getVelocity() * cna / conditions.getRefLength());
 		
-		//		System.out.printf(component.getName() + ":  roll rate:%.3f  force:%.3f  damp:%.3f  " +
-		//				"total:%.3f\n",
-		//				conditions.getRollRate(), forces.CrollForce, forces.CrollDamp, forces.Croll);
+		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 		
 		forces.setCNa(cna);
 		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
@@ -285,294 +187,8 @@ public class TubeFinSetCalc extends TubeCalc {
 		//		}
 		forces.setCside(0);
 		forces.setCyaw(0);
-		
-	}
-	
-	/**
-	 * Returns the MAC length of the fin.  This is required in the friction drag
-	 * computation.
-	 * 
-	 * @return  the MAC length of the fin.
-	 */
-	public double getMACLength() {
-		return macLength;
-	}
-	
-	public double getMidchordPos() {
-		return macLead + 0.5 * macLength;
-	}
-	
-	/**
-	 * Pre-calculates the fin geometry values.
-	 */
-	protected void calculateFinGeometry(TubeFinSet component) {
-		
-		ar = 2 * pow2(span) / finArea;
-		
-		Coordinate[] points = {
-				Coordinate.NUL,
-				new Coordinate(0, span),
-				new Coordinate(component.getLength(), span),
-				new Coordinate(component.getLength(), 0)
-		};
-		
-		
-		// Calculate the chord lead and trail positions and length
-		
-		Arrays.fill(chordLead, Double.POSITIVE_INFINITY);
-		Arrays.fill(chordTrail, Double.NEGATIVE_INFINITY);
-		Arrays.fill(chordLength, 0);
-		
-		for (int point = 1; point < points.length; point++) {
-			double x1 = points[point - 1].x;
-			double y1 = points[point - 1].y;
-			double x2 = points[point].x;
-			double y2 = points[point].y;
-			
-			// Don't use the default EPSILON since it is too small
-			// and causes too much numerical instability in the computation of x below
-			if (MathUtil.equals(y1, y2, 0.001))
-				continue;
-			
-			int i1 = (int) (y1 * 1.0001 / span * (DIVISIONS - 1));
-			int i2 = (int) (y2 * 1.0001 / span * (DIVISIONS - 1));
-			i1 = MathUtil.clamp(i1, 0, DIVISIONS - 1);
-			i2 = MathUtil.clamp(i2, 0, DIVISIONS - 1);
-			if (i1 > i2) {
-				int tmp = i2;
-				i2 = i1;
-				i1 = tmp;
-			}
-			
-			for (int i = i1; i <= i2; i++) {
-				// Intersection point (x,y)
-				double y = i * span / (DIVISIONS - 1);
-				double x = (y - y2) / (y1 - y2) * x1 + (y1 - y) / (y1 - y2) * x2;
-				if (x < chordLead[i])
-					chordLead[i] = x;
-				if (x > chordTrail[i])
-					chordTrail[i] = x;
-				
-				// TODO: LOW:  If fin point exactly on chord line, might be counted twice:
-				if (y1 < y2) {
-					chordLength[i] -= x;
-				} else {
-					chordLength[i] += x;
-				}
-			}
-		}
-		
-		// Check and correct any inconsistencies
-		for (int i = 0; i < DIVISIONS; i++) {
-			if (Double.isInfinite(chordLead[i]) || Double.isInfinite(chordTrail[i]) ||
-					Double.isNaN(chordLead[i]) || Double.isNaN(chordTrail[i])) {
-				chordLead[i] = 0;
-				chordTrail[i] = 0;
-			}
-			if (chordLength[i] < 0 || Double.isNaN(chordLength[i])) {
-				chordLength[i] = 0;
-			}
-			if (chordLength[i] > chordTrail[i] - chordLead[i]) {
-				chordLength[i] = chordTrail[i] - chordLead[i];
-			}
-		}
-		
-		/* Calculate fin properties:
-		 * 
-		 * macLength // MAC length
-		 * macLead   // MAC leading edge position
-		 * macSpan   // MAC spanwise position
-		 * ar        // Fin aspect ratio (already set)
-		 * span      // Fin span (already set)
-		 */
-		macLength = 0;
-		macLead = 0;
-		macSpan = 0;
-		cosGamma = 0;
-		cosGammaLead = 0;
-		rollSum = 0;
-		double area = 0;
-		double radius = component.getBodyRadius();
-		
-		final double dy = span / (DIVISIONS - 1);
-		for (int i = 0; i < DIVISIONS; i++) {
-			double length = chordTrail[i] - chordLead[i];
-			double y = i * dy;
-			
-			macLength += length * length;
-			log.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
-			macSpan += y * length;
-			macLead += chordLead[i] * length;
-			area += length;
-			rollSum += chordLength[i] * pow2(radius + y);
-			
-			if (i > 0) {
-				double dx = (chordTrail[i] + chordLead[i]) / 2 - (chordTrail[i - 1] + chordLead[i - 1]) / 2;
-				cosGamma += dy / MathUtil.hypot(dx, dy);
-				
-				dx = chordLead[i] - chordLead[i - 1];
-				cosGammaLead += dy / MathUtil.hypot(dx, dy);
-			}
-		}
-		
-		macLength *= dy;
-		log.debug("macLength = {}", macLength);
-		macSpan *= dy;
-		macLead *= dy;
-		area *= dy;
-		rollSum *= dy;
-		
-		macLength /= area;
-		macSpan /= area;
-		macLead /= area;
-		cosGamma /= (DIVISIONS - 1);
-		cosGammaLead /= (DIVISIONS - 1);
-	}
-	
-	///////////////  CNa1 calculation  ////////////////
-	
-	private static final double CNA_SUBSONIC = 0.9;
-	private static final double CNA_SUPERSONIC = 1.5;
-	private static final double CNA_SUPERSONIC_B = pow(pow2(CNA_SUPERSONIC) - 1, 1.5);
-	private static final double GAMMA = 1.4;
-	private static final LinearInterpolator K1, K2, K3;
-	private static final PolyInterpolator cnaInterpolator = new PolyInterpolator(
-			new double[] { CNA_SUBSONIC, CNA_SUPERSONIC },
-			new double[] { CNA_SUBSONIC, CNA_SUPERSONIC },
-			new double[] { CNA_SUBSONIC }
-			);
-	/* Pre-calculate the values for K1, K2 and K3 */
-	static {
-		// Up to Mach 5
-		int n = (int) ((5.0 - CNA_SUPERSONIC) * 10);
-		double[] x = new double[n];
-		double[] k1 = new double[n];
-		double[] k2 = new double[n];
-		double[] k3 = new double[n];
-		for (int i = 0; i < n; i++) {
-			double M = CNA_SUPERSONIC + i * 0.1;
-			double beta = MathUtil.safeSqrt(M * M - 1);
-			x[i] = M;
-			k1[i] = 2.0 / beta;
-			k2[i] = ((GAMMA + 1) * pow(M, 4) - 4 * pow2(beta)) / (4 * pow(beta, 4));
-			k3[i] = ((GAMMA + 1) * pow(M, 8) + (2 * pow2(GAMMA) - 7 * GAMMA - 5) * pow(M, 6) +
-					10 * (GAMMA + 1) * pow(M, 4) + 8) / (6 * pow(beta, 7));
-		}
-		K1 = new LinearInterpolator(x, k1);
-		K2 = new LinearInterpolator(x, k2);
-		K3 = new LinearInterpolator(x, k3);
-		
-		//		System.out.println("K1[m="+CNA_SUPERSONIC+"] = "+k1[0]);
-		//		System.out.println("K2[m="+CNA_SUPERSONIC+"] = "+k2[0]);
-		//		System.out.println("K3[m="+CNA_SUPERSONIC+"] = "+k3[0]);
-	}
-	
-	protected double calculateFinCNa1(FlightConditions conditions) {
-		double mach = conditions.getMach();
-		double ref = conditions.getRefArea();
-		double alpha = MathUtil.min(conditions.getAOA(),
-				Math.PI - conditions.getAOA(), STALL_ANGLE);
-		
-		// Subsonic case
-		if (mach <= CNA_SUBSONIC) {
-			return 2 * Math.PI * pow2(span) / (1 + MathUtil.safeSqrt(1 + (1 - pow2(mach)) *
-					pow2(pow2(span) / (finArea * cosGamma)))) / ref;
-		}
-		
-		// Supersonic case
-		if (mach >= CNA_SUPERSONIC) {
-			return finArea * (K1.getValue(mach) + K2.getValue(mach) * alpha +
-					K3.getValue(mach) * pow2(alpha)) / ref;
-		}
-		
-		// Transonic case, interpolate
-		double subV, superV;
-		double subD, superD;
-		
-		double sq = MathUtil.safeSqrt(1 + (1 - pow2(CNA_SUBSONIC)) * pow2(span * span / (finArea * cosGamma)));
-		subV = 2 * Math.PI * pow2(span) / ref / (1 + sq);
-		subD = 2 * mach * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
-				sq * pow2(1 + sq));
-		
-		superV = finArea * (K1.getValue(CNA_SUPERSONIC) + K2.getValue(CNA_SUPERSONIC) * alpha +
-				K3.getValue(CNA_SUPERSONIC) * pow2(alpha)) / ref;
-		superD = -finArea / ref * 2 * CNA_SUPERSONIC / CNA_SUPERSONIC_B;
-		
-		//		System.out.println("subV="+subV+" superV="+superV+" subD="+subD+" superD="+superD);
-		
-		return cnaInterpolator.interpolate(mach, subV, superV, subD, superD, 0);
-	}
-	
-	private double calculateDampingMoment(FlightConditions conditions) {
-		double rollRate = conditions.getRollRate();
-		
-		if (Math.abs(rollRate) < 0.1)
-			return 0;
-		
-		double mach = conditions.getMach();
-		double absRate = Math.abs(rollRate);
-		
-		/*
-		 * At low speeds and relatively large roll rates (i.e. near apogee) the
-		 * fin tips rotate well above stall angle.  In this case sum the chords
-		 * separately.
-		 */
-		if (absRate * (bodyRadius + span) / conditions.getVelocity() > 15 * Math.PI / 180) {
-			double sum = 0;
-			for (int i = 0; i < DIVISIONS; i++) {
-				double dist = bodyRadius + span * i / DIVISIONS;
-				double aoa = Math.min(absRate * dist / conditions.getVelocity(), 15 * Math.PI / 180);
-				sum += chordLength[i] * dist * aoa;
-			}
-			sum = sum * (span / DIVISIONS) * 2 * Math.PI / conditions.getBeta() /
-					(conditions.getRefArea() * conditions.getRefLength());
-			
-			//			System.out.println("SPECIAL: " + 
-			//					(MathUtil.sign(rollRate) *component.getFinCount() * sum));
-			return MathUtil.sign(rollRate) * finCount * sum;
-		}
-		
-		if (mach <= CNA_SUBSONIC) {
-			//			System.out.println("BASIC:   "+
-			//					(component.getFinCount() * 2*Math.PI * rollRate * rollSum / 
-			//			(conditions.getRefArea() * conditions.getRefLength() * 
-			//					conditions.getVelocity() * conditions.getBeta())));
-			
-			return finCount * 2 * Math.PI * rollRate * rollSum /
-					(conditions.getRefArea() * conditions.getRefLength() *
-							conditions.getVelocity() * conditions.getBeta());
-		}
-		if (mach >= CNA_SUPERSONIC) {
-			
-			double vel = conditions.getVelocity();
-			double k1 = K1.getValue(mach);
-			double k2 = K2.getValue(mach);
-			double k3 = K3.getValue(mach);
-			
-			double sum = 0;
-			
-			for (int i = 0; i < DIVISIONS; i++) {
-				double y = i * span / (DIVISIONS - 1);
-				double angle = rollRate * (bodyRadius + y) / vel;
-				
-				sum += (k1 * angle + k2 * angle * angle + k3 * angle * angle * angle)
-						* chordLength[i] * (bodyRadius + y);
-			}
-			
-			return finCount * sum * span / (DIVISIONS - 1) /
-					(conditions.getRefArea() * conditions.getRefLength());
-		}
-		
-		// Transonic, do linear interpolation
-		
-		FlightConditions cond = conditions.clone();
-		cond.setMach(CNA_SUBSONIC - 0.01);
-		double subsonic = calculateDampingMoment(cond);
-		cond.setMach(CNA_SUPERSONIC + 0.01);
-		double supersonic = calculateDampingMoment(cond);
-		
-		return subsonic * (CNA_SUPERSONIC - mach) / (CNA_SUPERSONIC - CNA_SUBSONIC) +
-				supersonic * (mach - CNA_SUBSONIC) / (CNA_SUPERSONIC - CNA_SUBSONIC);
+
+		log.debug(forces.toString());
 	}
 	
 	/**
@@ -638,9 +254,9 @@ public class TubeFinSetCalc extends TubeCalc {
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
 		warnings.addAll(geometryWarnings);
-		
+
 		final double frictionCD =  componentCf * wettedArea / conditions.getRefArea();
-		log.debug("frictionCD " + frictionCD);
+		
 		return frictionCD;
 	}
 
@@ -651,7 +267,6 @@ public class TubeFinSetCalc extends TubeCalc {
 	    warnings.addAll(geometryWarnings);
 		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
 			(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
-	    log.debug("pressure CD " + cd);
 	    
 	    return cd;
 		}

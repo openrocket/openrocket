@@ -251,7 +251,7 @@ public class ParallelStageTest extends BaseTestCase {
 		// vv function under test
 		parallelBoosterStage.setAxialOffset( AxialMethod.BOTTOM, 0.0 );
 		final double targetRadiusOffset = 0.01;
-		parallelBoosterStage.setRadius( RadiusMethod.RELATIVE, targetRadiusOffset );
+		parallelBoosterStage.setRadius( RadiusMethod.RELATIVE, RadiusMethod.RELATIVE.getRadius(parallelBoosterStage.getParent(), parallelBoosterStage, targetRadiusOffset));
 		// ^^ function under test
 
 		assertFalse(RadiusMethod.RELATIVE.clampToZero());

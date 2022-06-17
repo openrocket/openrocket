@@ -91,7 +91,7 @@ public class Rocket extends ComponentAssembly {
 	 *
 	 * @return    Return a bounding box enveloping the rocket
 	 */
-	public BoundingBox getBoundingBox (){ return selectedConfiguration.getBoundingBox(); }
+	public BoundingBox getBoundingBox (){ return selectedConfiguration.getBoundingBoxAerodynamic(); }
 
 	public String getDesigner() {
 		checkState();

@@ -207,6 +207,19 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			
 			quad2 = quad1 = quad0 = 0; // Not used
 		}
+
+		public ValueSliderModel(double min, DoubleModel max) {
+			this.islinear = true;
+			linearPosition = 1.0;
+
+			this.min = new DoubleModel(min);
+			this.mid = max; // Never use exponential scale
+			this.max = max;
+
+			max.addChangeListener(this);
+
+			quad2 = quad1 = quad0 = 0; // Not used
+		}
 		
 		
 		
@@ -424,6 +437,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	}
 	
 	public BoundedRangeModel getSliderModel(double min, double max) {
+		return new ValueSliderModel(min, max);
+	}
+
+	public BoundedRangeModel getSliderModel(double min, DoubleModel max) {
 		return new ValueSliderModel(min, max);
 	}
 	

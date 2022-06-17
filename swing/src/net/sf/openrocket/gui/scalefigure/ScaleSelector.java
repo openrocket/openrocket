@@ -17,7 +17,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
-public class ScaleSelector extends JPanel {
+public class ScaleSelector {
 
     public static final double MINIMUM_ZOOM =    0.01; // ==      1 %
     public static final double MAXIMUM_ZOOM = 1000.00; // == 10,000 %
@@ -36,16 +36,16 @@ public class ScaleSelector extends JPanel {
 	}
 
 	private final ScaleScrollPane scrollPane;
-	private JComboBox<String> scaleSelector;
+	private final JComboBox<String> scaleSelectorCombo;
+	private final JButton zoomOutButton;
+	private final JButton zoomInButton;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
-		super(new MigLayout());
-
 		this.scrollPane = scroll;
 
 		// Zoom out button
-		JButton button = new SelectColorButton(Icons.ZOOM_OUT);
-		button.addActionListener(new ActionListener() {
+		zoomOutButton = new SelectColorButton(Icons.ZOOM_OUT);
+		zoomOutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final double oldScale = scrollPane.getUserScale();
@@ -54,19 +54,19 @@ public class ScaleSelector extends JPanel {
 				setZoomText();
 			}
 		});
-		add(button, "gap");
 
 		// Zoom level selector
-		String[] settings = SCALE_LABELS;
-		
-		scaleSelector = new JComboBox<>(settings);
-		scaleSelector.setEditable(true);
+		scaleSelectorCombo = new JComboBox<>(SCALE_LABELS);
+		scaleSelectorCombo.setEditable(true);
+		scaleSelectorCombo.setSelectedItem("Fit (100.0%)");	// Make sure the combobox can fit this text
+		scaleSelectorCombo.setPreferredSize(scaleSelectorCombo.getPreferredSize());
 		setZoomText();
-		scaleSelector.addActionListener(new ActionListener() {
+		scaleSelectorCombo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					String text = (String) scaleSelector.getSelectedItem();
+					String text = (String) scaleSelectorCombo.getSelectedItem();
+					if (text == null) return;
 					text = text.replaceAll("%", "").trim();
 
 					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
@@ -94,11 +94,10 @@ public class ScaleSelector extends JPanel {
 				update();
 			}
 		});
-		add(scaleSelector, "gap rel");
 
 		// Zoom in button
-		button = new SelectColorButton(Icons.ZOOM_IN);
-		button.addActionListener(new ActionListener() {
+		zoomInButton = new SelectColorButton(Icons.ZOOM_IN);
+		zoomInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				double scale = scrollPane.getUserScale();
@@ -107,8 +106,27 @@ public class ScaleSelector extends JPanel {
 				update();
 			}
 		});
-		add(button, "gapleft rel");
+	}
 
+	public JPanel getAsPanel() {
+		JPanel panel = new JPanel(new MigLayout("insets 0"));
+		panel.add(zoomOutButton);
+		panel.add(scaleSelectorCombo);
+		panel.add(zoomInButton);
+
+		return panel;
+	}
+
+	public JComboBox<String> getScaleSelectorCombo() {
+		return scaleSelectorCombo;
+	}
+
+	public JButton getZoomOutButton() {
+		return zoomOutButton;
+	}
+
+	public JButton getZoomInButton() {
+		return zoomInButton;
 	}
 
 	private void setZoomText() {
@@ -117,8 +135,8 @@ public class ScaleSelector extends JPanel {
 		if (scrollPane.isFitting()) {
 			text = "Fit (" + text + ")";
 		}
-		if (!text.equals(scaleSelector.getSelectedItem()))
-			scaleSelector.setSelectedItem(text);
+		if (!text.equals(scaleSelectorCombo.getSelectedItem()))
+			scaleSelectorCombo.setSelectedItem(text);
 	}
 
 	private static double getNextLargerScale(final double currentScale) {
@@ -144,18 +162,15 @@ public class ScaleSelector extends JPanel {
 		}
 		if (currentScale > SCALE_LEVELS[SCALE_LEVELS.length / 2]) {
 			// scale is large, give next full 100%
-			double nextScale = Math.floor(currentScale + 1.05);
-			return nextScale;
+			return Math.floor(currentScale + 1.05);
 		}
 		return currentScale * 1.5;
 	}
 
-	@Override
 	public void setEnabled(boolean b){
-		for ( Component c : getComponents() ){
-			c.setEnabled(b);
-		}
-		super.setEnabled(b);
+		zoomInButton.setEnabled(b);
+		scaleSelectorCombo.setEnabled(b);
+		zoomOutButton.setEnabled(b);
 	}
 
 	public void update(){

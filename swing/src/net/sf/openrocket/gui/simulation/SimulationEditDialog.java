@@ -277,9 +277,11 @@ public class SimulationEditDialog extends JDialog {
 					switch (selectedIndex) {
 					case 0:
 						ok.setText(trans.get("SimulationEditDialog.btn.plot"));
+						plotExportPanel.revalidate();
 						break;
 					case 1:
 						ok.setText(trans.get("SimulationEditDialog.btn.export"));
+						plotExportPanel.revalidate();
 						break;
 					}
 				}
@@ -290,7 +292,8 @@ public class SimulationEditDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// If the simulation is out of date, run the simulation.
-					if (simulationList[0].getStatus() != Simulation.Status.UPTODATE) {
+					if (simulationList[0].getStatus() != Simulation.Status.UPTODATE &&
+							simulationList[0].getStatus() != Simulation.Status.LOADED) {
 						new SimulationRunDialog(SimulationEditDialog.this.parentWindow, document, simulationList[0]).setVisible(true);
 					}
 					

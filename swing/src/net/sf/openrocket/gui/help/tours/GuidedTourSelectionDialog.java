@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -25,10 +26,12 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
+import org.fife.ui.rtextarea.IconGroup;
 
 public class GuidedTourSelectionDialog extends JDialog {
 	private static final long serialVersionUID = -3643116444821710259L;
@@ -84,6 +87,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		tourDescription = new JEditorPane("text/html", "");
 		tourDescription.setEditable(false);
+		tourDescription.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 		StyleSheet ss = slideSetManager.getSlideSet(tourNames.get(0)).getStyleSheet();
 		((HTMLDocument) tourDescription.getDocument()).getStyleSheet().addStyleSheet(ss);
 		sub.add(new JScrollPane(tourDescription), "grow, wrap rel");
@@ -92,6 +96,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		sub.add(tourLength, "wrap unrel");
 		
 		JButton start = new SelectColorButton(trans.get("btn.start"));
+		start.setIcon(Icons.HELP_TOURS);
 		start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

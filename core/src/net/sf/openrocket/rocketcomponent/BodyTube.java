@@ -31,7 +31,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	private MotorConfigurationSet motors;
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	public BodyTube() {
 		this(8 * DEFAULT_RADIUS, DEFAULT_RADIUS);
@@ -519,6 +519,11 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 
 	@Override

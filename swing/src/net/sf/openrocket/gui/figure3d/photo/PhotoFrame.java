@@ -60,7 +60,7 @@ import com.google.inject.Module;
 @SuppressWarnings("serial")
 public class PhotoFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(PhotoFrame.class);
-	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 	private final Translator trans = Application.getTranslator();
 
 	private final PhotoPanel photoPanel;

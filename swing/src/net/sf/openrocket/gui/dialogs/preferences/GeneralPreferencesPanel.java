@@ -212,6 +212,18 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(button, "right, wrap");
+
+		//// Check for beta releases
+		final JCheckBox betaUpdateBox = new JCheckBox(trans.get("pref.dlg.checkbox.CheckBetaupdates"));
+		betaUpdateBox.setToolTipText(trans.get("pref.dlg.checkbox.CheckBetaupdates.ttip"));
+		betaUpdateBox.setSelected(preferences.getCheckBetaUpdates());
+		betaUpdateBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setCheckBetaUpdates(betaUpdateBox.isSelected());
+			}
+		});
+		this.add(betaUpdateBox, "gapleft para, wrap");
 		
 		//// Open most recent file on startup
 		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));

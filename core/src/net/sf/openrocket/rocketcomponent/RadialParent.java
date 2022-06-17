@@ -4,7 +4,7 @@ public interface RadialParent {
 
 	/**
 	 * Return the outer radius of the component at local coordinate <code>x</code>.
-	 * Values for <code>x < 0</code> and <code>x > getLength()</code> are undefined.
+	 * Values for <code>x < 0</code> and <code>x > getLengthAerodynamic()</code> are undefined.
 	 * 
 	 * @param x		the lengthwise position in the coordinates of this component.
 	 * @return		the outer radius of the component at that position.
@@ -13,7 +13,7 @@ public interface RadialParent {
 
 	/**
 	 * Return the inner radius of the component at local coordinate <code>x</code>.
-	 * Values for <code>x < 0</code> and <code>x > getLength()</code> are undefined.
+	 * Values for <code>x < 0</code> and <code>x > getLengthAerodynamic()</code> are undefined.
 	 * 
 	 * @param x		the lengthwise position in the coordinates of this component.
 	 * @return		the inner radius of the component at that position.

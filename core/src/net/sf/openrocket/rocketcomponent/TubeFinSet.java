@@ -28,7 +28,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	private AngleMethod angleMethod = AngleMethod.FIXED;
 	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
 
-	private final InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/**
 	 * Rotation angle of the first fin.  Zero corresponds to the positive y-axis.
@@ -522,5 +522,10 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {
 		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 }

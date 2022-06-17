@@ -5,11 +5,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.TextUtil;
 
 /**
  * A panel that shows options for saving CSV files.
@@ -27,6 +31,8 @@ public class CsvOptionPanel extends JPanel {
 	private final String baseClassName;
 	
 	private final JComboBox<String> fieldSeparator;
+	private final JSpinner decimalPlacesSpinner;
+	private final JCheckBox exponentialNotationCheckbox;
 	private final JCheckBox[] options;
 	private final JComboBox<String> commentCharacter;
 	
@@ -48,10 +54,11 @@ public class CsvOptionPanel extends JPanel {
 
 		// TODO: HIGH: Rename the translation keys
 		
-		// Field separator panel
+		// Format settings panel
 		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Fieldsep")));
-		
+		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.FormatSettings")));
+
+		//// Field separation
 		label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
 		tip = trans.get("SimExpPan.lbl.longA1") +
 				trans.get("SimExpPan.lbl.longA2");
@@ -62,8 +69,25 @@ public class CsvOptionPanel extends JPanel {
 		fieldSeparator.setEditable(true);
 		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ","));
 		fieldSeparator.setToolTipText(tip);
-		panel.add(fieldSeparator, "growx");
-		
+		panel.add(fieldSeparator, "growx, wrap");
+
+		//// Decimal places
+		label = new JLabel(trans.get("SimExpPan.lbl.DecimalPlaces"));
+		label.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
+		panel.add(label, "gapright unrel");
+
+		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(Preferences.EXPORT_DECIMAL_PLACES, TextUtil.DEFAULT_DECIMAL_PLACES),
+				0, 15, 1);
+		decimalPlacesSpinner = new JSpinner(dpModel);
+		decimalPlacesSpinner.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
+		panel.add(decimalPlacesSpinner, "growx, wrap");
+
+		//// Exponential notation
+		exponentialNotationCheckbox = new JCheckBox(trans.get("SimExpPan.lbl.ExponentialNotation"));
+		exponentialNotationCheckbox.setToolTipText(trans.get("SimExpPan.lbl.ExponentialNotation.ttip"));
+		exponentialNotationCheckbox.setSelected(Application.getPreferences().getBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, true));
+		panel.add(exponentialNotationCheckbox);
+
 		this.add(panel, "growx, wrap unrel");
 		
 
@@ -104,6 +128,14 @@ public class CsvOptionPanel extends JPanel {
 	public String getFieldSeparator() {
 		return fieldSeparator.getSelectedItem().toString();
 	}
+
+	public int getDecimalPlaces() {
+		return (Integer) decimalPlacesSpinner.getValue();
+	}
+
+	public boolean isExponentialNotation() {
+		return exponentialNotationCheckbox.isSelected();
+	}
 	
 	public String getCommentCharacter() {
 		return commentCharacter.getSelectedItem().toString();
@@ -118,6 +150,8 @@ public class CsvOptionPanel extends JPanel {
 	 */
 	public void storePreferences() {
 		Application.getPreferences().putString(Preferences.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
+		Application.getPreferences().putInt(Preferences.EXPORT_DECIMAL_PLACES, getDecimalPlaces());
+		Application.getPreferences().putBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, isExponentialNotation());
 		Application.getPreferences().putString(Preferences.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
 		for (int i = 0; i < options.length; i++) {
 			Application.getPreferences().putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());

@@ -35,6 +35,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -62,10 +63,15 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		super(d, c);
 
 		//// General and General properties
+		JPanel rightPanel = new JPanel(new MigLayout());
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
+
 		DoubleModel m;
 		JSpinner spin;
 		DoubleModel od = null;
+
+		//// Attributes ----
+		panel.add(new StyledLabel(trans.get("InnerTubeCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
 
 		//// Outer diameter
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Outerdiam")));
@@ -136,33 +142,41 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 
+		//// Material
+		panel.add(materialPanel(Material.Type.BULK),
+				"spanx 3, growx, wrap 15lp");
 
-		////  Position
+
+		//// Right side of panel ----
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+
+		//// Placement
+		panel2.add(new StyledLabel(trans.get("InnerTubeCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
 
 		//// Position relative to:
-		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
+		panel2.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 
 		JComboBox<?> combo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
-		panel.add(combo, "spanx 3, growx, wrap");
+		panel2.add(combo, "spanx 3, growx, wrap");
 
 		//// plus
-		panel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
+		panel2.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
 
 		//// PositionValue
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
+		panel2.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
+		panel2.add(new UnitSelector(m), "growx");
+		panel2.add(new BasicSlider(m.getSliderModel(
+						new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
+						new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 
-		//// Material
-		panel.add(materialPanel(Material.Type.BULK),
-				"cell 4 0, gapleft paragraph, aligny 0%, spany");
+
+
 
 		tabbedPane.insertTab(trans.get("ThicknessRingCompCfg.tab.General"), null, panel,
 				trans.get("ThicknessRingCompCfg.tab.Generalprop"), 0);
@@ -246,7 +260,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 
 		DescriptionArea note = new DescriptionArea(3);
-		//// Note: An inner tube will not affect the aerodynamics of the rocket even if it is located outside of the body tube.
+		//// Note: An inner tube will not affect the aerodynamics of the rocket even if located outside the body tube.
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
 

@@ -83,7 +83,7 @@ public class PercentageOfLengthUnit extends GeneralUnit {
      * @return			the reference length of the rocket
      */
     public static double getReferenceLength(FlightConfiguration config) {
-        return config.getLength();
+        return config.getLengthAerodynamic();
     }
 
     /**

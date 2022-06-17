@@ -1,7 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +66,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	final private InstanceMap activeInstances = new InstanceMap();
 	
 	private int boundsModID = -1;
-	private BoundingBox cachedBounds = new BoundingBox();
-	private double cachedLength = -1;
+	private BoundingBox cachedBoundsAerodynamic = new BoundingBox();	// Bounding box of all aerodynamic components
+	private BoundingBox cachedBounds = new BoundingBox();	// Bounding box of all components
+	private double cachedLengthAerodynamic = -1;	// Rocket length of all aerodynamic components
+	private double cachedLength = -1;	// Rocket length of all components
 	
 	private int refLengthModID = -1;
 	private double cachedRefLength = -1;
@@ -423,7 +424,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		this.stages.clear();
 		for (AxialStage curStage : this.rocket.getStageList()) {
-			
+			if (curStage == null) continue;
 			StageFlags flagsToAdd = new StageFlags( curStage.getStageNumber(), true);
 			this.stages.put(curStage.getStageNumber(), flagsToAdd);
 		}
@@ -546,7 +547,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 		updateActiveInstances();
 	}
-	
+
+	/**
+	 * Return true if rocket has a RecoveryDevice
+	 */
+	public boolean hasRecoveryDevice() {
+	  if (fcid.hasError()) {
+	    return false;
+	  }
+
+	  return this.getRocket().hasRecoveryDevice();
+	}
+
 	///////////////  Helper methods  ///////////////
 	
 	/**
@@ -566,26 +578,42 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * 
 	 * @return	a <code>Collection</code> containing coordinates bounding the rocket.
 	 * 
-	 * @deprecated Migrate to <FlightConfiguration>.getBoundingBox(), when practical.
+	 * @deprecated Migrate to <FlightConfiguration>.getBoundingBoxAerodynamic(), when practical.
 	 */
 	@Deprecated 
 	public Collection<Coordinate> getBounds() {
-		return getBoundingBox().toCollection();
+		return getBoundingBoxAerodynamic().toCollection();
 	}
 	
 	/** 
-	 * Return the bounding box of the current configuration.  
+	 * Return the bounding box of the current configuration (of aerodynamic components).
 	 * 
+	 * @return the rocket's bounding box (under the selected configuration)
+	 */
+	public BoundingBox getBoundingBoxAerodynamic() {
+//		if (rocket.getModID() != boundsModID) {
+		calculateBounds();
+//		}
+		
+		if(cachedBoundsAerodynamic.isEmpty())
+			cachedBoundsAerodynamic = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
+		
+		return cachedBoundsAerodynamic;
+	}
+
+	/**
+	 * Return the bounding box of the current configuration (of all components).
+	 *
 	 * @return the rocket's bounding box (under the selected configuration)
 	 */
 	public BoundingBox getBoundingBox() {
 //		if (rocket.getModID() != boundsModID) {
 		calculateBounds();
 //		}
-		
+
 		if(cachedBounds.isEmpty())
 			cachedBounds = new BoundingBox(Coordinate.ZERO,Coordinate.X_UNIT);
-		
+
 		return cachedBounds;
 	}
 
@@ -593,31 +621,30 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * Calculates the bounds for all the active component instances
 	 * in the current configuration.
 	 */
-	private void calculateBounds(){
-		BoundingBox rocketBounds = new BoundingBox();
+	private void calculateBounds() {
+		BoundingBox rocketBoundsAerodynamic = new BoundingBox();	// Bounding box of all aerodynamic components
+		BoundingBox rocketBounds = new BoundingBox();				// Bounding box of all components
 
 		InstanceMap map = getActiveInstances();
 		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>>  entry : map.entrySet()) {
 			final RocketComponent component = entry.getKey();
+			final BoundingBox componentBoundsAerodynamic = new BoundingBox();
 			final BoundingBox componentBounds = new BoundingBox();
 			final List<InstanceContext> contexts = entry.getValue();
-			
-			if( ! component.isAerodynamic()){
-//				System.err.println("    << non-aerodynamic");
-				// all non-aerodynamic components should be surrounded by aerodynamic ones
-				continue;
-			}
 
 			// FinSets already provide a bounding box, so let's use that.
 			if (component instanceof BoxBounded) {
 				final BoundingBox instanceBounds = ((BoxBounded) component).getInstanceBoundingBox();
-				if(instanceBounds.isEmpty()) {
+				if (instanceBounds.isEmpty()) {
 					// probably redundant
 					// this component is probably non-physical (like an assembly) or has invalid bounds.  Skip.
 					continue;
 				}
 
 				for (InstanceContext context : contexts) {
+					if (component.isAerodynamic()) {
+						componentBoundsAerodynamic.update(instanceBounds.transform(context.transform));
+					}
 					componentBounds.update(instanceBounds.transform(context.transform));
 				}
 			} else {
@@ -629,30 +656,52 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					context.transform.transform(instanceCoordinates);
 
 					for (Coordinate tc : transformedCoords) {
+						if (component.isAerodynamic()) {
+							componentBoundsAerodynamic.update(tc);
+						}
 						componentBounds.update(tc);
 					}
 				}
 			}
 
+			rocketBoundsAerodynamic.update(componentBoundsAerodynamic);
 			rocketBounds.update(componentBounds);
 		}
 		
 		boundsModID = rocket.getModID();
+		cachedLengthAerodynamic = rocketBoundsAerodynamic.span().x;
 		cachedLength = rocketBounds.span().x;
 		/* Special case for the scenario that all of the stages are removed and are
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently
 		 * so we'll just adjust the length here.  
 		 */
+		if (rocketBoundsAerodynamic.isEmpty()) {
+			cachedLengthAerodynamic = 0;
+		}
 		if (rocketBounds.isEmpty()) {
 			cachedLength = 0;
 		}
+		cachedBoundsAerodynamic = rocketBoundsAerodynamic;
 		cachedBounds = rocketBounds;
 	}
 	
 	/**
-	 * Returns the length of the rocket configuration, from the foremost bound X-coordinate
+	 * Returns the length of the rocket configuration (only aerodynamic components), from the foremost bound X-coordinate
 	 * to the aft-most X-coordinate.  The value is cached.
 	 * 
+	 * @return	the length of the rocket in the X-direction.
+	 */
+	public double getLengthAerodynamic() {
+		if (rocket.getModID() != boundsModID) {
+			calculateBounds();
+		}
+		return cachedLengthAerodynamic;
+	}
+
+	/**
+	 * Returns the length of the rocket configuration (all components), from the foremost bound X-coordinate
+	 * to the aft-most X-coordinate.  The value is cached.
+	 *
 	 * @return	the length of the rocket in the X-direction.
 	 */
 	public double getLength() {
@@ -678,7 +727,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
 		clone.setName(configurationName);
 		
-        clone.cachedBounds = this.cachedBounds.clone();
+        clone.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
+		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
@@ -705,6 +755,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
             cloneMotor.getMount().setMotorConfig(cloneMotor, copyId);
         }
 
+		copy.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
         copy.cachedBounds = this.cachedBounds.clone();
         copy.modID = this.modID;
         copy.boundsModID = -1;

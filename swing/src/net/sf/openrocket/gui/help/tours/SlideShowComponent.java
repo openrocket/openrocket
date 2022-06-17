@@ -1,10 +1,12 @@
 package net.sf.openrocket.gui.help.tours;
 
 import java.awt.Dimension;
+import java.awt.Insets;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
@@ -37,6 +39,8 @@ public class SlideShowComponent extends JSplitPane {
 		
 		textPane = new JEditorPane("text/html", "");
 		textPane.setEditable(false);
+		textPane.setMargin(new Insets(10, 10, 40, 10));
+		textPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 		textPane.setPreferredSize(new Dimension(WIDTH, HEIGHT_TEXT));
 		
 		JScrollPane scrollPanel = new JScrollPane(textPane);

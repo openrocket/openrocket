@@ -63,7 +63,7 @@ OpenRocket needs help to become even better. Implementing features, writing docu
 - Tripoli Spain
 - Stefan Lobas / ERIG
 - Mauro Biasutti
-- Sky Dart Team
+- Sky Dart Team / Ruslan V. Uss
 - Vladimir Beran
 - Polish Rocketry Society / Łukasz & Alex Kazanski
 - Sibo Van Gool

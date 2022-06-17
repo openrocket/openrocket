@@ -295,7 +295,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
         panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 3, wrap");
         
         // row of controls at the bottom of the tab:
-        panel.add(selector, "aligny bottom, gap unrel");
+        panel.add(selector.getAsPanel(), "aligny bottom, gap unrel");
         panel.add(scaleButton, "");
         panel.add(importButton, "");
         panel.add(exportCsvButton, "");

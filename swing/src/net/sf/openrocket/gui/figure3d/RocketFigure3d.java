@@ -83,6 +83,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private Overlay extrasOverlay, caretOverlay;
 	private BufferedImage cgCaretRaster, cpCaretRaster;
 	private volatile boolean redrawExtras = true;
+	private boolean drawCarets = true;
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
 	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
@@ -324,7 +325,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		rr.render(drawable, configuration, selection);
 		
 		drawExtras(gl, glu);
-		drawCarets(gl, glu);
+		if (drawCarets) {
+			drawCarets(gl, glu);
+		}
 		
 		// GLJPanel with GLSL Flipper relies on this:
 		gl.glFrontFace(GL.GL_CCW);
@@ -512,9 +515,11 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// Calculate the distance needed to fit the bounds in both the X and Y
 		// direction
 		// Add 10% for space around it.
+		final double maxR = Math.max( Math.hypot(b.min.y, b.min.z),
+				Math.hypot(b.max.y, b.max.z));
 		final double dX = (b.span().x * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovX / 2.0));
-		final double dY = (b.span().y * 1.2 / 2.0)
+		final double dY = (2*maxR * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovY / 2.0));
 		
 		// Move back the greater of the 2 distances
@@ -709,5 +714,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			});
 		}
 	}
-	
+
+	public boolean isDrawCarets() {
+		return drawCarets;
+	}
+
+	public void setDrawCarets(boolean drawCarets) {
+		this.drawCarets = drawCarets;
+	}
 }

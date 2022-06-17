@@ -204,7 +204,14 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 			}
 		}
 
-		setRadius( radiusMethod, radius_m );
+		if (radius_m == this.radiusOffset_m) return;
+
+		if (this.radiusMethod.clampToZero() ) {
+			this.radiusOffset_m = 0.0;
+		} else {
+			this.radiusOffset_m = radius_m;
+		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	@Override
@@ -229,16 +236,15 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		}
 
 		mutex.verify();
-		
-		RadiusMethod newMethod = requestedMethod; 
+
 		double newRadius = requestedRadius;
 		
-		if( newMethod.clampToZero() ) {
+		if( requestedMethod.clampToZero() ) {
 			newRadius = 0.;
 		}	
 
-		this.radiusMethod = newMethod;
-		this.radiusOffset_m = newRadius;
+		this.radiusMethod = requestedMethod;
+		this.radiusOffset_m = this.radiusMethod.getAsOffset(getParent(), this, newRadius);
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -267,14 +273,18 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 
 	@Override
-	public void setRadiusMethod(RadiusMethod newRadiusMethod) {
+	public void setRadiusMethod(RadiusMethod newMethod) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setRadiusMethod(newRadiusMethod);
+				((ParallelStage) listener).setRadiusMethod(newMethod);
 			}
 		}
 
-		setRadius( newRadiusMethod, this.radiusOffset_m );
+		if (newMethod == this.radiusMethod) return;
+
+		mutex.verify();
+		double radius = this.radiusMethod.getRadius(getParent(), this, this.radiusOffset_m);	// Radius from the parent's center
+		setRadius(newMethod, radius);
 	}
 	
 	
