@@ -486,7 +486,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			
 			originLocation_px = new Point(newOriginX, newOriginY);
 		}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
-			final int newOriginX = mid_x - (subjectWidth / 2);
+			final int newOriginX = mid_x - (subjectWidth / 2) - (int)(subjectBounds_m.getMinX() * scale);
 			final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
 			originLocation_px = new Point(newOriginX, newOriginY);
 		}
