@@ -607,11 +607,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) return;
 
-		// Check for double-click. If the component was not already selected, ignore the double click and treat it as a single click
+		// Check for double-click.
+		// If the shift/meta key is not pressed and the component was not already selected, ignore the double click and treat it as a single click
 		if (clickCount == 2) {
 			if (event.isShiftDown() || event.isMetaDown()) {
 				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-				RocketComponent component = selectedComponents.get(0);
+				RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
 
 				// Make sure the clicked component is selected
 				for (RocketComponent c : clicked) {

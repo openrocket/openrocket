@@ -320,6 +320,11 @@ public class BasicFrame extends JFrame {
 									component.addConfigListener(c);
 								}
 							}
+
+							// Add the selection path to the tree selection
+							List<TreePath> paths = new LinkedList<>(Arrays.asList(tree.getSelectionPaths()));
+							paths.add(selPath);
+							tree.setSelectionPaths(paths.toArray(new TreePath[0]));
 						}
 
 						ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, component);
