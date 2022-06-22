@@ -303,12 +303,34 @@ public class BasicFrame extends JFrame {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 				if (selRow != -1) {
+					if (selPath == null) return;
+
+					// Double-click
 					if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
-						// Double-click
-						RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
-						ComponentConfigDialog.showDialog(BasicFrame.this,
-								BasicFrame.this.document, c);
-					} else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
+						RocketComponent component = (RocketComponent) selPath.getLastPathComponent();
+
+						// Multi-component edit if shift/meta key is pressed
+						if ((e.isShiftDown() || e.isMetaDown()) && tree.getSelectionPaths() != null) {
+							// Add the other selected components as listeners to the last selected component
+							for (TreePath p : tree.getSelectionPaths()) {
+								if (p != null) {
+									if (p.getLastPathComponent() == component) continue;
+									RocketComponent c = (RocketComponent) p.getLastPathComponent();
+									c.clearConfigListeners();
+									component.addConfigListener(c);
+								}
+							}
+
+							// Add the selection path to the tree selection
+							List<TreePath> paths = new LinkedList<>(Arrays.asList(tree.getSelectionPaths()));
+							paths.add(selPath);
+							tree.setSelectionPaths(paths.toArray(new TreePath[0]));
+						}
+
+						ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, component);
+					}
+					// Context menu
+					else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
 						if (!tree.isPathSelected(selPath)) {
 							// Select new path
 							tree.setSelectionPath(selPath);
@@ -316,7 +338,7 @@ public class BasicFrame extends JFrame {
 
 						doComponentTreePopup(e);
 					}
-				} else {
+				} else {	// Clicked on blank space
 					tree.clearSelection();
 				}
 			}
