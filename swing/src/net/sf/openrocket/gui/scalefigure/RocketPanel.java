@@ -609,16 +609,44 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Check for double-click. If the component was not already selected, ignore the double click and treat it as a single click
 		if (clickCount == 2) {
-			if (!selectedComponents.contains(clicked[0])) {
-				clickCount = 1;
-			} else {
-				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-				selectionModel.setSelectionPath(path);        // Revert to single selection
-				RocketComponent component = (RocketComponent) path.getLastPathComponent();
+			if (event.isShiftDown() || event.isMetaDown()) {
+				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+				RocketComponent component = selectedComponents.get(0);
 
-				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
-						document, component);
-				return;
+				// Make sure the clicked component is selected
+				for (RocketComponent c : clicked) {
+					if (!selectedComponents.contains(c)) {
+						TreePath path = ComponentTreeModel.makeTreePath(c);
+						paths.add(path);
+						selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+						selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
+								.map(c1 -> (RocketComponent) c1.getLastPathComponent()).collect(Collectors.toList());
+						component = c;
+						break;
+					}
+				}
+
+				// Multi-component edit if shift/meta key is pressed
+				for (RocketComponent c : selectedComponents) {
+					if (c == component) continue;
+					c.clearConfigListeners();
+					component.addConfigListener(c);
+				}
+				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this), document, component);
+			}
+			// Normal double click (no shift or meta key)
+			else {
+				if (!selectedComponents.contains(clicked[0])) {
+					clickCount = 1;
+				} else {
+					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+					selectionModel.setSelectionPath(path);        // Revert to single selection
+					RocketComponent component = (RocketComponent) path.getLastPathComponent();
+
+					ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
+							document, component);
+					return;
+				}
 			}
 		}
 
