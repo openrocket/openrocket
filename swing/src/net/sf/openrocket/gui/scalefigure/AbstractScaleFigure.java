@@ -110,15 +110,17 @@ public abstract class AbstractScaleFigure extends JPanel {
 	 *
 	 * @param newScaleRequest the scale level
 	 * @param newVisibleBounds the visible bounds upon the Figure
+	 * @return true if the scale changed, false if it was already at the requested scale or something went wrong.
 	 */
-	public void scaleTo(final double newScaleRequest, final Dimension newVisibleBounds) {
+	public boolean scaleTo(final double newScaleRequest, final Dimension newVisibleBounds) {
 		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01) &&
 			(visibleBounds_px.width == newVisibleBounds.width) &&
-			(visibleBounds_px.height == newVisibleBounds.height) )
-		{
-			return;}
+			(visibleBounds_px.height == newVisibleBounds.height) ) {
+			return false;
+		}
 		if (Double.isInfinite(newScaleRequest) || Double.isNaN(newScaleRequest) || 0 > newScaleRequest) {
-			return;}
+			return false;
+		}
 
 		this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
 		this.scale = baseScale * userScale;
@@ -128,16 +130,18 @@ public abstract class AbstractScaleFigure extends JPanel {
 		updateCanvasSize();
 
 		this.fireChangeEvent();
+		return true;
 	}
 	
 	/**
      * Set the scale level to display newBounds
      * 
-     * @param visibleBounds the visible bounds to scale this figure to.  
+     * @param visibleBounds the visible bounds to scale this figure to.
+	 * @return true if the scale changed, false if it was already at the requested scale or something went wrong.
      */
-	public void scaleTo(Dimension visibleBounds) {
+	public boolean scaleTo(Dimension visibleBounds) {
 		if( 0 >= visibleBounds.getWidth() || 0 >= visibleBounds.getHeight())
-			return;
+			return false;
 
 		updateSubjectDimensions();
 
@@ -145,7 +149,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		final double height_scale = (visibleBounds.height - 2 * borderThickness_px.height) / (subjectBounds_m.getHeight() * baseScale);
 		final double newScale = Math.min(height_scale, width_scale);
 
-		scaleTo(newScale, visibleBounds);
+		return scaleTo(newScale, visibleBounds);
 	}
 	
     /**

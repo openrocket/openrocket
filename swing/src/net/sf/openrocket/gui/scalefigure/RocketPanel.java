@@ -820,6 +820,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				@Override
 				public void stateChanged(EventObject e) {
 					if (updateFlightData(sim)) {
+						// TODO HIGH: this gets updated for every sim run; not necessary...
 						updateFigures();
 					}
 				}
