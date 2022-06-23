@@ -1,11 +1,15 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -13,6 +17,7 @@ import javax.swing.JDialog;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.WindowLocationUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -256,6 +261,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
+		WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
 
 		////Modify
 		if (component.getConfigListeners().size() == 0) {
