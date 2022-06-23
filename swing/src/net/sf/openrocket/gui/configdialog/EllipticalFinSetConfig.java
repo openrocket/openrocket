@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -31,8 +32,8 @@ import net.sf.openrocket.unit.UnitGroup;
 public class EllipticalFinSetConfig extends FinSetConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public EllipticalFinSetConfig(OpenRocketDocument d, final RocketComponent component) {
-		super(d, component);
+	public EllipticalFinSetConfig(OpenRocketDocument d, final RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 		
 		DoubleModel m;
 		JSpinner spin;

@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -36,8 +37,8 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	private final RocketComponent component;
 	
-	public ComponentAssemblyConfig(OpenRocketDocument document, RocketComponent component) {
-		super(document, component);
+	public ComponentAssemblyConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
+		super(document, component, parent);
 		this.component = component;
 	
 		// only stages which are actually off-centerline will get the dialog here:

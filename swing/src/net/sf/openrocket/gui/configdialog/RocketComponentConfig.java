@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -74,7 +75,7 @@ public class RocketComponentConfig extends JPanel {
 	private boolean allSameType;		// Checks whether all listener components are of the same type as <component>
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
 
-	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
+	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
 		setLayout(new MigLayout("fill, gap 4!, ins panel", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
 
 		this.document = document;
@@ -126,7 +127,7 @@ public class RocketComponentConfig extends JPanel {
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (allMassive) {
 			//// Appearance options
-			appearancePanel = new AppearancePanel(document, component);
+			appearancePanel = new AppearancePanel(document, component, parent);
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
 					"Appearance Tool Tip");
 		}

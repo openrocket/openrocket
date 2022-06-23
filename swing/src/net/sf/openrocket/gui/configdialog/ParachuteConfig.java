@@ -8,6 +8,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -40,8 +41,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 	private static final long serialVersionUID = 6108892447949958115L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component) {
-		super(d, component);
+	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 		Parachute parachute = (Parachute) component;
 
 		// Left Side

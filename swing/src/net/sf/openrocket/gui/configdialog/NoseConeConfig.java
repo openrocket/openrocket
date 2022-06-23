@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -44,8 +45,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 	// Prepended to the description from NoseCone.DESCRIPTIONS
 	private static final String PREDESC = "<html>";
 	
-	public NoseConeConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public NoseConeConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		final JPanel panel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
 		

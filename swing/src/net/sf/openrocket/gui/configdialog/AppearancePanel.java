@@ -199,8 +199,7 @@ public class AppearancePanel extends JPanel {
 	}
 
 
-	public AppearancePanel(final OpenRocketDocument document,
-			final RocketComponent c) {
+	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
@@ -408,8 +407,6 @@ public class AppearancePanel extends JPanel {
 					handler.setSeparateInsideOutside(customInside.isSelected());
 					edgesText.setEnabled(customInside.isSelected());
 					edgesComboBox.setEnabled(customInside.isSelected());
-					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 					if (customInside.isSelected()) {
 						remove(outsidePanel);
 						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
@@ -421,7 +418,14 @@ public class AppearancePanel extends JPanel {
 						remove(outsideInsidePane);
 						add(outsidePanel, "span 4, growx, wrap");
 					}
-					updateUI();
+					if (parent != null) {
+						parent.pack();
+					} else {
+						updateUI();
+					}
+
+					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
+					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
 
