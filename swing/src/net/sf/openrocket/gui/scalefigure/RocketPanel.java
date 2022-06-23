@@ -819,7 +819,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			sim.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
-					if (updateFlightData(sim)) {
+					if (updateFlightData(sim) && sim.getFlightConfigurationId() == document.getSelectedConfiguration().getFlightConfigurationID()) {
 						// TODO HIGH: this gets updated for every sim run; not necessary...
 						updateFigures();
 					}
@@ -972,8 +972,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			// Only set the flight data information of the current flight configuration
 			extraText.setCalculatingData(false);
-			figure.repaint();
-			figure3d.repaint();
+			if (!is3d)
+				figure.repaint();
+			else
+				figure3d.repaint();
 			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 
 			// Run the new simulation after this one has ended
@@ -1002,8 +1004,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			backgroundSimulationWorker = null;
 			extraText.setFlightData(FlightData.NaN_DATA);
 			extraText.setCalculatingData(false);
-			figure.repaint();
-			figure3d.repaint();
+			if (!is3d)
+				figure.repaint();
+			else
+				figure3d.repaint();
 		}
 	}
 
