@@ -134,8 +134,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 * @return	if the object is a launch stage
 	 */
 	public boolean isLaunchStage(FlightConfiguration config) {
-		return ((this instanceof ParallelStage && config.isStageActive(this.stageNumber))
-				||( getRocket().getBottomCoreStage(config).equals(this)));
+		return (getRocket().getBottomCoreStage(config).equals(this));
 	}
 
 	/**
