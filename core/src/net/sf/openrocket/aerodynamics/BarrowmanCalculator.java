@@ -4,6 +4,7 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,6 +153,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		}
 
 		for( RocketComponent child : comp.getChildren()) {
+			// Ignore inactive stages
+			if (child instanceof AxialStage &&
+					!child.getRocket().getSelectedConfiguration().isStageActive(child.getStageNumber())) {
+				continue;
+			}
 			// forces particular to each component
 			AerodynamicForces childForces = calculateForceAnalysis(conds, child, instances, eachForces, assemblyForces, warnings);
 
