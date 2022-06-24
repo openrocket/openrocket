@@ -340,7 +340,7 @@ public class AppearancePanel extends JPanel {
 
 			fDefault.addEnableComponent(combo, false);
 
-			add(combo, "wrap");
+			add(combo, "growx, wrap");
 		}
 
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
@@ -376,14 +376,14 @@ public class AppearancePanel extends JPanel {
 			JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
 			edgesPanel.add(edgesText);
 			String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
-			JComboBox edgesComboBox = new JComboBox(options);
+			JComboBox<String> edgesComboBox = new JComboBox<>(options);
 			if (handler.isEdgesSameAsInside()) {
 				edgesComboBox.setSelectedItem(trans.get(tr_inside));
 			}
 			else {
 				edgesComboBox.setSelectedItem(trans.get(tr_outside));
 			}
-			edgesPanel.add(edgesComboBox);
+			edgesPanel.add(edgesComboBox, "growx");
 			edgesPanel.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
 			add(edgesPanel, "span 2, wrap");
 
