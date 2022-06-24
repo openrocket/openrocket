@@ -155,7 +155,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		for( RocketComponent child : comp.getChildren()) {
 			// Ignore inactive stages
 			if (child instanceof AxialStage &&
-					!child.getRocket().getSelectedConfiguration().isStageActive(child.getStageNumber())) {
+					!((AxialStage) child).isStageActive()) {
 				continue;
 			}
 			// forces particular to each component
@@ -278,14 +278,28 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	
 	private boolean testIsContinuous( final RocketComponent treeRoot ){
 		Queue<RocketComponent> queue = new LinkedList<>();
-		queue.addAll(treeRoot.getChildren());
+		for (RocketComponent child : treeRoot.getChildren()) {
+			// Ignore inactive stages
+			if (child instanceof AxialStage &&
+					!((AxialStage) child).isStageActive()) {
+				continue;
+			}
+			queue.add(child);
+		}
 		
 		boolean isContinuous = true;
 		SymmetricComponent prevComp = null; 
 		while((isContinuous)&&( null != queue.peek())){
 			RocketComponent comp = queue.poll();
 			if( comp instanceof SymmetricComponent ){
-				queue.addAll( comp.getChildren());
+				for (RocketComponent child : comp.getChildren()) {
+					// Ignore inactive stages
+					if (child instanceof AxialStage &&
+							!((AxialStage) child).isStageActive()) {
+						continue;
+					}
+					queue.add(child);
+				}
 				
 				SymmetricComponent sym = (SymmetricComponent) comp;
 				if( null == prevComp){
