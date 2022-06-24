@@ -172,7 +172,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	 * @return
 	 */
 	public void validate(){
-		if( this.time == Double.NaN ){
+		if(Double.isNaN(this.time)){
 			throw new IllegalStateException(type.name()+" event has a NaN time!");
 		}
 		switch( this.type ){

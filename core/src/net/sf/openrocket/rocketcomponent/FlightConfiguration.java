@@ -60,8 +60,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/* Cached data */
-	final protected HashMap<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
-	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
+	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	
@@ -190,7 +190,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
 	 */
-	private void _setStageActive(final int stageNumber, final boolean _active ) {
+	public void _setStageActive(final int stageNumber, final boolean _active ) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
 			fireChangeEvent();
@@ -337,6 +337,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 
 		return results;
+	}
+
+	/**
+	 * Return all the stages in this configuration.
+	 * @return all the stages in this configuration.
+	 */
+	public List<AxialStage> getAllStages() {
+		List<AxialStage> stages = new ArrayList<>();
+		for (StageFlags flags : this.stages.values()) {
+			stages.add( rocket.getStage(flags.stageNumber));
+		}
+		return stages;
 	}
 	
 	public List<AxialStage> getActiveStages() {

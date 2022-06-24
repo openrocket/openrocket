@@ -295,8 +295,8 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config.toggleStage(0);
 		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
 		
-		AxialStage sustainer = rkt.getTopmostStage();
-		AxialStage booster = rkt.getBottomCoreStage();
+		AxialStage sustainer = rkt.getTopmostStage(config);
+		AxialStage booster = rkt.getBottomCoreStage(config);
 		assertThat(" sustainer stage is stage #0: ", sustainer.getStageNumber(), equalTo(0));
 		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
 		

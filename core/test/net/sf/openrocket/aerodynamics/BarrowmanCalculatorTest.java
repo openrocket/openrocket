@@ -267,22 +267,25 @@ public class BarrowmanCalculatorTest {
 	public void testContinuousRocket() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		
-		assertTrue("Estes Alpha III should be continous: ", calc.isContinuous( rocket));
+		assertTrue("Estes Alpha III should be continous: ", calc.isContinuous(configuration, rocket));
 	}
 	
 	@Test
 	public void testContinuousRocketWithStrapOns() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		
-		assertTrue("F9H should be continuous: ", calc.isContinuous( rocket));
+		assertTrue("F9H should be continuous: ", calc.isContinuous(configuration, rocket));
 	}
 	
 	@Test
 	public void testRadialDiscontinuousRocket() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		
 		NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
 		BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
@@ -291,13 +294,14 @@ public class BarrowmanCalculatorTest {
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
 		
-		assertFalse(" Estes Alpha III has an undetected discontinuity:", calc.isContinuous( rocket));
+		assertFalse(" Estes Alpha III has an undetected discontinuity:", calc.isContinuous(configuration, rocket));
 	}
 	
 	@Test
 	public void testRadialDiscontinuityWithStrapOns() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		
 		final AxialStage coreStage = (AxialStage)rocket.getChild(1);
 		final ParallelStage booster = (ParallelStage)coreStage.getChild(0).getChild(0);
@@ -309,7 +313,7 @@ public class BarrowmanCalculatorTest {
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
 		
-		assertFalse(" Missed discontinuity in Falcon 9 Heavy:", calc.isContinuous( rocket));
+		assertFalse(" Missed discontinuity in Falcon 9 Heavy:", calc.isContinuous(configuration, rocket));
 	}
 
 	@Test
