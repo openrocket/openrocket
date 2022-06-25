@@ -364,7 +364,6 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		selected.clearAllStages();
 		selected.toggleStage(1);
-		selected.toggleStage(2);
 
 		// vvvv Test Target vvvv
 		InstanceMap instances = selected.getActiveInstances();
