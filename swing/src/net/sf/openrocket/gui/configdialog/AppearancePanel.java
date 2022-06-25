@@ -406,6 +406,9 @@ public class AppearancePanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					handler.setSeparateInsideOutside(customInside.isSelected());
+					edgesText.setEnabled(customInside.isSelected());
+					edgesComboBox.setEnabled(customInside.isSelected());
+					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 					if (customInside.isSelected()) {
 						remove(outsidePanel);
@@ -418,8 +421,6 @@ public class AppearancePanel extends JPanel {
 						remove(outsideInsidePane);
 						add(outsidePanel, "span 4, growx, wrap");
 					}
-					edgesText.setEnabled(customInside.isSelected());
-					edgesComboBox.setEnabled(customInside.isSelected());
 					updateUI();
 				}
 			});
@@ -438,7 +439,9 @@ public class AppearancePanel extends JPanel {
 					else {
 						return;
 					}
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+					if (e != null) {	// When e == null, you just want an update of the UI components, not a component change
+						c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+					}
 				}
 			});
 

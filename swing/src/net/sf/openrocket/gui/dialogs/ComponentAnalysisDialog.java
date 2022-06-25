@@ -674,7 +674,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 				// A drag coefficient
 				double cd = (Double) value;
-				this.setText(String.format("%.2f (%.0f%%)", cd, 100 * cd / totalCD));
+				this.setText(String.format("%.3f (%.0f%%)", cd, 100 * cd / totalCD));
 
 				float r = (float) (cd / 1.5);
 
