@@ -629,7 +629,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 					double radius = 0;
 					final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
-					if (prevComponent != null)
+					if (prevComponent != null && configuration.isComponentActive(prevComponent))
 						radius = prevComponent.getAftRadius();
 					
 					if (radius < s.getForeRadius()) {
@@ -690,7 +690,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				// its aft CD
 				double radius = 0;
 				final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
-				if (prevComponent != null) {
+				if (prevComponent != null && configuration.isComponentActive(prevComponent)) {
 					radius = prevComponent.getAftRadius();
 				}
 				
