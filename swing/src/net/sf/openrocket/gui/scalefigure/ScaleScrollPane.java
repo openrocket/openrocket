@@ -61,6 +61,7 @@ public class ScaleScrollPane extends JScrollPane
 
 	// is the subject *currently* being fitting
 	protected boolean fit = false;
+	private boolean figureRescaled = false;	// has the figure been rescaled since the last figure.scaleTo()
 
 	// magic number.  I don't know why this number works, but this nudges the figures to zoom correctly.
     // n.b. it is slightly large than the ruler.width + scrollbar.width
@@ -114,7 +115,7 @@ public class ScaleScrollPane extends JScrollPane
 			verticalRuler.updateSize();
 			if(fit) {
 				final java.awt.Dimension calculatedViewSize = new java.awt.Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
-				figure.scaleTo(calculatedViewSize);
+				figureRescaled = figure.scaleTo(calculatedViewSize);
 			}
 		});
 		figure.addComponentListener(this);
@@ -143,7 +144,7 @@ public class ScaleScrollPane extends JScrollPane
 
 		if (shouldFit) {
 			final Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
-			figure.scaleTo(calculatedViewSize);
+			figureRescaled = figure.scaleTo(calculatedViewSize);
 
 			revalidate();
 		}
@@ -166,7 +167,7 @@ public class ScaleScrollPane extends JScrollPane
 		// if explicitly setting a zoom level, turn off fitting
 		this.fit = false;
 		Dimension view = viewport.getExtentSize();
-		figure.scaleTo(newScale, view);
+		figureRescaled = figure.scaleTo(newScale, view);
 
 		revalidate();
 	}
@@ -253,12 +254,16 @@ public class ScaleScrollPane extends JScrollPane
 	public void componentResized(ComponentEvent e) {
 		if(fit) {
 			final Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
-			figure.scaleTo(calculatedViewSize);
+			figureRescaled = figure.scaleTo(calculatedViewSize);
 
 			final Point zoomPoint = figure.getAutoZoomPoint();
 			final Rectangle zoomRectangle = new Rectangle(zoomPoint.x, zoomPoint.y, viewport.getWidth(), viewport.getHeight() );
 			figure.scrollRectToVisible(zoomRectangle);
 		}else{
+			// Always recenter the viewport if the user has zoomed in or out.
+			if (!figureRescaled) {
+				return;
+			}
 			final Rectangle scrollRectangle = viewport.getViewRect();
 			scrollRectangle.x = (int)(viewCenter_frac.x * figure.getWidth()) - (scrollRectangle.width/2);
 			scrollRectangle.y = (int)(viewCenter_frac.y * figure.getHeight()) - (scrollRectangle.height/2);
@@ -270,6 +275,7 @@ public class ScaleScrollPane extends JScrollPane
 		revalidate();
 		horizontalRuler.updateSize();
 		verticalRuler.updateSize();
+		figureRescaled = false;
 	}
 
 	@Override
