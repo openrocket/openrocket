@@ -193,6 +193,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void _setStageActive(final int stageNumber, final boolean _active ) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
+			// Set the active state of all the sub-stages as well.
+			for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
+				stages.get(stage.getStageNumber()).active = _active;
+			}
 			fireChangeEvent();
 			return;
 		}
@@ -204,6 +208,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			StageFlags flags = stages.get(stageNumber);
 			flags.active = !flags.active;
+			// Set the active state of all the sub-stages as well.
+			for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
+				stages.get(stage.getStageNumber()).active = flags.active;
+			}
 			updateMotors();
 			updateActiveInstances();
 			
