@@ -98,7 +98,7 @@
 			<zipfileset src="${core.dir}/lib/guava-26.0-jre.jar" />
 			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
-			<zipfileset src="${core.dir}/lib/commonmark-0.18.1.jar"/>
+			<zipfileset src="${core.dir}/lib/commonmark-0.19.0.jar"/>
 			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-runtime.jar"/>
@@ -114,9 +114,9 @@
 			<zipfileset src="${core.dir}/lib/opencsv-4.3.2.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>
-			<zipfileset src="${core.dir}/lib/logback-classic-1.2.3.jar"/>
-			<zipfileset src="${core.dir}/lib/logback-core-1.2.3.jar"/>
-			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
+			<zipfileset src="${core.dir}/lib/logback-classic-1.2.11.jar"/>
+			<zipfileset src="${core.dir}/lib/logback-core-1.2.11.jar"/>
+			<zipfileset src="${lib.dir}/rsyntaxtextarea-3.2.0.jar"/>
 
 			<!-- JOGL libraries need to be jar-in-jar -->
 			<zipfileset dir="${lib.dir}/jogl" prefix="lib">

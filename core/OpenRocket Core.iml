@@ -209,7 +209,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/logback-classic-1.2.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/logback-classic-1.2.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -218,7 +218,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/logback-core-1.2.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/logback-core-1.2.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -253,9 +253,9 @@
     </orderEntry>
     <orderEntry type="module-library">
       <library name="commonmark" type="repository">
-        <properties maven-id="org.commonmark:commonmark:0.18.1" />
+        <properties maven-id="org.commonmark:commonmark:0.19.0" />
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commonmark-0.18.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commonmark-0.19.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

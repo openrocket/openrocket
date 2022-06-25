@@ -15,17 +15,17 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/commonmark-0.18.1.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/commonmark-0.19.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/resources"/>
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/miglayout-4.0-swing.jar" sourcepath="reference/miglayout-4.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea-3.2.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/test-plugin.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.5.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-4.2.3-no_aop.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-classic-1.2.3.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-core-1.2.3.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-classic-1.2.11.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/logback-core-1.2.11.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-2.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-2.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/opencsv-4.3.2.jar"/>
