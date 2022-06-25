@@ -748,6 +748,14 @@ public class Rocket extends ComponentAssembly {
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
         return nextConfig.getFlightConfigurationID();
 	}
+
+	/**
+	 * Return all the flight configurations of this rocket.
+	 * @return all the flight configurations of this rocket.
+	 */
+	public FlightConfigurableParameterSet<FlightConfiguration> getFlightConfigurations() {
+		return this.configSet;
+	}
 	
 	
 	/**

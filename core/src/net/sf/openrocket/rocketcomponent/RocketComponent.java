@@ -1545,6 +1545,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				AxialStage stage = (AxialStage) component;
 				this.getRocket().forgetStage(stage);
 			}
+
+			// Remove sub-stages of the removed component
+			for (AxialStage stage : component.getSubStages()) {
+				this.getRocket().forgetStage(stage);
+			}
 			
 			this.checkComponentStructure();
 			component.checkComponentStructure();

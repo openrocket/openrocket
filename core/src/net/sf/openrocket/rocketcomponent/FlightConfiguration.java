@@ -60,7 +60,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/* Cached data */
-	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
+	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();	// Map of stage number to StageFlags of the corresponding stage
 	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
