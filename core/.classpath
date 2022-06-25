@@ -24,11 +24,11 @@
 	<classpathentry kind="lib" path="lib/logback-classic-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-4.3.2.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-library-1.3.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-2.9.0.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-junit4-2.9.0.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Test Libraries/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-2.2.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-2.2.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-2.12.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-junit4-2.12.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Test Libraries/junit-4.13.2.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-api.2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-runtime.2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-26.0-jre.jar"/>
