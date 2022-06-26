@@ -142,6 +142,7 @@ public class BasicFrame extends JFrame {
 	private SimulationPanel simulationPanel;
 
 	public static BasicFrame lastFrameInstance = null;		// Latest BasicFrame that was created
+	private static boolean quitCalled = false;				// Keeps track whether the quit action has been called
 
 
 	/**
@@ -1784,12 +1785,15 @@ public class BasicFrame extends JFrame {
 	 * Quit the application.  Confirms saving unsaved designs.  The action of File->Quit.
 	 */
 	public static void quitAction() {
+		if (quitCalled) return;
+		quitCalled = true;
 		log.info("Quit action initiated");
 		for (int i = frames.size() - 1; i >= 0; i--) {
 			log.debug("Closing frame " + frames.get(i));
 			if (!frames.get(i).closeAction()) {
 				// Close canceled
 				log.info("Quit was cancelled");
+				quitCalled = false;
 				return;
 			}
 		}
