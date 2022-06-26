@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.configdialog;
 
 
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -29,8 +30,8 @@ public class BodyTubeConfig extends RocketComponentConfig {
 	private final JCheckBox checkAutoOuterRadius;
 	private static final Translator trans = Application.getTranslator();
 
-	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 

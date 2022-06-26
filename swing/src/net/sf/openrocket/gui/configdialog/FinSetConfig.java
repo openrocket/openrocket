@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -52,8 +53,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	
 	private JButton split = null;
 	
-	public FinSetConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public FinSetConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 		
 		//// Fin tabs and Through-the-wall fin tabs
 		tabbedPane.insertTab(trans.get("FinSetConfig.tab.Fintabs"), null, finTabPanel(),

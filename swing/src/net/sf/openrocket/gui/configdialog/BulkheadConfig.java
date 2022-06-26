@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -14,8 +15,8 @@ import net.sf.openrocket.startup.Application;
 public class BulkheadConfig extends RingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public BulkheadConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public BulkheadConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		JPanel tab;
 		

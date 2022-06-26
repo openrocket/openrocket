@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -26,8 +27,8 @@ public class RailButtonConfig extends RocketComponentConfig {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	public RailButtonConfig( OpenRocketDocument document, RocketComponent component) {
-		super(document, component);
+	public RailButtonConfig( OpenRocketDocument document, RocketComponent component, JDialog parent) {
+		super(document, component, parent);
 	
 		// For DEBUG purposes
 //		if( component instanceof AxialStage ){

@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.configdialog;
 
 
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -28,8 +29,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	public LaunchLugConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public LaunchLugConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		JPanel primary = new JPanel(new MigLayout("fill"));
 		

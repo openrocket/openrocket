@@ -27,8 +27,8 @@ import java.awt.event.ActionListener;
 public class ShockCordConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public ShockCordConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public ShockCordConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 
 		JLabel label;
 		DoubleModel m;

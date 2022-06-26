@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -28,8 +29,8 @@ public class RocketConfig extends RocketComponentConfig {
 	
 	private final Rocket rocket;
 	
-	public RocketConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public RocketConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		rocket = (Rocket) c;
 		

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.EventObject;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -29,8 +30,8 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 	private static final long serialVersionUID = 508482875624928676L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public TubeFinSetConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public TubeFinSetConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		JPanel primary = new JPanel(new MigLayout("fill"));
 		

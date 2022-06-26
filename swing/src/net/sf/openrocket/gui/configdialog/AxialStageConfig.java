@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -24,8 +25,8 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 	private static final long serialVersionUID = -944969957186522471L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public AxialStageConfig(OpenRocketDocument document, RocketComponent component) {
-		super(document, component);
+	public AxialStageConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
+		super(document, component, parent);
 		
 		// Stage separation config (for non-first stage)
 		if (component.getStageNumber() > 0) {

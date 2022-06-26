@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -59,8 +60,8 @@ public class InnerTubeConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 
 
-	public InnerTubeConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public InnerTubeConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 
 		//// General and General properties
 		JPanel rightPanel = new JPanel(new MigLayout());

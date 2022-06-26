@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -82,8 +83,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private FinPointFigure figure = null;
 	private ScaleSelector selector;
 	
-	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 		
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("FreeformFinSetCfg.tab.General"), null, generalPane(), trans.get("FreeformFinSetCfg.tab.ttip.General"), 0);
