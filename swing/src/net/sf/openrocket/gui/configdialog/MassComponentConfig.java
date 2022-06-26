@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -31,8 +32,8 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class MassComponentConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public MassComponentConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public MassComponentConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 
 		//// Left side
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));

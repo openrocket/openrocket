@@ -143,14 +143,14 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		List<RocketComponent> listeners = component.getConfigListeners();
 		boolean isSameClass = component.checkAllClassesEqual(listeners);
 		if (!isSameClass) {
-			return new RocketComponentConfig(document, component);
+			return new RocketComponentConfig(document, component, this);
 		}
 
 		Constructor<? extends RocketComponentConfig> constructor =
 				findDialogContentsConstructor(component);
 		if (constructor != null) {
 			try {
-				return constructor.newInstance(document, component);
+				return constructor.newInstance(document, component, this);
 			} catch (InstantiationException | IllegalAccessException e) {
 				throw new BugException("BUG in constructor reflection", e);
 			} catch (InvocationTargetException e) {
@@ -208,7 +208,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			try {
 				configclass = Class.forName(configclassname);
 				c = (Constructor<? extends RocketComponentConfig>)
-						configclass.getConstructor(OpenRocketDocument.class, RocketComponent.class);
+						configclass.getConstructor(OpenRocketDocument.class, RocketComponent.class, JDialog.class);
 				return c;
 			} catch (Exception ignore) {
 			}

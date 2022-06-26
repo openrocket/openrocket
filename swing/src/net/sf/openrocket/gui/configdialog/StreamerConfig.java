@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -36,8 +37,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	private static final long serialVersionUID = -4445736703470494588L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public StreamerConfig(OpenRocketDocument d, final RocketComponent component) {
-		super(d, component);
+	public StreamerConfig(OpenRocketDocument d, final RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 		Streamer streamer = (Streamer) component;
 
 		//	Left side

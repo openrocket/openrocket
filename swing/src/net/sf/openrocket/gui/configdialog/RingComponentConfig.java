@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -27,8 +28,8 @@ import net.sf.openrocket.unit.UnitGroup;
 public class RingComponentConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public RingComponentConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public RingComponentConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 	}
 	
 	

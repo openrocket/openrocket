@@ -71,7 +71,6 @@ public class AboutDialog extends JDialog {
 		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
-		"yasson" + href("https://eclipse-ee4j.github.io/yasson", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +

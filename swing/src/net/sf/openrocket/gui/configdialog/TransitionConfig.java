@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -46,8 +47,8 @@ public class TransitionConfig extends RocketComponentConfig {
 	private static final String PREDESC = "<html>";
 	
 	
-	public TransitionConfig(OpenRocketDocument d, RocketComponent c) {
-		super(d, c);
+	public TransitionConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
+		super(d, c, parent);
 		
 		final JPanel panel = new JPanel(new MigLayout("gap rel unrel, fillx", "[][65lp::][30lp::]", ""));
 

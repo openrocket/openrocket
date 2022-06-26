@@ -19,7 +19,7 @@
     <libelement value="file://$MODULE_DIR$/resources" />
     <libelement value="jar://$MODULE_DIR$/../core/lib/annotation-detector-3.0.2.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/miglayout-4.0-swing.jar!/" />
-    <libelement value="jar://$MODULE_DIR$/lib/rsyntaxtextarea-2.5.6.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/rsyntaxtextarea-3.2.0.jar!/" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
     </src_description>
@@ -38,7 +38,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-core-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-core-2.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -47,7 +47,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-library-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib-test/hamcrest-2.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -56,7 +56,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib-test/jmock-2.9.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-2.12.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -65,16 +65,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.9.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib-test/junit-4.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib-test/jmock-junit4-2.12.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -89,10 +80,10 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="iText-5.0.2.jar">
+    <orderEntry type="module-library" scope="TEST">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/iText-5.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib-test/junit-4.13.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -164,9 +155,9 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="rsyntaxtextarea-2.5.6.jar">
+      <library name="rsyntaxtextarea-3.2.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/rsyntaxtextarea-2.5.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/rsyntaxtextarea-3.2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -184,7 +175,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/logback-classic-1.2.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../core/lib/logback-classic-1.2.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -193,7 +184,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../core/lib/logback-core-1.2.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../core/lib/logback-core-1.2.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -240,6 +231,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../core/lib/guice-4.2.3-no_aop.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="iText-5.0.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/iText-5.0.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

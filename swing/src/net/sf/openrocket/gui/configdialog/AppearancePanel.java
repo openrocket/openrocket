@@ -199,8 +199,7 @@ public class AppearancePanel extends JPanel {
 	}
 
 
-	public AppearancePanel(final OpenRocketDocument document,
-			final RocketComponent c) {
+	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
@@ -341,7 +340,7 @@ public class AppearancePanel extends JPanel {
 
 			fDefault.addEnableComponent(combo, false);
 
-			add(combo, "wrap");
+			add(combo, "growx, wrap");
 		}
 
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
@@ -373,20 +372,19 @@ public class AppearancePanel extends JPanel {
 			add(customInside, "span 2");
 
 			// Checkbox to set edges the same as inside/outside
-			JPanel edgesPanel = new JPanel(new MigLayout());
 			JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
-			edgesPanel.add(edgesText);
+			add(edgesText);
 			String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
-			JComboBox edgesComboBox = new JComboBox(options);
+			JComboBox<String> edgesComboBox = new JComboBox<>(options);
 			if (handler.isEdgesSameAsInside()) {
 				edgesComboBox.setSelectedItem(trans.get(tr_inside));
 			}
 			else {
 				edgesComboBox.setSelectedItem(trans.get(tr_outside));
 			}
-			edgesPanel.add(edgesComboBox);
-			edgesPanel.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
-			add(edgesPanel, "span 2, wrap");
+			add(edgesComboBox, "growx, left, wrap");
+			edgesText.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
+			edgesComboBox.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
 
 			outsideInsidePane = new JTabbedPane();
 			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
@@ -408,8 +406,6 @@ public class AppearancePanel extends JPanel {
 					handler.setSeparateInsideOutside(customInside.isSelected());
 					edgesText.setEnabled(customInside.isSelected());
 					edgesComboBox.setEnabled(customInside.isSelected());
-					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 					if (customInside.isSelected()) {
 						remove(outsidePanel);
 						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
@@ -421,7 +417,14 @@ public class AppearancePanel extends JPanel {
 						remove(outsideInsidePane);
 						add(outsidePanel, "span 4, growx, wrap");
 					}
-					updateUI();
+					if (parent != null) {
+						parent.pack();
+					} else {
+						updateUI();
+					}
+
+					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
+					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			});
 

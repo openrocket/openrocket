@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
@@ -17,8 +18,8 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 	
 	protected final List<JComponent> altitudeComponents = new ArrayList<JComponent>();
 	
-	public RecoveryDeviceConfig(OpenRocketDocument d, RocketComponent component) {
-		super(d, component);
+	public RecoveryDeviceConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
+		super(d, component, parent);
 	}
 	
 	
