@@ -372,9 +372,8 @@ public class AppearancePanel extends JPanel {
 			add(customInside, "span 2");
 
 			// Checkbox to set edges the same as inside/outside
-			JPanel edgesPanel = new JPanel(new MigLayout());
 			JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
-			edgesPanel.add(edgesText);
+			add(edgesText);
 			String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
 			JComboBox<String> edgesComboBox = new JComboBox<>(options);
 			if (handler.isEdgesSameAsInside()) {
@@ -383,9 +382,9 @@ public class AppearancePanel extends JPanel {
 			else {
 				edgesComboBox.setSelectedItem(trans.get(tr_outside));
 			}
-			edgesPanel.add(edgesComboBox, "growx");
-			edgesPanel.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
-			add(edgesPanel, "span 2, wrap");
+			add(edgesComboBox, "growx, left, wrap");
+			edgesText.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
+			edgesComboBox.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
 
 			outsideInsidePane = new JTabbedPane();
 			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
