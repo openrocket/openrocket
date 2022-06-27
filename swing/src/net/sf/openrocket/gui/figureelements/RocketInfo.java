@@ -41,7 +41,7 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private final UnitGroup stabilityUnits;
+	private UnitGroup stabilityUnits;
 	
 	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
@@ -459,5 +459,6 @@ public class RocketInfo implements FigureElement {
 	
 	public void setCurrentConfig(FlightConfiguration newConfig) {
 		this.configuration = newConfig;
+		this.stabilityUnits = UnitGroup.stabilityUnits(newConfig);
 	}
 }
