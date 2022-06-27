@@ -1,9 +1,12 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -27,6 +30,7 @@ import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
@@ -170,6 +174,30 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		return separationTable;
 	}
 
+	@Override
+	protected void installTableListener() {
+		super.installTableListener();
+
+		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				updateComponentSelection(e);
+			}
+		});
+
+		table.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+
+			}
+		});
+	}
+
 	public void selectSeparation() {
 		List<AxialStage> stages = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
@@ -246,6 +274,16 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 
 	private void doPopupFull(MouseEvent e) {
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	public void updateComponentSelection(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			return;
+		}
+		List<RocketComponent> components = new ArrayList<>(getSelectedComponents());
+		if (components.size() == 0) return;
+
+		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
 	public void updateButtonState() {
