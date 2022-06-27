@@ -277,7 +277,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	}
 
 	public void updateComponentSelection(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
 			return;
 		}
 		List<RocketComponent> components = new ArrayList<>(getSelectedComponents());

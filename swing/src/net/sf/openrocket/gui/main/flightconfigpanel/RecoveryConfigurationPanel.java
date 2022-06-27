@@ -267,7 +267,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	}
 
 	public void updateComponentSelection(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
 			return;
 		}
 		List<RocketComponent> components = new ArrayList<>(getSelectedComponents());
