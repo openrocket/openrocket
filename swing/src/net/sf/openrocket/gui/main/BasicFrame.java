@@ -74,6 +74,7 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -294,7 +295,30 @@ public class BasicFrame extends JFrame {
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
 
+		// Visually select all child components of a stage/rocket/podset when it is selected
+		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				TreePath selPath = e.getNewLeadSelectionPath();
+				if (selPath == null) return;
+				RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
 
+				if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
+					if (rocketpanel == null) return;
+
+					List<RocketComponent> children = new LinkedList<>();
+					for (RocketComponent child : c) {
+						children.add(child);
+					}
+
+					// Select all the child components
+					if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
+						rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
+						rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
+					}
+				}
+			}
+		});
 
 		// Double-click opens config dialog
 		MouseListener ml = new MouseAdapter() {
