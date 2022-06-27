@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -300,23 +301,28 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				TreePath selPath = e.getNewLeadSelectionPath();
-				if (selPath == null) return;
-				RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
+				if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
+						|| rocketpanel == null) return;
 
-				if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
-					if (rocketpanel == null) return;
-
-					List<RocketComponent> children = new LinkedList<>();
-					for (RocketComponent child : c) {
-						children.add(child);
+				// Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
+				List<RocketComponent> children = new ArrayList<>(Arrays.asList(rocketpanel.getFigure().getSelection()));
+				for (TreePath p : tree.getSelectionPaths()) {
+					if (p != null) {
+						RocketComponent c = (RocketComponent) p.getLastPathComponent();
+						if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
+							Iterator<RocketComponent> iter = c.iterator(false);
+							while (iter.hasNext()) {
+								RocketComponent child = iter.next();
+								children.add(child);
+							}
+						}
 					}
+				}
 
-					// Select all the child components
-					if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
-						rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
-						rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
-					}
+				// Select all the child components
+				if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
+					rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
+					rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
 				}
 			}
 		});
