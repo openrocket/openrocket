@@ -390,10 +390,12 @@ public class Rocket extends ComponentAssembly {
 		this.stageMap = r.stageMap;		
 
 		// these flight configurations need to reference the _this_ Rocket:
+		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
 		for (FlightConfigurationId key : r.configSet.map.keySet()) {
 			this.configSet.set(key, new FlightConfiguration(this, key));
 		}
+		this.selectedConfiguration = this.configSet.get(r.getSelectedConfiguration().getId());
 
 		this.perfectFinish = r.perfectFinish;
 		
