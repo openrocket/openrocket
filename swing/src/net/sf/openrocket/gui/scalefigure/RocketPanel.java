@@ -421,6 +421,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		return figure;
 	}
 
+	public RocketFigure3d getFigure3d() {
+		return figure3d;
+	}
+
 	public AerodynamicCalculator getAerodynamicCalculator() {
 		return aerodynamicCalculator;
 	}
