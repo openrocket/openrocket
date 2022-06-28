@@ -29,8 +29,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String NONE_SELECTED = trans.get("lbl.select");
-	private static final String SELECT_DATABASE = trans.get("lbl.database");
+	private static final String NONE_SELECTED = String.format("<html><i>%s</i></html>", trans.get("lbl.nopreset"));
 	
 	private final Component parent;
 	private final RocketComponent component;
@@ -50,16 +49,13 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	@Override
 	public int getSize() {
-		return presets.size() + 2;
+		return presets.size() + 1;
 	}
 	
 	@Override
 	public Object getElementAt(int index) {
 		if (index == 0) {
 			return NONE_SELECTED;
-		}
-		if (index == getSize() - 1) {
-			return SELECT_DATABASE;
 		}
 		return presets.get(index - 1);
 	}
@@ -72,21 +68,6 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 			throw new BugException("item is null");
 		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
-		} else if (item.equals(SELECT_DATABASE)) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(PresetModel.this);
-					ComponentPresetChooserDialog dialog =
-							new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(parent), component);
-					dialog.setVisible(true);
-					ComponentPreset preset = dialog.getSelectedComponentPreset();
-					if (preset != null) {
-						setSelectedItem(preset);
-					}
-					((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(PresetModel.this);
-				}
-			});
 		} else {
 			document.addUndoPosition("Use Preset " + component.getComponentName());
 			component.loadPreset((ComponentPreset) item);
