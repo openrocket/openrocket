@@ -119,7 +119,7 @@ public class RocketComponentConfig extends JPanel {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
 			presetComboBox = new JComboBox(presetModel);
-			presetComboBox.setMaximumRowCount(20);
+			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
 			this.add(presetComboBox);
 
