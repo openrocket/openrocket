@@ -99,6 +99,11 @@
 			<zipfileset src="${core.dir}/lib/guice-4.2.3-no_aop.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/commonmark-0.19.0.jar"/>
+			<zipfileset src="${core.dir}/lib/icu4j-71.1.jar"/>
+			<zipfileset src="${core.dir}/lib/js-22.1.0.1.jar"/>
+			<zipfileset src="${core.dir}/lib/graal-sdk-22.1.0.1.jar"/>
+			<zipfileset src="${core.dir}/lib/js-scriptengine-22.1.0.1.jar"/>
+			<zipfileset src="${core.dir}/lib/truffle-api-22.1.0.1.jar"/>
 			<zipfileset src="${core.dir}/lib/script-api-1.0.jar"/>
 			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
 			<zipfileset src="${core.dir}/lib/istack-commons-runtime.jar"/>

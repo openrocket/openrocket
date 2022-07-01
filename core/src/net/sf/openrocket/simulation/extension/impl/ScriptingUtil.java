@@ -10,8 +10,8 @@ import java.util.prefs.BackingStoreException;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 
+import net.sf.openrocket.scripting.ScriptEngineManagerRedux;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -22,22 +22,28 @@ import com.google.inject.Inject;
  * Utility class used by the scripting extension and its configurator.
  */
 public class ScriptingUtil {
-	
 	static final String NODE_ID = ScriptingExtension.class.getCanonicalName();
 	
-	private static final List<String> DEFAULT_TRUSTED_HASHES = Arrays.asList(
+	private static final List<String> DEFAULT_TRUSTED_HASHES = List.of(
 			// Roll control script in roll control example file:
 			"SHA-256:9bf364ce4d4a75f09b29178bf9d6872b232084f73dae20dc7b5b073e54e95a42"
-			);
+	);
 	
 	/** The name to be chosen from a list of alternatives.  If not found, will use the default name. */
-	private static final List<String> PREFERRED_LANGUAGE_NAMES = Arrays.asList("JavaScript");
+	private static final List<String> PREFERRED_LANGUAGE_NAMES = List.of("JavaScript");
 	
 	@Inject
 	Preferences prefs;
 	
-	
-	
+	private static ScriptEngineManagerRedux manager;
+
+	public ScriptingUtil() {
+		if (manager == null) {
+			// using the ScriptEngineManger from javax.script package pulls in the sun.misc.ServiceConfigurationError 
+			// which is removed in Java 9+ which causes a ClassNotFoundException to be thrown.
+			manager = new ScriptEngineManagerRedux();
+		}
+	}
 	
 	/**
 	 * Return the preferred internal language name based on a script language name.
@@ -48,25 +54,25 @@ public class ScriptingUtil {
 		if (language == null) {
 			return null;
 		}
-		
-		ScriptEngineManager manager = new ScriptEngineManager();
+
 		ScriptEngine engine = manager.getEngineByName(language);
 		if (engine == null) {
 			return null;
 		}
 		return getLanguage(engine.getFactory());
 	}
-	
-	
+
+	public ScriptEngine getEngineByName(String shortName) {
+		return manager.getEngineByName(shortName);
+	}
+
 	public List<String> getLanguages() {
-		List<String> langs = new ArrayList<String>();
-		ScriptEngineManager manager = new ScriptEngineManager();
+		List<String> langs = new ArrayList<>();
 		for (ScriptEngineFactory factory : manager.getEngineFactories()) {
 			langs.add(getLanguage(factory));
 		}
 		return langs;
 	}
-	
 	
 	private String getLanguage(ScriptEngineFactory factory) {
 		for (String name : factory.getNames()) {
@@ -77,8 +83,6 @@ public class ScriptingUtil {
 		
 		return factory.getLanguageName();
 	}
-	
-	
 	
 	/**
 	 * Test whether the user has indicated this script to be trusted,
@@ -123,7 +127,6 @@ public class ScriptingUtil {
 		}
 	}
 	
-	
 	static String normalize(String script) {
 		return script.replaceAll("\r", "").trim();
 	}
@@ -132,10 +135,8 @@ public class ScriptingUtil {
 		/*
 		 * NOTE:  Hash length must be max 80 chars, the max length of a key in a Properties object.
 		 */
-		
 		String output;
 		MessageDigest digest;
-		
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
 			digest.update(language.getBytes(StandardCharsets.UTF_8));
@@ -152,5 +153,4 @@ public class ScriptingUtil {
 
 		return digest.getAlgorithm() + ":" + output;
 	}
-	
 }
