@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 
@@ -12,6 +11,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
 import net.sf.openrocket.scripting.ScriptEngineManagerRedux;
+import net.sf.openrocket.scripting.GraalJSScriptEngineFactory;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -31,18 +31,24 @@ public class ScriptingUtil {
 	
 	/** The name to be chosen from a list of alternatives.  If not found, will use the default name. */
 	private static final List<String> PREFERRED_LANGUAGE_NAMES = List.of("JavaScript");
+
+	private static ScriptEngineManagerRedux manager;
 	
 	@Inject
 	Preferences prefs;
-	
-	private static ScriptEngineManagerRedux manager;
 
 	public ScriptingUtil() {
 		if (manager == null) {
 			// using the ScriptEngineManger from javax.script package pulls in the sun.misc.ServiceConfigurationError 
 			// which is removed in Java 9+ which causes a ClassNotFoundException to be thrown.
 			manager = new ScriptEngineManagerRedux();
+
+			manager.registerEngineName("Javascript", new GraalJSScriptEngineFactory());
 		}
+	}
+
+	public ScriptEngine getEngineByName(String shortName) {
+		return manager.getEngineByName(shortName);
 	}
 	
 	/**
@@ -59,29 +65,16 @@ public class ScriptingUtil {
 		if (engine == null) {
 			return null;
 		}
-		return getLanguage(engine.getFactory());
-	}
 
-	public ScriptEngine getEngineByName(String shortName) {
-		return manager.getEngineByName(shortName);
+		return getLanguageByFactory(engine.getFactory());
 	}
 
 	public List<String> getLanguages() {
-		List<String> langs = new ArrayList<>();
+		List<String> languages = new ArrayList<>();
 		for (ScriptEngineFactory factory : manager.getEngineFactories()) {
-			langs.add(getLanguage(factory));
+			languages.add(getLanguageByFactory(factory));
 		}
-		return langs;
-	}
-	
-	private String getLanguage(ScriptEngineFactory factory) {
-		for (String name : factory.getNames()) {
-			if (PREFERRED_LANGUAGE_NAMES.contains(name)) {
-				return name;
-			}
-		}
-		
-		return factory.getLanguageName();
+		return languages;
 	}
 	
 	/**
@@ -125,6 +118,16 @@ public class ScriptingUtil {
 		} catch (BackingStoreException e) {
 			throw new BugException(e);
 		}
+	}
+
+	private String getLanguageByFactory(ScriptEngineFactory factory) {
+		for (String name : factory.getNames()) {
+			if (PREFERRED_LANGUAGE_NAMES.contains(name)) {
+				return name;
+			}
+		}
+
+		return factory.getLanguageName();
 	}
 	
 	static String normalize(String script) {

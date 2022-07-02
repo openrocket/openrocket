@@ -66,8 +66,7 @@ public class ScriptEngineManagerRedux  {
      * @see java.lang.Thread#getContextClassLoader
      */
     public ScriptEngineManagerRedux() {
-        ClassLoader ctxtLoader = Thread.currentThread().getContextClassLoader();
-        init(ctxtLoader);
+        init(Thread.currentThread().getContextClassLoader());
     }
 
     /**
@@ -83,96 +82,13 @@ public class ScriptEngineManagerRedux  {
         init(loader);
     }
 
-    private void init(final ClassLoader loader) {
-        globalScope = new SimpleBindings();
-        engineSpis = new TreeSet<ScriptEngineFactory>(Comparator.comparing(
-                ScriptEngineFactory::getEngineName,
-                Comparator.nullsLast(Comparator.naturalOrder()))
-        );
-        nameAssociations = new HashMap<String, ScriptEngineFactory>();
-        extensionAssociations = new HashMap<String, ScriptEngineFactory>();
-        mimeTypeAssociations = new HashMap<String, ScriptEngineFactory>();
-        initEngines(loader);
-    }
-
-    private ServiceLoader<ScriptEngineFactory> getServiceLoader(final ClassLoader loader) {
-        if (loader != null) {
-            return ServiceLoader.load(ScriptEngineFactory.class, loader);
-        } else {
-            return ServiceLoader.loadInstalled(ScriptEngineFactory.class);
-        }
-    }
-
-    private void initEngines(final ClassLoader loader) {
-        Iterator<ScriptEngineFactory> itr = null;
-        try {
-            ServiceLoader<ScriptEngineFactory> sl = AccessController.doPrivileged(
-                    new PrivilegedAction<ServiceLoader<ScriptEngineFactory>>() {
-                        @Override
-                        public ServiceLoader<ScriptEngineFactory> run() {
-                            return getServiceLoader(loader);
-                        }
-                    });
-
-            itr = sl.iterator();
-        } catch (ServiceConfigurationError err) {
-            // } catch (Exception err) {
-            System.err.println("Can't find ScriptEngineFactory providers: " +
-                    err.getMessage());
-            if (DEBUG) {
-                err.printStackTrace();
-            }
-            // do not throw any exception here. user may want to
-            // manage his/her own factories using this manager
-            // by explicit registratation (by registerXXX) methods.
-            return;
-        }
-
-        try {
-            while (itr.hasNext()) {
-                try {
-                    ScriptEngineFactory fact = itr.next();
-                    engineSpis.add(fact);
-                } catch (ServiceConfigurationError err) {
-                    //   } catch (Exception err) {
-                    System.err.println("ScriptEngineManager providers.next(): "
-                            + err.getMessage());
-                    if (DEBUG) {
-                        err.printStackTrace();
-                    }
-                    // one factory failed, but check other factories...
-                    continue;
-                }
-            }
-        } catch (ServiceConfigurationError err) {
-            //    } catch (Exception err) {
-            System.err.println("ScriptEngineManager providers.hasNext(): "
-                    + err.getMessage());
-            if (DEBUG) {
-                err.printStackTrace();
-            }
-            // do not throw any exception here. user may want to
-            // manage his/her own factories using this manager
-            // by explicit registratation (by registerXXX) methods.
-            return;
-        }
-    }
-
     /**
-     * <code>setBindings</code> stores the specified <code>Bindings</code>
-     * in the <code>globalScope</code> field. ScriptEngineManager sets this
-     * <code>Bindings</code> as global bindings for <code>ScriptEngine</code>
-     * objects created by it.
-     *
-     * @param bindings The specified <code>Bindings</code>
-     * @throws IllegalArgumentException if bindings is null.
+     * Gets the value for the specified key in the Global Scope
+     * @param key The key whose value is to be returned.
+     * @return The value for the specified key.
      */
-    public void setBindings(Bindings bindings) {
-        if (bindings == null) {
-            throw new IllegalArgumentException("Global scope cannot be null.");
-        }
-
-        globalScope = bindings;
+    public Object get(String key) {
+        return _globalScope.get(key);
     }
 
     /**
@@ -183,27 +99,7 @@ public class ScriptEngineManagerRedux  {
      * @return The globalScope field.
      */
     public Bindings getBindings() {
-        return globalScope;
-    }
-
-    /**
-     * Sets the specified key/value pair in the Global Scope.
-     * @param key Key to set
-     * @param value Value to set.
-     * @throws NullPointerException if key is null.
-     * @throws IllegalArgumentException if key is empty string.
-     */
-    public void put(String key, Object value) {
-        globalScope.put(key, value);
-    }
-
-    /**
-     * Gets the value for the specified key in the Global Scope
-     * @param key The key whose value is to be returned.
-     * @return The value for the specified key.
-     */
-    public Object get(String key) {
-        return globalScope.get(key);
+        return _globalScope;
     }
 
     /**
@@ -222,140 +118,46 @@ public class ScriptEngineManagerRedux  {
      * created <code>ScriptEngine</code>.
      * @throws NullPointerException if shortName is null.
      */
-    public ScriptEngine getEngineByName(String shortName) {
-        if (shortName == null) throw new NullPointerException();
-        //look for registered name first
-        Object obj;
-        if (null != (obj = nameAssociations.get(shortName))) {
-            ScriptEngineFactory spi = (ScriptEngineFactory)obj;
-            try {
-                ScriptEngine engine = spi.getScriptEngine();
-                engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                return engine;
-            } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
+    private Map<String, ScriptEngineFactory> _factoriesByName = new HashMap<>();
+    public synchronized ScriptEngine getEngineByName(String shortName) {
+        if (shortName == null) {
+            throw new NullPointerException();
         }
 
-        for (ScriptEngineFactory spi : engineSpis) {
-            List<String> names = null;
-            try {
-                names = spi.getNames();
-            } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
+        String key = shortName.toLowerCase();
+        if (_factoriesByName.containsKey(key)) {
+            return getEngineByFactory(_factoriesByName.get(key));
+        }
 
-            if (names != null) {
-                for (String name : names) {
-                    if (shortName.equals(name)) {
-                        try {
-                            ScriptEngine engine = spi.getScriptEngine();
-                            engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                            return engine;
-                        } catch (Exception exp) {
-                            if (DEBUG) exp.printStackTrace();
-                        }
-                    }
+        // Look for registered name first
+        ScriptEngineFactory factoryNamed;
+        if (null != (factoryNamed = _nameAssociations.get(key))) {
+            try {
+                _factoriesByName.put(key, factoryNamed);
+                return getEngineByFactory(factoryNamed);
+            } catch (Exception exp) {
+                if (DEBUG) {
+                    exp.printStackTrace();
                 }
             }
         }
 
-        return null;
-    }
-
-    /**
-     * Look up and create a <code>ScriptEngine</code> for a given extension.  The algorithm
-     * used by <code>getEngineByName</code> is used except that the search starts
-     * by looking for a <code>ScriptEngineFactory</code> registered to handle the
-     * given extension using <code>registerEngineExtension</code>.
-     * @param extension The given extension
-     * @return The engine to handle scripts with this extension.  Returns <code>null</code>
-     * if not found.
-     * @throws NullPointerException if extension is null.
-     */
-    public ScriptEngine getEngineByExtension(String extension) {
-        if (extension == null) throw new NullPointerException();
-        //look for registered extension first
-        Object obj;
-        if (null != (obj = extensionAssociations.get(extension))) {
-            ScriptEngineFactory spi = (ScriptEngineFactory)obj;
+        Optional<String> factoryName;
+        List<String> names;
+        for (ScriptEngineFactory factory : _scriptEngineFactories) {
             try {
-                ScriptEngine engine = spi.getScriptEngine();
-                engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                return engine;
+                factoryName = factory.getNames().stream().filter(l -> l.equalsIgnoreCase(shortName)).findFirst();
+                if (factoryName.isPresent()) {
+                    _factoriesByName.put(key, factory);
+                   return getEngineByFactory(factory);
+                }
             } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
-        }
-
-        for (ScriptEngineFactory spi : engineSpis) {
-            List<String> exts = null;
-            try {
-                exts = spi.getExtensions();
-            } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
-            if (exts == null) continue;
-            for (String ext : exts) {
-                if (extension.equals(ext)) {
-                    try {
-                        ScriptEngine engine = spi.getScriptEngine();
-                        engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                        return engine;
-                    } catch (Exception exp) {
-                        if (DEBUG) exp.printStackTrace();
-                    }
+                if (DEBUG) {
+                    exp.printStackTrace();
                 }
             }
         }
-        return null;
-    }
 
-    /**
-     * Look up and create a <code>ScriptEngine</code> for a given mime type.  The algorithm
-     * used by <code>getEngineByName</code> is used except that the search starts
-     * by looking for a <code>ScriptEngineFactory</code> registered to handle the
-     * given mime type using <code>registerEngineMimeType</code>.
-     * @param mimeType The given mime type
-     * @return The engine to handle scripts with this mime type.  Returns <code>null</code>
-     * if not found.
-     * @throws NullPointerException if mimeType is null.
-     */
-    public ScriptEngine getEngineByMimeType(String mimeType) {
-        if (mimeType == null) throw new NullPointerException();
-        //look for registered types first
-        Object obj;
-        if (null != (obj = mimeTypeAssociations.get(mimeType))) {
-            ScriptEngineFactory spi = (ScriptEngineFactory)obj;
-            try {
-                ScriptEngine engine = spi.getScriptEngine();
-                engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                return engine;
-            } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
-        }
-
-        for (ScriptEngineFactory spi : engineSpis) {
-            List<String> types = null;
-            try {
-                types = spi.getMimeTypes();
-            } catch (Exception exp) {
-                if (DEBUG) exp.printStackTrace();
-            }
-            if (types == null) continue;
-            for (String type : types) {
-                if (mimeType.equals(type)) {
-                    try {
-                        ScriptEngine engine = spi.getScriptEngine();
-                        engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
-                        return engine;
-                    } catch (Exception exp) {
-                        if (DEBUG) exp.printStackTrace();
-                    }
-                }
-            }
-        }
         return null;
     }
 
@@ -364,12 +166,19 @@ public class ScriptEngineManagerRedux  {
      * found by the discovery mechanism.
      * @return List of all discovered <code>ScriptEngineFactory</code>s.
      */
-    public List<ScriptEngineFactory> getEngineFactories() {
-        List<ScriptEngineFactory> res = new ArrayList<ScriptEngineFactory>(engineSpis.size());
-        for (ScriptEngineFactory spi : engineSpis) {
-            res.add(spi);
-        }
-        return Collections.unmodifiableList(res);
+    public synchronized List<ScriptEngineFactory> getEngineFactories() {
+        return List.copyOf(_scriptEngineFactories);
+    }
+
+    /**
+     * Sets the specified key/value pair in the Global Scope.
+     * @param key Key to set
+     * @param value Value to set.
+     * @throws NullPointerException if key is null.
+     * @throws IllegalArgumentException if key is empty string.
+     */
+    public void put(String key, Object value) {
+        _globalScope.put(key, value);
     }
 
     /**
@@ -380,51 +189,112 @@ public class ScriptEngineManagerRedux  {
      * @throws NullPointerException if any of the parameters is null.
      */
     public void registerEngineName(String name, ScriptEngineFactory factory) {
-        if (name == null || factory == null) throw new NullPointerException();
-        nameAssociations.put(name, factory);
+        if (name == null || factory == null) {
+            throw new NullPointerException();
+        }
+
+        _nameAssociations.put(name.toLowerCase(), factory);
     }
 
     /**
-     * Registers a <code>ScriptEngineFactory</code> to handle a mime type.
-     * Overrides any such association found using the Discovery mechanism.
+     * <code>setBindings</code> stores the specified <code>Bindings</code>
+     * in the <code>globalScope</code> field. ScriptEngineManager sets this
+     * <code>Bindings</code> as global bindings for <code>ScriptEngine</code>
+     * objects created by it.
      *
-     * @param type The mime type  to be associated with the
-     * <code>ScriptEngineFactory</code>.
-     *
-     * @param factory The class to associate with the given mime type.
-     * @throws NullPointerException if any of the parameters is null.
+     * @param bindings The specified <code>Bindings</code>
+     * @throws IllegalArgumentException if bindings is null.
      */
-    public void registerEngineMimeType(String type, ScriptEngineFactory factory) {
-        if (type == null || factory == null) throw new NullPointerException();
-        mimeTypeAssociations.put(type, factory);
+    public void setBindings(Bindings bindings) {
+        if (bindings == null) {
+            throw new IllegalArgumentException("Global scope cannot be null.");
+        }
+
+        _globalScope = bindings;
     }
 
-    /**
-     * Registers a <code>ScriptEngineFactory</code> to handle an extension.
-     * Overrides any such association found using the Discovery mechanism.
-     *
-     * @param extension The extension type  to be associated with the
-     * <code>ScriptEngineFactory</code>.
-     * @param factory The class to associate with the given extension.
-     * @throws NullPointerException if any of the parameters is null.
-     */
-    public void registerEngineExtension(String extension, ScriptEngineFactory factory) {
-        if (extension == null || factory == null) throw new NullPointerException();
-        extensionAssociations.put(extension, factory);
+    private ScriptEngine getEngineByFactory(ScriptEngineFactory factory) {
+        if (factory == null) {
+            return null;
+        }
+
+        ScriptEngine engine = factory.getScriptEngine();
+        engine.setBindings(getBindings(), ScriptContext.GLOBAL_SCOPE);
+        return engine;
+    }
+
+    private ServiceLoader<ScriptEngineFactory> getServiceLoader(final ClassLoader loader) {
+        if (loader != null) {
+            return ServiceLoader.load(ScriptEngineFactory.class, loader);
+        } else {
+            return ServiceLoader.loadInstalled(ScriptEngineFactory.class);
+        }
+    }
+
+    private void init(final ClassLoader loader) {
+        _scriptEngineFactories = new TreeSet<>(Comparator.comparing(
+                ScriptEngineFactory::getEngineName,
+                Comparator.nullsLast(Comparator.naturalOrder()))
+        );
+        initEngines(loader);
+    }
+
+    private void initEngines(final ClassLoader loader) {
+        Iterator<ScriptEngineFactory> itr;
+        try {
+            ServiceLoader<ScriptEngineFactory> loaders = AccessController.doPrivileged(
+                    new PrivilegedAction<ServiceLoader<ScriptEngineFactory>>() {
+                        @Override
+                        public ServiceLoader<ScriptEngineFactory> run() {
+                            return getServiceLoader(loader);
+                        }
+                    });
+
+            itr = loaders.iterator();
+        } catch (ServiceConfigurationError err) {
+            // } catch (Exception err) {
+            System.err.println("Can't find ScriptEngineFactory providers: " + err.getMessage());
+            if (DEBUG) {
+                err.printStackTrace();
+            }
+            // do not throw any exception here. user may want to
+            // manage his/her own factories using this manager
+            // by explicit registration (by registerXXX) methods.
+            return;
+        }
+
+        try {
+            while (itr.hasNext()) {
+                try {
+                    ScriptEngineFactory factory = itr.next();
+                    _scriptEngineFactories.add(factory);
+                } catch (ServiceConfigurationError err) {
+                    //   } catch (Exception err) {
+                    System.err.println("ScriptEngineManager providers.next(): " + err.getMessage());
+                    if (DEBUG) {
+                        err.printStackTrace();
+                    }
+                    // one factory failed, but check other factories...
+                }
+            }
+        } catch (ServiceConfigurationError err) {
+            //    } catch (Exception err) {
+            System.err.println("ScriptEngineManager providers.hasNext(): " + err.getMessage());
+            if (DEBUG) {
+                err.printStackTrace();
+            }
+            // do not throw any exception here. user may want to
+            // manage his/her own factories using this manager
+            // by explicit registratation (by registerXXX) methods.
+        }
     }
 
     /** Set of script engine factories discovered. */
-    private TreeSet<ScriptEngineFactory> engineSpis;
+    private TreeSet<ScriptEngineFactory> _scriptEngineFactories;
 
     /** Map of engine name to script engine factory. */
-    private HashMap<String, ScriptEngineFactory> nameAssociations;
-
-    /** Map of script file extension to script engine factory. */
-    private HashMap<String, ScriptEngineFactory> extensionAssociations;
-
-    /** Map of script MIME type to script engine factory. */
-    private HashMap<String, ScriptEngineFactory> mimeTypeAssociations;
+    private HashMap<String, ScriptEngineFactory> _nameAssociations = new HashMap<>();
 
     /** Global bindings associated with script engines created by this manager. */
-    private Bindings globalScope;
+    private Bindings _globalScope = new SimpleBindings();
 }
