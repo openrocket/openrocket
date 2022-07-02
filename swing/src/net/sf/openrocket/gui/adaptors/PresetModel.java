@@ -8,6 +8,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.database.ComponentPresetDatabase;
+import net.sf.openrocket.gui.configdialog.RocketComponentConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +91,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		} else {
 			document.addUndoPosition("Use Preset " + component.getComponentName());
 			component.loadPreset((ComponentPreset) item);
+			((RocketComponentConfig) parent).setFocusElement();
 		}
 	}
 	
