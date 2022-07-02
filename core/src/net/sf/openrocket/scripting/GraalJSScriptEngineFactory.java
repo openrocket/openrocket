@@ -24,6 +24,8 @@ public class GraalJSScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public ScriptEngine getScriptEngine() {
+        // https://github.com/oracle/graaljs/blob/master/docs/user/RunOnJDK.md
+        // https://github.com/oracle/graaljs/blob/master/docs/user/ScriptEngine.md#setting-options-via-bindings
         return GraalJSScriptEngine.create(null,
                 Context.newBuilder("js")
                         .allowHostAccess(HostAccess.ALL)
