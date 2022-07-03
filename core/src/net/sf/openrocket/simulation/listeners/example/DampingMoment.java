@@ -17,7 +17,6 @@ import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class DampingMoment extends AbstractSimulationListener {
-	
 	private static final FlightDataType type = FlightDataType.getType("Damping moment coefficient", "Cdm", UnitGroup.UNITS_COEFFICIENT);
 	
 	// unused
@@ -25,9 +24,7 @@ public class DampingMoment extends AbstractSimulationListener {
 	
 	@Override
 	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) throws SimulationException {
-		
 		// Save it as a flightdatatype
-		
 		//status.getFlightData().setValue(type, aerodynamicPart + propulsivePart);
 		status.getFlightData().setValue(type, calculate(status, flightConditions));
 		
@@ -35,7 +32,6 @@ public class DampingMoment extends AbstractSimulationListener {
 	}
 	
 	private double calculate(SimulationStatus status, FlightConditions flightConditions) {
-		
 		// Work out the propulsive/jet damping part of the moment.
 		
 		// dm/dt = (thrust - ma)/v
@@ -59,7 +55,6 @@ public class DampingMoment extends AbstractSimulationListener {
 			//double[] coeff = interp.interpolator(y);
 			//double dt = .01;
 			//mdot = (interp.eval(x[4], coeff) - interp.eval(x[4]-dt, coeff))/dt; 
-			
 			mdot = (mpAll.get(len - 1) - mpAll.get(len - 2)) / (time.get(len - 1) - time.get(len - 2));
 		}
 		
@@ -68,9 +63,11 @@ public class DampingMoment extends AbstractSimulationListener {
 		// find the maximum distance from nose to nozzle. 
 		double nozzleDistance = 0;
 		FlightConfiguration config = status.getConfiguration();
+		double x_position;
+		double x;
 		for (MotorConfiguration inst : config.getActiveMotors()) {
-			double x_position= inst.getX();
-			double x = x_position + inst.getMotor().getLaunchCGx();
+			x_position = inst.getX();
+			x = x_position + inst.getMotor().getLaunchCGx();
 			if (x > nozzleDistance) {
 				nozzleDistance = x;
 			}
@@ -82,22 +79,22 @@ public class DampingMoment extends AbstractSimulationListener {
 		// Work out the aerodynamic part of the moment.
 		double aerodynamicPart = 0;
 		
-		AerodynamicCalculator aerocalc = status.getSimulationConditions().getAerodynamicCalculator();
+		AerodynamicCalculator aeroCalc = status.getSimulationConditions().getAerodynamicCalculator();
 		
 		// Must go through each component ...
-		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, null);
+		double CNa;
+		double Cp;
+		double z;
+		Map<RocketComponent, AerodynamicForces> forces = aeroCalc.getForceAnalysis(status.getConfiguration(), flightConditions, null);
 		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forces.entrySet()) {
-			
-			RocketComponent comp = entry.getKey();
-			
-			if (!comp.isAerodynamic())
+			if (!entry.getKey().isAerodynamic())
 				continue;
-			
-			//System.out.println(comp.toString());
-			
-			double CNa = entry.getValue().getCNa(); //?
-			double Cp = entry.getValue().getCP().length();
-			double z = comp.getAxialOffset();
+
+			//System.out.println(entry.getKey().toString());
+
+			CNa = entry.getValue().getCNa(); //?
+			Cp = entry.getValue().getCP().length();
+			z = entry.getKey().getAxialOffset();
 			
 			aerodynamicPart += CNa * Math.pow(z - Cp, 2);
 		}
@@ -109,7 +106,5 @@ public class DampingMoment extends AbstractSimulationListener {
 		aerodynamicPart = aerodynamicPart * .5 * rho * v * ar;
 		
 		return aerodynamicPart + propulsivePart;
-		
 	}
-	
 }

@@ -13,9 +13,12 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 
-
 public class CSVSaveListener extends AbstractSimulationListener {
-	
+	public static final String FILENAME_FORMAT = "simulation-%03d.csv";
+
+	private File file;
+	private PrintStream output = null;
+
 	private static enum Types {
 		TIME {
 			@Override
@@ -213,26 +216,15 @@ public class CSVSaveListener extends AbstractSimulationListener {
 		public abstract double getValue(SimulationStatus status);
 	}
 	
-	
-	public static final String FILENAME_FORMAT = "simulation-%03d.csv";
-	
-	private File file;
-	private PrintStream output = null;
-	
-	
 	@Override
 	public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
-		
 		if (event.getType() == FlightEvent.Type.LAUNCH) {
-			int n = 1;
-			
 			if (output != null) {
-				System.err.println("WARNING: Ending simulation logging to CSV file " +
-						"(SIMULATION_END not encountered).");
-				output.close();
-				output = null;
+				System.err.println("WARNING: Ending simulation logging to CSV file (SIMULATION_END not encountered).");
+				closeOutput();
 			}
-			
+
+			int n = 1;
 			do {
 				file = new File(String.format(FILENAME_FORMAT, n));
 				n++;
@@ -248,24 +240,18 @@ public class CSVSaveListener extends AbstractSimulationListener {
 			final Types[] types = Types.values();
 			StringBuilder s = new StringBuilder("# " + types[0].toString());
 			for (int i = 1; i < types.length; i++) {
-				s.append("," + types[i].toString());
+				s.append(",").append(types[i].toString());
 			}
 			output.println(s);
-			
 		} else if (event.getType() == FlightEvent.Type.SIMULATION_END && output != null) {
-			
 			System.err.println("Ending simulation logging to CSV file: " + file);
-			output.close();
-			output = null;
-			
+			closeOutput();
 		} else if (event.getType() != FlightEvent.Type.ALTITUDE) {
-			
 			if (output != null) {
 				output.println("# Event " + event);
 			} else {
 				System.err.println("WARNING: Event " + event + " encountered without open file");
 			}
-			
 		}
 		
 		return true;
@@ -273,23 +259,22 @@ public class CSVSaveListener extends AbstractSimulationListener {
 	
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
-		
-		final Types[] types = Types.values();
-		StringBuilder s;
-		
 		if (output != null) {
-			
-			s = new StringBuilder("" + types[0].getValue(status));
+			final Types[] types = Types.values();
+			StringBuilder s = new StringBuilder("" + types[0].getValue(status));
 			for (int i = 1; i < types.length; i++) {
-				s.append("," + types[i].getValue(status));
+				s.append(",").append(types[i].getValue(status));
 			}
 			output.println(s);
-			
 		} else {
-			
-			System.err.println("WARNING: stepTaken called with no open file " +
-					"(t=" + status.getSimulationTime() + ")");
+			System.err.println("WARNING: stepTaken called with no open file (t=" + status.getSimulationTime() + ")");
 		}
-		
+	}
+
+	private void closeOutput() {
+		if (output != null) {
+			output.close();
+			output = null;
+		}
 	}
 }

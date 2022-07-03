@@ -17,7 +17,6 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class RollControlListener extends AbstractSimulationListener {
-	
 	// Name of control fin set
 	private static final String CONTROL_FIN_NAME = "CONTROL";
 	
@@ -36,7 +35,6 @@ public class RollControlListener extends AbstractSimulationListener {
 	// Maximum control fin angle (rad)
 	private static final double MAX_ANGLE = 15 * Math.PI / 180;
 	
-	
 	/*
 	 * PID parameters
 	 * 
@@ -47,38 +45,21 @@ public class RollControlListener extends AbstractSimulationListener {
 	private static final double KP = 0.007;
 	private static final double KI = 0.2;
 	
-	
-	
-	
-	private double rollrate;
+	private double rollRate;
 	
 	private double prevTime = 0;
+
 	private double intState = 0;
 	
 	private double finPosition = 0;
-	
-	
-	
+
+	private FinSet finset = null;
+
 	@Override
-	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) {
-		// Store the current roll rate for later use
-		rollrate = flightConditions.getRollRate();
-		return null;
-	}
-	
-	
-	@Override
-	public void postStep(SimulationStatus status) throws SimulationException {
-		
-		// Activate PID controller only after a specific time
-		if (status.getSimulationTime() < START_TIME) {
-			prevTime = status.getSimulationTime();
-			return;
-		}
-		
-		// Find the fin set named CONTROL
-		FinSet finset = null;
-		for (RocketComponent c : status.getConfiguration().getActiveComponents()) {
+	public void startSimulation(SimulationStatus status) throws SimulationException {
+		// Find the fin set named CONTROL; but find it once at the start of the simulation and reference
+		// it in the post steps.
+		for (RocketComponent c : status.getConfiguration().getAllComponents()) {
 			if ((c instanceof FinSet) && (c.getName().equals(CONTROL_FIN_NAME))) {
 				finset = (FinSet) c;
 				break;
@@ -87,30 +68,41 @@ public class RollControlListener extends AbstractSimulationListener {
 		if (finset == null) {
 			throw new SimulationException("A fin set with name '" + CONTROL_FIN_NAME + "' was not found");
 		}
-		
-		
+	}
+
+	@Override
+	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) {
+		// Store the current roll rate for later use
+		rollRate = flightConditions.getRollRate();
+		return null;
+	}
+
+	@Override
+	public void postStep(SimulationStatus status) throws SimulationException {
+		// Activate PID controller only after a specific time
+		if (status.getSimulationTime() < START_TIME) {
+			prevTime = status.getSimulationTime();
+			return;
+		}
+
 		// Determine time step
 		double deltaT = status.getSimulationTime() - prevTime;
 		prevTime = status.getSimulationTime();
-		
-		
+
 		// PID controller
-		double error = SETPOINT - rollrate;
+		double error = SETPOINT - rollRate;
 		
 		double p = KP * error;
 		intState += error * deltaT;
 		double i = KI * intState;
-		
 		double value = p + i;
-		
-		
+
 		// Clamp the fin angle between -MAX_ANGLE and MAX_ANGLE
 		if (Math.abs(value) > MAX_ANGLE) {
 			System.err.printf("Attempting to set angle %.1f at t=%.3f, clamping.\n",
 					value * 180 / Math.PI, status.getSimulationTime());
 			value = MathUtil.clamp(value, -MAX_ANGLE, MAX_ANGLE);
 		}
-		
 		
 		// Limit the fin turn rate
 		if (finPosition < value) {
@@ -122,6 +114,5 @@ public class RollControlListener extends AbstractSimulationListener {
 		// Set the control fin cant and store the data
 		finset.setCantAngle(finPosition);
 		status.getFlightData().setValue(FIN_CANT_TYPE, finPosition);
-		
 	}
 }

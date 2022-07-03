@@ -12,15 +12,16 @@ import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class StopSimulationListener extends AbstractSimulationListener {
-	
 	private final int REPORT = 500;
 	
 	private final double stopTime;
+
 	private final int stopStep;
 	
 	private int step = 0;
 	
 	private long startTime = -1;
+
 	private long time = -1;
 	
 	public StopSimulationListener(double t, int n) {
@@ -30,7 +31,6 @@ public class StopSimulationListener extends AbstractSimulationListener {
 	
 	@Override
 	public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) {
-		
 		if (event.getType() == FlightEvent.Type.LAUNCH) {
 			System.out.println("Simulation starting.");
 			time = System.nanoTime();
@@ -39,14 +39,12 @@ public class StopSimulationListener extends AbstractSimulationListener {
 		
 		return true;
 	}
-	
-	
+
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
 		step++;
 		if ((step % REPORT) == 0) {
 			long t = System.nanoTime();
-			
 			System.out.printf("Step %4d, time=%.3f, took %d us/step (avg. %d us/step)\n",
 					step, status.getSimulationTime(), (t - time) / 1000 / REPORT, (t - startTime) / 1000 / step);
 			time = t;
@@ -57,5 +55,4 @@ public class StopSimulationListener extends AbstractSimulationListener {
 					status.getSimulationTime(), null));
 		}
 	}
-	
 }
