@@ -151,7 +151,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			final Rocket rkt = document.getRocket();
 			final FlightConfiguration config = rkt.getFlightConfiguration(simulationList[0].getFlightConfigurationId());
-			final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
+			final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt, false);
 			configComboBox.setSelectedItem(config);
 			
 			//// Select the motor configuration to use.
