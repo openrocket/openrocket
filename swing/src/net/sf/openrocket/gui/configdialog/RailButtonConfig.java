@@ -92,6 +92,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
 			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
+			focusElement = offsetSpinner;
 			panel.add(offsetSpinner, "growx");
 			panel.add(new UnitSelector(offsetModel), "growx");
 			panel.add(new BasicSlider(offsetModel.getSliderModel(

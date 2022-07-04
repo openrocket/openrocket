@@ -7,6 +7,7 @@ import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 
+import net.sf.openrocket.rocketcomponent.InnerTube;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,8 @@ public class ComponentRenderer {
 
 		if (c instanceof BodyTube) {
 			renderTube(gl, (BodyTube) c, which);
+		} else if (c instanceof InnerTube) {
+			renderTube(gl, (InnerTube) c, which);
 		} else if (c instanceof LaunchLug) {
 			renderLug(gl, (LaunchLug) c, which);
 		} else if ( c instanceof RailButton ){
@@ -254,6 +257,10 @@ public class ComponentRenderer {
 	}
 
 	private void renderTube(GL2 gl, BodyTube t, Surface which) {
+		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
+	}
+
+	private void renderTube(GL2 gl, InnerTube t, Surface which) {
 		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
 

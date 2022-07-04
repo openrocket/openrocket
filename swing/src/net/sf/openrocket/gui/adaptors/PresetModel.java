@@ -69,6 +69,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		} else {
 			document.addUndoPosition("Use Preset " + component.getComponentName());
 			component.loadPreset((ComponentPreset) item);
+			((RocketComponentConfig) parent).setFocusElement();
 		}
 	}
 	
