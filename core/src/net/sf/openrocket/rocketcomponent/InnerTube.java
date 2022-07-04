@@ -26,7 +26,7 @@ import net.sf.openrocket.util.MathUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class InnerTube extends ThicknessRingComponent implements AxialPositionable, BoxBounded, Clusterable, RadialParent, MotorMount {
+public class InnerTube extends ThicknessRingComponent implements AxialPositionable, BoxBounded, Clusterable, RadialParent, MotorMount, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	
@@ -37,6 +37,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	private double overhang = 0;
 	private boolean isActingMount;
 	private MotorConfigurationSet motors;
+
+	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
 	/**
 	 * Main constructor.
@@ -445,6 +447,16 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public String toMotorDebug( ){
 		return this.motors.toDebug();
+	}
+
+	@Override
+	public InsideColorComponentHandler getInsideColorComponentHandler() {
+		return this.insideColorComponentHandler;
+	}
+
+	@Override
+	public void setInsideColorComponentHandler(InsideColorComponentHandler handler) {
+		this.insideColorComponentHandler = handler;
 	}
 
 	@Override

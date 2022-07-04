@@ -100,7 +100,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Component name:
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
-		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
+		label.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(label, "spanx, height 32!, split");
 
 		componentNameField = new JTextField(15);
@@ -108,7 +108,7 @@ public class RocketComponentConfig extends JPanel {
 		componentNameField.addActionListener(textFieldListener);
 		componentNameField.addFocusListener(textFieldListener);
 		//// The component name.
-		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
+		componentNameField.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(componentNameField, "growx");
 
 		if (allSameType && component.getPresetType() != null) {
@@ -124,17 +124,17 @@ public class RocketComponentConfig extends JPanel {
 
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
-				trans.get("RocketCompCfg.tab.MassandCGoverride"));
+				trans.get("RocketCompCfg.tab.Override.ttip"));
 		if (allMassive) {
 			//// Appearance options
 			appearancePanel = new AppearancePanel(document, component, parent);
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
-					"Appearance Tool Tip");
+					trans.get("RocketCompCfg.tab.Appearance.ttip"));
 		}
 
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
-				trans.get("RocketCompCfg.tab.Specifyacomment"));
+				trans.get("RocketCompCfg.tab.Comment.ttip"));
 
 		addButtons();
 
