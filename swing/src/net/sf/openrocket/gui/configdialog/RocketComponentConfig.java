@@ -26,7 +26,6 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ComponentPresetDatabase;
-import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -121,10 +120,11 @@ public class RocketComponentConfig extends JPanel {
 			presetComboBox = new JComboBox(presetModel);
 			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
+			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
 			this.add(presetComboBox);
 
-			JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.selectpreset"));
-			selectPreset.setToolTipText(trans.get("PresetModel.lbl.selectpreset.ttip"));
+			JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
 			selectPreset.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

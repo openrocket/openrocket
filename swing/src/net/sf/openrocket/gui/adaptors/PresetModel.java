@@ -5,16 +5,13 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.SwingUtilities;
 
-import net.sf.openrocket.database.ComponentPresetDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -29,7 +26,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String NONE_SELECTED = String.format("<html><i>%s</i></html>", trans.get("lbl.nopreset"));
+	private static final String NONE_SELECTED = String.format("<html><i>%s</i></html>", trans.get("PresetModel.lbl.custompreset"));
 	
 	private final Component parent;
 	private final RocketComponent component;
