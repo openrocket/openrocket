@@ -9,6 +9,7 @@ import javax.swing.ComboBoxModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.gui.configdialog.RocketComponentConfig;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
