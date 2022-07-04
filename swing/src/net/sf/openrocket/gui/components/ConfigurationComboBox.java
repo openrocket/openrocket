@@ -24,21 +24,49 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
     public class ConfigurationModel implements MutableComboBoxModel<FlightConfiguration> {
 		
 		private final Rocket rkt;
-		
-		public ConfigurationModel(final Rocket _rkt) {
+		private FlightConfiguration selectedConfig;
+		private final boolean updateRocketConfig;
+		private final ConfigurationModel listener;
+
+		/**
+		 * @param _rkt the rocket to get the configurations from and to (optionally) change the rocket's selected configuration
+		 * @param _updateRocketConfig whether to update the rocket's selected configuration based on the selected combo box item,
+		 *                            or just change the combo box item without altering the rocket's configuration.
+		 * @param listener model that should change its selected item to this model's selected item
+		 */
+		public ConfigurationModel(final Rocket _rkt, boolean _updateRocketConfig, ConfigurationModel listener) {
 			this.rkt = _rkt;
+			this.updateRocketConfig = _updateRocketConfig;
+			this.selectedConfig = this.rkt.getSelectedConfiguration();
+			this.listener = listener;
+		}
+
+		public ConfigurationModel(final Rocket _rkt, boolean _updateRocketConfig) {
+			this(_rkt, _updateRocketConfig, null);
 		}
 		
 		@Override
 		public FlightConfiguration getSelectedItem() {
-			return rkt.getSelectedConfiguration();
+			if (updateRocketConfig) {
+				return rkt.getSelectedConfiguration();
+			} else {
+				return selectedConfig;
+			}
 		}
 		
 		@Override
 		public void setSelectedItem(Object nextItem) {
 			if( nextItem instanceof FlightConfiguration ){
 				FlightConfigurationId selectedId = ((FlightConfiguration)nextItem).getId();
-				rkt.setSelectedConfiguration(selectedId);
+				if (updateRocketConfig) {
+					rkt.setSelectedConfiguration(selectedId);
+				} else {
+					selectedConfig = rkt.getFlightConfiguration(selectedId);
+				}
+
+				if (listener != null) {
+					listener.setSelectedItem(nextItem);
+				}
 			}
 		}
 		
@@ -79,9 +107,15 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
 	
     private final Rocket rkt;
 
-    public ConfigurationComboBox(Rocket _rkt) {
+	/**
+	 * @param _rkt the rocket to get the configurations from and to (optionally) change the rocket's selected configuration
+	 * @param _updateRocketConfig whether to update the rocket's selected configuration based on the selected combo box item,
+	 *                            or just change the combo box item without altering the rocket's configuration.
+	 */
+    public ConfigurationComboBox(Rocket _rkt, boolean _updateRocketConfig) {
 		rkt = _rkt;
-		setModel(new ConfigurationModel(rkt));
+		final ConfigurationModel model = new ConfigurationModel(rkt, _updateRocketConfig);
+		setModel(model);
 		rkt.addChangeListener(this);
 	
 		addPopupMenuListener(new PopupMenuListener() {
@@ -89,12 +123,18 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
 			
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-			    setModel(new ConfigurationModel(rkt));		    
+				final ConfigurationModel model2 = new ConfigurationModel(rkt, _updateRocketConfig, model);
+				model2.setSelectedItem(model.getSelectedItem());
+			    setModel(model2);
 			}
 			
 		});
 	
     }
+
+	public ConfigurationComboBox(Rocket _rkt) {
+		this(_rkt, true);
+	}
     
     @Override
     public void stateChanged(EventObject e) {
