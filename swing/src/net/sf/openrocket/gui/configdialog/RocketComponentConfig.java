@@ -22,6 +22,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -61,6 +62,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private JComboBox<?> presetComboBox;
 	private PresetModel presetModel;
+	protected Component focusElement = null;	// Element that will be focused on after a preset is selected
 	
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
@@ -700,6 +702,24 @@ public class RocketComponentConfig extends JPanel {
 			if (!component.getComment().equals(commentTextArea.getText())) {
 				component.setComment(commentTextArea.getText());
 			}
+		}
+	}
+
+	/**
+	 * Requests focus for the focus element that should be active after a preset is selected.
+	 */
+	public void setFocusElement() {
+		if (focusElement != null) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if (focusElement instanceof JSpinner) {
+						SpinnerEditor ed = (SpinnerEditor) ((JSpinner)focusElement).getEditor();
+						ed.getTextField().requestFocusInWindow();
+					} else {
+						focusElement.requestFocusInWindow();
+					}
+				}
+			});
 		}
 	}
 	

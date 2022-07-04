@@ -20,6 +20,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -116,6 +117,9 @@ public class RingComponentConfig extends RocketComponentConfig {
 			
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
+			if (component instanceof ThicknessRingComponent) {
+				focusElement = spin;
+			}
 			panel.add(spin, "growx");
 			
 			panel.add(new UnitSelector(m), "growx");
@@ -139,6 +143,9 @@ public class RingComponentConfig extends RocketComponentConfig {
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
+		if (!(component instanceof ThicknessRingComponent)) {
+			focusElement = spin;
+		}
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");
