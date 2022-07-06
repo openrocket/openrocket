@@ -197,24 +197,37 @@ public class Rocket extends ComponentAssembly {
 	public AxialStage getStage( final int stageNumber ) {
 		return this.stageMap.get( stageNumber);
 	}
-	
-	/*
-	 * Returns the stage at the top of the central stack
-	 * 
-	 * @Return a reference to the topmost stage
+
+	/**
+	 * Get the topmost stage, only taking into account active stages from the flight configuration.
+	 * @param config flight configuration dictating which stages are active
+	 * @return the topmost active stage, or null if there are no active stages.
 	 */
-	public AxialStage getTopmostStage(){
-		return (AxialStage) getChild(0);
+	public AxialStage getTopmostStage(FlightConfiguration config) {
+		if (config == null) return null;
+
+		for (int i = 0; i < getChildCount(); i++) {
+			if (getChild(i) instanceof AxialStage && config.isStageActive(getChild(i).getStageNumber())) {
+				return (AxialStage) getChild(i);
+			}
+		}
+		return null;
 	}
-	
-	/*
-	 * Returns the stage at the top of the central stack
-	 * 
-	 * @Return a reference to the topmost stage
+
+	/**
+	 * Get the bottommost stage, only taking into account active stages from the flight configuration.
+	 * @param config flight configuration dictating which stages are active
+	 * @return the bottommost active stage, or null if there are no active stages.
 	 */
-	/*package-local*/ AxialStage getBottomCoreStage(){
-		// get last stage that's a direct child of the rocket.
-		return (AxialStage) children.get( children.size()-1 );
+	public AxialStage getBottomCoreStage(FlightConfiguration config) {
+		if (config == null) return null;
+
+		for (int i = getChildCount() - 1; i >= 0; i--) {
+			if (getChild(i) instanceof AxialStage && config.isStageActive(getChild(i).getStageNumber())) {
+				return (AxialStage) getChild(i);
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -734,6 +747,14 @@ public class Rocket extends ComponentAssembly {
         this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
         return nextConfig.getFlightConfigurationID();
+	}
+
+	/**
+	 * Return all the flight configurations of this rocket.
+	 * @return all the flight configurations of this rocket.
+	 */
+	public FlightConfigurableParameterSet<FlightConfiguration> getFlightConfigurations() {
+		return this.configSet;
 	}
 	
 	

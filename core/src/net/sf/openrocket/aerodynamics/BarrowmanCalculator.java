@@ -4,6 +4,7 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		Map<RocketComponent, AerodynamicForces> assemblyMap = new LinkedHashMap<>();
 
 		// Calculate non-axial force data
-		calculateForceAnalysis(conditions, configuration.getRocket(), instMap, eachMap, assemblyMap, warnings);
+		calculateForceAnalysis(configuration, conditions, configuration.getRocket(), instMap, eachMap, assemblyMap, warnings);
 
 		// Calculate drag coefficient data
 		AerodynamicForces rocketForces = assemblyMap.get(configuration.getRocket());
@@ -125,7 +126,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		return finalMap;
 	}
 
-	private AerodynamicForces calculateForceAnalysis(   FlightConditions conds,
+	private AerodynamicForces calculateForceAnalysis(   FlightConfiguration configuration,
+														FlightConditions conds,
 														RocketComponent comp,
 														InstanceMap instances,
 														Map<RocketComponent, AerodynamicForces> eachForces,
@@ -152,8 +154,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		}
 
 		for( RocketComponent child : comp.getChildren()) {
+			// Ignore inactive stages
+			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
+				continue;
+			}
 			// forces particular to each component
-			AerodynamicForces childForces = calculateForceAnalysis(conds, child, instances, eachForces, assemblyForces, warnings);
+			AerodynamicForces childForces = calculateForceAnalysis(configuration, conds, child, instances, eachForces, assemblyForces, warnings);
 
 			if(null != childForces) {
 				aggregateForces.merge(childForces);
@@ -240,7 +246,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 		
-		if( ! isContinuous(  configuration.getRocket() ) ){
+		if (!isContinuous(configuration, configuration.getRocket())){
 			warnings.add( Warning.DIAMETER_DISCONTINUITY);
 		}
 		
@@ -266,20 +272,32 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	@Override
-	public boolean isContinuous( final Rocket rkt){
-		return testIsContinuous( rkt);
+	public boolean isContinuous(FlightConfiguration configuration, final Rocket rkt){
+		return testIsContinuous(configuration, rkt);
 	}
 	
-	private boolean testIsContinuous( final RocketComponent treeRoot ){
+	private boolean testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot ){
 		Queue<RocketComponent> queue = new LinkedList<>();
-		queue.addAll(treeRoot.getChildren());
+		for (RocketComponent child : treeRoot.getChildren()) {
+			// Ignore inactive stages
+			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
+				continue;
+			}
+			queue.add(child);
+		}
 		
 		boolean isContinuous = true;
 		SymmetricComponent prevComp = null; 
 		while((isContinuous)&&( null != queue.peek())){
 			RocketComponent comp = queue.poll();
 			if( comp instanceof SymmetricComponent ){
-				queue.addAll( comp.getChildren());
+				for (RocketComponent child : comp.getChildren()) {
+					// Ignore inactive stages
+					if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
+						continue;
+					}
+					queue.add(child);
+				}
 				
 				SymmetricComponent sym = (SymmetricComponent) comp;
 				if( null == prevComp){
@@ -303,7 +321,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						
 				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
-				isContinuous &= testIsContinuous( comp );
+				isContinuous &= testIsContinuous(configuration, comp);
 			}
 			
 		}
@@ -319,7 +337,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @param configuration		Rocket configuration
 	 * @param conditions		Flight conditions taken into account
 	 * @param map				?
-	 * @param set				Set to handle 
+	 * @param warningSet		Set to handle warnings
 	 * @return friction drag for entire rocket
 	 */
 	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
@@ -611,7 +629,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 					double radius = 0;
 					final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
-					if (prevComponent != null)
+					if (prevComponent != null && configuration.isComponentActive(prevComponent))
 						radius = prevComponent.getAftRadius();
 					
 					if (radius < s.getForeRadius()) {
@@ -672,7 +690,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				// its aft CD
 				double radius = 0;
 				final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
-				if (prevComponent != null) {
+				if (prevComponent != null && configuration.isComponentActive(prevComponent)) {
 					radius = prevComponent.getAftRadius();
 				}
 				
