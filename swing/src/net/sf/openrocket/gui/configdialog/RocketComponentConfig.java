@@ -122,7 +122,7 @@ public class RocketComponentConfig extends JPanel {
 			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
 			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
-			this.add(presetComboBox);
+			this.add(presetComboBox, "growx 110");
 
 			JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
 			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
