@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.WindowLocationUtil;
@@ -261,7 +262,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
-		WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
+		if (parent instanceof BasicFrame && BasicFrame.getStartupFrame() == parent) {
+			WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
+		}
 
 		////Modify
 		if (component.getConfigListeners().size() == 0) {
