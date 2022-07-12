@@ -124,7 +124,7 @@ public class RocketComponentConfig extends JPanel {
 			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
 			this.add(presetComboBox, "growx 110");
 
-			JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
 			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
 			selectPreset.addActionListener(new ActionListener() {
 				@Override
@@ -268,7 +268,7 @@ public class RocketComponentConfig extends JPanel {
 				dialog.setVisible(true);
 				ComponentPreset preset = dialog.getSelectedComponentPreset();
 				if (preset != null) {
-					presetComboBox.setSelectedItem(preset);
+					presetModel.setSelectedItem(preset);
 				}
 				((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
 			}
