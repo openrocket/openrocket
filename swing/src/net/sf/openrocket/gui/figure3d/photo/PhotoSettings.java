@@ -278,5 +278,6 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 
 	public void setSmokeOpacity(double smokeOpacity) {
 		this.smokeOpacity = smokeOpacity;
+		setSmokeAlpha(smokeOpacity);
 	}
 }
