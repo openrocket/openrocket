@@ -81,6 +81,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private Point dragPoint = null;
 
 	private FinPointFigure figure = null;
+	private ScaleScrollPane figurePane = null;
 	private ScaleSelector selector;
 	
 	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
@@ -219,7 +220,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		// Create the figure
 		figure = new FinPointFigure(finset);
-		ScaleScrollPane figurePane = new FinPointScrollPane( figure);
+		figurePane = new FinPointScrollPane( figure);
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
@@ -392,9 +393,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		    }
             figure.updateFigure();
 		}
-		
-		revalidate();
-		repaint();
+
+		if (figurePane != null) {
+			figurePane.revalidate();
+		}
 	}
 	
 	private class FinPointScrollPane extends ScaleScrollPane {
@@ -408,8 +410,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		@Override
 		public void mousePressed(MouseEvent event) {
-			int mods = event.getModifiersEx();
-
 			final FreeformFinSet finset = (FreeformFinSet) component;
 
 			final int pressIndex = getPoint(event);
