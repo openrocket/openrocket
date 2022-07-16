@@ -380,6 +380,21 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		for(Entry<RocketComponent, ArrayList<InstanceContext>> entry: config.getActiveInstances().entrySet() ) {
 			final RocketComponent comp = entry.getKey();
+
+			// Only draw podsets when they are selected
+			if (comp instanceof PodSet) {
+				boolean selected = false;
+
+				// Check if component is in the selection
+				for (int j = 0; j < selection.length; j++) {
+					if (comp == selection[j]) {
+						selected = true;
+						break;
+					}
+				}
+
+				if (!selected) continue;
+			}
 			
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 
