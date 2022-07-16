@@ -8,7 +8,6 @@ import net.sf.openrocket.util.Transformation;
 import java.awt.Shape;
 
 public class ParallelStageShapes extends RocketComponentShape {
-    //public static final Color boosterColor = new Color(220, 185, 185);
     public static final Color boosterColor = new Color(198,163,184);
 
     public static RocketComponentShape[] getShapesSide(final RocketComponent component, final Transformation transformation) {

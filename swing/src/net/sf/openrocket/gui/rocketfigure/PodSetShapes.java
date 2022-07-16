@@ -8,7 +8,6 @@ import net.sf.openrocket.util.Transformation;
 import java.awt.Shape;
 
 public class PodSetShapes extends RocketComponentShape {
-    //public static final Color podsetColor = new Color(180, 180, 225);
     public static final Color podsetColor = new Color(160,160,215);
 
     public static RocketComponentShape[] getShapesSide(final RocketComponent component, final Transformation transformation) {
