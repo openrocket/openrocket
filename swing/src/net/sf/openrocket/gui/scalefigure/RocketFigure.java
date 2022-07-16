@@ -17,7 +17,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.Map.Entry;
 
-import net.sf.openrocket.gui.rocketfigure.PodSetShapes;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,6 @@ import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -382,17 +382,16 @@ public class RocketFigure extends AbstractScaleFigure {
 			final RocketComponent comp = entry.getKey();
 
 			// Only draw podsets when they are selected
-			if (comp instanceof PodSet) {
+			if (comp instanceof PodSet || comp instanceof ParallelStage) {
 				boolean selected = false;
 
 				// Check if component is in the selection
-				for (int j = 0; j < selection.length; j++) {
-					if (comp == selection[j]) {
+				for (RocketComponent component : selection) {
+					if (comp == component) {
 						selected = true;
 						break;
 					}
 				}
-
 				if (!selected) continue;
 			}
 			
@@ -424,7 +423,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			final net.sf.openrocket.util.Color color) {
 		Reflection.Method m;
 		
-		if(( component instanceof Rocket)||( component instanceof ComponentAssembly && !(component instanceof PodSet))){
+		if ((component instanceof Rocket) || (component instanceof AxialStage && !(component instanceof ParallelStage))){
 			// no-op; no shapes here
 			return allShapes;
 		}
