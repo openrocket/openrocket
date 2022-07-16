@@ -17,6 +17,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.Map.Entry;
 
+import net.sf.openrocket.gui.rocketfigure.PodSetShapes;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -385,13 +387,38 @@ public class RocketFigure extends AbstractScaleFigure {
 				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
 				allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
 			}
+
+			// PodSets require an additional shape for the center of the podset.
+			if (comp instanceof PodSet) {
+				Transformation parentTransform = null;
+				for (Entry<RocketComponent, ArrayList<InstanceContext>> entry2: config.getActiveInstances().entrySet()) {
+					final RocketComponent parent = entry2.getKey();
+					if (parent == comp.getParent()) {
+						parentTransform = entry2.getValue().get(0).transform;	// TODO: normally only the first context should be used, unless we start doing fancy stuff like adding pods to individual fins
+						break;
+					}
+				}
+				if (parentTransform == null) {
+					parentTransform = Transformation.IDENTITY;
+				}
+
+				final Transformation compLocTransform = Transformation.getTranslationTransform(comp.getPosition());
+				final Transformation componentTransform = parentTransform.applyTransformation(compLocTransform);
+
+				final Transformation currentTransform = this.axialRotation.applyTransformation(componentTransform);
+				allShapes = addThisShape(allShapes, this.currentViewType, comp, currentTransform, PodSetShapes.centerColor);
+			}
         }
 	}
 	
 	/**
 	 * Gets the shapes required to draw the component.
-	 * 
-	 * @param component
+	 *
+	 * @param allShapes output buffer for the shapes to add to
+	 * @param viewType the view type to draw the component in
+	 * @param component component to draw and add to <allShapes>
+	 * @param transformation transformation to apply to the component before drawing it
+	 * @param color color to draw the component in
 	 *
 	 * @return the <code>ArrayList</code> containing all the shapes to draw.
 	 */
@@ -399,10 +426,11 @@ public class RocketFigure extends AbstractScaleFigure {
 			PriorityQueue<RocketComponentShape> allShapes,  // this is the output parameter
 			final RocketPanel.VIEW_TYPE viewType, 
 			final RocketComponent component, 
-			final Transformation transformation) {
+			final Transformation transformation,
+			final net.sf.openrocket.util.Color color) {
 		Reflection.Method m;
 		
-		if(( component instanceof Rocket)||( component instanceof ComponentAssembly )){
+		if(( component instanceof Rocket)||( component instanceof ComponentAssembly && !(component instanceof PodSet))){
 			// no-op; no shapes here
 			return allShapes;
 		}
@@ -431,8 +459,34 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 	
 		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation);
+
+		if (color != null) {
+			for (RocketComponentShape rcs : returnValue) {
+				if (rcs.getColor() == net.sf.openrocket.util.Color.INVISIBLE) continue;	// don't change the color of invisible (often selection) components
+				rcs.setColor(color);
+			}
+		}
+
 		allShapes.addAll(Arrays.asList(returnValue));
 		return allShapes;
+	}
+
+	/**
+	 * Gets the shapes required to draw the component.
+	 *
+	 * @param allShapes output buffer for the shapes to add to
+	 * @param viewType the view type to draw the component in
+	 * @param component component to draw and add to <allShapes>
+	 * @param transformation transformation to apply to the component before drawing it
+	 *
+	 * @return the <code>ArrayList</code> containing all the shapes to draw.
+	 */
+	private static PriorityQueue<RocketComponentShape> addThisShape(
+			PriorityQueue<RocketComponentShape> allShapes,  // this is the output parameter
+			final RocketPanel.VIEW_TYPE viewType,
+			final RocketComponent component,
+			final Transformation transformation) {
+		return addThisShape(allShapes, viewType, component, transformation, null);
 	}
 	
 
