@@ -387,27 +387,6 @@ public class RocketFigure extends AbstractScaleFigure {
 				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
 				allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
 			}
-
-			// PodSets require an additional shape for the center of the podset.
-			if (comp instanceof PodSet) {
-				Transformation parentTransform = null;
-				for (Entry<RocketComponent, ArrayList<InstanceContext>> entry2: config.getActiveInstances().entrySet()) {
-					final RocketComponent parent = entry2.getKey();
-					if (parent == comp.getParent()) {
-						parentTransform = entry2.getValue().get(0).transform;	// TODO: normally only the first context should be used, unless we start doing fancy stuff like adding pods to individual fins
-						break;
-					}
-				}
-				if (parentTransform == null) {
-					parentTransform = Transformation.IDENTITY;
-				}
-
-				final Transformation compLocTransform = Transformation.getTranslationTransform(comp.getPosition());
-				final Transformation componentTransform = parentTransform.applyTransformation(compLocTransform);
-
-				final Transformation currentTransform = this.axialRotation.applyTransformation(componentTransform);
-				allShapes = addThisShape(allShapes, this.currentViewType, comp, currentTransform, PodSetShapes.centerColor);
-			}
         }
 	}
 	

@@ -9,7 +9,6 @@ import java.awt.Shape;
 
 public class PodSetShapes extends RocketComponentShape {
     public static final Color podsetColor = new Color(160, 160, 160);    // Normal color for the podset shape
-    public static final Color centerColor = new Color(200, 200, 200);   // Color for the center shape of the podset
 
     public static RocketComponentShape[] getShapesSide(final RocketComponent component, final Transformation transformation) {
         PodSet podset = (PodSet)component;
