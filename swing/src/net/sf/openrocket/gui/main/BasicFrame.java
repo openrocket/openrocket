@@ -117,7 +117,7 @@ public class BasicFrame extends JFrame {
 	 * List of currently open frames.  When the list goes empty
 	 * it is time to exit the application.
 	 */
-	private static final ArrayList<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static final List<BasicFrame> frames = new ArrayList<BasicFrame>();
 	private static BasicFrame startupFrame = null;	// the frame that was created at startup
 
 
@@ -488,6 +488,10 @@ public class BasicFrame extends JFrame {
 		}
 
 		return result;
+	}
+
+	public RocketPanel getRocketPanel() {
+		return rocketpanel;
 	}
 
 	/**
@@ -1888,6 +1892,13 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Return all BasicFrame instances
+	 */
+	public static List<BasicFrame> getAllFrames() {
+		return frames;
 	}
 
 	/**

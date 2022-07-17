@@ -54,6 +54,7 @@ import net.sf.openrocket.util.Transformation;
 public class RocketFigure extends AbstractScaleFigure {
 
     private final static Logger log = LoggerFactory.getLogger(FinPointFigure.class);
+	protected final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
@@ -382,7 +383,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			final RocketComponent comp = entry.getKey();
 
 			// Only draw podsets when they are selected
-			if (comp instanceof PodSet || comp instanceof ParallelStage) {
+			if ((comp instanceof PodSet || comp instanceof ParallelStage) && preferences.isShowMarkers()) {
 				boolean selected = false;
 
 				// Check if component is in the selection
