@@ -287,6 +287,11 @@ public class Rocket extends ComponentAssembly {
 		refType = type;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
+
+	@Override
+	public double getLength() {
+		return selectedConfiguration.getLength();
+	}
 	
 	
 	public double getCustomReferenceLength() {

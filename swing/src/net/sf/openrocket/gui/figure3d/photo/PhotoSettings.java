@@ -36,7 +36,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
 	
-	private double sparkConcentration = 0;
+	private double sparkConcentration = 0.2;
 	private double sparkWeight = 0;
 	
 	private Sky sky = Mountains.instance;
@@ -278,5 +278,6 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 
 	public void setSmokeOpacity(double smokeOpacity) {
 		this.smokeOpacity = smokeOpacity;
+		setSmokeAlpha(smokeOpacity);
 	}
 }
