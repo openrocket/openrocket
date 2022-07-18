@@ -252,7 +252,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 	}
 
-	private void updateFigures() {
+	public void updateFigures() {
 		if (!is3d)
 			figure.updateFigure();
 		else

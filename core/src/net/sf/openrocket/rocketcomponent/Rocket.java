@@ -304,6 +304,17 @@ public class Rocket extends ComponentAssembly {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
 	}
+
+	@Override
+	public double getBoundingRadius() {
+		double bounding = 0;
+		for (RocketComponent comp : children) {
+			if (comp instanceof ComponentAssembly) {
+				bounding = Math.max(bounding, ((ComponentAssembly) comp).getBoundingRadius());
+			}
+		}
+		return bounding;
+	}
 	
 	
 	
