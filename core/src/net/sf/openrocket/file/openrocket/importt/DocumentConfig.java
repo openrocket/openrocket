@@ -190,8 +190,15 @@ class DocumentConfig {
 		setters.put("RailButton:angleoffset",  new AnglePositionSetter() );
 		setters.put("RailButton:height",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setTotalHeight", double.class)));
+		setters.put("RailButton:baseheight",  new DoubleSetter(
+				Reflection.findMethod( RailButton.class, "setBaseHeight", double.class)));
+		setters.put("RailButton:flangeheight",  new DoubleSetter(
+				Reflection.findMethod( RailButton.class, "setFlangeHeight", double.class)));
 		setters.put("RailButton:outerdiameter",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setOuterDiameter", double.class)));
+		setters.put("RailButton:innerdiameter",  new DoubleSetter(
+				Reflection.findMethod( RailButton.class, "setInnerDiameter", double.class)));
+
 			
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
