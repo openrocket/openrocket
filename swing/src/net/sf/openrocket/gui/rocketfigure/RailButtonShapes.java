@@ -29,7 +29,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
 		final RailButton btn = (RailButton)component;
 
-		final double baseHeight = btn.getStandoff();
+		final double baseHeight = btn.getBaseHeight();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
 		
@@ -53,72 +53,73 @@ public class RailButtonShapes extends RocketComponentShape {
 
 		Path2D.Double path = new Path2D.Double();
 		Path2D.Double pathInvis = new Path2D.Double();	// Path for the invisible triangles
-		{// central pillar
-			final double drawWidth = outerDiameter;
-			final double drawHeight = outerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( loc.x, loc.y );
-			Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
-			
-			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+baseHeightcos) ), false);
-			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+baseHeightcos) ), false);
-			
-			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+baseHeightcos), drawWidth, drawHeight), false);
+		{// base cylinder
+			if (baseHeight > 0) {
+				final double drawWidth = outerDiameter;
+				final double drawHeight = outerDiameter * sinr;
+				final Point2D.Double center = new Point2D.Double(loc.x, loc.y);
+				Point2D.Double lowerLeft = new Point2D.Double(center.x - outerRadius, center.y - outerRadius * sinr);
+				path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 
-			// Invisible rectangle
-			double y_invis;
-			if (baseHeightcos >= 0) {
-				y_invis = center.y;
+				path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + baseHeightcos)), false);
+				path.append(new Line2D.Double((center.x + outerRadius), center.y, (center.x + outerRadius), (center.y + baseHeightcos)), false);
+
+				path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + baseHeightcos), drawWidth, drawHeight), false);
+
+				// Invisible rectangle
+				double y_invis;
+				if (baseHeightcos >= 0) {
+					y_invis = center.y;
+				} else {
+					y_invis = center.y + baseHeightcos;
+				}
+				pathInvis.append(new Rectangle2D.Double(center.x - outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
 			}
-			else {
-				y_invis = center.y + baseHeightcos;
-			}
-			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
 		}
 		
-		{// inner flange
+		{// inner cylinder
 			final double drawWidth = innerDiameter;
-			final double drawHeight = innerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( loc.x, loc.y + baseHeightcos);
-			final Point2D.Double lowerLeft = new Point2D.Double( center.x - innerRadius, center.y-innerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
-			
-			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+innerHeightcos) ), false);
-			path.append( new Line2D.Double( (center.x+innerRadius),  center.y, (center.x+innerRadius), (center.y+innerHeightcos) ), false);
-			
-			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+innerHeightcos), drawWidth, drawHeight), false);
+			final double drawHeight = innerDiameter * sinr;
+			final Point2D.Double center = new Point2D.Double(loc.x, loc.y + baseHeightcos);
+			final Point2D.Double lowerLeft = new Point2D.Double(center.x - innerRadius, center.y - innerRadius * sinr);
+			path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
+
+			path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + innerHeightcos)), false);
+			path.append(new Line2D.Double((center.x + innerRadius), center.y, (center.x + innerRadius), (center.y + innerHeightcos)), false);
+
+			path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + innerHeightcos), drawWidth, drawHeight), false);
 
 			// Invisible rectangle
 			double y_invis;
 			if (innerHeightcos >= 0) {
 				y_invis = center.y;
-			}
-			else {
+			} else {
 				y_invis = center.y + innerHeightcos;
 			}
-			pathInvis.append(new Rectangle2D.Double(center.x-innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
+			pathInvis.append(new Rectangle2D.Double(center.x - innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
 		}
-		{// outer flange
-			final double drawWidth = outerDiameter;
-			final double drawHeight = outerDiameter*sinr;
-			final Point2D.Double center = new Point2D.Double( loc.x, loc.y+baseHeightcos+innerHeightcos);
-			final Point2D.Double lowerLeft = new Point2D.Double( center.x - outerRadius, center.y-outerRadius*sinr);
-			path.append( new Ellipse2D.Double( lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
-			
-			path.append( new Line2D.Double( lowerLeft.x,  center.y, lowerLeft.x, (center.y+flangeHeightcos) ), false);
-			path.append( new Line2D.Double( (center.x+outerRadius),  center.y, (center.x+outerRadius), (center.y+flangeHeightcos) ), false);
-			
-			path.append( new Ellipse2D.Double( lowerLeft.x, (lowerLeft.y+flangeHeightcos), drawWidth, drawHeight), false);
+		{// flange cylinder
+			if (flangeHeight > 0) {
+				final double drawWidth = outerDiameter;
+				final double drawHeight = outerDiameter * sinr;
+				final Point2D.Double center = new Point2D.Double(loc.x, loc.y + baseHeightcos + innerHeightcos);
+				final Point2D.Double lowerLeft = new Point2D.Double(center.x - outerRadius, center.y - outerRadius * sinr);
+				path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
 
-			// Invisible rectangle
-			double y_invis;
-			if (flangeHeightcos >= 0) {
-				y_invis = center.y;
+				path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + flangeHeightcos)), false);
+				path.append(new Line2D.Double((center.x + outerRadius), center.y, (center.x + outerRadius), (center.y + flangeHeightcos)), false);
+
+				path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + flangeHeightcos), drawWidth, drawHeight), false);
+
+				// Invisible rectangle
+				double y_invis;
+				if (flangeHeightcos >= 0) {
+					y_invis = center.y;
+				} else {
+					y_invis = center.y + flangeHeightcos;
+				}
+				pathInvis.append(new Rectangle2D.Double(center.x - outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 			}
-			else {
-				y_invis = center.y + flangeHeightcos;
-			}
-			pathInvis.append(new Rectangle2D.Double(center.x-outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 		}
 
 		RocketComponentShape[] shapes = RocketComponentShape.toArray(new Shape[]{ path }, component);
@@ -136,7 +137,7 @@ public class RailButtonShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 		final RailButton btn = (RailButton)component;
 
-		final double baseHeight = btn.getStandoff();
+		final double baseHeight = btn.getBaseHeight();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
 
@@ -159,7 +160,9 @@ public class RailButtonShapes extends RocketComponentShape {
 		Path2D.Double path = new Path2D.Double();
 
 		// base
-		path.append( getRotatedRectangle( loc.z, loc.y, outerRadius, baseHeight, combined_angle_rad), false );
+		if (baseHeight > 0) {
+			path.append(getRotatedRectangle(loc.z, loc.y, outerRadius, baseHeight, combined_angle_rad), false);
+		}
 		
 		{// inner
 			final double delta_r = baseHeight;
@@ -167,11 +170,13 @@ public class RailButtonShapes extends RocketComponentShape {
 			final double delta_z = delta_r*sinr;
 			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, innerRadius, innerHeight, combined_angle_rad), false);
 		}
-		{// outer flange
-			final double delta_r = baseHeight + innerHeight;
-			final double delta_y = delta_r*cosr;
-			final double delta_z = delta_r*sinr;
-			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
+		{// flange
+			if (flangeHeight > 0) {
+				final double delta_r = baseHeight + innerHeight;
+				final double delta_y = delta_r * cosr;
+				final double delta_z = delta_r * sinr;
+				path.append(getRotatedRectangle(loc.z + delta_z, loc.y + delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
+			}
 		}
 
 		return RocketComponentShape.toArray( new Shape[]{ path }, component);
