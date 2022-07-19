@@ -138,8 +138,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.MASS,
 				ComponentPreset.SCREW_MASS,
 				ComponentPreset.NUT_MASS,
-				ComponentPreset.CD,
-				ComponentPreset.FINISH }),
+				ComponentPreset.CD }),
 
 		STREAMER(new TypedKey<?>[] {
 				ComponentPreset.LEGACY,
