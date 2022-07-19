@@ -160,6 +160,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.baseHeight_m = Math.max(newBaseHeight, 0);
 		this.baseHeight_m = Math.min(this.baseHeight_m, this.totalHeight_m - this.flangeHeight_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -172,6 +173,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.flangeHeight_m = Math.max(newFlangeHeight, 0);
 		this.flangeHeight_m = Math.min(this.flangeHeight_m, this.totalHeight_m - this.baseHeight_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -183,6 +185,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.screwHeight_m = Math.max(height, 0);
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public void setInnerDiameter(double newID ){
@@ -193,6 +197,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.innerDiameter_m = Math.min(newID, this.outerDiameter_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -207,6 +212,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.outerDiameter_m = newOD;
 		setInnerDiameter(this.innerDiameter_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -219,6 +225,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.totalHeight_m = Math.max(newHeight, this.flangeHeight_m + this.baseHeight_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -449,7 +456,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			this.flangeHeight_m = preset.get(ComponentPreset.FLANGE_HEIGHT);
 		}
 		if (preset.has(ComponentPreset.BASE_HEIGHT)) {
-			this.standoff_m = preset.get(ComponentPreset.BASE_HEIGHT);
+			this.baseHeight_m = preset.get(ComponentPreset.BASE_HEIGHT);
 		}
 		if (preset.has(ComponentPreset.CD) && preset.get(ComponentPreset.CD) > 0) {
 			setCDOverridden(true);
