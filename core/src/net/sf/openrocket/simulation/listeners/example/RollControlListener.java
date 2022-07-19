@@ -70,7 +70,7 @@ public class RollControlListener extends AbstractSimulationListener {
 		
 		// Find the fin set named CONTROL
 		FinSet finset = null;
-		for (RocketComponent c : status.getConfiguration().getAllComponents()) {
+		for (RocketComponent c : status.getConfiguration().getActiveComponents()) {
 			if ((c instanceof FinSet) && (c.getName().equals(CONTROL_FIN_NAME))) {
 				finset = (FinSet) c;
 				break;
