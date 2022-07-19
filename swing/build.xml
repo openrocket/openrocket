@@ -149,7 +149,7 @@
 		depends="build">
 
 		<for param="vendor-dir">
-			<dirset dir="${resources-src.dir}/datafiles/rocksim_components"
+			<dirset dir="${resources-src.dir}/datafiles/rocksim_src"
 				includes="*"/>
 			<sequential>
 				<propertyregex property="vendor"
