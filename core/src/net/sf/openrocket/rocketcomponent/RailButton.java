@@ -51,6 +51,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	protected double innerDiameter_m;
 	protected double flangeHeight_m;
  	protected double standoff_m;
+	protected double screwHeight_m;		// This has no effect at the moment; is for future use.
 	
 	protected final static double MINIMUM_STANDOFF= 0.001;
 
@@ -90,6 +91,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.setStandoff( _standoff);
 		this.setInstanceSeparation( od*2);
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
+		this.screwHeight_m = 0;
 		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
 	}
@@ -149,6 +151,10 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public double getFlangeHeight() {
 		return this.flangeHeight_m;
 	}
+
+	public double getScrewHeight() {
+		return this.screwHeight_m;
+	}
 	
 	
 	public void setStandoff(double newStandoff){
@@ -159,6 +165,16 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
+	}
+
+	public void setScrewHeight(double height) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setScrewHeight(height);
+			}
+		}
+
+		this.screwHeight_m = Math.max(height, 0);
 	}
 
 	public void setInnerDiameter(double newID ){
@@ -417,4 +433,48 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		return false;
 	}
 
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.outerDiameter_m = preset.get(ComponentPreset.OUTER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+			this.innerDiameter_m = preset.get(ComponentPreset.INNER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.HEIGHT)) {
+			this.totalHeight_m = preset.get(ComponentPreset.HEIGHT);
+		}
+		if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
+			this.flangeHeight_m = preset.get(ComponentPreset.FLANGE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.BASE_HEIGHT)) {
+			this.standoff_m = preset.get(ComponentPreset.BASE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.CD) && preset.get(ComponentPreset.CD) > 0) {
+			setCDOverridden(true);
+			setOverrideCD(preset.get(ComponentPreset.CD));
+		}
+
+		double totalMass = 0;
+		boolean massOverridden = false;
+		if (preset.has(ComponentPreset.MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.MASS);
+		}
+		if (preset.has(ComponentPreset.SCREW_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.SCREW_MASS);
+		}
+		if (preset.has(ComponentPreset.NUT_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.NUT_MASS);
+		}
+		if (massOverridden) {
+			setMassOverridden(true);
+			setOverrideMass(totalMass);
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 }

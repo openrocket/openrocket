@@ -129,12 +129,17 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
-				// these are optional / secondary parameters.  Probably not necessary to include.  
-				//ComponentPreset.BASE_HEIGHT,
-				//ComponentPreset.FLANGE_HEIGHT, 
-				//ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.BASE_HEIGHT,
+				ComponentPreset.FLANGE_HEIGHT,
+				//ComponentPreset.SCREW_HEIGHT,		// Add this later when we implement screws in the rail button
+				ComponentPreset.HEIGHT,
+				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.HEIGHT }),
+				ComponentPreset.MASS,
+				ComponentPreset.SCREW_MASS,
+				ComponentPreset.NUT_MASS,
+				ComponentPreset.CD,
+				ComponentPreset.FINISH }),
 
 		STREAMER(new TypedKey<?>[] {
 				ComponentPreset.LEGACY,
@@ -160,7 +165,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LINE_COUNT,
 				ComponentPreset.LINE_LENGTH,
 				ComponentPreset.LINE_MATERIAL,
-				ComponentPreset.PARACHUTE_CD,
+				ComponentPreset.CD,
 				ComponentPreset.PACKED_DIAMETER,
 				ComponentPreset.PACKED_LENGTH });
 
@@ -206,6 +211,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> AFT_SHOULDER_LENGTH = new TypedKey<Double>("AftShoulderLength", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> AFT_SHOULDER_DIAMETER = new TypedKey<Double>("AftShoulderDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> AFT_OUTER_DIAMETER = new TypedKey<Double>("AftOuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public static final TypedKey<Double> CD = new TypedKey<Double>("DragCoefficient", Double.class, UnitGroup.UNITS_COEFFICIENT);
 	public final static TypedKey<Shape> SHAPE = new TypedKey<Shape>("Shape", Shape.class);
 	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
@@ -214,8 +220,13 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
 	public final static TypedKey<Double> DIAMETER = new TypedKey<Double>("Diameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<byte[]> IMAGE = new TypedKey<byte[]>("Image", byte[].class);
-	public final static TypedKey<Double> STANDOFF_HEIGHT = new TypedKey<Double>("StandoffHeight", Double.class, UnitGroup.UNITS_LENGTH);
+
+	//  RAIL BUTTON SPECIFIC
+	public final static TypedKey<Double> BASE_HEIGHT = new TypedKey<Double>("BaseHeight", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FLANGE_HEIGHT = new TypedKey<Double>("FlangeHeight", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> SCREW_HEIGHT = new TypedKey<Double>("ScrewHeight", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> SCREW_MASS = new TypedKey<Double>("ScrewMass", Double.class, UnitGroup.UNITS_MASS);
+	public final static TypedKey<Double> NUT_MASS = new TypedKey<Double>("NutMass", Double.class, UnitGroup.UNITS_MASS);
 
 	//	PARACHUTE SPECIFIC
 	//	Parachute Manufacturer declaration see: MANUFACTURER
@@ -225,7 +236,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	//	Parachute diameter declaration see: DIAMETER
 	public final static TypedKey<Double> SPILL_DIA = new TypedKey<Double>("SpillDia", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> SURFACE_AREA = new TypedKey<Double>("SurfaceArea", Double.class, UnitGroup.UNITS_LENGTH);
-	public static final TypedKey<Double> PARACHUTE_CD = new TypedKey<Double>("DragCoefficient", Double.class, UnitGroup.UNITS_COEFFICIENT);
+
 	//	Parachute canopy material declaration see: MATERIAL
 	public final static TypedKey<Integer> SIDES = new TypedKey<Integer>("Sides", Integer.class);
 	public final static TypedKey<Integer> LINE_COUNT = new TypedKey<Integer>("LineCount", Integer.class);
@@ -251,8 +262,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			AFT_SHOULDER_LENGTH,
 			FORE_SHOULDER_DIAMETER,
 			FORE_SHOULDER_LENGTH,
-			STANDOFF_HEIGHT,
+			BASE_HEIGHT,
 			FLANGE_HEIGHT,
+			SCREW_HEIGHT,
 			SHAPE,
 			THICKNESS,
 			FILLED,
@@ -262,6 +274,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			LINE_LENGTH,
 			LINE_MATERIAL,
 			MASS,
+			SCREW_MASS,
+			NUT_MASS,
 			FINISH,
 			MATERIAL
 			));
@@ -411,6 +425,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 					os.writeDouble(d);
 				} else if (key.getType() == String.class) {
 					String s = (String) value;
+					if (s == null) {
+						s = "";
+					}
 					os.writeBytes(s);
 				} else if (key.getType() == Manufacturer.class) {
 					String s = ((Manufacturer) value).getSimpleName();

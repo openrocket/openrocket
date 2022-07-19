@@ -1582,8 +1582,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				rbHeight.setValue(preset.get(ComponentPreset.HEIGHT));
 				rbHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
-			if (preset.has(ComponentPreset.STANDOFF_HEIGHT)) {
-				rbStandoffHeight.setValue(preset.get(ComponentPreset.STANDOFF_HEIGHT));
+			if (preset.has(ComponentPreset.BASE_HEIGHT)) {
+				rbStandoffHeight.setValue(preset.get(ComponentPreset.BASE_HEIGHT));
 				rbStandoffHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
 			if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
@@ -1610,8 +1610,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				pcDiameter.setValue(preset.get(ComponentPreset.DIAMETER));
 				pcDiameter.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
-			if (preset.has(ComponentPreset.PARACHUTE_CD)) {
-				pcDragCoefficient.setValue(preset.get(ComponentPreset.PARACHUTE_CD));
+			if (preset.has(ComponentPreset.CD)) {
+				pcDragCoefficient.setValue(preset.get(ComponentPreset.CD));
 				pcDragCoefficient.setCurrentUnit(UnitGroup.UNITS_COEFFICIENT.getDefaultUnit());
 			}
 			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
@@ -2132,7 +2132,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			props.put(ComponentPreset.TYPE, ComponentPreset.Type.RAIL_BUTTON);
 			props.put(ComponentPreset.OUTER_DIAMETER, rbOuterDia.getValue());
 			props.put(ComponentPreset.INNER_DIAMETER, rbInnerDia.getValue());
-			props.put(ComponentPreset.STANDOFF_HEIGHT, rbStandoffHeight.getValue());
+			props.put(ComponentPreset.BASE_HEIGHT, rbStandoffHeight.getValue());
 			props.put(ComponentPreset.FLANGE_HEIGHT, rbFlangeHeight.getValue());
 			props.put(ComponentPreset.DESCRIPTION, rbDescTextField.getText());
 			props.put(ComponentPreset.PARTNO, rbPartNoTextField.getText());
@@ -2179,7 +2179,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(mfgTextField.getText()));
 			props.put(ComponentPreset.PARTNO, pcPartNoTextField.getText());
 			props.put(ComponentPreset.DESCRIPTION, pcDescTextField.getText());
-			props.put(ComponentPreset.PARACHUTE_CD, pcDragCoefficient.getValue());
+			props.put(ComponentPreset.CD, pcDragCoefficient.getValue());
 			Material material = (Material) materialChooser.getSelectedItem();
 			if (material != null) {
 				props.put(ComponentPreset.MATERIAL, material);
