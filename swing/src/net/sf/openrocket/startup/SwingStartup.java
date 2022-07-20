@@ -223,7 +223,8 @@ public class SwingStartup {
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
-			BasicFrame.reopen();
+			BasicFrame startupFrame = BasicFrame.reopen();
+			BasicFrame.setStartupFrame(startupFrame);
 		}
 		
 		// Check whether update info has been fetched or whether it needs more time
@@ -298,7 +299,7 @@ public class SwingStartup {
 		// Check command-line for files
 		boolean opened = false;
 		for (String file : args) {
-			if (BasicFrame.open(new File(file), null)) {
+			if (BasicFrame.open(new File(file), null) != null) {
 				opened = true;
 			}
 		}

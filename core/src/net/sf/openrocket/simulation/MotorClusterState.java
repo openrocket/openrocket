@@ -4,6 +4,7 @@ import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -121,8 +122,8 @@ public class MotorClusterState {
 	/**
 	 * Compute the average thrust over an interval.
 	 * 
-	 * @param simulationTime
-	 * @param cond
+	 * @param startSimulationTime start time of the averaging interval
+	 * @param endSimulationTime end time of the averaging interval
 	 * @return
 	 */
 	public double getAverageThrust( final double startSimulationTime, final double endSimulationTime) {
@@ -141,7 +142,6 @@ public class MotorClusterState {
 	 * Compute the average thrust over an interval.
 	 * 
 	 * @param simulationTime
-	 * @param cond
 	 * @return
 	 */
 	public double getThrust( final double simulationTime){
@@ -182,9 +182,9 @@ public class MotorClusterState {
 		currentState = ThrustState.ARMED;
 	}
 	
-	public boolean testForIgnition( final FlightEvent _event ){
+	public boolean testForIgnition(FlightConfiguration flightConfiguration, final FlightEvent _event ){
 		RocketComponent mount = (RocketComponent) this.getMount();
-		return getIgnitionEvent().isActivationEvent( _event, mount);
+		return getIgnitionEvent().isActivationEvent(flightConfiguration, _event, mount);
 	}
 	
 	public String toDescription(){

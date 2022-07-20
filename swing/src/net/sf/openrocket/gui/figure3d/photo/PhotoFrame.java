@@ -108,7 +108,7 @@ public class PhotoFrame extends JFrame {
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
 			{
-				setContentPane(new PhotoSettingsConfig(p));
+				setContentPane(new PhotoSettingsConfig(p, document));
 				pack();
 				this.setLocationByPlatform(true);
 				GUIUtil.rememberWindowSize(this);

@@ -1,9 +1,12 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -162,6 +165,30 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		return recoveryTable;
 	}
 
+	@Override
+	protected void installTableListener() {
+		super.installTableListener();
+
+		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				updateComponentSelection(e);
+			}
+		});
+
+		table.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+
+			}
+		});
+	}
+
 	public void selectDeployment() {
 		List<RecoveryDevice> devices = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
@@ -237,6 +264,16 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 
 	private void doPopupFull(MouseEvent e) {
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	public void updateComponentSelection(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
+			return;
+		}
+		List<RocketComponent> components = new ArrayList<>(getSelectedComponents());
+		if (components.size() == 0) return;
+
+		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
 	public void updateButtonState() {

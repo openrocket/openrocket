@@ -11,6 +11,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -93,7 +94,6 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		// // Always open leftmost tab when opening a component edit dialog
 		final JCheckBox alwaysOpenLeftmostTab = new JCheckBox(
 				trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost"));
-
 		alwaysOpenLeftmostTab.setSelected(preferences.isAlwaysOpenLeftmostTab());
 		alwaysOpenLeftmostTab.setToolTipText(trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost.ttip"));
 		alwaysOpenLeftmostTab.addActionListener(new ActionListener() {
@@ -103,7 +103,7 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 						.isSelected());
 			}
 		});
-		this.add(alwaysOpenLeftmostTab, "wrap, growx, span 2");
+		this.add(alwaysOpenLeftmostTab, "wrap, growx, spanx");
 
 		// // Update flight estimates in the design window
 		final JCheckBox updateEstimates = new JCheckBox(
@@ -117,5 +117,23 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(updateEstimates, "wrap, growx, sg combos ");
+
+		// // Only show pod set/booster markers when they are selected
+		final JCheckBox showMarkers = new JCheckBox(
+				trans.get("pref.dlg.checkbox.Markers"));
+		showMarkers.setToolTipText(trans.get("pref.dlg.checkbox.Markers.ttip"));
+		showMarkers.setSelected(preferences.isShowMarkers());
+		showMarkers.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setShowMarkers(showMarkers
+						.isSelected());
+				// Update all BasicFrame rocket panel figures because it can change due to the preference change
+				for (BasicFrame frame : BasicFrame.getAllFrames()) {
+					frame.getRocketPanel().updateFigures();
+				}
+			}
+		});
+		this.add(showMarkers, "wrap, growx, spanx");
 	}
 }

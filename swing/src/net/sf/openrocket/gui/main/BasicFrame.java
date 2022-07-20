@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -116,7 +117,8 @@ public class BasicFrame extends JFrame {
 	 * List of currently open frames.  When the list goes empty
 	 * it is time to exit the application.
 	 */
-	private static final ArrayList<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static final List<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static BasicFrame startupFrame = null;	// the frame that was created at startup
 
 
 	/**
@@ -300,23 +302,28 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				TreePath selPath = e.getNewLeadSelectionPath();
-				if (selPath == null) return;
-				RocketComponent c = (RocketComponent) selPath.getLastPathComponent();
+				if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
+						|| rocketpanel == null) return;
 
-				if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
-					if (rocketpanel == null) return;
-
-					List<RocketComponent> children = new LinkedList<>();
-					for (RocketComponent child : c) {
-						children.add(child);
+				// Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
+				List<RocketComponent> children = new ArrayList<>(Arrays.asList(rocketpanel.getFigure().getSelection()));
+				for (TreePath p : tree.getSelectionPaths()) {
+					if (p != null) {
+						RocketComponent c = (RocketComponent) p.getLastPathComponent();
+						if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
+							Iterator<RocketComponent> iter = c.iterator(false);
+							while (iter.hasNext()) {
+								RocketComponent child = iter.next();
+								children.add(child);
+							}
+						}
 					}
+				}
 
-					// Select all the child components
-					if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
-						rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
-						rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
-					}
+				// Select all the child components
+				if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
+					rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
+					rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
 				}
 			}
 		});
@@ -481,6 +488,10 @@ public class BasicFrame extends JFrame {
 		}
 
 		return result;
+	}
+
+	public RocketPanel getRocketPanel() {
+		return rocketpanel;
 	}
 
 	/**
@@ -1225,6 +1236,19 @@ public class BasicFrame extends JFrame {
 		return menu;
 	}
 
+	/**
+	 * Return the frame that was created at the application's startup.
+	 */
+	public static BasicFrame getStartupFrame() {
+		return startupFrame;
+	}
+
+	/**
+	 * Set the frame that is created at the application's startup.
+	 */
+	public static void setStartupFrame(BasicFrame startupFrame) {
+		BasicFrame.startupFrame = startupFrame;
+	}
 
 	/**
 	 * Select the tab on the main pane.
@@ -1267,7 +1291,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, parent)) {
+			if (open(file, parent) != null) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1297,7 +1321,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, this)) {
+			if (open(file, this) != null) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1367,9 +1391,9 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param file		the file to open.
 	 * @param parent	the parent component for which a progress dialog is opened.
-	 * @return			whether the file was successfully loaded and opened.
+	 * @return			the BasicFrame that was created, or null if not created successfully.
 	 */
-	public static boolean open(File file, Window parent) {
+	public static BasicFrame open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file);
 		return open(worker, file.getName(), parent, false);
 	}
@@ -1382,15 +1406,15 @@ public class BasicFrame extends JFrame {
 	 * @param displayName	the file name to display in dialogs.
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
-	 * @return
+	 * @return the BasicFrame that was created, or null if not created successfully.
 	 */
-	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
+	private static BasicFrame open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
 		////	Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
 		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
 			//	//	User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
-			return false;
+			return null;
 		}
 
 		////	Handle the document
@@ -1409,7 +1433,7 @@ public class BasicFrame extends JFrame {
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 
 			} else if (cause instanceof RocketLoadException) {
 
@@ -1418,7 +1442,7 @@ public class BasicFrame extends JFrame {
 						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 
 			} else {
 
@@ -1462,7 +1486,7 @@ public class BasicFrame extends JFrame {
 			ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
 		}
 
-		return true;
+		return frame;
 	}
 
 
@@ -1768,24 +1792,27 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Opens a new design file or the last design file, if set in the preferences.
 	 * Can be used for reopening the application or opening it the first time.
+	 * @return the BasicFrame that was created
 	 */
-	public static void reopen() {
+	public static BasicFrame reopen() {
 		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-			BasicFrame.newAction();
+			return BasicFrame.newAction();
 		} else {
 			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
 			if (lastFile != null) {
 				log.info("Opening last design file: " + lastFile);
-				if (!BasicFrame.open(new File(lastFile), null)) {
+				BasicFrame frame = BasicFrame.open(new File(lastFile), null);
+				if (frame == null) {
 					MRUDesignFile.getInstance().removeFile(lastFile);
-					BasicFrame.newAction();
+					return BasicFrame.newAction();
 				}
 				else {
 					MRUDesignFile.getInstance().addFile(lastFile);
+					return frame;
 				}
 			}
 			else {
-				BasicFrame.newAction();
+				return BasicFrame.newAction();
 			}
 		}
 	}
@@ -1793,8 +1820,9 @@ public class BasicFrame extends JFrame {
 
 	/**
 	 * Open a new design window with a basic rocket+stage.
+	 * @return the BasicFrame that was created
 	 */
-	public static void newAction() {
+	public static BasicFrame newAction() {
 		log.info("New action initiated");
 
 		OpenRocketDocument doc = OpenRocketDocumentFactory.createNewRocket();
@@ -1802,6 +1830,7 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.replaceable = true;
 		frame.setVisible(true);
+		return frame;
 	}
 
 
@@ -1863,6 +1892,13 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Return all BasicFrame instances
+	 */
+	public static List<BasicFrame> getAllFrames() {
+		return frames;
 	}
 
 	/**

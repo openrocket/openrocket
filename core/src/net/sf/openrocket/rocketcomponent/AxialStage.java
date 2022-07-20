@@ -67,6 +67,23 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		 return BodyComponent.class.isAssignableFrom(type);
 	}
+
+	/**
+	 * Returns whether the current stage is active in the currently selected configuration.
+	 * @return true if the stage is active, false if not
+	 */
+	public boolean isStageActive() {
+		return getRocket().getSelectedConfiguration().isStageActive(getStageNumber());
+	}
+
+	/**
+	 * Returns whether the current stage is active in the flight configuration.
+	 * @param fc the flight configuration to check
+	 * @return true if the stage is active, false if not
+	 */
+	public boolean isStageActive(FlightConfiguration fc) {
+		return fc.isStageActive(getStageNumber());
+	}
 	
 	@Override
 	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
@@ -113,11 +130,11 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 
 	/**
 	 * returns if the object is a launch stage
+	 * @param config the flight configuration which will check which stages are active
 	 * @return	if the object is a launch stage
 	 */
-	public boolean isLaunchStage(){
-		return ( this instanceof ParallelStage )
-				||( getRocket().getBottomCoreStage().equals(this));
+	public boolean isLaunchStage(FlightConfiguration config) {
+		return (getRocket().getBottomCoreStage(config).equals(this));
 	}
 
 	/**

@@ -22,8 +22,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -36,6 +38,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -61,6 +64,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private JComboBox<?> presetComboBox;
 	private PresetModel presetModel;
+	protected Component focusElement = null;	// Element that will be focused on after a preset is selected
 	
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
@@ -100,7 +104,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Component name:
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
-		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
+		label.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(label, "spanx, height 32!, split");
 
 		componentNameField = new JTextField(15);
@@ -108,15 +112,27 @@ public class RocketComponentConfig extends JPanel {
 		componentNameField.addActionListener(textFieldListener);
 		componentNameField.addFocusListener(textFieldListener);
 		//// The component name.
-		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
+		componentNameField.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(componentNameField, "growx");
 
 		if (allSameType && component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
 			presetComboBox = new JComboBox(presetModel);
+			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
-			this.add(presetComboBox, "");
+			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
+			this.add(presetComboBox, "growx 110");
+
+			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
+			selectPreset.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selectPreset();
+				}
+			});
+			this.add(selectPreset);
 		}
 
 		tabbedPane = new JTabbedPane();
@@ -124,17 +140,17 @@ public class RocketComponentConfig extends JPanel {
 
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
-				trans.get("RocketCompCfg.tab.MassandCGoverride"));
+				trans.get("RocketCompCfg.tab.Override.ttip"));
 		if (allMassive) {
 			//// Appearance options
 			appearancePanel = new AppearancePanel(document, component, parent);
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
-					"Appearance Tool Tip");
+					trans.get("RocketCompCfg.tab.Appearance.ttip"));
 		}
 
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
-				trans.get("RocketCompCfg.tab.Specifyacomment"));
+				trans.get("RocketCompCfg.tab.Comment.ttip"));
 
 		addButtons();
 
@@ -239,6 +255,24 @@ public class RocketComponentConfig extends JPanel {
 		} else {
 			multiCompEditLabel.setText("");
 		}
+	}
+
+	private void selectPreset() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if (presetComboBox == null || presetModel == null) return;
+				((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
+				ComponentPresetChooserDialog dialog =
+						new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(RocketComponentConfig.this), component);
+				dialog.setVisible(true);
+				ComponentPreset preset = dialog.getSelectedComponentPreset();
+				if (preset != null) {
+					presetModel.setSelectedItem(preset);
+				}
+				((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
+			}
+		});
 	}
 
 	public void clearConfigListeners() {
@@ -700,6 +734,24 @@ public class RocketComponentConfig extends JPanel {
 			if (!component.getComment().equals(commentTextArea.getText())) {
 				component.setComment(commentTextArea.getText());
 			}
+		}
+	}
+
+	/**
+	 * Requests focus for the focus element that should be active after a preset is selected.
+	 */
+	public void setFocusElement() {
+		if (focusElement != null) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if (focusElement instanceof JSpinner) {
+						SpinnerEditor ed = (SpinnerEditor) ((JSpinner)focusElement).getEditor();
+						ed.getTextField().requestFocusInWindow();
+					} else {
+						focusElement.requestFocusInWindow();
+					}
+				}
+			});
 		}
 	}
 	

@@ -346,7 +346,7 @@ public class ScaleDialog extends JDialog {
 		panel.add(selectionOption, "growx, wrap para*2");
 
 		// Select the 'scale component / scale selection and all subcomponents' if a component is selected
-		if (selection != null && selection.size() > 0) {
+		if (options.size() > 1 && selection != null && selection.size() > 0) {
 			boolean entireRocket = false;	// Flag to scale entire rocket
 			for (RocketComponent component : selection) {
 				if (component instanceof Rocket || (component instanceof AxialStage && !(component instanceof ParallelStage))) {

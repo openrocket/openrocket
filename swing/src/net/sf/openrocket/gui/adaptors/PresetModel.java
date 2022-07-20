@@ -5,16 +5,14 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.SwingUtilities;
 
-import net.sf.openrocket.database.ComponentPresetDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.gui.configdialog.RocketComponentConfig;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -29,8 +27,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String NONE_SELECTED = trans.get("lbl.select");
-	private static final String SELECT_DATABASE = trans.get("lbl.database");
+	private static final String NONE_SELECTED = String.format("<html><i>%s</i></html>", trans.get("PresetModel.lbl.custompreset"));
 	
 	private final Component parent;
 	private final RocketComponent component;
@@ -50,16 +47,13 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	@Override
 	public int getSize() {
-		return presets.size() + 2;
+		return presets.size() + 1;
 	}
 	
 	@Override
 	public Object getElementAt(int index) {
 		if (index == 0) {
 			return NONE_SELECTED;
-		}
-		if (index == getSize() - 1) {
-			return SELECT_DATABASE;
 		}
 		return presets.get(index - 1);
 	}
@@ -72,24 +66,10 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 			throw new BugException("item is null");
 		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
-		} else if (item.equals(SELECT_DATABASE)) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(PresetModel.this);
-					ComponentPresetChooserDialog dialog =
-							new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(parent), component);
-					dialog.setVisible(true);
-					ComponentPreset preset = dialog.getSelectedComponentPreset();
-					if (preset != null) {
-						setSelectedItem(preset);
-					}
-					((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(PresetModel.this);
-				}
-			});
 		} else {
 			document.addUndoPosition("Use Preset " + component.getComponentName());
 			component.loadPreset((ComponentPreset) item);
+			((RocketComponentConfig) parent).setFocusElement();
 		}
 	}
 	

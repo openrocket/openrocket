@@ -163,6 +163,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
+		focusElement = spin;
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");

@@ -197,24 +197,37 @@ public class Rocket extends ComponentAssembly {
 	public AxialStage getStage( final int stageNumber ) {
 		return this.stageMap.get( stageNumber);
 	}
-	
-	/*
-	 * Returns the stage at the top of the central stack
-	 * 
-	 * @Return a reference to the topmost stage
+
+	/**
+	 * Get the topmost stage, only taking into account active stages from the flight configuration.
+	 * @param config flight configuration dictating which stages are active
+	 * @return the topmost active stage, or null if there are no active stages.
 	 */
-	public AxialStage getTopmostStage(){
-		return (AxialStage) getChild(0);
+	public AxialStage getTopmostStage(FlightConfiguration config) {
+		if (config == null) return null;
+
+		for (int i = 0; i < getChildCount(); i++) {
+			if (getChild(i) instanceof AxialStage && config.isStageActive(getChild(i).getStageNumber())) {
+				return (AxialStage) getChild(i);
+			}
+		}
+		return null;
 	}
-	
-	/*
-	 * Returns the stage at the top of the central stack
-	 * 
-	 * @Return a reference to the topmost stage
+
+	/**
+	 * Get the bottommost stage, only taking into account active stages from the flight configuration.
+	 * @param config flight configuration dictating which stages are active
+	 * @return the bottommost active stage, or null if there are no active stages.
 	 */
-	/*package-local*/ AxialStage getBottomCoreStage(){
-		// get last stage that's a direct child of the rocket.
-		return (AxialStage) children.get( children.size()-1 );
+	public AxialStage getBottomCoreStage(FlightConfiguration config) {
+		if (config == null) return null;
+
+		for (int i = getChildCount() - 1; i >= 0; i--) {
+			if (getChild(i) instanceof AxialStage && config.isStageActive(getChild(i).getStageNumber())) {
+				return (AxialStage) getChild(i);
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -274,6 +287,11 @@ public class Rocket extends ComponentAssembly {
 		refType = type;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
+
+	@Override
+	public double getLength() {
+		return selectedConfiguration.getLength();
+	}
 	
 	
 	public double getCustomReferenceLength() {
@@ -290,6 +308,17 @@ public class Rocket extends ComponentAssembly {
 		if (refType == ReferenceType.CUSTOM) {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
+	}
+
+	@Override
+	public double getBoundingRadius() {
+		double bounding = 0;
+		for (RocketComponent comp : children) {
+			if (comp instanceof ComponentAssembly) {
+				bounding = Math.max(bounding, ((ComponentAssembly) comp).getBoundingRadius());
+			}
+		}
+		return bounding;
 	}
 	
 	
@@ -390,10 +419,12 @@ public class Rocket extends ComponentAssembly {
 		this.stageMap = r.stageMap;		
 
 		// these flight configurations need to reference the _this_ Rocket:
+		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
 		for (FlightConfigurationId key : r.configSet.map.keySet()) {
 			this.configSet.set(key, new FlightConfiguration(this, key));
 		}
+		this.selectedConfiguration = this.configSet.get(r.getSelectedConfiguration().getId());
 
 		this.perfectFinish = r.perfectFinish;
 		
@@ -734,6 +765,14 @@ public class Rocket extends ComponentAssembly {
         this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
         return nextConfig.getFlightConfigurationID();
+	}
+
+	/**
+	 * Return all the flight configurations of this rocket.
+	 * @return all the flight configurations of this rocket.
+	 */
+	public FlightConfigurableParameterSet<FlightConfiguration> getFlightConfigurations() {
+		return this.configSet;
 	}
 	
 	

@@ -104,7 +104,7 @@ public class MassCalculator implements Monitorable {
 	public static RigidBody calculate( final MassCalculation.Type _type, final SimulationStatus status ){
 		final FlightConfiguration config = status.getConfiguration();
 		final double time = status.getSimulationTime();
-		final Collection<MotorClusterState> activeMotorList = status.getMotors();
+		final Collection<MotorClusterState> activeMotorList = status.getActiveMotors();
 		MassCalculation calculation= new MassCalculation( _type, config, time, activeMotorList, config.getRocket(), Transformation.IDENTITY, null);
 		
 		calculation.calculateAssembly();
