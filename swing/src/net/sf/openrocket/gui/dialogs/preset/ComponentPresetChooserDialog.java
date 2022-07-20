@@ -25,6 +25,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -149,7 +150,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, width 700lp, height 300lp, pushy, spanx, wrap rel");
 		
-		panel.add(new JLabel(Chars.UP_ARROW + " " + trans.get("lbl.favorites")), "spanx, gapleft 5px, wrap para");
+		panel.add(new StyledLabel(String.format("<html>%s %s</html>", Chars.UP_ARROW, trans.get("lbl.favorites")), -1), "spanx, gapleft 5px, wrap para");
 		
 		
 		// Close buttons
