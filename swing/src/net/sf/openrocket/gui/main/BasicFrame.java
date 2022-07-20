@@ -843,9 +843,6 @@ public class BasicFrame extends JFrame {
 
 		//	Tools
 		menu = new JMenu(trans.get("main.menu.tools"));
-
-		////	Analyzing the rocket
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.desc"));
 		menubar.add(menu);
 
 		////	Component analysis
