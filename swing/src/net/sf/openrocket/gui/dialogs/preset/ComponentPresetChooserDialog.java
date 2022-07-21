@@ -222,6 +222,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
 			final SymmetricComponent prevSym = curSym.getPreviousSymmetricComponent();
 			if (prevSym != null && foreDiameterColumnIndex >= 0) {
+				foreDiameterFilterCheckBox.setSelected(true);
 				foreDiameterFilter = new ComponentPresetRowFilter(prevSym.getAftRadius() * 2.0, foreDiameterColumnIndex);
 				panel.add(foreDiameterFilterCheckBox, "wrap");
 				foreDiameterFilterCheckBox.addItemListener(new ItemListener() {
@@ -238,6 +239,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
 			final SymmetricComponent nextSym = curSym.getNextSymmetricComponent();
 			if (nextSym != null && aftDiameterColumnIndex >= 0) {
+				aftDiameterFilterCheckBox.setSelected(true);
 				aftDiameterFilter = new ComponentPresetRowFilter(nextSym.getForeRadius() * 2.0, aftDiameterColumnIndex);
 				panel.add(aftDiameterFilterCheckBox, "wrap");
 				aftDiameterFilterCheckBox.addItemListener(new ItemListener() {
