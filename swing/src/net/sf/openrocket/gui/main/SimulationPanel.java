@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.swing.AbstractAction;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -31,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -433,16 +435,7 @@ public class SimulationPanel extends JPanel {
 		// Override processKeyBinding so that the JTable does not catch
 		// key bindings used in menu accelerators
 		simulationTable = new ColumnTable(simulationTableModel) {
-
 			private static final long serialVersionUID = -5799340181229735630L;
-
-			@Override
-			protected boolean processKeyBinding(KeyStroke ks,
-					KeyEvent e,
-					int condition,
-					boolean pressed) {
-				return false;
-			}
 		};
 		ColumnTableRowSorter simulationTableSorter = new ColumnTableRowSorter(simulationTableModel);
 		simulationTable.setRowSorter(simulationTableSorter);
