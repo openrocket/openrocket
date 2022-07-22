@@ -496,11 +496,14 @@ public class SimulationPanel extends JPanel {
 		});
 
 		simulationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			private int previousRow = -1;
+			private int previousSelectedRow = -1;
+			private int previousSelectedRowCount = 0;
 			public void valueChanged(ListSelectionEvent event) {
-				if (simulationTable.getSelectedRow() != previousRow) {
+				if ((simulationTable.getSelectedRow() != previousSelectedRow) ||
+						(simulationTable.getSelectedRowCount() != previousSelectedRowCount)) {
 					updateButtonStates();
-					previousRow = simulationTable.getSelectedRow();
+					previousSelectedRow = simulationTable.getSelectedRow();
+					previousSelectedRowCount = simulationTable.getSelectedRowCount();
 				}
 			}
 		});
@@ -699,10 +702,11 @@ public class SimulationPanel extends JPanel {
 		} else {
 			if (selection.length > 1) {
 				plotButton.setEnabled(false);
+				editButton.setEnabled(false);
 			} else {
 				plotButton.setEnabled(true);
+				editButton.setEnabled(true);
 			}
-			editButton.setEnabled(true);
 			runButton.setEnabled(true);
 			deleteButton.setEnabled(true);
 		}
