@@ -516,8 +516,6 @@ public class Rocket extends ComponentAssembly {
 			while (iterator.hasNext()) {
 				iterator.next().componentChanged(cce);
 			}
-			
-			updateConfigurations();
 
 			notifyAllListeners(cce);
 			
