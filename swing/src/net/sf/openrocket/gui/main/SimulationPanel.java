@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.swing.AbstractAction;
-import javax.swing.InputMap;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -32,7 +32,6 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -100,83 +99,55 @@ public class SimulationPanel extends JPanel {
 	private final JButton plotButton;
 	private final JPopupMenu pm;
 
+	private final SimulationAction editSimulationAction;
+	private final SimulationAction runSimulationAction;
+	private final SimulationAction plotSimulationAction;
+	private final SimulationAction duplicateSimulationAction;
+	private final SimulationAction deleteSimulationAction;
+
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
 		this.document = doc;
 
 
+		// Simulation actions
+		SimulationAction newSimulationAction = new NewSimulationAction();
+		editSimulationAction = new EditSimulationAction();
+		runSimulationAction = new RunSimulationAction();
+		plotSimulationAction = new PlotSimulationAction();
+		duplicateSimulationAction = new DuplicateSimulationAction();
+		deleteSimulationAction = new DeleteSimulationAction();
 
-		////////  The simulation action buttons
+		////////  The simulation action buttons ////////
 
 		//// New simulation button
-		{
-			JButton button = new SelectColorButton(trans.get("simpanel.but.newsimulation"));
-			//// Add a new simulation
-			button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Simulation sim = new Simulation(document.getRocket());
-					sim.setName(document.getNextSimulationName());
-
-					int n = document.getSimulationCount();
-					document.addSimulation(sim);
-					simulationTableModel.fireTableDataChanged();
-					simulationTable.clearSelection();
-					simulationTable.addRowSelectionInterval(n, n);
-
-					openDialog(false, sim);
-				}
-			});
-			this.add(button, "skip 1, gapright para");
-		}
+		JButton newButton = new SelectColorButton();
+		tieActionToButtonNoIcon(newButton, newSimulationAction, trans.get("simpanel.but.newsimulation"));
+		newButton.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
+		this.add(newButton, "skip 1, gapright para");
 
 		//// Edit simulation button
-		editButton = new SelectColorButton(trans.get("simpanel.but.editsimulation"));
-		//// Edit the selected simulation
+		editButton = new SelectColorButton();
+		tieActionToButtonNoIcon(editButton, editSimulationAction, trans.get("simpanel.but.editsimulation"));
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
-		editButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				editSimulation();
-			}
-		});
 		this.add(editButton, "gapright para");
 
 		//// Run simulations
-		runButton = new SelectColorButton(trans.get("simpanel.but.runsimulations"));
-		//// Re-run the selected simulations
+		runButton = new SelectColorButton();
+		tieActionToButtonNoIcon(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
-		runButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				runSimulation();
-			}
-		});
 		this.add(runButton, "gapright para");
 
 		//// Delete simulations button
-		deleteButton = new SelectColorButton(trans.get("simpanel.but.deletesimulations"));
-		//// Delete the selected simulations
+		deleteButton = new SelectColorButton();
+		tieActionToButtonNoIcon(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
 		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
-		deleteButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteSimulation();
-			}
-		});
 		this.add(deleteButton, "gapright para");
 
 		//// Plot / export button
-		plotButton = new SelectColorButton(trans.get("simpanel.but.plotexport"));
-		//		button = new SelectColorButton("Plot flight");
-		plotButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				plotSimulation();
-			}
-		});
+		plotButton = new SelectColorButton();
+		tieActionToButtonNoIcon(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 
 
@@ -268,7 +239,7 @@ public class SimulationPanel extends JPanel {
 						if (row < 0 || row >= document.getSimulationCount()){
 							return null;
 						}
-						
+
 						Rocket rkt = document.getRocket();
 						FlightConfigurationId fcid = document.getSimulation(row).getId();
 						return descriptor.format( rkt, fcid);
@@ -423,7 +394,7 @@ public class SimulationPanel extends JPanel {
 				}
 
 				) {
-	
+
 				private static final long serialVersionUID = 8686456963492628476L;
 
 			@Override
@@ -442,14 +413,15 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
-		
-		 pm = new JPopupMenu();
-		 pm.add(new EditSimulationAction());
-		 pm.add(new DuplicateSimulationAction());
-		 pm.add(new DeleteSimulationAction());
-		 pm.addSeparator();
-		 pm.add(new RunSimulationAction());
-		 pm.add(new PlotSimulationAction());
+
+		// Context menu
+		pm = new JPopupMenu();
+		pm.add(editSimulationAction);
+		pm.add(duplicateSimulationAction);
+		pm.add(deleteSimulationAction);
+		pm.addSeparator();
+		pm.add(runSimulationAction);
+		pm.add(plotSimulationAction);
 
 
 		// Mouse listener to act on double-clicks
@@ -526,6 +498,19 @@ public class SimulationPanel extends JPanel {
 		this.add(scrollpane, "spanx, grow, wrap rel");
 
 		updateButtonStates();
+	}
+
+	private void newSimulation() {
+		Simulation sim = new Simulation(document.getRocket());
+		sim.setName(document.getNextSimulationName());
+
+		int n = document.getSimulationCount();
+		document.addSimulation(sim);
+		simulationTableModel.fireTableDataChanged();
+		simulationTable.clearSelection();
+		simulationTable.addRowSelectionInterval(n, n);
+
+		openDialog(false, sim);
 	}
 
 	private void plotSimulation() {
@@ -686,24 +671,11 @@ public class SimulationPanel extends JPanel {
     }
 	
 	private void updateButtonStates() {
-		int[] selection = simulationTable.getSelectedRows();
-		if (selection.length == 0) {
-			editButton.setEnabled(false);
-			runButton.setEnabled(false);
-			deleteButton.setEnabled(false);
-			plotButton.setEnabled(false);
-		} else {
-			if (selection.length > 1) {
-				plotButton.setEnabled(false);
-				editButton.setEnabled(false);
-			} else {
-				plotButton.setEnabled(true);
-				editButton.setEnabled(true);
-			}
-			runButton.setEnabled(true);
-			deleteButton.setEnabled(true);
-		}
-
+		editSimulationAction.updateEnabledState();
+		deleteSimulationAction.updateEnabledState();
+		runSimulationAction.updateEnabledState();
+		plotSimulationAction.updateEnabledState();
+		duplicateSimulationAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
@@ -775,7 +747,37 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
-	class EditSimulationAction extends AbstractAction {
+	private void tieActionToButtonNoIcon(JButton button, Action action, String text) {
+		button.setAction(action);
+		button.setIcon(null);
+		button.setText(text);
+	}
+
+	private abstract static class SimulationAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		public abstract void updateEnabledState();
+	}
+
+	class NewSimulationAction extends SimulationAction {
+		public NewSimulationAction() {
+			putValue(NAME, trans.get("simpanel.but.newsimulation"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_N);
+			this.putValue(SMALL_ICON, Icons.FILE_NEW);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			newSimulation();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(true);
+		}
+	}
+
+	class EditSimulationAction extends SimulationAction {
 		public EditSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.edit"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
@@ -787,9 +789,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			editSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() == 1);
+		}
 	}
 
-	class RunSimulationAction extends AbstractAction {
+	class RunSimulationAction extends SimulationAction {
 		public RunSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.run"));
 			putValue(SMALL_ICON, Icons.SIM_RUN);
@@ -799,9 +806,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			runSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
 	}
 
-	class DeleteSimulationAction extends AbstractAction {
+	class DeleteSimulationAction extends SimulationAction {
 		public DeleteSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.delete"));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
@@ -813,9 +825,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			deleteSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
 	}
 
-	class PlotSimulationAction extends AbstractAction {
+	class PlotSimulationAction extends SimulationAction {
 		public PlotSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.plot"));
 			putValue(SMALL_ICON, Icons.SIM_PLOT);
@@ -825,9 +842,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			plotSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() == 1);
+		}
 	}
 
-	class DuplicateSimulationAction extends AbstractAction {
+	class DuplicateSimulationAction extends SimulationAction {
         public DuplicateSimulationAction() {
             putValue(NAME, trans.get("simpanel.pop.duplicate"));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
@@ -839,7 +861,12 @@ public class SimulationPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
 			duplicateSimulation();
         }
-    }
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
+	}
 	
 	public static class CellTransferable implements Transferable {
 
