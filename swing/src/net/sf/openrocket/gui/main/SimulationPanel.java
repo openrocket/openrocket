@@ -10,7 +10,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,7 +18,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -123,31 +121,31 @@ public class SimulationPanel extends JPanel {
 
 		//// New simulation button
 		JButton newButton = new SelectColorButton();
-		tieActionToButtonNoIcon(newButton, newSimulationAction, trans.get("simpanel.but.newsimulation"));
+		RocketActions.tieActionToButtonNoIcon(newButton, newSimulationAction, trans.get("simpanel.but.newsimulation"));
 		newButton.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
 		this.add(newButton, "skip 1, gapright para");
 
 		//// Edit simulation button
 		editButton = new SelectColorButton();
-		tieActionToButtonNoIcon(editButton, editSimulationAction, trans.get("simpanel.but.editsimulation"));
+		RocketActions.tieActionToButtonNoIcon(editButton, editSimulationAction, trans.get("simpanel.but.editsimulation"));
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
 		this.add(editButton, "gapright para");
 
 		//// Run simulations
 		runButton = new SelectColorButton();
-		tieActionToButtonNoIcon(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
+		RocketActions.tieActionToButtonNoIcon(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
 
 		//// Delete simulations button
 		deleteButton = new SelectColorButton();
-		tieActionToButtonNoIcon(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
+		RocketActions.tieActionToButtonNoIcon(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
 		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
 		this.add(deleteButton, "gapright para");
 
 		//// Plot / export button
 		plotButton = new SelectColorButton();
-		tieActionToButtonNoIcon(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
+		RocketActions.tieActionToButtonNoIcon(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 
 
@@ -745,12 +743,6 @@ public class SimulationPanel extends JPanel {
 				break;
 			simulationTable.addRowSelectionInterval(row, row);
 		}
-	}
-
-	private void tieActionToButtonNoIcon(JButton button, Action action, String text) {
-		button.setAction(action);
-		button.setIcon(null);
-		button.setText(text);
 	}
 
 	private abstract static class SimulationAction extends AbstractAction {
