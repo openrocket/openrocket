@@ -11,6 +11,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -430,19 +433,8 @@ public class SimulationPanel extends JPanel {
 			}
 		};
 
-		// Override processKeyBinding so that the JTable does not catch
-		// key bindings used in menu accelerators
 		simulationTable = new ColumnTable(simulationTableModel) {
-
 			private static final long serialVersionUID = -5799340181229735630L;
-
-			@Override
-			protected boolean processKeyBinding(KeyStroke ks,
-					KeyEvent e,
-					int condition,
-					boolean pressed) {
-				return false;
-			}
 		};
 		ColumnTableRowSorter simulationTableSorter = new ColumnTableRowSorter(simulationTableModel);
 		simulationTable.setRowSorter(simulationTableSorter);
@@ -458,6 +450,15 @@ public class SimulationPanel extends JPanel {
 		 pm.add(new RunSimulationAction());
 		 pm.add(new PlotSimulationAction());
 
+		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
+		InputMap im = simulationTable.getInputMap();
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "Action.NextRow");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "Action.NextRow");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK), "Action.PreviousRow");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "Action.PreviousRow");
+		ActionMap am = simulationTable.getActionMap();
+		am.put("Action.NextRow", new NextRowAction(simulationTable));
+		am.put("Action.PreviousRow", new PreviousRowAction(simulationTable));
 
 		// Mouse listener to act on double-clicks
 		simulationTable.addMouseListener(new MouseAdapter() {
@@ -954,6 +955,48 @@ public class SimulationPanel extends JPanel {
 			}
 
 			return tip;
+		}
+
+	}
+
+	private static class NextRowAction extends AbstractAction {
+		private final JTable table;
+
+		public NextRowAction(JTable table) {
+			this.table = table;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int nextRow = table.getSelectedRow() + 1;
+
+			if (nextRow >= table.getRowCount()) {
+				return;
+			}
+
+			table.getSelectionModel().setSelectionInterval(nextRow, nextRow);
+			table.getColumnModel().getSelectionModel().setSelectionInterval(0, 0);
+		}
+
+	}
+
+	private static class PreviousRowAction extends AbstractAction {
+		private final JTable table;
+
+		public PreviousRowAction(JTable table) {
+			this.table = table;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int nextRow = table.getSelectedRow() - 1;
+
+			if (nextRow < 0) {
+				return;
+			}
+
+			table.getSelectionModel().setSelectionInterval(nextRow, nextRow);
+			table.getColumnModel().getSelectionModel().setSelectionInterval(0, 0);
 		}
 
 	}
