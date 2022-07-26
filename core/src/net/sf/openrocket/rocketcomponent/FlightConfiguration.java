@@ -225,8 +225,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
 				stages.get(stage.getStageNumber()).active = flags.active;
 			}
-			updateMotors();
-			updateActiveInstances();
+			fireChangeEvent();
 			
 			return;
 		}
