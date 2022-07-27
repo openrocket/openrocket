@@ -19,6 +19,8 @@ import org.junit.Test;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class DisableStageTest extends BaseTestCase {
+    private final double delta = 0.08;  // 8 % error margin (simulations are not exact)
+
     /**
      * Tests that the simulation results are correct when a single stage is deactivated and re-activated.
      */
@@ -54,7 +56,6 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();    // Re-enable all stages.
 
-        double delta = 0.05;    // 5 % error margin (simulations are not exact)
         compareSims(simOriginal, simDisabled, simulationListener, delta);
     }
 
@@ -84,7 +85,6 @@ public class DisableStageTest extends BaseTestCase {
 
         SimulationListener simulationListener = new AbstractSimulationListener();
 
-        double delta = 0.05;    // 5 % error margin (simulations are not exact)
         compareSims(simRemoved, simDisabled, simulationListener, delta);
 
         //// Test re-enableing the stage.
@@ -175,7 +175,6 @@ public class DisableStageTest extends BaseTestCase {
 
         SimulationListener simulationListener = new AbstractSimulationListener();
 
-        double delta = 0.05;    // 5 % error margin (simulations are not exact)
         compareSims(simRemoved, simDisabled, simulationListener, delta);
 
         //// Test re-enableing the stage.
@@ -243,7 +242,6 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        double delta = 0.05;    // 5 % error margin (simulations are not exact)
         compareSims(simOriginal, simDisabled, simulationListener, delta);
     }
 
