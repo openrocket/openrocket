@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -20,6 +19,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		updateButtonState();
 	}
 
-	protected abstract void updateButtonState();
+	public abstract void updateButtonState();
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -99,7 +99,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return table;
 	}
 
-	protected final void synchronizeConfigurationSelection() {
+	public final void synchronizeConfigurationSelection() {
 		FlightConfigurationId currentRocketFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
@@ -227,7 +227,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return FlightConfigurationId.ERROR_FCID;
 	}
 
-	protected List<FlightConfigurationId> getSelectedConfigurationIds() {
+	public List<FlightConfigurationId> getSelectedConfigurationIds() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
 		if (Arrays.stream(rows).min().isEmpty() || Arrays.stream(rows).min().getAsInt() < 0 || col < 0 ||

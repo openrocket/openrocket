@@ -33,6 +33,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
+import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
@@ -65,7 +66,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel, rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
@@ -294,7 +295,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
-	protected void updateButtonState() {
+	public void updateButtonState() {
 		if( configurationTableModel.getColumnCount() > 1 ) {
 			showContent();
 			

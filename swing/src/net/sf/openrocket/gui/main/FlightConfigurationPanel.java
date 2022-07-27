@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main.flightconfigpanel;
+package net.sf.openrocket.gui.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -20,7 +20,9 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.RenameConfigDialog;
-import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.gui.main.flightconfigpanel.MotorConfigurationPanel;
+import net.sf.openrocket.gui.main.flightconfigpanel.RecoveryConfigurationPanel;
+import net.sf.openrocket.gui.main.flightconfigpanel.SeparationConfigurationPanel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;

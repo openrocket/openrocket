@@ -60,7 +60,6 @@ import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
-import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import net.sf.openrocket.gui.util.FileHelper;
@@ -276,6 +275,7 @@ public class BasicFrame extends JFrame {
 	 * with the left component the design tree and the right component buttons
 	 * for adding components.
 	 */
+	// TODO LOW: Put this in a separate file...
 	private JComponent designTab() {
 		JSplitPane horizontal = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		horizontal.setResizeWeight(0.5);
