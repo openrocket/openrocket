@@ -282,7 +282,9 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
-		for( MotorConfiguration curInstance : config.getActiveMotors()){
+		Iterator<MotorConfiguration> itr = config.getActiveMotors().iterator();
+		while (itr.hasNext()) {
+			MotorConfiguration curInstance = itr.next();
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
@@ -378,8 +380,10 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		// allShapes is an output buffer -- it stores all the generated shapes
 		allShapes.clear();
-		
-		for(Entry<RocketComponent, ArrayList<InstanceContext>> entry: config.getActiveInstances().entrySet() ) {
+
+		Iterator<Entry<RocketComponent, ArrayList<InstanceContext>>> itr = config.getActiveInstances().entrySet().iterator();
+		while (itr.hasNext()) {
+			Entry<RocketComponent, ArrayList<InstanceContext>> entry = itr.next();
 			final RocketComponent comp = entry.getKey();
 
 			// Only draw podsets when they are selected
