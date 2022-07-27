@@ -245,6 +245,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 	
@@ -269,6 +271,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 

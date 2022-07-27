@@ -235,6 +235,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 
 	}
@@ -259,6 +261,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		}
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 

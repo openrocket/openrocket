@@ -134,6 +134,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			return;
 		}
 		table.changeSelection(row, col, true, false);
+		table.requestFocusInWindow();
 	}
 
 	protected void installTableListener() {

@@ -776,6 +776,7 @@ public class SimulationPanel extends JPanel {
 				break;
 			simulationTable.addRowSelectionInterval(row, row);
 		}
+		simulationTable.requestFocusInWindow();
 	}
 
 	class EditSimulationAction extends AbstractAction {
