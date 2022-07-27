@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();	// Map of stage number to StageFlags of the corresponding stage
 	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
-	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	
 	private int boundsModID = -1;
