@@ -452,13 +452,15 @@ public class SimulationPanel extends JPanel {
 
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		InputMap im = simulationTable.getInputMap();
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "Action.NextRow");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "Action.NextRowCycle");
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "Action.NextRow");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK), "Action.PreviousRow");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_DOWN_MASK), "Action.PreviousRowCycle");
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "Action.PreviousRow");
 		ActionMap am = simulationTable.getActionMap();
-		am.put("Action.NextRow", new NextRowAction(simulationTable));
-		am.put("Action.PreviousRow", new PreviousRowAction(simulationTable));
+		am.put("Action.NextRow", new NextRowAction(simulationTable, false));
+		am.put("Action.NextRowCycle", new NextRowAction(simulationTable, true));
+		am.put("Action.PreviousRow", new PreviousRowAction(simulationTable, false));
+		am.put("Action.PreviousRowCycle", new PreviousRowAction(simulationTable, true));
 
 		// Mouse listener to act on double-clicks
 		simulationTable.addMouseListener(new MouseAdapter() {
@@ -961,9 +963,16 @@ public class SimulationPanel extends JPanel {
 
 	private static class NextRowAction extends AbstractAction {
 		private final JTable table;
+		private final boolean cycle;
 
-		public NextRowAction(JTable table) {
+		/**
+		 * Action for cycling through the next row of the table.
+		 * @param table table for which the action is intended
+		 * @param cycle whether to go back to the first row if the end is reached.
+		 */
+		public NextRowAction(JTable table, boolean cycle) {
 			this.table = table;
+			this.cycle = cycle;
 		}
 
 		@Override
@@ -971,7 +980,11 @@ public class SimulationPanel extends JPanel {
 			int nextRow = table.getSelectedRow() + 1;
 
 			if (nextRow >= table.getRowCount()) {
-				return;
+				if (cycle) {
+					nextRow = 0;
+				} else {
+					return;
+				}
 			}
 
 			table.getSelectionModel().setSelectionInterval(nextRow, nextRow);
@@ -982,9 +995,16 @@ public class SimulationPanel extends JPanel {
 
 	private static class PreviousRowAction extends AbstractAction {
 		private final JTable table;
+		private final boolean cycle;
 
-		public PreviousRowAction(JTable table) {
+		/**
+		 * Action for cycling through the previous row of the table.
+		 * @param table table for which the action is intended
+		 * @param cycle whether to go back to the last row if the current row is the first one of the table.
+		 */
+		public PreviousRowAction(JTable table, boolean cycle) {
 			this.table = table;
+			this.cycle = cycle;
 		}
 
 		@Override
@@ -992,7 +1012,11 @@ public class SimulationPanel extends JPanel {
 			int nextRow = table.getSelectedRow() - 1;
 
 			if (nextRow < 0) {
-				return;
+				if (cycle) {
+					nextRow = table.getRowCount() - 1;
+				} else {
+					return;
+				}
 			}
 
 			table.getSelectionModel().setSelectionInterval(nextRow, nextRow);
