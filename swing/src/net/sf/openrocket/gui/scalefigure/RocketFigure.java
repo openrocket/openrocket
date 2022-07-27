@@ -282,40 +282,38 @@ public class RocketFigure extends AbstractScaleFigure {
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
-		Iterator<MotorConfiguration> itr = config.getActiveMotors().iterator();
-		while (itr.hasNext()) {
-			MotorConfiguration curInstance = itr.next();
+		for (MotorConfiguration curInstance : config.getActiveMotors()) {
 			MotorMount mount = curInstance.getMount();
 			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
 			double motorRadius = motor.getDiameter() / 2;
 			RocketComponent mountComponent = ((RocketComponent) mount);
-			
+
 			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
 			// so, just draw a motor once for each Coordinate returned... 
 			Coordinate[] mountLocations = mount.getLocations();
-			
+
 			double mountLength = mountComponent.getLength();
 //			System.err.println("Drawing Motor: "+motor.getDesignation()+" (x"+mountLocations.length+")");
-			for ( Coordinate curMountLocation : mountLocations ){
-			    Coordinate curMotorLocation = curMountLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
+			for (Coordinate curMountLocation : mountLocations) {
+				Coordinate curMotorLocation = curMountLocation.add(mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
 //		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
-	        
-		        // rotate by figure's axial rotation:
-		        curMotorLocation = this.axialRotation.transform(curMotorLocation);
+
+				// rotate by figure's axial rotation:
+				curMotorLocation = this.axialRotation.transform(curMotorLocation);
 
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
-						s = new Rectangle2D.Double( curMotorLocation.x,
-                    							    (curMotorLocation.y - motorRadius), 
-                    								motorLength,
-                    								2 * motorRadius);
+						s = new Rectangle2D.Double(curMotorLocation.x,
+								(curMotorLocation.y - motorRadius),
+								motorLength,
+								2 * motorRadius);
 					} else {
 						s = new Ellipse2D.Double((curMotorLocation.z - motorRadius),
-								                 (curMotorLocation.y - motorRadius), 
-								                 2 * motorRadius,
-								                 2 * motorRadius);
+								(curMotorLocation.y - motorRadius),
+								2 * motorRadius,
+								2 * motorRadius);
 					}
 					g2.setColor(fillColor);
 					g2.fill(s);
@@ -381,9 +379,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		// allShapes is an output buffer -- it stores all the generated shapes
 		allShapes.clear();
 
-		Iterator<Entry<RocketComponent, ArrayList<InstanceContext>>> itr = config.getActiveInstances().entrySet().iterator();
-		while (itr.hasNext()) {
-			Entry<RocketComponent, ArrayList<InstanceContext>> entry = itr.next();
+		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : config.getActiveInstances().entrySet()) {
 			final RocketComponent comp = entry.getKey();
 
 			// Only draw podsets when they are selected
@@ -399,14 +395,14 @@ public class RocketFigure extends AbstractScaleFigure {
 				}
 				if (!selected) continue;
 			}
-			
+
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 
-			for(InstanceContext context: contextList ) {
+			for (InstanceContext context : contextList) {
 				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
-				allShapes = addThisShape( allShapes, this.currentViewType, comp, currentTransform);
+				allShapes = addThisShape(allShapes, this.currentViewType, comp, currentTransform);
 			}
-        }
+		}
 	}
 	
 	/**
