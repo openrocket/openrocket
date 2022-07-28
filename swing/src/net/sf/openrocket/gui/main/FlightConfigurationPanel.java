@@ -235,6 +235,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		}
 
 		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		takeTheSpotlight();
 	}
 
 	public void doPopupConfig(MouseEvent e) {
