@@ -28,6 +28,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -48,11 +49,13 @@ import static net.sf.openrocket.gui.main.BasicFrame.SHORTCUT_KEY;
  */
 public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
+    private final Component tree;
 
     public DesignPanel(final BasicFrame parent, final RocketPanel rocketpanel, final OpenRocketDocument document,
                        final ComponentTree tree) {
         super(JSplitPane.HORIZONTAL_SPLIT, true);
         setResizeWeight(0.5);
+        this.tree = tree;
 
         //  Upper-left segment, component tree
         JPanel panel = new JPanel(new MigLayout("fill, flowy", "[grow][grow 0]","[grow]"));
@@ -223,6 +226,13 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
+    }
+
+    /**
+     * Focus on the component tree.
+     */
+    public void takeTheSpotlight() {
+        tree.requestFocusInWindow();
     }
 
 }

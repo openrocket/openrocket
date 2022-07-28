@@ -331,4 +331,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 	}
 
+	/**
+	 * Focus on the table
+	 */
+	public void takeTheSpotlight() {
+		table.requestFocusInWindow();
+	}
+
 }

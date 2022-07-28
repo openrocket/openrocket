@@ -958,4 +958,14 @@ public class SimulationPanel extends JPanel {
 		}
 
 	}
+
+	/**
+	 * Focus on the simulation table
+	 */
+	public void takeTheSpotlight() {
+		simulationTable.requestFocusInWindow();
+		if (simulationTable.getRowCount() > 0) {
+			simulationTable.setRowSelectionInterval(0, 0);
+		}
+	}
 }

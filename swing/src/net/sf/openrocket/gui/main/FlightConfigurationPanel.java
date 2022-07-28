@@ -119,12 +119,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				switch (tabs.getSelectedIndex()) {
 					case MOTOR_TAB_INDEX:
 						motorConfigurationPanel.updateButtonState();
+						motorConfigurationPanel.takeTheSpotlight();
 						break;
 					case RECOVERY_TAB_INDEX:
 						recoveryConfigurationPanel.updateButtonState();
+						motorConfigurationPanel.takeTheSpotlight();
 						break;
 					case SEPARATION_TAB_INDEX:
 						separationConfigurationPanel.updateButtonState();
+						motorConfigurationPanel.takeTheSpotlight();
 						break;
 				}
 			}
@@ -366,6 +369,23 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			newOrDuplicateConfigAction(true);
+		}
+	}
+
+	/**
+	 * Focus on the table of the config panel that is currently opened.
+	 */
+	public void takeTheSpotlight() {
+		switch (tabs.getSelectedIndex()) {
+			case MOTOR_TAB_INDEX:
+				motorConfigurationPanel.takeTheSpotlight();
+				break;
+			case RECOVERY_TAB_INDEX:
+				recoveryConfigurationPanel.takeTheSpotlight();
+				break;
+			case SEPARATION_TAB_INDEX:
+				separationConfigurationPanel.takeTheSpotlight();
+				break;
 		}
 	}
 }

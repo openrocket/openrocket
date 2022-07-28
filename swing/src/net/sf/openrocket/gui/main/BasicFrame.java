@@ -4,9 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -19,16 +17,12 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -68,13 +62,11 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -107,8 +99,8 @@ public class BasicFrame extends JFrame {
 	public static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
 			SHIFT_DOWN_MASK;
 
-	public static final int COMPONENT_TAB = 0;
-	public static final int CONFIGURATION_TAB = 1;
+	public static final int DESIGN_TAB = 0;
+	public static final int FLIGHT_CONFIGURATION_TAB = 1;
 	public static final int SIMULATION_TAB = 2;
 
 
@@ -1075,7 +1067,7 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Select the tab on the main pane.
 	 *
-	 * @param tab	one of {@link #COMPONENT_TAB} or {@link #SIMULATION_TAB}.
+	 * @param tab	one of {@link #DESIGN_TAB}, {@link #FLIGHT_CONFIGURATION_TAB} or {@link #SIMULATION_TAB}.
 	 */
 	public void selectTab(int tab) {
 		tabbedPane.setSelectedIndex(tab);
@@ -1759,8 +1751,17 @@ public class BasicFrame extends JFrame {
 	public void stateChanged(ChangeEvent e) {
 		JTabbedPane tabSource = (JTabbedPane) e.getSource();
 		int tab = tabSource.getSelectedIndex();
-		if (tab == SIMULATION_TAB) {
-			simulationPanel.activating();
+		switch (tab) {
+			case DESIGN_TAB:
+				designPanel.takeTheSpotlight();
+				break;
+			case FLIGHT_CONFIGURATION_TAB:
+				flightConfigurationPanel.takeTheSpotlight();
+				break;
+			case SIMULATION_TAB:
+				simulationPanel.takeTheSpotlight();
+				simulationPanel.activating();
+				break;
 		}
 	}
 
