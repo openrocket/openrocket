@@ -346,6 +346,7 @@ public class SimulationPanel extends JPanel {
 			document.removeSimulation(selection[i]);
 		}
 		simulationTableModel.fireTableDataChanged();
+		takeTheSpotlight();
 	}
 
 	private void runSimulation() {
