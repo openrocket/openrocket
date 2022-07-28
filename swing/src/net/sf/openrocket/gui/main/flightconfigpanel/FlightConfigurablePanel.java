@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
@@ -87,6 +89,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	 */
 	private final JTable doTableInitialization() {
 		JTable table = this.initializeTable();
+		table.setFillsViewportHeight(true);
 		FlightConfigurationId current = this.rocket.getSelectedConfiguration().getFlightConfigurationID();
 		int col = (table.getColumnCount() > 1) ? table.getColumnCount() - 1 : 0;
 		for (int row = 0; row < table.getRowCount(); row++) {
@@ -162,6 +165,20 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				}
 			}
 
+		});
+
+		// Clear the table selection when clicked outside the table rows.
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+					int row = table.rowAtPoint(e.getPoint());
+					int col = table.columnAtPoint(e.getPoint());
+					if (row == -1 || col == -1) {
+						table.clearSelection();
+					}
+				}
+			}
 		});
 	}
 

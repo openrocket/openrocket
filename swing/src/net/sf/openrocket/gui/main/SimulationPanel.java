@@ -449,6 +449,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
+		simulationTable.setFillsViewportHeight(true);
 		
 		 pm = new JPopupMenu();
 		 pm.add(new EditSimulationAction());
@@ -465,19 +466,33 @@ public class SimulationPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				int selectedRow = simulationTable.getSelectedRow();
 
-				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-					int selected = simulationTable.convertRowIndexToModel(selectedRow);
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					// Clear the table selection when clicked outside the table rows.
+					if (e.getClickCount() == 1) {
+						int row = simulationTable.rowAtPoint(e.getPoint());
+						int column = simulationTable.columnAtPoint(e.getPoint());
 
-					int column = simulationTable.columnAtPoint(e.getPoint());
-					if (column == 0) {
-						SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
-					} else {
-						simulationTable.clearSelection();
-						simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
-
-						openDialog(document.getSimulations().get(selected));
+						if (row == -1 || column == -1) {
+							simulationTable.clearSelection();
+						}
 					}
-				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Edit the simulation or plot/export
+					else if (e.getClickCount() == 2) {
+						int selected = simulationTable.convertRowIndexToModel(selectedRow);
+
+						int column = simulationTable.columnAtPoint(e.getPoint());
+						if (column == 0) {
+							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
+						} else {
+							simulationTable.clearSelection();
+							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
+
+							openDialog(document.getSimulations().get(selected));
+						}
+					}
+				}
+				// Show context menu
+				else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
 					// Get the row that the right-click action happened on
 					int r = simulationTable.rowAtPoint(e.getPoint());
 
@@ -762,7 +777,8 @@ public class SimulationPanel extends JPanel {
 
 	private void openDialog(final Simulation sim) {
 		boolean plotMode = false;
-		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.EXTERNAL)) {
+		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.LOADED
+				|| sim.getStatus() == Status.EXTERNAL)) {
 			plotMode = true;
 		}
 		openDialog(plotMode, sim);
