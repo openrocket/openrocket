@@ -98,351 +98,66 @@ public class SimulationPanel extends JPanel {
 	private final JButton plotButton;
 	private final JPopupMenu pm;
 
+	private final SimulationAction editSimulationAction;
+	private final SimulationAction runSimulationAction;
+	private final SimulationAction plotSimulationAction;
+	private final SimulationAction duplicateSimulationAction;
+	private final SimulationAction deleteSimulationAction;
+
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
 		this.document = doc;
 
 
+		// Simulation actions
+		SimulationAction newSimulationAction = new NewSimulationAction();
+		editSimulationAction = new EditSimulationAction();
+		runSimulationAction = new RunSimulationAction();
+		plotSimulationAction = new PlotSimulationAction();
+		duplicateSimulationAction = new DuplicateSimulationAction();
+		deleteSimulationAction = new DeleteSimulationAction();
 
-		////////  The simulation action buttons
+		////////  The simulation action buttons ////////
 
 		//// New simulation button
-		{
-			JButton button = new SelectColorButton(trans.get("simpanel.but.newsimulation"));
-			//// Add a new simulation
-			button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Simulation sim = new Simulation(document.getRocket());
-					sim.setName(document.getNextSimulationName());
-
-					int n = document.getSimulationCount();
-					document.addSimulation(sim);
-					simulationTableModel.fireTableDataChanged();
-					simulationTable.clearSelection();
-					simulationTable.addRowSelectionInterval(n, n);
-
-					openDialog(false, sim);
-				}
-			});
-			this.add(button, "skip 1, gapright para");
-		}
+		JButton newButton = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(newButton, newSimulationAction, trans.get("simpanel.but.newsimulation"));
+		newButton.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
+		this.add(newButton, "skip 1, gapright para");
 
 		//// Edit simulation button
-		editButton = new SelectColorButton(trans.get("simpanel.but.editsimulation"));
-		//// Edit the selected simulation
+		editButton = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(editButton, editSimulationAction, trans.get("simpanel.but.editsimulation"));
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
-		editButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				editSimulation();
-			}
-		});
 		this.add(editButton, "gapright para");
 
 		//// Run simulations
-		runButton = new SelectColorButton(trans.get("simpanel.but.runsimulations"));
-		//// Re-run the selected simulations
+		runButton = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
-		runButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				runSimulation();
-			}
-		});
 		this.add(runButton, "gapright para");
 
 		//// Delete simulations button
-		deleteButton = new SelectColorButton(trans.get("simpanel.but.deletesimulations"));
-		//// Delete the selected simulations
+		deleteButton = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
 		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
-		deleteButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteSimulation();
-			}
-		});
 		this.add(deleteButton, "gapright para");
 
 		//// Plot / export button
-		plotButton = new SelectColorButton(trans.get("simpanel.but.plotexport"));
-		//		button = new SelectColorButton("Plot flight");
-		plotButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				plotSimulation();
-			}
-		});
+		plotButton = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 
 
 
 		////////  The simulation table
-
-		simulationTableModel = new ColumnTableModel(
-
-				////  Status and warning column
-				new Column("") {
-					private JLabel label = null;
-
-					@Override
-					public Object getValueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						// Initialize the label
-						if (label == null) {
-							label = new StyledLabel(2f);
-							label.setIconTextGap(1);
-							//							label.setFont(label.getFont().deriveFont(Font.BOLD));
-						}
-
-						// Set simulation status icon
-						Simulation.Status status = document.getSimulation(row).getStatus();
-						label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
-
-
-						// Set warning marker
-						if (status == Simulation.Status.NOT_SIMULATED ||
-								status == Simulation.Status.EXTERNAL) {
-
-							label.setText("");
-
-						} else {
-
-							WarningSet w = document.getSimulation(row).getSimulatedWarnings();
-							if (w == null) {
-								label.setText("");
-							} else if (w.isEmpty()) {
-								label.setForeground(OK_COLOR);
-								label.setText(OK_TEXT);
-							} else {
-								label.setForeground(WARNING_COLOR);
-								label.setText(WARNING_TEXT);
-							}
-						}
-
-						return label;
-					}
-
-					@Override
-					public int getExactWidth() {
-						return 36;
-					}
-
-					@Override
-					public Class<?> getColumnClass() {
-						return JLabel.class;
-					}
-				},
-
-				//// Simulation name
-				//// Name
-				new Column(trans.get("simpanel.col.Name")) {
-					@Override
-					public Object getValueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-						return document.getSimulation(row).getName();
-					}
-
-					@Override
-					public int getDefaultWidth() {
-						return 125;
-					}
-
-					@Override
-					public Comparator<String> getComparator() {
-						return new AlphanumComparator();
-					}
-				},
-
-				//// Simulation configuration
-				new Column(trans.get("simpanel.col.Configuration")) {
-					@Override
-					public Object getValueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount()){
-							return null;
-						}
-						
-						Rocket rkt = document.getRocket();
-						FlightConfigurationId fcid = document.getSimulation(row).getId();
-						return descriptor.format( rkt, fcid);
-					}
-
-					@Override
-					public int getDefaultWidth() {
-						return 125;
-					}
-				},
-
-				//// Launch rod velocity
-				new ValueColumn(trans.get("simpanel.col.Velocityoffrod"), UnitGroup.UNITS_VELOCITY) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getLaunchRodVelocity();
-					}
-
-				},
-
-				//// Apogee
-				new ValueColumn(trans.get("simpanel.col.Apogee"), UnitGroup.UNITS_DISTANCE) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getMaxAltitude();
-					}
-				},
-
-				//// Velocity at deployment
-				new ValueColumn(trans.get("simpanel.col.Velocityatdeploy"), UnitGroup.UNITS_VELOCITY) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getDeploymentVelocity();
-					}
-				},
-
-				//// Deployment Time from Apogee
-				new ValueColumn(trans.get("simpanel.col.OptimumCoastTime"),
-						trans.get("simpanel.col.OptimumCoastTime.ttip"),
-						UnitGroup.UNITS_SHORT_TIME) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null || data.getBranchCount() == 0)
-							return null;
-
-						double val = data.getBranch(0).getOptimumDelay();
-						if ( Double.isNaN(val) ) {
-							return null;
-						}
-						return val;
-					}
-				},
-
-				//// Maximum velocity
-				new ValueColumn(trans.get("simpanel.col.Maxvelocity"), UnitGroup.UNITS_VELOCITY) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getMaxVelocity();
-					}
-				},
-
-				//// Maximum acceleration
-				new ValueColumn(trans.get("simpanel.col.Maxacceleration"), UnitGroup.UNITS_ACCELERATION) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getMaxAcceleration();
-					}
-				},
-
-				//// Time to apogee
-				new ValueColumn(trans.get("simpanel.col.Timetoapogee"), UnitGroup.UNITS_FLIGHT_TIME) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getTimeToApogee();
-					}
-				},
-
-				//// Flight time
-				new ValueColumn(trans.get("simpanel.col.Flighttime"), UnitGroup.UNITS_FLIGHT_TIME) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getFlightTime();
-					}
-				},
-
-				//// Ground hit velocity
-				new ValueColumn(trans.get("simpanel.col.Groundhitvelocity"), UnitGroup.UNITS_VELOCITY) {
-					@Override
-					public Double valueAt(int row) {
-						if (row < 0 || row >= document.getSimulationCount())
-							return null;
-
-						FlightData data = document.getSimulation(row).getSimulatedData();
-						if (data == null)
-							return null;
-
-						return data.getGroundHitVelocity();
-					}
-				}
-
-				) {
-	
-				private static final long serialVersionUID = 8686456963492628476L;
-
-			@Override
-			public int getRowCount() {
-				return document.getSimulationCount();
-			}
-		};
+		simulationTableModel = new SimulationTableModel();
 
 		// Override processKeyBinding so that the JTable does not catch
 		// key bindings used in menu accelerators
 		simulationTable = new ColumnTable(simulationTableModel) {
-
 			private static final long serialVersionUID = -5799340181229735630L;
-
-			@Override
-			protected boolean processKeyBinding(KeyStroke ks,
-					KeyEvent e,
-					int condition,
-					boolean pressed) {
-				return false;
-			}
 		};
 		ColumnTableRowSorter simulationTableSorter = new ColumnTableRowSorter(simulationTableModel);
 		simulationTable.setRowSorter(simulationTableSorter);
@@ -450,14 +165,15 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 		simulationTable.setFillsViewportHeight(true);
-		
-		 pm = new JPopupMenu();
-		 pm.add(new EditSimulationAction());
-		 pm.add(new DuplicateSimulationAction());
-		 pm.add(new DeleteSimulationAction());
-		 pm.addSeparator();
-		 pm.add(new RunSimulationAction());
-		 pm.add(new PlotSimulationAction());
+
+		// Context menu
+		pm = new JPopupMenu();
+		pm.add(editSimulationAction);
+		pm.add(duplicateSimulationAction);
+		pm.add(deleteSimulationAction);
+		pm.addSeparator();
+		pm.add(runSimulationAction);
+		pm.add(plotSimulationAction);
 
 
 		// Mouse listener to act on double-clicks
@@ -511,11 +227,14 @@ public class SimulationPanel extends JPanel {
 		});
 
 		simulationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			private int previousRow = -1;
+			private int previousSelectedRow = -1;
+			private int previousSelectedRowCount = 0;
 			public void valueChanged(ListSelectionEvent event) {
-				if (simulationTable.getSelectedRow() != previousRow) {
+				if ((simulationTable.getSelectedRow() != previousSelectedRow) ||
+						(simulationTable.getSelectedRowCount() != previousSelectedRowCount)) {
 					updateButtonStates();
-					previousRow = simulationTable.getSelectedRow();
+					previousSelectedRow = simulationTable.getSelectedRow();
+					previousSelectedRowCount = simulationTable.getSelectedRowCount();
 				}
 			}
 		});
@@ -545,6 +264,19 @@ public class SimulationPanel extends JPanel {
 		this.add(scrollpane, "spanx, grow, wrap rel");
 
 		updateButtonStates();
+	}
+
+	private void newSimulation() {
+		Simulation sim = new Simulation(document.getRocket());
+		sim.setName(document.getNextSimulationName());
+
+		int n = document.getSimulationCount();
+		document.addSimulation(sim);
+		simulationTableModel.fireTableDataChanged();
+		simulationTable.clearSelection();
+		simulationTable.addRowSelectionInterval(n, n);
+
+		openDialog(false, sim);
 	}
 
 	private void plotSimulation() {
@@ -705,23 +437,11 @@ public class SimulationPanel extends JPanel {
     }
 	
 	private void updateButtonStates() {
-		int[] selection = simulationTable.getSelectedRows();
-		if (selection.length == 0) {
-			editButton.setEnabled(false);
-			runButton.setEnabled(false);
-			deleteButton.setEnabled(false);
-			plotButton.setEnabled(false);
-		} else {
-			if (selection.length > 1) {
-				plotButton.setEnabled(false);
-			} else {
-				plotButton.setEnabled(true);
-			}
-			editButton.setEnabled(true);
-			runButton.setEnabled(true);
-			deleteButton.setEnabled(true);
-		}
-
+		editSimulationAction.updateEnabledState();
+		deleteSimulationAction.updateEnabledState();
+		runSimulationAction.updateEnabledState();
+		plotSimulationAction.updateEnabledState();
+		duplicateSimulationAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
@@ -792,10 +512,33 @@ public class SimulationPanel extends JPanel {
 				break;
 			simulationTable.addRowSelectionInterval(row, row);
 		}
-		simulationTable.requestFocusInWindow();
 	}
 
-	class EditSimulationAction extends AbstractAction {
+	private abstract static class SimulationAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		public abstract void updateEnabledState();
+	}
+
+	class NewSimulationAction extends SimulationAction {
+		public NewSimulationAction() {
+			putValue(NAME, trans.get("simpanel.but.newsimulation"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_N);
+			this.putValue(SMALL_ICON, Icons.FILE_NEW);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			newSimulation();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(true);
+		}
+	}
+
+	class EditSimulationAction extends SimulationAction {
 		public EditSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.edit"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
@@ -807,9 +550,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			editSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() == 1);
+		}
 	}
 
-	class RunSimulationAction extends AbstractAction {
+	class RunSimulationAction extends SimulationAction {
 		public RunSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.run"));
 			putValue(SMALL_ICON, Icons.SIM_RUN);
@@ -819,9 +567,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			runSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
 	}
 
-	class DeleteSimulationAction extends AbstractAction {
+	class DeleteSimulationAction extends SimulationAction {
 		public DeleteSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.delete"));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
@@ -833,9 +586,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			deleteSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
 	}
 
-	class PlotSimulationAction extends AbstractAction {
+	class PlotSimulationAction extends SimulationAction {
 		public PlotSimulationAction() {
 			putValue(NAME, trans.get("simpanel.pop.plot"));
 			putValue(SMALL_ICON, Icons.SIM_PLOT);
@@ -845,9 +603,14 @@ public class SimulationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			plotSimulation();
 		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() == 1);
+		}
 	}
 
-	class DuplicateSimulationAction extends AbstractAction {
+	class DuplicateSimulationAction extends SimulationAction {
         public DuplicateSimulationAction() {
             putValue(NAME, trans.get("simpanel.pop.duplicate"));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_D);
@@ -859,7 +622,12 @@ public class SimulationPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
 			duplicateSimulation();
         }
-    }
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
+	}
 	
 	public static class CellTransferable implements Transferable {
 
@@ -972,7 +740,255 @@ public class SimulationPanel extends JPanel {
 
 			return tip;
 		}
+	}
 
+	private class SimulationTableModel extends ColumnTableModel {
+		private static final long serialVersionUID = 8686456963492628476L;
+
+		public SimulationTableModel() {
+			super(
+					////  Status and warning column
+					new Column("") {
+						private JLabel label = null;
+
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							// Initialize the label
+							if (label == null) {
+								label = new StyledLabel(2f);
+								label.setIconTextGap(1);
+								//							label.setFont(label.getFont().deriveFont(Font.BOLD));
+							}
+
+							// Set simulation status icon
+							Simulation.Status status = document.getSimulation(row).getStatus();
+							label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
+
+
+							// Set warning marker
+							if (status == Simulation.Status.NOT_SIMULATED ||
+									status == Simulation.Status.EXTERNAL) {
+
+								label.setText("");
+
+							} else {
+
+								WarningSet w = document.getSimulation(row).getSimulatedWarnings();
+								if (w == null) {
+									label.setText("");
+								} else if (w.isEmpty()) {
+									label.setForeground(OK_COLOR);
+									label.setText(OK_TEXT);
+								} else {
+									label.setForeground(WARNING_COLOR);
+									label.setText(WARNING_TEXT);
+								}
+							}
+
+							return label;
+						}
+
+						@Override
+						public int getExactWidth() {
+							return 36;
+						}
+
+						@Override
+						public Class<?> getColumnClass() {
+							return JLabel.class;
+						}
+					},
+
+					//// Simulation name
+					//// Name
+					new Column(trans.get("simpanel.col.Name")) {
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+							return document.getSimulation(row).getName();
+						}
+
+						@Override
+						public int getDefaultWidth() {
+							return 125;
+						}
+
+						@Override
+						public Comparator<String> getComparator() {
+							return new AlphanumComparator();
+						}
+					},
+
+					//// Simulation configuration
+					new Column(trans.get("simpanel.col.Configuration")) {
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount()) {
+								return null;
+							}
+
+							Rocket rkt = document.getRocket();
+							FlightConfigurationId fcid = document.getSimulation(row).getId();
+							return descriptor.format(rkt, fcid);
+						}
+
+						@Override
+						public int getDefaultWidth() {
+							return 125;
+						}
+					},
+
+					//// Launch rod velocity
+					new ValueColumn(trans.get("simpanel.col.Velocityoffrod"), UnitGroup.UNITS_VELOCITY) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getLaunchRodVelocity();
+						}
+
+					},
+
+					//// Apogee
+					new ValueColumn(trans.get("simpanel.col.Apogee"), UnitGroup.UNITS_DISTANCE) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getMaxAltitude();
+						}
+					},
+
+					//// Velocity at deployment
+					new ValueColumn(trans.get("simpanel.col.Velocityatdeploy"), UnitGroup.UNITS_VELOCITY) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getDeploymentVelocity();
+						}
+					},
+
+					//// Deployment Time from Apogee
+					new ValueColumn(trans.get("simpanel.col.OptimumCoastTime"),
+							trans.get("simpanel.col.OptimumCoastTime.ttip"), UnitGroup.UNITS_SHORT_TIME) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null || data.getBranchCount() == 0)
+								return null;
+
+							double val = data.getBranch(0).getOptimumDelay();
+							if (Double.isNaN(val)) {
+								return null;
+							}
+							return val;
+						}
+					},
+
+					//// Maximum velocity
+					new ValueColumn(trans.get("simpanel.col.Maxvelocity"), UnitGroup.UNITS_VELOCITY) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getMaxVelocity();
+						}
+					},
+
+					//// Maximum acceleration
+					new ValueColumn(trans.get("simpanel.col.Maxacceleration"), UnitGroup.UNITS_ACCELERATION) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getMaxAcceleration();
+						}
+					},
+
+					//// Time to apogee
+					new ValueColumn(trans.get("simpanel.col.Timetoapogee"), UnitGroup.UNITS_FLIGHT_TIME) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getTimeToApogee();
+						}
+					},
+
+					//// Flight time
+					new ValueColumn(trans.get("simpanel.col.Flighttime"), UnitGroup.UNITS_FLIGHT_TIME) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getFlightTime();
+						}
+					},
+
+					//// Ground hit velocity
+					new ValueColumn(trans.get("simpanel.col.Groundhitvelocity"), UnitGroup.UNITS_VELOCITY) {
+						@Override
+						public Double valueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							FlightData data = document.getSimulation(row).getSimulatedData();
+							if (data == null)
+								return null;
+
+							return data.getGroundHitVelocity();
+						}
+					}
+			);
+		}
+
+		@Override
+		public int getRowCount() {
+			return document.getSimulationCount();
+		}
 	}
 
 	/**

@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -189,6 +190,35 @@ public class RocketActions {
 		return moveDownAction;
 	}
 
+	/**
+	 * Tie an action to a JButton, without using the icon or text of the action for the button.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action and then set the
+	 * icon to null and set the button text: this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 * @param text text to display on the button
+	 */
+	public static void tieActionToButtonNoIcon(JButton button, Action action, String text) {
+		button.setAction(action);
+		button.setIcon(null);
+		button.setText(text);
+	}
+
+	/**
+	 * Tie an action to a JButton, without using the icon of the action for the button.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action and then set the
+	 * icon to null: this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 */
+	public static void tieActionToButtonNoIcon(JButton button, Action action) {
+		button.setAction(action);
+		button.setIcon(null);
+	}
 	
 	
 	////////  Helper methods for the actions
