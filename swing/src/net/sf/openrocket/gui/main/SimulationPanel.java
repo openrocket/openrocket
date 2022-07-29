@@ -998,8 +998,14 @@ public class SimulationPanel extends JPanel {
 	 */
 	public void takeTheSpotlight() {
 		simulationTable.requestFocusInWindow();
-		if (simulationTable.getSelectedRowCount() == 0 && simulationTable.getRowCount() > 0) {
-			simulationTable.setRowSelectionInterval(0, 0);
+		int selection = simulationTable.getSelectionModel().getAnchorSelectionIndex();
+		if (selection == -1) {
+			if (simulationTable.getRowCount() > 0) {
+				selection = 0;
+			} else {
+				return;
+			}
 		}
+		simulationTable.setRowSelectionInterval(selection, selection);
 	}
 }
