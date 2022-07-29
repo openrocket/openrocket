@@ -513,6 +513,7 @@ public class SimulationPanel extends JPanel {
 				break;
 			simulationTable.addRowSelectionInterval(row, row);
 		}
+		takeTheSpotlight();
 	}
 
 	private abstract static class SimulationAction extends AbstractAction {
@@ -997,7 +998,7 @@ public class SimulationPanel extends JPanel {
 	 */
 	public void takeTheSpotlight() {
 		simulationTable.requestFocusInWindow();
-		if (simulationTable.getRowCount() > 0) {
+		if (simulationTable.getSelectedRowCount() == 0 && simulationTable.getRowCount() > 0) {
 			simulationTable.setRowSelectionInterval(0, 0);
 		}
 	}
