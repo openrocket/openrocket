@@ -102,6 +102,7 @@ public class BasicFrame extends JFrame {
 	public static final int DESIGN_TAB = 0;
 	public static final int FLIGHT_CONFIGURATION_TAB = 1;
 	public static final int SIMULATION_TAB = 2;
+	private int previousTab = DESIGN_TAB;
 
 
 	/**
@@ -1751,6 +1752,10 @@ public class BasicFrame extends JFrame {
 	public void stateChanged(ChangeEvent e) {
 		JTabbedPane tabSource = (JTabbedPane) e.getSource();
 		int tab = tabSource.getSelectedIndex();
+		if (previousTab == SIMULATION_TAB) {
+			simulationPanel.updatePreviousSelection();
+		}
+		previousTab = tab;
 		switch (tab) {
 			case DESIGN_TAB:
 				designPanel.takeTheSpotlight();

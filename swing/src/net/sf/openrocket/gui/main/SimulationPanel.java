@@ -10,7 +10,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -103,6 +102,8 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
+
+	private int[] previousSelection = null;
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
@@ -264,6 +265,10 @@ public class SimulationPanel extends JPanel {
 		this.add(scrollpane, "spanx, grow, wrap rel");
 
 		updateButtonStates();
+	}
+
+	public void updatePreviousSelection() {
+		this.previousSelection = simulationTable.getSelectedRows();
 	}
 
 	private void newSimulation() {
@@ -994,18 +999,17 @@ public class SimulationPanel extends JPanel {
 	}
 
 	/**
-	 * Focus on the simulation table
+	 * Focus on the simulation table and maintain the previous row selection(s).
 	 */
 	public void takeTheSpotlight() {
 		simulationTable.requestFocusInWindow();
-		int selection = simulationTable.getSelectionModel().getAnchorSelectionIndex();
-		if (selection == -1) {
-			if (simulationTable.getRowCount() > 0) {
-				selection = 0;
-			} else {
-				return;
+		if (previousSelection == null || previousSelection.length == 0) {
+			simulationTable.setRowSelectionInterval(0, 0);
+		} else {
+			simulationTable.clearSelection();
+			for (int row : previousSelection) {
+				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
-		simulationTable.setRowSelectionInterval(selection, selection);
 	}
 }
