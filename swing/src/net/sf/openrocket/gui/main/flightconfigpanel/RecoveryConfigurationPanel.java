@@ -1,8 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -164,30 +162,6 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 
 		return recoveryTable;
-	}
-
-	@Override
-	protected void installTableListener() {
-		super.installTableListener();
-
-		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				updateComponentSelection(e);
-			}
-		});
-
-		table.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-
-			}
-		});
 	}
 
 	public void selectDeployment() {

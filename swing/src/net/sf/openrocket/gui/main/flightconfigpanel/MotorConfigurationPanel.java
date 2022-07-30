@@ -3,8 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -249,30 +247,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		});
 		
 		return configurationTable;
-	}
-
-	@Override
-	protected void installTableListener() {
-		super.installTableListener();
-
-		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				updateComponentSelection(e);
-			}
-		});
-
-		table.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-
-			}
-		});
 	}
 
 	private void doPopupFull(MouseEvent e) {
