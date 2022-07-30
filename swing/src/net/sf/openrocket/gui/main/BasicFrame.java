@@ -160,16 +160,8 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel = new DefaultTreeSelectionModel();
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
-		// Create the component tree
-		tree = new ComponentTree(document);
-		tree.setSelectionModel(componentSelectionModel);
-
 		// ----- Create the different BasicFrame panels -----
 		log.debug("Constructing the BasicFrame UI");
-
-		////  Bottom segment, rocket figure
-		rocketpanel = new RocketPanel(document, this);
-		rocketpanel.setSelectionModel(tree.getSelectionModel());
 
 		////	Top segment, tabbed pane
 		simulationPanel = new SimulationPanel(document);
@@ -185,12 +177,26 @@ public class BasicFrame extends JFrame {
 			// Create RocketActions
 			actions = new RocketActions(document, selectionModel, this, simulationPanel);
 		}
+		{
+			// Create the component tree
+			tree = new ComponentTree(document);
+			tree.setSelectionModel(componentSelectionModel);
+		}
+
 		designPanel = new DesignPanel(this, document, tree);
 		flightConfigurationPanel = new FlightConfigurationPanel(this, document);
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designPanel);
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, flightConfigurationPanel);
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
+
+		//	Add change listener to catch when the tabs are changed.  This is to run simulations
+		//	automatically when the simulation tab is selected.
+		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
+
+		////  Bottom segment, rocket figure
+		rocketpanel = new RocketPanel(document, this);
+		rocketpanel.setSelectionModel(tree.getSelectionModel());
 
 		//// The main vertical split pane
 		JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
@@ -211,10 +217,6 @@ public class BasicFrame extends JFrame {
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
 		}
-
-		//	Add change listener to catch when the tabs are changed.  This is to run simulations
-		//	automatically when the simulation tab is selected.
-		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
 
 		createMenu();
 
