@@ -185,7 +185,7 @@ public class BasicFrame extends JFrame {
 			// Create RocketActions
 			actions = new RocketActions(document, selectionModel, this, simulationPanel);
 		}
-		designPanel = new DesignPanel(this, rocketpanel, document, tree);
+		designPanel = new DesignPanel(this, document, tree);
 		flightConfigurationPanel = new FlightConfigurationPanel(this, document);
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designPanel);

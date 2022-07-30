@@ -51,8 +51,7 @@ public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
     private final Component tree;
 
-    public DesignPanel(final BasicFrame parent, final RocketPanel rocketpanel, final OpenRocketDocument document,
-                       final ComponentTree tree) {
+    public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
         super(JSplitPane.HORIZONTAL_SPLIT, true);
         setResizeWeight(0.5);
         this.tree = tree;
@@ -75,10 +74,10 @@ public class DesignPanel extends JSplitPane {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
                 if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
-                        || rocketpanel == null) return;
+                        || parent.getRocketPanel() == null) return;
 
                 // Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
-                List<RocketComponent> children = new ArrayList<>(Arrays.asList(rocketpanel.getFigure().getSelection()));
+                List<RocketComponent> children = new ArrayList<>(Arrays.asList(parent.getRocketPanel().getFigure().getSelection()));
                 for (TreePath p : tree.getSelectionPaths()) {
                     if (p != null) {
                         RocketComponent c = (RocketComponent) p.getLastPathComponent();
@@ -93,9 +92,9 @@ public class DesignPanel extends JSplitPane {
                 }
 
                 // Select all the child components
-                if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
-                    rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
-                    rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
+                if (parent.getRocketPanel().getFigure() != null && parent.getRocketPanel().getFigure3d() != null) {
+                    parent.getRocketPanel().getFigure().setSelection(children.toArray(new RocketComponent[0]));
+                    parent.getRocketPanel().getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
                 }
             }
         });
