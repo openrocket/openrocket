@@ -175,7 +175,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 					int row = table.rowAtPoint(e.getPoint());
 					int col = table.columnAtPoint(e.getPoint());
 					if (row == -1 || col == -1) {
-						table.clearSelection();
+						clearSelection();
 					}
 				}
 			}
@@ -188,6 +188,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	 * @return
 	 */
 	protected abstract JTable initializeTable();
+
+	public void clearSelection() {
+		table.clearSelection();
+	}
 
 	protected T getSelectedComponent() {
 
@@ -267,6 +271,25 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 
 		return Ids;
+	}
+
+	/**
+	 * Select the rows of the table that correspond to the given FlightConfigurationIds. The second column of the table
+	 * will be used for the selection.
+	 * @param fids flight configuration ids to select
+	 */
+	public void setSelectedConfigurationIds(List<FlightConfigurationId> fids) {
+		if (fids == null || fids.isEmpty() || table.getColumnCount() == 0) return;
+
+		for (FlightConfigurationId id : fids) {
+			if (id == FlightConfigurationId.DEFAULT_VALUE_FCID) continue;
+			for (int rowNum = 0; rowNum < table.getRowCount(); rowNum++) {
+				FlightConfigurationId rowFCID = rocket.getId(rowNum );
+				if (rowFCID.equals(id) && !table.isRowSelected(rowNum)) {
+					table.changeSelection(rowNum, 1, false, false);
+				}
+			}
+		}
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {

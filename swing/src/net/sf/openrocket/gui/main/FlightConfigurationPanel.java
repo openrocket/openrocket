@@ -20,6 +20,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.RenameConfigDialog;
+import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurablePanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.MotorConfigurationPanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.RecoveryConfigurationPanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.SeparationConfigurationPanel;
@@ -113,23 +114,29 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
+			private FlightConfigurablePanel<?> previousPanel = null;
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Trigger a selection of the motor/recovery/configuration item
+				FlightConfigurablePanel<?> panel = null;
 				switch (tabs.getSelectedIndex()) {
 					case MOTOR_TAB_INDEX:
-						motorConfigurationPanel.updateButtonState();
-						motorConfigurationPanel.takeTheSpotlight();
+						panel = motorConfigurationPanel;
 						break;
 					case RECOVERY_TAB_INDEX:
-						recoveryConfigurationPanel.updateButtonState();
-						motorConfigurationPanel.takeTheSpotlight();
+						panel = recoveryConfigurationPanel;
 						break;
 					case SEPARATION_TAB_INDEX:
-						separationConfigurationPanel.updateButtonState();
-						motorConfigurationPanel.takeTheSpotlight();
+						panel = separationConfigurationPanel;
 						break;
 				}
+
+				// Update the panel selection, focus, and button state
+				if (panel == null) return;
+				synchronizePanelSelection(previousPanel, panel);
+				panel.updateButtonState();
+				panel.takeTheSpotlight();
+				previousPanel = panel;
 			}
 		});
 
@@ -298,6 +305,16 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			tabs.setSelectedIndex(MOTOR_TAB_INDEX);
 		}
 
+	}
+
+	private void synchronizePanelSelection(FlightConfigurablePanel<?> source, FlightConfigurablePanel<?> target) {
+		if (source == null || target == null) return;
+		List<FlightConfigurationId> fids = source.getSelectedConfigurationIds();
+		if (fids == null || fids.isEmpty()) {
+			target.clearSelection();
+		} else {
+			target.setSelectedConfigurationIds(fids);
+		}
 	}
 
 	private List<FlightConfigurationId> getSelectedConfigurationIds() {
