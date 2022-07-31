@@ -302,6 +302,7 @@ public class SimulationPanel extends JPanel {
 		}
 
 		fireMaintainSelection();
+		takeTheSpotlight();
 
 		openDialog(true, sim);
 	}
@@ -363,6 +364,7 @@ public class SimulationPanel extends JPanel {
 				SimulationPanel.this), document, sims).setVisible(true);
 		log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
 		fireMaintainSelection();
+		takeTheSpotlight();
 	}
 
 	public void editSimulation() {
@@ -499,6 +501,7 @@ public class SimulationPanel extends JPanel {
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
+		takeTheSpotlight();
 	}
 
 	private void openDialog(final Simulation sim) {
@@ -518,7 +521,6 @@ public class SimulationPanel extends JPanel {
 				break;
 			simulationTable.addRowSelectionInterval(row, row);
 		}
-		takeTheSpotlight();
 	}
 
 	private abstract static class SimulationAction extends AbstractAction {
@@ -1003,6 +1005,9 @@ public class SimulationPanel extends JPanel {
 	 */
 	public void takeTheSpotlight() {
 		simulationTable.requestFocusInWindow();
+		if (simulationTable.getSelectedRows().length > 0) {
+			return;
+		}
 		if (previousSelection == null || previousSelection.length == 0) {
 			simulationTable.setRowSelectionInterval(0, 0);
 		} else {
