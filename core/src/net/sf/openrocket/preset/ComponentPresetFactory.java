@@ -113,13 +113,13 @@ public abstract class ComponentPresetFactory {
 		
 	}
 	
-	private static void makeRailButton(InvalidComponentPresetException exceptions, ComponentPreset preset) throws InvalidComponentPresetException {
+	private static void makeRailButton(InvalidComponentPresetException exceptions, ComponentPreset preset) {
 		
 		checkRequiredFields(exceptions, preset, HEIGHT);
 		checkRequiredFields(exceptions, preset, OUTER_DIAMETER);
 		checkRequiredFields(exceptions, preset, INNER_DIAMETER);
 		checkRequiredFields(exceptions, preset, FLANGE_HEIGHT);
-		checkRequiredFields(exceptions, preset, STANDOFF_HEIGHT);
+		checkRequiredFields(exceptions, preset, BASE_HEIGHT);
 		
 		if (preset.has(MASS)) {
 			double mass = preset.get(MASS);
@@ -271,7 +271,6 @@ public abstract class ComponentPresetFactory {
 		
 		if (hasOd) {
 			outerRadius = preset.get(OUTER_DIAMETER) / 2.0;
-			thickness = 0;
 			if (hasId) {
 				innerRadius = preset.get(INNER_DIAMETER) / 2.0;
 				thickness = outerRadius - innerRadius;

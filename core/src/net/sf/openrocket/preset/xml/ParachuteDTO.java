@@ -146,8 +146,8 @@ public class ParachuteDTO extends BaseComponentDTO {
 		if ( preset.has(ComponentPreset.PACKED_LENGTH)) {
 			setPackedLength(preset.get(ComponentPreset.PACKED_LENGTH));
 		}
-		if ( preset.has(ComponentPreset.PARACHUTE_CD)) {
-			setDragCoefficient(preset.get(ComponentPreset.PARACHUTE_CD));
+		if ( preset.has(ComponentPreset.CD)) {
+			setDragCoefficient(preset.get(ComponentPreset.CD));
 		}
         if ( preset.has(ComponentPreset.LINE_MATERIAL)) {
         	setLineMaterial(new AnnotatedMaterialDTO(preset.get(ComponentPreset.LINE_MATERIAL)));
@@ -174,7 +174,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 			props.put(ComponentPreset.PACKED_LENGTH, this.getPackedLength());
 		}
 		if ( this.dragCoefficient != null ) {
-			props.put(ComponentPreset.PARACHUTE_CD, this.getDragCoefficient());
+			props.put(ComponentPreset.CD, this.getDragCoefficient());
 		}
         props.put(ComponentPreset.LINE_COUNT, this.getLineCount());
         if ( this.lineLength != null ) {
