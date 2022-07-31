@@ -255,7 +255,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	public void updateComponentSelection(ListSelectionEvent e) {
+	public void updateRocketViewSelection(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
 			return;
 		}

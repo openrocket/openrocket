@@ -136,6 +136,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				synchronizePanelSelection(previousPanel, panel);
 				panel.updateButtonState();
 				panel.takeTheSpotlight();
+				panel.updateRocketViewSelection();
 				previousPanel = panel;
 			}
 		});
@@ -397,12 +398,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		switch (tabs.getSelectedIndex()) {
 			case MOTOR_TAB_INDEX:
 				motorConfigurationPanel.takeTheSpotlight();
+				motorConfigurationPanel.updateRocketViewSelection();
 				break;
 			case RECOVERY_TAB_INDEX:
 				recoveryConfigurationPanel.takeTheSpotlight();
+				recoveryConfigurationPanel.updateRocketViewSelection();
 				break;
 			case SEPARATION_TAB_INDEX:
 				separationConfigurationPanel.takeTheSpotlight();
+				separationConfigurationPanel.updateRocketViewSelection();
 				break;
 		}
 	}

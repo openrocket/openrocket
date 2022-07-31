@@ -245,7 +245,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	public void updateComponentSelection(ListSelectionEvent e) {
+	public void updateRocketViewSelection(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
 			return;
 		}

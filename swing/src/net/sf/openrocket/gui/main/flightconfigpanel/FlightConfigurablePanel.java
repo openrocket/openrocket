@@ -3,8 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
@@ -186,19 +184,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				updateComponentSelection(e);
-			}
-		});
-
-		table.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-
+				updateRocketViewSelection(e);
 			}
 		});
 	}
@@ -214,10 +200,15 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		table.clearSelection();
 	}
 
+	public void updateRocketViewSelection() {
+		ListSelectionEvent e = new ListSelectionEvent(this, 0, 0, false);
+		updateRocketViewSelection(e);
+	}
+
 	/**
 	 * Update the selection in the rocket design view, based on the currently selected motor, recovery device, or stage.
 	 */
-	protected abstract void updateComponentSelection(ListSelectionEvent e);
+	public abstract void updateRocketViewSelection(ListSelectionEvent e);
 
 	protected T getSelectedComponent() {
 
