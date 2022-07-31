@@ -51,6 +51,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	protected double totalHeight_m;
 	protected double flangeHeight_m;
  	protected double baseHeight_m;
+	protected double screwHeight_m;		// This has no effect at the moment; is for future use.
 
 
 	private double radialDistance_m=0;
@@ -120,7 +121,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		
 		return rb1010;
 	}
-	
+
 	public double getBaseHeight(){
 		return this.baseHeight_m;
 	}
@@ -144,7 +145,11 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public double getFlangeHeight() {
 		return this.flangeHeight_m;
 	}
-	
+
+	public double getScrewHeight() {
+		return this.screwHeight_m;
+	}
+
 	
 	public void setBaseHeight(double newBaseHeight){
 		for (RocketComponent listener : configListeners) {
@@ -155,6 +160,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.baseHeight_m = Math.max(newBaseHeight, 0);
 		this.baseHeight_m = Math.min(this.baseHeight_m, this.totalHeight_m - this.flangeHeight_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -167,6 +173,19 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.flangeHeight_m = Math.max(newFlangeHeight, 0);
 		this.flangeHeight_m = Math.min(this.flangeHeight_m, this.totalHeight_m - this.baseHeight_m);
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setScrewHeight(double height) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setScrewHeight(height);
+			}
+		}
+
+		this.screwHeight_m = Math.max(height, 0);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -178,6 +197,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.innerDiameter_m = Math.min(newID, this.outerDiameter_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -192,6 +212,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.outerDiameter_m = newOD;
 		setInnerDiameter(this.innerDiameter_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -204,9 +225,10 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		this.totalHeight_m = Math.max(newHeight, this.flangeHeight_m + this.baseHeight_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+
 	@Override
 	public boolean isAerodynamic(){
 		// TODO: implement aerodynamics
@@ -418,4 +440,48 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		return false;
 	}
 
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.outerDiameter_m = preset.get(ComponentPreset.OUTER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+			this.innerDiameter_m = preset.get(ComponentPreset.INNER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.HEIGHT)) {
+			this.totalHeight_m = preset.get(ComponentPreset.HEIGHT);
+		}
+		if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
+			this.flangeHeight_m = preset.get(ComponentPreset.FLANGE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.BASE_HEIGHT)) {
+			this.baseHeight_m = preset.get(ComponentPreset.BASE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.CD) && preset.get(ComponentPreset.CD) > 0) {
+			setCDOverridden(true);
+			setOverrideCD(preset.get(ComponentPreset.CD));
+		}
+
+		double totalMass = 0;
+		boolean massOverridden = false;
+		if (preset.has(ComponentPreset.MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.MASS);
+		}
+		if (preset.has(ComponentPreset.SCREW_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.SCREW_MASS);
+		}
+		if (preset.has(ComponentPreset.NUT_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.NUT_MASS);
+		}
+		if (massOverridden) {
+			setMassOverridden(true);
+			setOverrideMass(totalMass);
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 }
