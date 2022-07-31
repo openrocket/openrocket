@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -298,12 +299,16 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	public void setSelectedConfigurationIds(List<FlightConfigurationId> fids) {
 		if (fids == null || fids.isEmpty() || table.getColumnCount() == 0) return;
 
+		if (new HashSet<>(getSelectedConfigurationIds()).containsAll(fids)) return;
+
+		table.clearSelection();
 		for (FlightConfigurationId id : fids) {
 			if (id == FlightConfigurationId.DEFAULT_VALUE_FCID) continue;
 			for (int rowNum = 0; rowNum < table.getRowCount(); rowNum++) {
 				FlightConfigurationId rowFCID = rocket.getId(rowNum );
-				if (rowFCID.equals(id) && !table.isRowSelected(rowNum)) {
-					table.changeSelection(rowNum, 1, false, false);
+				if (rowFCID.equals(id)) {
+					table.changeSelection(rowNum, 1, true, false);
+					break;
 				}
 			}
 		}

@@ -114,7 +114,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
-			private FlightConfigurablePanel<?> previousPanel = null;
+			private FlightConfigurablePanel<?> previousPanel = motorConfigurationPanel;
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Trigger a selection of the motor/recovery/configuration item
@@ -308,6 +308,9 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 	}
 
+	/**
+	 * Synchronize the table row selection of a target panel with the selection in the source panel.
+	 */
 	private void synchronizePanelSelection(FlightConfigurablePanel<?> source, FlightConfigurablePanel<?> target) {
 		if (source == null || target == null) return;
 		List<FlightConfigurationId> fids = source.getSelectedConfigurationIds();
