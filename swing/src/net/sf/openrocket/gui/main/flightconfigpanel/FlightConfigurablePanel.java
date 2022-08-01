@@ -304,7 +304,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	public void setSelectedConfigurationIds(List<FlightConfigurationId> fids) {
 		if (fids == null || fids.isEmpty() || table.getColumnCount() == 0) return;
 
-		if (new HashSet<>(getSelectedConfigurationIds()).containsAll(fids)) return;
+		if (getSelectedConfigurationIds() != null && new HashSet<>(getSelectedConfigurationIds()).containsAll(fids)) return;
 
 		table.clearSelection();
 		for (FlightConfigurationId id : fids) {
