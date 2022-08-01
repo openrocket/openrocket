@@ -149,7 +149,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if ( e.getValueIsAdjusting() ) {
 					return;
 				}
-				
+
+				// Don't update the flight configuration for multi-selections
+				if (table.getSelectionModel().getSelectedItemsCount() > 1) {
+					return;
+				}
+
 				/* Find the selected row and set it as the current selected configuration
 				 * for the rocket. This will propagate the event to ensure that other
 				 * pieces of the UI are updated and match the table selection.
