@@ -264,12 +264,9 @@ public class RocketComponentConfig extends JPanel {
 				if (presetComboBox == null || presetModel == null) return;
 				((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
 				ComponentPresetChooserDialog dialog =
-						new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(RocketComponentConfig.this), component);
+						new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(RocketComponentConfig.this),
+								component, presetModel);
 				dialog.setVisible(true);
-				ComponentPreset preset = dialog.getSelectedComponentPreset();
-				if (preset != null) {
-					presetModel.setSelectedItem(preset);
-				}
 				((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
 			}
 		});

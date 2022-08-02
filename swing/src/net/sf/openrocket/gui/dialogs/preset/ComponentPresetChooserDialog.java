@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -49,8 +52,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private final RocketComponent component;
 	
-	private ComponentPresetTable componentSelectionTable;
-	private JTextField filterText;
+	private final ComponentPresetTable componentSelectionTable;
+	private final JTextField filterText;
 	private JCheckBox foreDiameterFilterCheckBox;
 	private JCheckBox aftDiameterFilterCheckBox;
 	private JCheckBox showLegacyCheckBox;
@@ -70,12 +73,14 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private List<ComponentPreset> presets;
 	private ComponentPreset.Type presetType;
+	private PresetModel presetModel;
 	
 	
-	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
+	public ComponentPresetChooserDialog(Window owner, RocketComponent component, PresetModel presetModel) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		this.component = component;
 		this.presetType = component.getPresetType();
+		this.presetModel = presetModel;
 		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 		
 		List<TypedKey<?>> displayedColumnKeys = Arrays.asList(component.getPresetType().getDisplayedColumns());
@@ -154,7 +159,17 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(scrollpane, "grow, width 700lp, height 300lp, pushy, spanx, wrap rel");
 		
 		panel.add(new StyledLabel(String.format("<html>%s %s</html>", Chars.UP_ARROW, trans.get("lbl.favorites")), -1), "spanx, gapleft 5px, wrap para");
-		
+
+		// When double-clicking a preset row, apply the preset and close this dialog
+		componentSelectionTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Don't do anything when double-clicking the first column
+				if (e.getClickCount() == 2 && componentSelectionTable.getSelectedColumn() > 0 && applySelectedPreset()) {
+					ComponentPresetChooserDialog.this.setVisible(false);
+				}
+			}
+		});
 		
 		// Close buttons
 		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
@@ -162,6 +177,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ComponentPresetChooserDialog.this.setVisible(false);
+				applySelectedPreset();
 			}
 		});
 		panel.add(closeButton, "spanx, right, tag close");
@@ -172,6 +188,21 @@ public class ComponentPresetChooserDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, closeButton);
 
 		updateFilters();
+	}
+
+	/**
+	 * Applies the currently selected preset to presetModel.
+	 *
+	 * @return true if the preset was applied, false if otherwise.
+	 */
+	private boolean applySelectedPreset() {
+		if (presetModel == null) return false;
+		ComponentPreset preset = getSelectedComponentPreset();
+		if (preset != null) {
+			presetModel.setSelectedItem(preset);
+			return true;
+		}
+		return false;
 	}
 	
 	
