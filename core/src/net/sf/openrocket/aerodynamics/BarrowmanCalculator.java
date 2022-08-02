@@ -408,6 +408,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 			
 			// iterate across component instances
+			double componentFrictionCDTotal = 0;		// Total friction drag of the component
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 				double componentFrictionCD = calcMap.get(c).calculateFrictionCD(conditions, componentCf, warningSet);
@@ -429,9 +430,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					otherFrictionCD += componentFrictionCD;
 				}
 
-				if (map != null) {
-					map.get(c).setFrictionCD(componentFrictionCD);
-				}
+				componentFrictionCDTotal += componentFrictionCD;
+			}
+
+			if (map != null) {
+				map.get(c).setFrictionCD(componentFrictionCDTotal);
 			}
 		}
 		
@@ -608,17 +611,17 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 
 			// iterate across component instances
+			double pressureCDTotal = 0;		// Total pressure drag for this component
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 			for(InstanceContext context: contextList ) {
 
 				// Pressure drag
-				double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
+				double pressureCD = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
 															   warningSet);
-				total += cd;
-				
-				if (forceMap != null) {
-					forceMap.get(c).setPressureCD(cd);
-				}
+				pressureCDTotal += pressureCD;
+
+				// Total pressure drag of the rocket
+				total += pressureCD;
 				
 				if(c.isCDOverridden())
 					continue;					
@@ -634,14 +637,15 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					
 					if (radius < s.getForeRadius()) {
 						double area = Math.PI * (pow2(s.getForeRadius()) - pow2(radius));
-						cd = stagnation * area / conditions.getRefArea();
-						total += cd;
-						
-						if (forceMap != null) {
-							forceMap.get(c).setPressureCD(forceMap.get(c).getPressureCD() + cd);
-						}
+						pressureCD = stagnation * area / conditions.getRefArea();
+						pressureCDTotal += pressureCD;
+						total += pressureCD;
 					}
 				}
+			}
+
+			if (forceMap != null) {
+				forceMap.get(c).setPressureCD(pressureCDTotal);
 			}
 		}
 		
@@ -696,10 +700,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 				if (radius > s.getForeRadius()) {
 					double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
-					double cd = base * area / conditions.getRefArea();
-					total += cd;
+					double baseCD = base * area / conditions.getRefArea();
+					total += baseCD;
 					if ((map != null) && (prevComponent != null)) {
-						map.get(prevComponent).setBaseCD(cd);
+						map.get(prevComponent).setBaseCD(baseCD);
 					}
 				}
 				
@@ -709,10 +713,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				final SymmetricComponent n = s.getNextSymmetricComponent();
 				if ((n == null) || !configuration.isStageActive(n.getStageNumber())) {
 					double area = Math.PI * pow2(s.getAftRadius());
-					double cd = base * area / conditions.getRefArea();
-					total += cd;
+					double baseCD = base * area / conditions.getRefArea();
+					total += baseCD;
 					if (map != null) {
-						map.get(s).setBaseCD(cd);
+						map.get(s).setBaseCD(baseCD);
 					}
 				}
 			}
