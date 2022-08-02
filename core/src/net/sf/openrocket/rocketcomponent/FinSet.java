@@ -227,8 +227,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		if (MathUtil.equals(clampedCant, this.cantRadians))
 			return;
 		this.cantRadians = clampedCant;
-		
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 
 	public Transformation getCantRotation() {

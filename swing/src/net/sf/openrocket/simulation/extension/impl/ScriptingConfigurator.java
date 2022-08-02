@@ -8,7 +8,6 @@ import java.awt.event.FocusListener;
 import java.util.Set;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -33,7 +32,6 @@ import com.google.inject.Inject;
 
 @Plugin
 public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfigurator<ScriptingExtension> {
-	
 	@Inject
 	private ScriptingUtil util;
 	
@@ -66,7 +64,6 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		});
 		panel.add(languageSelector, "wrap para");
 		
-		
 		text = new RSyntaxTextArea(extension.getScript(), 20, 80);
 		text.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		text.setCodeFoldingEnabled(true);
@@ -90,7 +87,6 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		
 		RTextScrollPane scroll = new RTextScrollPane(text);
 		panel.add(scroll, "spanx, grow, wrap para");
-		
 		
 		BooleanModel enabled = new BooleanModel(extension, "Enabled");
 		JCheckBox check = new JCheckBox(enabled);
@@ -116,7 +112,6 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		});
 		panel.add(button, "wrap rel");
 		
-		
 		StyledLabel label = new StyledLabel(trans.get("SimulationExtension.scripting.text.trusted.msg"), -1, Style.ITALIC);
 		panel.add(label);
 		
@@ -129,7 +124,6 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 	protected void close() {
 		util.setTrustedScript(extension.getLanguage(), extension.getScript(), trusted.isSelected());
 	}
-	
 	
 	private void setLanguage(String language) {
 		if (language == null) {
@@ -144,8 +138,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 	}
 	
 	private String findSyntaxLanguage(String language) {
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName(language);
+		ScriptEngine engine = util.getEngineByName(language);
 		
 		if (engine != null) {
 			Set<String> supported = TokenMakerFactory.getDefaultInstance().keySet();
@@ -163,5 +156,4 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		
 		return SyntaxConstants.SYNTAX_STYLE_NONE;
 	}
-	
 }
