@@ -514,9 +514,9 @@ public class Rocket extends ComponentAssembly {
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
-				iterator.next().componentChanged(cce);
+				RocketComponent next = iterator.next();
+				next.componentChanged(cce);
 			}
-			
 			updateConfigurations();
 
 			notifyAllListeners(cce);
@@ -556,7 +556,6 @@ public class Rocket extends ComponentAssembly {
 	}
 	
 	private void updateConfigurations(){
-		this.selectedConfiguration.update();
 		for( FlightConfiguration config : configSet ){
 			config.update();
 		}

@@ -385,7 +385,7 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	protected JPanel instanceablePanel( Instanceable inst ){
-		JPanel panel = new JPanel( new MigLayout("fill"));
+		JPanel panel = new JPanel( new MigLayout("fill, insets 0") );
 		{ // Instance Count
 			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
 			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
@@ -401,7 +401,11 @@ public class RocketComponentConfig extends JPanel {
 			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
 			panel.add(separationSpinner, "growx");
 			panel.add(new UnitSelector(separationModel), "growx");
-			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			double maxSeparationDistance = 0.1;
+			if (component.getParent() != null && component.getParent().getLength() > 0) {
+				maxSeparationDistance = component.getParent().getLength();
+			}
+			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
 		}
 		return panel;
 	}

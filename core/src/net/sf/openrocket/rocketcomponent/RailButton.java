@@ -40,19 +40,19 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	 *   ^     [[[[[[]]]]]]              flangeHeight
 	 * total     >||||||<=  inner dia     ^
 	 * height     ||||||            v
-	 *   v     [[[[[[]]]]]]        standoff == baseHeight 
+	 *   v     [[[[[[]]]]]]        baseHeight / standoff
 	 *      ==================      ^
 	 *          (body)
 	 *   
 	 */
 	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
 	protected double outerDiameter_m;
-	protected double totalHeight_m;
 	protected double innerDiameter_m;
+	protected double totalHeight_m;
 	protected double flangeHeight_m;
- 	protected double standoff_m;
-	
-	protected final static double MINIMUM_STANDOFF= 0.001;
+ 	protected double baseHeight_m;
+	protected double screwHeight_m;		// This has no effect at the moment; is for future use.
+
 
 	private double radialDistance_m=0;
 	protected static final AngleMethod angleMethod = AngleMethod.RELATIVE;
@@ -66,7 +66,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.totalHeight_m = 0.0097;
 		this.innerDiameter_m = 0.008;
 		this.flangeHeight_m = 0.002;
-		this.setStandoff( 0.002);
+		this.setBaseHeight(0.002);
 		this.setInstanceSeparation( this.outerDiameter_m * 6);
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
 		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
@@ -75,19 +75,19 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	public RailButton( final double od, final double ht ) {
 		this();
-		this.setOuterDiameter( od);
-		this.setTotalHeight( ht);
+		this.setOuterDiameter(od);
+		this.setTotalHeight(ht);
 		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
 	}
 	
-	public RailButton( final double od, final double id, final double ht, final double flangeThickness, final double _standoff ) {
+	public RailButton( final double od, final double id, final double ht, final double _flangeHeight, final double _baseHeight ) {
 		super(AxialMethod.MIDDLE);
 		this.outerDiameter_m = od;
 		this.totalHeight_m = ht;
 		this.innerDiameter_m = id;
-		this.flangeHeight_m = flangeThickness;
-		this.setStandoff( _standoff);
+		this.flangeHeight_m = _flangeHeight;
+		this.setBaseHeight(_baseHeight);
 		this.setInstanceSeparation( od*2);
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
 		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
@@ -121,13 +121,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		
 		return rb1010;
 	}
-	
-	public double getStandoff(){
-		return this.standoff_m;
-	}
 
 	public double getBaseHeight(){
-		return this.getStandoff();
+		return this.baseHeight_m;
 	}
 	
 	public double getOuterDiameter() {
@@ -139,7 +135,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	}
 	
 	public double getInnerHeight() {
-		return (this.totalHeight_m - this.flangeHeight_m - this.standoff_m);
+		return (this.totalHeight_m - this.flangeHeight_m - this.baseHeight_m);
 	}
 	
 	public double getTotalHeight() {
@@ -149,16 +145,48 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public double getFlangeHeight() {
 		return this.flangeHeight_m;
 	}
+
+	public double getScrewHeight() {
+		return this.screwHeight_m;
+	}
+
 	
-	
-	public void setStandoff(double newStandoff){
+	public void setBaseHeight(double newBaseHeight){
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RailButton) {
-				((RailButton) listener).setStandoff(newStandoff);
+				((RailButton) listener).setBaseHeight(newBaseHeight);
 			}
 		}
 
-		this.standoff_m = Math.max( newStandoff, RailButton.MINIMUM_STANDOFF );
+		this.baseHeight_m = Math.max(newBaseHeight, 0);
+		this.baseHeight_m = Math.min(this.baseHeight_m, this.totalHeight_m - this.flangeHeight_m);
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setFlangeHeight(double newFlangeHeight){
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setFlangeHeight(newFlangeHeight);
+			}
+		}
+
+		this.flangeHeight_m = Math.max(newFlangeHeight, 0);
+		this.flangeHeight_m = Math.min(this.flangeHeight_m, this.totalHeight_m - this.baseHeight_m);
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setScrewHeight(double height) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setScrewHeight(height);
+			}
+		}
+
+		this.screwHeight_m = Math.max(height, 0);
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	public void setInnerDiameter(double newID ){
@@ -168,7 +196,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
-		this.innerDiameter_m = newID;
+		this.innerDiameter_m = Math.min(newID, this.outerDiameter_m);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -181,7 +210,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.outerDiameter_m = newOD;
+		setInnerDiameter(this.innerDiameter_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -192,22 +223,12 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
-		this.totalHeight_m = newHeight;
+		this.totalHeight_m = Math.max(newHeight, this.flangeHeight_m + this.baseHeight_m);
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	public void setThickness(double newThickness ) {
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setThickness(newThickness);
-			}
-		}
 
-		this.flangeHeight_m = newThickness;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
 	@Override
 	public boolean isAerodynamic(){
 		// TODO: implement aerodynamics
@@ -252,15 +273,17 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		super.setAxialMethod(position);
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	@Override
 	public BoundingBox getInstanceBoundingBox(){
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new Coordinate(0, this.getTotalHeight(), 0));
+		instanceBounds.update(new Coordinate(0, this.totalHeight_m, 0));
+		instanceBounds.update(new Coordinate(0, -this.totalHeight_m, 0));
 		
-		final double r = this.getOuterDiameter();
-		instanceBounds.update(new Coordinate(r,r,0));
-		instanceBounds.update(new Coordinate(-r,-r,0));
+		final double r = this.getOuterDiameter() / 2;
+		instanceBounds.update(new Coordinate(r, 0, r));
+		instanceBounds.update(new Coordinate(-r, 0, -r));
 		
 		return instanceBounds;
 	}
@@ -306,7 +329,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public double getComponentVolume() {
 		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
-		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)*standoff_m;
+		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
 		return (volOuter+
 				volInner+
 				volStandoff);
@@ -370,12 +393,12 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	@Override
 	public Coordinate getComponentCG() {
-		// Math.PI and density are assumed constant through calculation, and thus may be factored out. 
-		final double volumeFlange = Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
-		final double volumeInner = Math.pow( innerDiameter_m/2, 2)*(getInnerHeight());
-		final double volumeStandoff = Math.pow( outerDiameter_m/2, 2)*this.standoff_m;
-		final double totalVolume = volumeFlange + volumeInner + volumeStandoff;
-		final double heightCM = (volumeFlange*( this.totalHeight_m-getFlangeHeight()/2) + volumeInner*( this.standoff_m + this.getInnerHeight()/2) + volumeStandoff*(this.standoff_m/2))/totalVolume;
+		// Math.PI and density are assumed constant through calculation, and thus may be factored out.
+		final double volumeBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
+		final double volumeFlange = Math.pow(outerDiameter_m / 2, 2)* this.flangeHeight_m;
+		final double volumeInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
+		final double totalVolume = volumeFlange + volumeInner + volumeBase;
+		final double heightCM = (volumeFlange*( this.totalHeight_m-getFlangeHeight()/2) + volumeInner*( this.baseHeight_m + this.getInnerHeight()/2) + volumeBase*(this.baseHeight_m /2))/totalVolume;
 
 		if( heightCM > this.totalHeight_m ){
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
@@ -417,4 +440,48 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		return false;
 	}
 
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.outerDiameter_m = preset.get(ComponentPreset.OUTER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+			this.innerDiameter_m = preset.get(ComponentPreset.INNER_DIAMETER);
+		}
+		if (preset.has(ComponentPreset.HEIGHT)) {
+			this.totalHeight_m = preset.get(ComponentPreset.HEIGHT);
+		}
+		if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
+			this.flangeHeight_m = preset.get(ComponentPreset.FLANGE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.BASE_HEIGHT)) {
+			this.baseHeight_m = preset.get(ComponentPreset.BASE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.CD) && preset.get(ComponentPreset.CD) > 0) {
+			setCDOverridden(true);
+			setOverrideCD(preset.get(ComponentPreset.CD));
+		}
+
+		double totalMass = 0;
+		boolean massOverridden = false;
+		if (preset.has(ComponentPreset.MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.MASS);
+		}
+		if (preset.has(ComponentPreset.SCREW_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.SCREW_MASS);
+		}
+		if (preset.has(ComponentPreset.NUT_MASS)) {
+			massOverridden = true;
+			totalMass += preset.get(ComponentPreset.NUT_MASS);
+		}
+		if (massOverridden) {
+			setMassOverridden(true);
+			setOverrideMass(totalMass);
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
 }

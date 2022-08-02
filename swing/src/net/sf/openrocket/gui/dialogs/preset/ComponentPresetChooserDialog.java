@@ -25,7 +25,9 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
@@ -42,6 +44,8 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class ComponentPresetChooserDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
+	
+	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	private final RocketComponent component;
 	
@@ -149,7 +153,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, width 700lp, height 300lp, pushy, spanx, wrap rel");
 		
-		panel.add(new JLabel(Chars.UP_ARROW + " " + trans.get("lbl.favorites")), "spanx, gapleft 5px, wrap para");
+		panel.add(new StyledLabel(String.format("<html>%s %s</html>", Chars.UP_ARROW, trans.get("lbl.favorites")), -1), "spanx, gapleft 5px, wrap para");
 		
 		
 		// Close buttons
@@ -222,12 +226,14 @@ public class ComponentPresetChooserDialog extends JDialog {
 			foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
 			final SymmetricComponent prevSym = curSym.getPreviousSymmetricComponent();
 			if (prevSym != null && foreDiameterColumnIndex >= 0) {
+				foreDiameterFilterCheckBox.setSelected(preferences.isMatchForeDiameter());
 				foreDiameterFilter = new ComponentPresetRowFilter(prevSym.getAftRadius() * 2.0, foreDiameterColumnIndex);
 				panel.add(foreDiameterFilterCheckBox, "wrap");
 				foreDiameterFilterCheckBox.addItemListener(new ItemListener() {
 					@Override
 					public void itemStateChanged(ItemEvent e) {
 						updateFilters();
+						preferences.setMatchForeDiameter(foreDiameterFilterCheckBox.isSelected());
 					}
 				});
 			}
@@ -238,12 +244,14 @@ public class ComponentPresetChooserDialog extends JDialog {
 			aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
 			final SymmetricComponent nextSym = curSym.getNextSymmetricComponent();
 			if (nextSym != null && aftDiameterColumnIndex >= 0) {
+				aftDiameterFilterCheckBox.setSelected(preferences.isMatchAftDiameter());
 				aftDiameterFilter = new ComponentPresetRowFilter(nextSym.getForeRadius() * 2.0, aftDiameterColumnIndex);
 				panel.add(aftDiameterFilterCheckBox, "wrap");
 				aftDiameterFilterCheckBox.addItemListener(new ItemListener() {
 					@Override
 					public void itemStateChanged(ItemEvent e) {
 						updateFilters();
+						preferences.setMatchAftDiameter(aftDiameterFilterCheckBox.isSelected());
 					}
 				});
 			}
