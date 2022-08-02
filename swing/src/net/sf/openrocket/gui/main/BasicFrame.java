@@ -418,18 +418,18 @@ public class BasicFrame extends JFrame {
 		button = new SelectColorButton(actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
-		button = new SelectColorButton(actions.getEditAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getEditAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons, gaptop 20%");
 
-		button = new SelectColorButton(actions.getDuplicateAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getDuplicateAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
-		button = new SelectColorButton(actions.getDeleteAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getDeleteAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 

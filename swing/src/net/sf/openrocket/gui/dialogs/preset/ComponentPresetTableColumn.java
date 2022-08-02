@@ -33,7 +33,7 @@ public abstract class ComponentPresetTableColumn extends TableColumn {
 		
 		@Override
 		public Object getValueFromPreset( Set<String> favorites, ComponentPreset preset ) {
-			return Boolean.valueOf(favorites.contains(preset.preferenceKey()));
+			return favorites.contains(preset.preferenceKey());
 		}
 
 	}

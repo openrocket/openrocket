@@ -178,9 +178,9 @@ public class Parachute extends RecoveryDevice {
 			this.diameter = DEFAULT_DIAMETER;
 		}
 		//	//	Set preset parachute drag coefficient
-		 if ((preset.has(ComponentPreset.PARACHUTE_CD)) && preset.get(ComponentPreset.PARACHUTE_CD) > 0){
+		 if ((preset.has(ComponentPreset.CD)) && preset.get(ComponentPreset.CD) > 0){
 		 		cdAutomatic = false;
-		 		cd = preset.get(ComponentPreset.PARACHUTE_CD);
+		 		cd = preset.get(ComponentPreset.CD);
 		 } else {
 			 cdAutomatic = true;
 			 cd = Parachute.DEFAULT_CD;

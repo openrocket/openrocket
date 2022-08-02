@@ -91,7 +91,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		// Set the closeable dialog after all initialization
 		selectionPanel.setCloseableDialog(this);
 
-		GUIUtil.setDisposableDialogOptions(this, cancelButton);
+		GUIUtil.setWindowIcons(this);
 	}
 	
 	public void setMotorMountAndConfig( FlightConfigurationId _fcid, MotorMount _mount ) {

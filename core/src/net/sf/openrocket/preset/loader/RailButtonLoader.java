@@ -13,7 +13,7 @@ public class RailButtonLoader extends BaseComponentLoader {
 		fileColumns.add(new DoubleUnitColumnParser("OD","Units",ComponentPreset.OUTER_DIAMETER));
 		fileColumns.add(new DoubleUnitColumnParser("Height","Units",ComponentPreset.HEIGHT));
 		fileColumns.add(new DoubleUnitColumnParser("Flange Height", "Units", ComponentPreset.FLANGE_HEIGHT));
-		fileColumns.add(new DoubleUnitColumnParser("Standoff Height", "Units", ComponentPreset.STANDOFF_HEIGHT));
+		fileColumns.add(new DoubleUnitColumnParser("Standoff Height", "Units", ComponentPreset.BASE_HEIGHT));
 
 	}
 
