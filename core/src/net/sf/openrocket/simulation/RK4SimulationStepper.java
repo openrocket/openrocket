@@ -249,6 +249,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		deltaO = k2.rv.add(k3.rv).multiply(2).add(k1.rv).add(k4.rv).multiply(store.timestep / 6);
 		
 
+		status.setRocketAcceleration(store.linearAcceleration);
 		status.setRocketVelocity(status.getRocketVelocity().add(deltaV));
 		status.setRocketPosition(status.getRocketPosition().add(deltaP));
 		status.setRocketRotationVelocity(status.getRocketRotationVelocity().add(deltaR));
@@ -316,7 +317,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @throws SimulationException 
 	 */
 	private void calculateAcceleration(RK4SimulationStatus status, DataStore store) throws SimulationException {
-		
+		Coordinate linearAccelerationRC;
+		Coordinate linearAccelerationWC;
+		Coordinate rotationalAccelerationRC;
+		Coordinate rotationalAccelerationWC;
+
 		// Call pre-listeners
 		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
 		if (store.accelerationData != null) {
@@ -359,12 +364,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// add effect of gravity
 		store.gravity = modelGravity(status);
 		store.linearAcceleration = store.linearAcceleration.sub(0, 0, store.gravity);
+		linearAccelerationRC = store.linearAcceleration.clone();
 		
 		// add effect of Coriolis acceleration
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation()
 				.getCoriolisAcceleration(status.getRocketWorldPosition(), status.getRocketVelocity());
 		store.linearAcceleration = store.linearAcceleration.add(store.coriolisAcceleration);
-		
+
 		// If still on the launch rod, project acceleration onto launch rod direction and
 		// set angular acceleration to zero.
 		if (!status.isLaunchRodCleared()) {
@@ -374,6 +380,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			store.angularAcceleration = Coordinate.NUL;
 			store.rollAcceleration = 0;
 			store.lateralPitchAcceleration = 0;
+
+			rotationalAccelerationRC = Coordinate.NUL;
+			rotationalAccelerationWC = Coordinate.NUL;
 			
 		} else {
 			
@@ -397,12 +406,24 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 						Math.abs(store.angularAcceleration.y));
 			
 			store.angularAcceleration = store.thetaRotation.rotateZ(store.angularAcceleration);
-			
+
+			rotationalAccelerationRC = store.angularAcceleration.clone();
 			// Convert to world coordinates
 			store.angularAcceleration = status.getRocketOrientationQuaternion().rotate(store.angularAcceleration);
+			rotationalAccelerationWC = store.angularAcceleration.clone();
 			
 		}
 		
+		linearAccelerationWC = store.linearAcceleration.clone();
+
+		//Initialize accelerationData
+		store.accelerationData = new AccelerationData(
+			linearAccelerationRC,
+			rotationalAccelerationRC,
+			linearAccelerationWC,
+			rotationalAccelerationWC,
+			status.getRocketOrientationQuaternion());
+
 		// Call post-listeners
 		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
 	}
