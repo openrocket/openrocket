@@ -130,8 +130,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				double oldAlt = currentStatus.getRocketPosition().z;
 				
 				if (SimulationListenerHelper.firePreStep(currentStatus)) {
-					// Step at most to the next event
-					double maxStepTime = Double.MAX_VALUE;
+					// Step at most to the next event.  If there is no next event, don't step time
+					double maxStepTime = 0.0;
 					FlightEvent nextEvent = currentStatus.getEventQueue().peek();
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
