@@ -174,22 +174,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			this.displayedColumns = displayedColumns;
 		}
 
-		public List<Type> getCompatibleTypes() {
-			return compatibleTypeMap.get(Type.this);
-		}
-
 		public TypedKey<?>[] getDisplayedColumns() {
 			return displayedColumns;
-		}
-
-		private static final Map<Type, List<Type>> compatibleTypeMap = new HashMap<Type, List<Type>>();
-
-		static {
-			compatibleTypeMap.put(BODY_TUBE, Arrays.asList(BODY_TUBE, TUBE_COUPLER, LAUNCH_LUG));
-			compatibleTypeMap.put(TUBE_COUPLER, Arrays.asList(BODY_TUBE, TUBE_COUPLER, LAUNCH_LUG));
-			compatibleTypeMap.put(LAUNCH_LUG, Arrays.asList(BODY_TUBE, TUBE_COUPLER, LAUNCH_LUG));
-			compatibleTypeMap.put(CENTERING_RING, Arrays.asList(CENTERING_RING, ENGINE_BLOCK));
-			compatibleTypeMap.put(NOSE_CONE, Arrays.asList(NOSE_CONE, TRANSITION));
 		}
 
 	}
