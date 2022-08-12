@@ -1029,6 +1029,7 @@ public class SimulationPanel extends JPanel {
 				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
+	}
 
 	private static class NextRowAction extends AbstractAction {
 		private final JTable table;
