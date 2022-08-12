@@ -654,19 +654,15 @@ public class BasicFrame extends JFrame {
 		}
 
 
-		////	Analyze
-		menu = new JMenu(trans.get("main.menu.analyze"));
-		menu.setMnemonic(KeyEvent.VK_A);
-
-		////	Analyzing the rocket
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.desc"));
+		//	Tools
+		menu = new JMenu(trans.get("main.menu.tools"));
 		menubar.add(menu);
 
 		////	Component analysis
-		item = new JMenuItem(trans.get("main.menu.analyze.componentAnalysis"), KeyEvent.VK_C);
+		item = new JMenuItem(trans.get("main.menu.tools.componentAnalysis"), KeyEvent.VK_C);
 
 		////	Analyze the rocket components separately
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.componentAnalysis.desc"));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.componentAnalysis.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -677,8 +673,8 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		////	Optimize
-		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
+		item = new JMenuItem(trans.get("main.menu.tools.optimization"), KeyEvent.VK_O);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.optimization.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -693,8 +689,8 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		////	Custom expressions
-		item = new JMenuItem(trans.get("main.menu.analyze.customExpressions"), KeyEvent.VK_E);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.customExpressions.desc"));
+		item = new JMenuItem(trans.get("main.menu.tools.customExpressions"), KeyEvent.VK_E);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.customExpressions.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

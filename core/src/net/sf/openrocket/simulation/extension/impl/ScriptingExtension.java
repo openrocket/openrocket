@@ -2,7 +2,6 @@ package net.sf.openrocket.simulation.extension.impl;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -91,8 +90,7 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	
 	
 	SimulationListener getListener() throws SimulationException {
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName(getLanguage());
+		ScriptEngine engine = util.getEngineByName(getLanguage());
 		if (engine == null) {
 			throw new SimulationException("Your JRE does not support the scripting language '" + getLanguage() + "'");
 		}
