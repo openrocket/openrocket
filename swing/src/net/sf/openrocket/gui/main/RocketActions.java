@@ -851,10 +851,18 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			List<RocketComponent> topComponents = new LinkedList<>();		// Components without a parent component in <components>
 			if (components != null) {
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
+			} else {
+				return;
+			}
+			for (RocketComponent c: components) {
+				if (!RocketComponent.listContainsParent(components, c)) {
+					topComponents.add(c);
+				}
 			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
@@ -877,7 +885,8 @@ public class RocketActions {
 					if (RocketComponent.listContainsParent(duplicateComponents, component)) {
 						pos = getPastePosition(component, component.getParent());
 					} else {
-						RocketComponent pasteParent = components.get(duplicateComponents.indexOf(component)).getParent();
+						int compIdx = duplicateComponents.indexOf(component);
+						RocketComponent pasteParent = topComponents.get(compIdx).getParent();
 						pos = getPastePosition(component, pasteParent);
 					}
 					positions.add(pos);
