@@ -659,6 +659,7 @@ public class RocketActions {
 				}
 
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				delete(components);
@@ -717,6 +718,7 @@ public class RocketActions {
 
 			if (isCopyable(components)) {
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
