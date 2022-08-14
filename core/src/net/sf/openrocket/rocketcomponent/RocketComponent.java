@@ -1010,7 +1010,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * If the length of a component is settable, the class must define the setter method
 	 * itself.
 	 */
-	public final double getLength() {
+	public double getLength() {
 		mutex.verify();
 		return length;
 	}

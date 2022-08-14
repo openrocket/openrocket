@@ -71,7 +71,7 @@ public class IntegrationTest {
 	private Action undoAction, redoAction;
 	
 	private AerodynamicCalculator aeroCalc = new BarrowmanCalculator();
-	private FlightConfiguration config;
+	private FlightConfigurationId fcid;
 	private FlightConditions conditions;
 	private String massComponentID = null;
 	
@@ -112,14 +112,12 @@ public class IntegrationTest {
 		
 		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
-        FlightConfigurationId fcid = document.getSimulation(0).getFlightConfigurationId();
-		config = document.getRocket().getFlightConfiguration(fcid);
+        fcid = document.getSimulation(0).getFlightConfigurationId();
+		FlightConfiguration config = document.getRocket().getFlightConfiguration(fcid);
 		conditions = new FlightConditions(config);
 		
 		// Test undo state
 		checkUndoState(null, null);
-		
-		InnerTube mmt = (InnerTube)config.getRocket().getChild(0).getChild(1).getChild(2);
 		 
 		// Compute cg+cp + altitude
 	    //   double cgx, double mass, double cpx, double cna)
@@ -330,6 +328,7 @@ public class IntegrationTest {
 	}
 	
 	private void checkCgCp(double cgx, double mass, double cpx, double cna) {
+		FlightConfiguration config = document.getRocket().getFlightConfiguration(fcid);
 		final RigidBody launchData = MassCalculator.calculateLaunch(config);
 		final Coordinate cg = launchData.getCenterOfMass();
 		assertEquals(cgx, cg.x, 0.001);

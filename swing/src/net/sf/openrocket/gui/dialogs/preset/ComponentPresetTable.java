@@ -77,9 +77,11 @@ public class ComponentPresetTable extends JTable {
 				if ( columnIndex != 0 ) {
 					return;
 				}
+				int selectedRow = ComponentPresetTable.this.getSelectedRow();
 				ComponentPreset preset = ComponentPresetTable.this.presets.get(rowIndex);
 				Application.getComponentPresetDao().setFavorite(preset, presetType, (Boolean) aValue);
 				ComponentPresetTable.this.updateFavorites();
+				ComponentPresetTable.this.setRowSelectionInterval(selectedRow, selectedRow);
 			}
 
 			@Override

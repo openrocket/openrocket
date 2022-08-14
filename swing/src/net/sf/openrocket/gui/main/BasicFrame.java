@@ -117,7 +117,8 @@ public class BasicFrame extends JFrame {
 	 * List of currently open frames.  When the list goes empty
 	 * it is time to exit the application.
 	 */
-	private static final ArrayList<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static final List<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static BasicFrame startupFrame = null;	// the frame that was created at startup
 
 
 	/**
@@ -417,18 +418,18 @@ public class BasicFrame extends JFrame {
 		button = new SelectColorButton(actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
-		button = new SelectColorButton(actions.getEditAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getEditAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons, gaptop 20%");
 
-		button = new SelectColorButton(actions.getDuplicateAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getDuplicateAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
-		button = new SelectColorButton(actions.getDeleteAction());
-		button.setIcon(null);
+		button = new SelectColorButton();
+		RocketActions.tieActionToButtonNoIcon(button, actions.getDeleteAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
@@ -487,6 +488,10 @@ public class BasicFrame extends JFrame {
 		}
 
 		return result;
+	}
+
+	public RocketPanel getRocketPanel() {
+		return rocketpanel;
 	}
 
 	/**
@@ -836,19 +841,15 @@ public class BasicFrame extends JFrame {
 		}
 
 
-		////	Analyze
-		menu = new JMenu(trans.get("main.menu.analyze"));
-		menu.setMnemonic(KeyEvent.VK_A);
-
-		////	Analyzing the rocket
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.desc"));
+		//	Tools
+		menu = new JMenu(trans.get("main.menu.tools"));
 		menubar.add(menu);
 
 		////	Component analysis
-		item = new JMenuItem(trans.get("main.menu.analyze.componentAnalysis"), KeyEvent.VK_C);
+		item = new JMenuItem(trans.get("main.menu.tools.componentAnalysis"), KeyEvent.VK_C);
 
 		////	Analyze the rocket components separately
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.componentAnalysis.desc"));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.componentAnalysis.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -859,8 +860,8 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		////	Optimize
-		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
+		item = new JMenuItem(trans.get("main.menu.tools.optimization"), KeyEvent.VK_O);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.optimization.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -875,8 +876,8 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		////	Custom expressions
-		item = new JMenuItem(trans.get("main.menu.analyze.customExpressions"), KeyEvent.VK_E);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.customExpressions.desc"));
+		item = new JMenuItem(trans.get("main.menu.tools.customExpressions"), KeyEvent.VK_E);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.tools.customExpressions.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1231,6 +1232,19 @@ public class BasicFrame extends JFrame {
 		return menu;
 	}
 
+	/**
+	 * Return the frame that was created at the application's startup.
+	 */
+	public static BasicFrame getStartupFrame() {
+		return startupFrame;
+	}
+
+	/**
+	 * Set the frame that is created at the application's startup.
+	 */
+	public static void setStartupFrame(BasicFrame startupFrame) {
+		BasicFrame.startupFrame = startupFrame;
+	}
 
 	/**
 	 * Select the tab on the main pane.
@@ -1273,7 +1287,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, parent)) {
+			if (open(file, parent) != null) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1303,7 +1317,7 @@ public class BasicFrame extends JFrame {
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
-			if (open(file, this)) {
+			if (open(file, this) != null) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());
 			}
@@ -1373,9 +1387,9 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @param file		the file to open.
 	 * @param parent	the parent component for which a progress dialog is opened.
-	 * @return			whether the file was successfully loaded and opened.
+	 * @return			the BasicFrame that was created, or null if not created successfully.
 	 */
-	public static boolean open(File file, Window parent) {
+	public static BasicFrame open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file);
 		return open(worker, file.getName(), parent, false);
 	}
@@ -1388,15 +1402,15 @@ public class BasicFrame extends JFrame {
 	 * @param displayName	the file name to display in dialogs.
 	 * @param parent
 	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
-	 * @return
+	 * @return the BasicFrame that was created, or null if not created successfully.
 	 */
-	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
+	private static BasicFrame open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
 		////	Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
 		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
 			//	//	User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
-			return false;
+			return null;
 		}
 
 		////	Handle the document
@@ -1415,7 +1429,7 @@ public class BasicFrame extends JFrame {
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 
 			} else if (cause instanceof RocketLoadException) {
 
@@ -1424,7 +1438,7 @@ public class BasicFrame extends JFrame {
 						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 
 			} else {
 
@@ -1468,7 +1482,7 @@ public class BasicFrame extends JFrame {
 			ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
 		}
 
-		return true;
+		return frame;
 	}
 
 
@@ -1774,24 +1788,27 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Opens a new design file or the last design file, if set in the preferences.
 	 * Can be used for reopening the application or opening it the first time.
+	 * @return the BasicFrame that was created
 	 */
-	public static void reopen() {
+	public static BasicFrame reopen() {
 		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-			BasicFrame.newAction();
+			return BasicFrame.newAction();
 		} else {
 			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
 			if (lastFile != null) {
 				log.info("Opening last design file: " + lastFile);
-				if (!BasicFrame.open(new File(lastFile), null)) {
+				BasicFrame frame = BasicFrame.open(new File(lastFile), null);
+				if (frame == null) {
 					MRUDesignFile.getInstance().removeFile(lastFile);
-					BasicFrame.newAction();
+					return BasicFrame.newAction();
 				}
 				else {
 					MRUDesignFile.getInstance().addFile(lastFile);
+					return frame;
 				}
 			}
 			else {
-				BasicFrame.newAction();
+				return BasicFrame.newAction();
 			}
 		}
 	}
@@ -1799,8 +1816,9 @@ public class BasicFrame extends JFrame {
 
 	/**
 	 * Open a new design window with a basic rocket+stage.
+	 * @return the BasicFrame that was created
 	 */
-	public static void newAction() {
+	public static BasicFrame newAction() {
 		log.info("New action initiated");
 
 		OpenRocketDocument doc = OpenRocketDocumentFactory.createNewRocket();
@@ -1808,6 +1826,7 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.replaceable = true;
 		frame.setVisible(true);
+		return frame;
 	}
 
 
@@ -1869,6 +1888,13 @@ public class BasicFrame extends JFrame {
 		}
 		log.debug("Could not find frame for rocket " + rocket);
 		return null;
+	}
+
+	/**
+	 * Return all BasicFrame instances
+	 */
+	public static List<BasicFrame> getAllFrames() {
+		return frames;
 	}
 
 	/**

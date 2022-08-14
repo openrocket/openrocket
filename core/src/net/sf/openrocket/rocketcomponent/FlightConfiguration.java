@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();	// Map of stage number to StageFlags of the corresponding stage
 	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
-	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	
 	private int boundsModID = -1;
@@ -225,8 +226,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
 				stages.get(stage.getStageNumber()).active = flags.active;
 			}
-			updateMotors();
-			updateActiveInstances();
+			fireChangeEvent();
 			
 			return;
 		}
@@ -377,7 +377,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		for (StageFlags flags : this.stages.values()) {
 			if (flags.active) {
-				activeStages.add( rocket.getStage( flags.stageNumber) );
+				AxialStage stage = rocket.getStage(flags.stageNumber);
+				if (stage == null) {
+					continue;
+				}
+				activeStages.add(stage);
 			}
 		}
 		

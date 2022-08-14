@@ -144,7 +144,9 @@ public abstract class ExternalComponent extends RocketComponent {
 	protected void loadFromPreset(ComponentPreset preset) {
 		super.loadFromPreset(preset);
 		
-		// Surface finish is left unchanged
+		if (preset.has(ComponentPreset.FINISH)) {
+			setFinish(preset.get(ComponentPreset.FINISH));
+		}
 		
 		if (preset.has(ComponentPreset.MATERIAL)) {
 			Material mat = preset.get(ComponentPreset.MATERIAL);

@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -37,6 +38,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -117,8 +119,20 @@ public class RocketComponentConfig extends JPanel {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
 			presetComboBox = new JComboBox(presetModel);
+			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
-			this.add(presetComboBox, "");
+			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
+			this.add(presetComboBox, "growx 110");
+
+			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
+			selectPreset.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selectPreset();
+				}
+			});
+			this.add(selectPreset);
 		}
 
 		tabbedPane = new JTabbedPane();
@@ -243,6 +257,21 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 
+	private void selectPreset() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if (presetComboBox == null || presetModel == null) return;
+				((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
+				ComponentPresetChooserDialog dialog =
+						new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(RocketComponentConfig.this),
+								component, presetModel);
+				dialog.setVisible(true);
+				((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
+			}
+		});
+	}
+
 	public void clearConfigListeners() {
 		if (appearancePanel != null) {
 			appearancePanel.clearConfigListeners();
@@ -353,7 +382,7 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	protected JPanel instanceablePanel( Instanceable inst ){
-		JPanel panel = new JPanel( new MigLayout("fill"));
+		JPanel panel = new JPanel( new MigLayout("fill, insets 0") );
 		{ // Instance Count
 			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
 			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
@@ -369,7 +398,11 @@ public class RocketComponentConfig extends JPanel {
 			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
 			panel.add(separationSpinner, "growx");
 			panel.add(new UnitSelector(separationModel), "growx");
-			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			double maxSeparationDistance = 0.1;
+			if (component.getParent() != null && component.getParent().getLength() > 0) {
+				maxSeparationDistance = component.getParent().getLength();
+			}
+			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
 		}
 		return panel;
 	}

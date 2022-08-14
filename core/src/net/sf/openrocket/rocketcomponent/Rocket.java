@@ -287,6 +287,11 @@ public class Rocket extends ComponentAssembly {
 		refType = type;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
+
+	@Override
+	public double getLength() {
+		return selectedConfiguration.getLength();
+	}
 	
 	
 	public double getCustomReferenceLength() {
@@ -303,6 +308,17 @@ public class Rocket extends ComponentAssembly {
 		if (refType == ReferenceType.CUSTOM) {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
+	}
+
+	@Override
+	public double getBoundingRadius() {
+		double bounding = 0;
+		for (RocketComponent comp : children) {
+			if (comp instanceof ComponentAssembly) {
+				bounding = Math.max(bounding, ((ComponentAssembly) comp).getBoundingRadius());
+			}
+		}
+		return bounding;
 	}
 	
 	
@@ -403,10 +419,12 @@ public class Rocket extends ComponentAssembly {
 		this.stageMap = r.stageMap;		
 
 		// these flight configurations need to reference the _this_ Rocket:
+		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
 		for (FlightConfigurationId key : r.configSet.map.keySet()) {
 			this.configSet.set(key, new FlightConfiguration(this, key));
 		}
+		this.selectedConfiguration = this.configSet.get(r.getSelectedConfiguration().getId());
 
 		this.perfectFinish = r.perfectFinish;
 		
@@ -496,9 +514,9 @@ public class Rocket extends ComponentAssembly {
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
-				iterator.next().componentChanged(cce);
+				RocketComponent next = iterator.next();
+				next.componentChanged(cce);
 			}
-			
 			updateConfigurations();
 
 			notifyAllListeners(cce);
@@ -538,7 +556,6 @@ public class Rocket extends ComponentAssembly {
 	}
 	
 	private void updateConfigurations(){
-		this.selectedConfiguration.update();
 		for( FlightConfiguration config : configSet ){
 			config.update();
 		}

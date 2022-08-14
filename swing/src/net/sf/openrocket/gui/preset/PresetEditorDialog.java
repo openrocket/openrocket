@@ -72,7 +72,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 
 	private static final long serialVersionUID = -3298642844886682536L;
 
-	private static Translator trans = Application.getTranslator();
+	private static final Translator trans = Application.getTranslator();
 	
 	private static final Logger log = LoggerFactory.getLogger(PresetEditorDialog.class);
 	
@@ -82,138 +82,137 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	 * Input of non-negative decimals.
 	 */
 	final PresetInputVerifier NON_NEGATIVE_INTEGER = new PresetInputVerifier(Pattern.compile(NON_NEGATIVE_INTEGER_FIELD));
-	
-	private final JPanel contentPanel = new JPanel();
-	private DeselectableComboBox<String> typeCombo;
-	private JTextField mfgTextField;
-	private MaterialChooser materialChooser;
+
+	private final DeselectableComboBox<String> typeCombo;
+	private final JTextField mfgTextField;
+	private final MaterialChooser materialChooser;
 	private MaterialHolder holder = null;
 	
-	private JTextField ncPartNoTextField;
-	private JTextField ncDescTextField;
-	private DoubleModel ncLength;
-	private JCheckBox ncFilledCB;
-	private JComboBox<String> ncShapeCB;
-	private DoubleModel ncAftDia;
-	private DoubleModel ncAftShoulderDia;
-	private DoubleModel ncAftShoulderLen;
-	private DoubleModel ncMass;
+	private final JTextField ncPartNoTextField;
+	private final JTextField ncDescTextField;
+	private final DoubleModel ncLength;
+	private final JCheckBox ncFilledCB;
+	private final JComboBox<String> ncShapeCB;
+	private final DoubleModel ncAftDia;
+	private final DoubleModel ncAftShoulderDia;
+	private final DoubleModel ncAftShoulderLen;
+	private final DoubleModel ncMass;
 	private ImageIcon ncImage;
-	private JButton ncImageBtn;
+	private final JButton ncImageBtn;
 	
-	private JTextField trPartNoTextField;
-	private JTextField trDescTextField;
-	private DoubleModel trLength;
-	private DoubleModel trAftDia;
-	private DoubleModel trAftShoulderDia;
-	private DoubleModel trAftShoulderLen;
-	private DoubleModel trForeDia;
-	private DoubleModel trForeShoulderDia;
-	private DoubleModel trForeShoulderLen;
+	private final JTextField trPartNoTextField;
+	private final JTextField trDescTextField;
+	private final DoubleModel trLength;
+	private final DoubleModel trAftDia;
+	private final DoubleModel trAftShoulderDia;
+	private final DoubleModel trAftShoulderLen;
+	private final DoubleModel trForeDia;
+	private final DoubleModel trForeShoulderDia;
+	private final DoubleModel trForeShoulderLen;
 	private DoubleModel trMass;
 	private ImageIcon trImage;
-	private JCheckBox trFilledCB;
-	private JComboBox<String> trShapeCB;
-	private JButton trImageBtn;
+	private final JCheckBox trFilledCB;
+	private final JComboBox<String> trShapeCB;
+	private final JButton trImageBtn;
 	
-	private JTextField btPartNoTextField;
-	private JTextField btDescTextField;
-	private DoubleModel btMass;
-	private DoubleModel btInnerDia;
-	private DoubleModel btOuterDia;
-	private DoubleModel btLength;
+	private final JTextField btPartNoTextField;
+	private final JTextField btDescTextField;
+	private final DoubleModel btMass;
+	private final DoubleModel btInnerDia;
+	private final DoubleModel btOuterDia;
+	private final DoubleModel btLength;
 	private ImageIcon btImage;
-	private JButton btImageBtn;
+	private final JButton btImageBtn;
 	
-	private JTextField tcPartNoTextField;
-	private JTextField tcDescTextField;
-	private DoubleModel tcMass;
-	private DoubleModel tcInnerDia;
-	private DoubleModel tcOuterDia;
-	private DoubleModel tcLength;
+	private final JTextField tcPartNoTextField;
+	private final JTextField tcDescTextField;
+	private final DoubleModel tcMass;
+	private final DoubleModel tcInnerDia;
+	private final DoubleModel tcOuterDia;
+	private final DoubleModel tcLength;
 	private ImageIcon tcImage;
-	private JButton tcImageBtn;
+	private final JButton tcImageBtn;
 	
-	private JTextField bhPartNoTextField;
-	private JTextField bhDescTextField;
-	private DoubleModel bhOuterDia;
-	private DoubleModel bhLength;
-	private DoubleModel bhMass;
+	private final JTextField bhPartNoTextField;
+	private final JTextField bhDescTextField;
+	private final DoubleModel bhOuterDia;
+	private final DoubleModel bhLength;
+	private final DoubleModel bhMass;
 	private ImageIcon bhImage;
-	private JButton bhImageBtn;
+	private final JButton bhImageBtn;
 	
-	private JTextField crPartNoTextField;
-	private JTextField crDescTextField;
-	private DoubleModel crOuterDia;
-	private DoubleModel crInnerDia;
-	private DoubleModel crThickness;
-	private DoubleModel crMass;
+	private final JTextField crPartNoTextField;
+	private final JTextField crDescTextField;
+	private final DoubleModel crOuterDia;
+	private final DoubleModel crInnerDia;
+	private final DoubleModel crThickness;
+	private final DoubleModel crMass;
 	private ImageIcon crImage;
-	private JButton crImageBtn;
+	private final JButton crImageBtn;
 	
-	private JTextField ebPartNoTextField;
-	private JTextField ebDescTextField;
-	private DoubleModel ebOuterDia;
-	private DoubleModel ebInnerDia;
-	private DoubleModel ebThickness;
-	private DoubleModel ebMass;
+	private final JTextField ebPartNoTextField;
+	private final JTextField ebDescTextField;
+	private final DoubleModel ebOuterDia;
+	private final DoubleModel ebInnerDia;
+	private final DoubleModel ebThickness;
+	private final DoubleModel ebMass;
 	private ImageIcon ebImage;
-	private JButton ebImageBtn;
+	private final JButton ebImageBtn;
 	
-	private JTextField llPartNoTextField;
-	private JTextField llDescTextField;
-	private DoubleModel llOuterDia;
-	private DoubleModel llInnerDia;
-	private DoubleModel llLength;
-	private DoubleModel llMass;
+	private final JTextField llPartNoTextField;
+	private final JTextField llDescTextField;
+	private final DoubleModel llOuterDia;
+	private final DoubleModel llInnerDia;
+	private final DoubleModel llLength;
+	private final DoubleModel llMass;
 	private ImageIcon llImage;
-	private JButton llImageBtn;
+	private final JButton llImageBtn;
 	
-	private JTextField rbPartNoTextField;
-	private JTextField rbDescTextField;
-	private DoubleModel rbOuterDia;
-	private DoubleModel rbInnerDia;
-	private DoubleModel rbHeight;
-	private DoubleModel rbStandoffHeight;
-	private DoubleModel rbFlangeHeight;
-	private DoubleModel rbMass;
+	private final JTextField rbPartNoTextField;
+	private final JTextField rbDescTextField;
+	private final DoubleModel rbOuterDia;
+	private final DoubleModel rbInnerDia;
+	private final DoubleModel rbHeight;
+	private final DoubleModel rbStandoffHeight;
+	private final DoubleModel rbFlangeHeight;
+	private final DoubleModel rbMass;
 	private ImageIcon rbImage;
-	private JButton rbImageBtn;
+	private final JButton rbImageBtn;
 	
-	private JTextField stPartNoTextField;
-	private JTextField stDescTextField;
-	private DoubleModel stThickness;
-	private DoubleModel stWidth;
-	private DoubleModel stLength;
-	private DoubleModel stMass;
+	private final JTextField stPartNoTextField;
+	private final JTextField stDescTextField;
+	private final DoubleModel stThickness;
+	private final DoubleModel stWidth;
+	private final DoubleModel stLength;
+	private final DoubleModel stMass;
 	private ImageIcon stImage;
-	private JButton stImageBtn;
+	private final JButton stImageBtn;
 
 	//	Parachute Specific
-	private JTextField pcPartNoTextField;
-	private JTextField pcDescTextField;
-	private DoubleModel pcDiameter;
+	private final JTextField pcPartNoTextField;
+	private final JTextField pcDescTextField;
+	private final DoubleModel pcDiameter;
 	private DoubleModel pcSpillDia;
 	private DoubleModel pcSurfaceArea;
 	private DoubleModel pcDragCoefficient;
 	//	Canopy material = private MaterialChooser materialChooser;
-	private JTextField pcSides;
-	private JTextField pcLineCount;
-	private DoubleModel pcLineLength;
+	private final JTextField pcSides;
+	private final JTextField pcLineCount;
+	private final DoubleModel pcLineLength;
 	private DoubleModel pcPackedLength;
 	private DoubleModel pcPackedDiameter;
-	private MaterialChooser pcLineMaterialChooser;
-	private DoubleModel pcMass;
+	private final MaterialChooser pcLineMaterialChooser;
+	private final DoubleModel pcMass;
 	private ImageIcon pcImage;
-	private JButton pcImageBtn;
+	private final JButton pcImageBtn;
 	
 	private final JFileChooser imageChooser = createImageChooser();
 	
-	private JPanel componentOverlayPanel;
+	private final JPanel componentOverlayPanel;
 	
-	private PresetResultListener resultListener;
+	private final PresetResultListener resultListener;
 	
-	private static Map<String, String> componentMap = new HashMap<String, String>();
+	private static final Map<String, String> componentMap = new HashMap<String, String>();
 	
 	private static final String NOSE_CONE_KEY = "NoseCone.NoseCone";
 	private static final String BODY_TUBE_KEY = "BodyTube.BodyTube";
@@ -263,6 +262,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		getContentPane().setMinimumSize(new Dimension(200, 200));
 		setBounds(100, 100, 825, 610);
 		getContentPane().setLayout(new BorderLayout());
+		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new MigLayout("", "[][grow][94.00,grow][232.0,grow][130.00][grow]", "[][][20.00,grow][grow]"));
@@ -1582,8 +1582,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				rbHeight.setValue(preset.get(ComponentPreset.HEIGHT));
 				rbHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
-			if (preset.has(ComponentPreset.STANDOFF_HEIGHT)) {
-				rbStandoffHeight.setValue(preset.get(ComponentPreset.STANDOFF_HEIGHT));
+			if (preset.has(ComponentPreset.BASE_HEIGHT)) {
+				rbStandoffHeight.setValue(preset.get(ComponentPreset.BASE_HEIGHT));
 				rbStandoffHeight.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
 			if (preset.has(ComponentPreset.FLANGE_HEIGHT)) {
@@ -1610,8 +1610,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				pcDiameter.setValue(preset.get(ComponentPreset.DIAMETER));
 				pcDiameter.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 			}
-			if (preset.has(ComponentPreset.PARACHUTE_CD)) {
-				pcDragCoefficient.setValue(preset.get(ComponentPreset.PARACHUTE_CD));
+			if (preset.has(ComponentPreset.CD)) {
+				pcDragCoefficient.setValue(preset.get(ComponentPreset.CD));
 				pcDragCoefficient.setCurrentUnit(UnitGroup.UNITS_COEFFICIENT.getDefaultUnit());
 			}
 			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
@@ -2132,7 +2132,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			props.put(ComponentPreset.TYPE, ComponentPreset.Type.RAIL_BUTTON);
 			props.put(ComponentPreset.OUTER_DIAMETER, rbOuterDia.getValue());
 			props.put(ComponentPreset.INNER_DIAMETER, rbInnerDia.getValue());
-			props.put(ComponentPreset.STANDOFF_HEIGHT, rbStandoffHeight.getValue());
+			props.put(ComponentPreset.BASE_HEIGHT, rbStandoffHeight.getValue());
 			props.put(ComponentPreset.FLANGE_HEIGHT, rbFlangeHeight.getValue());
 			props.put(ComponentPreset.DESCRIPTION, rbDescTextField.getText());
 			props.put(ComponentPreset.PARTNO, rbPartNoTextField.getText());
@@ -2179,7 +2179,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(mfgTextField.getText()));
 			props.put(ComponentPreset.PARTNO, pcPartNoTextField.getText());
 			props.put(ComponentPreset.DESCRIPTION, pcDescTextField.getText());
-			props.put(ComponentPreset.PARACHUTE_CD, pcDragCoefficient.getValue());
+			props.put(ComponentPreset.CD, pcDragCoefficient.getValue());
 			Material material = (Material) materialChooser.getSelectedItem();
 			if (material != null) {
 				props.put(ComponentPreset.MATERIAL, material);
