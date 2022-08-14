@@ -182,10 +182,10 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("ThicknessRingCompCfg.tab.General"), null, panel,
 				trans.get("ThicknessRingCompCfg.tab.Generalprop"), 0);
 
-		/*MotorConfig motorConfig = new MotorConfig((MotorMount)c);
+		MotorConfig motorConfig = new MotorConfig((MotorMount)c, order);
 
 		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, motorConfig,
-				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);*/
+				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);
 
 		JPanel tab = clusterTab();
 		//// Cluster and Cluster configuration
