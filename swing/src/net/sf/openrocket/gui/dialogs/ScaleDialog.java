@@ -383,7 +383,7 @@ public class ScaleDialog extends JDialog {
 		JSpinner spin = new JSpinner(multiplier.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "w :30lp:65lp");
+		panel.add(spin, "wmin 40lp, growx 1000");
 		
 		multiplierUnit = new UnitSelector(multiplier);
 		multiplierUnit.setToolTipText(tip);
@@ -402,7 +402,7 @@ public class ScaleDialog extends JDialog {
 		spin = new JSpinner(fromField.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "span, split, w :30lp:65lp");
+		panel.add(spin, "span, split, wmin 40lp, growx 1000");
 
 		UnitSelector unit = new UnitSelector(fromField);
 		unit.setToolTipText(tip);
@@ -415,7 +415,7 @@ public class ScaleDialog extends JDialog {
 		spin = new JSpinner(toField.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "w :30lp:65lp");
+		panel.add(spin, "wmin 40lp, growx 1000");
 		
 		unit = new UnitSelector(toField);
 		unit.setToolTipText(tip);
