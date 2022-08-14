@@ -6,8 +6,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -25,11 +23,9 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.Arrays;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class BodyTubeConfig extends RocketComponentConfig {
@@ -106,8 +102,8 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(check, "skip, span 2, wrap");
 
 		//// Material
-		panel.add(materialPanel(Material.Type.BULK),
-				"cell 4 0, gapleft paragraph, aligny 0%, spany");
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel,

@@ -144,8 +144,8 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "wmin 100lp, growx, wrap");
 
 		//// Material
-		panel.add(materialPanel(Material.Type.BULK),
-				"spanx 4, growx, wrap 15lp");
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		panel.add(materialPanel, "spanx 4, growx, wrap 15lp");
 
 
 		//// Right side of panel ----

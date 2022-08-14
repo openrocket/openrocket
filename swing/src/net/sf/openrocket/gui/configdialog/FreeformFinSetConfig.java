@@ -202,7 +202,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		}
 
 		{ //// Material
-			panel.add(materialPanel(Material.Type.BULK), "span, wrap");
+			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+			panel.add(materialPanel, "span, wrap");
 			panel.add(filletMaterialPanel(), "span, wrap");
 		}
 		

@@ -7,7 +7,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -128,7 +127,8 @@ public class RailButtonConfig extends RocketComponentConfig {
 		panel.add(instanceablePanel(rbc), "span, wrap");
 
 		//// Material
-		panel.add(materialPanel(Material.Type.BULK),"span, wrap");
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		panel.add(materialPanel,"span, wrap");
 
 		primary.add(panel, "grow");
 		

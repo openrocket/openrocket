@@ -30,9 +30,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
-import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -42,10 +40,8 @@ import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.*;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -276,79 +272,6 @@ public class RocketComponentConfig extends JPanel {
 		if (appearancePanel != null) {
 			appearancePanel.clearConfigListeners();
 		}
-	}
-	
-	protected JPanel materialPanel(Material.Type type) {
-		////Component material: and Component finish:
-		return materialPanel(type, 
-				trans.get("RocketCompCfg.lbl.Componentmaterial"),
-				trans.get("RocketCompCfg.lbl.Componentfinish"), 
-				"Material");
-	}
-	
-	protected JPanel materialPanel(Material.Type type, String partName){
-		return materialPanel(type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
-			trans.get("RocketCompCfg.lbl.Componentfinish"), partName);
-	    	}
-	
-	protected JPanel materialPanel(Material.Type type,
-					String materialString, 
-					String finishString, 
-					String partName) {
-		
-	    JPanel subPanel = new JPanel(new MigLayout("insets 0"));
-	    	JLabel label = new JLabel(materialString);
-		//// The component material affects the weight of the component.
-		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
-		subPanel.add(label, "spanx 4, wrap rel");
-		
-		JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(subPanel, component, type, partName));
-		//// The component material affects the weight of the component.
-		materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-		subPanel.add(materialCombo, "spanx 4, growx, wrap paragraph");
-		
-		
-		if (component instanceof ExternalComponent) {
-			label = new JLabel(finishString);
-			////<html>The component finish affects the aerodynamic drag of the component.<br>
-			String tip = trans.get("RocketCompCfg.lbl.longA1")
-					//// The value indicated is the average roughness height of the surface.
-					+ trans.get("RocketCompCfg.lbl.longA2");
-			label.setToolTipText(tip);
-			subPanel.add(label, "spanx 4, wmin 220lp, wrap rel");
-			
-			JComboBox<ExternalComponent.Finish> finishCombo = new JComboBox<ExternalComponent.Finish>(
-					new EnumModel<ExternalComponent.Finish>(component, "Finish"));
-			finishCombo.setToolTipText(tip);
-			subPanel.add( finishCombo, "spanx 4, growx, split");
-			
-			//// Set for all
-			JButton button = new SelectColorButton(trans.get("RocketCompCfg.but.Setforall"));
-			//// Set this finish for all components of the rocket.
-			button.setToolTipText(trans.get("RocketCompCfg.but.ttip.Setforall"));
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Finish f = ((ExternalComponent) component).getFinish();
-					try {
-						document.startUndo("Set rocket finish");
-						
-						// Do changes
-						Iterator<RocketComponent> iter = component.getRoot().iterator();
-						while (iter.hasNext()) {
-							RocketComponent c = iter.next();
-							if (c instanceof ExternalComponent) {
-								((ExternalComponent) c).setFinish(f);
-							}
-						}
-					} finally {
-						document.stopUndo();
-					}
-				}
-			});
-			subPanel.add(button, "wrap paragraph");
-		}
-		return subPanel;
 	}
 
 	public int getSelectedTabIndex() {
