@@ -1,10 +1,12 @@
 package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JColorChooser;
@@ -83,6 +85,8 @@ public class AppearancePanel extends JPanel {
 	private JTabbedPane outsideInsidePane = null;
 
 	private JCheckBox customInside = null;
+
+	private final List<Component> order;	// Component traversal order
 
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for values that are
@@ -198,10 +202,17 @@ public class AppearancePanel extends JPanel {
 		}
 	}
 
-
-	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent) {
+	/**
+	 * Appearance panel for the appearance of a rocket component.
+	 * @param document current document
+	 * @param c component to change the appearance of
+	 * @param parent parent dialog
+	 * @param order component traversal order object of the component config dialog
+	 */
+	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent, List<Component> order) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
+		this.order = order;
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
 
 		previousUserSelectedAppearance = c.getAppearance();
@@ -298,6 +309,7 @@ public class AppearancePanel extends JPanel {
 			add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"),
 					Style.BOLD));
 			add(colorDefault);
+			order.add(colorDefault);
 
 			JButton button = new SelectColorButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
@@ -324,6 +336,7 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
 			fDefault.addEnableComponent(figureColorButton, false);
 			add(figureColorButton);
+			order.add(figureColorButton);
 		}
 
 		{// Line Style
@@ -341,6 +354,7 @@ public class AppearancePanel extends JPanel {
 			fDefault.addEnableComponent(combo, false);
 
 			add(combo, "growx, wrap");
+			order.add(combo);
 		}
 
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
@@ -370,8 +384,9 @@ public class AppearancePanel extends JPanel {
 			customInside.setText(trans.get(tr_insideOutside));
 			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
 			add(customInside, "span 2");
+			order.add(customInside);
 
-			// Checkbox to set edges the same as inside/outside
+			// Combobox for setting the edge appearance from inside/outside appearance
 			JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
 			add(edgesText);
 			String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
@@ -383,6 +398,7 @@ public class AppearancePanel extends JPanel {
 				edgesComboBox.setSelectedItem(trans.get(tr_outside));
 			}
 			add(edgesComboBox, "growx, left, wrap");
+			order.add(edgesComboBox);
 			edgesText.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
 			edgesComboBox.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
 
@@ -544,6 +560,7 @@ public class AppearancePanel extends JPanel {
 		});
 		materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
 		panel.add(materialDefault, "wrap");
+		order.add(materialDefault);
 
 		// Texture File
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
@@ -551,6 +568,7 @@ public class AppearancePanel extends JPanel {
 		mDefault.addEnableComponent(textureDropDown, false);
 		p.add(textureDropDown, "grow");
 		panel.add(p, "span 3, growx, wrap");
+		order.add(textureDropDown);
 		JButton editBtn = new SelectColorButton(
 				trans.get("AppearanceCfg.but.edit"));
 		editBtn.setEnabled(builder.getImage() != null);
@@ -585,6 +603,7 @@ public class AppearancePanel extends JPanel {
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
 		mDefault.addEnableComponent(colorButton, false);
 		panel.add(colorButton);
+		order.add(colorButton);
 
 		// Scale
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
@@ -595,6 +614,7 @@ public class AppearancePanel extends JPanel {
 		scaleU.setEditor(new SpinnerEditor(scaleU));
 		mDefault.addEnableComponent(scaleU, false);
 		panel.add(scaleU, "w 40");
+		order.add(((SpinnerEditor) scaleU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
 		JSpinner scaleV = new JSpinner(new DoubleModel(builder, "ScaleY",
@@ -602,6 +622,7 @@ public class AppearancePanel extends JPanel {
 		scaleV.setEditor(new SpinnerEditor(scaleV));
 		mDefault.addEnableComponent(scaleV, false);
 		panel.add(scaleV, "wrap, w 40");
+		order.add(((SpinnerEditor) scaleV.getEditor()).getTextField());
 
 		// Shine
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
@@ -622,6 +643,7 @@ public class AppearancePanel extends JPanel {
 		panel.add(spinShine, "split 3, w 60");
 		panel.add(unitShine);
 		panel.add(slideShine, "w 50, growx");
+		order.add(order.indexOf(colorButton) + 1, ((SpinnerEditor) spinShine.getEditor()).getTextField());
 
 		// Offset
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
@@ -632,6 +654,7 @@ public class AppearancePanel extends JPanel {
 		offsetU.setEditor(new SpinnerEditor(offsetU));
 		mDefault.addEnableComponent(offsetU, false);
 		panel.add(offsetU, "w 40");
+		order.add(((SpinnerEditor) offsetU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
 		JSpinner offsetV = new JSpinner(new DoubleModel(builder, "OffsetV",
@@ -639,6 +662,7 @@ public class AppearancePanel extends JPanel {
 		offsetV.setEditor(new SpinnerEditor(offsetV));
 		mDefault.addEnableComponent(offsetV, false);
 		panel.add(offsetV, "wrap, w 40");
+		order.add(((SpinnerEditor) offsetV.getEditor()).getTextField());
 
 		// Opacity
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.opacity")));
@@ -656,6 +680,8 @@ public class AppearancePanel extends JPanel {
 		panel.add(spinOpacity, "split 3, w 60");
 		panel.add(unitOpacity);
 		panel.add(slideOpacity, "w 50, growx");
+		order.add(order.indexOf(((SpinnerEditor) spinShine.getEditor()).getTextField()) + 1,
+				((SpinnerEditor) spinOpacity.getEditor()).getTextField());
 
 		// Rotation
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
@@ -665,6 +691,7 @@ public class AppearancePanel extends JPanel {
 		rotation.setEditor(new SpinnerEditor(rotation));
 		mDefault.addEnableComponent(rotation, false);
 		panel.add(rotation, "split 3, w 50");
+		order.add(((SpinnerEditor) rotation.getEditor()).getTextField());
 		panel.add(new UnitSelector(rotationModel));
 		BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(
 				-Math.PI, Math.PI));
@@ -680,6 +707,7 @@ public class AppearancePanel extends JPanel {
 				"EdgeMode", list));
 		mDefault.addEnableComponent(combo, false);
 		panel.add(combo, "wrap");
+		order.add(combo);
 
 		builder.addChangeListener(new StateChangeListener() {
 			double lastOpacity = builder.getOpacity();

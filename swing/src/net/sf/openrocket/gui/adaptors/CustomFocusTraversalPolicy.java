@@ -22,11 +22,15 @@ public class CustomFocusTraversalPolicy extends FocusTraversalPolicy {
     }
 
     public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
+        // Get the next component
         int idx = (order.indexOf(aComponent) + 1) % order.size();
+
+        // If the next component is disabled, loop for the next enabled one
         int count = 0;
-        while (!order.get(idx).isEnabled()) {
+        while (!order.get(idx).isEnabled() || !order.get(idx).isShowing() || !order.get(idx).isVisible()) {
             idx = (idx + 1) % order.size();
             count++;
+            // No active component found, fall back to the original component
             if (count == order.size())
                 return aComponent;
         }

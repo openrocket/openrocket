@@ -40,8 +40,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 
-		final List<Component> order = new ArrayList<>();		// Component traversal order
-
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
 
@@ -121,15 +119,16 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel,
 				trans.get("BodyTubecfg.tab.Generalproperties"), 0);
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		tabbedPane.setSelectedIndex(0);
 
-		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
+		MotorConfig motorConfig = new MotorConfig((MotorMount)c, order);
 
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
+
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 
 	}
 

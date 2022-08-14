@@ -55,8 +55,10 @@ public class RocketComponentConfig extends JPanel {
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
+	protected final JDialog parent;
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
+	protected final List<Component> order = new ArrayList<>();		// Component traversal order
 	
 	private JComboBox<?> presetComboBox;
 	private PresetModel presetModel;
@@ -80,6 +82,7 @@ public class RocketComponentConfig extends JPanel {
 
 		this.document = document;
 		this.component = component;
+		this.parent = parent;
 
 		// Check the listeners for the same type and massive status
 		allSameType = true;
@@ -110,6 +113,7 @@ public class RocketComponentConfig extends JPanel {
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(componentNameField, "growx");
+		order.add(componentNameField);
 
 		if (allSameType && component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
@@ -119,6 +123,7 @@ public class RocketComponentConfig extends JPanel {
 			presetComboBox.setEditable(false);
 			presetComboBox.setToolTipText(trans.get("PresetModel.combo.ttip"));
 			this.add(presetComboBox, "growx 110");
+			order.add(presetComboBox);
 
 			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
 			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
@@ -139,7 +144,7 @@ public class RocketComponentConfig extends JPanel {
 				trans.get("RocketCompCfg.tab.Override.ttip"));
 		if (allMassive) {
 			//// Appearance options
-			appearancePanel = new AppearancePanel(document, component, parent);
+			appearancePanel = new AppearancePanel(document, component, parent, order);
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
 					trans.get("RocketCompCfg.tab.Appearance.ttip"));
 		}
@@ -336,7 +341,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override the mass or center of gravity of the
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Overridemassorcenter") + " " +
 				component.getComponentName() + ":", Style.BOLD), "spanx, wrap 20lp");
-		
+
 		JCheckBox check;
 		BooleanModel bm;
 		UnitSelector us;
@@ -348,6 +353,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override mass:
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridemass"));
 		panel.add(check, "growx 1, gapright 20lp");
+		order.add(check);
 		
 		DoubleModel m = new DoubleModel(component, "OverrideMass", UnitGroup.UNITS_MASS, 0);
 		
@@ -355,6 +361,7 @@ public class RocketComponentConfig extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
 		panel.add(spin, "growx 1");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
 		bm.addEnableComponent(us, true);
@@ -373,6 +380,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override center of gravity:"
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav"));
 		panel.add(check, "growx 1, gapright 20lp");
+		order.add(check);
 		
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
 		// Calculate suitable length for slider
@@ -410,6 +418,7 @@ public class RocketComponentConfig extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
 		panel.add(spin, "growx 1");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
 		bm.addEnableComponent(us, true);
@@ -428,6 +437,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override mass and CG of all subcomponents
 		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
 		panel.add(check, "spanx, wrap 35lp");
+		order.add(check);
 
 
         //BEGIN OVERRIDES CD ---------------------------------------------------
@@ -438,6 +448,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override coefficient of drag:
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
 		panel.add(check, "growx 1, gapright 20lp");
+		order.add(check);
 		
 		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, 0);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -445,6 +456,7 @@ public class RocketComponentConfig extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
 		panel.add(spin, "growx 1");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		
 		bs = new BasicSlider(m.getSliderModel(0, 1.0));
@@ -481,6 +493,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.addFocusListener(textFieldListener);
 		
 		panel.add(new JScrollPane(commentTextArea), "grow");
+		order.add(commentTextArea);
 		
 		return panel;
 	}
@@ -515,6 +528,7 @@ public class RocketComponentConfig extends JPanel {
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			sub.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
@@ -528,6 +542,7 @@ public class RocketComponentConfig extends JPanel {
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			sub.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
@@ -542,6 +557,7 @@ public class RocketComponentConfig extends JPanel {
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			sub.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
@@ -555,6 +571,7 @@ public class RocketComponentConfig extends JPanel {
 			//// Whether the end of the shoulder is capped.
 			check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 			sub.add(check, "spanx");
+			order.add(check);
 			
 			
 			panel.add(sub);
@@ -582,6 +599,7 @@ public class RocketComponentConfig extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
@@ -595,6 +613,7 @@ public class RocketComponentConfig extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
@@ -609,6 +628,7 @@ public class RocketComponentConfig extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
@@ -622,6 +642,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Whether the end of the shoulder is capped.
 		check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 		sub.add(check, "spanx");
+		order.add(check);
 		
 		
 		panel.add(sub);
