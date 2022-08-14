@@ -127,6 +127,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 
+		// Apply the custom focus travel policy to this config dialog
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 
