@@ -138,6 +138,7 @@ public class RocketComponentConfig extends JPanel {
 
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, "newline, span, growx, growy 100, wrap");
+		order.add(tabbedPane);
 
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
