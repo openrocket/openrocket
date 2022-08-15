@@ -16,6 +16,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.TransitionShapeModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -67,6 +68,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 				}
 			});
 			panel.add(typeBox, "span, wrap rel");
+			order.add(typeBox);
 
 			////  Shape parameter:
 			this.shapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Shapeparam"));
@@ -77,6 +79,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
 			panel.add(shapeSpinner, "growx");
+			order.add(((SpinnerEditor) shapeSpinner.getEditor()).getTextField());
 
 			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
 			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
@@ -93,6 +96,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			JSpinner spin = new JSpinner(lengthModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(lengthModel), "growx");
 			panel.add(new BasicSlider(lengthModel.getSliderModel(0, 0.1, 0.7)), "w 100lp, wrap");
@@ -106,6 +110,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			final JSpinner radiusSpinner = new JSpinner(aftRadiusModel.getSpinnerModel());
 			radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
 			panel.add(radiusSpinner, "growx");
+			order.add(((SpinnerEditor) radiusSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(aftRadiusModel), "growx");
 			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
@@ -114,6 +119,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			//// Automatic
 			checkAutoAftRadius.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
 			panel.add(checkAutoAftRadius, "skip, span 2, wrap");
+			order.add(checkAutoAftRadius);
 			updateCheckboxAutoAftRadius();
 		}
 
@@ -124,6 +130,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
 			panel.add(thicknessSpinner, "growx");
+			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
 			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
@@ -133,6 +140,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			//// Filled
 			filledCheckbox .setText(trans.get("NoseConeCfg.checkbox.Filled"));
 			panel.add(filledCheckbox, "skip, span 2, wrap");
+			order.add(filledCheckbox);
 		}
 
 		panel.add(new JLabel(""), "growy");
@@ -159,6 +167,11 @@ public class NoseConeConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("NoseConeCfg.tab.Shoulder"), null, shoulderTab(),
 				trans.get("NoseConeCfg.tab.ttip.Shoulder"), 1);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 	}
 	
 	
