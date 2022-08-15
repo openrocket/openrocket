@@ -64,6 +64,10 @@ public class RocketComponentShape {
 		return new RocketComponentShape[0];
 	}
 
+	public Color getColor() {
+		return color;
+	}
+
 	public void setColor(Color color) {
 		this.color = color;
 	}

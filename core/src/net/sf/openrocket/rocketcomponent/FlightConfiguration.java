@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +61,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	/* Cached data */
-	final protected HashMap<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();
-	final protected HashMap<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
-	final private Collection<MotorConfiguration> activeMotors = new ArrayList<MotorConfiguration>();
+	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();	// Map of stage number to StageFlags of the corresponding stage
+	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	
 	private int boundsModID = -1;
@@ -179,24 +180,41 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void setOnlyStage(final int stageNumber) {
 		_setAllStages(false);
-		_setStageActive(stageNumber, true);
+		_setStageActive(stageNumber, true, false);
 		updateMotors();
 		updateActiveInstances();
 	}
-	
-	/** 
+
+	/**
 	 * This method flags the specified stage as requested.  Other stages are unaffected.
-	 * 
+	 *
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
+	 * @param activateSubStages whether the sub-stages of the specified stage should be activated as well.
 	 */
-	private void _setStageActive(final int stageNumber, final boolean _active ) {
+	public void _setStageActive(final int stageNumber, final boolean _active, final boolean activateSubStages) {
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			stages.get(stageNumber).active = _active;
+			if (activateSubStages) {
+				// Set the active state of all the sub-stages as well.
+				for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
+					stages.get(stage.getStageNumber()).active = _active;
+				}
+			}
 			fireChangeEvent();
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
+	}
+	
+	/** 
+	 * This method flags the specified stage as requested.  Actives the sub-stages of the specified stage as well.
+	 * 
+	 * @param stageNumber   stage number to flag
+	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
+	 */
+	public void _setStageActive(final int stageNumber, final boolean _active ) {
+		_setStageActive(stageNumber, _active, true);
 	}
 	
 	
@@ -204,8 +222,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if ((0 <= stageNumber) && (stages.containsKey(stageNumber))) {
 			StageFlags flags = stages.get(stageNumber);
 			flags.active = !flags.active;
-			updateMotors();
-			updateActiveInstances();
+			// Set the active state of all the sub-stages as well.
+			for (AxialStage stage : rocket.getStage(stageNumber).getSubStages()) {
+				stages.get(stage.getStageNumber()).active = flags.active;
+			}
+			fireChangeEvent();
 			
 			return;
 		}
@@ -338,13 +359,29 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		return results;
 	}
+
+	/**
+	 * Return all the stages in this configuration.
+	 * @return all the stages in this configuration.
+	 */
+	public List<AxialStage> getAllStages() {
+		List<AxialStage> stages = new ArrayList<>();
+		for (StageFlags flags : this.stages.values()) {
+			stages.add( rocket.getStage(flags.stageNumber));
+		}
+		return stages;
+	}
 	
 	public List<AxialStage> getActiveStages() {
 		List<AxialStage> activeStages = new ArrayList<>();
 		
 		for (StageFlags flags : this.stages.values()) {
 			if (flags.active) {
-				activeStages.add( rocket.getStage( flags.stageNumber) );
+				AxialStage stage = rocket.getStage(flags.stageNumber);
+				if (stage == null) {
+					continue;
+				}
+				activeStages.add(stage);
 			}
 		}
 		

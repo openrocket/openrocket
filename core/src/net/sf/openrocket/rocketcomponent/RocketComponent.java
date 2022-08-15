@@ -1010,7 +1010,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * If the length of a component is settable, the class must define the setter method
 	 * itself.
 	 */
-	public final double getLength() {
+	public double getLength() {
 		mutex.verify();
 		return length;
 	}
@@ -1545,6 +1545,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				AxialStage stage = (AxialStage) component;
 				this.getRocket().forgetStage(stage);
 			}
+
+			// Remove sub-stages of the removed component
+			for (AxialStage stage : component.getSubStages()) {
+				this.getRocket().forgetStage(stage);
+			}
 			
 			this.checkComponentStructure();
 			component.checkComponentStructure();
@@ -1748,6 +1753,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			curComponent = curComponent.parent;
 		}
 		throw new IllegalStateException("getStage() called on hierarchy without an AxialStage.");
+	}
+
+	/**
+	 * Returns all the stages that are a child or sub-child of this component.
+	 * @return all the stages that are a child or sub-child of this component.
+	 */
+	public final List<AxialStage> getSubStages() {
+		List<AxialStage> result = new LinkedList<>();
+		Iterator<RocketComponent> it = iterator(false);
+		while (it.hasNext()) {
+			RocketComponent c = it.next();
+			if (c instanceof AxialStage)
+				result.add((AxialStage) c);
+		}
+		return result;
 	}
 	
 	/**

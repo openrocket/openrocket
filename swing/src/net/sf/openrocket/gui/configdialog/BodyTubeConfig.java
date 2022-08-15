@@ -6,6 +6,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -22,6 +24,12 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Arrays;
 
 @SuppressWarnings("serial")
 public class BodyTubeConfig extends RocketComponentConfig {
@@ -43,6 +51,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		JSpinner spin = new JSpinner(length.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
+		focusElement = spin;
 		panel.add(spin, "growx");
 
 		panel.add(new UnitSelector(length), "growx");

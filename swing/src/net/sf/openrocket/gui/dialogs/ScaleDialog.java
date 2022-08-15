@@ -193,6 +193,7 @@ public class ScaleDialog extends JDialog {
 	
 	
 	private final DoubleModel multiplier = new DoubleModel(1.0, UnitGroup.UNITS_RELATIVE, SCALE_MIN, SCALE_MAX);
+	private UnitSelector multiplierUnit;
 	private final DoubleModel fromField = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
 	private final DoubleModel toField = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
 	
@@ -346,7 +347,7 @@ public class ScaleDialog extends JDialog {
 		panel.add(selectionOption, "growx, wrap para*2");
 
 		// Select the 'scale component / scale selection and all subcomponents' if a component is selected
-		if (selection != null && selection.size() > 0) {
+		if (options.size() > 1 && selection != null && selection.size() > 0) {
 			boolean entireRocket = false;	// Flag to scale entire rocket
 			for (RocketComponent component : selection) {
 				if (component instanceof Rocket || (component instanceof AxialStage && !(component instanceof ParallelStage))) {
@@ -382,11 +383,11 @@ public class ScaleDialog extends JDialog {
 		JSpinner spin = new JSpinner(multiplier.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "w :30lp:65lp");
+		panel.add(spin, "wmin 40lp, growx 1000");
 		
-		UnitSelector unit = new UnitSelector(multiplier);
-		unit.setToolTipText(tip);
-		panel.add(unit, "w 30lp");
+		multiplierUnit = new UnitSelector(multiplier);
+		multiplierUnit.setToolTipText(tip);
+		panel.add(multiplierUnit, "w 30lp");
 		BasicSlider slider = new BasicSlider(multiplier.getSliderModel(0.25, 1.0, 4.0));
 		slider.setToolTipText(tip);
 		panel.add(slider, "w 100lp, growx, wrap para");
@@ -401,9 +402,9 @@ public class ScaleDialog extends JDialog {
 		spin = new JSpinner(fromField.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "span, split, w :30lp:65lp");
-		
-		unit = new UnitSelector(fromField);
+		panel.add(spin, "span, split, wmin 40lp, growx 1000");
+
+		UnitSelector unit = new UnitSelector(fromField);
 		unit.setToolTipText(tip);
 		panel.add(unit, "w 30lp");
 		
@@ -414,7 +415,7 @@ public class ScaleDialog extends JDialog {
 		spin = new JSpinner(toField.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		panel.add(spin, "w :30lp:65lp");
+		panel.add(spin, "wmin 40lp, growx 1000");
 		
 		unit = new UnitSelector(toField);
 		unit.setToolTipText(tip);
@@ -481,7 +482,11 @@ public class ScaleDialog extends JDialog {
 	private void doScale() {
 		double mul = multiplier.getValue();
 		if (!(SCALE_MIN <= mul && mul <= SCALE_MAX)) {
-			Application.getExceptionHandler().handleErrorCondition("Illegal multiplier value, mul=" + mul);
+			if (multiplierUnit == null) {
+				Application.getExceptionHandler().handleErrorCondition("Illegal multiplier value, mul=" + mul);
+			} else {
+				Application.getExceptionHandler().handleErrorCondition("Illegal multiplier value, mul=" + multiplierUnit.getSelectedUnit().toStringUnit(mul));
+			}
 			return;
 		}
 		

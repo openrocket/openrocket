@@ -111,8 +111,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 	
 	@Override
-	public boolean isLaunchStage(){
-		return true;
+	public boolean isLaunchStage(FlightConfiguration config) {
+		return config.isStageActive(this.stageNumber);
 	}
 
 	@Override 

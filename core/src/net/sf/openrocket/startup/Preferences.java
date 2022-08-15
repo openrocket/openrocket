@@ -63,11 +63,15 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
 	public static final String MOTOR_HIDE_UNAVAILABLE = "MotorHideUnavailable";
+
+	public static final String MATCH_FORE_DIAMETER = "MatchForeDiameter";
+	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
 	
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	private static final String SHOW_MARKERS = "SHOW_MARKERS";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
 	
 	//Preferences related to 3D graphics
@@ -469,7 +473,64 @@ public abstract class Preferences implements ChangeSource {
 	public final boolean isAlwaysOpenLeftmostTab() {
 		return this.getBoolean(OPEN_LEFTMOST_DESIGN_TAB, false);
 	}
-	
+
+	/**
+	 * Set whether pod set/booster markers should only be displayed when the pod set/booster is selected.
+	 * @param enabled 	true if pod set/booster markers should only be displayed when the pod set/booster is selected,
+	 * 					false if they should be displayed permanently.
+	 */
+	public final void setShowMarkers(boolean enabled) {
+		this.putBoolean(SHOW_MARKERS, enabled);
+	}
+
+	/**
+	 * Answer if pod set/booster markers should only be displayed when the pod set/booster is selected
+	 *
+	 * @return 	true if pod set/booster markers should only be displayed when the pod set/booster is selected,
+	 * 			false if they should be displayed permanently.
+	 */
+	public final boolean isShowMarkers() {
+		return this.getBoolean(SHOW_MARKERS, false);
+	}
+
+	/**
+	 * Set whether the component preset chooser dialog should filter by fore diameter when the window is opened.
+	 * @param enabled 	true if the fore diameter filter should be enabled,
+	 * 					false if it should be disabled.
+	 */
+	public final void setMatchForeDiameter(boolean enabled) {
+		this.putBoolean(MATCH_FORE_DIAMETER, enabled);
+	}
+
+	/**
+	 * Answer if the component preset chooser dialog should filter by fore diameter when the window is opened.
+	 *
+	 * @return 	true if the fore diameter filter should be enabled,
+	 * 			false if it should be disabled.
+	 */
+	public final boolean isMatchForeDiameter() {
+		return this.getBoolean(MATCH_FORE_DIAMETER, true);
+	}
+
+	/**
+	 * Set whether the component preset chooser dialog should filter by aft diameter when the window is opened.
+	 * @param enabled 	true if the aft diameter filter should be enabled,
+	 * 					false if it should be disabled.
+	 */
+	public final void setMatchAftDiameter(boolean enabled) {
+		this.putBoolean(MATCH_AFT_DIAMETER, enabled);
+	}
+
+	/**
+	 * Answer if the component preset chooser dialog should filter by aft diameter when the window is opened.
+	 *
+	 * @return 	true if the aft diameter filter should be enabled,
+	 * 			false if it should be disabled.
+	 */
+	public final boolean isMatchAftDiameter() {
+		return this.getBoolean(MATCH_AFT_DIAMETER, true);
+	}
+
 	/**
 	 * Return the OpenRocket unique ID.
 	 *

@@ -294,9 +294,22 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		config.toggleStage(0);
 		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
-		
-		AxialStage sustainer = rkt.getTopmostStage();
-		AxialStage booster = rkt.getBottomCoreStage();
+
+		AxialStage sustainer = rkt.getTopmostStage(config);
+		AxialStage booster = rkt.getBottomCoreStage(config);
+		assertThat(" sustainer stage is stage #1: ", sustainer.getStageNumber(), equalTo(1));
+		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
+
+		config.setAllStages();
+		config._setStageActive(1, false);
+		sustainer = rkt.getTopmostStage(config);
+		booster = rkt.getBottomCoreStage(config);
+		assertThat(" sustainer stage is stage #1: ", sustainer.getStageNumber(), equalTo(0));
+		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(0));
+
+		config.setAllStages();
+		sustainer = rkt.getTopmostStage(config);
+		booster = rkt.getBottomCoreStage(config);
 		assertThat(" sustainer stage is stage #0: ", sustainer.getStageNumber(), equalTo(0));
 		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
 		
@@ -351,7 +364,6 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		selected.clearAllStages();
 		selected.toggleStage(1);
-		selected.toggleStage(2);
 
 		// vvvv Test Target vvvv
 		InstanceMap instances = selected.getActiveInstances();

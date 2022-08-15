@@ -1,18 +1,24 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.WindowLocationUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -230,8 +236,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
 	 * @param rememberPreviousTab if true, the previous tab will be remembered and used for the new dialog
+	 * @param includeUndoModify	if true, include a 'Modify component' undo action
 	 */
-	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
+	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab, boolean includeUndoModify) {
 		if (dialog != null) {
 			// Don't remember the previous tab for rockets or stages, because this will leave you in the override tab for
 			// the next component, which is generally not what you want.
@@ -256,13 +263,30 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
+		if (parent instanceof BasicFrame && BasicFrame.getStartupFrame() == parent) {
+			WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
+		}
 
 		////Modify
-		if (component.getConfigListeners().size() == 0) {
-			document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
-		} else {
-			document.addUndoPosition(trans.get("ComponentCfgDlg.ModifyComponents"));
+		if (includeUndoModify) {
+			if (component.getConfigListeners().size() == 0) {
+				document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
+			} else {
+				document.addUndoPosition(trans.get("ComponentCfgDlg.ModifyComponents"));
+			}
 		}
+	}
+
+	/**
+	 * A singleton configuration dialog.  Will create and show a new dialog if one has not
+	 * previously been used, or update the dialog and show it if a previous one exists.
+	 *
+	 * @param document		the document to configure.
+	 * @param component		the component to configure.
+	 * @param rememberPreviousTab if true, the previous tab will be remembered and used for the new dialog
+	 */
+	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
+		ComponentConfigDialog.showDialog(parent, document, component, rememberPreviousTab, true);
 	}
 
 	/**

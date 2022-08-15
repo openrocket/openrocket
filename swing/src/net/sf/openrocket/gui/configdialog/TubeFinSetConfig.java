@@ -54,6 +54,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
+		focusElement = spin;
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(m), "growx");

@@ -19,16 +19,22 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RailButtonDTO extends BaseComponentDTO {
 
-    @XmlElement(name = "InsideDiameter")
-    private AnnotatedLengthDTO insideDiameter;
-    @XmlElement(name = "OutsideDiameter")
-    private AnnotatedLengthDTO outsideDiameter;
+    @XmlElement(name = "InnerDiameter")
+    private AnnotatedLengthDTO innerDiameter;
+    @XmlElement(name = "OuterDiameter")
+    private AnnotatedLengthDTO outerDiameter;
     @XmlElement(name = "Height")
     private AnnotatedLengthDTO height;
-    @XmlElement(name = "StandoffHeight")
-    private AnnotatedLengthDTO standoffHeight;
+    @XmlElement(name = "BaseHeight")
+    private AnnotatedLengthDTO baseHeight;
     @XmlElement(name = "FlangeHeight")
     private AnnotatedLengthDTO flangeHeight;
+    @XmlElement(name = "ScrewHeight")
+    private AnnotatedLengthDTO screwHeight;
+    @XmlElement(name = "ScrewMass")
+    private AnnotatedMassDTO screwMass;
+    @XmlElement(name = "NutMass")
+    private AnnotatedMassDTO nutMass;
 
     /**
      * Default constructor.
@@ -48,32 +54,35 @@ public class RailButtonDTO extends BaseComponentDTO {
         setInsideDiameter(preset.get(ComponentPreset.INNER_DIAMETER));
         setOutsideDiameter(preset.get(ComponentPreset.OUTER_DIAMETER));
         setHeight(preset.get(ComponentPreset.HEIGHT));
-        setStandoffHeight(preset.get(ComponentPreset.STANDOFF_HEIGHT));
+        setBaseHeight(preset.get(ComponentPreset.BASE_HEIGHT));
         setFlangeHeight(preset.get(ComponentPreset.FLANGE_HEIGHT));
+        setScrewHeight(preset.get(ComponentPreset.SCREW_HEIGHT));
+        setScrewMass(preset.get(ComponentPreset.SCREW_MASS));
+        setNutMass(preset.get(ComponentPreset.NUT_MASS));
     }
 
-    public double getInsideDiameter() {
-        return insideDiameter.getValue();
+    public double getInnerDiameter() {
+        return innerDiameter.getValue();
     }
 
-    public void setInsideDiameter( final AnnotatedLengthDTO theLength ) {
-    	insideDiameter = theLength;
+    public void setInnerDiameter(final AnnotatedLengthDTO theLength ) {
+    	innerDiameter = theLength;
     }
     
     public void setInsideDiameter(final double theId) {
-        insideDiameter = new AnnotatedLengthDTO(theId);
+        innerDiameter = new AnnotatedLengthDTO(theId);
     }
 
-    public double getOutsideDiameter() {
-        return outsideDiameter.getValue();
+    public double getOuterDiameter() {
+        return outerDiameter.getValue();
     }
 
-    public void setOutsideDiameter(final AnnotatedLengthDTO theOd) {
-        outsideDiameter = theOd;
+    public void setOuterDiameter(final AnnotatedLengthDTO theOd) {
+        outerDiameter = theOd;
     }
 
     public void setOutsideDiameter(final double theOd) {
-        outsideDiameter = new AnnotatedLengthDTO(theOd);
+        outerDiameter = new AnnotatedLengthDTO(theOd);
     }
 
     public double getHeight() {
@@ -88,16 +97,12 @@ public class RailButtonDTO extends BaseComponentDTO {
         height = new AnnotatedLengthDTO(theHeight);
     }
     
-    public double getStandoffHeight() {
-    	return standoffHeight.getValue();
+    public double getBaseHeight() {
+    	return baseHeight.getValue();
     }
     
-    public void setStandoffHeight(final AnnotatedLengthDTO theStandoffHeight) {
-    	standoffHeight = theStandoffHeight;
-    }
-    
-    public void setStandoffHeight(final double theStandoffHeight) {
-    	standoffHeight = new AnnotatedLengthDTO(theStandoffHeight);
+    public void setBaseHeight(final double theBaseHeight) {
+    	baseHeight = new AnnotatedLengthDTO(theBaseHeight);
     }
     
     public double getFlangeHeight() {
@@ -112,6 +117,30 @@ public class RailButtonDTO extends BaseComponentDTO {
     	flangeHeight = new AnnotatedLengthDTO(theFlangeHeight);
     }
 
+    public double getScrewHeight() {
+        return screwHeight.getValue();
+    }
+
+    public void setScrewHeight(final double screwHeight) {
+        this.screwHeight = new AnnotatedLengthDTO(screwHeight);
+    }
+
+    public double getScrewMass() {
+        return screwMass.getValue();
+    }
+
+    public void setScrewMass(double screwMass) {
+        this.screwMass = new AnnotatedMassDTO(screwMass);
+    }
+
+    public double getNutMass() {
+        return nutMass.getValue();
+    }
+
+    public void setNutMass(double nutMass) {
+        this.nutMass = new AnnotatedMassDTO(nutMass);
+    }
+
     @Override
     public ComponentPreset asComponentPreset(Boolean legacy, java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
         return asComponentPreset(legacy, ComponentPreset.Type.RAIL_BUTTON, materials);
@@ -121,11 +150,14 @@ public class RailButtonDTO extends BaseComponentDTO {
         TypedPropertyMap props = new TypedPropertyMap();
 		props.put(ComponentPreset.LEGACY, legacy);
         addProps(props, materials);
-        props.put(ComponentPreset.INNER_DIAMETER, this.getInsideDiameter());
-        props.put(ComponentPreset.OUTER_DIAMETER, this.getOutsideDiameter());
+        props.put(ComponentPreset.INNER_DIAMETER, this.getInnerDiameter());
+        props.put(ComponentPreset.OUTER_DIAMETER, this.getOuterDiameter());
         props.put(ComponentPreset.HEIGHT, this.getHeight());
-        props.put(ComponentPreset.STANDOFF_HEIGHT, this.getStandoffHeight());
+        props.put(ComponentPreset.BASE_HEIGHT, this.getBaseHeight());
         props.put(ComponentPreset.FLANGE_HEIGHT, this.getFlangeHeight());
+        props.put(ComponentPreset.SCREW_HEIGHT, this.getScrewHeight());
+        props.put(ComponentPreset.SCREW_MASS, this.getScrewMass());
+        props.put(ComponentPreset.NUT_MASS, this.getNutMass());
         props.put(ComponentPreset.TYPE, type);
 
         return ComponentPresetFactory.create(props);

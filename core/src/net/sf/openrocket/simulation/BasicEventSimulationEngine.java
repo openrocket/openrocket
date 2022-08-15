@@ -45,7 +45,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
-	// TODO: this is an arbitrary value
+	// TODO HIGH: this is an arbitrary value
 	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
 	private SimulationStepper currentStepper;
@@ -65,7 +65,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// Set up rocket configuration
 		this.fcid = simulationConditions.getFlightConfigurationID();
-		FlightConfiguration simulationConfig = simulationConditions.getRocket().getFlightConfiguration( this.fcid).clone();
+		FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
+		FlightConfiguration simulationConfig = origConfig.clone();
+		simulationConfig.copyStages(origConfig);	// Clone the stage activation configuration
 		if ( ! simulationConfig.hasMotors() ) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
@@ -74,7 +76,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 		{
 			// main simulation branch 
-			final String branchName = simulationConfig.getRocket().getTopmostStage().getName();
+			final String branchName = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration()).getName();
 			currentStatus.setFlightData(new FlightDataBranch( branchName, FlightDataType.TYPE_TIME));
 		}
 		toSimulate.push(currentStatus);
@@ -128,8 +130,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				double oldAlt = currentStatus.getRocketPosition().z;
 				
 				if (SimulationListenerHelper.firePreStep(currentStatus)) {
-					// Step at most to the next event
-					double maxStepTime = Double.MAX_VALUE;
+					// Step at most to the next event.  If there is no next event, don't step time
+					double maxStepTime = 0.0;
 					FlightEvent nextEvent = currentStatus.getEventQueue().peek();
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
@@ -273,9 +275,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
-				if( state.testForIgnition(event )){
-					final double simulationTime = currentStatus.getSimulationTime() ;
-
+				if (state.testForIgnition(currentStatus.getConfiguration(), event)) {
 					MotorClusterState sourceState = (MotorClusterState) event.getData();
 					double ignitionDelay = 0;
 					if (event.getType() == FlightEvent.Type.BURNOUT)
@@ -543,7 +543,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 		}
 
-		// TODO : FUTURE : do not hard code the 1200 (maybe even make it configurable by the user)
+		// TODO FUTURE : do not hard code the 1200 (maybe even make it configurable by the user)
 		if( 1200 < currentStatus.getSimulationTime() ){
 			ret = false;
 			log.error("Simulation hit max time (1200s): aborting.");
@@ -553,6 +553,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// If no motor has ignited, abort
 		if (!currentStatus.isMotorIgnited()) {
+			// TODO MEDIUM: display this as a warning to the user (e.g. highlight the cell in the simulation panel in red and a hover: 'make sure the motor ignition is correct' or something)
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noIgnition"));
 		}
 		
