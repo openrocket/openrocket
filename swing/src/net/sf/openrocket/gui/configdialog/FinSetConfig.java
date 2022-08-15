@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
@@ -134,11 +135,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);
 		
-		if (convert == null)
+		if (convert == null) {
 			addButtons(split);
-		else
+			order.add(split);
+		}
+		else {
 			addButtons(split, convert);
-		
+			order.add(split);
+			order.add(convert);
+		}
 	}
 	
 	private JPanel finTabPanel() {
@@ -175,10 +180,11 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label, "gapleft para, gapright 40lp, growx 1");
 		
 		final DoubleModel mtl = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
-		
+
 		spin = new JSpinner(mtl.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx 1");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(mtl), "growx 1");
 		panel.add(new BasicSlider(mtl.getSliderModel(DoubleModel.ZERO, length)),
@@ -196,6 +202,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		spin = new JSpinner(tabHeightModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(tabHeightModel), "growx");
 		panel.add(new BasicSlider(tabHeightModel.getSliderModel(DoubleModel.ZERO, length2)),
@@ -212,6 +219,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		spin = new JSpinner(mts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(mts), "growx");
 		panel.add(new BasicSlider(mts.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
@@ -226,6 +234,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		JComboBox<AxialMethod> enumCombo = new JComboBox<>(em);
 		
 		panel.add( enumCombo, "spanx 3, growx, wrap para");
+		order.add(enumCombo);
 
 		// Calculate fin tab height, length, and position
 		autoCalc = new SelectColorButton(trans.get("FinSetConfig.but.AutoCalc"));
@@ -284,7 +293,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(autoCalc, "skip 1, spanx");
-		
+		order.add(autoCalc);
+
+		// Apply the custom focus travel policy to this panel
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return panel;
 	}
 	
@@ -499,6 +513,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		    	trans.get("FinsetCfg.ttip.Finfillets2") +
 		    	trans.get("FinsetCfg.ttip.Finfillets3");
 	    filletPanel.setBorder(BorderFactory.createTitledBorder("Root Fillets"));
+
+		// Fillet Radius:
 	    filletPanel.add(new JLabel(trans.get("FinSetCfg.lbl.Filletradius")));
 		
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
@@ -507,13 +523,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    spin.setEditor(new SpinnerEditor(spin));
 	    spin.setToolTipText(tip);
 	    filletPanel.add(spin, "growx, w 40");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 	    UnitSelector us = new UnitSelector(m); 
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
 	    BasicSlider bs =new BasicSlider(m.getSliderModel(0, 10));
 	    filletPanel.add(bs, "w 100lp, wrap para");
 	    bs.setToolTipText(tip);
-	    
+
+		// Fillet Material:
 	    JLabel label = new JLabel(trans.get("FinSetCfg.lbl.Finfilletmaterial"));
 	    label.setToolTipText(tip);
 	    //// The component material affects the weight of the component.
@@ -525,7 +543,13 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    //// The component material affects the weight of the component.
 	    materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
 	    filletPanel.add( materialCombo, "spanx 4, growx, wrap paragraph");
+		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
+
+		// Apply the custom focus travel policy to this panel
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 	    return filletPanel;
 	}
 }

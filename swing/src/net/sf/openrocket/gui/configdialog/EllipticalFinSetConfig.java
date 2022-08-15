@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
@@ -51,6 +52,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx, wrap");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		
 		////  Base rotation
@@ -61,6 +63,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -78,6 +81,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
@@ -93,6 +97,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
@@ -106,6 +111,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
@@ -118,6 +124,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
 		panel.add(axialMethodCombo, "spanx, growx, wrap");
+		order.add(axialMethodCombo);
 		
 		//// plus
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.plus")), "right");
@@ -126,6 +133,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(axialOffsetModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		axialMethodCombo.addActionListener(new ActionListener() {
 			@Override
@@ -157,7 +165,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
 				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
 		panel.add( sectionCombo, "growx, wrap unrel");
-		
+		order.add(sectionCombo);
 		
 		////  Thickness:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
@@ -167,6 +175,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
@@ -176,7 +185,11 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
 		panel.add(materialPanel, "span, wrap");
-		
+		order.add(materialPanel.getMaterialCombo());
+		if (materialPanel.getFinishCombo() != null) {
+			order.add(materialPanel.getFinishCombo());
+		}
+
 		panel.add(filletMaterialPanel(), "span, wrap");
 	
 		
@@ -190,6 +203,10 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		tabbedPane.insertTab(trans.get("EllipticalFinSetCfg.General"), null, mainPanel,
 				trans.get("EllipticalFinSetCfg.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 }
