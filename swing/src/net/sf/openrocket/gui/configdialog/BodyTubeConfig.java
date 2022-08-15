@@ -105,11 +105,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		order.add(check);
 
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
-		order.add(materialPanel.getMaterialCombo());
-		if (materialPanel.getFinishCombo() != null) {
-			order.add(materialPanel.getFinishCombo());
-		}
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		//// General and General properties

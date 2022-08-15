@@ -178,7 +178,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		
 
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel2.add(materialPanel, "span, wrap");
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		

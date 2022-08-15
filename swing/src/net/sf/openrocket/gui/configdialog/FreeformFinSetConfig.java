@@ -210,12 +210,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		}
 
 		{ //// Material
-			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 			panel.add(materialPanel, "span, wrap");
-			order.add(materialPanel.getMaterialCombo());
-			if (materialPanel.getFinishCombo() != null) {
-				order.add(materialPanel.getFinishCombo());
-			}
 
 			panel.add(filletMaterialPanel(), "span, wrap");
 		}

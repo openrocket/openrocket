@@ -15,9 +15,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Panel for configuring a component's material and finish properties.
@@ -25,22 +28,20 @@ import java.util.Iterator;
 public class MaterialPanel extends JPanel {
     private static final Translator trans = Application.getTranslator();
 
-    private final JComboBox<Material> materialCombo;
-    private final JComboBox<ExternalComponent.Finish> finishCombo;
-
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
-                         Material.Type type, String materialString, String finishString, String partName) {
+                         Material.Type type, String materialString, String finishString,
+                         String partName,  List<Component> order) {
         super(new MigLayout("insets 0"));
         JLabel label = new JLabel(materialString);
         //// The component material affects the weight of the component.
         label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
         this.add(label, "spanx 4, wrap rel");
 
-        this.materialCombo = new JComboBox<>(new MaterialModel(this, component, type, partName));
+        JComboBox<Material> materialCombo = new JComboBox<>(new MaterialModel(this, component, type, partName));
         //// The component material affects the weight of the component.
-        this.materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-        this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
-
+        materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
+        this.add(materialCombo, "spanx 4, growx, wrap paragraph");
+        order.add(materialCombo);
 
         if (component instanceof ExternalComponent) {
             label = new JLabel(finishString);
@@ -51,10 +52,11 @@ public class MaterialPanel extends JPanel {
             label.setToolTipText(tip);
             this.add(label, "spanx 4, wmin 220lp, wrap rel");
 
-            this.finishCombo = new JComboBox<ExternalComponent.Finish>(
+            JComboBox<ExternalComponent.Finish> finishCombo = new JComboBox<ExternalComponent.Finish>(
                     new EnumModel<ExternalComponent.Finish>(component, "Finish"));
-            this.finishCombo.setToolTipText(tip);
-            this.add(this.finishCombo, "spanx 4, growx, split");
+            finishCombo.setToolTipText(tip);
+            this.add(finishCombo, "spanx 4, growx, split");
+            order.add(finishCombo);
 
             //// Set for all
             JButton button = new SelectColorButton(trans.get("RocketCompCfg.but.Setforall"));
@@ -81,28 +83,19 @@ public class MaterialPanel extends JPanel {
                 }
             });
             this.add(button, "wrap paragraph");
-        } else {
-            this.finishCombo = null;
+            order.add(button);
         }
     }
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
-                         Material.Type type, String partName) {
+                         Material.Type type, String partName, List<Component> order) {
         this(component, document, type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
-                trans.get("RocketCompCfg.lbl.Componentfinish"), partName);
+                trans.get("RocketCompCfg.lbl.Componentfinish"), partName, order);
     }
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
-                         Material.Type type) {
+                         Material.Type type, List<Component> order) {
         this(component, document, type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
-                trans.get("RocketCompCfg.lbl.Componentfinish"), "Material");
-    }
-
-    public JComboBox<Material> getMaterialCombo() {
-        return materialCombo;
-    }
-
-    public JComboBox<ExternalComponent.Finish> getFinishCombo() {
-        return finishCombo;
+                trans.get("RocketCompCfg.lbl.Componentfinish"), "Material", order);
     }
 }

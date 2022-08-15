@@ -158,7 +158,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		
 		
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel, "span, wrap");
 		
 		primary.add(panel, "grow");

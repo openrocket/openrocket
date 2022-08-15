@@ -127,7 +127,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		panel.add(instanceablePanel(rbc), "span, wrap");
 
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel,"span, wrap");
 
 		primary.add(panel, "grow");

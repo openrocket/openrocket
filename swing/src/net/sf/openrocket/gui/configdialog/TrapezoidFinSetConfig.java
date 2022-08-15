@@ -223,7 +223,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		
 		
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel, "span, wrap");
 		
 		

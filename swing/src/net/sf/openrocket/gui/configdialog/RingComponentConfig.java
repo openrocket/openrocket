@@ -165,8 +165,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		
 		
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
-		order.add(materialPanel.getMaterialCombo());
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 
 		if (component instanceof EngineBlock) {
 			final DescriptionArea desc = new DescriptionArea(6);

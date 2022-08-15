@@ -150,12 +150,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		});
 		
 		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel, "span, wrap");
-		order.add(materialPanel.getMaterialCombo());
-		if (materialPanel.getFinishCombo() != null) {
-			order.add(materialPanel.getFinishCombo());
-		}
 		
 		
 		primary.add(panel, "grow");
