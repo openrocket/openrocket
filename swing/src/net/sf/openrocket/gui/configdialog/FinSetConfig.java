@@ -144,6 +144,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			order.add(split);
 			order.add(convert);
 		}
+
+		// Apply the custom focus travel policy to these bottom buttons
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	private JPanel finTabPanel() {

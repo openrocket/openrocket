@@ -35,6 +35,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +114,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			JSpinner spin = new JSpinner(finCountModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx, wrap");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		}
 
 		{ ////  Base rotation
@@ -123,6 +125,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			JSpinner spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -140,6 +143,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final JSpinner cantAngleSpinner = new JSpinner(cantAngleModel.getSpinnerModel());
 			cantAngleSpinner.setEditor(new SpinnerEditor(cantAngleSpinner));
 			panel.add(cantAngleSpinner, "growx");
+			order.add(((SpinnerEditor) cantAngleSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(cantAngleModel), "growx");
 			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 40lp");
@@ -154,6 +158,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods);
 			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>(axialMethodModel);
 			panel.add(axialMethodCombo, "spanx 3, growx, wrap");
+			order.add(axialMethodCombo);
 
 			//// plus
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
@@ -162,6 +167,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
 			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
 			panel.add(axialOffsetSpinner, "growx");
+			order.add(((SpinnerEditor) axialOffsetSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(axialOffsetModel), "growx");
 			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
@@ -186,6 +192,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
 			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
 			panel.add(sectionCombo, "growx, wrap unrel");
+			order.add(sectionCombo);
 
 
 			////  Thickness:
@@ -196,6 +203,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final JSpinner spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
@@ -204,11 +212,20 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		{ //// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
 			panel.add(materialPanel, "span, wrap");
+			order.add(materialPanel.getMaterialCombo());
+			if (materialPanel.getFinishCombo() != null) {
+				order.add(materialPanel.getFinishCombo());
+			}
+
 			panel.add(filletMaterialPanel(), "span, wrap");
 		}
 		
 		mainPanel.add(panel, "aligny 20%");
-		
+
+		// Apply the custom focus travel policy to this panel
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return mainPanel;
 	}
 	
