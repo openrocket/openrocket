@@ -14,6 +14,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -57,6 +58,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 								MassComponent.MassComponentType.BATTERY}));
 		
 		panel.add(typecombo, "spanx, wrap");
+		order.add(typecombo);
 		
 		////  Mass
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Mass")));
@@ -66,11 +68,12 @@ public class MassComponentConfig extends RocketComponentConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.5)), "w 100lp, wrap");
 		
-		
+		/// Approximate Density
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Density")));
 		
 		m = new DoubleModel(component, "Density", UnitGroup.UNITS_DENSITY_BULK, 0);
@@ -78,6 +81,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(500, 2000, 10000)), "w 100lp, wrap");
@@ -93,6 +97,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
@@ -108,6 +113,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
@@ -116,6 +122,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap");
+		order.add(checkAutoPackedRadius);
 
 
 		//// Right side
@@ -131,6 +138,7 @@ public class MassComponentConfig extends RocketComponentConfig {
         final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
 		panel2.add(methodCombo, "spanx, growx, wrap");
+		order.add(methodCombo);
 
 		//// plus
 		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
@@ -138,8 +146,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		focusElement = spin;
 		panel2.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel2.add(new UnitSelector(m), "growx");
 		panel2.add(new BasicSlider(m.getSliderModel(
@@ -155,6 +163,11 @@ public class MassComponentConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("MassComponentCfg.tab.Radialpos"), null, positionTab(),
 				trans.get("MassComponentCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 	}
 	
 	
@@ -170,6 +183,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
@@ -183,6 +197,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -198,7 +213,12 @@ public class MassComponentConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(button, "spanx, right");
-		
+		order.add(button);
+
+		// Apply the custom focus travel policy to this panel
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return panel;
 	}
 }
