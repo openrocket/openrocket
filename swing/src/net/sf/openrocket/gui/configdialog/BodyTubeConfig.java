@@ -24,10 +24,6 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("serial")
 public class BodyTubeConfig extends RocketComponentConfig {
 
