@@ -9,6 +9,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -51,6 +52,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		
 		//combo.setSelectedItem(sepConfig);
 		panel.add(combo, "");
+		order.add(combo);
 		
 		// ... and delay
 		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.plus")), "");
@@ -59,12 +61,17 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "width 45");
+		order.add(((SpinnerEditor)spin.getEditor()).getTextField());
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.seconds")), "wrap unrel");
 		
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
-		
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return panel;
 	}
 
