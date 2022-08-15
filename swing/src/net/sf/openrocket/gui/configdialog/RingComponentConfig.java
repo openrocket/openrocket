@@ -11,6 +11,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -52,6 +53,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			spin = new JSpinner(od.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			panel.add(new UnitSelector(od), "growx");
 			panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
@@ -61,6 +63,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				//// Automatic
 				check.setText(trans.get("ringcompcfg.Automatic"));
 				panel.add(check, "skip, span 2, wrap");
+				order.add(check);
 			}
 		}
 		
@@ -75,6 +78,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			panel.add(new UnitSelector(m), "growx");
 			if (od == null)
@@ -88,6 +92,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				//// Automatic
 				check.setText(trans.get("ringcompcfg.Automatic"));
 				panel.add(check, "skip, span 2, wrap");
+				order.add(check);
 			}
 		}
 		
@@ -102,6 +107,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
@@ -121,6 +127,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				focusElement = spin;
 			}
 			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 			
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
@@ -135,6 +142,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 	    final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx 3, growx, wrap");
+		order.add(positionCombo);
 		
 		//// plus
 		panel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
@@ -147,6 +155,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			focusElement = spin;
 		}
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(
@@ -157,7 +166,8 @@ public class RingComponentConfig extends RocketComponentConfig {
 		
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
-		
+		order.add(materialPanel.getMaterialCombo());
+
 		if (component instanceof EngineBlock) {
 			final DescriptionArea desc = new DescriptionArea(6);
 			//// <html>An <b>engine block</b> stops the motor from moving forwards in the motor mount tube.<br><br>In order to add a motor, create a <b>body tube</b> or <b>inner tube</b> and mark it as a motor mount in the <em>Motor</em> tab.
@@ -165,7 +175,10 @@ public class RingComponentConfig extends RocketComponentConfig {
 			materialPanel.add(desc, "width 1px, growx, wrap");
 		}
 		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
-		
+
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return panel;
 	}
 	
