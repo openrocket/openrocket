@@ -53,7 +53,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private final JPopupMenu popupMenuConfig;
 	private final AbstractAction newConfigAction;
 	private final AbstractAction renameConfigAction;
-	private final AbstractAction removeConfigAction;
+	private final AbstractAction deleteConfigAction;
 	private final AbstractAction duplicateConfigAction;
 
 	private final static int MOTOR_TAB_INDEX = 0;
@@ -72,11 +72,11 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		popupMenuConfig = new JPopupMenu();
 		newConfigAction = new NewConfigAction();
 		renameConfigAction = new RenameConfigAction();
-		removeConfigAction = new RemoveConfigAction();
+		deleteConfigAction = new DeleteConfigAction();
 		duplicateConfigAction = new DuplicateConfigAction();
 		popupMenuConfig.add(newConfigAction);
 		popupMenuConfig.add(renameConfigAction);
-		popupMenuConfig.add(removeConfigAction);
+		popupMenuConfig.add(deleteConfigAction);
 		popupMenuConfig.add(duplicateConfigAction);
 		
 		//// Tabs for advanced view.
@@ -103,7 +103,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.add(renameConfButton,"gapright para");
 
 		//// Remove configuration
-		removeConfButton = new SelectColorButton(removeConfigAction);
+		removeConfButton = new SelectColorButton(deleteConfigAction);
 		this.add(removeConfButton,"gapright para");
 
 		//// Duplicate configuration
@@ -244,8 +244,8 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		return renameConfigAction;
 	}
 
-	public AbstractAction getRemoveConfigAction() {
-		return removeConfigAction;
+	public AbstractAction getDeleteConfigAction() {
+		return deleteConfigAction;
 	}
 
 	public AbstractAction getDuplicateConfigAction() {
@@ -345,9 +345,9 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		}
 	}
 
-	private class RemoveConfigAction extends AbstractAction {
-		public RemoveConfigAction() {
-			putValue(NAME, trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+	private class DeleteConfigAction extends AbstractAction {
+		public DeleteConfigAction() {
+			putValue(NAME, trans.get("edtmotorconfdlg.but.Deleteconfiguration"));
 		}
 
 		@Override

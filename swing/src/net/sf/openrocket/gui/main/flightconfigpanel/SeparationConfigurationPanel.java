@@ -54,7 +54,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		AbstractAction selectSeparationAction = new SelectSeparationAction();
 		AbstractAction resetSeparationAction = new ResetSeparationAction();
 		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction deleteConfigAction = flightConfigurationPanel.getDeleteConfigAction();
 		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
@@ -63,7 +63,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		popupMenuFull.add(resetSeparationAction);
 		popupMenuFull.addSeparator();
 		popupMenuFull.add(renameConfigAction);
-		popupMenuFull.add(removeConfigAction);
+		popupMenuFull.add(deleteConfigAction);
 		popupMenuFull.add(duplicateConfigAction);
 		
 		//// Select separation
