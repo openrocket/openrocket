@@ -32,6 +32,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -83,6 +84,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "wmin 100lp, growx, wrap");
@@ -103,6 +105,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "wmin 100lp, growx, wrap");
@@ -124,6 +127,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "wmin 100lp, growx, wrap");
@@ -139,6 +143,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		focusElement = spin;
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "wmin 100lp, growx, wrap");
@@ -146,6 +151,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK);
 		panel.add(materialPanel, "spanx 4, growx, wrap 15lp");
+		order.add(materialPanel.getMaterialCombo());
 
 
 		//// Right side of panel ----
@@ -160,6 +166,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		JComboBox<?> combo = new JComboBox<AxialMethod>( new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods ));
 		panel2.add(combo, "spanx 3, growx, wrap");
+		order.add(combo);
 
 		//// plus
 		panel2.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
@@ -169,6 +176,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel2.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel2.add(new UnitSelector(m), "growx");
 		panel2.add(new BasicSlider(m.getSliderModel(
@@ -198,6 +206,10 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				trans.get("InnerTubeCfg.tab.ttip.Radialpos"), 3);
 
 		tabbedPane.setSelectedIndex(0);
+
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 	}
 
 	protected JPanel positionTab() {
@@ -217,6 +229,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Distance from the rocket centerline
 		spin.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
 		BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1, 1.0));
@@ -238,6 +251,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// The radial direction from the rocket centerline
 		spin.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
 		bs = new BasicSlider(m.getSliderModel(-Math.PI, Math.PI));
@@ -258,6 +272,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(button, "spanx, right, wrap para");
+		order.add(button);
 
 
 		DescriptionArea note = new DescriptionArea(3);
@@ -265,6 +280,8 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
 
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}
@@ -301,6 +318,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// The separation of the tubes, 1.0 = touching each other
 		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 1, 4));
 		//// The separation of the tubes, 1.0 = touching each other
@@ -320,6 +338,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Rotation angle of the cluster configuration
 		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		subPanel.add(new UnitSelector(dm), "growx");
 		bs = new BasicSlider(dm.getSliderModel(-Math.PI, 0, Math.PI));
@@ -378,7 +397,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 			}
 		});
 		subPanel.add(split, "spanx, split 2, gapright para, sizegroup buttons, right");
-
+		order.add(split);
 
 		// Reset button
 		///// Reset settings
@@ -393,13 +412,15 @@ public class InnerTubeConfig extends RocketComponentConfig {
 			}
 		});
 		subPanel.add(reset, "sizegroup buttons, right");
+		order.add(reset);
 
 		panel.add(subPanel, "grow");
 
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}
-
 
 }
 
