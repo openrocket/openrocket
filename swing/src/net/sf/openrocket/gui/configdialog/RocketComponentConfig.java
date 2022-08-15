@@ -318,6 +318,7 @@ public class RocketComponentConfig extends JPanel {
 			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
 			countSpinner.setEditor(new SpinnerEditor(countSpinner));
 			panel.add(countSpinner, "w 100lp, wrap rel");
+			order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
 		}
 		
 		{ // Instance separation
@@ -326,6 +327,7 @@ public class RocketComponentConfig extends JPanel {
 			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
 			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
 			panel.add(separationSpinner, "growx");
+			order.add(((SpinnerEditor) separationSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(separationModel), "growx");
 			double maxSeparationDistance = 0.1;
 			if (component.getParent() != null && component.getParent().getLength() > 0) {

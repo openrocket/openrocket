@@ -9,6 +9,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -48,6 +49,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner ODSpinner = new JSpinner( ODModel.getSpinnerModel());
 			ODSpinner.setEditor(new SpinnerEditor(ODSpinner));
 			panel.add(ODSpinner, "growx");
+			order.add(((SpinnerEditor) ODSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(ODModel), "growx");
 			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
 		}
@@ -57,6 +59,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner IDSpinner = new JSpinner(IDModel.getSpinnerModel());
 			IDSpinner.setEditor(new SpinnerEditor(IDSpinner));
 			panel.add(IDSpinner, "growx");
+			order.add(((SpinnerEditor) IDSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(IDModel), "growx");
 			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
 		}
@@ -66,6 +69,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
 		}
@@ -75,6 +79,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
 		}
@@ -84,6 +89,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
 		}
@@ -94,6 +100,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
 			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 			panel.add(angleSpinner, "growx");
+			order.add(((SpinnerEditor) angleSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector( angleModel), "growx");
 			panel.add(new BasicSlider( angleModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		}
@@ -107,6 +114,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 			JComboBox<AxialMethod> relToCombo = new JComboBox<AxialMethod>( methodModel );
 			panel.add( relToCombo, "spanx, growx, wrap");
+			order.add(relToCombo);
 		}
 
 		{ //// plus
@@ -116,6 +124,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
 			focusElement = offsetSpinner;
 			panel.add(offsetSpinner, "growx");
+			order.add(((SpinnerEditor) offsetSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(offsetModel), "growx");
 			panel.add(new BasicSlider(offsetModel.getSliderModel(
 							new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
@@ -131,7 +140,11 @@ public class RailButtonConfig extends RocketComponentConfig {
 		panel.add(materialPanel,"span, wrap");
 
 		primary.add(panel, "grow");
-		
+
+		// Apply the custom focus travel policy to this panel
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		return primary;
 	}
 	
