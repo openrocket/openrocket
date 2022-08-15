@@ -207,6 +207,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		tabbedPane.setSelectedIndex(0);
 
+		// Apply the custom focus travel policy to this config dialog
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 
@@ -280,6 +281,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
 
+		// Apply the custom focus travel policy to this config dialog
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 
@@ -416,6 +418,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		panel.add(subPanel, "grow");
 
+		// Apply the custom focus travel policy to this config dialog
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 

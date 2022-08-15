@@ -176,6 +176,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		}
 		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
+		// Apply the custom focus travel policy to this config dialog
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 
