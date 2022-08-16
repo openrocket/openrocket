@@ -21,6 +21,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.RenameConfigDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.gui.main.RocketActions;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
@@ -95,19 +97,23 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 
 		//// New configuration
-		newConfButton = new SelectColorButton(newConfigAction);
+		newConfButton = new SelectColorButton();
+		RocketActions.tieActionToButton(newConfButton, newConfigAction);
 		this.add(newConfButton,"skip 1,gapright para");
 
 		//// Rename configuration
-		renameConfButton = new SelectColorButton(renameConfigAction);
+		renameConfButton = new SelectColorButton();
+		RocketActions.tieActionToButton(renameConfButton, renameConfigAction);
 		this.add(renameConfButton,"gapright para");
 
 		//// Remove configuration
-		removeConfButton = new SelectColorButton(removeConfigAction);
+		removeConfButton = new SelectColorButton();
+		RocketActions.tieActionToButton(removeConfButton, removeConfigAction);
 		this.add(removeConfButton,"gapright para");
 
 		//// Duplicate configuration
-		duplicateConfButton = new SelectColorButton(duplicateConfigAction);
+		duplicateConfButton = new SelectColorButton();
+		RocketActions.tieActionToButton(duplicateConfButton, duplicateConfigAction);
 		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
@@ -261,9 +267,10 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private void updateButtonState() {
 		FlightConfigurationId currentId = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		// Enable the remove/rename/duplicate buttons only when a configuration is selected.
-		removeConfButton.setEnabled(currentId.isValid());
-		renameConfButton.setEnabled(currentId.isValid());
-		duplicateConfButton.setEnabled(currentId.isValid());
+		boolean enabled = currentId.isValid() && !currentId.isDefaultId();
+		removeConfButton.setEnabled(enabled);
+		renameConfButton.setEnabled(enabled);
+		duplicateConfButton.setEnabled(enabled);
 		
 		// Count the number of motor mounts
 		int motorMountCount = rocket.accept(new ListMotorMounts()).size();
@@ -326,6 +333,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private class NewConfigAction extends AbstractAction {
 		public NewConfigAction() {
 			putValue(NAME, trans.get("edtmotorconfdlg.but.Newconfiguration"));
+			putValue(LARGE_ICON_KEY, Icons.FILE_NEW);
 		}
 
 		@Override
@@ -337,6 +345,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private class RenameConfigAction extends AbstractAction {
 		public RenameConfigAction() {
 			putValue(NAME, trans.get("edtmotorconfdlg.but.Renameconfiguration"));
+			putValue(SMALL_ICON, Icons.EDIT_RENAME);
 		}
 
 		@Override
@@ -348,6 +357,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private class RemoveConfigAction extends AbstractAction {
 		public RemoveConfigAction() {
 			putValue(NAME, trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+			putValue(SMALL_ICON, Icons.EDIT_DELETE);
 		}
 
 		@Override
@@ -359,6 +369,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	private class DuplicateConfigAction extends AbstractAction {
 		public DuplicateConfigAction() {
 			putValue(NAME, trans.get("edtmotorconfdlg.but.Duplicateconfiguration"));
+			putValue(SMALL_ICON, Icons.EDIT_DUPLICATE);
 		}
 
 		@Override
