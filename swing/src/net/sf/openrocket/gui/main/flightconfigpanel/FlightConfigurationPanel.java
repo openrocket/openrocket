@@ -36,7 +36,6 @@ import net.sf.openrocket.rocketvisitors.ListComponents;
 import net.sf.openrocket.rocketvisitors.ListMotorMounts;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class FlightConfigurationPanel extends JPanel implements StateChangeListener {

@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,5 +125,34 @@ public class Icons {
 			return null;
 		}
 		return new ImageIcon(url, name);
+	}
+
+	/**
+	 * Scales an ImageIcon to the specified scale.
+	 * @param icon icon to scale
+	 * @param scale the scale to scale to (1 = no scale, < 1 = smaller, > 1 = bigger)
+	 * @return scaled down icon. If <icon> is not an ImageIcon, the original icon is returned.
+	 */
+	public static Icon getScaledIcon(Icon icon, final double scale) {
+		if (!(icon instanceof ImageIcon)) {
+			return icon;
+		}
+		final Image image = ((ImageIcon) icon).getImage();
+		return new ImageIcon(image) {
+			@Override
+			public int getIconWidth() {
+				return (int)(image.getWidth(null) * scale);
+			}
+
+			@Override
+			public int getIconHeight() {
+				return (int)(image.getHeight(null) * scale);
+			}
+
+			@Override
+			public void paintIcon(Component c, Graphics g, int x, int y) {
+				g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);
+			}
+		};
 	}
 }
