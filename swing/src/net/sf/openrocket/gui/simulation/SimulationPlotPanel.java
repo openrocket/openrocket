@@ -464,7 +464,7 @@ public class SimulationPlotPanel extends JPanel {
 			this.add(axisSelector);
 			
 			
-			JButton button = new SelectColorButton(Icons.DELETE);
+			JButton button = new SelectColorButton(Icons.EDIT_DELETE);
 			//// Remove this plot
 			button.setToolTipText(trans.get("simplotpanel.but.ttip.Removethisplot"));
 			button.setBorderPainted(false);

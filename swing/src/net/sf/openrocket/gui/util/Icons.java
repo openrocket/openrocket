@@ -82,8 +82,6 @@ public class Icons {
 	
 	public static final Icon PREFERENCES = loadImageIcon("pix/icons/preferences.png", "Preferences");
 	
-	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
-	public static final Icon EDIT = loadImageIcon("pix/icons/pencil.png", "Edit");
 	public static final Icon CONFIGURE = loadImageIcon("pix/icons/configure.png", "Configure");
 	public static final Icon HELP = loadImageIcon("pix/icons/help-about.png", "Help");
 	public static final Icon UP = loadImageIcon("pix/icons/up.png", "Up");
