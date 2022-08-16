@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
@@ -55,6 +56,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		//// The number of fins in the fin set.
 		finCountSpinner.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Nbroffins"));
 		panel.add(finCountSpinner, "growx, wrap");
+		order.add(((SpinnerEditor) finCountSpinner.getEditor()).getTextField());
 
 
 		{ ///  Base rotation
@@ -68,6 +70,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner baseRotationSpinner = new JSpinner(baseRotationModel.getSpinnerModel());
 			baseRotationSpinner.setEditor(new SpinnerEditor(baseRotationSpinner));
 			panel.add(baseRotationSpinner, "growx");
+			order.add(((SpinnerEditor) baseRotationSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(baseRotationModel), "growx");
 			panel.add(new BasicSlider(baseRotationModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -84,6 +87,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner cantSpinner = new JSpinner(cantModel.getSpinnerModel());
 			cantSpinner.setEditor(new SpinnerEditor(cantSpinner));
 			panel.add(cantSpinner, "growx");
+			order.add(((SpinnerEditor) cantSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(cantModel), "growx");
 			panel.add(new BasicSlider(cantModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
@@ -98,6 +102,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner rootChordSpinner = new JSpinner(rootChordModel.getSpinnerModel());
 			rootChordSpinner.setEditor(new SpinnerEditor(rootChordSpinner));
 			panel.add(rootChordSpinner, "growx");
+			order.add(((SpinnerEditor) rootChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(rootChordModel), "growx");
 			panel.add(new BasicSlider(rootChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
@@ -111,6 +116,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner tipChordSpinner = new JSpinner(tipChordModel.getSpinnerModel());
 			tipChordSpinner.setEditor(new SpinnerEditor(tipChordSpinner));
 			panel.add(tipChordSpinner, "growx");
+			order.add(((SpinnerEditor) tipChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(tipChordModel), "growx");
 			panel.add(new BasicSlider(tipChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
@@ -124,6 +130,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
@@ -137,6 +144,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner sweepDistanceSpinner = new JSpinner(sweepDistanceModel.getSpinnerModel());
 			sweepDistanceSpinner.setEditor(new SpinnerEditor(sweepDistanceSpinner));
 			panel.add(sweepDistanceSpinner, "growx");
+			order.add(((SpinnerEditor) sweepDistanceSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(sweepDistanceModel), "growx");
 
@@ -156,6 +164,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner sweepAngleSpinner = new JSpinner(sweepAngleModel.getSpinnerModel());
 			sweepAngleSpinner.setEditor(new SpinnerEditor(sweepAngleSpinner));
 			panel.add(sweepAngleSpinner, "growx");
+			order.add(((SpinnerEditor) sweepAngleSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(sweepAngleModel), "growx");
 			panel.add(new BasicSlider(sweepAngleModel.getSliderModel(-Math.PI / 4, Math.PI / 4)),
@@ -168,6 +177,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
 			panel.add(axialMethodCombo, "spanx, growx, wrap");
+			order.add(axialMethodCombo);
 
 			//// plus
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
@@ -177,6 +187,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
 
 			panel.add(axialOffsetSpinner, "growx");
+			order.add(((SpinnerEditor) axialOffsetSpinner.getEditor()).getTextField());
 
 			axialMethodCombo.addActionListener(new ActionListener() {
 												@Override
@@ -206,6 +217,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
 					new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
 			panel.add(sectionCombo, "span, growx, wrap");
+			order.add(sectionCombo);
 
 
 			////  Thickness:
@@ -216,6 +228,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
 			panel.add(thicknessSpinner, "growx");
+			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
 			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap para");
@@ -235,8 +248,11 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		tabbedPane.insertTab(trans.get("TrapezoidFinSetCfg.tab.General"), null, mainPanel,
 				trans.get("TrapezoidFinSetCfg.tab.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
-		
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 		addFinSetButtons();
-		
 	}
 }
