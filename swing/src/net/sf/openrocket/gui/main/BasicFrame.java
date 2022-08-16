@@ -412,24 +412,31 @@ public class BasicFrame extends JFrame {
 
 
 		// Buttons
-		JButton button = new SelectColorButton(actions.getMoveUpAction());
+		JButton button = new SelectColorButton();
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+		RocketActions.tieActionToButton(button, actions.getMoveUpAction());
 		panel.add(button, "sizegroup buttons, aligny 65%");
 
-		button = new SelectColorButton(actions.getMoveDownAction());
+		button = new SelectColorButton();
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+		RocketActions.tieActionToButton(button, actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
 		button = new SelectColorButton();
-		RocketActions.tieActionToButtonNoIcon(button, actions.getEditAction());
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+		RocketActions.tieActionToButton(button, actions.getEditAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons, gaptop 20%");
 
 		button = new SelectColorButton();
-		RocketActions.tieActionToButtonNoIcon(button, actions.getDuplicateAction());
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+		RocketActions.tieActionToButton(button, actions.getDuplicateAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
 		button = new SelectColorButton();
-		RocketActions.tieActionToButtonNoIcon(button, actions.getDeleteAction());
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+		RocketActions.tieActionToButton(button, actions.getDeleteAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 

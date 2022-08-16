@@ -83,12 +83,11 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 		
 	}
 
-	//extracted this method because maybe, just maybe, this info could be used somewhere else
 	/**
 	 * gets if the id is the default
 	 * @return	if the id is default
 	 */
-	private boolean isDefaultId() {
+	public boolean isDefaultId() {
 		return this.key == FlightConfigurationId.DEFAULT_VALUE_UUID;
 	}
 	

@@ -219,6 +219,34 @@ public class RocketActions {
 		button.setAction(action);
 		button.setIcon(null);
 	}
+
+	/**
+	 * Tie an action to a JButton, without using the text of the action for the button.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action:
+	 * this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 * @param text text to display on the button
+	 */
+	public static void tieActionToButton(JButton button, Action action, String text) {
+		button.setAction(action);
+		button.setText(text);
+	}
+
+	/**
+	 * Tie an action to a JButton.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action:
+	 * this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 */
+	public static void tieActionToButton(JButton button, Action action) {
+		button.setAction(action);
+	}
 	
 	
 	////////  Helper methods for the actions
@@ -1061,6 +1089,7 @@ public class RocketActions {
 		public MoveUpAction() {
 			//// Move up
 			this.putValue(NAME, trans.get("RocketActions.MoveUpAct.Moveup"));
+			this.putValue(SMALL_ICON, Icons.UP);
 			//// Move this component upwards.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveUpAct.ttip.Moveup"));
 			clipboardChanged();
@@ -1136,6 +1165,7 @@ public class RocketActions {
 		public MoveDownAction() {
 			//// Move down
 			this.putValue(NAME, trans.get("RocketActions.MoveDownAct.Movedown"));
+			this.putValue(SMALL_ICON, Icons.DOWN);
 			//// Move this component downwards.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveDownAct.ttip.Movedown"));
 			clipboardChanged();
