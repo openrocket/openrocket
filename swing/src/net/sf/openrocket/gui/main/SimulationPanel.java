@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.gui.widgets.IconButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,31 +125,31 @@ public class SimulationPanel extends JPanel {
 		////////  The simulation action buttons ////////
 
 		//// New simulation button
-		JButton newButton = new SelectColorButton();
+		JButton newButton = new IconButton();
 		RocketActions.tieActionToButton(newButton, newSimulationAction, trans.get("simpanel.but.newsimulation"));
 		newButton.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
 		this.add(newButton, "skip 1, gapright para");
 
 		//// Edit simulation button
-		editButton = new SelectColorButton();
+		editButton = new IconButton();
 		RocketActions.tieActionToButton(editButton, editSimulationAction, trans.get("simpanel.but.editsimulation"));
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
 		this.add(editButton, "gapright para");
 
 		//// Run simulations
-		runButton = new SelectColorButton();
+		runButton = new IconButton();
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
 
 		//// Delete simulations button
-		deleteButton = new SelectColorButton();
+		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
 		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
 		this.add(deleteButton, "gapright para");
 
 		//// Plot / export button
-		plotButton = new SelectColorButton();
+		plotButton = new IconButton();
 		RocketActions.tieActionToButton(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 

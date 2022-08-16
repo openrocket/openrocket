@@ -69,7 +69,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -412,29 +412,29 @@ public class BasicFrame extends JFrame {
 
 
 		// Buttons
-		JButton button = new SelectColorButton();
+		JButton button = new IconButton();
 		button.setHorizontalAlignment(SwingConstants.LEFT);
 		RocketActions.tieActionToButton(button, actions.getMoveUpAction());
 		panel.add(button, "sizegroup buttons, aligny 65%");
 
-		button = new SelectColorButton();
+		button = new IconButton();
 		button.setHorizontalAlignment(SwingConstants.LEFT);
 		RocketActions.tieActionToButton(button, actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
-		button = new SelectColorButton();
+		button = new IconButton();
 		button.setHorizontalAlignment(SwingConstants.LEFT);
 		RocketActions.tieActionToButton(button, actions.getEditAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons, gaptop 20%");
 
-		button = new SelectColorButton();
+		button = new IconButton();
 		button.setHorizontalAlignment(SwingConstants.LEFT);
 		RocketActions.tieActionToButton(button, actions.getDuplicateAction());
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
 
-		button = new SelectColorButton();
+		button = new IconButton();
 		button.setHorizontalAlignment(SwingConstants.LEFT);
 		RocketActions.tieActionToButton(button, actions.getDeleteAction());
 		button.setMnemonic(0);

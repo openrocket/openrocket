@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.dialogs.flightconfiguration.RenameConfigDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.RocketActions;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
@@ -97,22 +98,22 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 
 		//// New configuration
-		newConfButton = new SelectColorButton();
+		newConfButton = new IconButton();
 		RocketActions.tieActionToButton(newConfButton, newConfigAction);
 		this.add(newConfButton,"skip 1,gapright para");
 
 		//// Rename configuration
-		renameConfButton = new SelectColorButton();
+		renameConfButton = new IconButton();
 		RocketActions.tieActionToButton(renameConfButton, renameConfigAction);
 		this.add(renameConfButton,"gapright para");
 
 		//// Remove configuration
-		removeConfButton = new SelectColorButton();
+		removeConfButton = new IconButton();
 		RocketActions.tieActionToButton(removeConfButton, removeConfigAction);
 		this.add(removeConfButton,"gapright para");
 
 		//// Duplicate configuration
-		duplicateConfButton = new SelectColorButton();
+		duplicateConfButton = new IconButton();
 		RocketActions.tieActionToButton(duplicateConfButton, duplicateConfigAction);
 		this.add(duplicateConfButton, "wrap");
 
