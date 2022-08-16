@@ -76,7 +76,6 @@ public class RocketActions {
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
 	private final RocketAction scaleAction;
-	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private static final Translator trans = Application.getTranslator();
@@ -101,7 +100,6 @@ public class RocketActions {
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
 		this.scaleAction = new ScaleAction();
-		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 
@@ -135,7 +133,6 @@ public class RocketActions {
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
 		scaleAction.clipboardChanged();
-		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 	}
@@ -177,10 +174,6 @@ public class RocketActions {
 
 	public Action getScaleAction() {
 		return scaleAction;
-	}
-	
-	public Action getNewStageAction() {
-		return newStageAction;
 	}
 	
 	public Action getMoveUpAction() {
@@ -1038,46 +1031,6 @@ public class RocketActions {
 		}
 	}
 	
-	
-	
-	
-	
-	/**
-	 * Action to add a new stage to the rocket.
-	 */
-	private class NewStageAction extends RocketAction {
-		private static final long serialVersionUID = 1L;
-
-		public NewStageAction() {
-			//// New stage
-			this.putValue(NAME, trans.get("RocketActions.NewStageAct.Newstage"));
-			//// Add a new stage to the rocket design.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.NewStageAct.Newstage"));
-			clipboardChanged();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			
-			ComponentConfigDialog.disposeDialog();
-
-			RocketComponent stage = new AxialStage();
-
-			//// Add stage
-			document.addUndoPosition("Add stage");
-			rocket.addChild(stage);
-			rocket.getSelectedConfiguration().setAllStages();
-			selectionModel.setSelectedComponent(stage);
-			ComponentConfigDialog.showDialog(parentFrame, document, stage);
-			
-		}
-
-		@Override
-		public void clipboardChanged() {
-			this.setEnabled(true);
-		}
-	}
-
 
 
 	
