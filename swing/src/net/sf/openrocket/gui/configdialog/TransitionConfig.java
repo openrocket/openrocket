@@ -15,6 +15,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.TransitionShapeModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -69,11 +70,13 @@ public class TransitionConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(typeBox, "span 3, split 2");
+		order.add(typeBox);
 
 		{//// Clipped
 			final JCheckBox checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
 			checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
 			panel.add(checkbox, "wrap");
+			order.add(checkbox);
 
 			////  Shape parameter:
 			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
@@ -86,6 +89,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
 			panel.add(shapeSpinner, "growx");
+			order.add(((SpinnerEditor) shapeSpinner.getEditor()).getTextField());
 
 			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
 			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
@@ -104,6 +108,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final JSpinner lengthSpinner = new JSpinner(lengthModel.getSpinnerModel());
 			lengthSpinner.setEditor(new SpinnerEditor(lengthSpinner));
 			panel.add(lengthSpinner, "growx");
+			order.add(((SpinnerEditor) lengthSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(lengthModel), "growx");
 			panel.add(new BasicSlider(lengthModel.getSliderModel(0, 0.05, 0.3)), "w 100lp, wrap");
@@ -118,6 +123,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final JSpinner foreRadiusSpinner = new JSpinner(foreRadiusModel.getSpinnerModel());
 			foreRadiusSpinner.setEditor(new SpinnerEditor(foreRadiusSpinner));
 			panel.add(foreRadiusSpinner, "growx");
+			order.add(((SpinnerEditor) foreRadiusSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(foreRadiusModel), "growx");
 			panel.add(new BasicSlider(foreRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
@@ -126,6 +132,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			//// Automatic
 			checkAutoForeRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 			panel.add(checkAutoForeRadius, "skip, span 2, wrap");
+			order.add(checkAutoForeRadius);
 			updateCheckboxAutoForeRadius();
 		}
 
@@ -138,6 +145,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final JSpinner aftRadiusSpinner = new JSpinner(aftRadiusModel .getSpinnerModel());
 			aftRadiusSpinner.setEditor(new SpinnerEditor(aftRadiusSpinner));
 			panel.add(aftRadiusSpinner, "growx");
+			order.add(((SpinnerEditor) aftRadiusSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(aftRadiusModel), "growx");
 			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
@@ -146,6 +154,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			//// Automatic
 			checkAutoAftRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 			panel.add(checkAutoAftRadius, "skip, span 2, wrap");
+			order.add(checkAutoAftRadius);
 			updateCheckboxAutoAftRadius();
 		}
 
@@ -157,6 +166,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
 			panel.add(thicknessSpinner, "growx");
+			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
 			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
@@ -166,6 +176,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			//// Filled
 			thicknessCheckbox.setText(trans.get("TransitionCfg.checkbox.Filled"));
 			panel.add(thicknessCheckbox, "skip, span 2, wrap");
+			order.add(thicknessCheckbox);
 		}
 
 		////  Description
@@ -189,6 +200,11 @@ public class TransitionConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("TransitionCfg.tab.Shoulder"), null, shoulderTab(),
 				trans.get("TransitionCfg.tab.Shoulderproperties"), 1);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
+
 	}
 	
 	
