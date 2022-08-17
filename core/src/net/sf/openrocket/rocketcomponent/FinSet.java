@@ -1009,7 +1009,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
-		return combineCurves(getFinPoints(), getTabPoints());
+		Coordinate[] temp = combineCurves(getFinPoints(), getRootPoints());
+		return combineCurves(temp, getTabPoints());
 	}
 	
 	@Override
