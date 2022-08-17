@@ -393,7 +393,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 		gl.glTranslated(dx - p.getAdvance(), 0, 0);
 
-		if (p.isFlame()) {
+		if (p.isFlame() && configuration.hasMotors()) {
 			convertColor(p.getFlameColor(), color);
 
 			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_AMBIENT,
