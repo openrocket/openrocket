@@ -418,35 +418,22 @@ public class RocketActions {
 	 * should be pasted.  Returns null if the clipboard is empty or if the
 	 * clipboard cannot be pasted to the current selection.
 	 * 
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @param	pasteComponent	the component where copyComponent should be pasted to.
+	 * @param   srcComponent	the component to be copy-pasted.
+	 * @param	destComponent	the component where srcComponent should be pasted to.
 	 * @return  a Pair with both components defined, or null.
 	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent, RocketComponent pasteComponent) {
-		if (pasteComponent == null)
+	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent srcComponent, RocketComponent destComponent) {
+		if (destComponent == null)
 			return null;
 
-		if (copyComponent == null)
+		if (srcComponent == null)
 			return null;
 
-		if (pasteComponent.isCompatible(copyComponent))
-			return new Pair<RocketComponent, Integer>(pasteComponent, pasteComponent.getChildCount());
+		if (destComponent.isCompatible(srcComponent))
+			return new Pair<RocketComponent, Integer>(destComponent, destComponent.getChildCount());
 
-		RocketComponent parent = pasteComponent.getParent();
-		return getPastePositionFromParent(copyComponent, parent);
-	}
-
-	/**
-	 * Return the component and position to which the current clipboard
-	 * should be pasted.  Returns null if the clipboard is empty or if the
-	 * clipboard cannot be pasted to the current selection.
-	 *
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @return  a Pair with both components defined, or null.
-	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent) {
-		RocketComponent selected = selectionModel.getSelectedComponent();
-		return getPastePosition(copyComponent, selected);
+		RocketComponent parent = destComponent.getParent();
+		return getPastePositionFromParent(srcComponent, parent);
 	}
 
 	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent component, RocketComponent parent) {
@@ -468,8 +455,9 @@ public class RocketActions {
 	 */
 	private List<Pair<RocketComponent, Integer>> getPastePositions(List<RocketComponent> clipboard) {
 		List<Pair<RocketComponent, Integer>> result = new LinkedList<>();
+		RocketComponent selected = selectionModel.getSelectedComponent();
 		for (RocketComponent component : clipboard) {
-			Pair<RocketComponent, Integer> position = getPastePosition(component);
+			Pair<RocketComponent, Integer> position = getPastePosition(component, selected);
 			if (position != null) {
 				result.add(position);
 			}
@@ -775,10 +763,7 @@ public class RocketActions {
 					pasted.add(component.copy());
 				}
 
-				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : pasted) {
-					positions.add(getPastePosition(component));
-				}
+				List<Pair<RocketComponent, Integer>> positions = getPastePositions(pasted);
 
 				if (pasted.size() == 1) {
 					document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
