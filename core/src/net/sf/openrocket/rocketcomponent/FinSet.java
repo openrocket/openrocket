@@ -1232,36 +1232,37 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return points representing the mount's points
 	 */
 	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
-		if( null == parent){
+		if (parent == null) {
 			return new Coordinate[]{Coordinate.ZERO};
 		}
 
-		// for a simple bodies, one increment is perfectly accurate.
+		// for a simple body, one increment is perfectly accurate.
 		int divisionCount = 1;
-		// cast-assert
 		final SymmetricComponent body = (SymmetricComponent) getParent();
+		final double intervalLength = xEnd - xStart;
 
 		// for anything more complicated, increase the count: 
-		if( ( body instanceof Transition) && ( ((Transition)body).getType() != Shape.CONICAL )){
-			// the maximum precision to enforce when calculating the areas of fins ( especially on curved parent bodies)
-			final double xWidth = 0.005; // width of each individual iteration
-			divisionCount = (int)Math.ceil(  (xEnd - xStart) / xWidth );
+		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
+			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
+			final double xWidth = 0.005; // width (in meters) of each individual iteration
+			divisionCount = (int) Math.ceil(intervalLength / xWidth);
 			
 			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
 			final int maximumBodyDivisionCount = 100;
-			divisionCount = Math.min( maximumBodyDivisionCount, divisionCount);
+			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
 		}
-		
-		final double intervalLength = xEnd - xStart;
-		double increment = (intervalLength)/divisionCount;
-				
+
+		// Recalculate the x step increment, now with the (rounded) division count.
+		double xIncrement = intervalLength / divisionCount;
+
+		// Create the points: step through the radius of the parent
 		double xCur = xStart;
 		Coordinate[] points = new Coordinate[divisionCount+1];
-		for( int index = 0; index < points.length; index++){
-			double yCur = body.getRadius( xCur );
-			points[index]=new Coordinate( xCur, yCur);
+		for (int index = 0; index < points.length; index++) {
+			double yCur = body.getRadius(xCur);
+			points[index] = new Coordinate(xCur, yCur);
 			
-			xCur += increment;
+			xCur += xIncrement;
 		}
 
 		// correct last point, if beyond a rounding error from body's end.
