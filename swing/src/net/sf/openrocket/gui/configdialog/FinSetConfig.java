@@ -233,61 +233,62 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		autoCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Computing " + component.getComponentName() + " tab height.");
-
-				double inRad = 0.0;
-				RocketComponent parent = component.getParent();
-				if (parent instanceof SymmetricComponent){
-					try {
-						document.startUndo("Compute fin tabs");
-						
-						List<CenteringRing> rings = new ArrayList<>();
-                        // Do deep recursive iteration to find centering rings and determine
-						// radius of inner tube
-                        Iterator<RocketComponent> iter = parent.iterator(false);
-                        while (iter.hasNext()) {
-                            RocketComponent rocketComponent =  iter.next();
-							if (rocketComponent instanceof InnerTube) {
-								InnerTube it = (InnerTube) rocketComponent;
-								if (it.isMotorMount()) {
-									inRad = it.getOuterRadius();
-								}
-							} else if (rocketComponent instanceof CenteringRing) {
-								rings.add((CenteringRing) rocketComponent);
-							}
-						}
-						
-						//Figure out position and length of the fin tab
-						if (!rings.isEmpty()) {
-						    AxialMethod temp = (AxialMethod) em.getSelectedItem();
-							em.setSelectedItem(AxialMethod.TOP);
-							double len = computeFinTabLength(rings, component.getAxialOffset(AxialMethod.TOP),
-										component.getLength(), mts, parent);
-							mtl.setValue(len);
-							//Be nice to the user and set the tab relative position enum back the way they had it.
-							em.setSelectedItem(temp);
-						}
-
-						// compute tab height
-						double height = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
-													 ((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge())) - inRad;
-						// double height = ((Coaxial) parent).getOuterRadius() - inRad;
-						//Set fin tab height
-						if (height >= 0.0d) {
-							tabHeightModel.setValue(height);
-							tabHeightModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
-						}
-					} finally {
-						document.stopUndo();
-					}
-				}
+				calculateAutoTab(em, mts, mtl, tabHeightModel);
 			}
 		});
 		panel.add(autoCalc, "skip 1, spanx");
 		
 		return panel;
 	}
-	
+
+	private void calculateAutoTab(EnumModel<AxialMethod> em, DoubleModel mts, DoubleModel mtl, DoubleModel tabHeightModel) {
+		log.info(Markers.USER_MARKER, "Computing " + component.getComponentName() + " tab height.");
+
+		double inRad = 0.0;
+		RocketComponent parent = component.getParent();
+		if (parent instanceof SymmetricComponent){
+			try {
+				document.startUndo("Compute fin tabs");
+
+				List<CenteringRing> rings = new ArrayList<>();
+				// Do deep recursive iteration to find centering rings and determine radius of inner tube
+				Iterator<RocketComponent> iter = parent.iterator(false);
+				while (iter.hasNext()) {
+				RocketComponent rocketComponent =  iter.next();
+					if (rocketComponent instanceof InnerTube) {
+						InnerTube it = (InnerTube) rocketComponent;
+						inRad = it.getOuterRadius();
+					} else if (rocketComponent instanceof CenteringRing) {
+						rings.add((CenteringRing) rocketComponent);
+					}
+				}
+
+				//Figure out position and length of the fin tab
+				if (!rings.isEmpty()) {
+					AxialMethod temp = (AxialMethod) em.getSelectedItem();
+					em.setSelectedItem(AxialMethod.TOP);
+					double len = computeFinTabLength(rings, component.getAxialOffset(AxialMethod.TOP),
+								component.getLength(), mts, parent);
+					mtl.setValue(len);
+					//Be nice to the user and set the tab relative position enum back the way they had it.
+					em.setSelectedItem(temp);
+				}
+
+				// compute tab height
+				double height = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
+											 ((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge())) - inRad;
+				// double height = ((Coaxial) parent).getOuterRadius() - inRad;
+				//Set fin tab height
+				if (height >= 0.0d) {
+					tabHeightModel.setValue(height);
+					tabHeightModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+				}
+			} finally {
+				document.stopUndo();
+			}
+		}
+	}
+
 	/**
 	 * Scenarios:
 	 * <p/>
