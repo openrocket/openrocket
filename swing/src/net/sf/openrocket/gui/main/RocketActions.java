@@ -433,12 +433,13 @@ public class RocketActions {
 			return new Pair<RocketComponent, Integer>(destComponent, destComponent.getChildCount());
 
 		RocketComponent parent = destComponent.getParent();
-		return getPastePositionFromParent(srcComponent, parent);
+		return getPastePositionFromParent(srcComponent, destComponent, parent);
 	}
 
-	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent component, RocketComponent parent) {
-		if (parent != null && parent.isCompatible(component)) {
-			int index = parent.getChildPosition(parent) + 1;
+	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent srcComponent, RocketComponent destComponent,
+																	  RocketComponent parent) {
+		if (parent != null && parent.isCompatible(srcComponent)) {
+			int index = parent.getChildPosition(destComponent) + 1;
 			return new Pair<>(parent, index);
 		}
 
