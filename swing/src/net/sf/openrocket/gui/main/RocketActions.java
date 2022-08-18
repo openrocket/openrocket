@@ -424,13 +424,13 @@ public class RocketActions {
 	 */
 	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent srcComponent, RocketComponent destComponent) {
 		if (destComponent == null)
-			return null;
+			return new Pair<>(null, null);
 
 		if (srcComponent == null)
-			return null;
+			return new Pair<>(null, null);
 
 		if (destComponent.isCompatible(srcComponent))
-			return new Pair<RocketComponent, Integer>(destComponent, destComponent.getChildCount());
+			return new Pair<>(destComponent, destComponent.getChildCount());
 
 		RocketComponent parent = destComponent.getParent();
 		return getPastePositionFromParent(srcComponent, destComponent, parent);
@@ -443,7 +443,7 @@ public class RocketActions {
 			return new Pair<>(parent, index);
 		}
 
-		return null;
+		return new Pair<>(null, null);
 	}
 
 	/**
@@ -780,8 +780,14 @@ public class RocketActions {
 										pasted.get(i).getComponentName()),
 								trans.get("RocketActions.PasteAct.invalidPosition.title"), JOptionPane.WARNING_MESSAGE);
 					} else {
-						positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
-						successfullyPasted.add(pasted.get(i));
+						RocketComponent parent = positions.get(i).getU();
+						RocketComponent child = pasted.get(i);
+						if (parent != null && parent.isCompatible(child)) {
+							parent.addChild(child, positions.get(i).getV());
+							successfullyPasted.add(pasted.get(i));
+						} else {
+							log.warn("Pasted component {} is not compatible with {}", child, parent);
+						}
 					}
 				}
 
