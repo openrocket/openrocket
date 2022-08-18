@@ -1244,7 +1244,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		// for anything more complicated, increase the count: 
 		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
 			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
-			final double xWidth = 0.005; // width (in meters) of each individual iteration
+			final double xWidth = 0.0025; // width (in meters) of each individual iteration
 			divisionCount = (int) Math.ceil(intervalLength / xWidth);
 			
 			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
@@ -1271,7 +1271,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
 
-		if( 0.0000001 < (Math.abs(xOffset) + Math.abs(yOffset))){
+		// translate the points if needed
+		if ((Math.abs(xOffset) + Math.abs(yOffset)) > 0.0000001) {
 			points = translatePoints(points, xOffset, yOffset);
 		}
 
