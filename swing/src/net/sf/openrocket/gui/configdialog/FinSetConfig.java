@@ -34,6 +34,7 @@ import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -174,14 +175,14 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
 		panel.add(label, "gapleft para, gapright 40lp, growx 1");
 		
-		final DoubleModel mtl = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
 		
-		spin = new JSpinner(mtl.getSpinnerModel());
+		spin = new JSpinner(tabLength.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx 1");
 		
-		panel.add(new UnitSelector(mtl), "growx 1");
-		panel.add(new BasicSlider(mtl.getSliderModel(DoubleModel.ZERO, length)),
+		panel.add(new UnitSelector(tabLength), "growx 1");
+		panel.add(new BasicSlider(tabLength.getSliderModel(DoubleModel.ZERO, length)),
 				"w 100lp, growx 5, wrap");
 		
 
@@ -207,23 +208,23 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
 		panel.add(label, "gapleft para");
 		
-		final DoubleModel mts = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
-		component.addChangeListener( mts);
-		spin = new JSpinner(mts.getSpinnerModel());
+		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
+		component.addChangeListener( tabOffset);
+		spin = new JSpinner(tabOffset.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		
-		panel.add(new UnitSelector(mts), "growx");
-		panel.add(new BasicSlider(mts.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
+		panel.add(new UnitSelector(tabOffset), "growx");
+		panel.add(new BasicSlider(tabOffset.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
 		
 		//// relative to
 		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
 
-		final EnumModel<AxialMethod> em = new EnumModel<>(component, "TabOffsetMethod");
+		final EnumModel<AxialMethod> tabOffsetMethod = new EnumModel<>(component, "TabOffsetMethod");
 		
-		JComboBox<AxialMethod> enumCombo = new JComboBox<>(em);
+		JComboBox<AxialMethod> enumCombo = new JComboBox<>(tabOffsetMethod);
 		
 		panel.add( enumCombo, "spanx 3, growx, wrap para");
 
@@ -233,7 +234,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		autoCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				calculateAutoTab(em, mts, mtl, tabHeightModel);
+				calculateAutoTab(tabOffsetMethod, tabOffset, tabLength, tabHeightModel);
 			}
 		});
 		panel.add(autoCalc, "skip 1, spanx");
@@ -241,10 +242,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		return panel;
 	}
 
-	private void calculateAutoTab(EnumModel<AxialMethod> em, DoubleModel mts, DoubleModel mtl, DoubleModel tabHeightModel) {
+	private void calculateAutoTab(EnumModel<AxialMethod> tabOffsetMethod, DoubleModel tabOffset, DoubleModel tabLength,
+								  DoubleModel tabHeightModel) {
 		log.info(Markers.USER_MARKER, "Computing " + component.getComponentName() + " tab height.");
 
-		double inRad = 0.0;
+		double maxTubeRad = 0.0;
+		double maxRingRad = 0.0;
 		RocketComponent parent = component.getParent();
 		if (parent instanceof SymmetricComponent){
 			try {
@@ -256,30 +259,47 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				while (iter.hasNext()) {
 				RocketComponent rocketComponent =  iter.next();
 					if (rocketComponent instanceof InnerTube) {
-						InnerTube it = (InnerTube) rocketComponent;
-						inRad = it.getOuterRadius();
+						if (!isComponentInsideFinSpan(rocketComponent)) {
+							continue;
+						}
+						InnerTube tube = (InnerTube) rocketComponent;
+						if (tube.getOuterRadius() > maxTubeRad) {
+							maxTubeRad = tube.getOuterRadius();
+						}
 					} else if (rocketComponent instanceof CenteringRing) {
-						rings.add((CenteringRing) rocketComponent);
+						CenteringRing ring = (CenteringRing) rocketComponent;
+						if (ring.getOuterRadius() > maxRingRad) {
+							maxRingRad = ring.getOuterRadius();
+							rings.clear();
+							rings.add(ring);
+						} else if (ring.getOuterRadius() == maxRingRad) {
+							rings.add(ring);
+						}
 					}
 				}
 
 				//Figure out position and length of the fin tab
-				if (!rings.isEmpty()) {
-					AxialMethod temp = (AxialMethod) em.getSelectedItem();
-					em.setSelectedItem(AxialMethod.TOP);
+				if (maxRingRad > maxTubeRad && !rings.isEmpty()) {
+					AxialMethod temp = (AxialMethod) tabOffsetMethod.getSelectedItem();
+					tabOffsetMethod.setSelectedItem(AxialMethod.TOP);
 					double len = computeFinTabLength(rings, component.getAxialOffset(AxialMethod.TOP),
-								component.getLength(), mts, parent);
-					mtl.setValue(len);
+								component.getLength(), tabOffset, parent);
+					tabLength.setValue(len);
 					//Be nice to the user and set the tab relative position enum back the way they had it.
-					em.setSelectedItem(temp);
+					tabOffsetMethod.setSelectedItem(temp);
+				} else {
+					tabLength.setValue(component.getLength());
+					tabOffsetMethod.setSelectedItem(AxialMethod.TOP);
+					tabOffset.setValue(0);
 				}
 
-				// compute tab height
-				double height = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
-											 ((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge())) - inRad;
-				// double height = ((Coaxial) parent).getOuterRadius() - inRad;
-				//Set fin tab height
-				if (height >= 0.0d) {
+				// Compute tab height
+				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
+						((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge()));
+				double height = parentMinRadius - maxTubeRad;
+
+				// Set tab height
+				if (height >= 0) {
 					tabHeightModel.setValue(height);
 					tabHeightModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
 				}
@@ -424,6 +444,20 @@ public abstract class FinSetConfig extends RocketComponentConfig {
             resultFinTabLength = 0d;
         }
         return resultFinTabLength;
+	}
+
+	/**
+	 * Check whether a component lays within the fin set.
+	 * @param c component to check
+	 * @return True if the component lays inside the fin span, or partially inside, False if completely outside the span.
+	 */
+	private boolean isComponentInsideFinSpan(RocketComponent c) {
+		final double finXMin = component.getAxialOffset(AxialMethod.ABSOLUTE);
+		final double finXMax = finXMin + component.getLength();
+		final double compXMin = c.getAxialOffset(AxialMethod.ABSOLUTE);
+		final double compXMax = compXMin + c.getLength();
+		return (compXMin >= finXMin && compXMin < finXMax) || (compXMax > finXMin && compXMax <= finXMax) ||
+				(compXMin <= finXMin && compXMax >= finXMax);
 	}
 	
 	@Override
