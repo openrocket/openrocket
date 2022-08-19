@@ -241,6 +241,7 @@ public class BasicFrame extends JFrame {
 		GUIUtil.rememberWindowSize(this);
 
 		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 
 		GUIUtil.setWindowIcons(this);
 
