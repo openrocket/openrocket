@@ -216,28 +216,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private JPanel getFilterCheckboxes(XTableColumnModel tm, int legacyColumnIndex) {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
-		
-		/*
-		 * Add show all compatible check box.
-		 */
-		final List<ComponentPreset.Type> compatibleTypes = component.getPresetType().getCompatibleTypes();
-		final ComponentPreset.Type nativeType = component.getPresetType();
-		if (compatibleTypes != null && compatibleTypes.size() > 0) {
-			JCheckBox showAll = new JCheckBox();
-			showAll.setText(trans.get("ComponentPresetChooserDialog.checkbox.showAllCompatible"));
-			panel.add(showAll, "wrap");
-			showAll.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (((JCheckBox) e.getItem()).isSelected()) {
-						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
-					} else {
-						presets = Application.getComponentPresetDao().listForType(nativeType);
-					}
-					componentSelectionTable.updateData(presets);
-				}
-				});
-		}
 
 		/*
 		 * Add legacy component filter checkbox
