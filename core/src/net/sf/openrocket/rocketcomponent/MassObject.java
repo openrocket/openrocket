@@ -50,7 +50,21 @@ public abstract class MassObject extends InternalComponent {
 		return false;
 	}
 
-	
+	@Override
+	public double getLength() {
+		if (this.autoRadius) {
+			// Calculate the parachute volume using the non auto radius and the non auto length, and transform that back
+			// to the auto radius situation to get the auto radius length (the volume in both situations is the same).
+			double parachuteVolume = Math.pow(this.radius, 2) * this.length;	// Math.PI left out, not needed
+			return parachuteVolume / Math.pow(getRadius(), 2);
+		}
+		return length;
+	}
+
+	public double getLengthNoAuto() {
+		return length;
+	}
+
 	public void setLength(double length) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof MassObject) {
@@ -59,10 +73,17 @@ public abstract class MassObject extends InternalComponent {
 		}
 
 		length = Math.max(length, 0);
-		if (MathUtil.equals(this.length, length)) {
-			return;
+		if (this.autoRadius) {
+			// Calculate the parachute volume using the auto radius and the new "auto" length, and transform that back
+			// to the non auto radius situation to set this.length (the volume in both situations is the same).
+			double parachuteVolume = Math.pow(getRadius(), 2) * length;		// Math.PI left out, not needed
+			this.length = parachuteVolume / Math.pow(this.radius, 2);
+		} else {
+			if (MathUtil.equals(this.length, length)) {
+				return;
+			}
+			this.length = length;
 		}
-		this.length = length;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -114,8 +135,8 @@ public abstract class MassObject extends InternalComponent {
 
 	public void setRadiusAutomatic(boolean auto) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof Parachute) {
-				((Parachute) listener).setRadiusAutomatic(auto);
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setRadiusAutomatic(auto);
 			}
 		}
 
@@ -123,6 +144,10 @@ public abstract class MassObject extends InternalComponent {
 			return;
 
 		autoRadius = auto;
+
+		// Set the length
+		double parachuteVolume = (Math.PI * Math.pow(getRadius(), 2) * length);
+		length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
