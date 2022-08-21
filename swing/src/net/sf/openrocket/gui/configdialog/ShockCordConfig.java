@@ -120,7 +120,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
-		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
+		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
 		panel2.add(checkAutoPackedRadius, "skip, span 2, wrap");
 
 		//// General and General properties

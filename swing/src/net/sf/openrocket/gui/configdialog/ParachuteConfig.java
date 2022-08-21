@@ -103,6 +103,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Reset button
 		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
+		button.setToolTipText(String.format(trans.get("ParachuteCfg.but.ResetCd.ttip"), Parachute.DEFAULT_CD));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -202,7 +203,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
-		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
+		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
 
 		//// Deployment
@@ -300,6 +302,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Reset button
 		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
+		button.setToolTipText("ParachuteCfg.but.ResetRadial.ttip");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

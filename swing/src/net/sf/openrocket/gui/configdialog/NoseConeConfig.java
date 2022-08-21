@@ -131,7 +131,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 
 			final JCheckBox filledCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
 			//// Filled
-			filledCheckbox .setText(trans.get("NoseConeCfg.checkbox.Filled"));
+			filledCheckbox.setText(trans.get("NoseConeCfg.checkbox.Filled"));
+			filledCheckbox.setToolTipText(trans.get("NoseConeCfg.checkbox.Filled.ttip"));
 			panel.add(filledCheckbox, "skip, span 2, wrap");
 		}
 

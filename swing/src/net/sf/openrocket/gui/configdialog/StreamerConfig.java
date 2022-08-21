@@ -121,7 +121,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		JCheckBox check = new JCheckBox(m.getAutomaticAction());
 		//// Automatic
-		check.setText(trans.get("StreamerCfg.lbl.Automatic"));
+		check.setText(trans.get("StreamerCfg.lbl.AutomaticCd"));
+		check.setToolTipText(trans.get("StreamerCfg.lbl.AutomaticCd.ttip"));
 		panel.add(check, "skip, span, wrap");
 		
 		//// The drag coefficient is relative to the area of the streamer.
@@ -188,7 +189,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
-		checkAutoPackedRadius.setText(trans.get("TransitionCfg.checkbox.Automatic"));
+		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
+		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
 
 		

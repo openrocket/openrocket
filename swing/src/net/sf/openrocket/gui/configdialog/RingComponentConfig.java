@@ -60,6 +60,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				JCheckBox check = new JCheckBox(od.getAutomaticAction());
 				//// Automatic
 				check.setText(trans.get("ringcompcfg.Automatic"));
+				check.setToolTipText(trans.get("ringcompcfg.AutomaticOuter.ttip"));
 				panel.add(check, "skip, span 2, wrap");
 			}
 		}
@@ -87,6 +88,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				JCheckBox check = new JCheckBox(m.getAutomaticAction());
 				//// Automatic
 				check.setText(trans.get("ringcompcfg.Automatic"));
+				check.setToolTipText(trans.get("ringcompcfg.AutomaticInner.ttip"));
 				panel.add(check, "skip, span 2, wrap");
 			}
 		}

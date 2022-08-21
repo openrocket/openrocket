@@ -103,6 +103,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		//// Filled
 		JCheckBox check = new JCheckBox(new BooleanModel(component, "Filled"));
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
+		check.setToolTipText(trans.get("BodyTubecfg.checkbox.Filled.ttip"));
 		panel.add(check, "skip, span 2, wrap");
 
 		//// Material
