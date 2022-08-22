@@ -84,7 +84,7 @@ public abstract class BasePartDTO {
         setKnownCG(ec.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setKnownMass(ec.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 
-        if (!(ec instanceof FinSet || ec instanceof MassObject)) {
+        if (!(ec instanceof FinSet)) {
             setLen(ec.getLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         setUseKnownCG(ec.isCGOverridden() || ec.isMassOverridden() ? 1 : 0);
@@ -146,10 +146,6 @@ public abstract class BasePartDTO {
             RingComponent rc = (RingComponent)ec;
             setRadialAngle(rc.getRadialDirection());
             setRadialLoc(rc.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        }
-
-        if (ec instanceof MassObject) {
-            setLen(((MassObject)ec).getLengthNoAuto() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
     }
 
