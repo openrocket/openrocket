@@ -77,7 +77,10 @@ public abstract class MassObject extends InternalComponent {
 			// Calculate the parachute volume using the auto radius and the new "auto" length, and transform that back
 			// to the non auto radius situation to set this.length (the volume in both situations is the same).
 			double parachuteVolume = Math.pow(getRadius(), 2) * length;		// Math.PI left out, not needed
-			this.length = parachuteVolume / Math.pow(this.radius, 2);
+			double newLength = parachuteVolume / Math.pow(this.radius, 2);
+			if (MathUtil.equals(this.length, newLength))
+				return;
+			this.length = newLength;
 		} else {
 			if (MathUtil.equals(this.length, length)) {
 				return;
