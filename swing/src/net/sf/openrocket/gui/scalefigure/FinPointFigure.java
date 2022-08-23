@@ -178,14 +178,15 @@ public class FinPointFigure extends AbstractScaleFigure {
 		// vv in fin-frame == draw-frame vv
 		final double xOffset = -xFinStart;
 		final double yOffset = -body.getRadius(xFinStart);
+		final float length_m = (float)( body.getLength());
 
 		Path2D.Double bodyShape = new Path2D.Double();
 		// draw front-cap:
 		bodyShape.moveTo( xOffset, yOffset);
 		bodyShape.lineTo( xOffset, yOffset + body.getForeRadius());
 
-		final float length_m = (float)( body.getLength());
-		Point2D.Double cur = new Point2D.Double ();
+		// draw edge
+		Point2D.Double cur = new Point2D.Double();
 		for( double xBody = xResolution_m ; xBody < length_m;  xBody += xResolution_m ){
 			// xBody is distance from front of parent body
 			cur.x = xOffset + xBody; // offset from origin (front of fin)
