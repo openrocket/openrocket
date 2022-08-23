@@ -19,7 +19,7 @@ import org.junit.Test;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class DisableStageTest extends BaseTestCase {
-    private final double delta = 0.08;  // 8 % error margin (simulations are not exact)
+    private final double delta = 0.1;  // 10 % error margin (simulations are not exact)
 
     /**
      * Tests that the simulation results are correct when a single stage is deactivated and re-activated.
