@@ -19,7 +19,7 @@ import org.junit.Test;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class DisableStageTest extends BaseTestCase {
-    private final double delta = 0.1;  // 10 % error margin (simulations are not exact)
+    private final double delta = 0.025;  // 2.5 % error margin (simulations are not exact)
 
     /**
      * Tests that the simulation results are correct when a single stage is deactivated and re-activated.
@@ -266,7 +266,6 @@ public class DisableStageTest extends BaseTestCase {
                              SimulationListener simulationListener, double delta) {
         try {
             simExpected.simulate(simulationListener);
-            double maxAccelerationOriginal = simExpected.getSimulatedData().getMaxAcceleration();
             double maxAltitudeOriginal = simExpected.getSimulatedData().getMaxAltitude();
             double maxVelocityOriginal = simExpected.getSimulatedData().getMaxVelocity();
             double maxMachNumberOriginal = simExpected.getSimulatedData().getMaxMachNumber();
@@ -274,10 +273,8 @@ public class DisableStageTest extends BaseTestCase {
             double timeToApogeeOriginal = simExpected.getSimulatedData().getTimeToApogee();
             double launchRodVelocityOriginal = simExpected.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityOriginal = simExpected.getSimulatedData().getDeploymentVelocity();
-            double groundHitVelocityOriginal = simExpected.getSimulatedData().getGroundHitVelocity();
 
             simActual.simulate(simulationListener);
-            double maxAccelerationDisabled = simActual.getSimulatedData().getMaxAcceleration();
             double maxAltitudeDisabled = simActual.getSimulatedData().getMaxAltitude();
             double maxVelocityDisabled = simActual.getSimulatedData().getMaxVelocity();
             double maxMachNumberDisabled = simActual.getSimulatedData().getMaxMachNumber();
@@ -285,9 +282,7 @@ public class DisableStageTest extends BaseTestCase {
             double timeToApogeeDisabled = simActual.getSimulatedData().getTimeToApogee();
             double launchRodVelocityDisabled = simActual.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityDisabled = simActual.getSimulatedData().getDeploymentVelocity();
-            double groundHitVelocityDisabled = simActual.getSimulatedData().getGroundHitVelocity();
 
-            Assert.assertEquals(maxAccelerationOriginal, maxAccelerationDisabled, maxAccelerationOriginal * delta);
             Assert.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, maxAltitudeOriginal * delta);
             Assert.assertEquals(maxVelocityOriginal, maxVelocityDisabled, maxVelocityOriginal * delta);
             Assert.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, maxMachNumberOriginal * delta);
@@ -295,7 +290,6 @@ public class DisableStageTest extends BaseTestCase {
             Assert.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, timeToApogeeOriginal * delta);
             Assert.assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled, launchRodVelocityOriginal * delta);
             Assert.assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled, deploymentVelocityOriginal * delta);
-            Assert.assertEquals(groundHitVelocityOriginal, groundHitVelocityDisabled, groundHitVelocityOriginal * delta);
         } catch (SimulationException e) {
             Assert.fail("Simulation failed: " + e);
         }
