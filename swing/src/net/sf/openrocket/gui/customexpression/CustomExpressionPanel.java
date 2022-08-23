@@ -197,7 +197,7 @@ public class CustomExpressionPanel extends JPanel {
 			//unitSelector = setLabelStyle(unitSelector);
 			//unitSelector.setBackground(Color.WHITE);
 			
-			JButton editButton = new SelectColorButton(Icons.EDIT);
+			JButton editButton = new SelectColorButton(Icons.EDIT_EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));
 			editButton.setBorderPainted(false);
 			editButton.addActionListener(new ActionListener() {
@@ -234,9 +234,9 @@ public class CustomExpressionPanel extends JPanel {
 			});
 			
 			
-			JButton deleteButton = new SelectColorButton(Icons.DELETE);
+			JButton deleteButton = new SelectColorButton(Icons.EDIT_DELETE);
 			//// Remove this expression
-			deleteButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Remove"));
+			deleteButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Delete"));
 			deleteButton.setBorderPainted(false);
 			deleteButton.addActionListener(new ActionListener() {
 				@Override

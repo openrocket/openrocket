@@ -3,8 +3,10 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -20,6 +22,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +74,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		updateButtonState();
 	}
 
-	protected abstract void updateButtonState();
+	public abstract void updateButtonState();
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -87,6 +90,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	 */
 	private final JTable doTableInitialization() {
 		JTable table = this.initializeTable();
+		table.setFillsViewportHeight(true);
 		FlightConfigurationId current = this.rocket.getSelectedConfiguration().getFlightConfigurationID();
 		int col = (table.getColumnCount() > 1) ? table.getColumnCount() - 1 : 0;
 		for (int row = 0; row < table.getRowCount(); row++) {
@@ -99,7 +103,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return table;
 	}
 
-	protected final void synchronizeConfigurationSelection() {
+	public final void synchronizeConfigurationSelection() {
 		FlightConfigurationId currentRocketFCID = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		FlightConfigurationId selectedFCID = getSelectedConfigurationId();
 		
@@ -134,6 +138,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			return;
 		}
 		table.changeSelection(row, col, true, false);
+		table.requestFocusInWindow();
 	}
 
 	protected void installTableListener() {
@@ -144,7 +149,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if ( e.getValueIsAdjusting() ) {
 					return;
 				}
-				
+
+				// Don't update the flight configuration for multi-selections
+				if (table.getSelectionModel().getSelectedItemsCount() > 1) {
+					return;
+				}
+
 				/* Find the selected row and set it as the current selected configuration
 				 * for the rocket. This will propagate the event to ensure that other
 				 * pieces of the UI are updated and match the table selection.
@@ -162,6 +172,27 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			}
 
 		});
+
+		// Clear the table selection when clicked outside the table rows.
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+					int row = table.rowAtPoint(e.getPoint());
+					int col = table.columnAtPoint(e.getPoint());
+					if (row == -1 || col == -1) {
+						clearSelection();
+					}
+				}
+			}
+		});
+
+		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				updateRocketViewSelection(e);
+			}
+		});
 	}
 
 	/**
@@ -170,6 +201,20 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	 * @return
 	 */
 	protected abstract JTable initializeTable();
+
+	public void clearSelection() {
+		table.clearSelection();
+	}
+
+	public void updateRocketViewSelection() {
+		ListSelectionEvent e = new ListSelectionEvent(this, 0, 0, false);
+		updateRocketViewSelection(e);
+	}
+
+	/**
+	 * Update the selection in the rocket design view, based on the currently selected motor, recovery device, or stage.
+	 */
+	public abstract void updateRocketViewSelection(ListSelectionEvent e);
 
 	protected T getSelectedComponent() {
 
@@ -226,7 +271,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		return FlightConfigurationId.ERROR_FCID;
 	}
 
-	protected List<FlightConfigurationId> getSelectedConfigurationIds() {
+	public List<FlightConfigurationId> getSelectedConfigurationIds() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
 		if (Arrays.stream(rows).min().isEmpty() || Arrays.stream(rows).min().getAsInt() < 0 || col < 0 ||
@@ -249,6 +294,29 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 
 		return Ids;
+	}
+
+	/**
+	 * Select the rows of the table that correspond to the given FlightConfigurationIds. The second column of the table
+	 * will be used for the selection.
+	 * @param fids flight configuration ids to select
+	 */
+	public void setSelectedConfigurationIds(List<FlightConfigurationId> fids) {
+		if (fids == null || fids.isEmpty() || table.getColumnCount() == 0) return;
+
+		if (getSelectedConfigurationIds() != null && new HashSet<>(getSelectedConfigurationIds()).containsAll(fids)) return;
+
+		table.clearSelection();
+		for (FlightConfigurationId id : fids) {
+			if (id == FlightConfigurationId.DEFAULT_VALUE_FCID) continue;
+			for (int rowNum = 0; rowNum < table.getRowCount(); rowNum++) {
+				FlightConfigurationId rowFCID = rocket.getId(rowNum );
+				if (rowFCID.equals(id)) {
+					table.changeSelection(rowNum, 1, true, false);
+					break;
+				}
+			}
+		}
 	}
 
 	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
@@ -328,6 +396,13 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );
 
+	}
+
+	/**
+	 * Focus on the table
+	 */
+	public void takeTheSpotlight() {
+		table.requestFocusInWindow();
 	}
 
 }

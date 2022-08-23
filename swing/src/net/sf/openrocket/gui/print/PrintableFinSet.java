@@ -48,7 +48,7 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
 
         Coordinate[] points = component.getFinPointsWithTab();
 
-        polygon = new GeneralPath(GeneralPath.WIND_EVEN_ODD, points.length);
+        polygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
         polygon.moveTo(0, 0);
 
         minX = 0;
@@ -57,8 +57,8 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
         int maxY = 0;
 
         for (Coordinate point : points) {
-            final long x = (long)PrintUnit.METERS.toPoints(point.x);
-            final long y = (long)PrintUnit.METERS.toPoints(point.y);
+            final float x = (float) PrintUnit.METERS.toPoints(point.x);
+            final float y = (float) PrintUnit.METERS.toPoints(point.y);
             minX = (int) Math.min(x, minX);
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);

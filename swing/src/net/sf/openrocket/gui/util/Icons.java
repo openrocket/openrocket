@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +62,7 @@ public class Icons {
 	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", trans.get("Icons.Undo"));
 	public static final Icon EDIT_REDO = loadImageIcon("pix/icons/edit-redo.png", trans.get("Icons.Redo"));
 	public static final Icon EDIT_EDIT = loadImageIcon("pix/icons/edit-edit.png", "Edit");
+	public static final Icon EDIT_RENAME = loadImageIcon("pix/icons/edit-rename.png", "Rename");
 	public static final Icon EDIT_CUT = loadImageIcon("pix/icons/edit-cut.png", "Cut");
 	public static final Icon EDIT_COPY = loadImageIcon("pix/icons/edit-copy.png", "Copy");
 	public static final Icon EDIT_PASTE = loadImageIcon("pix/icons/edit-paste.png", "Paste");
@@ -81,8 +85,6 @@ public class Icons {
 	
 	public static final Icon PREFERENCES = loadImageIcon("pix/icons/preferences.png", "Preferences");
 	
-	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
-	public static final Icon EDIT = loadImageIcon("pix/icons/pencil.png", "Edit");
 	public static final Icon CONFIGURE = loadImageIcon("pix/icons/configure.png", "Configure");
 	public static final Icon HELP = loadImageIcon("pix/icons/help-about.png", "Help");
 	public static final Icon UP = loadImageIcon("pix/icons/up.png", "Up");
@@ -123,5 +125,34 @@ public class Icons {
 			return null;
 		}
 		return new ImageIcon(url, name);
+	}
+
+	/**
+	 * Scales an ImageIcon to the specified scale.
+	 * @param icon icon to scale
+	 * @param scale the scale to scale to (1 = no scale, < 1 = smaller, > 1 = bigger)
+	 * @return scaled down icon. If <icon> is not an ImageIcon, the original icon is returned.
+	 */
+	public static Icon getScaledIcon(Icon icon, final double scale) {
+		if (!(icon instanceof ImageIcon)) {
+			return icon;
+		}
+		final Image image = ((ImageIcon) icon).getImage();
+		return new ImageIcon(image) {
+			@Override
+			public int getIconWidth() {
+				return (int)(image.getWidth(null) * scale);
+			}
+
+			@Override
+			public int getIconHeight() {
+				return (int)(image.getHeight(null) * scale);
+			}
+
+			@Override
+			public void paintIcon(Component c, Graphics g, int x, int y) {
+				g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);
+			}
+		};
 	}
 }

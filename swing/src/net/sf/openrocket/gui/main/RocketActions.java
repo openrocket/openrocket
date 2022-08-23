@@ -25,6 +25,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -75,7 +76,6 @@ public class RocketActions {
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
 	private final RocketAction scaleAction;
-	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private static final Translator trans = Application.getTranslator();
@@ -100,7 +100,6 @@ public class RocketActions {
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
 		this.scaleAction = new ScaleAction();
-		this.newStageAction = new NewStageAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 
@@ -134,7 +133,6 @@ public class RocketActions {
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
 		scaleAction.clipboardChanged();
-		newStageAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 	}
@@ -178,10 +176,6 @@ public class RocketActions {
 		return scaleAction;
 	}
 	
-	public Action getNewStageAction() {
-		return newStageAction;
-	}
-	
 	public Action getMoveUpAction() {
 		return moveUpAction;
 	}
@@ -218,6 +212,34 @@ public class RocketActions {
 	public static void tieActionToButtonNoIcon(JButton button, Action action) {
 		button.setAction(action);
 		button.setIcon(null);
+	}
+
+	/**
+	 * Tie an action to a JButton, without using the text of the action for the button.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action:
+	 * this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 * @param text text to display on the button
+	 */
+	public static void tieActionToButton(JButton button, Action action, String text) {
+		button.setAction(action);
+		button.setText(text);
+	}
+
+	/**
+	 * Tie an action to a JButton.
+	 *
+	 * For any smartass that wants to know why you don't just initialize the JButton with the action:
+	 * this causes a bug where the text of the icon becomes much smaller than is intended.
+	 *
+	 * @param button button to tie the action to
+	 * @param action action to tie to the button
+	 */
+	public static void tieActionToButton(JButton button, Action action) {
+		button.setAction(action);
 	}
 	
 	
@@ -418,44 +440,32 @@ public class RocketActions {
 	 * should be pasted.  Returns null if the clipboard is empty or if the
 	 * clipboard cannot be pasted to the current selection.
 	 * 
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @param	pasteComponent	the component where copyComponent should be pasted to.
+	 * @param   srcComponent	the component to be copy-pasted.
+	 * @param	destComponent	the component where srcComponent should be pasted to.
 	 * @return  a Pair with both components defined, or null.
 	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent, RocketComponent pasteComponent) {
-		if (pasteComponent == null)
-			return null;
+	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent srcComponent, RocketComponent destComponent) {
+		if (destComponent == null)
+			return new Pair<>(null, null);
 
-		if (copyComponent == null)
-			return null;
+		if (srcComponent == null)
+			return new Pair<>(null, null);
 
-		if (pasteComponent.isCompatible(copyComponent))
-			return new Pair<RocketComponent, Integer>(pasteComponent, pasteComponent.getChildCount());
+		if (destComponent.isCompatible(srcComponent))
+			return new Pair<>(destComponent, destComponent.getChildCount());
 
-		RocketComponent parent = pasteComponent.getParent();
-		return getPastePositionFromParent(copyComponent, parent);
+		RocketComponent parent = destComponent.getParent();
+		return getPastePositionFromParent(srcComponent, destComponent, parent);
 	}
 
-	/**
-	 * Return the component and position to which the current clipboard
-	 * should be pasted.  Returns null if the clipboard is empty or if the
-	 * clipboard cannot be pasted to the current selection.
-	 *
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @return  a Pair with both components defined, or null.
-	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent) {
-		RocketComponent selected = selectionModel.getSelectedComponent();
-		return getPastePosition(copyComponent, selected);
-	}
-
-	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent component, RocketComponent parent) {
-		if (parent != null && parent.isCompatible(component)) {
-			int index = parent.getChildPosition(parent) + 1;
+	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent srcComponent, RocketComponent destComponent,
+																	  RocketComponent parent) {
+		if (parent != null && parent.isCompatible(srcComponent)) {
+			int index = parent.getChildPosition(destComponent) + 1;
 			return new Pair<>(parent, index);
 		}
 
-		return null;
+		return new Pair<>(null, null);
 	}
 
 	/**
@@ -468,8 +478,9 @@ public class RocketActions {
 	 */
 	private List<Pair<RocketComponent, Integer>> getPastePositions(List<RocketComponent> clipboard) {
 		List<Pair<RocketComponent, Integer>> result = new LinkedList<>();
+		RocketComponent selected = selectionModel.getSelectedComponent();
 		for (RocketComponent component : clipboard) {
-			Pair<RocketComponent, Integer> position = getPastePosition(component);
+			Pair<RocketComponent, Integer> position = getPastePosition(component, selected);
 			if (position != null) {
 				result.add(position);
 			}
@@ -608,7 +619,7 @@ public class RocketActions {
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			} else {
 				deleteComponentAction.actionPerformed(e);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			}
 		}
 
@@ -659,10 +670,11 @@ public class RocketActions {
 				}
 
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				delete(components);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (isSimulationSelected()) {
 
 				Simulation[] simsCopy = new Simulation[sims.length];
@@ -717,9 +729,10 @@ public class RocketActions {
 
 			if (isCopyable(components)) {
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (sims != null && sims.length > 0) {
 				Simulation[] simsCopy = new Simulation[sims.length];
 				for (int i=0; i < sims.length; i++) {
@@ -773,10 +786,7 @@ public class RocketActions {
 					pasted.add(component.copy());
 				}
 
-				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : pasted) {
-					positions.add(getPastePosition(component));
-				}
+				List<Pair<RocketComponent, Integer>> positions = getPastePositions(pasted);
 
 				if (pasted.size() == 1) {
 					document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
@@ -792,14 +802,20 @@ public class RocketActions {
 										pasted.get(i).getComponentName()),
 								trans.get("RocketActions.PasteAct.invalidPosition.title"), JOptionPane.WARNING_MESSAGE);
 					} else {
-						positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
-						successfullyPasted.add(pasted.get(i));
+						RocketComponent parent = positions.get(i).getU();
+						RocketComponent child = pasted.get(i);
+						if (parent != null && parent.isCompatible(child)) {
+							parent.addChild(child, positions.get(i).getV());
+							successfullyPasted.add(pasted.get(i));
+						} else {
+							log.warn("Pasted component {} is not compatible with {}", child, parent);
+						}
 					}
 				}
 
 				selectionModel.setSelectedComponents(successfullyPasted);
 				
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 				
 			} else if (sims != null) {
 				
@@ -849,10 +865,18 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			List<RocketComponent> topComponents = new LinkedList<>();		// Components without a parent component in <components>
 			if (components != null) {
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
+			} else {
+				return;
+			}
+			for (RocketComponent c: components) {
+				if (!RocketComponent.listContainsParent(components, c)) {
+					topComponents.add(c);
+				}
 			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
@@ -875,7 +899,8 @@ public class RocketActions {
 					if (RocketComponent.listContainsParent(duplicateComponents, component)) {
 						pos = getPastePosition(component, component.getParent());
 					} else {
-						RocketComponent pasteParent = components.get(duplicateComponents.indexOf(component)).getParent();
+						int compIdx = duplicateComponents.indexOf(component);
+						RocketComponent pasteParent = topComponents.get(compIdx).getParent();
 						pos = getPastePosition(component, pasteParent);
 					}
 					positions.add(pos);
@@ -896,7 +921,7 @@ public class RocketActions {
 
 				selectionModel.setSelectedComponents(duplicateComponents);
 
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (sims != null && sims.length > 0) {
 				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
 
@@ -1009,46 +1034,6 @@ public class RocketActions {
 		}
 	}
 	
-	
-	
-	
-	
-	/**
-	 * Action to add a new stage to the rocket.
-	 */
-	private class NewStageAction extends RocketAction {
-		private static final long serialVersionUID = 1L;
-
-		public NewStageAction() {
-			//// New stage
-			this.putValue(NAME, trans.get("RocketActions.NewStageAct.Newstage"));
-			//// Add a new stage to the rocket design.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.NewStageAct.Newstage"));
-			clipboardChanged();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			
-			ComponentConfigDialog.disposeDialog();
-
-			RocketComponent stage = new AxialStage();
-
-			//// Add stage
-			document.addUndoPosition("Add stage");
-			rocket.addChild(stage);
-			rocket.getSelectedConfiguration().setAllStages();
-			selectionModel.setSelectedComponent(stage);
-			ComponentConfigDialog.showDialog(parentFrame, document, stage);
-			
-		}
-
-		@Override
-		public void clipboardChanged() {
-			this.setEnabled(true);
-		}
-	}
-
 
 
 	
@@ -1061,6 +1046,7 @@ public class RocketActions {
 		public MoveUpAction() {
 			//// Move up
 			this.putValue(NAME, trans.get("RocketActions.MoveUpAct.Moveup"));
+			this.putValue(SMALL_ICON, Icons.UP);
 			//// Move this component upwards.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveUpAct.ttip.Moveup"));
 			clipboardChanged();
@@ -1136,6 +1122,7 @@ public class RocketActions {
 		public MoveDownAction() {
 			//// Move down
 			this.putValue(NAME, trans.get("RocketActions.MoveDownAct.Movedown"));
+			this.putValue(SMALL_ICON, Icons.DOWN);
 			//// Move this component downwards.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveDownAct.ttip.Movedown"));
 			clipboardChanged();

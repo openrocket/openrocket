@@ -963,8 +963,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 				MathUtil.equals(getTabLength(), 0)){
 			return new Coordinate[]{};
 		}
+
+		Coordinate[] rootPoints = getRootPoints();
 	
-		final int pointCount = 5;
+		final int pointCount = 5 + rootPoints.length;
 		Coordinate[] points = new Coordinate[pointCount];
 		final Coordinate finFront = this.getFinFront();
 		
@@ -987,7 +989,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		points[1] = new Coordinate(xTabFront, yTabBottom );
 		points[2] = new Coordinate(xTabTrail, yTabBottom );
 		points[3] = new Coordinate(xTabTrail, yTabTrail);
-		points[4] = new Coordinate(xTabFront, yTabFront);
+		for (int i = 0; i < rootPoints.length; i++) {
+			points[i + 4] = rootPoints[rootPoints.length - 1 -i];
+		}
+		points[pointCount - 1] = new Coordinate(xTabFront, yTabFront);
 
 		return points;
 	}
@@ -1009,7 +1014,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
-		return combineCurves(getFinPoints(), getTabPoints());
+		Coordinate[] temp = combineCurves(getFinPoints(), getRootPoints());
+		return combineCurves(temp, getTabPoints());
 	}
 	
 	@Override
@@ -1226,36 +1232,37 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return points representing the mount's points
 	 */
 	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
-		if( null == parent){
+		if (parent == null) {
 			return new Coordinate[]{Coordinate.ZERO};
 		}
 
-		// for a simple bodies, one increment is perfectly accurate.
+		// for a simple body, one increment is perfectly accurate.
 		int divisionCount = 1;
-		// cast-assert
 		final SymmetricComponent body = (SymmetricComponent) getParent();
+		final double intervalLength = xEnd - xStart;
 
 		// for anything more complicated, increase the count: 
-		if( ( body instanceof Transition) && ( ((Transition)body).getType() != Shape.CONICAL )){
-			// the maximum precision to enforce when calculating the areas of fins ( especially on curved parent bodies)
-			final double xWidth = 0.005; // width of each individual iteration
-			divisionCount = (int)Math.ceil(  (xEnd - xStart) / xWidth );
+		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
+			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
+			final double xWidth = 0.0025; // width (in meters) of each individual iteration
+			divisionCount = (int) Math.ceil(intervalLength / xWidth);
 			
 			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
 			final int maximumBodyDivisionCount = 100;
-			divisionCount = Math.min( maximumBodyDivisionCount, divisionCount);
+			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
 		}
-		
-		final double intervalLength = xEnd - xStart;
-		double increment = (intervalLength)/divisionCount;
-				
+
+		// Recalculate the x step increment, now with the (rounded) division count.
+		double xIncrement = intervalLength / divisionCount;
+
+		// Create the points: step through the radius of the parent
 		double xCur = xStart;
 		Coordinate[] points = new Coordinate[divisionCount+1];
-		for( int index = 0; index < points.length; index++){
-			double yCur = body.getRadius( xCur );
-			points[index]=new Coordinate( xCur, yCur);
+		for (int index = 0; index < points.length; index++) {
+			double yCur = body.getRadius(xCur);
+			points[index] = new Coordinate(xCur, yCur);
 			
-			xCur += increment;
+			xCur += xIncrement;
 		}
 
 		// correct last point, if beyond a rounding error from body's end.
@@ -1264,7 +1271,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
 
-		if( 0.0000001 < (Math.abs(xOffset) + Math.abs(yOffset))){
+		// translate the points if needed
+		if ((Math.abs(xOffset) + Math.abs(yOffset)) > 0.0000001) {
 			points = translatePoints(points, xOffset, yOffset);
 		}
 
