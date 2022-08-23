@@ -608,7 +608,7 @@ public class RocketActions {
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			} else {
 				deleteComponentAction.actionPerformed(e);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			}
 		}
 
@@ -662,7 +662,7 @@ public class RocketActions {
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				delete(components);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (isSimulationSelected()) {
 
 				Simulation[] simsCopy = new Simulation[sims.length];
@@ -719,7 +719,7 @@ public class RocketActions {
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (sims != null && sims.length > 0) {
 				Simulation[] simsCopy = new Simulation[sims.length];
 				for (int i=0; i < sims.length; i++) {
@@ -799,7 +799,7 @@ public class RocketActions {
 
 				selectionModel.setSelectedComponents(successfullyPasted);
 				
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 				
 			} else if (sims != null) {
 				
@@ -896,7 +896,7 @@ public class RocketActions {
 
 				selectionModel.setSelectedComponents(duplicateComponents);
 
-				parentFrame.selectTab(BasicFrame.COMPONENT_TAB);
+				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 			} else if (sims != null && sims.length > 0) {
 				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
 

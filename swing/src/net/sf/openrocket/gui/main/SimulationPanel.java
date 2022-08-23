@@ -107,6 +107,8 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
 
+	private int[] previousSelection = null;
+
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
@@ -165,6 +167,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
+		simulationTable.setFillsViewportHeight(true);
 
 		// Context menu
 		pm = new JPopupMenu();
@@ -193,19 +196,33 @@ public class SimulationPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				int selectedRow = simulationTable.getSelectedRow();
 
-				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-					int selected = simulationTable.convertRowIndexToModel(selectedRow);
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					// Clear the table selection when clicked outside the table rows.
+					if (e.getClickCount() == 1) {
+						int row = simulationTable.rowAtPoint(e.getPoint());
+						int column = simulationTable.columnAtPoint(e.getPoint());
 
-					int column = simulationTable.columnAtPoint(e.getPoint());
-					if (column == 0) {
-						SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
-					} else {
-						simulationTable.clearSelection();
-						simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
-
-						openDialog(document.getSimulations().get(selected));
+						if (row == -1 || column == -1) {
+							simulationTable.clearSelection();
+						}
 					}
-				} else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+					// Edit the simulation or plot/export
+					else if (e.getClickCount() == 2) {
+						int selected = simulationTable.convertRowIndexToModel(selectedRow);
+
+						int column = simulationTable.columnAtPoint(e.getPoint());
+						if (column == 0) {
+							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
+						} else {
+							simulationTable.clearSelection();
+							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
+
+							openDialog(document.getSimulations().get(selected));
+						}
+					}
+				}
+				// Show context menu
+				else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
 					// Get the row that the right-click action happened on
 					int r = simulationTable.rowAtPoint(e.getPoint());
 
@@ -263,6 +280,10 @@ public class SimulationPanel extends JPanel {
 		updateButtonStates();
 	}
 
+	public void updatePreviousSelection() {
+		this.previousSelection = simulationTable.getSelectedRows();
+	}
+
 	private void newSimulation() {
 		Simulation sim = new Simulation(document.getRocket());
 		sim.setName(document.getNextSimulationName());
@@ -294,6 +315,7 @@ public class SimulationPanel extends JPanel {
 		}
 
 		fireMaintainSelection();
+		takeTheSpotlight();
 
 		openDialog(true, sim);
 	}
@@ -343,6 +365,7 @@ public class SimulationPanel extends JPanel {
 			document.removeSimulation(selection[i]);
 		}
 		simulationTableModel.fireTableDataChanged();
+		takeTheSpotlight();
 	}
 
 	private void runSimulation() {
@@ -354,6 +377,7 @@ public class SimulationPanel extends JPanel {
 				SimulationPanel.this), document, sims).setVisible(true);
 		log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
 		fireMaintainSelection();
+		takeTheSpotlight();
 	}
 
 	public void editSimulation() {
@@ -490,11 +514,13 @@ public class SimulationPanel extends JPanel {
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
+		takeTheSpotlight();
 	}
 
 	private void openDialog(final Simulation sim) {
 		boolean plotMode = false;
-		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.EXTERNAL)) {
+		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.LOADED
+				|| sim.getStatus() == Status.EXTERNAL)) {
 			plotMode = true;
 		}
 		openDialog(plotMode, sim);
@@ -987,6 +1013,24 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Focus on the simulation table and maintain the previous row selection(s).
+	 */
+	public void takeTheSpotlight() {
+		simulationTable.requestFocusInWindow();
+		if (simulationTable.getSelectedRows().length > 0) {
+			return;
+		}
+		if (previousSelection == null || previousSelection.length == 0) {
+			simulationTable.setRowSelectionInterval(0, 0);
+		} else {
+			simulationTable.clearSelection();
+			for (int row : previousSelection) {
+				simulationTable.addRowSelectionInterval(row, row);
+			}
+		}
+	}
+
 	private static class NextRowAction extends AbstractAction {
 		private final JTable table;
 		private final boolean cycle;
@@ -1048,6 +1092,5 @@ public class SimulationPanel extends JPanel {
 			table.getSelectionModel().setSelectionInterval(nextRow, nextRow);
 			table.getColumnModel().getSelectionModel().setSelectionInterval(0, 0);
 		}
-
 	}
 }
