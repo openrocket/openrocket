@@ -28,7 +28,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 	public void updateFields() {
 		super.updateFields();
 		
-		if (altitudeComponents == null)
+		if (altitudeComponents == null || altitudeComponents.size() == 0)
 			return;
 		
 		boolean enabled = (((RecoveryDevice) component).getDeploymentConfigurations().getDefault().getDeployEvent() == DeployEvent.ALTITUDE);
