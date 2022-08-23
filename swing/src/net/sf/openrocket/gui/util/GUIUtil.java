@@ -13,12 +13,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -52,9 +54,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -65,6 +69,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Invalidatable;
@@ -346,6 +351,33 @@ public class GUIUtil {
 				window.setSize(dim);
 			}
 		}
+	}
+
+	public static void rememberTableColumnWidths(final JTable table, String keyName) {
+		final String key = keyName == null ? table.getClass().getName() : keyName;
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			final int column = i;
+			table.getColumnModel().getColumn(i).addPropertyChangeListener(new PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					if (evt.getPropertyName().equals("width")) {
+						log.debug("Storing width of " + table.getName() + "-" + table.getColumnName(column) + ": " + table.getColumnModel().getColumn(column).getWidth());
+						((SwingPreferences) Application.getPreferences()).setTableColumnWidth(
+								key, column, table.getColumnModel().getColumn(column).getWidth());
+					}
+				}
+			});
+
+			final Integer width = ((SwingPreferences) Application.getPreferences()).getTableColumnWidth(
+					key, column);
+			if (width != null) {
+				table.getColumnModel().getColumn(column).setPreferredWidth(width);
+			}
+		}
+	}
+
+	public static void rememberTableColumnWidths(final JTable table) {
+		rememberTableColumnWidths(table, null);
 	}
 	
 	

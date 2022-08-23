@@ -116,6 +116,8 @@ public class OptimizationPlotDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
 		GUIUtil.rememberWindowSize(this);
+		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 	}
 	
 	

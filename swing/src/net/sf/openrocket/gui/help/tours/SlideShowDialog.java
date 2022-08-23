@@ -94,8 +94,9 @@ public class SlideShowDialog extends JDialog {
 		addKeyActions();
 		GUIUtil.setDisposableDialogOptions(this, nextButton);
 		nextButton.grabFocus();
-		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.rememberWindowSize(this);
+		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 		//		this.setAlwaysOnTop(true);
 	}
 	

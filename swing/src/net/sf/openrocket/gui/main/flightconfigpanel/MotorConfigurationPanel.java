@@ -3,8 +3,6 @@ package net.sf.openrocket.gui.main.flightconfigpanel;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,6 +31,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
+import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
@@ -65,7 +64,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel, rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
@@ -250,35 +249,11 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		return configurationTable;
 	}
 
-	@Override
-	protected void installTableListener() {
-		super.installTableListener();
-
-		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				updateComponentSelection(e);
-			}
-		});
-
-		table.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-
-			}
-		});
-	}
-
 	private void doPopupFull(MouseEvent e) {
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	public void updateComponentSelection(ListSelectionEvent e) {
+	public void updateRocketViewSelection(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
 			return;
 		}
@@ -294,7 +269,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		flightConfigurationPanel.setSelectedComponents(components);
 	}
 
-	protected void updateButtonState() {
+	public void updateButtonState() {
 		if( configurationTableModel.getColumnCount() > 1 ) {
 			showContent();
 			
@@ -356,6 +331,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 
@@ -420,6 +397,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 
@@ -448,6 +427,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 

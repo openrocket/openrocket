@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main.flightconfigpanel;
+package net.sf.openrocket.gui.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -20,7 +20,10 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.RenameConfigDialog;
-import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurablePanel;
+import net.sf.openrocket.gui.main.flightconfigpanel.MotorConfigurationPanel;
+import net.sf.openrocket.gui.main.flightconfigpanel.RecoveryConfigurationPanel;
+import net.sf.openrocket.gui.main.flightconfigpanel.SeparationConfigurationPanel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
@@ -111,20 +114,30 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.add(duplicateConfButton, "wrap");
 
 		tabs.addChangeListener(new ChangeListener() {
+			private FlightConfigurablePanel<?> previousPanel = motorConfigurationPanel;
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Trigger a selection of the motor/recovery/configuration item
+				FlightConfigurablePanel<?> panel = null;
 				switch (tabs.getSelectedIndex()) {
 					case MOTOR_TAB_INDEX:
-						motorConfigurationPanel.updateButtonState();
+						panel = motorConfigurationPanel;
 						break;
 					case RECOVERY_TAB_INDEX:
-						recoveryConfigurationPanel.updateButtonState();
+						panel = recoveryConfigurationPanel;
 						break;
 					case SEPARATION_TAB_INDEX:
-						separationConfigurationPanel.updateButtonState();
+						panel = separationConfigurationPanel;
 						break;
 				}
+
+				// Update the panel selection, focus, and button state
+				if (panel == null) return;
+				synchronizePanelSelection(previousPanel, panel);
+				panel.updateButtonState();
+				panel.takeTheSpotlight();
+				panel.updateRocketViewSelection();
+				previousPanel = panel;
 			}
 		});
 
@@ -230,6 +243,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		}
 
 		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		takeTheSpotlight();
 	}
 
 	public void doPopupConfig(MouseEvent e) {
@@ -292,6 +306,19 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			tabs.setSelectedIndex(MOTOR_TAB_INDEX);
 		}
 
+	}
+
+	/**
+	 * Synchronize the table row selection of a target panel with the selection in the source panel.
+	 */
+	private void synchronizePanelSelection(FlightConfigurablePanel<?> source, FlightConfigurablePanel<?> target) {
+		if (source == null || target == null) return;
+		List<FlightConfigurationId> fids = source.getSelectedConfigurationIds();
+		if (fids == null || fids.isEmpty()) {
+			target.clearSelection();
+		} else {
+			target.setSelectedConfigurationIds(fids);
+		}
 	}
 
 	private List<FlightConfigurationId> getSelectedConfigurationIds() {
@@ -364,6 +391,26 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			newOrDuplicateConfigAction(true);
+		}
+	}
+
+	/**
+	 * Focus on the table of the config panel that is currently opened.
+	 */
+	public void takeTheSpotlight() {
+		switch (tabs.getSelectedIndex()) {
+			case MOTOR_TAB_INDEX:
+				motorConfigurationPanel.takeTheSpotlight();
+				motorConfigurationPanel.updateRocketViewSelection();
+				break;
+			case RECOVERY_TAB_INDEX:
+				recoveryConfigurationPanel.takeTheSpotlight();
+				recoveryConfigurationPanel.updateRocketViewSelection();
+				break;
+			case SEPARATION_TAB_INDEX:
+				separationConfigurationPanel.takeTheSpotlight();
+				separationConfigurationPanel.updateRocketViewSelection();
+				break;
 		}
 	}
 }
