@@ -24,8 +24,6 @@ import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurablePanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.MotorConfigurationPanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.RecoveryConfigurationPanel;
 import net.sf.openrocket.gui.main.flightconfigpanel.SeparationConfigurationPanel;
-import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.RocketActions;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
