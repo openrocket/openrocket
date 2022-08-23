@@ -4,9 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -19,16 +17,12 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -60,7 +54,6 @@ import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
-import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import net.sf.openrocket.gui.util.FileHelper;
@@ -75,7 +68,6 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -108,9 +100,10 @@ public class BasicFrame extends JFrame {
 	public static final int SHIFT_SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() |
 			SHIFT_DOWN_MASK;
 
-	public static final int COMPONENT_TAB = 0;
-	public static final int CONFIGURATION_TAB = 1;
+	public static final int DESIGN_TAB = 0;
+	public static final int FLIGHT_CONFIGURATION_TAB = 1;
 	public static final int SIMULATION_TAB = 2;
+	private int previousTab = DESIGN_TAB;
 
 
 	/**
@@ -142,7 +135,9 @@ public class BasicFrame extends JFrame {
 	/** Actions available for rocket modifications */
 	private final RocketActions actions;
 
-	private SimulationPanel simulationPanel;
+	private final DesignPanel designPanel;
+	private final FlightConfigurationPanel flightConfigurationPanel;
+	private final SimulationPanel simulationPanel;
 
 	public static BasicFrame lastFrameInstance = null;		// Latest BasicFrame that was created
 	private static boolean quitCalled = false;				// Keeps track whether the quit action has been called
@@ -166,56 +161,63 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel = new DefaultTreeSelectionModel();
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
-		//	Obtain the simulation selection model that will be used
-		simulationPanel = new SimulationPanel(document);
-		simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
-
-		//	Combine into a DocumentSelectionModel
-		selectionModel = new DocumentSelectionModel(document);
-		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
-		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
-
-		actions = new RocketActions(document, selectionModel, this, simulationPanel);
-
-		// Populate the popup menu
-		popupMenu = new JPopupMenu();
-		popupMenu.add(actions.getEditAction());
-		popupMenu.add(actions.getCutAction());
-		popupMenu.add(actions.getCopyAction());
-		popupMenu.add(actions.getPasteAction());
-		popupMenu.add(actions.getDuplicateAction());
-		popupMenu.add(actions.getDeleteAction());
-		popupMenu.addSeparator();
-		popupMenu.add(actions.getScaleAction());
-
+		// ----- Create the different BasicFrame panels -----
 		log.debug("Constructing the BasicFrame UI");
 
-		// The main vertical split pane
-		JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
-		vertical.setResizeWeight(0.5);
-		this.add(vertical);
+		////	Top segment, tabbed pane
+		simulationPanel = new SimulationPanel(document);
+		{
+			//	Obtain the simulation selection model that will be used
+			simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
 
-		//	The top tabbed pane
+			//	Combine into a DocumentSelectionModel
+			selectionModel = new DocumentSelectionModel(document);
+			selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
+			selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
+
+			// Create RocketActions
+			actions = new RocketActions(document, selectionModel, this, simulationPanel);
+		}
+		{
+			// Create the component tree
+			tree = new ComponentTree(document);
+			tree.setSelectionModel(componentSelectionModel);
+		}
+
+		designPanel = new DesignPanel(this, document, tree);
+		flightConfigurationPanel = new FlightConfigurationPanel(this, document);
 		tabbedPane = new JTabbedPane();
-		//// Rocket design
-		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designTab());
-		//// Flight configurations
-		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(this, document));
-		//// Flight simulations
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designPanel);
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, flightConfigurationPanel);
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 
 		//	Add change listener to catch when the tabs are changed.  This is to run simulations
 		//	automatically when the simulation tab is selected.
 		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
 
-		vertical.setTopComponent(tabbedPane);
-
-		//  Bottom segment, rocket figure
-
+		////  Bottom segment, rocket figure
 		rocketpanel = new RocketPanel(document, this);
-		vertical.setBottomComponent(rocketpanel);
-
 		rocketpanel.setSelectionModel(tree.getSelectionModel());
+
+		//// The main vertical split pane
+		JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		vertical.setResizeWeight(0.5);
+		vertical.setTopComponent(tabbedPane);
+		vertical.setBottomComponent(rocketpanel);
+		this.add(vertical);
+
+		// Populate the popup menu
+		{
+			popupMenu = new JPopupMenu();
+			popupMenu.add(actions.getEditAction());
+			popupMenu.add(actions.getCutAction());
+			popupMenu.add(actions.getCopyAction());
+			popupMenu.add(actions.getPasteAction());
+			popupMenu.add(actions.getDuplicateAction());
+			popupMenu.add(actions.getDeleteAction());
+			popupMenu.addSeparator();
+			popupMenu.add(actions.getScaleAction());
+		}
 
 		createMenu();
 
@@ -241,6 +243,7 @@ public class BasicFrame extends JFrame {
 		GUIUtil.rememberWindowSize(this);
 
 		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 
 		GUIUtil.setWindowIcons(this);
 
@@ -268,201 +271,6 @@ public class BasicFrame extends JFrame {
 			}
 		}
 		log.debug("BasicFrame instantiation complete");
-	}
-
-
-	/**
-	 * Construct the "Rocket design" tab.  This contains a horizontal split pane
-	 * with the left component the design tree and the right component buttons
-	 * for adding components.
-	 */
-	private JComponent designTab() {
-		JSplitPane horizontal = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-		horizontal.setResizeWeight(0.5);
-
-
-		//  Upper-left segment, component tree
-
-		JPanel panel = new JPanel(new MigLayout("fill, flowy", "[grow][grow 0]","[grow]"));
-
-		tree = new ComponentTree(document);
-		tree.setSelectionModel(componentSelectionModel);
-
-		// Remove JTree key events that interfere with menu accelerators
-		InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
-
-		// Visually select all child components of a stage/rocket/podset when it is selected
-		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
-						|| rocketpanel == null) return;
-
-				// Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
-				List<RocketComponent> children = new ArrayList<>(Arrays.asList(rocketpanel.getFigure().getSelection()));
-				for (TreePath p : tree.getSelectionPaths()) {
-					if (p != null) {
-						RocketComponent c = (RocketComponent) p.getLastPathComponent();
-						if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
-							Iterator<RocketComponent> iter = c.iterator(false);
-							while (iter.hasNext()) {
-								RocketComponent child = iter.next();
-								children.add(child);
-							}
-						}
-					}
-				}
-
-				// Select all the child components
-				if (rocketpanel.getFigure() != null && rocketpanel.getFigure3d() != null) {
-					rocketpanel.getFigure().setSelection(children.toArray(new RocketComponent[0]));
-					rocketpanel.getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
-				}
-			}
-		});
-
-		// Double-click opens config dialog
-		MouseListener ml = new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int selRow = tree.getRowForLocation(e.getX(), e.getY());
-				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-				if (selRow != -1) {
-					if (selPath == null) return;
-
-					// Double-click
-					if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
-						RocketComponent component = (RocketComponent) selPath.getLastPathComponent();
-
-						// Multi-component edit if shift/meta key is pressed
-						if ((e.isShiftDown() || e.isMetaDown()) && tree.getSelectionPaths() != null) {
-							// Add the other selected components as listeners to the last selected component
-							for (TreePath p : tree.getSelectionPaths()) {
-								if (p != null) {
-									if (p.getLastPathComponent() == component) continue;
-									RocketComponent c = (RocketComponent) p.getLastPathComponent();
-									c.clearConfigListeners();
-									component.addConfigListener(c);
-								}
-							}
-
-							// Add the selection path to the tree selection
-							List<TreePath> paths = new LinkedList<>(Arrays.asList(tree.getSelectionPaths()));
-							paths.add(selPath);
-							tree.setSelectionPaths(paths.toArray(new TreePath[0]));
-						}
-
-						ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, component);
-					}
-					// Context menu
-					else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
-						if (!tree.isPathSelected(selPath)) {
-							// Select new path
-							tree.setSelectionPath(selPath);
-						}
-
-						doComponentTreePopup(e);
-					}
-				} else {	// Clicked on blank space
-					tree.clearSelection();
-				}
-			}
-		};
-		tree.addMouseListener(ml);
-
-		// Update dialog when selection is changed
-		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				// Scroll tree to the selected item
-				TreePath[] paths = componentSelectionModel.getSelectionPaths();
-				if (paths == null || paths.length == 0)
-					return;
-
-				for (TreePath path : paths) {
-					tree.scrollPathToVisible(path);
-				}
-
-				if (!ComponentConfigDialog.isDialogVisible())
-					return;
-				else
-					ComponentConfigDialog.disposeDialog();
-
-				RocketComponent c = (RocketComponent) paths[0].getLastPathComponent();
-				c.clearConfigListeners();
-				for (int i = 1; i < paths.length; i++) {
-					RocketComponent listener = (RocketComponent) paths[i].getLastPathComponent();
-					listener.clearConfigListeners();
-					c.addConfigListener(listener);
-				}
-				ComponentConfigDialog.showDialog(BasicFrame.this, BasicFrame.this.document, c);
-			}
-		});
-
-		// Place tree inside scroll pane
-		JScrollPane scroll = new JScrollPane(tree);
-		panel.add(scroll, "spany, grow, wrap");
-
-
-		// Buttons
-		JButton button = new IconButton();
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		RocketActions.tieActionToButton(button, actions.getMoveUpAction());
-		panel.add(button, "sizegroup buttons, aligny 65%");
-
-		button = new IconButton();
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		RocketActions.tieActionToButton(button, actions.getMoveDownAction());
-		panel.add(button, "sizegroup buttons, aligny 0%");
-
-		button = new IconButton();
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		RocketActions.tieActionToButton(button, actions.getEditAction());
-		button.setMnemonic(0);
-		panel.add(button, "sizegroup buttons, gaptop 20%");
-
-		button = new IconButton();
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		RocketActions.tieActionToButton(button, actions.getDuplicateAction());
-		button.setMnemonic(0);
-		panel.add(button, "sizegroup buttons");
-
-		button = new IconButton();
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-		RocketActions.tieActionToButton(button, actions.getDeleteAction());
-		button.setMnemonic(0);
-		panel.add(button, "sizegroup buttons");
-
-		horizontal.setLeftComponent(panel);
-
-
-		//  Upper-right segment, component addition buttons
-
-		panel = new JPanel(new MigLayout("fill, insets 0", "[0::]"));
-
-		scroll = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setViewportView(new ComponentAddButtons(document, componentSelectionModel,
-				scroll.getViewport()));
-		scroll.setBorder(null);
-		scroll.setViewportBorder(null);
-
-		TitledBorder border = BorderFactory.createTitledBorder(trans.get("BasicFrame.title.Addnewcomp"));
-		GUIUtil.changeFontStyle(border, Font.BOLD);
-		scroll.setBorder(border);
-
-		panel.add(scroll, "grow");
-
-		horizontal.setRightComponent(panel);
-
-		return horizontal;
 	}
 
 
@@ -991,6 +799,10 @@ public class BasicFrame extends JFrame {
 		this.setJMenuBar(menubar);
 	}
 
+	public RocketActions getRocketActions() {
+		return actions;
+	}
+
 	public void doComponentTreePopup(MouseEvent e) {
 		popupMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -1256,7 +1068,7 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Select the tab on the main pane.
 	 *
-	 * @param tab	one of {@link #COMPONENT_TAB} or {@link #SIMULATION_TAB}.
+	 * @param tab	one of {@link #DESIGN_TAB}, {@link #FLIGHT_CONFIGURATION_TAB} or {@link #SIMULATION_TAB}.
 	 */
 	public void selectTab(int tab) {
 		tabbedPane.setSelectedIndex(tab);
@@ -1940,8 +1752,21 @@ public class BasicFrame extends JFrame {
 	public void stateChanged(ChangeEvent e) {
 		JTabbedPane tabSource = (JTabbedPane) e.getSource();
 		int tab = tabSource.getSelectedIndex();
-		if (tab == SIMULATION_TAB) {
-			simulationPanel.activating();
+		if (previousTab == SIMULATION_TAB) {
+			simulationPanel.updatePreviousSelection();
+		}
+		previousTab = tab;
+		switch (tab) {
+			case DESIGN_TAB:
+				designPanel.takeTheSpotlight();
+				break;
+			case FLIGHT_CONFIGURATION_TAB:
+				flightConfigurationPanel.takeTheSpotlight();
+				break;
+			case SIMULATION_TAB:
+				simulationPanel.takeTheSpotlight();
+				simulationPanel.activating();
+				break;
 		}
 	}
 

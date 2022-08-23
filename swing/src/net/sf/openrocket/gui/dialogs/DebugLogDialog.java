@@ -381,7 +381,7 @@ public class DebugLogDialog extends JDialog {
 		});
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(parent);
 		followBox.requestFocus();
 	}
 	

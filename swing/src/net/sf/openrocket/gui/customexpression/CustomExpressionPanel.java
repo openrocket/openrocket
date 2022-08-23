@@ -236,7 +236,7 @@ public class CustomExpressionPanel extends JPanel {
 			
 			JButton deleteButton = new SelectColorButton(Icons.EDIT_DELETE);
 			//// Remove this expression
-			deleteButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Remove"));
+			deleteButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Delete"));
 			deleteButton.setBorderPainted(false);
 			deleteButton.addActionListener(new ActionListener() {
 				@Override

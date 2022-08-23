@@ -1,8 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,6 +23,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
+import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
@@ -43,7 +42,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
 
 		JScrollPane scroll = new JScrollPane(table);
@@ -53,7 +52,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		AbstractAction selectDeploymentAction = new SelectDeploymentAction();
 		AbstractAction resetDeploymentAction = new ResetDeploymentAction();
 		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getDeleteConfigAction();
 		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
@@ -165,30 +164,6 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		return recoveryTable;
 	}
 
-	@Override
-	protected void installTableListener() {
-		super.installTableListener();
-
-		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				updateComponentSelection(e);
-			}
-		});
-
-		table.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				updateComponentSelection(new ListSelectionEvent(this, 0, 0, false));
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-
-			}
-		});
-	}
-
 	public void selectDeployment() {
 		List<RecoveryDevice> devices = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
@@ -235,6 +210,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 
 	}
@@ -259,6 +236,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		}
 		if (update) {
 			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		} else {
+			table.requestFocusInWindow();
 		}
 	}
 
@@ -266,7 +245,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		popupMenuFull.show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	public void updateComponentSelection(ListSelectionEvent e) {
+	public void updateRocketViewSelection(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() || getSelectedComponents() == null) {
 			return;
 		}

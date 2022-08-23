@@ -305,6 +305,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		
 		while (!toProcess.isEmpty()) {
 			RocketComponent comp = toProcess.poll();
+			if (comp == null) {
+				continue;
+			}
 			
 			toReturn.add(comp);
 			for (RocketComponent child : comp.getChildren()) {

@@ -163,9 +163,11 @@ public class EditDecalDialog extends JDialog {
 		panel.add(cancelButton, "tag cancel");
 		
 		this.add(panel);
-		
-		GUIUtil.rememberWindowSize(this);
+
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+		GUIUtil.rememberWindowSize(this);
+		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 		
 	}
 	

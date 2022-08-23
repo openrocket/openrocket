@@ -278,8 +278,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(addButton);
 		sub.add(addButton, "wrap para, sg button");
 		
-		removeButton = new SelectColorButton("   " + trans.get("btn.remove") + " " + Chars.RIGHT_ARROW);
-		removeButton.setToolTipText(trans.get("btn.remove.ttip"));
+		removeButton = new SelectColorButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
+		removeButton.setToolTipText(trans.get("btn.delete.ttip"));
 		removeButton.addActionListener(e -> {
 			SimulationModifier mod = getSelectedModifier();
 			if (mod == null) {
@@ -297,8 +297,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(removeButton);
 		sub.add(removeButton, "wrap para*2, sg button");
 		
-		removeAllButton = new SelectColorButton(trans.get("btn.removeAll"));
-		removeAllButton.setToolTipText(trans.get("btn.removeAll.ttip"));
+		removeAllButton = new SelectColorButton(trans.get("btn.deleteAll"));
+		removeAllButton.setToolTipText(trans.get("btn.deleteAll.ttip"));
 		removeAllButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
