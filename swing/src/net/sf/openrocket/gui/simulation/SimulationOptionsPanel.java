@@ -375,7 +375,7 @@ class SimulationOptionsPanel extends JPanel {
 				this.add(button, "right");
 			}
 			
-			button = new SelectColorButton(Icons.DELETE);
+			button = new SelectColorButton(Icons.EDIT_DELETE);
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {

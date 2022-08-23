@@ -4,9 +4,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
-import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.widgets.SelectColorButton;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -23,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -183,24 +183,31 @@ public class DesignPanel extends JSplitPane {
 
 
         // Buttons
-        JButton button = new SelectColorButton(parent.getRocketActions().getMoveUpAction());
+        JButton button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getMoveUpAction());
         panel.add(button, "sizegroup buttons, aligny 65%");
 
-        button = new SelectColorButton(parent.getRocketActions().getMoveDownAction());
+        button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getMoveDownAction());
         panel.add(button, "sizegroup buttons, aligny 0%");
 
-        button = new SelectColorButton(parent.getRocketActions().getEditAction());
-        button.setIcon(null);
+        button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getEditAction());
         button.setMnemonic(0);
         panel.add(button, "sizegroup buttons, gaptop 20%");
 
-        button = new SelectColorButton(parent.getRocketActions().getDuplicateAction());
-        button.setIcon(null);
+        button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getDuplicateAction());
         button.setMnemonic(0);
         panel.add(button, "sizegroup buttons");
 
-        button = new SelectColorButton(parent.getRocketActions().getDeleteAction());
-        button.setIcon(null);
+        button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getDeleteAction());
         button.setMnemonic(0);
         panel.add(button, "sizegroup buttons");
 
