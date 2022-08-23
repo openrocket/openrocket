@@ -440,44 +440,32 @@ public class RocketActions {
 	 * should be pasted.  Returns null if the clipboard is empty or if the
 	 * clipboard cannot be pasted to the current selection.
 	 * 
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @param	pasteComponent	the component where copyComponent should be pasted to.
+	 * @param   srcComponent	the component to be copy-pasted.
+	 * @param	destComponent	the component where srcComponent should be pasted to.
 	 * @return  a Pair with both components defined, or null.
 	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent, RocketComponent pasteComponent) {
-		if (pasteComponent == null)
-			return null;
+	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent srcComponent, RocketComponent destComponent) {
+		if (destComponent == null)
+			return new Pair<>(null, null);
 
-		if (copyComponent == null)
-			return null;
+		if (srcComponent == null)
+			return new Pair<>(null, null);
 
-		if (pasteComponent.isCompatible(copyComponent))
-			return new Pair<RocketComponent, Integer>(pasteComponent, pasteComponent.getChildCount());
+		if (destComponent.isCompatible(srcComponent))
+			return new Pair<>(destComponent, destComponent.getChildCount());
 
-		RocketComponent parent = pasteComponent.getParent();
-		return getPastePositionFromParent(copyComponent, parent);
+		RocketComponent parent = destComponent.getParent();
+		return getPastePositionFromParent(srcComponent, destComponent, parent);
 	}
 
-	/**
-	 * Return the component and position to which the current clipboard
-	 * should be pasted.  Returns null if the clipboard is empty or if the
-	 * clipboard cannot be pasted to the current selection.
-	 *
-	 * @param   copyComponent	the component to be copy-pasted.
-	 * @return  a Pair with both components defined, or null.
-	 */
-	private Pair<RocketComponent, Integer> getPastePosition(RocketComponent copyComponent) {
-		RocketComponent selected = selectionModel.getSelectedComponent();
-		return getPastePosition(copyComponent, selected);
-	}
-
-	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent component, RocketComponent parent) {
-		if (parent != null && parent.isCompatible(component)) {
-			int index = parent.getChildPosition(parent) + 1;
+	private Pair<RocketComponent, Integer> getPastePositionFromParent(RocketComponent srcComponent, RocketComponent destComponent,
+																	  RocketComponent parent) {
+		if (parent != null && parent.isCompatible(srcComponent)) {
+			int index = parent.getChildPosition(destComponent) + 1;
 			return new Pair<>(parent, index);
 		}
 
-		return null;
+		return new Pair<>(null, null);
 	}
 
 	/**
@@ -490,8 +478,9 @@ public class RocketActions {
 	 */
 	private List<Pair<RocketComponent, Integer>> getPastePositions(List<RocketComponent> clipboard) {
 		List<Pair<RocketComponent, Integer>> result = new LinkedList<>();
+		RocketComponent selected = selectionModel.getSelectedComponent();
 		for (RocketComponent component : clipboard) {
-			Pair<RocketComponent, Integer> position = getPastePosition(component);
+			Pair<RocketComponent, Integer> position = getPastePosition(component, selected);
 			if (position != null) {
 				result.add(position);
 			}
@@ -681,6 +670,7 @@ public class RocketActions {
 				}
 
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				delete(components);
@@ -739,6 +729,7 @@ public class RocketActions {
 
 			if (isCopyable(components)) {
 				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
 				OpenRocketClipboard.setClipboard(copiedComponents);
 				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
@@ -795,10 +786,7 @@ public class RocketActions {
 					pasted.add(component.copy());
 				}
 
-				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : pasted) {
-					positions.add(getPastePosition(component));
-				}
+				List<Pair<RocketComponent, Integer>> positions = getPastePositions(pasted);
 
 				if (pasted.size() == 1) {
 					document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
@@ -814,8 +802,14 @@ public class RocketActions {
 										pasted.get(i).getComponentName()),
 								trans.get("RocketActions.PasteAct.invalidPosition.title"), JOptionPane.WARNING_MESSAGE);
 					} else {
-						positions.get(i).getU().addChild(pasted.get(i), positions.get(i).getV());
-						successfullyPasted.add(pasted.get(i));
+						RocketComponent parent = positions.get(i).getU();
+						RocketComponent child = pasted.get(i);
+						if (parent != null && parent.isCompatible(child)) {
+							parent.addChild(child, positions.get(i).getV());
+							successfullyPasted.add(pasted.get(i));
+						} else {
+							log.warn("Pasted component {} is not compatible with {}", child, parent);
+						}
 					}
 				}
 
@@ -871,10 +865,18 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			List<RocketComponent> topComponents = new LinkedList<>();		// Components without a parent component in <components>
 			if (components != null) {
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
+			} else {
+				return;
+			}
+			for (RocketComponent c: components) {
+				if (!RocketComponent.listContainsParent(components, c)) {
+					topComponents.add(c);
+				}
 			}
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
@@ -897,7 +899,8 @@ public class RocketActions {
 					if (RocketComponent.listContainsParent(duplicateComponents, component)) {
 						pos = getPastePosition(component, component.getParent());
 					} else {
-						RocketComponent pasteParent = components.get(duplicateComponents.indexOf(component)).getParent();
+						int compIdx = duplicateComponents.indexOf(component);
+						RocketComponent pasteParent = topComponents.get(compIdx).getParent();
 						pos = getPastePosition(component, pasteParent);
 					}
 					positions.add(pos);
