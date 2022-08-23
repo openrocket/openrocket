@@ -52,7 +52,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	
 	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
 
-	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
+	private final JButton selectMotorButton, deleteMotorButton, selectIgnitionButton, resetIgnitionButton;
 
 	private final JPanel cards;
 	private final static String HELP_LABEL = "help";
@@ -86,23 +86,23 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		// Get all the actions
 		AbstractAction selectMotorAction = new SelectMotorAction();
-		AbstractAction removeMotorAction = new RemoveMotorAction();
+		AbstractAction deleteMotorAction = new DeleteMotorAction();
 		AbstractAction selectIgnitionAction = new SelectIgnitionAction();
 		AbstractAction resetIgnitionAction = new ResetIgnitionAction();
 		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction deleteConfigAction = flightConfigurationPanel.getDeleteConfigAction();
 		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
 		popupMenuFull = new JPopupMenu();
 		popupMenuFull.add(selectMotorAction);
-		popupMenuFull.add(removeMotorAction);
+		popupMenuFull.add(deleteMotorAction);
 		popupMenuFull.addSeparator();
 		popupMenuFull.add(selectIgnitionAction);
 		popupMenuFull.add(resetIgnitionAction);
 		popupMenuFull.addSeparator();
 		popupMenuFull.add(renameConfigAction);
-		popupMenuFull.add(removeConfigAction);
+		popupMenuFull.add(deleteConfigAction);
 		popupMenuFull.add(duplicateConfigAction);
 
 		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
@@ -119,9 +119,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		selectMotorButton = new SelectColorButton(selectMotorAction);
 		configurationPanel.add(selectMotorButton, "split, align right, sizegroup button");
 
-		//// Remove motor button
-		removeMotorButton = new SelectColorButton(removeMotorAction);
-		configurationPanel.add(removeMotorButton, "sizegroup button");
+		//// Delete motor button
+		deleteMotorButton = new SelectColorButton(deleteMotorAction);
+		configurationPanel.add(deleteMotorButton, "sizegroup button");
 
 		//// Select Ignition button
 		selectIgnitionButton = new SelectColorButton(selectIgnitionAction);
@@ -275,13 +275,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			
 			boolean haveSelection = (null != getSelectedComponent());
 			selectMotorButton.setEnabled( haveSelection );
-			removeMotorButton.setEnabled( haveSelection );
+			deleteMotorButton.setEnabled( haveSelection );
 			selectIgnitionButton.setEnabled( haveSelection );
 			resetIgnitionButton.setEnabled( haveSelection );
 		} else {
 			showEmptyText();
 			selectMotorButton.setEnabled(false);
-			removeMotorButton.setEnabled(false);
+			deleteMotorButton.setEnabled(false);
 			selectIgnitionButton.setEnabled(false);
 			resetIgnitionButton.setEnabled(false);
 		}
@@ -336,7 +336,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-	private void removeMotor() {
+	private void deleteMotor() {
 		List<MotorMount> mounts = getSelectedComponents();
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
@@ -444,14 +444,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 	}
 
-	private class RemoveMotorAction extends AbstractAction {
-		public RemoveMotorAction() {
-			putValue(NAME, trans.get("MotorConfigurationPanel.btn.removeMotor"));
+	private class DeleteMotorAction extends AbstractAction {
+		public DeleteMotorAction() {
+			putValue(NAME, trans.get("MotorConfigurationPanel.btn.deleteMotor"));
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			removeMotor();
+			deleteMotor();
 		}
 	}
 

@@ -52,7 +52,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		AbstractAction selectDeploymentAction = new SelectDeploymentAction();
 		AbstractAction resetDeploymentAction = new ResetDeploymentAction();
 		AbstractAction renameConfigAction = flightConfigurationPanel.getRenameConfigAction();
-		AbstractAction removeConfigAction = flightConfigurationPanel.getRemoveConfigAction();
+		AbstractAction removeConfigAction = flightConfigurationPanel.getDeleteConfigAction();
 		AbstractAction duplicateConfigAction = flightConfigurationPanel.getDuplicateConfigAction();
 
 		// Populate the popup menu
