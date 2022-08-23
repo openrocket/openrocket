@@ -159,16 +159,18 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		addOrDuplicateConfiguration(duplicate);
 		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
 		stateChanged(null);
-		switch (tabs.getSelectedIndex()) {
-			case MOTOR_TAB_INDEX:
-				motorConfigurationPanel.selectMotor();
-				break;
-			case RECOVERY_TAB_INDEX:
-				recoveryConfigurationPanel.selectDeployment();
-				break;
-			case SEPARATION_TAB_INDEX:
-				separationConfigurationPanel.selectSeparation();
-				break;
+		if (!duplicate) {
+			switch (tabs.getSelectedIndex()) {
+				case MOTOR_TAB_INDEX:
+					motorConfigurationPanel.selectMotor();
+					break;
+				case RECOVERY_TAB_INDEX:
+					recoveryConfigurationPanel.selectDeployment();
+					break;
+				case SEPARATION_TAB_INDEX:
+					separationConfigurationPanel.selectSeparation();
+					break;
+			}
 		}
 		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	// Trigger select
 	}
