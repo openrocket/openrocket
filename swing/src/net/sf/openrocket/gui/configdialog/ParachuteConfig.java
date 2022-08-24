@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
@@ -231,6 +233,12 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			//	This is the bottom stage:  Restrict deployment options.
 			eventCombo.removeItem( DeployEvent.LOWER_STAGE_SEPARATION );
 		}
+		eventCombo.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateFields();
+			}
+		});
 		panel.add(eventCombo, "spanx 3, growx, wrap");
 		order.add(eventCombo);
 		

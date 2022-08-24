@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.dialogs.preset;
 
 
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -82,7 +83,11 @@ public class ComponentPresetChooserDialog extends JDialog {
 		this.presetType = component.getPresetType();
 		this.presetModel = presetModel;
 		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
-		
+
+		if (owner.getParent() != null) {
+			this.setPreferredSize(new Dimension((int)(0.7 * owner.getParent().getWidth()), (int) (0.7 * owner.getParent().getHeight())));
+			this.setLocationRelativeTo(owner.getParent());
+		}
 		List<TypedKey<?>> displayedColumnKeys = Arrays.asList(component.getPresetType().getDisplayedColumns());
 		
 		{
@@ -143,7 +148,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// need to create componentSelectionTable before filter checkboxes,
 		// but add to panel after
 		componentSelectionTable = new ComponentPresetTable(presetType, presets, displayedColumnKeys);
-		//		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
+		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
 		int w = componentSelectionTable.getRowHeight() + 4;
 		XTableColumnModel tm = componentSelectionTable.getXColumnModel();
 		//TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
@@ -156,7 +161,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
-		panel.add(scrollpane, "grow, width 700lp, height 300lp, pushy, spanx, wrap rel");
+		panel.add(scrollpane, "grow, pushy, spanx, wrap rel");
 		
 		panel.add(new StyledLabel(String.format("<html>%s %s</html>", Chars.UP_ARROW, trans.get("lbl.favorites")), -1), "spanx, gapleft 5px, wrap para");
 
@@ -183,9 +188,12 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(closeButton, "spanx, right, tag close");
 		
 		this.add(panel);
-		
-		GUIUtil.rememberWindowSize(this);
+
 		GUIUtil.setDisposableDialogOptions(this, closeButton);
+		GUIUtil.rememberWindowSize(this);
+		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
+		GUIUtil.rememberTableColumnWidths(componentSelectionTable, "Presets" + component.getClass().getCanonicalName());
 
 		updateFilters();
 	}
@@ -208,28 +216,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private JPanel getFilterCheckboxes(XTableColumnModel tm, int legacyColumnIndex) {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
-		
-		/*
-		 * Add show all compatible check box.
-		 */
-		final List<ComponentPreset.Type> compatibleTypes = component.getPresetType().getCompatibleTypes();
-		final ComponentPreset.Type nativeType = component.getPresetType();
-		if (compatibleTypes != null && compatibleTypes.size() > 0) {
-			JCheckBox showAll = new JCheckBox();
-			showAll.setText(trans.get("ComponentPresetChooserDialog.checkbox.showAllCompatible"));
-			panel.add(showAll, "wrap");
-			showAll.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (((JCheckBox) e.getItem()).isSelected()) {
-						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
-					} else {
-						presets = Application.getComponentPresetDao().listForType(nativeType);
-					}
-					componentSelectionTable.updateData(presets);
-				}
-				});
-		}
 
 		/*
 		 * Add legacy component filter checkbox

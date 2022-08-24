@@ -168,6 +168,8 @@ public class SimulationPlotDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, button);
 		GUIUtil.rememberWindowSize(this);
+		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 	}
 
 	private boolean doPngExport(ChartPanel chartPanel, JFreeChart chart){

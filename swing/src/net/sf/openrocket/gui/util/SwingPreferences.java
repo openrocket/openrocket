@@ -401,6 +401,34 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
+
+	public Integer getTableColumnWidth(String keyName, int columnIdx) {
+		String pref = PREFNODE.node("tables").get(
+				"cw." + keyName + "." + columnIdx, null);
+		if (pref == null)
+			return null;
+
+
+		try {
+			return Integer.parseInt(pref);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	public Integer getTableColumnWidth(Class<?> c, int columnIdx) {
+		return getTableColumnWidth(c.getCanonicalName(), columnIdx);
+	}
+
+	public void setTableColumnWidth(String keyName, int columnIdx, Integer width) {
+		PREFNODE.node("tables").put(
+				"cw." + keyName + "." + columnIdx, width.toString());
+		storeVersion();
+	}
+
+	public void setTableColumnWidth(Class<?> c, int columnIdx, Integer width) {
+		setTableColumnWidth(c.getCanonicalName(), columnIdx, width);
+	}
 	
 	/**
 	 * this class returns a java.awt.Color object for the specified key.
