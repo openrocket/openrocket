@@ -39,6 +39,13 @@ public class IconButton extends SelectColorButton {
     }
 
     @Override
+    public void setIcon(Icon defaultIcon) {
+        super.setIcon(defaultIcon);
+        // There is a bug where the normal override of the pressed icon does not work, so we have to assign it here.
+        setPressedIcon(Icons.getScaledIcon(defaultIcon, ICON_SCALE));
+    }
+
+    @Override
     public Icon getIcon() {
         return Icons.getScaledIcon(super.getIcon(), IconButton.ICON_SCALE);
     }
