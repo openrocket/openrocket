@@ -135,7 +135,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		subsub.add(label, "gapright para");
 
 		DoubleModel m_ts = new DoubleModel(preferences, "TimeStep", UnitGroup.UNITS_TIME_STEP,
-				0, 1);
+				0.01, 1);
 
 		spin = new JSpinner(m_ts.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -145,7 +145,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		unit = new UnitSelector(m_ts);
 		unit.setToolTipText(tip);
 		subsub.add(unit, "");
-		slider = new BasicSlider(m_ts.getSliderModel(0, 0.2));
+		slider = new BasicSlider(m_ts.getSliderModel(0.01, 0.2));
 		slider.setToolTipText(tip);
 		subsub.add(slider, "w 100");
 
