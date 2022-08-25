@@ -34,7 +34,6 @@ import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -156,16 +155,19 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		JLabel label;
 		DoubleModel length;
 		DoubleModel length2;
+		DoubleModel maxTabHeight;
 		DoubleModel length_2;
 		JSpinner spin;
 		JButton autoCalc;
 		
 		length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		maxTabHeight = new DoubleModel(component, "MaxTabHeight", 1, UnitGroup.UNITS_LENGTH, 0);
 		length2 = new DoubleModel(component, "Length", 0.5, UnitGroup.UNITS_LENGTH, 0);
 		length_2 = new DoubleModel(component, "Length", -0.5, UnitGroup.UNITS_LENGTH, 0);
 		
 		register(length);
 		register(length2);
+		register(maxTabHeight);
 		register(length_2);
 		
 		////  Tab length
@@ -192,14 +194,14 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
 		panel.add(label, "gapleft para");
 		
-		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
 		component.addChangeListener( tabHeightModel );
 		spin = new JSpinner(tabHeightModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		
 		panel.add(new UnitSelector(tabHeightModel), "growx");
-		panel.add(new BasicSlider(tabHeightModel.getSliderModel(DoubleModel.ZERO, length2)),
+		panel.add(new BasicSlider(tabHeightModel.getSliderModel(DoubleModel.ZERO, maxTabHeight)),
 				"w 100lp, growx 5, wrap");
 		
 		////  Tab position:
