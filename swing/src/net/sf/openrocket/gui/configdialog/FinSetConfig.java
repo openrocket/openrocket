@@ -39,6 +39,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -300,8 +301,11 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				}
 
 				// Compute tab height
-				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
-						((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge()));
+				final Coordinate finFront = ((FinSet) component).getFinFront();
+				double finStart = finFront.x + ((FinSet) component).getTabFrontEdge();
+				double finEnd = finFront.x + ((FinSet) component).getTabTrailingEdge();
+				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(finStart),
+						((SymmetricComponent)parent).getRadius(finEnd));
 				double height = parentMinRadius - maxTubeRad;
 
 				// Set tab height
