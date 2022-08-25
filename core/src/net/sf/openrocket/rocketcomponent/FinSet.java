@@ -428,12 +428,14 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	public void validateFinTabHeight(){
 		// check tab height 
 		if( null != getParent() ){
+			final Coordinate finFront = this.getFinFront();
+
 			// pulls the parent-body radius at the fin-tab reference point.
 			final double xLead = this.getTabFrontEdge();
 			final double xTrail = this.getTabTrailingEdge();
 			
 			final SymmetricComponent sym = (SymmetricComponent)this.parent;
-			final double bodyRadius = MathUtil.min(sym.getRadius( xLead), sym.getRadius( xTrail));
+			final double bodyRadius = MathUtil.min(sym.getRadius(finFront.x + xLead), sym.getRadius(finFront.x + xTrail));
 			
 			// limit the new heights to be no greater than the current body radius.
 			this.tabHeight = Math.min( this.tabHeight,  bodyRadius );
