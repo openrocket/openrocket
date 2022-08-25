@@ -309,7 +309,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		}
 		
 		tabHeight = newTabHeight;
-		validateFinTabHeight();
+		double maxTabHeight = getMaxTabHeight();
+		this.tabHeight = Math.min(this.tabHeight,  maxTabHeight);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -424,10 +425,14 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 		//System.err.println(String.format("    << Fin Tab Length: %.6f @ %.6f", tabLength, tabOffset));
 	}
-	
-	public void validateFinTabHeight(){
+
+	/**
+	 * Calculates the maximum height that the fin tabs can be, depending on the parent shape.
+	 * @return maximum tab height value
+	 */
+	public double getMaxTabHeight() {
 		// check tab height 
-		if( null != getParent() ){
+		if (null != getParent() ){
 			final Coordinate finFront = this.getFinFront();
 
 			// pulls the parent-body radius at the fin-tab reference point.
@@ -435,11 +440,9 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			final double xTrail = this.getTabTrailingEdge();
 			
 			final SymmetricComponent sym = (SymmetricComponent)this.parent;
-			final double bodyRadius = MathUtil.min(sym.getRadius(finFront.x + xLead), sym.getRadius(finFront.x + xTrail));
-			
-			// limit the new heights to be no greater than the current body radius.
-			this.tabHeight = Math.min( this.tabHeight,  bodyRadius );
+			return MathUtil.min(sym.getRadius(finFront.x + xLead), sym.getRadius(finFront.x + xTrail));
 		}
+		return Double.MAX_VALUE;
 	}
 	
 	///////////  Calculation methods  //////////
