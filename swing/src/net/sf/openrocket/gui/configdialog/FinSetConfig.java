@@ -272,11 +272,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						CenteringRing ring = (CenteringRing) rocketComponent;
 						if (ring.getOuterRadius() > maxRingRad) {
 							maxRingRad = ring.getOuterRadius();
-							rings.clear();
-							rings.add(ring);
-						} else if (ring.getOuterRadius() == maxRingRad) {
-							rings.add(ring);
 						}
+						rings.add(ring);
+					}
+				}
+
+				// Remove rings that are smaller than the maximum inner tube radius
+				for (CenteringRing ring : new ArrayList<>(rings)) {
+					if (ring.getOuterRadius() <= maxTubeRad) {
+						rings.remove(ring);
 					}
 				}
 
