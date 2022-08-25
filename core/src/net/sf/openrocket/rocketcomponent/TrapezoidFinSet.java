@@ -41,8 +41,7 @@ public class TrapezoidFinSet extends FinSet {
 	public TrapezoidFinSet() {
 		this(3, 0.05, 0.05, 0.025, 0.03);
 	}
-	
-	// TODO: HIGH:  height=0 -> CP = NaN
+
 	public TrapezoidFinSet(int fins, double rootChord, double tipChord, double sweep,
 			double height) {
 		super();
