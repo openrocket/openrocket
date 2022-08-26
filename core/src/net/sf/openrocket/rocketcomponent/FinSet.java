@@ -880,6 +880,17 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	public double getBodyRadius() {
 		return getFinFront().y;
 	}
+
+	public Coordinate getFinFront() {
+		final double xFinFront = this.getAxialFront();
+		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
+		if( null == symmetricParent){
+			return new Coordinate( 0, 0);
+		}else{
+			final double yFinFront = symmetricParent.getRadius( xFinFront );
+			return new Coordinate(xFinFront, yFinFront);
+		}
+	}
 	
 	@Override
 	public boolean allowsChildren() {
@@ -895,16 +906,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-
-	/**
-	 * Return a list of coordinates defining the geometry of a single fin.  
-	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
-	 * where the origin is the leading root edge.  Therefore, the first point must be (0,0,0).
-	 * All Z-coordinates must be zero.
-	 * 
-	 * @return  List of XY-coordinates.
-	 */
-	public abstract Coordinate[] getFinPoints();
 	
 	public boolean isTabTrivial(){
 		return ( FinSet.minimumTabArea > (getTabLength()*getTabHeight()));
@@ -948,6 +949,32 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		}
 
 		return returnPoints;
+	}
+
+	/**
+	 * Return a list of coordinates defining the geometry of a single fin.
+	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
+	 * where the origin is the leading root edge.  Therefore, the first point must be (0,0,0).
+	 * All Z-coordinates must be zero.
+	 *
+	 * @return  List of XY-coordinates.
+	 */
+	public abstract Coordinate[] getFinPoints();
+
+	/**
+	 * used to get body points for the profile design view
+	 *
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
+	 */
+	public Coordinate[] getRootPoints(){
+		if( null == parent){
+			return new Coordinate[]{Coordinate.ZERO};
+		}
+
+		final Coordinate finLead = getFinFront();
+		final double xFinEnd = finLead.x + getLength();
+
+		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
 	}
 
 	/**
@@ -1002,25 +1029,84 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return points;
 	}
 
-	public Coordinate getFinFront() {
-		final double xFinFront = this.getAxialFront();
-		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
-		if( null == symmetricParent){
-			return new Coordinate( 0, 0);
-		}else{
-			final double yFinFront = symmetricParent.getRadius( xFinFront );
-			return new Coordinate(xFinFront, yFinFront);
-		}
-	}
-
-
-	/* 
-	 * yes, this may over-count points between the fin and fin tabs, 
+	/*
+	 * yes, this may over-count points between the fin and fin tabs,
 	 * but the minor performance hit is not worth the code complexity of dealing with.
 	 */
 	public Coordinate[] getFinPointsWithTab() {
 		Coordinate[] temp = combineCurves(getFinPoints(), getRootPoints());
 		return combineCurves(temp, getTabPoints());
+	}
+
+	/**
+	 * use this for calculating physical properties, and routine drawing
+	 *
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
+	 */
+	public Coordinate[] getMountPoints() {
+		if( null == parent){
+			return null;
+		}
+
+		return getMountPoints(0., parent.getLength(), 0,0);
+	}
+
+	/**
+	 * used to get calculate body profile points:
+	 *
+	 * @param xStart - xStart, in Mount-frame
+	 * @param xEnd - xEnd, in Mount-frame
+	 * @param xOffset - x-Offset to apply to returned points
+	 * @param yOffset - y-Offset to apply to returned points
+	 *
+	 * @return points representing the mount's points
+	 */
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+		if (parent == null) {
+			return new Coordinate[]{Coordinate.ZERO};
+		}
+
+		// for a simple body, one increment is perfectly accurate.
+		int divisionCount = 1;
+		final SymmetricComponent body = (SymmetricComponent) getParent();
+		final double intervalLength = xEnd - xStart;
+
+		// for anything more complicated, increase the count:
+		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
+			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
+			final double xWidth = 0.0025; // width (in meters) of each individual iteration
+			divisionCount = (int) Math.ceil(intervalLength / xWidth);
+
+			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
+			final int maximumBodyDivisionCount = 100;
+			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
+		}
+
+		// Recalculate the x step increment, now with the (rounded) division count.
+		double xIncrement = intervalLength / divisionCount;
+
+		// Create the points: step through the radius of the parent
+		double xCur = xStart;
+		Coordinate[] points = new Coordinate[divisionCount+1];
+		for (int index = 0; index < points.length; index++) {
+			double yCur = body.getRadius(xCur);
+			points[index] = new Coordinate(xCur, yCur);
+
+			xCur += xIncrement;
+		}
+
+		// correct last point, if beyond a rounding error from body's end.
+		final int lastIndex = points.length - 1;
+		if (Math.abs(points[lastIndex].x - body.getLength()) < 0.000001) {
+			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
+		}
+
+		// translate the points if needed
+		if ((Math.abs(xOffset) + Math.abs(yOffset)) > 0.0000001) {
+			points = translatePoints(points, xOffset, yOffset);
+		}
+
+		return points;
 	}
 	
 	@Override
@@ -1195,93 +1281,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		filletRadius = r;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-	}
-
-	/**
-	 * use this for calculating physical properties, and routine drawing
-	 *
-	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
-	 */
-	public Coordinate[] getMountPoints() {
-		if( null == parent){
-			return null;
-		}
-
-		return getMountPoints(0., parent.getLength(), 0,0);
-	}
-
-	/**
-	 * used to get body points for the profile design view
-	 * 
-	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
-	 */
-	public Coordinate[] getRootPoints(){
-		if( null == parent){
-			return new Coordinate[]{Coordinate.ZERO};
-		}
-		
-		final Coordinate finLead = getFinFront();
-		final double xFinEnd = finLead.x + getLength();
-
-		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
-	}
-
-	/**
-	 * used to get calculate body profile points:
-	 *
-	 * @param xStart - xStart, in Mount-frame
-	 * @param xEnd - xEnd, in Mount-frame
-	 * @param xOffset - x-Offset to apply to returned points
-	 * @param yOffset - y-Offset to apply to returned points
-	 *
-	 * @return points representing the mount's points
-	 */
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
-		if (parent == null) {
-			return new Coordinate[]{Coordinate.ZERO};
-		}
-
-		// for a simple body, one increment is perfectly accurate.
-		int divisionCount = 1;
-		final SymmetricComponent body = (SymmetricComponent) getParent();
-		final double intervalLength = xEnd - xStart;
-
-		// for anything more complicated, increase the count: 
-		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
-			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
-			final double xWidth = 0.0025; // width (in meters) of each individual iteration
-			divisionCount = (int) Math.ceil(intervalLength / xWidth);
-			
-			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
-			final int maximumBodyDivisionCount = 100;
-			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
-		}
-
-		// Recalculate the x step increment, now with the (rounded) division count.
-		double xIncrement = intervalLength / divisionCount;
-
-		// Create the points: step through the radius of the parent
-		double xCur = xStart;
-		Coordinate[] points = new Coordinate[divisionCount+1];
-		for (int index = 0; index < points.length; index++) {
-			double yCur = body.getRadius(xCur);
-			points[index] = new Coordinate(xCur, yCur);
-			
-			xCur += xIncrement;
-		}
-
-		// correct last point, if beyond a rounding error from body's end.
-		final int lastIndex = points.length - 1;
-		if (Math.abs(points[lastIndex].x - body.getLength()) < 0.000001) {
-			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
-		}
-
-		// translate the points if needed
-		if ((Math.abs(xOffset) + Math.abs(yOffset)) > 0.0000001) {
-			points = translatePoints(points, xOffset, yOffset);
-		}
-
-		return points;
 	}
 
 	// for debugging.  You can safely delete this method
