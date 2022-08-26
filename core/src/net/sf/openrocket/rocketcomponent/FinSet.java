@@ -996,16 +996,21 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			return new Coordinate[]{};
 		}
 
-		Coordinate[] rootPoints = getRootPoints();
-	
-		final int pointCount = 5 + rootPoints.length;
+		final double xTabFront = getTabFrontEdge();
+		final double xTabTrail = getTabTrailingEdge();
+
+		List<Coordinate> rootPoints = new ArrayList<>();
+		for (Coordinate point : getRootPoints()) {
+			if (point.x > xTabFront && point.x < xTabTrail) {
+				rootPoints.add(point);
+			}
+		}
+
+		final int pointCount = 5 + rootPoints.size();
 		Coordinate[] points = new Coordinate[pointCount];
 		final Coordinate finFront = this.getFinFront();
 		
 		final SymmetricComponent body = (SymmetricComponent)this.getParent();
-		
-		final double xTabFront = getTabFrontEdge();
-		final double xTabTrail = getTabTrailingEdge();
 
 		// // limit the new heights to be no greater than the current body radius.
 		double yTabFront = Double.NaN;
@@ -1021,8 +1026,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		points[1] = new Coordinate(xTabFront, yTabBottom );
 		points[2] = new Coordinate(xTabTrail, yTabBottom );
 		points[3] = new Coordinate(xTabTrail, yTabTrail);
-		for (int i = 0; i < rootPoints.length; i++) {
-			points[i + 4] = rootPoints[rootPoints.length - 1 -i];
+		for (int i = 0; i < rootPoints.size(); i++) {
+			points[i + 4] = rootPoints.get(rootPoints.size() - 1 - i);
 		}
 		points[pointCount - 1] = new Coordinate(xTabFront, yTabFront);
 
