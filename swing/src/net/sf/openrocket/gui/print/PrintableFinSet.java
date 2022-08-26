@@ -19,7 +19,11 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
     /**
      * The object that represents the shape (outline) of the fin.  This gets drawn onto the Swing component.
      */
-    protected GeneralPath polygon;
+    protected GeneralPath finPolygon;
+    /**
+     * The object that represents the tab (outline) of the fin.  This gets drawn onto the Swing component.
+     */
+    protected GeneralPath finTabPolygon;
 
     /**
      * The minimum X coordinate.
@@ -46,15 +50,17 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
      */
     protected void init (FinSet component) {
 
-        Coordinate[] points = component.getFinPointsWithTab();
+        Coordinate[] points = component.getFinPointsWithRoot();
+        Coordinate[] tabPoints = component.getTabPoints();
 
-        polygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
-        polygon.moveTo(0, 0);
+        finPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
+        finTabPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, tabPoints.length);
+        finPolygon.moveTo(0, 0);
 
-        minX = 0;
-        minY = 0;
-        int maxX = 0;
-        int maxY = 0;
+        minX = Integer.MAX_VALUE;
+        minY = Integer.MAX_VALUE;;
+        int maxX = Integer.MIN_VALUE;;
+        int maxY = Integer.MIN_VALUE;
 
         for (Coordinate point : points) {
             final float x = (float) PrintUnit.METERS.toPoints(point.x);
@@ -63,9 +69,24 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);
             maxY = (int) Math.max(y, maxY);
-            polygon.lineTo(x, y);
+            finPolygon.lineTo(x, y);
         }
-        polygon.closePath();
+        finPolygon.closePath();
+
+        for (int i = 0; i < tabPoints.length; i++) {
+            final float x = (float) PrintUnit.METERS.toPoints(tabPoints[i].x);
+            final float y = (float) PrintUnit.METERS.toPoints(tabPoints[i].y);
+            minX = (int) Math.min(x, minX);
+            minY = (int) Math.min(y, minY);
+            maxX = (int) Math.max(x, maxX);
+            maxY = (int) Math.max(y, maxY);
+            if (i == 0) {
+                finTabPolygon.moveTo(x, y);
+            } else {
+                finTabPolygon.lineTo(x, y);
+            }
+        }
+        finTabPolygon.closePath();
 
         setSize(maxX - minX + 1, maxY - minY + 1);
     }
@@ -94,9 +115,11 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
         // Reset the origin.
         g2d.translate(x, y);
         g2d.setPaint(TemplateProperties.getFillColor());
-        g2d.fill(polygon);
+        g2d.fill(finPolygon);
+        g2d.fill(finTabPolygon);
         g2d.setPaint(TemplateProperties.getLineColor());
-        g2d.draw(polygon);
+        g2d.draw(finPolygon);
+        g2d.draw(finTabPolygon);
     }
 
     /**

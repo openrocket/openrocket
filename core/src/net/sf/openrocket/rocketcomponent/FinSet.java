@@ -978,6 +978,13 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 
 	/**
+	 * Return a list of coordinates defining the geometry of a single fin, including the parent's body points .
+	 */
+	public Coordinate[] getFinPointsWithRoot() {
+		return combineCurves(getFinPoints(), getRootPoints());
+	}
+
+	/**
 	 * Return a list of X,Y coordinates defining the geometry of a single fin tab. 
 	 * The origin is the leading root edge, and the tab height (or 'depth') is 
 	 * the radial distance inwards from the reference point, depending on positioning method: 
@@ -1006,8 +1013,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			}
 		}
 
-		final int pointCount = 5 + rootPoints.size();
-		Coordinate[] points = new Coordinate[pointCount];
+		Coordinate[] tabPoints = new Coordinate[4];
 		final Coordinate finFront = this.getFinFront();
 		
 		final SymmetricComponent body = (SymmetricComponent)this.getParent();
@@ -1022,16 +1028,13 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			yTabBottom = MathUtil.min(yTabFront, yTabTrail) - tabHeight;
 		}
 
-		points[0] = new Coordinate(xTabFront, yTabFront);
-		points[1] = new Coordinate(xTabFront, yTabBottom );
-		points[2] = new Coordinate(xTabTrail, yTabBottom );
-		points[3] = new Coordinate(xTabTrail, yTabTrail);
-		for (int i = 0; i < rootPoints.size(); i++) {
-			points[i + 4] = rootPoints.get(rootPoints.size() - 1 - i);
-		}
-		points[pointCount - 1] = new Coordinate(xTabFront, yTabFront);
+		tabPoints[0] = new Coordinate(xTabFront, yTabFront);
+		tabPoints[1] = new Coordinate(xTabFront, yTabBottom );
+		tabPoints[2] = new Coordinate(xTabTrail, yTabBottom );
+		tabPoints[3] = new Coordinate(xTabTrail, yTabTrail);
+		rootPoints.add(0, new Coordinate(xTabFront, yTabFront));
 
-		return points;
+		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
 	}
 
 	/*
