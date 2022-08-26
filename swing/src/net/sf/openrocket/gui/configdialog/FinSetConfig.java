@@ -39,6 +39,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -257,26 +258,28 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 				List<CenteringRing> rings = new ArrayList<>();
 				// Do deep recursive iteration to find centering rings and determine radius of inner tube
-				Iterator<RocketComponent> iter = parent.iterator(false);
-				while (iter.hasNext()) {
-				RocketComponent rocketComponent =  iter.next();
-					if (rocketComponent instanceof InnerTube) {
-						if (!isComponentInsideFinSpan(rocketComponent)) {
+				for (RocketComponent child : parent.getChildren()) {
+					if (child instanceof InnerTube) {
+						if (!isComponentInsideFinSpan(child)) {
 							continue;
 						}
-						InnerTube tube = (InnerTube) rocketComponent;
+						InnerTube tube = (InnerTube) child;
 						if (tube.getOuterRadius() > maxTubeRad) {
 							maxTubeRad = tube.getOuterRadius();
 						}
-					} else if (rocketComponent instanceof CenteringRing) {
-						CenteringRing ring = (CenteringRing) rocketComponent;
+					} else if (child instanceof CenteringRing) {
+						CenteringRing ring = (CenteringRing) child;
 						if (ring.getOuterRadius() > maxRingRad) {
 							maxRingRad = ring.getOuterRadius();
-							rings.clear();
-							rings.add(ring);
-						} else if (ring.getOuterRadius() == maxRingRad) {
-							rings.add(ring);
 						}
+						rings.add(ring);
+					}
+				}
+
+				// Remove rings that are smaller than the maximum inner tube radius
+				for (CenteringRing ring : new ArrayList<>(rings)) {
+					if (ring.getOuterRadius() <= maxTubeRad) {
+						rings.remove(ring);
 					}
 				}
 
@@ -290,14 +293,17 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 					//Be nice to the user and set the tab relative position enum back the way they had it.
 					tabOffsetMethod.setSelectedItem(temp);
 				} else {
-					tabLength.setValue(component.getLength());
 					tabOffsetMethod.setSelectedItem(AxialMethod.TOP);
 					tabOffset.setValue(0);
+					tabLength.setValue(component.getLength());
 				}
 
 				// Compute tab height
-				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(((FinSet) component).getTabFrontEdge()),
-						((SymmetricComponent)parent).getRadius(((FinSet) component).getTabTrailingEdge()));
+				final Coordinate finFront = ((FinSet) component).getFinFront();
+				double finStart = finFront.x + ((FinSet) component).getTabFrontEdge();
+				double finEnd = finFront.x + ((FinSet) component).getTabTrailingEdge();
+				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(finStart),
+						((SymmetricComponent)parent).getRadius(finEnd));
 				double height = parentMinRadius - maxTubeRad;
 
 				// Set tab height
