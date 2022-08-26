@@ -73,6 +73,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		{//// Clipped
 			final JCheckBox checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
 			checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
+			checkbox.setToolTipText(trans.get("TransitionCfg.checkbox.Clipped.ttip"));
 			panel.add(checkbox, "wrap");
 
 			////  Shape parameter:
@@ -165,6 +166,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final JCheckBox thicknessCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
 			//// Filled
 			thicknessCheckbox.setText(trans.get("TransitionCfg.checkbox.Filled"));
+			thicknessCheckbox.setToolTipText(trans.get("TransitionCfg.checkbox.Filled.ttip"));
 			panel.add(thicknessCheckbox, "skip, span 2, wrap");
 		}
 

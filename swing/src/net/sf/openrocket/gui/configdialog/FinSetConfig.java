@@ -233,6 +233,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 		// Calculate fin tab height, length, and position
 		autoCalc = new SelectColorButton(trans.get("FinSetConfig.but.AutoCalc"));
+		autoCalc.setToolTipText(trans.get("FinSetConfig.but.AutoCalc.ttip"));
 		
 		autoCalc.addActionListener(new ActionListener() {
 			@Override

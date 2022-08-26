@@ -424,6 +424,7 @@ public class RocketComponentConfig extends JPanel {
 		check = new JCheckBox(bm);
 		//// Override mass:
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridemass"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Overridemass.ttip"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		DoubleModel m = new DoubleModel(component, "OverrideMass", UnitGroup.UNITS_MASS, 0);
@@ -449,6 +450,7 @@ public class RocketComponentConfig extends JPanel {
 		check = new JCheckBox(bm);
 		//// Override center of gravity:"
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav.ttip"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
@@ -504,6 +506,7 @@ public class RocketComponentConfig extends JPanel {
 		check = new JCheckBox(bm);
 		//// Override mass and CG of all subcomponents
 		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverridemassandCG.ttip"));
 		panel.add(check, "spanx, wrap 35lp");
 
 
@@ -514,6 +517,7 @@ public class RocketComponentConfig extends JPanel {
 		check = new JCheckBox(bm);
 		//// Override coefficient of drag:
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.SetDragCoeff.ttip"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, 0);
@@ -629,8 +633,7 @@ public class RocketComponentConfig extends JPanel {
 			check = new JCheckBox(bm);
 			//// End capped
 			check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
-			//// Whether the end of the shoulder is capped.
-			check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
+			check.setToolTipText(trans.get("RocketCompCfg.checkbox.Endcapped.ttip"));
 			sub.add(check, "spanx");
 			
 			
@@ -696,8 +699,7 @@ public class RocketComponentConfig extends JPanel {
 		check = new JCheckBox(bm);
 		//// End capped
 		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
-		//// Whether the end of the shoulder is capped.
-		check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Endcapped.ttip"));
 		sub.add(check, "spanx");
 		
 		
