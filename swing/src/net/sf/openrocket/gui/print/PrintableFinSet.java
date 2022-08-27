@@ -89,7 +89,9 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
                 finTabPolygon.lineTo(x, y);
             }
         }
-        finTabPolygon.closePath();
+        if (tabPoints.length > 0) {
+            finTabPolygon.closePath();
+        }
 
         setSize(maxX - minX + 1, maxY - minY + 1);
     }
