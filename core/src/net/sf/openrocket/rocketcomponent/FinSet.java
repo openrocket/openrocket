@@ -1096,12 +1096,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		// correct last point, if beyond a rounding error from body's end.
 		final int lastIndex = points.length - 1;
-		if (Math.abs(points[lastIndex].x - body.getLength()) < 0.000001) {
+		if (Math.abs(points[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
 			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
 
 		// translate the points if needed
-		if ((Math.abs(xOffset) + Math.abs(yOffset)) > 0.0000001) {
+		if ((Math.abs(xOffset) + Math.abs(yOffset)) > MathUtil.EPSILON) {
 			points = translatePoints(points, xOffset, yOffset);
 		}
 
