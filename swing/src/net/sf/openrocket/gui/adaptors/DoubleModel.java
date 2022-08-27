@@ -774,12 +774,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public void setValue(double v) {
 		checkState(true);
 
-		if (v > maxValue) {
-			log.debug("Clipping value " + v + " to maximum " + maxValue + " for " + this);
-			v = maxValue;
-		} else if (v < minValue) {
-			log.debug("Clipping value " + v + " to minimum " + minValue + " for " + this);
-			v = minValue;
+		double clampedValue = MathUtil.clamp(v, minValue, maxValue);
+		if (clampedValue != v) {
+			log.debug("Clamped value " + v + " to " + clampedValue + " for " + this);
+			v = clampedValue;
 		}
 		
 		log.debug("Setting value " + v + " for " + this);
