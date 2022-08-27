@@ -1037,15 +1037,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
 	}
 
-	/*
-	 * yes, this may over-count points between the fin and fin tabs,
-	 * but the minor performance hit is not worth the code complexity of dealing with.
-	 */
-	public Coordinate[] getFinPointsWithTab() {
-		Coordinate[] temp = combineCurves(getFinPoints(), getRootPoints());
-		return combineCurves(temp, getTabPoints());
-	}
-
 	/**
 	 * use this for calculating physical properties, and routine drawing
 	 *
