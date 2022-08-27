@@ -302,7 +302,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
         panel.setLayout(new MigLayout("fill, gap 5!","", "[nogrid, fill, sizegroup display, growprio 200]5![sizegroup text, growprio 5]5![sizegroup buttons, align top, growprio 5]0!"));
         
         // first row: main display
-        panel.add(tablePane, "width 100lp:100lp:, growy");        
+        panel.add(tablePane, "width 100lp:100lp:, growy");
+		order.add(table);
         panel.add(figurePane, "width 200lp:400lp:, gap unrel, grow, height 100lp:250lp:, wrap");
         
 		// row of text directly below figure
