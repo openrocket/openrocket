@@ -134,6 +134,7 @@ public class RocketComponentConfig extends JPanel {
 				}
 			});
 			this.add(selectPreset);
+			order.add(selectPreset);
 		}
 
 		tabbedPane = new JTabbedPane();
