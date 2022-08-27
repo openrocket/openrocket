@@ -704,7 +704,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		this.overrideCD = x;
 		if (isCDOverridden())
-			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -737,7 +737,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cdOverridden = o;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	
