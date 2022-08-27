@@ -55,21 +55,24 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
 
         finPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
         finTabPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, tabPoints.length);
-        finPolygon.moveTo(0, 0);
 
         minX = Integer.MAX_VALUE;
         minY = Integer.MAX_VALUE;;
         int maxX = Integer.MIN_VALUE;;
         int maxY = Integer.MIN_VALUE;
 
-        for (Coordinate point : points) {
-            final float x = (float) PrintUnit.METERS.toPoints(point.x);
-            final float y = (float) PrintUnit.METERS.toPoints(point.y);
+        for (int i = 0; i < points.length; i++) {
+            final float x = (float) PrintUnit.METERS.toPoints(points[i].x);
+            final float y = (float) PrintUnit.METERS.toPoints(points[i].y);
             minX = (int) Math.min(x, minX);
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);
             maxY = (int) Math.max(y, maxY);
-            finPolygon.lineTo(x, y);
+            if (i == 0) {
+                finPolygon.moveTo(x, y);
+            } else {
+                finPolygon.lineTo(x, y);
+            }
         }
         finPolygon.closePath();
 
