@@ -34,7 +34,8 @@ public class FinRenderer {
 		gl.glTranslated(-bounds.min.x, -bounds.min.y - finSet.getBodyRadius(), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
-		Coordinate finPoints[] = finSet.getFinPointsWithTab();
+		Coordinate finPoints[] = finSet.getFinPointsWithRoot();
+		Coordinate tabPoints[] = finSet.getTabPoints();
 		{
 		    gl.glPushMatrix();
             
@@ -69,7 +70,7 @@ public class FinRenderer {
 			GLU.gluTessCallback(tobj, GLU.GLU_TESS_END, cb);
 			
 			// fin side: +z
-			if (which == Surface.INSIDE) {		// Right side
+			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.INSIDE) {		// Right side
 				GLU.gluTessBeginPolygon(tobj, null);
 				GLU.gluTessBeginContour(tobj);
 				gl.glNormal3f(0, 0, 1);
@@ -78,19 +79,45 @@ public class FinRenderer {
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z + finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tobj, p, 0, p);
-
+				}
+				GLU.gluTessEndContour(tobj);
+				GLU.gluTessEndPolygon(tobj);
+			}
+			// tab side: +z
+			if (finSet.getTabHeight() > 0 && finSet.getTabLength() > 0 && which == Surface.INSIDE) {		// Right side
+				GLU.gluTessBeginPolygon(tobj, null);
+				GLU.gluTessBeginContour(tobj);
+				gl.glNormal3f(0, 0, 1);
+				for (int i = tabPoints.length - 1; i >= 0; i--) {
+					Coordinate c = tabPoints[i];
+					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
+							c.z + finSet.getThickness() / 2.0};
+					GLU.gluTessVertex(tobj, p, 0, p);
 				}
 				GLU.gluTessEndContour(tobj);
 				GLU.gluTessEndPolygon(tobj);
 			}
 			
-	         // fin side: -z
-			if (which == Surface.OUTSIDE) {		// Left side
+			// fin side: -z
+			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.OUTSIDE) {		// Left side
 				GLU.gluTessBeginPolygon(tobj, null);
 				GLU.gluTessBeginContour(tobj);
 				gl.glNormal3f(0, 0, -1);
-				for (int i = 0; i < finPoints.length; i++) {
-					Coordinate c = finPoints[i];
+				for (Coordinate c : finPoints) {
+					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
+							c.z - finSet.getThickness() / 2.0};
+					GLU.gluTessVertex(tobj, p, 0, p);
+
+				}
+				GLU.gluTessEndContour(tobj);
+				GLU.gluTessEndPolygon(tobj);
+			}
+			// tab side: -z
+			if (finSet.getTabHeight() > 0 && finSet.getTabLength() > 0 && which == Surface.OUTSIDE) {		// Left side
+				GLU.gluTessBeginPolygon(tobj, null);
+				GLU.gluTessBeginContour(tobj);
+				gl.glNormal3f(0, 0, -1);
+				for (Coordinate c : tabPoints) {
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tobj, p, 0, p);
@@ -100,8 +127,8 @@ public class FinRenderer {
 				GLU.gluTessEndPolygon(tobj);
 			}
 			
-			// Strip around the edge
-			if (which == Surface.EDGES) {
+			// Fin strip around the edge
+			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.EDGES) {
 				if (!(finSet instanceof EllipticalFinSet))
 					gl.glShadeModel(GLLightingFunc.GL_FLAT);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
@@ -110,6 +137,26 @@ public class FinRenderer {
 					// if ( i > 1 ){
 					Coordinate c2 = finPoints[(i - 1 + finPoints.length)
 							% finPoints.length];
+					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					// }
+					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
+					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
+							c.z - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
+							c.z + finSet.getThickness() / 2.0);
+				}
+				gl.glEnd();
+			}
+			// Tab strip around the edge
+			if (finSet.getTabHeight() > 0 && finSet.getTabLength() > 0 && which == Surface.EDGES) {
+				if (!(finSet instanceof EllipticalFinSet))
+					gl.glShadeModel(GLLightingFunc.GL_FLAT);
+				gl.glBegin(GL.GL_TRIANGLE_STRIP);
+				for (int i = 0; i <= tabPoints.length; i++) {
+					Coordinate c = tabPoints[i % tabPoints.length];
+					// if ( i > 1 ){
+					Coordinate c2 = tabPoints[(i - 1 + tabPoints.length)
+							% tabPoints.length];
 					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
 					// }
 					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
