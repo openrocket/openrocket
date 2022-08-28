@@ -143,7 +143,7 @@ class SimulationOptionsPanel extends JPanel {
 		subsub.add(label, "gapright para");
 		
 		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP,
-				0, 1);
+				0.01, 1);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -153,7 +153,7 @@ class SimulationOptionsPanel extends JPanel {
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
 		subsub.add(unit, "");
-		slider = new BasicSlider(m.getSliderModel(0, 0.2));
+		slider = new BasicSlider(m.getSliderModel(0.01, 0.2));
 		slider.setToolTipText(tip);
 		subsub.add(slider, "w 100");
 		
