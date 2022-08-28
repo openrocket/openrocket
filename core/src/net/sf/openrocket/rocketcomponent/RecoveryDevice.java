@@ -20,9 +20,6 @@ import net.sf.openrocket.util.MathUtil;
  */
 public abstract class RecoveryDevice extends MassObject implements FlightConfigurableComponent {
 	////
-	protected double PackedDiameter;
-	protected double PackedLength;
-	////
 	protected double DragCoefficient;
 	protected double cd = Parachute.DEFAULT_CD;
 	protected boolean cdAutomatic = true;

@@ -18,8 +18,6 @@ public class Parachute extends RecoveryDevice {
 	private int lineCount;
 	private final double DEFAULT_LINE_LENGTH = 0.3;
 	private double lineLength;
-	private final double InitialPackedLength = this.length;
-	private final double InitialPackedRadius = this.radius;
 
 	public Parachute() {
 		this.diameter = DEFAULT_DIAMETER;
@@ -213,23 +211,15 @@ public class Parachute extends RecoveryDevice {
 
 		//	//	Set preset parachute packed length
 		if ((preset.has(ComponentPreset.PACKED_LENGTH)) && preset.get(ComponentPreset.PACKED_LENGTH) > 0) {
-			this.PackedLength = preset.get(ComponentPreset.PACKED_LENGTH);
-			length = PackedLength;
-		} else {
-			length = InitialPackedLength;
+			length = preset.get(ComponentPreset.PACKED_LENGTH);
 		}
 		//	// Set preset parachute packed diameter
 		if ((preset.has(ComponentPreset.PACKED_DIAMETER)) && preset.get(ComponentPreset.PACKED_DIAMETER) > 0) {
-			this.PackedDiameter = preset.get(ComponentPreset.PACKED_DIAMETER);
-			radius = PackedDiameter / 2;
-		} else {
-			radius = InitialPackedRadius;
+			radius = preset.get(ComponentPreset.PACKED_DIAMETER) / 2;
 		}
 		//	// Size parachute packed diameter within parent inner diameter
 		if (length > 0 && radius > 0) {
-			double parachuteVolume = (Math.PI * Math.pow(radius, 2) * length);
 			setRadiusAutomatic(true);
-			length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
 		}
 
 		// SUBSTITUTE / ACTIVATE Override Mass Preset
