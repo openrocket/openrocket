@@ -207,9 +207,9 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		tabbedPane.setSelectedIndex(0);
 
 		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
-
 	}
 
 	protected JPanel positionTab() {
@@ -279,10 +279,6 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Note: An inner tube will not affect the aerodynamics of the rocket even if located outside the body tube.
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
-
-		// Apply the custom focus travel policy to this config dialog
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}
@@ -416,10 +412,6 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(reset);
 
 		panel.add(subPanel, "grow");
-
-		// Apply the custom focus travel policy to this config dialog
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}

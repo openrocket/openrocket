@@ -287,6 +287,7 @@ public class AppearancePanel extends JPanel {
 
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 
+		final JButton saveAsDefault;
 		{// Style Header Row
 			final JCheckBox colorDefault = new JCheckBox(fDefault);
 			colorDefault.addActionListener(new ActionListener() {
@@ -311,9 +312,9 @@ public class AppearancePanel extends JPanel {
 			add(colorDefault);
 			order.add(colorDefault);
 
-			JButton button = new SelectColorButton(
+			saveAsDefault = new SelectColorButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
-			button.addActionListener(new ActionListener() {
+			saveAsDefault.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (c.getColor() != null) {
@@ -328,8 +329,8 @@ public class AppearancePanel extends JPanel {
 					}
 				}
 			});
-			fDefault.addEnableComponent(button, false);
-			add(button, "span 2, align right, wrap");
+			fDefault.addEnableComponent(saveAsDefault, false);
+			add(saveAsDefault, "span 2, align right, wrap");
 		}
 
 		{// Figure Color
@@ -338,6 +339,8 @@ public class AppearancePanel extends JPanel {
 			add(figureColorButton);
 			order.add(figureColorButton);
 		}
+
+		order.add(saveAsDefault);
 
 		{// Line Style
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));

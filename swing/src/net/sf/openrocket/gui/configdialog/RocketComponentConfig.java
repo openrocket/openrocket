@@ -23,6 +23,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ComponentPresetDatabase;
@@ -69,6 +71,7 @@ public class RocketComponentConfig extends JPanel {
 	private final TextFieldListener textFieldListener;
 	
 	private JPanel buttonPanel;
+	protected JButton closeButton;
 	private AppearancePanel appearancePanel = null;
 	
 	private JLabel infoLabel;
@@ -189,7 +192,7 @@ public class RocketComponentConfig extends JPanel {
 		}
 		
 		//// Close button
-		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
+		this.closeButton = new SelectColorButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

@@ -34,7 +34,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		super(d, component, parent);
 	}
 	
-	
+
 	protected JPanel generalTab(String outer, String inner, String thickness, String length) {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		DoubleModel m;
@@ -174,10 +174,6 @@ public class RingComponentConfig extends RocketComponentConfig {
 			materialPanel.add(desc, "width 1px, growx, wrap");
 		}
 		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
-
-		// Apply the custom focus travel policy to this config dialog
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}

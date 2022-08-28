@@ -36,6 +36,11 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 					trans.get("StageConfig.tab.Separation.ttip"), 0);
 			tabbedPane.setSelectedIndex(0);
 		}
+
+		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	
@@ -47,8 +52,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 
 		StageSeparationConfiguration sepConfig = stage.getSeparationConfiguration();
 		
-		JComboBox<?> combo = new JComboBox<StageSeparationConfiguration.SeparationEvent>(
-				new EnumModel<StageSeparationConfiguration.SeparationEvent>( sepConfig, "SeparationEvent", SeparationEvent.values()));
+		JComboBox<?> combo = new JComboBox<>(new EnumModel<>( sepConfig, "SeparationEvent", SeparationEvent.values()));
 		
 		//combo.setSelectedItem(sepConfig);
 		panel.add(combo, "");
@@ -67,10 +71,6 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.seconds")), "wrap unrel");
 		
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
-
-		// Apply the custom focus travel policy to this config dialog
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return panel;
 	}

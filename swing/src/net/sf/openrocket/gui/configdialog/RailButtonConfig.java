@@ -33,7 +33,11 @@ public class RailButtonConfig extends RocketComponentConfig {
 		//// General and General properties
 		tabbedPane.insertTab( trans.get("RailBtnCfg.tab.General"), null, buttonTab( (RailButton)component ), trans.get("RailBtnCfg.tab.GeneralProp"), 0);
 		tabbedPane.setSelectedIndex(0);
-		
+
+		// Apply the custom focus travel policy to this panel
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	private JPanel buttonTab( final RailButton rbc ){
@@ -140,10 +144,6 @@ public class RailButtonConfig extends RocketComponentConfig {
 		panel.add(materialPanel,"span, wrap");
 
 		primary.add(panel, "grow");
-
-		// Apply the custom focus travel policy to this panel
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return primary;
 	}

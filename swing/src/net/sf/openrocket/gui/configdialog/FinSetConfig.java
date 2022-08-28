@@ -145,10 +145,6 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			order.add(split);
 			order.add(convert);
 		}
-
-		// Apply the custom focus travel policy to these bottom buttons
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	private JPanel finTabPanel() {
@@ -251,11 +247,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		});
 		panel.add(autoCalc, "skip 1, spanx");
-    order.add(autoCalc);
-
-		// Apply the custom focus travel policy to this panel
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
+    	order.add(autoCalc);
 		
 		return panel;
 	}
@@ -584,10 +576,6 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    filletPanel.add( materialCombo, "spanx 4, growx, wrap paragraph");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
-
-		// Apply the custom focus travel policy to this panel
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 	    return filletPanel;
 	}

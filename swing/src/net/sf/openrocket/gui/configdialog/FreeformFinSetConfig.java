@@ -95,6 +95,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		tabbedPane.setSelectedIndex(0);
 		
 		addFinSetButtons();
+
+		// Apply the custom focus travel policy to this panel
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	
@@ -217,10 +222,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		}
 		
 		mainPanel.add(panel, "aligny 20%");
-
-		// Apply the custom focus travel policy to this panel
-		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
-		parent.setFocusTraversalPolicy(policy);
 
 		return mainPanel;
 	}
