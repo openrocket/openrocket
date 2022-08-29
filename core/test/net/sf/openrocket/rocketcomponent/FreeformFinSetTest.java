@@ -54,7 +54,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		sourceSet.setMaterial(Material.newMaterial(Type.BULK, "test-material", 0.1, true));
 		sourceSet.setOverrideCGX(0.012);
 		sourceSet.setOverrideMass(0.0123);
-		sourceSet.setOverrideSubcomponents(true);
+		sourceSet.setSubcomponentsOverridden(true);
 		sourceSet.setAxialMethod(AxialMethod.ABSOLUTE);
 		sourceSet.setAxialOffset(0.1);
 		sourceSet.setTabHeight(0.01);
@@ -196,7 +196,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}
 		assertEquals(0.012, finSet.getOverrideCGX(), EPSILON);
 		assertEquals(0.0123, finSet.getOverrideMass(), EPSILON);
-		assertTrue(finSet.getOverrideSubcomponents());
+		assertTrue(finSet.isSubcomponentsOverridden());
 
 		assertEquals(AxialMethod.ABSOLUTE, finSet.getAxialMethod());
 		assertEquals(0.1, finSet.getAxialOffset(), EPSILON);
@@ -232,7 +232,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}
 		assertEquals(0.012, finSet.getOverrideCGX(), EPSILON);
 		assertEquals(0.0123, finSet.getOverrideMass(), EPSILON);
-		assertTrue(finSet.getOverrideSubcomponents());
+		assertTrue(finSet.isSubcomponentsOverridden());
 
 		assertEquals(AxialMethod.ABSOLUTE, finSet.getAxialMethod());
 		assertEquals(0.1, finSet.getAxialOffset(), EPSILON);

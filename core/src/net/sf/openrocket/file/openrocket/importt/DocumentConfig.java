@@ -130,7 +130,7 @@ class DocumentConfig {
 				Reflection.findMethod(RocketComponent.class, "setOverrideCD", double.class),
 				Reflection.findMethod(RocketComponent.class, "setCDOverridden", boolean.class)));
 		setters.put("RocketComponent:overridesubcomponents", new BooleanSetter(
-				Reflection.findMethod(RocketComponent.class, "setOverrideSubcomponents", boolean.class)));
+				Reflection.findMethod(RocketComponent.class, "setSubcomponentsOverridden", boolean.class)));
 		setters.put("RocketComponent:comment", new StringSetter(
 				Reflection.findMethod(RocketComponent.class, "setComment", String.class)));
 		setters.put("RocketComponent:preset", new ComponentPresetSetter(

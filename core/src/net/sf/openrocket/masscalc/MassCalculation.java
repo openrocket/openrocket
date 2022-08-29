@@ -355,7 +355,7 @@ public class MassCalculation {
 			// setting zero as the CG position means the top of the component, which is component.getPosition()
 			final Coordinate compZero = parentTransform.transform( component.getPosition() );
 
-			if (component.getOverrideSubcomponents()) {
+			if (component.isSubcomponentsOverridden()) {
 				if( component.isMassive() ){
 					// if this component mass, merge it in before overriding:
 					this.addMass( compCM );

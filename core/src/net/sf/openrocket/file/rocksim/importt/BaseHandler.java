@@ -175,7 +175,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 		if (override) {
 			component.setCGOverridden(override);
 			component.setMassOverridden(override);
-			component.setOverrideSubcomponents(false); //Rocksim does not support this type of override
+			component.setSubcomponentsOverridden(false); //Rocksim does not support this type of override
 			component.setOverrideMass(mass);
 			component.setOverrideCGX(cg);
 		}

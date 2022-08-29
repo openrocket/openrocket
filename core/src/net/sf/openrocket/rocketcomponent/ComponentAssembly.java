@@ -83,7 +83,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	}
 	
 	@Override
-	public boolean getOverrideSubcomponents() {
+	public boolean isSubcomponentsOverridden() {
 		return true;
 	}
 	
@@ -168,7 +168,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	}
 	
 	@Override
-	public void setOverrideSubcomponents(boolean override) {
+	public void setSubcomponentsOverridden(boolean override) {
 		// No-op
 	}
 	

@@ -224,7 +224,7 @@ public class RocketComponentConfig extends JPanel {
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
-				if (c.isMassOverridden() && c.getOverrideSubcomponents()) {
+				if (c.isMassOverridden() && c.isSubcomponentsOverridden()) {
 					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
 				}
 			}
@@ -526,7 +526,7 @@ public class RocketComponentConfig extends JPanel {
 
 		// BEGIN OVERRIDE SUBCOMPONENTS --------------------------------------------------
 
-		bm = new BooleanModel(component, "OverrideSubcomponents");
+		bm = new BooleanModel(component, "SubcomponentsOverridden");
 		check = new JCheckBox(bm);
 		//// Override mass, CG, and CD of all subcomponents
 		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
