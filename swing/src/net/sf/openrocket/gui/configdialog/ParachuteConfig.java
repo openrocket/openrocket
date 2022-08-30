@@ -18,10 +18,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.IntegerModel;
-import net.sf.openrocket.gui.adaptors.MaterialModel;
+import net.sf.openrocket.gui.adaptors.*;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.HtmlLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -62,6 +59,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
 
@@ -87,7 +85,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				Material.Type.SURFACE));
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
 		panel.add( surfaceMaterialCombo, "spanx 3, growx, wrap 15lp");
+		order.add(surfaceMaterialCombo);
 
+		// Drag Coefficient:
 		// CD
 		JLabel label = new HtmlLabel(trans.get("ParachuteCfg.lbl.longA1"));
 		String tip = trans.get("ParachuteCfg.lbl.longB1") +
@@ -102,7 +102,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin.setToolTipText(tip);
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-		
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
 		//// Reset button
 		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
 		button.setToolTipText(String.format(trans.get("ParachuteCfg.but.ResetCd.ttip"), Parachute.DEFAULT_CD));
@@ -114,6 +115,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			}
 		});
 		panel.add(button, "spanx, wrap 32lp");
+		order.add(button);
 
 		////  Shroud lines
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Shroudlines"), Style.BOLD), "wrap unrel");
@@ -125,6 +127,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx, wrap");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		//// Line length:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Linelength")));
@@ -134,6 +137,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
 		
@@ -143,6 +147,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		JComboBox<Material> shroudMaterialCombo =
 				new JComboBox<Material>(new MaterialModel(panel, component, Material.Type.LINE, "LineMaterial"));
 		panel.add( shroudMaterialCombo, "spanx 3, growx, wrap 15lp");
+		order.add(shroudMaterialCombo);
 
 		
 		// Right side
@@ -159,6 +164,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
+		order.add(positionCombo);
 		
 		//// plus
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plus")), "right");
@@ -168,6 +174,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		focusElement = spin;
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(
@@ -184,6 +191,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
@@ -199,6 +207,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
@@ -208,6 +217,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
 		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
+		order.add(checkAutoPackedRadius);
 
 		//// Deployment
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Deployment"), Style.BOLD), "wrap unrel");
@@ -232,6 +242,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			}
 		});
 		panel.add(eventCombo, "spanx 3, growx, wrap");
+		order.add(eventCombo);
 		
 		// ... and delay
 		//// plus
@@ -241,6 +252,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
@@ -256,6 +268,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		altitudeComponents.add(spin);
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		UnitSelector unit = new UnitSelector(m);
 		altitudeComponents.add(unit);
 		panel.add(unit, "growx");
@@ -275,6 +288,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		tabbedPane.insertTab(trans.get("ParachuteCfg.tab.Radialpos"), null, positionTab(),
 				trans.get("ParachuteCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 
 
@@ -290,6 +308,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
@@ -303,6 +322,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -319,7 +339,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			}
 		});
 		panel.add(button, "spanx, right");
-		
+		order.add(button);
+
 		return panel;
 	}
 }

@@ -10,6 +10,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -47,6 +48,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		focusElement = spin;
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.1)), "w 100lp, wrap para");
@@ -62,6 +64,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap rel");
@@ -77,6 +80,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap rel");
@@ -91,6 +95,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 20lp");
@@ -104,6 +109,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI) ), "w 100lp, wrap");
@@ -119,6 +125,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		EnumModel<AxialMethod> positionModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( positionModel );
 		panel.add(positionCombo, "spanx, growx, wrap");
+		order.add(positionCombo);
 		
 		//// plus
 		final DoubleModel mAxOff = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
@@ -126,6 +133,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		spin = new JSpinner(mAxOff.getSpinnerModel());				// Plus quantity input
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(mAxOff), "growx");		// Unity selection
 		panel.add(new BasicSlider(mAxOff.getSliderModel(			// Plus quantity slider
@@ -142,7 +150,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		});
 		
 		//// Material
-		panel.add(materialPanel( Material.Type.BULK), "span, wrap");
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		panel.add(materialPanel, "span, wrap");
 		
 		
 		primary.add(panel, "grow");
@@ -151,6 +160,11 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("LaunchLugCfg.tab.General"), null, primary,
 				trans.get("LaunchLugCfg.tab.Generalprop"), 0);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	@Override

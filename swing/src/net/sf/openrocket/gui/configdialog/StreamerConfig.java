@@ -17,6 +17,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
@@ -59,6 +60,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)), "w 100lp, wrap");
 		
@@ -70,6 +72,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 100lp, wrap 10lp");
 
@@ -81,6 +84,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)), "w 100lp, wrap");
 		
@@ -92,6 +96,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		//		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 100lp, wrap 10lp");
 
@@ -103,6 +108,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
+		order.add(streamerMaterialCombo);
 
 		// CD
 		//// <html>Drag coefficient C<sub>D</sub>:
@@ -120,12 +126,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin.setToolTipText(tip);
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		JCheckBox check = new JCheckBox(m.getAutomaticAction());
 		//// Automatic
 		check.setText(trans.get("StreamerCfg.lbl.AutomaticCd"));
 		check.setToolTipText(trans.get("StreamerCfg.lbl.AutomaticCd.ttip"));
 		panel.add(check, "skip, span, wrap");
+		order.add(check);
 		
 		//// The drag coefficient is relative to the area of the streamer.
 		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
@@ -145,6 +153,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
 		panel.add( positionCombo, "spanx, growx, wrap");
+		order.add(positionCombo);
 		
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")), "right");
@@ -154,6 +163,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		focusElement = spin;
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(
@@ -170,6 +180,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
@@ -185,6 +196,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
@@ -194,6 +206,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
 		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
 		panel.add(checkAutoPackedRadius, "skip, span 2, wrap 5lp");
+		order.add(checkAutoPackedRadius);
 
 		
 		//// Deployment
@@ -215,6 +228,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 			}
 		});
 		panel.add( eventCombo, "spanx 3, growx, wrap");
+		order.add(eventCombo);
 		
 		// ... and delay
 		//// plus
@@ -224,6 +238,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.seconds")), "wrap paragraph");
@@ -239,6 +254,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		altitudeComponents.add(spin);
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		UnitSelector unit = new UnitSelector(m);
 		altitudeComponents.add(unit);
 		panel.add(unit, "growx");
@@ -259,6 +275,11 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		tabbedPane.insertTab(trans.get("StreamerCfg.tab.Radialpos"), null, positionTab(),
 				trans.get("StreamerCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 	
@@ -277,6 +298,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
@@ -289,6 +311,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
@@ -304,7 +327,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 			}
 		});
 		panel.add(button, "spanx, right");
-		
+		order.add(button);
+
 		return panel;
 	}
 }

@@ -26,6 +26,7 @@ public class BasicSlider extends JSlider {
 		super(brm);
 		setOrientation(orientation);
 		setInverted(inverted);
+		setFocusable(false);
 		setUI(new BasicSliderUI(this));
 	}
 

@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -34,7 +35,7 @@ public class MotorConfig extends JPanel {
 	private final MotorMount mount;
 	private static final Translator trans = Application.getTranslator();
 	
-	public MotorConfig(MotorMount motorMount) {
+	public MotorConfig(MotorMount motorMount, List<Component> order) {
 		super(new MigLayout("fill"));
 		
 		this.mount = motorMount;
@@ -46,6 +47,7 @@ public class MotorConfig extends JPanel {
 		////This component is a motor mount
 		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
 		this.add(check, "wrap");
+		order.add(check);
 		
 		final JPanel panel = new JPanel(new MigLayout("fill"));
 		this.add(panel, "grow, wrap");
@@ -60,6 +62,7 @@ public class MotorConfig extends JPanel {
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "span, split, width :65lp:");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(dm), "width :30lp:");
 		panel.add(new BasicSlider(dm.getSliderModel(-0.02, 0.06)), "w 100lp, wrap unrel");
@@ -74,6 +77,7 @@ public class MotorConfig extends JPanel {
 		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
 		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
 		panel.add(eventBox , "growx, wrap");
+		order.add(eventBox);
 		
 		// ... and delay
 		//// plus
@@ -83,6 +87,7 @@ public class MotorConfig extends JPanel {
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.seconds")), "wrap unrel");

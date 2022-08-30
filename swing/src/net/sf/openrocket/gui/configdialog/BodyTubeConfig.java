@@ -6,13 +6,12 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -24,12 +23,6 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.Arrays;
 
 @SuppressWarnings("serial")
 public class BodyTubeConfig extends RocketComponentConfig {
@@ -53,6 +46,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		focusElement = spin;
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(length), "growx");
 		panel.add(new BasicSlider(length.getSliderModel(0, 0.5, maxLength)), "w 100lp, wrap");
@@ -65,6 +59,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
@@ -74,6 +69,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		checkAutoOuterRadius = new JCheckBox(outerAutoAction);
 		checkAutoOuterRadius.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
 		panel.add(checkAutoOuterRadius, "skip, span 2, wrap");
+		order.add(checkAutoOuterRadius);
 		updateCheckboxAutoAftRadius();
 
 		////  Inner diameter
@@ -84,6 +80,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(innerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(innerRadiusModel), "growx");
 		panel.add(new BasicSlider(innerRadiusModel.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap");
@@ -96,6 +93,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		spin = new JSpinner(thicknessModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(thicknessModel), "growx");
 		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
@@ -105,10 +103,11 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		check.setToolTipText(trans.get("BodyTubecfg.checkbox.Filled.ttip"));
 		panel.add(check, "skip, span 2, wrap");
+		order.add(check);
 
 		//// Material
-		panel.add(materialPanel(Material.Type.BULK),
-				"cell 4 0, gapleft paragraph, aligny 0%, spany");
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel,
@@ -116,11 +115,15 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		tabbedPane.setSelectedIndex(0);
 
-		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
+		MotorConfig motorConfig = new MotorConfig((MotorMount)c, order);
 
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 
+		// Apply the custom focus travel policy to this config dialog
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 
 	@Override

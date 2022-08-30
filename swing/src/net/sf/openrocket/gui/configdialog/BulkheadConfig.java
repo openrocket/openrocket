@@ -5,6 +5,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -26,6 +27,11 @@ public class BulkheadConfig extends RingComponentConfig {
 		tabbedPane.insertTab(trans.get("BulkheadCfg.tab.General"), null, tab,
 				trans.get("BulkheadCfg.tab.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
+
+		// Apply the custom focus travel policy to this panel
+		order.add(closeButton);		// Make sure the close button is the last component
+		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
+		parent.setFocusTraversalPolicy(policy);
 	}
 	
 }

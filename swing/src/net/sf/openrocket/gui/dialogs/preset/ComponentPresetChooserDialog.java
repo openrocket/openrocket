@@ -40,6 +40,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
+import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 /**
  * Dialog shown for selecting a preset component.
@@ -156,6 +157,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 		tc.setPreferredWidth(w);
 		tc.setMaxWidth(w);
 		tc.setMinWidth(w);
+
+		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
+		TableRowTraversalPolicy.setTableRowTraversalPolicy(componentSelectionTable);
 
 		panel.add(getFilterCheckboxes(tm, legacyColumnIndex), "wrap para");
 		
