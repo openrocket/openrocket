@@ -63,9 +63,9 @@ public class OverrideTest extends BaseTestCase {
 		assertNotNull(finset);
 
 		// We start by just checking the override flags
-		// Initially no overrides except for sustainer (a componenent assembly)
+		// Initially no overrides
 		assertFalse(sustainer.isCDOverridden());
-		assertTrue(sustainer.isSubcomponentsOverridden());
+		assertFalse(sustainer.isSubcomponentsOverridden());
 		assertFalse(sustainer.isCDOverriddenByAncestor());
 		
 		assertFalse(bodytube.isCDOverridden());		
@@ -76,12 +76,8 @@ public class OverrideTest extends BaseTestCase {
 		assertFalse(finset.isSubcomponentsOverridden());
 		assertFalse(finset.isCDOverriddenByAncestor());
 
-		// SubcomponentsOverridden can't be turned off for component assemblies
-		sustainer.setSubcomponentsOverridden(false);
-
-		assertTrue(sustainer.isSubcomponentsOverridden());
-
-		// Override sustainer CD and others get overridden
+		// Override sustainer CD and subcomponents
+		sustainer.setSubcomponentsOverridden(true);
 		sustainer.setCDOverridden(true);
 		sustainer.setOverrideCD(0.5);
 
@@ -106,11 +102,11 @@ public class OverrideTest extends BaseTestCase {
 		AerodynamicForces forces = calc.getAerodynamicForces(configuration, conditions, warnings);
 		assertEquals(sustainer.getOverrideCD(), forces.getCD(), MathUtil.EPSILON);
 
-		// Turn off sustainer override; body tube and nose cone aren't overridden by ancestor but fin set is
-		sustainer.setCDOverridden(false);
+		// Turn off sustainer subcomponents override; body tube and nose cone aren't overridden by ancestor but fin set is
+		sustainer.setSubcomponentsOverridden(false);
 
-		// CD of rocket should be overridden CD of body tube plus calculated CD of nose cone
+		// CD of rocket should be overridden CD of sustainer plus body tube plus calculated CD of nose cone
 		Map<RocketComponent, AerodynamicForces> forceMap = calc.getForceAnalysis(configuration, conditions, warnings);
-		assertEquals(bodytube.getOverrideCD() + forceMap.get(nosecone).getCD(), forceMap.get(rocket).getCD(), MathUtil.EPSILON);
+		assertEquals(sustainer.getOverrideCD() + bodytube.getOverrideCD() + forceMap.get(nosecone).getCD(), forceMap.get(rocket).getCD(), MathUtil.EPSILON);
 	}
 }

@@ -82,11 +82,6 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 		return 0;
 	}
 	
-	@Override
-	public boolean isSubcomponentsOverridden() {
-		return true;
-	}
-	
 	/**
 	 * Null method (ComponentAssembly has no mass of itself).
 	 */
@@ -165,16 +160,6 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 			throw new BugException("Unrecognized subclass of Component Assembly.  Please update this method.");
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
-	
-	@Override
-	public void setSubcomponentsOverridden(boolean override) {
-		// No-op
-	}
-	
-	@Override
-	public boolean isOverrideSubcomponentsEnabled() {
-		return false;
 	}
 	
 	@Override
