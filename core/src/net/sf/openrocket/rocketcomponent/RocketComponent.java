@@ -697,7 +697,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param x the override CD to set.
 	 */
 	public final void setOverrideCD(double x) {
-		System.out.println("set component " + this + " override to " + x);
 		for (RocketComponent listener : configListeners) {
 			listener.setOverrideCD(x);
 		}
@@ -709,7 +708,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			
 		if (isCDOverridden()) {
 			if (isSubcomponentsOverridden()) {
-				System.out.println("override subcomponents");
 				overrideSubcomponentsCD(true);
 			}
 			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
@@ -737,7 +735,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param o whether the CD is currently directly overridden
 	 */
 	public final void setCDOverridden(boolean o) {
-		System.out.println("setting component " + this + " cdOverridden to " + o);
 		for (RocketComponent listener : configListeners) {
 			listener.setCDOverridden(o);
 		}
@@ -793,7 +790,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param override	whether the mass and/or CG override overrides all subcomponent.
 	 */
 	public void setSubcomponentsOverridden(boolean override) {
-		System.out.println("component " + this + " override subcomponents " + override);
 		for (RocketComponent listener : configListeners) {
 			listener.setSubcomponentsOverridden(override);
 		}
@@ -827,7 +823,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	void overrideSubcomponentsCD(boolean override) {
 		for (RocketComponent c: this.children) {
-			System.out.println("overriding CD of " + c + " override " + override);
 			if (c.isCDOverriddenByAncestor() != override) {
 
 				c.cdOverriddenByAncestor = override;
