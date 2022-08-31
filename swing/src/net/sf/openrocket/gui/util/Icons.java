@@ -94,6 +94,7 @@ public class Icons {
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
 	
 	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
+	public static final Icon CD_OVERRIDE = loadImageIcon("pix/icons/cd-override.png", "CD Override");
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
 
 // MANUFACTURERS ICONS
