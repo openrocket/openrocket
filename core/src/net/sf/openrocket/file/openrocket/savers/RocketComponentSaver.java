@@ -142,7 +142,7 @@ public class RocketComponentSaver {
 			overridden = true;
 		}
 		if (overridden) {
-			elements.add("<overridesubcomponents>" + c.getOverrideSubcomponents()
+			elements.add("<overridesubcomponents>" + c.isSubcomponentsOverridden()
 					+ "</overridesubcomponents>");
 		}
 		

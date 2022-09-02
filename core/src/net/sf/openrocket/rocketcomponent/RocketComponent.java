@@ -96,14 +96,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private LineStyle lineStyle = null;
 	
 	
-	// Override mass/CG
+	// Override mass/CG/CD
     protected double overrideMass = 0;
 	protected boolean massOverridden = false;
+	
 	private double overrideCGX = 0;
 	private boolean cgOverridden = false;
+	
 	private double overrideCD = 0;
 	private boolean cdOverridden = false;
-	
+
+	private boolean cdOverriddenByAncestor = false;
 	private boolean overrideSubcomponents = false;
 	
 	
@@ -679,10 +682,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 
-
 	/** Return the current override CD. The CD is not necessarily overridden.
 	 * 
-	 * @return the override CG.
+	 * @return the override CD.
 	 */
 	public final double getOverrideCD() {
 		mutex.verify();
@@ -703,10 +705,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		checkState();
 		this.overrideCD = x;
-		if (isCDOverridden())
-			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-		else
+			
+		if (isCDOverridden()) {
+			if (isSubcomponentsOverridden()) {
+				overrideSubcomponentsCD(true);
+			}
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		} else {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		}
 	}
 		
 
@@ -723,9 +730,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 
 	/**
-	 * Set whether the CD is currently overridden.
+	 * Set whether the CD is currently directly overridden.
 	 *
-	 * @param o whether the CD is overridden
+	 * @param o whether the CD is currently directly overridden
 	 */
 	public final void setCDOverridden(boolean o) {
 		for (RocketComponent listener : configListeners) {
@@ -737,9 +744,27 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cdOverridden = o;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+		// if overrideSubcompoents is set, we need to descend the component
+		// tree.  If we are overriding our own CD, we need to override all
+		// our descendants.  If we are not overriding our own CD, we are
+		// also not overriding our descendants
+		if (isSubcomponentsOverridden()) {
+			overrideSubcomponentsCD(o);
+		}
+		
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-	
+
+	/**
+	 * Return whether the CD is currently overridden by an ancestor.
+	 * 
+	 * @return whether the CD is overridden by an ancestor
+	 */
+	public final boolean isCDOverriddenByAncestor() {
+		mutex.verify();
+		return cdOverriddenByAncestor;
+	}
 	
 	
 	/**
@@ -750,9 +775,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * also override {@link #isOverrideSubcomponentsEnabled()} to return
 	 * <code>false</code>.
 	 *
-	 * @return	whether the current mass and/or CG override overrides subcomponents as well.
+	 * @return	whether the current mass, CG, and/or CD override overrides subcomponents as well.
 	 */
-	public boolean getOverrideSubcomponents() {
+	public boolean isSubcomponentsOverridden() {
 		mutex.verify();
 		return overrideSubcomponents;
 	}
@@ -760,13 +785,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	/**
 	 * Set whether the mass and/or CG override overrides all subcomponent values
-	 * as well.  See {@link #getOverrideSubcomponents()} for details.
+	 * as well.  See {@link #isSubcomponentsOverridden()} for details.
 	 *
 	 * @param override	whether the mass and/or CG override overrides all subcomponent.
 	 */
-	public void setOverrideSubcomponents(boolean override) {
+	public void setSubcomponentsOverridden(boolean override) {
 		for (RocketComponent listener : configListeners) {
-			listener.setOverrideSubcomponents(override);
+			listener.setSubcomponentsOverridden(override);
 		}
 
 		if (overrideSubcomponents == override) {
@@ -775,9 +800,42 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		overrideSubcomponents = override;
 
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		overrideSubcomponentsCD(override);
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+
+	/**
+	 * Recursively descend component tree and set descendant CD override values
+	 *
+	 * Logic:  
+	 *    If we are setting the override true, descend the component tree marking
+	 *    every component as overridden by ancestor
+	 *
+	 *    If we are setting the override false, descend the component tree marking every
+	 *    component as not overridden by ancestor.
+	 *        If in the course of descending the tree we encounter a descendant whose direct
+	 *        CD override and overridesubcomponents flags are both true, descend from there
+	 *        setting the ancestoroverride from that component
+	 *
+	 * @param override whether setting or clearing overrides
+	 *
+	 */
+	void overrideSubcomponentsCD(boolean override) {
+		for (RocketComponent c: this.children) {
+			if (c.isCDOverriddenByAncestor() != override) {
+
+				c.cdOverriddenByAncestor = override;
+
+				if (!override && c.isCDOverridden() && c.isSubcomponentsOverridden()) {
+					c.overrideSubcomponentsCD(true);
+				} else {
+					c.overrideSubcomponentsCD(override);
+				}
+			}
+		}
+	}
+						
 	/**
 	 * Return whether the option to override all subcomponents is enabled or not.
 	 * The default implementation returns <code>false</code> if neither mass nor
@@ -790,7 +848,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public boolean isOverrideSubcomponentsEnabled() {
 		mutex.verify();
-		return isCGOverridden() || isMassOverridden();
+		return isCGOverridden() || isMassOverridden() || isCDOverridden();
 	}
 	
 	/** 
@@ -2275,6 +2333,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.massOverridden = src.massOverridden;
 		this.overrideCGX = src.overrideCGX;
 		this.cgOverridden = src.cgOverridden;
+		this.cdOverriddenByAncestor = src.cdOverriddenByAncestor;
 		this.overrideSubcomponents = src.overrideSubcomponents;
 		this.name = src.name;
 		this.comment = src.comment;

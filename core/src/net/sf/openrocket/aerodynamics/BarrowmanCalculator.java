@@ -89,6 +89,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		rocketForces.setFrictionCD(calculateFrictionCD(configuration, conditions, eachMap, warnings));
 		rocketForces.setPressureCD(calculatePressureCD(configuration, conditions, eachMap, warnings));
 		rocketForces.setBaseCD(calculateBaseCD(configuration, conditions, eachMap, warnings));
+		rocketForces.setOverrideCD(calculateOverrideCD(configuration, conditions, eachMap, assemblyMap, warnings));
 
 		Map<RocketComponent, AerodynamicForces> finalMap = new LinkedHashMap<>();
 		for(final RocketComponent comp : instMap.keySet()){
@@ -118,7 +119,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (Double.isNaN(f.getFrictionCD()))
 				f.setFrictionCD(0);
 
-			f.setCD(f.getBaseCD() + f.getPressureCD() + f.getFrictionCD());
+			if (Double.isNaN(f.getOverrideCD()))
+				f.setOverrideCD(0);
+
+			f.setCD(f.getBaseCD() + f.getPressureCD() + f.getFrictionCD() + f.getOverrideCD());
 			f.setCDaxial(calculateAxialCD(conditions, f.getCD()));
 
 			finalMap.put(comp, f);
@@ -187,8 +191,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		total.setFrictionCD(calculateFrictionCD(configuration, conditions, null, warnings));
 		total.setPressureCD(calculatePressureCD(configuration, conditions, null, warnings));
 		total.setBaseCD(calculateBaseCD(configuration, conditions, null, warnings));
+		total.setOverrideCD(calculateOverrideCD(configuration, conditions, null, null, warnings));
 		
-		total.setCD(total.getFrictionCD() + total.getPressureCD() + total.getBaseCD());
+		total.setCD(total.getFrictionCD() + total.getPressureCD() + total.getBaseCD() + total.getOverrideCD());
 		
 		total.setCDaxial(calculateAxialCD(conditions, total.getCD()));
 		
@@ -342,7 +347,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return friction drag for entire rocket
 	 */
 	private double calculateFrictionCD(FlightConfiguration configuration, FlightConditions conditions,
-			Map<RocketComponent, AerodynamicForces> map, WarningSet warningSet) {
+			Map<RocketComponent, AerodynamicForces> forceMap, WarningSet warningSet) {
 		
 		double mach = conditions.getMach();
 		double Re = calculateReynoldsNumber(configuration, conditions);
@@ -375,8 +380,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 			}
 			
-			// Handle Overriden CD for Whole Rocket
-			if(c.isCDOverridden()) {
+			if (c.isCDOverridden() ||
+				c.isCDOverriddenByAncestor()) {
 				continue;
 			}
 
@@ -410,8 +415,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			double componentFrictionCD = calcMap.get(c).calculateFrictionCD(conditions, componentCf, warningSet);
-
 			int instanceCount = entry.getValue().size();
+			
 			if (c instanceof SymmetricComponent) {
 				SymmetricComponent s = (SymmetricComponent) c;
 
@@ -430,8 +435,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				otherFrictionCD += instanceCount * componentFrictionCD;
 			}
 
-			if (map != null) {
-				map.get(c).setFrictionCD(componentFrictionCD);
+			if (forceMap != null) {
+				forceMap.get(c).setFrictionCD(componentFrictionCD);
 			}
 		}
 		
@@ -440,10 +445,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		double correction = (1 + 1.0 / (2 * fB));
 		
 		// Correct body data in map
-		if (map != null) {
-			for (RocketComponent c : map.keySet()) {
+		if (forceMap != null) {
+			for (RocketComponent c : forceMap.keySet()) {
 				if (c instanceof SymmetricComponent) {
-					map.get(c).setFrictionCD(map.get(c).getFrictionCD() * correction);
+					forceMap.get(c).setFrictionCD(forceMap.get(c).getFrictionCD() * correction);
 				}
 			}
 		}
@@ -607,7 +612,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 			}
 				
-			if(c.isCDOverridden()) {
+			if (c.isCDOverridden() ||
+				c.isCDOverriddenByAncestor()) {
 				continue;
 			}
 			
@@ -616,7 +622,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			// Pressure drag of this component
 			double cd = calcMap.get(c).calculatePressureCD(conditions, stagnation, base,
 															   warningSet);
-			
+
 			if (forceMap != null) {
 				forceMap.get(c).setPressureCD(cd);
 			}
@@ -639,13 +645,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					cd = stagnation * area / conditions.getRefArea();
 					total += instanceCount * cd;
 						
-						if (forceMap != null) {
-							forceMap.get(c).setPressureCD(forceMap.get(c).getPressureCD() + cd);
-						}
+					if (forceMap != null) {
+						forceMap.get(c).setPressureCD(forceMap.get(c).getPressureCD() + cd);
+					}
 				}
 			}
 		}
-		
+
 		return total;
 	}
 	
@@ -660,7 +666,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * @return
 	 */
 	private double calculateBaseCD(FlightConfiguration configuration, FlightConditions conditions,
-								   Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
+								   Map<RocketComponent, AerodynamicForces> forceMap, WarningSet warnings) {
 		
 		double base, total;
 		
@@ -682,8 +688,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 			int instanceCount = entry.getValue().size();
 			
-			if(c.isCDOverridden()) {
-				total += instanceCount * c.getOverrideCD();
+			if (c.isCDOverridden() ||
+				c.isCDOverriddenByAncestor()) {
 				continue;
 			}
 				
@@ -699,8 +705,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
 				double cd = base * area / conditions.getRefArea();
 				total += instanceCount * cd;
-				if ((map != null) && (prevComponent != null)) {
-					map.get(prevComponent).setBaseCD(cd);
+				if ((forceMap != null) && (prevComponent != null)) {
+					forceMap.get(prevComponent).setBaseCD(cd);
 				}
 			}
 				
@@ -712,8 +718,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				double area = Math.PI * pow2(s.getAftRadius());
 				double cd = base * area / conditions.getRefArea();
 				total += instanceCount * cd;
-				if (map != null) {
-					map.get(s).setBaseCD(cd);
+				if (forceMap != null) {
+					forceMap.get(s).setBaseCD(cd);
 				}
 			}
 		}
@@ -797,9 +803,50 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		else
 			return -mul * cd;
 	}
-	
-	
+
 	/**
+	 * add together CD overrides for active components
+	 * 
+	 * @param configuration		Rocket configuration
+	 * @param conditions		Flight conditions taken into account
+	 * @param forceMap
+	 * @param warningSet			all current warnings
+	 * @return
+	 */
+	private double calculateOverrideCD(FlightConfiguration configuration, FlightConditions conditions,
+									   Map<RocketComponent, AerodynamicForces> eachMap,
+									   Map<RocketComponent, AerodynamicForces> assemblyMap,				   
+									   WarningSet warningSet) {
+		
+		if (calcMap == null)
+			buildCalcMap(configuration);
+
+		double total = 0;
+		final InstanceMap imap = configuration.getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent c = entry.getKey();
+			int instanceCount = entry.getValue().size();
+
+			if (!c.isAerodynamic() &&
+				!(c instanceof ComponentAssembly)) {
+				continue;
+			}
+
+			if (c.isCDOverridden() &&
+				!c.isCDOverriddenByAncestor()) {
+				double cd = instanceCount * c.getOverrideCD();
+				Map<RocketComponent, AerodynamicForces> forceMap = (c instanceof ComponentAssembly) ? assemblyMap : eachMap;
+				if (forceMap != null) {
+					forceMap.get(c).setOverrideCD(cd);
+				}
+				total += cd;
+			}
+		}
+
+		return total;
+	}
+	
+    /**
 	 * get damping moments from a rocket in a flight
 	 * @param configuration		Rocket configuration
 	 * @param conditions		flight conditions in consideration

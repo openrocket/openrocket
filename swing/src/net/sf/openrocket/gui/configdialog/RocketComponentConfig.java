@@ -236,7 +236,7 @@ public class RocketComponentConfig extends JPanel {
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
-				if (c.isMassOverridden() && c.getOverrideSubcomponents()) {
+				if (c.isMassOverridden() && c.isSubcomponentsOverridden()) {
 					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
 				}
 			}
@@ -351,16 +351,15 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel overrideTab() {
 		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
 				"[][65lp::][30lp::][]", ""));
-		//// Override the mass or center of gravity of the
-		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Overridemassorcenter") + " " +
-				component.getComponentName() + ":", Style.BOLD), "spanx, wrap 20lp");
+		//// Override the mass, center of gravity, or drag coeficient of the component
 
 		JCheckBox check;
 		BooleanModel bm;
 		UnitSelector us;
 		BasicSlider bs;
 		
-		////  Mass
+		// OVERRIDE MASS ----------------------------------
+		
 		bm = new BooleanModel(component, "MassOverridden");
 		check = new JCheckBox(bm);
 		//// Override mass:
@@ -385,10 +384,10 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 		
+		// END OVERRIDE MASS ----------------------------------
 	
-		//OVERRIDES CG ----------------------------------
+		// OVERRIDE CG ----------------------------------
 	
-		////  CG override
 		bm = new BooleanModel(component, "CGOverridden");
 		check = new JCheckBox(bm);
 		//// Override center of gravity:"
@@ -444,21 +443,10 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(bs, "growx 5, w 100lp, wrap");
 		
 
-		//END OVERRIDES CG ---------------------------------------------------
-
-		// Override subcomponents checkbox
-		bm = new BooleanModel(component, "OverrideSubcomponents");
-		check = new JCheckBox(bm);
-		//// Override mass and CG of all subcomponents
-		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
-		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverridemassandCG.ttip"));
-		panel.add(check, "spanx, wrap 35lp");
-		order.add(check);
+		// END OVERRIDE CG ---------------------------------------------------
 
 
-        //BEGIN OVERRIDES CD ---------------------------------------------------
-
-
+    // BEGIN OVERRIDE CD ------------------------------------------
 		bm = new BooleanModel(component, "CDOverridden");
 		check = new JCheckBox(bm);
 		//// Override coefficient of drag:
@@ -478,12 +466,22 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(0, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap");
+		panel.add(bs, "skip, growx 5, w 100lp, wrap");
 
+		// END OVERRIDE CD --------------------------------------------------
 
-		//END OVERRIDES CP --------------------------------------------------
+		// BEGIN OVERRIDE SUBCOMPONENTS --------------------------------------------------
 
-		//// The overridden mass does not include motors.
+		bm = new BooleanModel(component, "SubcomponentsOverridden");
+		check = new JCheckBox(bm);
+		//// Override mass, CG, and CD of all subcomponents
+		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.ttip"));
+		panel.add(check, "spanx, wrap 35lp");
+
+		// END OVERRIDE SUBCOMPONENTS --------------------------------------------------
+
+		// OVERRIDE MASS, CG DOESN'T INCLUDE MOTORS  --------------------------------------------------
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +
 						//// The center of gravity is measured from the front end of the
 						trans.get("RocketCompCfg.lbl.longB2") + " " +
