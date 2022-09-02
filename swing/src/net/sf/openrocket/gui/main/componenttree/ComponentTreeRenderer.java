@@ -49,7 +49,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		} else {
 			setIcon(ComponentIcons.getSmallIcon(value.getClass()));
 		}
-		if (c.isMassOverridden() || c.isCGOverridden()) {
+		if (c.isMassOverridden() || c.isCGOverridden() || c.isCDOverridden()) {
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 1));
 			p.setBackground(UIManager.getColor("Tree.textBackground"));
@@ -61,6 +61,10 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			if (c.isCGOverridden()) {
 				p.add(new JLabel(Icons.CG_OVERRIDE));
 			}
+			if (c.isCDOverridden()) {
+				p.add(new JLabel(Icons.CD_OVERRIDE));
+			}
+			
 
 			if (components != null && components.size() > 1 && components.contains(c)) {
 				p.setToolTipText(getToolTipMultipleComponents(components));
