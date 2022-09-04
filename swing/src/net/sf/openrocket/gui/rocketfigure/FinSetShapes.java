@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -106,36 +107,25 @@ public class FinSetShapes extends RocketComponentShape {
 		cTab[2]=new Coordinate(0, -tabHeight,thickness/2);
 		cTab[3]=new Coordinate(0, -tabHeight,-thickness/2);
 
-		// Apply base rotation
-		c = transformation.transform(c);
-		cTab = transformation.transform(cTab);
-          
+		// y translate the back view (if there is a fin point with non-zero y value)
+		Coordinate[] points = finset.getFinPoints();
+		double yOffset = Double.MAX_VALUE;
+		for (Coordinate point : points) {
+			yOffset = MathUtil.min(yOffset, point.y);
+		}
+		final Transformation translateOffsetY = new Transformation(0, yOffset, 0);
+		final Transformation compositeTransform = transformation.applyTransformation(translateOffsetY);
+
 		// Make polygon
-		Path2D.Double p = createUncantedPolygon(c);
+		Shape p = makePolygonBack(c, compositeTransform);
 
 		if (tabHeight != 0 && finset.getTabLength() != 0) {
-			Path2D.Double pTab = createUncantedPolygon(cTab);
+			Shape pTab = makePolygonBack(cTab, compositeTransform);
 			return new Shape[]{p, pTab};
 		}
 		else {
 			return new Shape[]{p};
 		}
-	}
-
-	private static Path2D.Double createUncantedPolygon(Coordinate[] c) {
-		Coordinate a;
-		Path2D.Double p = new Path2D.Double();
-
-		a = c[0];
-		p.moveTo(a.z, a.y);
-		a = c[1];
-		p.lineTo(a.z, a.y);
-		a = c[2];
-		p.lineTo(a.z, a.y);
-		a = c[3];
-		p.lineTo(a.z, a.y);
-		p.closePath();
-		return p;
 	}
 
 	private static Shape[] cantedShapesBack(FinSet finset,
