@@ -1073,11 +1073,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		// for anything more complicated, increase the count:
 		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
 			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
-			final double xWidth = 0.005; // width (in meters) of each individual iteration
+			final double xWidth = 0.0025; // width (in meters) of each individual iteration
 			divisionCount = (int) Math.ceil(intervalLength / xWidth);
 
 			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
-			final int maximumBodyDivisionCount = 100;
+			// a too high division count will cause the 3D render to have invisible faces because it can't deal with the geometry.
+			final int maximumBodyDivisionCount = 20;
 			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
 		}
 
