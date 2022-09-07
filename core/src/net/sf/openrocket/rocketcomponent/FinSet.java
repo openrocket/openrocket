@@ -29,6 +29,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 */
 	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
 
+	/**
+	 * Maximum number of root points in the root geometry.
+	 */
+	private static final int MAX_ROOT_DIVISIONS = 100;
+	private static final int MAX_ROOT_DIVISIONS_LOW_RES = 20;
+
     public void setOverrideMass() {
     }
 
@@ -1007,7 +1013,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * This should at one point be solved by rendering the fin faces using triangulation, instead of how it's currently implemented.
 	 */
 	public Coordinate[] getFinPointsWithLowResRoot() {
-		return combineCurves(getFinPoints(), getRootPoints(20));
+		return combineCurves(getFinPoints(), getRootPoints(MAX_ROOT_DIVISIONS_LOW_RES));
 	}
 
 	/**
@@ -1023,7 +1029,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return  List of XY-coordinates.
 	 */
 	public Coordinate[] getTabPoints() {
-		
 		if (MathUtil.equals(getTabHeight(), 0) ||
 				MathUtil.equals(getTabLength(), 0)){
 			return new Coordinate[]{};
@@ -1039,9 +1044,50 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			}
 		}
 
+		return generateTabPointsWithRoot(rootPoints);
+	}
+
+	/**
+	 * Return a list of X,Y coordinates defining the geometry of a single fin tab.
+	 * The origin is the leading root edge, and the tab height (or 'depth') is
+	 * the radial distance inwards from the reference point, depending on positioning method:
+	 *      if via TOP:    tab front edge
+	 *      if via MIDDLE: tab middle
+	 *      if via BOTTOM: tab trailing edge
+	 *
+	 * The tab coordinates will generally have negative y values.
+	 *
+	 * This low res version is for 3D rendering, as a too high resolution would cause clipping and invisible fin faces.
+	 * This should at one point be solved by rendering the fin faces using triangulation, instead of how it's currently implemented.
+	 *
+	 * @return  List of XY-coordinates.
+	 */
+	public Coordinate[] getTabPointsLowRes() {
+		if (MathUtil.equals(getTabHeight(), 0) ||
+				MathUtil.equals(getTabLength(), 0)){
+			return new Coordinate[]{};
+		}
+
+		final double xTabFront = getTabFrontEdge();
+		final double xTabTrail = getTabTrailingEdge();
+
+		List<Coordinate> rootPoints = new ArrayList<>();
+		for (Coordinate point : getRootPoints(MAX_ROOT_DIVISIONS_LOW_RES)) {
+			if (point.x > xTabFront && point.x < xTabTrail) {
+				rootPoints.add(point);
+			}
+		}
+
+		return generateTabPointsWithRoot(rootPoints);
+	}
+
+	private Coordinate[] generateTabPointsWithRoot(List<Coordinate> rootPoints) {
+		final double xTabFront = getTabFrontEdge();
+		final double xTabTrail = getTabTrailingEdge();
+
 		Coordinate[] tabPoints = new Coordinate[4];
 		final Coordinate finFront = this.getFinFront();
-		
+
 		final SymmetricComponent body = (SymmetricComponent)this.getParent();
 
 		// // limit the new heights to be no greater than the current body radius.
@@ -1049,8 +1095,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		double yTabTrail = Double.NaN;
 		double yTabBottom = Double.NaN;
 		if( null != body ){
-			yTabFront = body.getRadius( finFront.x + xTabFront ) - finFront.y;
-			yTabTrail = body.getRadius( finFront.x + xTabTrail ) - finFront.y;
+			yTabFront = body.getRadius( finFront.x + xTabFront) - finFront.y;
+			yTabTrail = body.getRadius( finFront.x + xTabTrail) - finFront.y;
 			yTabBottom = MathUtil.min(yTabFront, yTabTrail) - tabHeight;
 		}
 
@@ -1136,7 +1182,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 
 	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
-		return getMountPoints(xStart, xEnd, xOffset, yOffset, 100);
+		return getMountPoints(xStart, xEnd, xOffset, yOffset, MAX_ROOT_DIVISIONS);
 	}
 	
 	@Override

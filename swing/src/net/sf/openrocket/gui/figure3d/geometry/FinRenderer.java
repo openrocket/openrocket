@@ -35,7 +35,7 @@ public class FinRenderer {
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
 		Coordinate[] finPoints = finSet.getFinPointsWithLowResRoot();
-		Coordinate[] tabPoints = finSet.getTabPoints();
+		Coordinate[] tabPoints = finSet.getTabPointsLowRes();
 
 		{
 		    gl.glPushMatrix();
