@@ -34,7 +34,7 @@ public class FinRenderer {
 		gl.glTranslated(-bounds.min.x, -bounds.min.y - finSet.getBodyRadius(), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
-		Coordinate[] finPoints = finSet.getFinPointsWithRoot();
+		Coordinate[] finPoints = finSet.getFinPointsWithLowResRoot();
 		Coordinate[] tabPoints = finSet.getTabPoints();
 
 		{

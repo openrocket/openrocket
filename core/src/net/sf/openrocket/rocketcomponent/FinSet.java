@@ -966,6 +966,22 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
+	public Coordinate[] getRootPoints(final int maximumBodyDivisionCount) {
+		if( null == parent){
+			return new Coordinate[]{Coordinate.ZERO};
+		}
+
+		final Coordinate finLead = getFinFront();
+		final double xFinEnd = finLead.x + getLength();
+
+		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y, maximumBodyDivisionCount);
+	}
+
+	/**
+	 * used to get body points for the profile design view
+	 *
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
+	 */
 	public Coordinate[] getRootPoints(){
 		if( null == parent){
 			return new Coordinate[]{Coordinate.ZERO};
@@ -982,6 +998,16 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 */
 	public Coordinate[] getFinPointsWithRoot() {
 		return combineCurves(getFinPoints(), getRootPoints());
+	}
+
+	/**
+	 * Return a list of coordinates defining the geometry of a single fin, including the parent's body points .
+	 *
+	 * This low res version is for 3D rendering, as a too high resolution would cause clipping and invisible fin faces.
+	 * This should at one point be solved by rendering the fin faces using triangulation, instead of how it's currently implemented.
+	 */
+	public Coordinate[] getFinPointsWithLowResRoot() {
+		return combineCurves(getFinPoints(), getRootPoints(20));
 	}
 
 	/**
@@ -1060,7 +1086,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 *
 	 * @return points representing the mount's points
 	 */
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset,
+										final int maximumBodyDivisionCount) {
 		if (parent == null) {
 			return new Coordinate[]{Coordinate.ZERO};
 		}
@@ -1078,7 +1105,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
 			// a too high division count will cause the 3D render to have invisible faces because it can't deal with the geometry.
-			final int maximumBodyDivisionCount = 20;
 			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
 		}
 
@@ -1107,6 +1133,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		}
 
 		return points;
+	}
+
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+		return getMountPoints(xStart, xEnd, xOffset, yOffset, 100);
 	}
 	
 	@Override
