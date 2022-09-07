@@ -33,7 +33,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * Maximum number of root points in the root geometry.
 	 */
 	private static final int MAX_ROOT_DIVISIONS = 100;
-	private static final int MAX_ROOT_DIVISIONS_LOW_RES = 20;
+	private static final int MAX_ROOT_DIVISIONS_LOW_RES = 15;
 
     public void setOverrideMass() {
     }
