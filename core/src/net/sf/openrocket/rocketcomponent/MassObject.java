@@ -65,6 +65,25 @@ public abstract class MassObject extends InternalComponent {
 		return length;
 	}
 
+	/**
+	 * Set the length, ignoring the auto radius setting.
+	 * @param length new length
+	 */
+	public void setLengthNoAuto(double length) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof MassObject) {
+				((MassObject) listener).setLengthNoAuto(length);
+			}
+		}
+
+		length = Math.max(length, 0);
+		if (MathUtil.equals(this.length, length)) {
+			return;
+		}
+		this.length = length;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
 	public void setLength(double length) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof MassObject) {
