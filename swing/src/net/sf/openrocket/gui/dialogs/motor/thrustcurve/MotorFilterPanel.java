@@ -38,6 +38,7 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -64,8 +65,13 @@ public abstract class MotorFilterPanel extends JPanel {
 	 * updates: motorDiameters, diameterLabels
 	 */
 	private static void scaleDiameterLabels(){
+		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
 		for( int i = 0; i < motorDiameters.length; i++ ) {
-			diameterLabels.put( i, new JLabel(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toString(motorDiameters[i])));
+			// Round the labels, because for imperial units, the labels can otherwise overlap
+			double diam = unit.toUnit(motorDiameters[i]);
+			diam = unit.round(diam);
+			diam = unit.fromUnit(diam);
+			diameterLabels.put( i, new JLabel(unit.toString(diam)));
 		}
 		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
