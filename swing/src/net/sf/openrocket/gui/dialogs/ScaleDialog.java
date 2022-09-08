@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -560,25 +561,28 @@ public class ScaleDialog extends JDialog {
 	 * @param scaleOffset flag to check if the axial/radial offsets should be scaled as well
 	 */
 	private void scale(RocketComponent component, double mul, boolean scaleMass, boolean scaleOffset) {
-		
 		Class<?> clazz = component.getClass();
+		List<Class<?>> classes = new ArrayList<>();
 		while (clazz != null) {
-			List<Scaler> list = null;
+			classes.add(clazz);
+			clazz = clazz.getSuperclass();
+		}
+		Collections.reverse(classes);	// Always do the super component scales first (can cause problems otherwise in the scale order)
+		for (Class<?> cl : classes) {
+			List<Scaler> list;
 			if (scaleOffset) {
-				Stream<Scaler> strm_no_offset = SCALERS_NO_OFFSET.get(clazz) == null ? Stream.empty() : SCALERS_NO_OFFSET.get(clazz).stream();
-				Stream<Scaler> strm_offset = SCALERS_OFFSET.get(clazz) == null ? Stream.empty() : SCALERS_OFFSET.get(clazz).stream();
+				Stream<Scaler> strm_no_offset = SCALERS_NO_OFFSET.get(cl) == null ? Stream.empty() : SCALERS_NO_OFFSET.get(cl).stream();
+				Stream<Scaler> strm_offset = SCALERS_OFFSET.get(cl) == null ? Stream.empty() : SCALERS_OFFSET.get(cl).stream();
 				list = Stream.concat(strm_no_offset, strm_offset).distinct().collect(Collectors.toList());
 			}
 			else {
-				list = SCALERS_NO_OFFSET.get(clazz);
+				list = SCALERS_NO_OFFSET.get(cl);
 			}
 			if (list != null) {
 				for (Scaler s : list) {
 					s.scale(component, mul, scaleMass);
 				}
 			}
-			
-			clazz = clazz.getSuperclass();
 		}
 	}
 
