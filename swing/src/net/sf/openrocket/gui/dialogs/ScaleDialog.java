@@ -121,7 +121,7 @@ public class ScaleDialog extends JDialog {
 		addScaler(EllipticalFinSet.class, "Height", SCALERS_NO_OFFSET);
 		
 		// FreeformFinSet
-		list = new ArrayList<ScaleDialog.Scaler>(1);
+		list = new ArrayList<>(1);
 		list.add(new FreeformFinSetScaler());
 		SCALERS_NO_OFFSET.put(FreeformFinSet.class, list);
 		
@@ -131,7 +131,7 @@ public class ScaleDialog extends JDialog {
 		addScaler(MassObject.class, "RadialPosition", SCALERS_OFFSET);
 		
 		// MassComponent
-		list = new ArrayList<ScaleDialog.Scaler>(1);
+		list = new ArrayList<>(1);
 		list.add(new MassComponentScaler());
 		SCALERS_NO_OFFSET.put(MassComponent.class, list);
 		
@@ -158,8 +158,9 @@ public class ScaleDialog extends JDialog {
 		addScaler(InnerTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
 		
 		// RadiusRingComponent
-		addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
-		addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new RadiusRingComponentScaler());
+		SCALERS_NO_OFFSET.put(RadiusRingComponent.class, list);
 	}
 	
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName,
@@ -718,6 +719,30 @@ public class ScaleDialog extends JDialog {
 			
 		}
 		
+	}
+
+	private static class RadiusRingComponentScaler implements Scaler {
+
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+			RadiusRingComponent ring = (RadiusRingComponent) component;
+			// We need to specify this particular order, otherwise scale the inner/outer radius may clip the dimensions of the other outer/inner radius
+			if (multiplier >= 1) {
+				addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
+				addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", scalers);
+			} else {
+				addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", scalers);
+				addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
+			}
+
+			for (List<Scaler> foo : scalers.values()) {
+				for (Scaler s : foo) {
+					s.scale(component, multiplier, scaleMass);
+				}
+			}
+		}
+
 	}
 	
 }
