@@ -6,23 +6,24 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 (through PR1658)
 
 ## New Features
-* **C_D Override for subassemblies now works.  Please test!** See (XXX) for important instructions (fixes #1171)
+* **C_D Override for subassemblies now implemented.  Please test!** See (XXX) for important instructions (fixes #1171)
 * Rail Button improvements:
   * Additional parameters for rail buttons (fixes #1537)
   * Added rail buttons to preset parts database
-* UI Improvements:
-  * Visually select child components of assembly components when selecting the parent (fixes #1489).  Try selecting a pod, stage, or booster and see.
-  * Significant improvements to preset selection window (fixes #1481)
-  * Major improvements to focus behavior.  Keyboard navigation in the Component Config dialog is now _much_ more convenient.
-    * When setting focus to a spinner field, select the entire field by default (fixes #1506)
-    * After selecting a preset, automatically highlight most commonly edited parameter (fixes #1488). So, for example, after selecting a body tube preset the Length parameter will be selected by default.
-    * Restore focus to motors, recovery, stage and simulation tables after table action and others (fixes #1558).  Simply put, you shouldn't need to click in the table areas just to enable keyboard shortcuts to work.
-    * Use tab and arrow keys to traverse sim table (fixes #1552)
-  * Show markers for pods and boosters in rocket side view (fixes #1146)
-  * Apply preset after double-clicking (fixes #1539)
-  * Pre-check diameter filters in preset chooser (fixes #1480)
-  * Preset selection window opens larger, and remembers column widdths (fixes #1305).  Separate column widths are remembered for each component type.
-  * Ctrl/Cmd+A (select all) keyboard shortcut in component tree, simulation and motor configuration tables (fixes #1549)
+
+## UI Improvements
+* Visually select child components of assembly components when selecting the parent (fixes #1489).  Try selecting a pod, stage, or booster and see.
+* Significant improvements to preset selection window (fixes #1481)
+* Major improvements to focus behavior.  Keyboard navigation in the Component Config dialog is now _much_ more convenient.
+  * When setting focus to a spinner field, select the entire field by default (fixes #1506)
+  * After selecting a preset, automatically highlight most commonly edited parameter (fixes #1488). So, for example, after selecting a body tube preset the Length parameter will be selected by default.
+  * Restore focus to motors, recovery, stage and simulation tables after table action and others (fixes #1558).  Simply put, you shouldn't need to click in the table areas just to enable keyboard shortcuts to work.
+  * Use tab and arrow keys to traverse sim table (fixes #1552)
+* Show markers for pods and boosters in rocket side view (fixes #1146)
+* Apply preset after double-clicking (fixes #1539)
+* Pre-check diameter filters in preset chooser (fixes #1480)
+* Preset selection window opens larger, and remembers column widdths (fixes #1305).  Separate column widths are remembered for each component type.
+* Ctrl/Cmd+A (select all) keyboard shortcut in component tree, simulation and motor configuration tables (fixes #1549)
 
 ## Notable Bug Fixes
 * **Scripting now works again.  Please test!** (fixes #308, #826, #1108, and #1270)
