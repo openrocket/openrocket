@@ -55,6 +55,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 * Cleaned up several of the example rockets
 * Added warning to launch preferences that changes only affect new sims (fixes #1497)
 * More Russian translation updates
+
 OpenRocket 22.02.beta.04 (2022-06-17)
 ------------------------
 (through PR1456)
