@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +98,13 @@ public class ScaleDialog extends JDialog {
 		// Body tube
 		addScaler(BodyTube.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
 		addScaler(BodyTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
-		
+
+		// Rail button
+		list = new ArrayList<>(1);
+		list.add(new RailButtonScaler());
+		SCALERS_NO_OFFSET.put(RailButton.class, list);
+		addScaler(RailButton.class, "InstanceSeparation", SCALERS_OFFSET);
+
 		// Launch lug
 		addScaler(LaunchLug.class, "OuterRadius", SCALERS_NO_OFFSET);
 		addScaler(LaunchLug.class, "Thickness", SCALERS_NO_OFFSET);
@@ -752,14 +757,42 @@ public class ScaleDialog extends JDialog {
 		@Override
 		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
 			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
-			RadiusRingComponent ring = (RadiusRingComponent) component;
 			// We need to specify this particular order, otherwise scale the inner/outer radius may clip the dimensions of the other outer/inner radius
-			if (multiplier >= 1) {
+			if (multiplier >= 1) {			// Scale up
 				addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
 				addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", scalers);
-			} else {
+			} else {						// Scale down
 				addScaler(RadiusRingComponent.class, "InnerRadius", "isInnerRadiusAutomatic", scalers);
 				addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
+			}
+
+			for (List<Scaler> foo : scalers.values()) {
+				for (Scaler s : foo) {
+					s.scale(component, multiplier, scaleMass);
+				}
+			}
+		}
+
+	}
+
+	private static class RailButtonScaler implements Scaler {
+
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+			// We need to specify this particular order, otherwise scale the inner/outer radius may clip the dimensions of the other outer/inner radius
+			if (multiplier >= 1) {			// Scale up
+				addScaler(RailButton.class, "OuterDiameter", scalers);
+				addScaler(RailButton.class, "InnerDiameter", scalers);
+				addScaler(RailButton.class, "TotalHeight", scalers);
+				addScaler(RailButton.class, "BaseHeight", scalers);
+				addScaler(RailButton.class, "FlangeHeight", scalers);
+			} else {						// Scale down
+				addScaler(RailButton.class, "InnerDiameter", scalers);
+				addScaler(RailButton.class, "OuterDiameter", scalers);
+				addScaler(RailButton.class, "BaseHeight", scalers);
+				addScaler(RailButton.class, "FlangeHeight", scalers);
+				addScaler(RailButton.class, "TotalHeight", scalers);
 			}
 
 			for (List<Scaler> foo : scalers.values()) {
