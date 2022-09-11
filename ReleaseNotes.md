@@ -7,19 +7,25 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 
 ## New Features
 * **C_D Override for subassemblies now implemented.  Please test!** See (XXX) for important instructions (fixes #1171)
+* Simulations now properly account for disabled stages (fixes #1477 and #1460)
 * Rail Button improvements:
   * Additional parameters for rail buttons (fixes #1537)
   * Added rail buttons to preset parts database
+  * Scaling now supported for rail buttons (fixes #1661)
+* Mass objects maintain fixed volume when container diameter changes (fixes #1315)
+* Inner tubes can have custom inner/outer appearance (fixes #1509)
 
 ## UI Improvements
 * Visually select child components of assembly components when selecting the parent (fixes #1489).  Try selecting a pod, stage, or booster and see.
 * Significant improvements to preset selection window (fixes #1481)
+* Added sliders to Photo Studio settings (fixes #1524)
+* Show markers for pods and boosters in rocket side view (fixes #1146)
 * Major improvements to focus behavior.  Keyboard navigation in the Component Config dialog is now _much_ more convenient.
   * When setting focus to a spinner field, select the entire field by default (fixes #1506)
   * After selecting a preset, automatically highlight most commonly edited parameter (fixes #1488). So, for example, after selecting a body tube preset the Length parameter will be selected by default.
   * Restore focus to motors, recovery, stage and simulation tables after table action and others (fixes #1558).  Simply put, you shouldn't need to click in the table areas just to enable keyboard shortcuts to work.
   * Use tab and arrow keys to traverse sim table (fixes #1552)
-* Show markers for pods and boosters in rocket side view (fixes #1146)
+* Added and/or improved hover texts on a bunch of different buttons and controls
 * Apply preset after double-clicking (fixes #1539)
 * Pre-check diameter filters in preset chooser (fixes #1480)
 * Preset selection window opens larger, and remembers column widdths (fixes #1305).  Separate column widths are remembered for each component type.
@@ -35,6 +41,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
   * Don't recenter rocket when zooming (fixes #1464)
   * Ensure full rocket is always visible and positioned correctly in rocket side view (fixes #1465)
 * Fixed root edge display in 3D view and fin templates (fixes #1227).  This matters when you are attaching fins to a nose cone or transition.
+* Removed double-scaling when doing multi-component selection and scaling selection and subcomponents (fixed #1663)
 * Better register of double-clicks in 3D view (fixes #1054)
 * Increased component analysis drag precision to three decimal digits (fixes #1476)
 * Don't include inactive stages in calculations (fixes #1477 and #1460)
@@ -45,13 +52,11 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 
 ## Other
 * Don't open motor selection dialog when duplicating motor configurations (fixes #1555)
-* Inner tubes can have custom inner/outer appearance (fixes #1509)
-* Added sliders to Photo Studio settings (fixes #1524)
-* Added and/or improved hover texts on a bunch of different buttons and controls
 * A bunch of updated component icons
 * Added icons to most buttons
 * Improvements to Undo behavior when adding new components (fixes #1513)
 * Improvements to scale dialog (fixes #411)
+* Component tree now set to reasonable minimum width (fixes #1648)
 * Removed "show all compatible" option in preset chooser (fixes #1405)
 * Cleaned up several of the example rockets
 * Added warning to launch preferences that changes only affect new sims (fixes #1497)
