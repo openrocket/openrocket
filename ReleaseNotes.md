@@ -6,7 +6,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 (through PR1658)
 
 ## New Features
-* **C_D Override for subassemblies now implemented.  Please test!** See (XXX) for important instructions (fixes #1171)
+* **C_D Override for subassemblies now implemented.  Please test!** [See this wiki help page](http://wiki.openrocket.info/Overrides_and_Surface_Finish) for important instructions (fixes #1171)
 * Simulations now properly account for disabled stages (fixes #1477 and #1460)
 * Rail Button improvements:
   * Additional parameters for rail buttons (fixes #1537)
