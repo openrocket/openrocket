@@ -27,11 +27,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	// NOTE: Rail Button ARE NOT STANDARD -- They vary by manufacturer, and model.
-	// These presets have appropriate dimensions for each rail size, given the Rail Buttons contribute so little to flying properties. 
-	public static final RailButton ROUND_1010 = make1010Button();
-	public static final RailButton ROUND_1515 = make1515Button();
-	
 	/*
 	 * Rail Button Dimensions (side view)
 	 * 
@@ -92,34 +87,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
 		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
-	}
-	
-	private static final RailButton make1010Button(){
-		final double id = 0.008; // guess
-		final double od = 0.0097;
-		final double ht = 0.0097;
-		final double thickness = 0.002; // guess
-		final double standoff = 0.002; // guess
-		RailButton rb1010 = new RailButton( od, id, ht, thickness, standoff);
-		rb1010.setMassOverridden(true);
-		rb1010.setOverrideMass(0.0019);
-		
-		rb1010.setInstanceCount(1);
-		rb1010.setInstanceSeparation( od*6 );
-		return rb1010;
-	}
-	
-	private static final RailButton make1515Button(){
-		final double id = 0.012; // guess
-		final double od = 0.016;
-		final double ht = 0.0173;
-		final double thickness = 0.0032; // guess
-		final double standoff = 0.0032;  // guess
-		RailButton rb1010 = new RailButton( od, id, ht, thickness, standoff);
-		rb1010.setMassOverridden(true);
-		rb1010.setOverrideMass(0.0077);
-		
-		return rb1010;
 	}
 
 	public double getBaseHeight(){
