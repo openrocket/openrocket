@@ -28,14 +28,14 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 * Added and/or improved hover texts on a bunch of different buttons and controls
 * Apply preset after double-clicking (fixes #1539)
 * Pre-check diameter filters in preset chooser (fixes #1480)
-* Preset selection window opens larger, and remembers column widdths (fixes #1305).  Separate column widths are remembered for each component type.
+* Preset selection window opens larger, and remembers column widths (fixes #1305).  Separate column widths are remembered for each component type.
 * Ctrl/Cmd+A (select all) keyboard shortcut in component tree, simulation and motor configuration tables (fixes #1549)
 
 ## Notable Bug Fixes
 * **Scripting now works again.  Please test!** (fixes #308, #826, #1108, and #1270)
 * Don't re-run simulations when new sim is created with same motor (fixes #1510)
 * Ensure simulations finish when running from scripts (fixes #1575)
-* Fixed Cd calculation for finsets (fixes #1440)
+* Fixed Cd calculation for fin sets (fixes #1440)
 * Move component config window back to same monitor as main app window first time it is opened.  No more lost config windows! (fixes #1470)
 * Rocket side view updates
   * Don't recenter rocket when zooming (fixes #1464)
@@ -47,7 +47,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 * Don't include inactive stages in calculations (fixes #1477 and #1460)
 * Select recovery device/stage after config panel select (fixes #1490)
 * Fixed an exception when scaling freeform fins (fixes #1520)
-* Improved performance of freeform finset editor (fixes #1533)
+* Improved performance of freeform fin shape editor (fixes #1533)
 * Better automatic calculation of fin tab sizes (fixes #1600)
 
 ## Other
