@@ -956,7 +956,7 @@
             <Material Type="BULK">lite ply</Material>
             <InsideDiameter Unit="m">0.024841199999999997</InsideDiameter>
             <OutsideDiameter Unit="m">0.0404622</OutsideDiameter>
-            <Length Unit="m">0.00127</Length>
+            <Length Unit="m">0.003175</Length>
         </CenteringRing>
         <CenteringRing>
             <Manufacturer>BalsaMachining.com</Manufacturer>
