@@ -1,17 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Collection;
 
-import jdk.jshell.spi.ExecutionControl;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
@@ -124,7 +121,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	@Override
 	public double getAxialOffset() {
-		double returnValue = Double.NaN;
+		double returnValue;
 		
 		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
@@ -133,7 +130,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			returnValue = super.getAxialOffset(this.axialMethod);
 		}
 		
-		if (0.000001 > Math.abs(returnValue)) {
+		if (MathUtil.EPSILON > Math.abs(returnValue)) {
 			returnValue = 0.0;
 		}
 		
