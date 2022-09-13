@@ -41,7 +41,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
   * Don't recenter rocket when zooming (fixes #1464)
   * Ensure full rocket is always visible and positioned correctly in rocket side view (fixes #1465)
 * Fixed root edge display in 3D view and fin templates (fixes #1227).  This matters when you are attaching fins to a nose cone or transition.
-* Removed double-scaling when doing multi-component selection and scaling selection and subcomponents (fixed #1663)
+* Numerous bug fixes in component scaling (fixes #1649, #1651, #1653, #1661, #1662, and #1663)
 * Better register of double-clicks in 3D view (fixes #1054)
 * Increased component analysis drag precision to three decimal digits (fixes #1476)
 * Don't include inactive stages in calculations (fixes #1477 and #1460)
