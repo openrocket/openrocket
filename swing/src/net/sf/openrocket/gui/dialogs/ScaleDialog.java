@@ -133,7 +133,6 @@ public class ScaleDialog extends JDialog {
 		list = new ArrayList<>(1);
 		list.add(new MassObjectScaler());
 		SCALERS_NO_OFFSET.put(MassObject.class, list);
-		//addScaler(MassObject.class, "LengthNoAuto", SCALERS_NO_OFFSET);
 		addScaler(MassObject.class, "Radius", "isRadiusAutomatic", SCALERS_NO_OFFSET);
 		addScaler(MassObject.class, "RadialPosition", SCALERS_OFFSET);
 		
@@ -158,8 +157,9 @@ public class ScaleDialog extends JDialog {
 		addScaler(RingComponent.class, "RadialPosition", SCALERS_OFFSET);
 		
 		// ThicknessRingComponent
-		addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
-		addScaler(ThicknessRingComponent.class, "Thickness", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new ThicknessRingComponentScaler());
+		SCALERS_NO_OFFSET.put(ThicknessRingComponent.class, list);
 		
 		// InnerTube
 		addScaler(InnerTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
@@ -769,8 +769,28 @@ public class ScaleDialog extends JDialog {
 
 	}
 
-	private static class RailButtonScaler implements Scaler {
+	private static class ThicknessRingComponentScaler implements Scaler {
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+			// We need to specify this particular order, otherwise scale the inner/outer radius may clip the dimensions of the other outer/inner radius
+			if (multiplier >= 1) {			// Scale up
+				addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
+				addScaler(ThicknessRingComponent.class, "Thickness", scalers);
+			} else {						// Scale down
+				addScaler(ThicknessRingComponent.class, "Thickness", scalers);
+				addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
+			}
 
+			for (List<Scaler> foo : scalers.values()) {
+				for (Scaler s : foo) {
+					s.scale(component, multiplier, scaleMass);
+				}
+			}
+		}
+	}
+
+	private static class RailButtonScaler implements Scaler {
 		@Override
 		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
 			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
@@ -795,7 +815,6 @@ public class ScaleDialog extends JDialog {
 				}
 			}
 		}
-
 	}
 	
 }
