@@ -455,7 +455,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(check, "growx 1, gapright 20lp");
 		order.add(check);
 		
-		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, 0);
+		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		spin = new JSpinner(m.getSpinnerModel());
 
 		spin.setEditor(new SpinnerEditor(spin));
@@ -464,7 +464,7 @@ public class RocketComponentConfig extends JPanel {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		
-		bs = new BasicSlider(m.getSliderModel(0, 1.0));
+		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "skip, growx 5, w 100lp, wrap");
 
