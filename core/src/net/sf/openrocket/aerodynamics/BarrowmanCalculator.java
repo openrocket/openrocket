@@ -634,14 +634,19 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			// base drag calculation
 			if (c instanceof SymmetricComponent) {
 				SymmetricComponent s = (SymmetricComponent) c;
-				
+				double foreRadius = s.getForeRadius();
+				double aftRadius = s.getAftRadius();
+				// If length is zero, the component is a disk, i.e. a zero-length tube, so match the fore and aft diameter
+				if (s.getLength() == 0) {
+					foreRadius = Math.max(foreRadius, aftRadius);
+				}
 				double radius = 0;
 				final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
 				if (prevComponent != null && configuration.isComponentActive(prevComponent))
 					radius = prevComponent.getAftRadius();
 					
-				if (radius < s.getForeRadius()) {
-					double area = Math.PI * (pow2(s.getForeRadius()) - pow2(radius));
+				if (radius < foreRadius) {
+					double area = Math.PI * (pow2(foreRadius) - pow2(radius));
 					cd = stagnation * area / conditions.getRefArea();
 					total += instanceCount * cd;
 						
@@ -685,6 +690,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			SymmetricComponent s = (SymmetricComponent) c;
+			double foreRadius = s.getForeRadius();
+			double aftRadius = s.getAftRadius();
+			// If length is zero, the component is a disk, i.e. a zero-length tube, so match the fore and aft diameter
+			if (s.getLength() == 0) {
+				final double componentMaxR = Math.max(foreRadius, aftRadius);
+				foreRadius = aftRadius = componentMaxR;
+			}
 
 			int instanceCount = entry.getValue().size();
 			
@@ -701,8 +713,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				radius = prevComponent.getAftRadius();
 			}
 			
-			if (radius > s.getForeRadius()) {
-				double area = Math.PI * (pow2(radius) - pow2(s.getForeRadius()));
+			if (radius > foreRadius) {
+				double area = Math.PI * (pow2(radius) - pow2(foreRadius));
 				double cd = base * area / conditions.getRefArea();
 				total += instanceCount * cd;
 				if ((forceMap != null) && (prevComponent != null)) {
@@ -712,10 +724,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 			// if I'm the last component, set my base CD
 			// note:  the iterator *should* serve up the next component.... buuuut ....
-			//        this code has is tested, and there's no compelling reason to change.
+			//        this code is tested, and there's no compelling reason to change.
 			final SymmetricComponent n = s.getNextSymmetricComponent();
 			if ((n == null) || !configuration.isStageActive(n.getStageNumber())) {
-				double area = Math.PI * pow2(s.getAftRadius());
+				double area = Math.PI * pow2(aftRadius);
 				double cd = base * area / conditions.getRefArea();
 				total += instanceCount * cd;
 				if (forceMap != null) {
