@@ -311,14 +311,16 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	private void integrate() {
 		double x, r1, r2;
 		double cgx;
-		
+
+		wetArea = 0;
+		planArea = 0;
+		planCenter = 0;
+		fullVolume = 0;
+		volume = 0;
+		cg = Coordinate.NUL;
+
 		// Check length > 0
 		if (length <= 0) {
-			wetArea = 0;
-			planArea = 0;
-			planCenter = 0;
-			volume = 0;
-			cg = Coordinate.NUL;
 			return;
 		}
 		
@@ -329,11 +331,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		final double pi3 = Math.PI / 3.0;
 		r1 = getRadius(0);
 		x = 0;
-		wetArea = 0;
-		planArea = 0;
-		planCenter = 0;
-		fullVolume = 0;
-		volume = 0;
 		cgx = 0;
 		
 		for (int n = 1; n <= DIVISIONS; n++) {
@@ -422,15 +419,18 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 */
 	private void integrateInertiaVolume() {
 		double x, r1, r2;
-		
+
+		longitudinalInertia = 0;
+		rotationalInertia = 0;
+
+		if (length <= 0) return;
+
 		final double l = length / DIVISIONS;
 		final double pil = Math.PI * l; // PI * l
 		final double pil3 = Math.PI * l / 3; // PI * l/3
 		
 		r1 = getRadius(0);
 		x = 0;
-		longitudinalInertia = 0;
-		rotationalInertia = 0;
 		
 		double vol = 0;
 		
@@ -489,14 +489,16 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 */
 	private void integrateInertiaSurface() {
 		double x, r1, r2;
-		
+
+		longitudinalInertia = 0;
+		rotationalInertia = 0;
+
+		if (length <= 0) return;
+
 		final double l = length / DIVISIONS;
 		
 		r1 = getRadius(0);
 		x = 0;
-		
-		longitudinalInertia = 0;
-		rotationalInertia = 0;
 		
 		double surface = 0;
 		
