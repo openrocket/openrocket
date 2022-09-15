@@ -493,7 +493,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		final double l = length / DIVISIONS;
 		
 		r1 = getRadius(0);
-		//System.out.println(r1);
 		x = 0;
 		
 		longitudinalInertia = 0;
