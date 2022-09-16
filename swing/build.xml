@@ -64,7 +64,7 @@
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
 		<delete dir="${tmp.dir}/"/>
-		<delete dir="${resources.dir}/datafiles/presets"/>
+		<delete dir="${resources.dir}/datafiles/components"/>
 	</target>
 		
 	
@@ -144,7 +144,7 @@
 				classpathref="run-classpath"
 				failonerror="true">
 				<arg value="@{dir}"/>
-				<arg value="${resources-src.dir}/datafiles/presets/@{vendor}.orc"/>
+				<arg value="${resources-src.dir}/datafiles/components/@{vendor}.orc"/>
 			</java>
 		</sequential>
 	</macrodef>
@@ -201,15 +201,15 @@ the .jar file
 				</not>
 			</condition>
 	  	</fail>
-	  	<copy todir="${resources.dir}/datafiles/presets">
+	  	<copy todir="${resources.dir}/datafiles/components">
 			<fileset dir="${resources-src.dir}/datafiles/legacy_components"/>
 	  	</copy>
-	  	<copy todir="${resources.dir}/datafiles/presets">
+	  	<copy todir="${resources.dir}/datafiles/components">
 			<fileset dir="${resources-src.dir}/datafiles/components/orc"/>
 	  	</copy>
 	  	<copy
 		    file="${resources-src.dir}/datafiles/components/LICENSE"
-		    todir="${resources.dir}/datafiles/presets">
+		    todir="${resources.dir}/datafiles/components">
 	  	</copy>
 	</target>
 

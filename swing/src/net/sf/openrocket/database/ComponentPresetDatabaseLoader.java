@@ -28,7 +28,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	private final static Logger log = LoggerFactory.getLogger(ComponentPresetDatabaseLoader.class);
 	
-	private static final String SYSTEM_PRESET_DIR = "datafiles/presets";
+	private static final String SYSTEM_PRESET_DIR = "datafiles/components";
 	private int fileCount = 0;
 	private int presetCount = 0;
 	
