@@ -144,7 +144,7 @@
 				classpathref="run-classpath"
 				failonerror="true">
 				<arg value="@{dir}"/>
-				<arg value="${resources-src.dir}/datafiles/components/@{vendor}.orc"/>
+				<arg value="${resources-src.dir}/datafiles/components-openrocket/@{vendor}.orc"/>
 			</java>
 		</sequential>
 	</macrodef>
@@ -169,7 +169,7 @@
 
 	<!-- COPY orc files from source directories to build directory	-->
 	<target name="check-database" description="check component database">
-		<available file="${resources-src.dir}/datafiles/components/orc" property="database"/>
+		<available file="${resources-src.dir}/datafiles/components-dbcook/orc" property="database"/>
 	</target>
 
 	<target name="copy-orc-files" depends="check-database"
@@ -188,8 +188,8 @@ ${line.separator}
 If you retrieved this code by downloading and uncompressing a zip file, ${line.separator}
 you must do the same for the submodule.  Download the code ${line.separator}
 from https://github.com/dbcook/openrocket-database and uncompress it.${line.separator}
-Copy the files and directories under the openrocket-database-master ${line.separator}
-into ${resources-src.dir}/datafiles/components/ ${line.separator}
+Copy the files and directories under openrocket-database-master ${line.separator}
+into ${resources-src.dir}/datafiles/components-dbcook/ ${line.separator}
 ${line.separator}
 After including the database submodule, you will be able to build
 ${line.separator}
@@ -202,13 +202,13 @@ the .jar file
 			</condition>
 	  	</fail>
 	  	<copy todir="${resources.dir}/datafiles/components">
-			<fileset dir="${resources-src.dir}/datafiles/legacy_components"/>
+			<fileset dir="${resources-src.dir}/datafiles/components-openrocket"/>
 	  	</copy>
 	  	<copy todir="${resources.dir}/datafiles/components">
-			<fileset dir="${resources-src.dir}/datafiles/components/orc"/>
+			<fileset dir="${resources-src.dir}/datafiles/components-dbcook/orc"/>
 	  	</copy>
 	  	<copy
-		    file="${resources-src.dir}/datafiles/components/LICENSE"
+		    file="${resources-src.dir}/datafiles/components-dbcook/LICENSE"
 		    todir="${resources.dir}/datafiles/components">
 	  	</copy>
 	</target>
