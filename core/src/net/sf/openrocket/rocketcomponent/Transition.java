@@ -479,7 +479,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	public double getRadius(double x) {
 		if ( x < 0 )
 			return getForeRadius();
-		if ( x > length)
+		if ( x >= length)
 			return getAftRadius();
 
 		double r1 = getForeRadius();

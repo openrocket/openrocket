@@ -56,8 +56,13 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		SymmetricComponent component = (SymmetricComponent) c;
 
 		length = component.getLength();
-		foreRadius = component.getForeRadius();
-		aftRadius = component.getAftRadius();
+		if (length > 0) {
+			foreRadius = component.getForeRadius();
+			aftRadius = component.getAftRadius();
+		} else {	// If length is zero, the component is a disk, i.e. a zero-length tube, so match the fore and aft diameter
+			final double componentMaxR = Math.max(component.getForeRadius(), component.getAftRadius());
+			foreRadius = aftRadius = componentMaxR;
+		}
 		
 		fineness = length / (2 * Math.abs(aftRadius - foreRadius));
 		fullVolume = component.getFullVolume();
