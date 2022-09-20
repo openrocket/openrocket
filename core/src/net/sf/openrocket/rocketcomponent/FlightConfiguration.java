@@ -399,7 +399,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public AxialStage getBottomStage() {
 		AxialStage bottomStage = null;
 		for (StageFlags curFlags : this.stages.values()) {
-			if (curFlags.active) {
+			if (isStageActive(curFlags.stageNumber)) {
 				bottomStage = rocket.getStage( curFlags.stageNumber);
 			}
 		}
@@ -843,7 +843,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
 			final int stageNumber = flags.stageNumber;
-			buf.append(String.format(fmt, stageNumber, (flags.active?" on": "off"), rocket.getStage( stageNumber).getName()));
+			buf.append(String.format(fmt, stageNumber, (isStageActive(flags.stageNumber) ?" on": "off"), rocket.getStage( stageNumber).getName()));
 		}
 		buf.append("\n");
 		return buf.toString();
