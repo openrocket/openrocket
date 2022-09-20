@@ -69,9 +69,14 @@ public abstract class MotorFilterPanel extends JPanel {
 		for( int i = 0; i < motorDiameters.length; i++ ) {
 			// Round the labels, because for imperial units, the labels can otherwise overlap
 			double diam = unit.toUnit(motorDiameters[i]);
-			diam = unit.round(diam);
-			diam = unit.fromUnit(diam);
-			diameterLabels.put( i, new JLabel(unit.toString(diam)));
+			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
+			diam = unit.fromUnit(diamRounded);
+			String formatted = unit.toString(diam);
+			// Remove the leading zero for numbers between 0 and 1
+			if (diamRounded > 0 && diamRounded < 1) {
+				formatted = formatted.substring(1);
+			}
+			diameterLabels.put( i, new JLabel(formatted));
 		}
 		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
