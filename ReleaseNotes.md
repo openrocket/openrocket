@@ -1,9 +1,9 @@
 Release Notes
 =============
 
-OpenRocket 22.02.beta.05 (2022-xx-xx)
+OpenRocket 22.02.beta.05 (2022-09-28)
 ------------------------
-(through PR1658)
+(through PR1688)
 
 ## New Features
 * **C_D Override for subassemblies now implemented.  Please test!** [See this wiki help page](http://wiki.openrocket.info/Overrides_and_Surface_Finish#How_and_Why_to_Use_Surface_Finish_Settings_and_Coefficient_of_Drag_.28CD.29_Overrides) for important instructions (fixes #1171)
@@ -12,7 +12,8 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
   * Additional parameters for rail buttons (fixes #1537)
   * Added rail buttons to preset parts database
   * Scaling now supported for rail buttons (fixes #1661)
-* Mass objects maintain fixed volume when container diameter changes (fixes #1315)
+* Don't include inactive stages in calculations. Disabling stages using the stage selector buttons now also affects the simulation results. (fixes #1477 and #1460)
+* Mass objects maintain fixed volume when container diameter changes in auto mode (fixes #1315)
 * Inner tubes can have custom inner/outer appearance (fixes #1509)
 
 ## UI Improvements
@@ -44,11 +45,13 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 * Numerous bug fixes in component scaling (fixes #1649, #1651, #1653, #1661, #1662, and #1663)
 * Better register of double-clicks in 3D view (fixes #1054)
 * Increased component analysis drag precision to three decimal digits (fixes #1476)
-* Don't include inactive stages in calculations (fixes #1477 and #1460)
 * Select recovery device/stage after config panel select (fixes #1490)
 * Fixed an exception when scaling freeform fins (fixes #1520)
 * Improved performance of freeform fin shape editor (fixes #1533)
 * Better automatic calculation of fin tab sizes (fixes #1600)
+* Fixed simulation errors when there were empty stages in the design (fixes #1617)
+* Fixed stage activeness not updating when moving, deleting, or copying stages (fixes #1680)
+* Fixed exception for zero-length transitions and nose cones (fixes #1677)
 
 ## Other
 * Don't open motor selection dialog when duplicating motor configurations (fixes #1555)
@@ -60,6 +63,7 @@ OpenRocket 22.02.beta.05 (2022-xx-xx)
 * Removed "show all compatible" option in preset chooser (fixes #1405)
 * Cleaned up several of the example rockets
 * Added warning to launch preferences that changes only affect new sims (fixes #1497)
+* Fixed overlapping labels in motor selection diameter filter slider (fixes #1643)
 * More Russian translation updates
 
 OpenRocket 22.02.beta.04 (2022-06-17)
