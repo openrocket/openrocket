@@ -340,9 +340,6 @@ public abstract class MotorFilterPanel extends JPanel {
 			
 			lengthSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, 1000, 0, 1000);
 			lengthSlider.setBounded(true); // thumbs cannot cross
-			lengthSlider.setMajorTickSpacing(100);
-			lengthSlider.setPaintTicks(true);
-			lengthSlider.setLabelTable(diameterLabels);
 			lengthSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
