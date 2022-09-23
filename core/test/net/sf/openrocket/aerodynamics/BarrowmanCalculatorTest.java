@@ -46,6 +46,26 @@ public class BarrowmanCalculatorTest {
 //			Application.setInjector(injector);
 //		}
 	}
+
+	/**
+	 * Test a completely empty rocket.
+	 */
+	@Test
+	public void testEmptyRocket() {
+		// First test completely empty rocket
+		Rocket rocket = new Rocket();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BarrowmanCalculator calc = new BarrowmanCalculator();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+
+		Coordinate cp_calc = calc.getCP(config, conditions, warnings);
+
+		assertEquals(" Empty rocket CNa value is incorrect:", 0.0, cp_calc.weight , 0.0);
+		assertEquals(" Empty rocket cp x value is incorrect:", 0.0, cp_calc.x , 0.0);
+		assertEquals(" Empty rocket cp y value is incorrect:", 0.0, cp_calc.y , 0.0);
+		assertEquals(" Empty rocket cp z value is incorrect:", 0.0, cp_calc.z , 0.0);
+	}
 	
 	@Test
 	public void testCPSimpleDry() {
@@ -350,5 +370,68 @@ public class BarrowmanCalculatorTest {
 		assertEquals(" Alpha III With Pods rocket cp y value is incorrect:", cpNoPods.y, cpPods.y, EPSILON);
 		assertEquals(" Alpha III With Pods rocket cp z value is incorrect:", cpNoPods.z, cpPods.z, EPSILON);
 		assertEquals(" Alpha III With Pods rocket CNa value is incorrect:", cpPods.weight, cpNoPods.weight - 3.91572, EPSILON);
+	}
+
+	/**
+	 * Tests whether adding extra empty stages has an effect.
+	 */
+	@Test
+	public void testEmptyStages() {
+		// Reference rocket
+		Rocket rocketRef = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration configRef = rocketRef.getSelectedConfiguration();
+		BarrowmanCalculator calcRef = new BarrowmanCalculator();
+		FlightConditions conditionsRef = new FlightConditions(configRef);
+		WarningSet warnings = new WarningSet();
+
+		Coordinate cp_calcRef = calcRef.getCP(configRef, conditionsRef, warnings);
+
+		// First test with adding an empty stage in the front of the design
+		Rocket rocketFront = TestRockets.makeEstesAlphaIII();
+		AxialStage stage1 = new AxialStage();		// To be placed in front of the design
+		rocketFront.addChild(stage1, 0);
+		FlightConfiguration configFront = rocketFront.getSelectedConfiguration();
+		BarrowmanCalculator calcFront = new BarrowmanCalculator();
+		FlightConditions conditionsFront = new FlightConditions(configFront);
+		warnings = new WarningSet();
+
+		Coordinate cp_calcFront = calcFront.getCP(configFront, conditionsFront, warnings);
+
+		assertEquals(" Estes Alpha III with front empty stage CNa value is incorrect:", cp_calcRef.weight, cp_calcFront.weight , EPSILON);
+		assertEquals(" Estes Alpha III with front empty stage cp x value is incorrect:", cp_calcRef.x, cp_calcFront.x , EPSILON);
+		assertEquals(" Estes Alpha III with front empty stage cp y value is incorrect:", cp_calcRef.y, cp_calcFront.y , EPSILON);
+		assertEquals(" Estes Alpha III with front empty stage cp z value is incorrect:", cp_calcRef.z, cp_calcFront.z , EPSILON);
+
+		// Now test with adding an empty stage in the rear of the design
+		Rocket rocketRear = TestRockets.makeEstesAlphaIII();
+		AxialStage stage2 = new AxialStage();		// To be placed in the rear of the design
+		rocketRear.addChild(stage2);
+		FlightConfiguration configRear = rocketRear.getSelectedConfiguration();
+		BarrowmanCalculator calcRear = new BarrowmanCalculator();
+		FlightConditions conditionsRear = new FlightConditions(configRear);
+		warnings = new WarningSet();
+
+		Coordinate cp_calcRear = calcRear.getCP(configRear, conditionsRear, warnings);
+
+		assertEquals(" Estes Alpha III with rear empty stage CNa value is incorrect:", cp_calcRef.weight, cp_calcRear.weight , EPSILON);
+		assertEquals(" Estes Alpha III with rear empty stage cp x value is incorrect:", cp_calcRef.x, cp_calcRear.x , EPSILON);
+		assertEquals(" Estes Alpha III with rear empty stage cp y value is incorrect:", cp_calcRef.y, cp_calcRear.y , EPSILON);
+		assertEquals(" Estes Alpha III with rear empty stage cp z value is incorrect:", cp_calcRef.z, cp_calcRear.z , EPSILON);
+
+		// Test with multiple empty stages
+		Rocket rocketMulti = rocketFront;
+		AxialStage stage3 = new AxialStage();		// To be placed in the rear of the design
+		rocketMulti.addChild(stage3);
+		FlightConfiguration configMulti = rocketMulti.getSelectedConfiguration();
+		BarrowmanCalculator calcMulti = new BarrowmanCalculator();
+		FlightConditions conditionsMulti = new FlightConditions(configMulti);
+		warnings = new WarningSet();
+
+		Coordinate cp_calcMulti = calcMulti.getCP(configMulti, conditionsMulti, warnings);
+
+		assertEquals(" Estes Alpha III with multiple empty stages CNa value is incorrect:", cp_calcRef.weight, cp_calcMulti.weight , EPSILON);
+		assertEquals(" Estes Alpha III with multiple empty stages cp x value is incorrect:", cp_calcRef.x, cp_calcMulti.x , EPSILON);
+		assertEquals(" Estes Alpha III with multiple empty stages cp y value is incorrect:", cp_calcRef.y, cp_calcMulti.y , EPSILON);
+		assertEquals(" Estes Alpha III with multiple empty stages cp z value is incorrect:", cp_calcRef.z, cp_calcMulti.z , EPSILON);
 	}
 }
