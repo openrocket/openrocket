@@ -44,14 +44,25 @@
 	
 	<target name="unittest" depends="unittest-core, unittest-swing">
 	</target>
+
+    <target name="unittest-no-junit-report" depends="unittest-core, unittest-swing">
+    </target>
 	
 	<target name="unittest-core" depends="jar-core">
 		<ant dir="core" target="unittest" inheritAll="false" />
 	</target>
+
+    <target name="unittest-core-no-junit-report" depends="jar-core">
+        <ant dir="core" target="unittest" inheritAll="false" />
+    </target>
 	
 	<target name="unittest-swing" depends="jar-swing">
-		<ant dir="swing" target="unittest" inheritAll="false" />
+		<ant dir="swing" target="unittest-no-junit-report" inheritAll="false" />
 	</target>
+
+    <target name="unittest-swing-no-junit-report" depends="jar-swing">
+        <ant dir="swing" target="unittest-no-junit-report" inheritAll="false" />
+    </target>
 
     <!-- CHECK -->
     <target name="check" depends="checktodo,checkascii"/>
