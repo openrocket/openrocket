@@ -24,6 +24,29 @@ public class MassCalculatorTest extends BaseTestCase {
 	private static final double EPSILON = 0.00000001;   // note:  this precision matches MathUtil.java
 
 	@Test
+	public void testEmptyRocket() {
+		Rocket rocket = new Rocket();
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+
+		final RigidBody actualStructure = MassCalculator.calculateStructure(config);
+		final double actualRocketDryMass = actualStructure.cm.weight;
+		final Coordinate actualRocketDryCM = actualStructure.cm;
+
+		assertEquals(" Empty Rocket Empty Mass is incorrect: ", 0, actualRocketDryMass, 0);
+
+		Coordinate expCM = new Coordinate(0, 0, 0, 0);
+		assertEquals("Empty Rocket CM.x is incorrect: ", expCM.x, actualRocketDryCM.x, 0);
+		assertEquals("Empty Rocket CM.y is incorrect: ", expCM.y, actualRocketDryCM.y, 0);
+		assertEquals("Empty Rocket CM.z is incorrect: ", expCM.z, actualRocketDryCM.z, 0);
+		assertEquals("Empty Rocket CM is incorrect: ", expCM, actualRocketDryCM);
+
+		double actualMOIrot = actualStructure.getRotationalInertia();
+		double actualMOIlong = actualStructure.getLongitudinalInertia();
+		assertEquals("Empty Rocket Rotational MOI calculated incorrectly: ", 0, actualMOIrot, 0);
+		assertEquals("Empty Rocket Longitudinal MOI calculated incorrectly: ", 0, actualMOIlong, 0);
+	}
+
+	@Test
 	public void testAlphaIIIStructure() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -1143,6 +1166,70 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Booster Launch CM.z is incorrect: ", expCM.z, structure.getCM().z, EPSILON);
 		assertEquals(" Booster Launch CM is incorrect: ", expCM, structure.getCM());
  
+	}
+
+	@Test
+	public void testEmptyStages() {
+		Rocket rocketRef = TestRockets.makeEstesAlphaIII();		// Reference rocket
+		FlightConfiguration configRef = rocketRef.getEmptyConfiguration();
+		configRef.setAllStages();
+
+		final RigidBody structureRef = MassCalculator.calculateStructure(configRef);
+		final double rocketDryMassRef = structureRef.cm.weight;
+		final Coordinate rocketDryCMRef = structureRef.cm;
+
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		AxialStage stage1 = new AxialStage();		// To be added to the front of the rocket
+		AxialStage stage2 = new AxialStage();		// To be added to the rear of the rocket
+		rocket.addChild(stage1, 0);
+		rocket.addChild(stage2);
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		config.setAllStages();
+
+		final RigidBody structure = MassCalculator.calculateStructure(config);
+		final double rocketDryMass = structure.cm.weight;
+		final Coordinate rocketDryCM = structure.cm;
+
+		assertEquals(" Empty Stages Rocket Empty Mass is incorrect: ", rocketDryMassRef, rocketDryMass, EPSILON);
+
+		assertEquals("Empty Stages Rocket CM.x is incorrect: ", rocketDryCMRef.x, rocketDryCM.x, EPSILON);
+		assertEquals("Empty Stages Rocket CM.y is incorrect: ", rocketDryCMRef.y, rocketDryCM.y, EPSILON);
+		assertEquals("Empty Stages Rocket CM.z is incorrect: ", rocketDryCMRef.z, rocketDryCM.z, EPSILON);
+		assertEquals("Empty Stages Rocket CM is incorrect: ", rocketDryCMRef, rocketDryCM);
+
+		double MOIrotRef = structureRef.getRotationalInertia();
+		double MOIlongRef = structureRef.getLongitudinalInertia();
+
+		double MOIrot = structure.getRotationalInertia();
+		double MOIlong = structure.getLongitudinalInertia();
+		assertEquals("Empty Stages Rocket Rotational MOI calculated incorrectly: ", MOIrotRef, MOIrot, EPSILON);
+		assertEquals("Empty Stages Rocket Longitudinal MOI calculated incorrectly: ", MOIlongRef, MOIlong, EPSILON);
+
+		// if we use a mass override, setting to same mass, we should get same result
+		AxialStage sustainerRef = (AxialStage) rocketRef.getChild(0);
+		sustainerRef.setSubcomponentsOverridden(true);
+		sustainerRef.setMassOverridden(true);
+		sustainerRef.setOverrideMass(rocketDryMassRef);
+
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		sustainer.setSubcomponentsOverridden(true);
+		sustainer.setMassOverridden(true);
+		sustainer.setOverrideMass(rocketDryMass);
+
+		final RigidBody overrideStructureRef = MassCalculator.calculateStructure(configRef);
+		final Coordinate overrideRocketDryCMRef = overrideStructureRef.cm;
+
+		final RigidBody overrideStructure = MassCalculator.calculateStructure(config);
+		final Coordinate overrideRocketDryCM = overrideStructure.cm;
+
+		assertEquals("Empty Stages Rocket Override CM is incorrect: ", overrideRocketDryCMRef, overrideRocketDryCM);
+
+		double overrideMOIrotRef = overrideStructureRef.getRotationalInertia();
+		double overrideMOIlongRef = overrideStructureRef.getLongitudinalInertia();
+		double overrideMOIrot = overrideStructure.getRotationalInertia();
+		double overrideMOIlong = overrideStructure.getLongitudinalInertia();
+		assertEquals("Empty Stages Rocket Rotational MOI calculated incorrectly: ", overrideMOIrotRef, overrideMOIrot, EPSILON);
+		assertEquals("Empty Stages Rocket Longitudinal MOI calculated incorrectly: ", overrideMOIlongRef, overrideMOIlong, EPSILON);
 	}
 	
 }
