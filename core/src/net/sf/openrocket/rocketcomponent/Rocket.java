@@ -198,9 +198,9 @@ public class Rocket extends ComponentAssembly {
 		return this.stageMap.get( stageNumber);
 	}
 
-	public AxialStage getStage(final FlightConfigurationId stageId) {
+	public AxialStage getStage(final String stageId) {
 		for (AxialStage stage : getStageList()) {
-			if (stage.getStageId().equals(stageId)) {
+			if (stage.getID().equals(stageId)) {
 				return stage;
 			}
 		}

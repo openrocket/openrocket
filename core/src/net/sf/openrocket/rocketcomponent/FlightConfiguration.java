@@ -47,9 +47,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private class StageFlags implements Cloneable {
 		public boolean active = true;
 		public int stageNumber = -1;
-		public FlightConfigurationId stageId;
-		
-		public StageFlags(int _num, FlightConfigurationId stageId, boolean _active) {
+		public String stageId;
+
+		public StageFlags(int _num, String stageId, boolean _active) {
 			this.stageNumber = _num;
 			this.stageId = stageId;
 			this.active = _active;
@@ -465,12 +465,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			if (curStage == null) continue;
 			boolean active = true;
 			for (FlightConfiguration.StageFlags flag : stagesBackup.values()) {
-				if (flag.stageId.equals(curStage.getStageId())) {
+				if (flag.stageId.equals(curStage.getID())) {
 					active = flag.active;
 					break;
 				}
 			}
-			StageFlags flagsToAdd = new StageFlags(curStage.getStageNumber(), curStage.getStageId(), active);
+			StageFlags flagsToAdd = new StageFlags(curStage.getStageNumber(), curStage.getID(), active);
 			this.stages.put(curStage.getStageNumber(), flagsToAdd);
 		}
 	}
@@ -855,7 +855,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
-			final FlightConfigurationId stageId = flags.stageId;
+			final String stageId = flags.stageId;
 			buf.append(String.format(fmt, stageId, (flags.active?" on": "off"), rocket.getStage(stageId).getName()));
 		}
 		buf.append("\n");
