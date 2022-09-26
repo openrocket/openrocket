@@ -308,7 +308,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		mutex.verify();
-		if (status == Status.UPTODATE || status == Status.LOADED) {
+		if (isStatusUpToDate(status)) {
 			if (rocket.getFunctionalModID() != simulatedRocketID || !options.equals(simulatedConditions)) {
 				status = Status.OUTDATED;
 			}
@@ -329,6 +329,14 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 		
 		return status;
+	}
+
+	/**
+	 * Returns true is the status indicates that the simulation data is up-to-date.
+	 * @param status status of the simulation to check for if its data is up-to-date
+	 */
+	public static boolean isStatusUpToDate(Status status) {
+		return status == Status.UPTODATE || status == Status.LOADED || status == Status.EXTERNAL;
 	}
 	
 	

@@ -292,8 +292,7 @@ public class SimulationEditDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// If the simulation is out of date, run the simulation.
-					if (simulationList[0].getStatus() != Simulation.Status.UPTODATE &&
-							simulationList[0].getStatus() != Simulation.Status.LOADED) {
+					if (!Simulation.isStatusUpToDate(simulationList[0].getStatus())) {
 						new SimulationRunDialog(SimulationEditDialog.this.parentWindow, document, simulationList[0]).setVisible(true);
 					}
 					
