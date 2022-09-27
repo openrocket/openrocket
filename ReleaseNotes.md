@@ -36,7 +36,7 @@ OpenRocket 22.02.beta.05 (2022-09-28)
 * **Scripting now works again.  Please test!** (fixes #308, #826, #1108, and #1270)
 * Don't re-run simulations when new sim is created with same motor (fixes #1510)
 * Ensure simulations finish when running from scripts (fixes #1575)
-* Fixed Cd calculation for fin sets (fixes #1440)
+* Fixed Cd reporting for fin sets (fixes #1440)
 * Move component config window back to same monitor as main app window first time it is opened.  No more lost config windows! (fixes #1470)
 * Rocket side view updates
   * Don't recenter rocket when zooming (fixes #1464)
