@@ -241,8 +241,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if( -1 == stageNumber ) {
 			return true;
 		}
-		
-		return stages.get(stageNumber) != null && stages.get(stageNumber).active;
+
+		AxialStage stage = rocket.getStage(stageNumber);
+		return stage != null && stage.getChildCount() > 0 &&
+				stages.get(stageNumber) != null && stages.get(stageNumber).active;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
@@ -379,12 +381,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		List<AxialStage> activeStages = new ArrayList<>();
 		
 		for (StageFlags flags : this.stages.values()) {
-			if (flags.active) {
-				AxialStage stage = rocket.getStage(flags.stageNumber);
-				if (stage == null) {
-					continue;
-				}
-				activeStages.add(stage);
+			if (isStageActive(flags.stageNumber)) {
+				activeStages.add( rocket.getStage(flags.stageNumber));
 			}
 		}
 		
@@ -392,13 +390,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public int getActiveStageCount() {
-		int activeCount = 0;
-		for (StageFlags cur : this.stages.values()) {
-			if (cur.active) {
-				activeCount++;
-			}
-		}
-		return activeCount;
+		return getActiveStages().size();
 	}
 	
 	/**
@@ -407,7 +399,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public AxialStage getBottomStage() {
 		AxialStage bottomStage = null;
 		for (StageFlags curFlags : this.stages.values()) {
-			if (curFlags.active) {
+			if (isStageActive(curFlags.stageNumber)) {
 				bottomStage = rocket.getStage( curFlags.stageNumber);
 			}
 		}
@@ -851,7 +843,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
 			final int stageNumber = flags.stageNumber;
-			buf.append(String.format(fmt, stageNumber, (flags.active?" on": "off"), rocket.getStage( stageNumber).getName()));
+			buf.append(String.format(fmt, stageNumber, (isStageActive(flags.stageNumber) ?" on": "off"), rocket.getStage( stageNumber).getName()));
 		}
 		buf.append("\n");
 		return buf.toString();
