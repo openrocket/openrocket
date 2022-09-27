@@ -242,8 +242,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if( -1 == stageNumber ) {
 			return true;
 		}
-		
-		return stages.get(stageNumber) != null && stages.get(stageNumber).active;
+
+		AxialStage stage = rocket.getStage(stageNumber);
+		return stage != null && stage.getChildCount() > 0 &&
+				stages.get(stageNumber) != null && stages.get(stageNumber).active;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
@@ -380,7 +382,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		List<AxialStage> activeStages = new ArrayList<>();
 		
 		for (StageFlags flags : this.stages.values()) {
-			if (flags.active) {
+			if (isStageActive(flags.stageNumber)) {
 				AxialStage stage = rocket.getStage(flags.stageId);
 				if (stage == null) {
 					continue;
@@ -393,13 +395,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public int getActiveStageCount() {
-		int activeCount = 0;
-		for (StageFlags cur : this.stages.values()) {
-			if (cur.active) {
-				activeCount++;
-			}
-		}
-		return activeCount;
+		return getActiveStages().size();
 	}
 	
 	/**
@@ -408,8 +404,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public AxialStage getBottomStage() {
 		AxialStage bottomStage = null;
 		for (StageFlags curFlags : this.stages.values()) {
-			if (curFlags.active) {
-				bottomStage = rocket.getStage(curFlags.stageId);
+			if (isStageActive(curFlags.stageNumber)) {
+				bottomStage = rocket.getStage( curFlags.stageNumber);
 			}
 		}
 		return bottomStage;

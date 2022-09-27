@@ -1006,7 +1006,7 @@ public class SimulationPanel extends JPanel {
 	 */
 	public void takeTheSpotlight() {
 		simulationTable.requestFocusInWindow();
-		if (simulationTable.getSelectedRows().length > 0) {
+		if (simulationTable.getRowCount() == 0 || simulationTable.getSelectedRows().length > 0) {
 			return;
 		}
 		if (previousSelection == null || previousSelection.length == 0) {

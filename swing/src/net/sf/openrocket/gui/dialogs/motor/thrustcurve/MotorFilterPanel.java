@@ -38,6 +38,7 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -64,8 +65,18 @@ public abstract class MotorFilterPanel extends JPanel {
 	 * updates: motorDiameters, diameterLabels
 	 */
 	private static void scaleDiameterLabels(){
+		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
 		for( int i = 0; i < motorDiameters.length; i++ ) {
-			diameterLabels.put( i, new JLabel(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toString(motorDiameters[i])));
+			// Round the labels, because for imperial units, the labels can otherwise overlap
+			double diam = unit.toUnit(motorDiameters[i]);
+			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
+			diam = unit.fromUnit(diamRounded);
+			String formatted = unit.toString(diam);
+			// Remove the leading zero for numbers between 0 and 1
+			if (diamRounded > 0 && diamRounded < 1) {
+				formatted = formatted.substring(1);
+			}
+			diameterLabels.put( i, new JLabel(formatted));
 		}
 		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
@@ -96,6 +107,7 @@ public abstract class MotorFilterPanel extends JPanel {
 	final JSpinner maxLengthSpinner;
 	final UnitSelector maxLengthUnitSelect;
 	private boolean limitDiameter = false;
+	boolean limitByLength = false;
 	private Double mountDiameter = null;
 
 
@@ -113,7 +125,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
 
-		boolean limitByLengthPref = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
+		limitByLength = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
 		limitDiameter = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitDiameter", false);
 		
 		//// Hide used motor files
@@ -239,9 +251,10 @@ public abstract class MotorFilterPanel extends JPanel {
 		// Motor Dimension selection
 		{
 			sub.add( new JLabel(trans.get("TCMotorSelPan.Diameter")), "split 2, wrap");
-			limitDiameterCheckBox = new JCheckBox( trans.get("TCMotorSelPan.checkbox.limitdiameter"));
+			final BooleanModel limitByDiameterModel = new BooleanModel(limitDiameter);
+			limitDiameterCheckBox = new JCheckBox(limitByDiameterModel);
+			limitDiameterCheckBox.setText(trans.get("TCMotorSelPan.checkbox.limitdiameter"));
 			GUIUtil.changeFontSize(limitDiameterCheckBox, -1);
-			limitDiameterCheckBox.setSelected(limitDiameter);
 			limitDiameterCheckBox.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -273,12 +286,13 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 			sub.add( diameterSlider, "growx, wrap");
+			limitByDiameterModel.addEnableComponent(diameterSlider, false);
 		}
 
 		{ // length selection
 			
 			sub.add( new JLabel(trans.get("TCMotorSelPan.Length")), "split 2, wrap");
-			final BooleanModel limitByLengthModel = new BooleanModel(limitByLengthPref);
+			final BooleanModel limitByLengthModel = new BooleanModel(limitByLength);
 			limitByLengthCheckBox = new JCheckBox( limitByLengthModel );
 			limitByLengthCheckBox.setText( trans.get("TCMotorSelPan.checkbox.limitlength"));
 			GUIUtil.changeFontSize(limitByLengthCheckBox, -1);
@@ -286,7 +300,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			limitByLengthCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//boolean limitByLength = limitByLengthCheckBox.isSelected();
+					limitByLength = limitByLengthCheckBox.isSelected();
 					MotorFilterPanel.this.setLimitLength();
 					onSelectionChanged();
 				}
@@ -326,9 +340,6 @@ public abstract class MotorFilterPanel extends JPanel {
 			
 			lengthSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, 1000, 0, 1000);
 			lengthSlider.setBounded(true); // thumbs cannot cross
-			lengthSlider.setMajorTickSpacing(100);
-			lengthSlider.setPaintTicks(true);
-			lengthSlider.setLabelTable(diameterLabels);
 			lengthSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
@@ -371,7 +382,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		minLengthUnitSelect.setSelectedUnit(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit());
 		maxLengthUnitSelect.setSelectedUnit(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit());
 
-		boolean limitByLength = limitByLengthCheckBox.isSelected();
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
 		if ( mountLength != null  & limitByLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
