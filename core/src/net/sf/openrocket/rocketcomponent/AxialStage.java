@@ -8,8 +8,7 @@ import net.sf.openrocket.util.Coordinate;
 public class AxialStage extends ComponentAssembly implements FlightConfigurableComponent {
 	
 	private static final Translator trans = Application.getTranslator();
-	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
-	
+
 	/** list of separations to be happening*/
 	protected FlightConfigurableParameterSet<StageSeparationConfiguration> separations;
 	/** number of stages */
@@ -93,7 +92,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		copy.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>(separations);
 		return copy;
 	}
-
 	
 	/** 
 	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 

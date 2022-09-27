@@ -198,6 +198,15 @@ public class Rocket extends ComponentAssembly {
 		return this.stageMap.get( stageNumber);
 	}
 
+	public AxialStage getStage(final String stageId) {
+		for (AxialStage stage : getStageList()) {
+			if (stage.getID().equals(stageId)) {
+				return stage;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Get the topmost stage, only taking into account active stages from the flight configuration.
 	 * @param config flight configuration dictating which stages are active
@@ -537,21 +546,17 @@ public class Rocket extends ComponentAssembly {
 	 * Update all the stage numbers based on their position in the component tree
 	 */
 	private void updateStageNumbers() {
-		for (RocketComponent component : getChildren()) {
-			if (component instanceof AxialStage) {
-				AxialStage stage = (AxialStage) component;
-				forgetStage(stage);
-				stage.setStageNumber(getChildPosition(stage));
-			}
+		int stageNr = 0;
+		for (AxialStage stage : getSubStages()) {
+			forgetStage(stage);
+			stage.setStageNumber(stageNr);
+			stageNr++;
 		}
 	}
 
 	private void updateStageMap(){
-		for( RocketComponent component : getChildren() ){
-			if (component instanceof AxialStage) {
-				AxialStage stage = (AxialStage) component;
-				trackStage(stage);
-			}
+		for (AxialStage stage : getSubStages() ){
+			trackStage(stage);
 		}
 	}
 	
