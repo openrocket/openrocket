@@ -60,7 +60,7 @@ import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 
 /*
- * It should be possible to simplify this code quite a bit by using a single Renderer instance for
+ * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
  * both datasets and the legend.  But for now, the renderers are queried for the line color information
  * and this is held in the Legend.
  */
