@@ -46,22 +46,23 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	private class StageFlags implements Cloneable {
 		public boolean active = true;
-		//public int prev = -1;
 		public int stageNumber = -1;
-		
-		public StageFlags( int _num, boolean _active) {
+		public String stageId;
+
+		public StageFlags(int _num, String stageId, boolean _active) {
 			this.stageNumber = _num;
+			this.stageId = stageId;
 			this.active = _active;
 		}
 		
 		@Override
 		public StageFlags clone(){
-			return new StageFlags( this.stageNumber, true);
+			return new StageFlags(this.stageNumber, this.stageId, true);
 		}
 	}
 	
 	/* Cached data */
-	final protected Map<Integer, StageFlags> stages = new HashMap<Integer, StageFlags>();	// Map of stage number to StageFlags of the corresponding stage
+	final protected Map<Integer, StageFlags> stages = new HashMap<>();	// Map of stage number to StageFlags of the corresponding stage
 	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
 	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
@@ -130,7 +131,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public void copyStages(FlightConfiguration other) {
 		for (StageFlags cur : other.stages.values())
-			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.active));
+			stages.put(cur.stageNumber, new StageFlags(cur.stageNumber, cur.stageId, cur.active));
 		updateMotors();
 		updateActiveInstances();
 	}
@@ -241,8 +242,10 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if( -1 == stageNumber ) {
 			return true;
 		}
-		
-		return stages.get(stageNumber) != null && stages.get(stageNumber).active;
+
+		AxialStage stage = rocket.getStage(stageNumber);
+		return stage != null && stage.getChildCount() > 0 &&
+				stages.get(stageNumber) != null && stages.get(stageNumber).active;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
@@ -370,7 +373,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public List<AxialStage> getAllStages() {
 		List<AxialStage> stages = new ArrayList<>();
 		for (StageFlags flags : this.stages.values()) {
-			stages.add( rocket.getStage(flags.stageNumber));
+			stages.add( rocket.getStage(flags.stageId));
 		}
 		return stages;
 	}
@@ -379,8 +382,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		List<AxialStage> activeStages = new ArrayList<>();
 		
 		for (StageFlags flags : this.stages.values()) {
-			if (flags.active) {
-				AxialStage stage = rocket.getStage(flags.stageNumber);
+			if (isStageActive(flags.stageNumber)) {
+				AxialStage stage = rocket.getStage(flags.stageId);
 				if (stage == null) {
 					continue;
 				}
@@ -392,13 +395,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public int getActiveStageCount() {
-		int activeCount = 0;
-		for (StageFlags cur : this.stages.values()) {
-			if (cur.active) {
-				activeCount++;
-			}
-		}
-		return activeCount;
+		return getActiveStages().size();
 	}
 	
 	/**
@@ -407,7 +404,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public AxialStage getBottomStage() {
 		AxialStage bottomStage = null;
 		for (StageFlags curFlags : this.stages.values()) {
-			if (curFlags.active) {
+			if (isStageActive(curFlags.stageNumber)) {
 				bottomStage = rocket.getStage( curFlags.stageNumber);
 			}
 		}
@@ -458,14 +455,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	private void updateStages() {
-		if (this.rocket.getStageCount() == this.stages.size()) {
-			return;
-		}
-
+		Map<Integer, FlightConfiguration.StageFlags> stagesBackup = new HashMap<>(this.stages);
 		this.stages.clear();
 		for (AxialStage curStage : this.rocket.getStageList()) {
 			if (curStage == null) continue;
-			StageFlags flagsToAdd = new StageFlags( curStage.getStageNumber(), true);
+			boolean active = true;
+			for (FlightConfiguration.StageFlags flag : stagesBackup.values()) {
+				if (flag.stageId.equals(curStage.getID())) {
+					active = flag.active;
+					break;
+				}
+			}
+			StageFlags flagsToAdd = new StageFlags(curStage.getStageNumber(), curStage.getID(), active);
 			this.stages.put(curStage.getStageNumber(), flagsToAdd);
 		}
 	}
@@ -850,8 +851,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
-			final int stageNumber = flags.stageNumber;
-			buf.append(String.format(fmt, stageNumber, (flags.active?" on": "off"), rocket.getStage( stageNumber).getName()));
+			final String stageId = flags.stageId;
+			buf.append(String.format(fmt, stageId, (flags.active?" on": "off"), rocket.getStage(stageId).getName()));
 		}
 		buf.append("\n");
 		return buf.toString();
