@@ -6,8 +6,6 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
-import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Assert;
@@ -35,11 +33,9 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        SimulationListener simulationListener = new AbstractSimulationListener();
-
         // Since there are no stages, the simulation should throw an exception.
         try {
-            simDisabled.simulate(simulationListener);
+            simDisabled.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
                 Assert.fail("Simulation should have thrown a MotorIgnitionException");
@@ -56,7 +52,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();    // Re-enable all stages.
 
-        compareSims(simOriginal, simDisabled, simulationListener, delta);
+        compareSims(simOriginal, simDisabled, delta);
     }
 
     /**
@@ -83,9 +79,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        SimulationListener simulationListener = new AbstractSimulationListener();
-
-        compareSims(simRemoved, simDisabled, simulationListener, delta);
+        compareSims(simRemoved, simDisabled, delta);
 
         //// Test re-enableing the stage.
         Rocket rocketOriginal = TestRockets.makeBeta();
@@ -96,7 +90,7 @@ public class DisableStageTest extends BaseTestCase {
         
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, simulationListener, delta);
+        compareSims(simOriginal, simDisabled, delta);
     }
 
     /**
@@ -173,9 +167,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        SimulationListener simulationListener = new AbstractSimulationListener();
-
-        compareSims(simRemoved, simDisabled, simulationListener, delta);
+        compareSims(simRemoved, simDisabled, delta);
 
         //// Test re-enableing the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -186,7 +178,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, simulationListener, delta);
+        compareSims(simOriginal, simDisabled, delta);
     }
 
     /**
@@ -214,11 +206,9 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        SimulationListener simulationListener = new AbstractSimulationListener();
-
         // There should be no motors left at this point, so a no motors exception should be thrown
         try {
-            simRemoved.simulate(simulationListener);
+            simRemoved.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
                 Assert.fail("Simulation failed: " + e);
@@ -226,7 +216,7 @@ public class DisableStageTest extends BaseTestCase {
         }
 
         try {
-            simDisabled.simulate(simulationListener);
+            simDisabled.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
                 Assert.fail("Simulation failed: " + e);
@@ -242,7 +232,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, simulationListener, delta);
+        compareSims(simOriginal, simDisabled, delta);
     }
 
     /**
@@ -259,13 +249,11 @@ public class DisableStageTest extends BaseTestCase {
      *  - groundHitVelocity
      * @param simExpected the expected simulation results
      * @param simActual the actual simulation results
-     * @param simulationListener the simulation listener to use for the comparison
      * @param delta the error margin for the comparison (e.g. 0.05 = 5 % error margin)
      */
-    private void compareSims(Simulation simExpected, Simulation simActual,
-                             SimulationListener simulationListener, double delta) {
+    private void compareSims(Simulation simExpected, Simulation simActual, double delta) {
         try {
-            simExpected.simulate(simulationListener);
+            simExpected.simulate();
             double maxAltitudeOriginal = simExpected.getSimulatedData().getMaxAltitude();
             double maxVelocityOriginal = simExpected.getSimulatedData().getMaxVelocity();
             double maxMachNumberOriginal = simExpected.getSimulatedData().getMaxMachNumber();
@@ -274,7 +262,7 @@ public class DisableStageTest extends BaseTestCase {
             double launchRodVelocityOriginal = simExpected.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityOriginal = simExpected.getSimulatedData().getDeploymentVelocity();
 
-            simActual.simulate(simulationListener);
+            simActual.simulate();
             double maxAltitudeDisabled = simActual.getSimulatedData().getMaxAltitude();
             double maxVelocityDisabled = simActual.getSimulatedData().getMaxVelocity();
             double maxMachNumberDisabled = simActual.getSimulatedData().getMaxMachNumber();
