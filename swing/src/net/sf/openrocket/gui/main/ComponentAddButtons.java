@@ -331,7 +331,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			// Add labels
 			String[] l = text.split("\n");
 			for (int i = 0; i < l.length; i++) {
-				add(new StyledLabel(l[i], SwingConstants.CENTER, -3.0f), "growx");
+				add(new StyledLabel(l[i], SwingConstants.CENTER, -2.0f), "growx");
 			}
 			
 			add(new JLabel(), "push, sizegroup spacing");
