@@ -193,15 +193,7 @@ public class SwingStartup {
 		guiModule.startLoader();
 		
 		// Start update info fetching
-		final UpdateInfoRetriever updateRetriever;
-		if (Application.getPreferences().getCheckUpdates()) {
-			log.info("Starting update check");
-			updateRetriever = new UpdateInfoRetriever();
-			updateRetriever.startFetchUpdateInfo();
-		} else {
-			log.info("Update check disabled");
-			updateRetriever = null;
-		}
+		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
 		// Set the best available look-and-feel
 		log.info("Setting best LAF");
@@ -248,9 +240,21 @@ public class SwingStartup {
 		}
 		
 	}
+
+	public static UpdateInfoRetriever startUpdateChecker() {
+		final UpdateInfoRetriever updateRetriever;
+		if (Application.getPreferences().getCheckUpdates()) {
+			log.info("Starting update check");
+			updateRetriever = new UpdateInfoRetriever();
+			updateRetriever.startFetchUpdateInfo();
+		} else {
+			log.info("Update check disabled");
+			updateRetriever = null;
+		}
+		return updateRetriever;
+	}
 	
-	
-	private void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
+	public static void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
 		if (updateRetriever == null)
 			return;
 		
