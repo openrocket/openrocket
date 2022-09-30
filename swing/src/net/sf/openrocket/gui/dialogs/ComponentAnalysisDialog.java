@@ -171,8 +171,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		// Stage and motor selection:
 		//// Active stages:
+		StageSelector stageSelector = new StageSelector(rkt);
+		rkt.addChangeListener(stageSelector);
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.activestages")), "spanx, split, gapafter rel");
-		panel.add(new StageSelector( rkt), "gapafter paragraph");
+		panel.add(stageSelector, "gapafter paragraph");
 
 		//// Motor configuration:
 		JLabel label = new JLabel(trans.get("componentanalysisdlg.lbl.motorconf"));
