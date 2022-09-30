@@ -326,6 +326,13 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		// Nothing went wrong (yay!)
 		ReleaseStatus status = info.getReleaseStatus();
 		ReleaseInfo release = info.getLatestRelease();
+
+		// Do nothing if the release is part of the ignore versions
+		if (preferences.getIgnoreVersions().contains(release.getReleaseName())) {
+			return;
+		}
+
+		// Display software updater dialog, based on the current build version status
 		switch (status) {
 			case LATEST:
 				JOptionPane.showMessageDialog(this,

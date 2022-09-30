@@ -268,10 +268,12 @@ public class SwingStartup {
 				if (!updateRetriever.isRunning()) {
 					timer.stop();
 
+					final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 					UpdateInfo info = updateRetriever.getUpdateInfo();
 
 					// Only display something when an update is found
-					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER) {
+					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER &&
+						!preferences.getIgnoreVersions().contains(info.getLatestRelease().getReleaseName())) {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 					}
