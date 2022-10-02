@@ -427,7 +427,8 @@ public class SimulationPlot {
 
 		// Plot the markers
 		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME) {
-			double markerWidth = 0.7;
+			double markerWidth = 0.01 * plot.getDomainAxis().getUpperBound();
+
 			// Domain time is plotted as vertical markers
 			for (int i = 0; i < eventTimes.size(); i++) {
 				double t = eventTimes.get(i);
