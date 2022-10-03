@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.openrocket.rocketcomponent.Transition;
 import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -279,7 +280,10 @@ class FinSetHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		//Create the fin set and correct for overrides and actual material densities
-		final FinSet finSet = asOpenRocket(warnings);
+		FinSet finSet = asOpenRocket(warnings);
+
+		if (component instanceof Transition && shapeCode == 0)
+			finSet = FreeformFinSet.convertFinSet(finSet);
 
 		finSet.setAppearance(appearanceBuilder.getAppearance());
 
