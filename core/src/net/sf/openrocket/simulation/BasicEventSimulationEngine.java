@@ -444,6 +444,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// Record the event.
 					currentStatus.getFlightData().addEvent(event);
 
+					// If I've got something other than one active stage below the separation point,
+					// flag a warning
+					int numActiveBelow = 0;
+					for (int i = stageNumber; i < currentStatus.getConfiguration().getStageCount(); i++) {
+						if (currentStatus.getConfiguration().isStageActive(i)) {
+							numActiveBelow++;
+						}
+					}
+					if (numActiveBelow != 1) {
+						currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
+					}
+
 					// Create a new simulation branch for the booster
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
