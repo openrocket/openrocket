@@ -86,7 +86,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		AerodynamicCalculator aerocalc = status.getSimulationConditions().getAerodynamicCalculator();
 		
 		// Must go through each component ...
-		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, new WarningSet());
+		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, status.getWarnings());
 		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forces.entrySet()) {
 			
 			RocketComponent comp = entry.getKey();
