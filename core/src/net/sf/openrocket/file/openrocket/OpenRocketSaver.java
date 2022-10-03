@@ -428,8 +428,15 @@ public class OpenRocketSaver extends RocketSaver {
 
 	private void savePhotoSettings(Map<String, String> p) throws IOException {
 		log.debug("Saving Photo Settings");
+
+		writeln("<photostudio>");
+		indent++;
+
 		for (String s : PhotoStudioSaver.getElements(p))
 			writeln(s);
+
+		indent--;
+		writeln("</photostudio>");
 	}
 	
 	

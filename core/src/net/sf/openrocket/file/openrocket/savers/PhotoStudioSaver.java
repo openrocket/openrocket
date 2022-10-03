@@ -21,8 +21,6 @@ public class PhotoStudioSaver {
 
         if (photoSettings == null || photoSettings.size() == 0) return elements;
 
-        elements.add("<photostudio>");
-
         elements.add("<roll>" + photoSettings.get("roll") + "</roll>");
         elements.add("<yaw>" + photoSettings.get("yaw") + "</yaw>");
         elements.add("<pitch>" + photoSettings.get("pitch") + "</pitch>");
@@ -54,8 +52,6 @@ public class PhotoStudioSaver {
         elements.add("<sparkWeight>" + photoSettings.get("sparkWeight") + "</sparkWeight>");
 
         elements.add("<sky>" + photoSettings.get("sky") + "</sky>");
-
-        elements.add("</photostudio>");
 
         return elements;
     }
