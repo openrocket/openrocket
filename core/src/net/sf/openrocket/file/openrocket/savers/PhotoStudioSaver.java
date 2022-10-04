@@ -43,7 +43,6 @@ public class PhotoStudioSaver {
         emitColor("flameColor", elements, photoSettings.get("flameColor"));
         elements.add("<smoke>" + photoSettings.get("smoke") + "</smoke>");
         emitColor("smokeColor", elements, photoSettings.get("smokeColor"));
-        elements.add("<smokeOpacity>" + photoSettings.get("smokeOpacity") + "</smokeOpacity>");
         elements.add("<sparks>" + photoSettings.get("sparks") + "</sparks>");
         elements.add("<exhaustScale>" + photoSettings.get("exhaustScale") + "</exhaustScale>");
         elements.add("<flameAspectRatio>" + photoSettings.get("flameAspectRatio") + "</flameAspectRatio>");
