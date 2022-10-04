@@ -91,7 +91,7 @@ public class DocumentSelectionModel {
 	 * @return	the currently selected rocket components, or <code>null</code>.
 	 */
 	public List<RocketComponent> getSelectedComponents() {
-		if (componentSelection.size() == 0) return Collections.EMPTY_LIST;
+		if (componentSelection.size() == 0) return Collections.emptyList();
 		return componentSelection;
 	}
 	
