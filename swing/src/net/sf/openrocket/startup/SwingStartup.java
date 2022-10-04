@@ -193,15 +193,7 @@ public class SwingStartup {
 		guiModule.startLoader();
 		
 		// Start update info fetching
-		final UpdateInfoRetriever updateRetriever;
-		if (Application.getPreferences().getCheckUpdates()) {
-			log.info("Starting update check");
-			updateRetriever = new UpdateInfoRetriever();
-			updateRetriever.startFetchUpdateInfo();
-		} else {
-			log.info("Update check disabled");
-			updateRetriever = null;
-		}
+		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
 		// Set the best available look-and-feel
 		log.info("Setting best LAF");
@@ -248,9 +240,21 @@ public class SwingStartup {
 		}
 		
 	}
+
+	public static UpdateInfoRetriever startUpdateChecker() {
+		final UpdateInfoRetriever updateRetriever;
+		if (Application.getPreferences().getCheckUpdates()) {
+			log.info("Starting update check");
+			updateRetriever = new UpdateInfoRetriever();
+			updateRetriever.startFetchUpdateInfo();
+		} else {
+			log.info("Update check disabled");
+			updateRetriever = null;
+		}
+		return updateRetriever;
+	}
 	
-	
-	private void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
+	public static void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
 		if (updateRetriever == null)
 			return;
 		
@@ -268,10 +272,12 @@ public class SwingStartup {
 				if (!updateRetriever.isRunning()) {
 					timer.stop();
 
+					final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 					UpdateInfo info = updateRetriever.getUpdateInfo();
 
 					// Only display something when an update is found
-					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER) {
+					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER &&
+						!preferences.getIgnoreVersions().contains(info.getLatestRelease().getReleaseName())) {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 					}
