@@ -248,8 +248,8 @@ public abstract class MassObject extends InternalComponent {
 	@Override
 	public final Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> c = new ArrayList<Coordinate>();
-		addBound(c, 0, radius);
-		addBound(c, length, radius);
+		addBound(c, 0, getRadius());
+		addBound(c, getLength(), getRadius());
 		return c;
 	}
 	
