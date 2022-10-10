@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class DocumentSelectionModel {
 	 * @return	the currently selected rocket components, or <code>null</code>.
 	 */
 	public List<RocketComponent> getSelectedComponents() {
-		if (componentSelection.size() == 0) return null;
+		if (componentSelection.size() == 0) return Collections.emptyList();
 		return componentSelection;
 	}
 	
