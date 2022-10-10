@@ -183,22 +183,19 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int selectedRow = simulationTable.getSelectedRow();
+				int row = simulationTable.rowAtPoint(e.getPoint());
+				int column = simulationTable.columnAtPoint(e.getPoint());
+
+				// Clear the table selection when clicked outside the table rows.
+				if (row == -1 || column == -1 || selectedRow == -1) {
+					simulationTable.clearSelection();
+					return;
+				}
 
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					// Clear the table selection when clicked outside the table rows.
-					if (e.getClickCount() == 1) {
-						int row = simulationTable.rowAtPoint(e.getPoint());
-						int column = simulationTable.columnAtPoint(e.getPoint());
-
-						if (row == -1 || column == -1) {
-							simulationTable.clearSelection();
-						}
-					}
 					// Edit the simulation or plot/export
-					else if (e.getClickCount() == 2) {
+					if (e.getClickCount() == 2) {
 						int selected = simulationTable.convertRowIndexToModel(selectedRow);
-
-						int column = simulationTable.columnAtPoint(e.getPoint());
 						if (column == 0) {
 							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
 						} else {
