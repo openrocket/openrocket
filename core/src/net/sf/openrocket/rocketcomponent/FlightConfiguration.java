@@ -146,6 +146,34 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 		updateActiveInstances();
 	}
+
+	/**
+	 * This method clears a stage and all stages below (higher stage number)
+	 *
+	 * @param stageNumber first stage number to turn off
+	 */
+	public void clearStagesBelow(int stageNumber) {
+		// I can't just use _setStageActive(stageNumber, false, true)
+		// because that won't clear side boosters' active flags (should it?)
+		for (int i = stageNumber; i < rocket.getStageCount(); i++) {
+			_setStageActive(i, false, false);
+		}
+		updateMotors();
+		updateActiveInstances();
+	}
+
+	/**
+	 * This method clears all stages above (but not including) a stage
+	 *
+	 * @param stageNumber first stage number to stay active
+	 */
+	public void clearStagesAbove(int stageNumber) {
+		for (int i = 0; i < stageNumber; i++) {
+			_setStageActive(i, false, false);
+		}
+		updateMotors();
+		updateActiveInstances();
+	}
 	
 	/**
 	 * Activates all stages as active starting from the specified component
@@ -187,7 +215,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	/**
-	 * This method flags the specified stage as requested.  Other stages are unaffected.
+	 * This method flags the specified stage as requested.  Substages may be affected, depending on third parameter
 	 *
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
