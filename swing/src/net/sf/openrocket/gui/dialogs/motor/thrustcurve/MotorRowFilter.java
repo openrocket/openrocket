@@ -219,8 +219,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		main: for (String s : searchTerms) {
 			for (ThrustCurveMotorColumns col : ThrustCurveMotorColumns.values()) {
 				String str = col.getValue(m).toString().toLowerCase(Locale.getDefault());
-				if (str.indexOf(s) >= 0)
+				if (str.contains(s)) {
 					continue main;
+				}
 			}
 			return false;
 		}
