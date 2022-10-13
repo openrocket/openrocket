@@ -100,6 +100,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 				root.node(NODENAME).removeNode();
 			}
 			PREFNODE = root.node(NODENAME);
+			UnitGroup.resetDefaultUnits();
+			storeDefaultUnits();
 			log.info("Cleared preferences");
 		} catch (BackingStoreException e) {
 			throw new BugException("Unable to clear preference node", e);
