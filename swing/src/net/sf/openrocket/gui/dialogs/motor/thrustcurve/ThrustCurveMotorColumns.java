@@ -35,6 +35,9 @@ enum ThrustCurveMotorColumns {
 	NAME("TCurveMotorCol.NAME") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
+			if (!(Application.getPreferences() instanceof SwingPreferences)) {
+				return m.getCommonName();
+			}
 			if (((SwingPreferences) Application.getPreferences()).getMotorNameColumn()) {
 				return m.getDesignation();
 			} else {
