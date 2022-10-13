@@ -243,14 +243,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					((SwingPreferences) Application.getPreferences()).setMotorNameColumn(false);
+					int selectedRow = table.getSelectedRow();
 					model.fireTableDataChanged();
+					if (selectedRow >= 0) {
+						table.setRowSelectionInterval(selectedRow, selectedRow);
+					}
 				}
 			});
 			designation.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					((SwingPreferences) Application.getPreferences()).setMotorNameColumn(true);
+					int selectedRow = table.getSelectedRow();
 					model.fireTableDataChanged();
+					if (selectedRow >= 0) {
+						table.setRowSelectionInterval(selectedRow, selectedRow);
+					}
 				}
 			});
 
