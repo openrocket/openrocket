@@ -65,6 +65,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
 	public static final String MOTOR_HIDE_UNAVAILABLE = "MotorHideUnavailable";
 
+	public static final String MOTOR_NAME_COLUMN = "MotorNameColumn";
+
 	public static final String MATCH_FORE_DIAMETER = "MatchForeDiameter";
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
 	

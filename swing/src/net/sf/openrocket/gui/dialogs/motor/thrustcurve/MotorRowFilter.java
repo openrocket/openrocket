@@ -223,6 +223,15 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 					continue main;
 				}
 			}
+
+			// Make sure that you can search on both the common name, and designation
+			// Yes, there is some duplication here because the common name or designation is already checked in the previous loop
+			// but it's not worth checking that...
+			String common = m.getCommonName().toLowerCase(Locale.getDefault());
+			String designation = m.getDesignation().toLowerCase(Locale.getDefault());
+			if (common.contains(s) || designation.contains(s)) {
+				continue main;
+			}
 			return false;
 		}
 	return true;

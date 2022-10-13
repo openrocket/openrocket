@@ -4,6 +4,7 @@ import java.text.Collator;
 import java.util.Comparator;
 
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -31,24 +32,16 @@ enum ThrustCurveMotorColumns {
 		}
 	},
 	//// Common name
-	COMMON_NAME("TCurveMotorCol.COMMON_NAME") {
+	NAME("TCurveMotorCol.NAME") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
-			return m.getCommonName();
+			if (((SwingPreferences) Application.getPreferences()).getMotorNameColumn()) {
+				return m.getDesignation();
+			} else {
+				return m.getCommonName();
+			}
 		}
 		
-		@Override
-		public Comparator<?> getComparator() {
-			return new DesignationComparator();
-		}
-	},
-	//// Designation
-	DESIGNATION("TCurveMotorCol.DESIGNATION") {
-		@Override
-		public String getValue(ThrustCurveMotorSet m) {
-			return m.getDesignation();
-		}
-
 		@Override
 		public Comparator<?> getComparator() {
 			return new DesignationComparator();
