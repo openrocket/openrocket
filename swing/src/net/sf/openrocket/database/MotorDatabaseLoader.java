@@ -153,7 +153,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
 				JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
 				JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
-				dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+				dialog.setModalityType(Dialog.ModalityType.MODELESS);
+				dialog.setAlwaysOnTop(true);
 				dialog.setVisible(true);
 			}
 			f.getV().close();
