@@ -95,6 +95,14 @@ public class OptimizationPlotDialog extends JDialog {
 			throw new IllegalArgumentException("Invalid dimensionality, dim=" + modifiers.size());
 		}
 		chart.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		Color backgroundColor = new Color(240, 240, 240);
+		chart.getChart().setBackgroundPaint(backgroundColor);
+		if (chart.getChart().getLegend() != null) {
+			chart.getChart().getLegend().setBackgroundPaint(Color.WHITE);
+		}
+		chart.getChart().getXYPlot().setBackgroundPaint(Color.WHITE);
+		chart.getChart().getXYPlot().setRangeGridlinePaint(Color.lightGray);
+		chart.getChart().getXYPlot().setDomainGridlinePaint(Color.lightGray);
 		panel.add(chart, "span, grow, wrap para");
 		
 
