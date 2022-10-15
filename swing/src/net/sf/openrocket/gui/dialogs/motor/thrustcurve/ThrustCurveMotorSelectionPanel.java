@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -25,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
@@ -226,6 +228,47 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			});
 			panel.add(hideUnavailableBox, "gapleft para, spanx, growx, wrap");
 			
+		}
+
+		//// Motor name column
+		{
+			JLabel motorNameColumn = new JLabel(trans.get("TCMotorSelPan.lbl.motorNameColumn"));
+			motorNameColumn.setToolTipText(trans.get("TCMotorSelPan.lbl.motorNameColumn.ttip"));
+			JRadioButton commonName = new JRadioButton(trans.get("TCMotorSelPan.btn.commonName"));
+			JRadioButton designation = new JRadioButton(trans.get("TCMotorSelPan.btn.designation"));
+			ButtonGroup bg = new ButtonGroup();
+			bg.add(commonName);
+			bg.add(designation);
+			commonName.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					((SwingPreferences) Application.getPreferences()).setMotorNameColumn(false);
+					int selectedRow = table.getSelectedRow();
+					model.fireTableDataChanged();
+					if (selectedRow >= 0) {
+						table.setRowSelectionInterval(selectedRow, selectedRow);
+					}
+				}
+			});
+			designation.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					((SwingPreferences) Application.getPreferences()).setMotorNameColumn(true);
+					int selectedRow = table.getSelectedRow();
+					model.fireTableDataChanged();
+					if (selectedRow >= 0) {
+						table.setRowSelectionInterval(selectedRow, selectedRow);
+					}
+				}
+			});
+
+			boolean initValue = ((SwingPreferences) Application.getPreferences()).getMotorNameColumn();
+			commonName.setSelected(!initValue);
+			designation.setSelected(initValue);
+
+			panel.add(motorNameColumn, "gapleft para");
+			panel.add(commonName);
+			panel.add(designation, "spanx, growx, wrap");
 		}
 
 		//// Motor selection table
