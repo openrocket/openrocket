@@ -270,7 +270,6 @@ public class SimulationRunDialog extends JDialog {
 		private final int index;
 		private final double burnoutTimeEstimate;
 		private volatile double burnoutVelocity;
-		private volatile double apogeeAltitude;
 
 		private final CustomExpressionSimulationListener exprListener;
 
@@ -278,7 +277,8 @@ public class SimulationRunDialog extends JDialog {
 		 * Keep track of current phase ("stage") of simulation
 		 * -2:        Boost.  Estimate progress using time from 0 to burnoutTimeEstimate
 		 * -1:        Coast.  Estimate progress using velocity from v(burnoutTimeEstimate) to 0
-		 * 0 ... n:   Landing. stages from alt(max) ... 0 (?)
+		 * 0 ... n:   Landing. Estimate progress using altitude from alt(max) ... 0
+		 * (it appears as if the idea is to use values above 0 to support multiple stages, but this is not implemented)
 		 */
 		private volatile int simulationStage = -2;
 
@@ -362,14 +362,13 @@ public class SimulationRunDialog extends JDialog {
 			// Past apogee, switch to landing
 			if (simulationStage == -1 && status.getRocketVelocity().z < 0) {
 				simulationStage++;
-				apogeeAltitude = MathUtil.max(status.getRocketPosition().z, 1);
-				log.debug("CHANGING to simulationStage " + simulationStage + ", apogee=" + apogeeAltitude);
+				log.debug("CHANGING to simulationStage " + simulationStage + ", apogee=" + simulationMaxAltitude[index]);
 			}
 
 			// >= 0 Landing. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
-			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + apogeeAltitude);
-			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, apogeeAltitude, 0, APOGEE_PROGRESS, 1.0));
+			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + simulationMaxAltitude[index]);
+			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, simulationMaxAltitude[index], 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
 		}
 
@@ -444,7 +443,6 @@ public class SimulationRunDialog extends JDialog {
 				switch (event.getType()) {
 				case APOGEE:
 					simulationStage = 0;
-					apogeeAltitude = status.getRocketPosition().z;
 					log.debug("APOGEE, setting progress");
 					setSimulationProgress(APOGEE_PROGRESS);
 					publish(status);
