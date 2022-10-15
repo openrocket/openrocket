@@ -1030,7 +1030,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		mmt.setOverrideMass(0.213);
 		// cm= 0.21300000g @[1.28900000,0.07700000,0.00000000]
 
-		// Fin mass is not overriden
+		// Fin mass is not overridden
 		// cm= 0.15995232g @[1.23793939,0.07700000,0.00000000]
 
 		RigidBody boosterData = MassCalculator.calculateStructure(config);

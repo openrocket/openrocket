@@ -213,7 +213,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 //				}
 				
 				// Check for Tumbling
-				// Conditions for transision are:
+				// Conditions for transition are:
 				//  apogee reached (if sustainer stage)
 				// and is not already tumbling
 				// and not stable (cg > cp)

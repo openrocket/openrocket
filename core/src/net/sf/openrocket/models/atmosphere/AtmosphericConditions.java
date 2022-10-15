@@ -16,7 +16,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	/** The standard air pressure (1.01325 bar). */
 	public static final double STANDARD_PRESSURE = 101325.0;
 	
-	/** The standard air temperature (20 degrees Celcius). */
+	/** The standard air temperature (20 degrees Celsius). */
 	public static final double STANDARD_TEMPERATURE = 293.15;
 	
 	
@@ -83,7 +83,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	 * Return the current speed of sound for dry air.
 	 * <p>
 	 * The speed of sound is calculated using the expansion around the temperature 0 C
-	 * <code> c = 331.3 + 0.606*T </code> where T is in Celcius.  The result is accurate
+	 * <code> c = 331.3 + 0.606*T </code> where T is in Celsius.  The result is accurate
 	 * to about 0.5 m/s for temperatures between -30 and 30 C, and within 2 m/s
 	 * for temperatures between -55 and 30 C.
 	 * 
@@ -98,7 +98,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	 * Return the current kinematic viscosity of the air.
 	 * <p>
 	 * The effect of temperature on the viscosity of a gas can be computed using
-	 * Sutherland's formula.  In the region of -40 ... 40 degrees Celcius the effect
+	 * Sutherland's formula.  In the region of -40 ... 40 degrees Celsius the effect
 	 * is highly linear, and thus a linear approximation is used in its stead.
 	 * This is divided by the result of {@link #getDensity()} to achieve the
 	 * kinematic viscosity.

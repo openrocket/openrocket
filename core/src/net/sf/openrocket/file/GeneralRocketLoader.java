@@ -104,7 +104,7 @@ public class GeneralRocketLoader {
 	}
 	
 	/**
-	 * This method determines the type file contained in the stream then calls the appropriate loading mecahnism.
+	 * This method determines the type file contained in the stream then calls the appropriate loading mechanism.
 	 * 
 	 * If the stream is a gzip file, the argument is wrapped in a GzipInputStream and the rocket loaded.
 	 * 
