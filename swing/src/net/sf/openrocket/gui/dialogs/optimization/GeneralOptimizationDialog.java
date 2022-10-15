@@ -404,7 +404,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		optimizationGoalSpinner = new JSpinner(optimizationSeekValue.getSpinnerModel());
 		tip = trans.get("lbl.optimizeGoalValue.ttip");
 		optimizationGoalSpinner.setToolTipText(tip);
-		optimizationGoalSpinner.setEditor(new SpinnerEditor(optimizationGoalSpinner));
+		optimizationGoalSpinner.setEditor(new SpinnerEditor(optimizationGoalSpinner, 4));
 		disableComponents.add(optimizationGoalSpinner);
 		sub.add(optimizationGoalSpinner, "width 30lp");
 		
