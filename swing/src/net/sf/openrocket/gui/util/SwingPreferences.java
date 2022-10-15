@@ -71,7 +71,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
-	private final Preferences PREFNODE;
+	private Preferences PREFNODE;
 	
 	
 	public SwingPreferences() {
@@ -93,7 +93,20 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	//////////////////////
 	
-	
+	public void clearPreferences() {
+		try {
+			Preferences root = Preferences.userRoot();
+			if (root.nodeExists(NODENAME)) {
+				root.node(NODENAME).removeNode();
+			}
+			PREFNODE = root.node(NODENAME);
+			UnitGroup.resetDefaultUnits();
+			storeDefaultUnits();
+			log.info("Cleared preferences");
+		} catch (BackingStoreException e) {
+			throw new BugException("Unable to clear preference node", e);
+		}
+	}
 	
 	/**
 	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
