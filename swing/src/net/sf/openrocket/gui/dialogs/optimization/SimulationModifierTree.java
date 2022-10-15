@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
@@ -175,7 +176,12 @@ public class SimulationModifierTree extends BasicTree {
 				if (selectedModifiers.contains(object)) {
 					setForeground(Color.GRAY);
 				} else {
-					setForeground(Color.BLACK);
+					if (tree.getSelectionRows() != null &&
+							IntStream.of(tree.getSelectionRows()).anyMatch(r -> r == row)) {
+						setForeground(Color.WHITE);
+					} else {
+						setForeground(Color.BLACK);
+					}
 				}
 				setFont(modifierFont);
 				setText(((SimulationModifier) object).getName());
