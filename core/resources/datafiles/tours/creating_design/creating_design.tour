@@ -113,7 +113,7 @@ mass.  The <em>packed length</em>, <em>diameter</em> and
 <em>position</em> affect the packed size and location of the
 parachute.
 
-<p>The <em>Deploys at</em> propery can be used to affect when the
+<p>The <em>Deploys at</em> property can be used to affect when the
 parachute deploys.  The <em>First ejection charge of this stage</em>
 option will deploy the parachute when the ejection charge is fired, as
 is typical in small model rockets.

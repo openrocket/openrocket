@@ -1594,7 +1594,7 @@ public class TestRockets {
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		
-		// make 2st stage body tube
+		// make 2nd stage body tube
 		BodyTube bodyTube2 = new BodyTube(12, 1, 0.05);
 		stage2.addChild(bodyTube2);
 		

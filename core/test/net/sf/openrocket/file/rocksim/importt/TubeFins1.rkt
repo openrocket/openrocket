@@ -27,7 +27,7 @@
       <FinishMedium>0</FinishMedium>
       <FinishCoatCount>1</FinishCoatCount>
       <GlueType>0</GlueType>
-      <Comments>This is a neat design that shows off the ability of RockSim to compute the stability of Assymetrical fin arrangements.</Comments>
+      <Comments>This is a neat design that shows off the ability of RockSim to compute the stability of Asymmetrical fin arrangements.</Comments>
       <Designer>Tim Van Milligan. Visit my web site at: www.ApogeeRockets.com</Designer>
       <CPSimFlags>4</CPSimFlags>
       <LastSerialNumber>29</LastSerialNumber>

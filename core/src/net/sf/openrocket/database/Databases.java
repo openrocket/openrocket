@@ -155,7 +155,7 @@ public class Databases {
 	 * @param type		The type of material
 	 * @param baseName	the name of material
 	 * @param density	density
-	 * @return	a new onejct withe the material data
+	 * @return	a new object with the material data
 	 */
 	private static Material newMaterial(Type type, String baseName, double density) {
 		String name = trans.get("material", baseName);

@@ -20,7 +20,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 		if (c.isAfter()) {
 			// yes, this test is redundant.  I'm merely paranoid, and attempting to future-proof it
 			if (c.getClass().equals(AxialStage.class)) {
-				// kept as simply 'stage' for backward compatability
+				// kept as simply 'stage' for backward compatibility
 				list.add("<stage>");
 				instance.addParams(c, list);
 				list.add("</stage>");

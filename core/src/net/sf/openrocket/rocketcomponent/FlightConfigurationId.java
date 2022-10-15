@@ -28,7 +28,7 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 	
 	/**
 	 * builds the id with the given String
-	 * @param _str	te string to be made into the id
+	 * @param _str	the string to be made into the id
 	 */
 	public FlightConfigurationId(final String _str) {
 		UUID candidate;

@@ -523,7 +523,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	}
 	
 	/**
-	*	only applies change if there is no more changes comming
+	*	only applies change if there is no more changes coming
 	*/
 	@Override
 	protected void fireChangeEvent() {
