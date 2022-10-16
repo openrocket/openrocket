@@ -13,6 +13,8 @@ import net.sf.openrocket.util.Quaternion;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
 	
+	protected static final double MIN_TIME_STEP = 0.001;
+	
 	/**
 	 * Compute the atmospheric conditions, allowing listeners to override.
 	 * 
