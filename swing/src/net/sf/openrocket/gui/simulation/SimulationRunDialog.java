@@ -324,10 +324,15 @@ public class SimulationRunDialog extends JDialog {
 		@Override
 		protected void process(List<SimulationStatus> chunks) {
 
-			// Update max. altitude and velocity
+			// Update max. altitude and velocity of sustainer.  Because parts of the simulation may be run more than once
+			// in order to calculate things like optimal coast time, we'll keep updating max altitude
+			// whenever we see that the rocket is going upwards.  The last apogee found is the real one.
 			for (SimulationStatus s : chunks) {
-				simulationMaxAltitude[index] = Math.max(simulationMaxAltitude[index], s.getRocketPosition().z);
-				simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().length());
+				if (s.getConfiguration().isStageActive(0) && (s.getRocketVelocity().z > 0)) {
+					log.debug("updating simulationMaxAltitude[" + index + "] to " + s.getRocketPosition().z);
+					simulationMaxAltitude[index] = s.getRocketPosition().z;
+					simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().length());
+				}
 			}
 
 			// Calculate the progress
@@ -367,6 +372,7 @@ public class SimulationRunDialog extends JDialog {
 
 			// >= 0 Landing. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
+			System.out.flush();
 			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + simulationMaxAltitude[index]);
 			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, simulationMaxAltitude[index], 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
@@ -442,9 +448,7 @@ public class SimulationRunDialog extends JDialog {
 			public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) {
 				switch (event.getType()) {
 				case APOGEE:
-					simulationStage = 0;
-					log.debug("APOGEE, setting progress");
-					setSimulationProgress(APOGEE_PROGRESS);
+					log.debug("APOGEE");
 					publish(status);
 					break;
 
@@ -453,8 +457,8 @@ public class SimulationRunDialog extends JDialog {
 					break;
 
 				case SIMULATION_END:
-					log.debug("END, setting progress");
-					setSimulationProgress(1.0);
+					log.debug("END");
+					publish(status);
 					break;
 					
 				default:
