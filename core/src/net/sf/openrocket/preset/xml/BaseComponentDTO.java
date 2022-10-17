@@ -222,7 +222,7 @@ public abstract class BaseComponentDTO {
 			} else if ("LINE".equals(type)) {
 				return Material.Type.LINE;
 			}
-			throw new IllegalArgumentException("Inavlid material type " + type + " specified for Component");
+			throw new IllegalArgumentException("Invalid material type " + type + " specified for Component");
 		}
 	}
 	

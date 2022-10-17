@@ -31,7 +31,6 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private Color flameColor = new Color(255, 100, 50);
 	private boolean smoke = false;
 	private Color smokeColor = new Color(230, 230, 230, 102);
-	private double smokeOpacity = 0.4;
 	private boolean sparks = false;
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
@@ -204,18 +203,22 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setSmokeColor(Color smokeColor) {
-		smokeColor.setAlpha(this.smokeColor.getAlpha());
 		this.smokeColor = smokeColor;
 		fireChangeEvent();
 	}
-	
-	public double getSmokeAlpha() {
-		return smokeColor.getAlpha() / 255f;
-	}
+
 	
 	public void setSmokeAlpha(double alpha) {
 		smokeColor.setAlpha((int) (alpha * 255));
 		fireChangeEvent();
+	}
+
+	public double getSmokeOpacity() {
+		return smokeColor.getAlpha() / 255f;
+	}
+
+	public void setSmokeOpacity(double smokeOpacity) {
+		setSmokeAlpha(smokeOpacity);
 	}
 	
 	public boolean isSparks() {
@@ -270,14 +273,5 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	public void setSparkWeight(double sparkWeight) {
 		this.sparkWeight = sparkWeight;
 		fireChangeEvent();
-	}
-
-	public double getSmokeOpacity() {
-		return smokeOpacity;
-	}
-
-	public void setSmokeOpacity(double smokeOpacity) {
-		this.smokeOpacity = smokeOpacity;
-		setSmokeAlpha(smokeOpacity);
 	}
 }

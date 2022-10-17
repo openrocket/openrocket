@@ -213,7 +213,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 //				}
 				
 				// Check for Tumbling
-				// Conditions for transision are:
+				// Conditions for transition are:
 				//  apogee reached (if sustainer stage)
 				// and is not already tumbling
 				// and not stable (cg > cp)
@@ -305,6 +305,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (event.getSource() != null && event.getSource().getParent() != null &&
 					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
 				log.trace("Ignoring event from unattached component");
+				log.debug("    source " + event.getSource());
+				log.debug("    parent " + event.getSource().getParent());
+				log.debug("    active " + currentStatus.getConfiguration().isComponentActive(event.getSource()));
 				continue;
 			}
 			
@@ -381,7 +384,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 
 				// and queue up the burnout for this motor, as well. 
-//				double duration = motorState.getMotor().getBurnTimeEstimate();
 				double duration = motorState.getBurnTime();
 				double burnout = currentStatus.getSimulationTime() + duration;
 				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
@@ -436,19 +438,36 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case STAGE_SEPARATION: {
 				RocketComponent boosterStage = event.getSource();
 				final int stageNumber = boosterStage.getStageNumber();
+				log.debug("separating at stage " + stageNumber);
 
 				if (currentStatus.getConfiguration().isStageActive(stageNumber-1)) {
 					// Record the event.
 					currentStatus.getFlightData().addEvent(event);
 
-					// Mark the status as having dropped the booster
-					currentStatus.getConfiguration().clearStage( stageNumber);
-					
-					// Prepare the simulation branch
+					// If I've got something other than one active stage below the separation point,
+					// flag a warning
+					int numActiveBelow = 0;
+					for (int i = stageNumber; i < currentStatus.getConfiguration().getStageCount(); i++) {
+						if (currentStatus.getConfiguration().isStageActive(i)) {
+							numActiveBelow++;
+						}
+					}
+					if (numActiveBelow != 1) {
+						currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
+					}
+
+					// Create a new simulation branch for the booster
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
+					
+					// Prepare the new simulation branch
 					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
-					// Mark the booster status as only having the booster.
-					boosterStatus.getConfiguration().setOnlyStage(stageNumber);
+
+					// Mark the current status as having dropped the current stage and all stages below it
+					currentStatus.getConfiguration().clearStagesBelow( stageNumber);
+					
+					// Mark the booster status as having no active stages above
+					boosterStatus.getConfiguration().clearStagesAbove(stageNumber);
+					
 					toSimulate.push(boosterStatus);
 					log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
 										   currentStatus.getSimulationTime(), 

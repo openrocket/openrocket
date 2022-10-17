@@ -45,14 +45,14 @@
   <p><span class="date">15.11.2013:</span> Version 13.11.1 is
    <a href="download.html">released</a>!  This release contains bug fixes
    including fixing Tube Coupler configuration, various exceptions in
-   the flight configuration tab, updated 3d libraris (which didn't really make
+   the flight configuration tab, updated 3d libraries (which didn't really make
    it into previous versions).</p>
 
   <p><span class="date">8.11.2013:</span> Version 13.11 is
    <a href="download.html">released</a>!  This release simplifies
    flight configurations by replacing the dialog with the configuration
    tab.  Motor filtering in the motor chooser dialog has been enhanced.
-   Chineese translations have been added and Russian translations updated.
+   Chinese translations have been added and Russian translations updated.
    Updated the 3D libraries, and squashed some bugs introduced by Java 1.7.0_45-b18.</p>
 
   <p><span class="date">6.10.2013:</span> Version 13.09.1 is
@@ -104,7 +104,7 @@
     <li>Support for fractional inches (1/64) for unit length</li>
     <li>Added preference for windspeed units separately</li>
     <li>Added "most recently used files" in File Menu</li>
-    <li>Improved printed accurracy in fin marking guide</li>
+    <li>Improved printed accuracy in fin marking guide</li>
     <li>Calibration rulers added to printed templates</li>
     <li>Translations in Czech and Polish, numerous updates</li>
   </ul>

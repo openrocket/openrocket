@@ -74,7 +74,7 @@ header("Content-type: text/plain");
  * Currently all old versions are handled manually.
  * Update checking was introduced in OpenRocket 0.9.4
  *
- * We ignore "pre" versions, they are handled exacly like
+ * We ignore "pre" versions, they are handled exactly like
  * their non-pre counterparts.
  */
 $version = $_GET["version"];

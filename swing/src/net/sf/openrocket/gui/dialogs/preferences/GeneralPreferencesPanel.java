@@ -246,7 +246,21 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(rocksimWarningDialogBox,"spanx, wrap");
-		
+
+		//// Clear cached preferences
+		final JButton clearCachedPreferences = new SelectColorButton(trans.get("pref.dlg.but.clearCachedPreferences"));
+		clearCachedPreferences.setToolTipText(trans.get("pref.dlg.but.clearCachedPreferences.ttip"));
+		clearCachedPreferences.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int resultYesNo = JOptionPane.showConfirmDialog(parent, trans.get("pref.dlg.clearCachedPreferences.message"),
+						trans.get("pref.dlg.clearCachedPreferences.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (resultYesNo == JOptionPane.YES_OPTION) {
+					preferences.clearPreferences();
+				}
+			}
+		});
+		this.add(clearCachedPreferences, "spanx, pushy, bottom, wrap");
 
 	}
 
@@ -326,6 +340,13 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		// Nothing went wrong (yay!)
 		ReleaseStatus status = info.getReleaseStatus();
 		ReleaseInfo release = info.getLatestRelease();
+
+		// Do nothing if the release is part of the ignore versions
+		if (preferences.getIgnoreVersions().contains(release.getReleaseName())) {
+			return;
+		}
+
+		// Display software updater dialog, based on the current build version status
 		switch (status) {
 			case LATEST:
 				JOptionPane.showMessageDialog(this,

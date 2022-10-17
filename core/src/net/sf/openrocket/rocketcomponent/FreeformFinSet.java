@@ -215,7 +215,7 @@ public class FreeformFinSet extends FinSet {
 	 *     - non-self-intersecting fin shape (aborts set on invalid fin point)
 	 * </p><p>
 	 * NOTE: the fin-point axes differ from rocket axes:
-	 *    +x within the fin points foreward; +x for the rocket points aft
+	 *    +x within the fin points forward; +x for the rocket points aft
 	 * </p><p>
 	 * Moving of the first point in the X-axis is allowed, but this actually moves
 	 * all of the other points the corresponding distance back, relative to the first.

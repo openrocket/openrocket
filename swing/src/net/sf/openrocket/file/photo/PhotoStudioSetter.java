@@ -41,7 +41,6 @@ public class PhotoStudioSetter {
         photoSettings.put("flameColor", getColor(p.getFlameColor()));
         photoSettings.put("smoke", String.valueOf(p.isSmoke()));
         photoSettings.put("smokeColor", getColor(p.getSmokeColor()));
-        photoSettings.put("smokeOpacity", String.valueOf(p.getSmokeOpacity()));
         photoSettings.put("sparks", String.valueOf(p.isSparks()));
         photoSettings.put("exhaustScale", String.valueOf(p.getExhaustScale()));
         photoSettings.put("flameAspectRatio", String.valueOf(p.getFlameAspectRatio()));

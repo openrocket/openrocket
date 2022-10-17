@@ -6,6 +6,7 @@ import java.util.Map;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -85,7 +86,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		AerodynamicCalculator aerocalc = status.getSimulationConditions().getAerodynamicCalculator();
 		
 		// Must go through each component ...
-		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, null);
+		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, status.getWarnings());
 		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forces.entrySet()) {
 			
 			RocketComponent comp = entry.getKey();

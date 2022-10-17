@@ -60,7 +60,7 @@
 		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
 	</target>
 	
-	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
+	<!-- Executable Eclipse-Jar-In-Jar style JAR -->
 	<target name="jar" depends="build" description="Create the OpenRocket Core">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${dist.dir}">

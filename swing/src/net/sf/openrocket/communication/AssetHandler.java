@@ -32,7 +32,7 @@ public class AssetHandler {
         mapExtensionToPlatform.put(".sh", new UpdatePlatform[] {UpdatePlatform.LINUX, UpdatePlatform.UNIX});
         mapExtensionToPlatform.put(".jar", new UpdatePlatform[] {UpdatePlatform.JAR});
 
-        mapPlatformToName.put(UpdatePlatform.MAC_OS, "Mac OS");
+        mapPlatformToName.put(UpdatePlatform.MAC_OS, "macOS");
         mapPlatformToName.put(UpdatePlatform.WINDOWS, "Windows");
         mapPlatformToName.put(UpdatePlatform.LINUX, "Linux");
         mapPlatformToName.put(UpdatePlatform.UNIX, "Linux");
@@ -42,7 +42,7 @@ public class AssetHandler {
     /**
      * Maps a list of asset URLs to their respective operating platform name.
      * E.g. "https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03.dmg" is mapped a
-     * map element with "Mac OS" as key and the url as value.
+     * map element with "macOS" as key and the url as value.
      * @param urls list of asset URLs
      * @return map with as key the operating platform name and as value the corresponding asset URL
      */
@@ -70,7 +70,7 @@ public class AssetHandler {
     }
 
     /**
-     * Get the name of a platform (e.g. for Platform.MAC_OS, return "Mac OS")
+     * Get the name of a platform (e.g. for Platform.MAC_OS, return "macOS")
      * @param platform platform to get the name from
      * @return name of the platform
      */

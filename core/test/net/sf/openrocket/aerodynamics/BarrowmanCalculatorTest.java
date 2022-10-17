@@ -289,7 +289,7 @@ public class BarrowmanCalculatorTest {
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		
-		assertTrue("Estes Alpha III should be continous: ", calc.isContinuous(configuration, rocket));
+		assertTrue("Estes Alpha III should be continuous: ", calc.isContinuous(configuration, rocket));
 	}
 	
 	@Test

@@ -53,10 +53,10 @@ public abstract class MassObject extends InternalComponent {
 	@Override
 	public double getLength() {
 		if (this.autoRadius) {
-			// Calculate the parachute volume using the non auto radius and the non auto length, and transform that back
+			// Calculate the volume using the non auto radius and the non auto length, and transform that back
 			// to the auto radius situation to get the auto radius length (the volume in both situations is the same).
-			double parachuteVolume = Math.pow(this.radius, 2) * this.length;	// Math.PI left out, not needed
-			return parachuteVolume / Math.pow(getRadius(), 2);
+			double volume = Math.pow(this.radius, 2) * this.length;	// Math.PI left out, not needed
+			return volume / Math.pow(getRadius(), 2);
 		}
 		return length;
 	}
@@ -93,10 +93,10 @@ public abstract class MassObject extends InternalComponent {
 
 		length = Math.max(length, 0);
 		if (this.autoRadius) {
-			// Calculate the parachute volume using the auto radius and the new "auto" length, and transform that back
+			// Calculate the volume using the auto radius and the new "auto" length, and transform that back
 			// to the non auto radius situation to set this.length (the volume in both situations is the same).
-			double parachuteVolume = Math.pow(getRadius(), 2) * length;		// Math.PI left out, not needed
-			double newLength = parachuteVolume / Math.pow(this.radius, 2);
+			double volume = Math.pow(getRadius(), 2) * length;		// Math.PI left out, not needed
+			double newLength = volume / Math.pow(this.radius, 2);
 			if (MathUtil.equals(this.length, newLength))
 				return;
 			this.length = newLength;
@@ -168,8 +168,8 @@ public abstract class MassObject extends InternalComponent {
 		autoRadius = auto;
 
 		// Set the length
-		double parachuteVolume = (Math.PI * Math.pow(getRadius(), 2) * length);
-		length = parachuteVolume / (Math.PI * Math.pow(getRadius(), 2));
+		double volume = (Math.PI * Math.pow(getRadius(), 2) * length);
+		length = volume / (Math.PI * Math.pow(getRadius(), 2));
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -248,8 +248,8 @@ public abstract class MassObject extends InternalComponent {
 	@Override
 	public final Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> c = new ArrayList<Coordinate>();
-		addBound(c, 0, radius);
-		addBound(c, length, radius);
+		addBound(c, 0, getRadius());
+		addBound(c, getLength(), getRadius());
 		return c;
 	}
 	

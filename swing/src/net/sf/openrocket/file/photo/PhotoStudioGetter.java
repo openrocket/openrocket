@@ -135,11 +135,6 @@ public class PhotoStudioGetter {
             p.setSmokeColor(smokeColor);
             return;
         }
-        if ("smokeOpacity".equals(element)) {
-            double smokeOpacity = Double.parseDouble(content);
-            p.setSmokeOpacity(smokeOpacity);
-            return;
-        }
         if ("sparks".equals(element)) {
             boolean sparks = Boolean.parseBoolean(content);
             p.setSparks(sparks);

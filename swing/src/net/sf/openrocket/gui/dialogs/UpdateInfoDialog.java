@@ -7,6 +7,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ import net.sf.openrocket.communication.AssetHandler;
 import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
 import net.sf.openrocket.communication.ReleaseInfo;
 import net.sf.openrocket.communication.UpdateInfo;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -55,8 +58,19 @@ public class UpdateInfoDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("insets n n 8px n, fill"));
 
-		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")),
-				"split, span, top");
+		panel.add(new JLabel(Icons.getScaledIcon(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket"), 0.6)),
+				"spany, top, gapright 20px, cell 0 0");
+
+		//	OpenRocket version available!
+		panel.add(new StyledLabel(trans.get("update.dlg.updateAvailable.lbl.title"), 8, StyledLabel.Style.BOLD), "spanx, wrap");
+
+		// Your version
+		ReleaseInfo release = info.getLatestRelease();
+		panel.add(new StyledLabel(String.format(trans.get("update.dlg.updateAvailable.lbl.yourVersion"),
+				release.getReleaseName(), BuildProperties.getVersion()), -1, StyledLabel.Style.PLAIN), "skip 1, spanx, wrap para");
+
+		// Release notes
+		panel.add(new StyledLabel(trans.get("update.dlg.updateAvailable.lbl.releaseNotes"), 1, StyledLabel.Style.BOLD), "spanx, wrap");
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
@@ -65,18 +79,10 @@ public class UpdateInfoDialog extends JDialog {
 		textPane.setMargin(new Insets(10, 10, 40, 10));
 		textPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 
-		ReleaseInfo release = info.getLatestRelease();
 		StringBuilder sb = new StringBuilder();
-
-		// 		OpenRocket version available!
 		sb.append("<html>");
-		sb.append(String.format("<h1>%s</h1>", String.format(trans.get("update.dlg.updateAvailable.txtPane.title"), release.getReleaseName())));
 
-		//		Your version
-		sb.append(String.format("<i>%s</i> <br><br>", String.format(trans.get("update.dlg.updateAvailable.txtPane.yourVersion"), BuildProperties.getVersion())));
-
-		// 		Changelog
-		sb.append(String.format("<h2>%s</h2>", trans.get("update.dlg.updateAvailable.txtPane.changelog")));
+		// 		Release notes
 		String releaseNotes = release.getReleaseNotes();
 		releaseNotes = releaseNotes.replaceAll("^\"|\"$", "");	// Remove leading and trailing quotations
 		sb.append(MarkdownUtil.toHtml(releaseNotes)).append("<br><br>");
@@ -103,7 +109,7 @@ public class UpdateInfoDialog extends JDialog {
 		textPane.setText(sb.toString());
 		textPane.setCaretPosition(0);	// Scroll to the top
 
-		panel.add(new JScrollPane(textPane), "left, grow, span, push, gapleft 40px, gapbottom 6px, wrap");
+		panel.add(new JScrollPane(textPane), "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
 
 		//// Check for software updates at startup
 		JCheckBox checkAtStartup = new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
@@ -116,9 +122,36 @@ public class UpdateInfoDialog extends JDialog {
 				preferences.setCheckUpdates(checkAtStartup.isSelected());
 			}
 		});
-		panel.add(checkAtStartup);
+		panel.add(checkAtStartup, "skip 1, spanx, wrap");
 
-		// Install operating system combo box
+		// Lower row buttons
+		//// Remind me later button
+		JButton btnLater = new SelectColorButton("Remind Me Later");
+		btnLater.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				UpdateInfoDialog.this.dispose();
+			}
+		});
+		panel.add(btnLater, "skip 1, split 2");
+
+		//// Skip this version button
+		JButton btnSkip = new SelectColorButton("Skip This Version");
+		btnSkip.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				List<String> ignoreVersions = new ArrayList<>(preferences.getIgnoreVersions());
+				String ignore = release.getReleaseName();
+				if (!ignoreVersions.contains(ignore)) {
+					ignoreVersions.add(ignore);
+					preferences.setIgnoreVersions(ignoreVersions);
+				}
+				UpdateInfoDialog.this.dispose();
+			}
+		});
+		panel.add(btnSkip);
+
+		//// Install operating system combo box
 		List<String> assetURLs = release.getAssetURLs();
 		Map<UpdatePlatform, String> mappedAssets = AssetHandler.mapURLToPlatform(assetURLs);
 		JComboBox<Object> comboBox;
@@ -141,7 +174,7 @@ public class UpdateInfoDialog extends JDialog {
 		}
 		panel.add(comboBox, "pushx, right");
 
-		// Install update button
+		//// Install update button
 		JButton btnInstall = new SelectColorButton(trans.get("update.dlg.updateAvailable.but.install"));
 		btnInstall.addActionListener(new ActionListener() {
 			@Override
@@ -159,25 +192,15 @@ public class UpdateInfoDialog extends JDialog {
 		if (mappedAssets == null || mappedAssets.size() == 0) {
 			btnInstall.setEnabled(false);
 		}
-		panel.add(btnInstall, "gapright 20");
-		
-		// Cancel button
-		JButton btnCancel = new SelectColorButton(trans.get("button.cancel"));
-		btnCancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				UpdateInfoDialog.this.dispose();
-			}
-		});
-		panel.add(btnCancel);
+		panel.add(btnInstall, "wrap");
 
-		panel.setPreferredSize(new Dimension(900, 600));
+		panel.setPreferredSize(new Dimension(850, 700));
 
 		this.add(panel);
 		
 		this.pack();
 		this.setLocationRelativeTo(null);
-		GUIUtil.setDisposableDialogOptions(this, btnCancel);
+		GUIUtil.setDisposableDialogOptions(this, btnLater);
 	}
 
 	/**

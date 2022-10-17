@@ -13,8 +13,11 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
 	@Override
-	public SimulationStatus initialize(SimulationStatus status) {
-		return new BasicTumbleStatus(status);
+	public SimulationStatus initialize(SimulationStatus original) {
+		BasicTumbleStatus status = new BasicTumbleStatus(original);
+		status.setWarnings(original.getWarnings());
+
+		return status;
 	}
 	
 	@Override

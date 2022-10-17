@@ -58,11 +58,14 @@ public abstract class Preferences implements ChangeSource {
 	
 	private static final String CHECK_UPDATES = "CheckUpdates";
 
+	private static final String IGNORE_VERSIONS = "IgnoreVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
 	public static final String MOTOR_HIDE_UNAVAILABLE = "MotorHideUnavailable";
+
+	public static final String MOTOR_NAME_COLUMN = "MotorNameColumn";
 
 	public static final String MATCH_FORE_DIAMETER = "MatchForeDiameter";
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
@@ -148,6 +151,14 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	public final List<String> getIgnoreVersions() {
+		return List.of(this.getString(IGNORE_VERSIONS, "").split("\n"));
+	}
+
+	public final void setIgnoreVersions(List<String> versions) {
+		this.putString(IGNORE_VERSIONS, String.join("\n", versions));
 	}
 
 	public final boolean getCheckBetaUpdates() {
