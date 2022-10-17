@@ -380,6 +380,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		optimizationParameterCombo.setToolTipText(tip);
 		populateParameters();
 		optimizationParameterCombo.addActionListener(clearHistoryActionListener);
+		optimizationParameterCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateSeekValueUnits();
+			}
+		});
 		disableComponents.add(optimizationParameterCombo);
 		sub.add(optimizationParameterCombo, "growx, wrap unrel");
 		
@@ -554,6 +560,7 @@ public class GeneralOptimizationDialog extends JDialog {
 					Collections.unmodifiableMap(evaluationHistory),
 					Collections.unmodifiableList(selectedModifiers),
 					getSelectedParameter(),
+					optimizationGoalUnitSelector.getSelectedUnit(),
 					UnitGroup.stabilityUnits(getSelectedSimulation().getRocket()),
 					GeneralOptimizationDialog.this);
 			dialog.setVisible(true);
@@ -606,6 +613,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		this.add(new JScrollPane(panel));
 		clearHistory();
 		updateComponents();
+		updateSeekValueUnits();
 		GUIUtil.setDisposableDialogOptions(this, null);
 
 		int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
@@ -650,7 +658,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		} else if (GOAL_MINIMIZE.equals(value)) {
 			goal = new MinimizationGoal();
 		} else if (GOAL_SEEK.equals(value)) {
-			goal = new ValueSeekGoal(optimizationSeekValue.getValue());
+			Unit u = parameter.getUnitGroup().getDefaultUnit();
+			goal = new ValueSeekGoal(u.toUnit(optimizationSeekValue.getValue()));
 		} else {
 			throw new BugException("optimizationGoalCombo had invalid value: " + value);
 		}
@@ -834,12 +843,21 @@ public class GeneralOptimizationDialog extends JDialog {
 		evaluationHistory.clear();
 		optimizationPath.clear();
 		bestValue = Double.NaN;
-		bestValueUnit = getSelectedParameter().getUnitGroup().getDefaultUnit();
+		bestValueUnit = optimizationGoalUnitSelector.getSelectedUnit();
 		stepCount = 0;
 		evaluationCount = 0;
 		stepSize = 0.5;
 		updateCounters();
 		updateComponents();
+	}
+
+	private void updateSeekValueUnits() {
+		if (optimizationSeekValue != null && optimizationGoalUnitSelector != null) {
+			optimizationSeekValue.setUnitGroup(getSelectedParameter().getUnitGroup());
+			optimizationSeekValue.setValue(0);
+			optimizationGoalUnitSelector.setModel(optimizationSeekValue);
+			optimizationGoalUnitSelector.revalidate();
+		}
 	}
 	
 	private void applyDesign() {
@@ -1168,7 +1186,7 @@ public class GeneralOptimizationDialog extends JDialog {
 					writer.write(fieldSeparator);
 				}
 				writer.write(getSelectedParameter().getName() + " / " +
-						getSelectedParameter().getUnitGroup().getDefaultUnit().getUnit());
+						optimizationGoalUnitSelector.getSelectedUnit().getUnit());
 				
 				writer.write("\n");
 			}
@@ -1187,7 +1205,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				}
 				
 				if (data.getParameterValue() != null) {
-					writer.write(TextUtil.doubleToString(data.getParameterValue().getUnitValue()));
+					writer.write(TextUtil.doubleToString(optimizationGoalUnitSelector.getSelectedUnit().toUnit(data.getParameterValue().getValue())));
 				} else {
 					writer.write("N/A");
 				}

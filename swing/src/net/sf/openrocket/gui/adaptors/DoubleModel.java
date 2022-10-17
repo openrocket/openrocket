@@ -580,7 +580,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	
 	private final ArrayList<EventListener> listeners = new ArrayList<EventListener>();
 	
-	private final UnitGroup units;
+	private UnitGroup units;
 	private Unit currentUnit;
 	
 	private final double minValue;
@@ -875,6 +875,13 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			return;
 		log.debug("Setting unit for " + this + " to '" + u + "'");
 		currentUnit = u;
+		fireStateChanged();
+	}
+
+	public void setUnitGroup(UnitGroup unitGroup) {
+		this.units = unitGroup;
+		this.currentUnit = units.getDefaultUnit();
+		this.lastValue = this.currentUnit.toUnit(this.lastValue);
 		fireStateChanged();
 	}
 	
