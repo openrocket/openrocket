@@ -35,16 +35,17 @@ public class FlightEventsTest extends BaseTestCase {
         int branchCount = sim.getSimulatedData().getBranchCount();
         assertEquals(" Single stage simulation invalid branch count", 1, branchCount);
 
+        FlightEvent.Type[] expectedEventTypes = {FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.LIFTOFF,
+                FlightEvent.Type.LAUNCHROD, FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
+                FlightEvent.Type.APOGEE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
+
         // Test event count
         FlightDataBranch branch = sim.getSimulatedData().getBranch(0);
         List<FlightEvent> eventList = branch.getEvents();
         List<FlightEvent.Type> eventTypes = eventList.stream().map(FlightEvent::getType).collect(Collectors.toList());
-        assertEquals(" Single stage simulation invalid number of events", 10, eventTypes.size());
+        assertEquals(" Single stage simulation invalid number of events", expectedEventTypes.length, eventTypes.size());
 
         // Test that all expected events are present, and in the right order
-        FlightEvent.Type[] expectedEventTypes = {FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.LIFTOFF,
-               FlightEvent.Type.LAUNCHROD, FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
-               FlightEvent.Type.APOGEE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
         for (int i = 0; i < expectedEventTypes.length; i++) {
             assertSame(" Flight type " + expectedEventTypes[i] + " not found in single stage simulation",
                     eventTypes.get(i), expectedEventTypes[i]);
@@ -71,27 +72,19 @@ public class FlightEventsTest extends BaseTestCase {
         assertEquals(" Multi-stage simulation invalid branch count", 3, branchCount);
 
         for (int b = 0; b < 3; b++) {
-            int expectedEventsCount;
             FlightEvent.Type[] expectedEventTypes;
             switch (b) {
-                // TODO: change expected values
                 case 0:
-                    expectedEventsCount = 15;
-                    expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.LIFTOFF,
-                            FlightEvent.Type.LAUNCHROD, FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
-                            FlightEvent.Type.APOGEE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
+                    expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.IGNITION,
+                            FlightEvent.Type.LIFTOFF, FlightEvent.Type.LAUNCHROD, FlightEvent.Type.APOGEE, FlightEvent.Type.BURNOUT,
+                            FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.EJECTION_CHARGE,
+                            FlightEvent.Type.STAGE_SEPARATION, FlightEvent.Type.STAGE_SEPARATION, FlightEvent.Type.TUMBLE, FlightEvent.Type.GROUND_HIT,
+                            FlightEvent.Type.SIMULATION_END};
                     break;
                 case 1:
-                    expectedEventsCount = 15;
-                    expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.LIFTOFF,
-                            FlightEvent.Type.LAUNCHROD, FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
-                            FlightEvent.Type.APOGEE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
-                    break;
                 case 2:
-                    expectedEventsCount = 15;
-                    expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.LIFTOFF,
-                            FlightEvent.Type.LAUNCHROD, FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
-                            FlightEvent.Type.APOGEE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
+                    expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.TUMBLE, FlightEvent.Type.GROUND_HIT,
+                            FlightEvent.Type.SIMULATION_END};
                     break;
                 default:
                     throw new IllegalStateException("Invalid branch number " + b);
@@ -101,8 +94,7 @@ public class FlightEventsTest extends BaseTestCase {
             FlightDataBranch branch = sim.getSimulatedData().getBranch(b);
             List<FlightEvent> eventList = branch.getEvents();
             List<FlightEvent.Type> eventTypes = eventList.stream().map(FlightEvent::getType).collect(Collectors.toList());
-            assertEquals(" Multi-stage simulation, branch " + b + " invalid number of events", expectedEventsCount, eventTypes.size());
-            System.out.println(eventTypes);
+            assertEquals(" Multi-stage simulation, branch " + b + " invalid number of events", expectedEventTypes.length, eventTypes.size());
 
             // Test that all expected events are present, and in the right order
             for (int i = 0; i < expectedEventTypes.length; i++) {
