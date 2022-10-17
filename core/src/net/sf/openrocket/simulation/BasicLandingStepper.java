@@ -73,10 +73,12 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		double timeStep = RECOVERY_TIME_STEP;
 
 		// adjust based on change in acceleration (ie jerk)
-		final double jerk = linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length();
+		final double jerk = Math.abs(linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length());
 		if (jerk > MathUtil.EPSILON) {
 			timeStep = Math.min(timeStep, 1.0/jerk);
 		}
+		// but don't let it get *too* small
+		timeStep = Math.max(timeStep, MIN_TIME_STEP);
 
 		// Perform Euler integration
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
