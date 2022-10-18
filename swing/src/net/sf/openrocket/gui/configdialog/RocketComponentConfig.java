@@ -4,6 +4,7 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -236,7 +237,7 @@ public class RocketComponentConfig extends JPanel {
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
-				if (c.isMassOverridden() && c.isSubcomponentsOverridden()) {
+				if (c.isMassOverridden() && c.isSubcomponentsOverriddenMass()) {
 					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
 				}
 			}
@@ -359,14 +360,28 @@ public class RocketComponentConfig extends JPanel {
 		BasicSlider bs;
 		
 		// OVERRIDE MASS ----------------------------------
-		
+		JPanel checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "MassOverridden");
 		check = new JCheckBox(bm);
 		//// Override mass:
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridemass"));
 		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Overridemass.ttip"));
-		panel.add(check, "growx 1, gapright 20lp");
+		checkboxes.add(check, "wrap");
 		order.add(check);
+
+		////// Override subcomponents
+		BooleanModel bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenMass");
+		check = new JCheckBox(bmSubcomp);
+		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		Font smallFont = check.getFont();
+		smallFont = smallFont.deriveFont(smallFont.getSize2D() - 1);
+		check.setFont(smallFont);
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.Mass.ttip"));
+		bm.addEnableComponent(check, true);
+		checkboxes.add(check, "gapleft 25lp, wrap");
+		order.add(check);
+
+		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		DoubleModel m = new DoubleModel(component, "OverrideMass", UnitGroup.UNITS_MASS, 0);
 		
@@ -383,18 +398,30 @@ public class RocketComponentConfig extends JPanel {
 		bs = new BasicSlider(m.getSliderModel(0, 0.03, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
-		
+
 		// END OVERRIDE MASS ----------------------------------
 	
 		// OVERRIDE CG ----------------------------------
-	
+		checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "CGOverridden");
 		check = new JCheckBox(bm);
 		//// Override center of gravity:"
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav"));
 		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav.ttip"));
-		panel.add(check, "growx 1, gapright 20lp");
+		checkboxes.add(check, "wrap");
 		order.add(check);
+
+		////// Override subcomponents
+		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCG");
+		check = new JCheckBox(bmSubcomp);
+		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		check.setFont(smallFont);
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CG.ttip"));
+		bm.addEnableComponent(check, true);
+		checkboxes.add(check, "gapleft 25lp, wrap");
+		order.add(check);
+
+		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
 		// Calculate suitable length for slider
@@ -441,45 +468,46 @@ public class RocketComponentConfig extends JPanel {
 		bs = new BasicSlider(m.getSliderModel(new DoubleModel(0), length));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
-		
 
 		// END OVERRIDE CG ---------------------------------------------------
 
 
-    // BEGIN OVERRIDE CD ------------------------------------------
+    	// BEGIN OVERRIDE CD ------------------------------------------
+		checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "CDOverridden");
 		check = new JCheckBox(bm);
 		//// Override coefficient of drag:
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
 		check.setToolTipText(trans.get("RocketCompCfg.checkbox.SetDragCoeff.ttip"));
-		panel.add(check, "growx 1, gapright 20lp");
+		checkboxes.add(check, "wrap");
 		order.add(check);
+
+		////// Override subcomponents
+		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCD");
+		check = new JCheckBox(bmSubcomp);
+		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		check.setFont(smallFont);
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CD.ttip"));
+		bm.addEnableComponent(check, true);
+		checkboxes.add(check, "gapleft 25lp, wrap");
+		order.add(check);
+
+		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		spin = new JSpinner(m.getSpinnerModel());
 
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
-		panel.add(spin, "growx 1");
+		panel.add(spin, "top, growx 1");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "skip, growx 5, w 100lp, wrap");
+		panel.add(bs, "top, skip, growx 5, w 100lp, wrap");
 
 		// END OVERRIDE CD --------------------------------------------------
-
-		// BEGIN OVERRIDE SUBCOMPONENTS --------------------------------------------------
-
-		bm = new BooleanModel(component, "SubcomponentsOverridden");
-		check = new JCheckBox(bm);
-		//// Override mass, CG, and CD of all subcomponents
-		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
-		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.ttip"));
-		panel.add(check, "spanx, wrap 35lp");
-
-		// END OVERRIDE SUBCOMPONENTS --------------------------------------------------
 
 		// OVERRIDE MASS, CG DOESN'T INCLUDE MOTORS  --------------------------------------------------
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +

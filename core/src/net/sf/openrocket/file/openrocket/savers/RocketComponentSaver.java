@@ -128,22 +128,20 @@ public class RocketComponentSaver {
 		}
 		
 		// Overrides
-		boolean overridden = false;
 		if (c.isMassOverridden()) {
 			elements.add("<overridemass>" + c.getOverrideMass() + "</overridemass>");
-			overridden = true;
+			elements.add("<overridesubcomponentsmass>" + c.isSubcomponentsOverriddenMass()
+					+ "</overridesubcomponentsmass>");
 		}
 		if (c.isCGOverridden()) {
 			elements.add("<overridecg>" + c.getOverrideCGX() + "</overridecg>");
-			overridden = true;
+			elements.add("<overridesubcomponentscg>" + c.isSubcomponentsOverriddenCG()
+					+ "</overridesubcomponentscg>");
 		}
 		if (c.isCDOverridden()) {
 			elements.add("<overridecd>" + c.getOverrideCD() + "</overridecd>");
-			overridden = true;
-		}
-		if (overridden) {
-			elements.add("<overridesubcomponents>" + c.isSubcomponentsOverridden()
-					+ "</overridesubcomponents>");
+			elements.add("<overridesubcomponentscd>" + c.isSubcomponentsOverriddenCD()
+					+ "</overridesubcomponentscd>");
 		}
 		
 		

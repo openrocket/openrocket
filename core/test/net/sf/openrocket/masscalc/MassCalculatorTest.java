@@ -81,7 +81,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		// if we use a mass override, setting to same mass, we should get same result
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 
-		sustainer.setSubcomponentsOverridden(true);
+		sustainer.setSubcomponentsOverriddenMass(true);
 		sustainer.setMassOverridden(true);
 		sustainer.setOverrideMass(actualRocketDryMass);
 
@@ -219,7 +219,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
 		
-		boosterStage.setSubcomponentsOverridden(true);
+		boosterStage.setSubcomponentsOverriddenCG(true);
 		boosterStage.setCGOverridden(true);
 		boosterStage.setOverrideCGX(0.0);
 		
@@ -260,7 +260,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.05, actualRocketDryCM.x, EPSILON);
 		}
 		
-		sustainerStage.setSubcomponentsOverridden(true);
+		sustainerStage.setSubcomponentsOverriddenMass(true);
 		sustainerStage.setMassOverridden(true);
 		sustainerStage.setOverrideMass(0.001);   // something small, but not zero
 		
@@ -302,7 +302,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.10, actualStructure.cm.x, EPSILON);
 		}
 		
-		boosterStage.setSubcomponentsOverridden(true);
+		boosterStage.setSubcomponentsOverriddenMass(true);
 		boosterStage.setMassOverridden(true);
 		boosterStage.setOverrideMass(0.001);   // something small, but not zero
 		
@@ -346,7 +346,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
 		
-		boosterBody.setSubcomponentsOverridden(false);
+		boosterBody.setSubcomponentsOverriddenCG(false);
 		boosterBody.setCGOverridden(true);
 		boosterBody.setOverrideCGX(0.0);
 		
@@ -395,7 +395,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
 		
-		boosterBody.setSubcomponentsOverridden(false);
+		boosterBody.setSubcomponentsOverriddenMass(false);
 		boosterBody.setMassOverridden(true);
 		boosterBody.setOverrideMass(0.001);
 		
@@ -409,7 +409,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
 		}
 		
-		boosterBody.setSubcomponentsOverridden(true); // change.  Also, this body lacks subcomponents.
+		boosterBody.setSubcomponentsOverriddenMass(true); // change.  Also, this body lacks subcomponents.
 		boosterBody.setMassOverridden(true); // repeat
 		boosterBody.setOverrideMass(0.001);  // repeat
 		
@@ -973,9 +973,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
 		final ParallelStage boosters = (ParallelStage) coreStage.getChild(0).getChild(0);
 		final double overrideMass = 0.5;
-		boosters.setSubcomponentsOverridden(true);
+		boosters.setSubcomponentsOverriddenMass(true);
 		boosters.setMassOverridden(true);
 		boosters.setOverrideMass(overrideMass);
+		boosters.setSubcomponentsOverriddenCG(true);
 		boosters.setCGOverridden(true);
 		boosters.setOverrideCGX(6.0);
 
@@ -1140,7 +1141,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		fins.setName("podFins");
 		fins.setThickness(0.01);
 		fins.setMassOverridden(true);	fins.setOverrideMass(0.02835);
-		fins.setSubcomponentsOverridden(false);
+		fins.setSubcomponentsOverriddenMass(false);
 		fins.setAxialOffset(-0.01);		fins.setAxialMethod(AxialMethod.BOTTOM);
 		podBody.addChild(fins);
 
@@ -1207,12 +1208,12 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		// if we use a mass override, setting to same mass, we should get same result
 		AxialStage sustainerRef = (AxialStage) rocketRef.getChild(0);
-		sustainerRef.setSubcomponentsOverridden(true);
+		sustainerRef.setSubcomponentsOverriddenMass(true);
 		sustainerRef.setMassOverridden(true);
 		sustainerRef.setOverrideMass(rocketDryMassRef);
 
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
-		sustainer.setSubcomponentsOverridden(true);
+		sustainer.setSubcomponentsOverriddenMass(true);
 		sustainer.setMassOverridden(true);
 		sustainer.setOverrideMass(rocketDryMass);
 
