@@ -46,6 +46,7 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	private static final String METHOD_PACKAGE = "net.sf.openrocket.file.openrocket.savers";
 	private static final String METHOD_SUFFIX = "Saver";
+	public static final String INDENT = "  ";
 	
 	
 	// Estimated storage used by different portions
@@ -636,10 +637,7 @@ public class OpenRocketSaver extends RocketSaver {
 			dest.write("\n");
 			return;
 		}
-		String s = "";
-		for (int i = 0; i < indent; i++)
-			s = s + "  ";
-		s = s + str + "\n";
+		String s = INDENT.repeat(Math.max(0, indent)) + str + "\n";
 		dest.write(s);
 	}
 	

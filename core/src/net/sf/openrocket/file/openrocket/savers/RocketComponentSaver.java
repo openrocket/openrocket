@@ -9,6 +9,7 @@ import java.util.Map;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
@@ -57,8 +58,8 @@ public class RocketComponentSaver {
 			Appearance ap_in = handler.getInsideAppearance();
 			if (ap_in != null) {
 				elements.add("<inside-appearance>");
-				elements.add("<edgesSameAsInside>" + handler.isEdgesSameAsInside() + "</edgesSameAsInside>");
-				elements.add("<insideSameAsOutside>" + handler.isSeparateInsideOutside() + "</insideSameAsOutside>");
+				appendElement(elements, "edgesSameAsInside", handler.isEdgesSameAsInside(), 1);
+				appendElement(elements, "insideSameAsOutside", handler.isSeparateInsideOutside(), 1);
 				buildAppearanceElements(elements, ap_in);
 				elements.add("</inside-appearance>");
 			}
@@ -67,7 +68,7 @@ public class RocketComponentSaver {
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			Color color = c.getColor();
-			emitColor("color", elements, color);
+			emitColor("color", elements, color, 0);
 			
 			LineStyle style = c.getLineStyle();
 			if (style != null) {
@@ -154,21 +155,21 @@ public class RocketComponentSaver {
 
 	private void buildAppearanceElements(List<String> elements, Appearance a) {
 		Color paint = a.getPaint();
-		emitColor("paint", elements, paint);
-		elements.add("<shine>" + a.getShine() + "</shine>");
+		emitColor("paint", elements, paint, 1);
+		appendElement(elements, "shine", a.getShine(), 1);
 		Decal decal = a.getTexture();
 		if (decal != null) {
 			String name = decal.getImage().getName();
 			double rotation = decal.getRotation();
 			EdgeMode edgeMode = decal.getEdgeMode();
-			elements.add("<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
+			elements.add(OpenRocketSaver.INDENT + "<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
 			Coordinate center = decal.getCenter();
-			elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
 			Coordinate offset = decal.getOffset();
-			elements.add("<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
 			Coordinate scale = decal.getScale();
-			elements.add("<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
-			elements.add("</decal>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT + "</decal>");
 		}
 	}
 
@@ -268,12 +269,11 @@ public class RocketComponentSaver {
 		return elements;
 	}
 	
-	private final static void emitColor(String elementName, List<String> elements, Color color) {
+	private final static void emitColor(String elementName, List<String> elements, Color color, int indents) {
 		if (color != null) {
-			elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
+			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
 					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
 		}
-		
 	}
 	
     protected static void emitDouble( final List<String> elements, final String enclosingTag, final double value){
@@ -300,8 +300,20 @@ public class RocketComponentSaver {
        return buf.toString();
     }
 
+	protected static void appendElement( final List<String> elements, final String openTag, final String closeTag, final String elementValue, final int indents){
+		elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<"+openTag+">" + elementValue + "</"+closeTag+">");
+	}
+
+	protected static void appendElement( final List<String> elements, final String tag, final double elementValue, final int indents){
+		appendElement(elements, tag, tag, Double.toString(elementValue), indents);
+	}
+
+	protected static void appendElement( final List<String> elements, final String tag, final boolean elementValue, final int indents){
+		appendElement(elements, tag, tag, Boolean.toString(elementValue), indents);
+	}
+
     protected static void appendElement( final List<String> elements, final String openTag, final String closeTag, final String elementValue ){
-    	elements.add("<"+openTag+">" + elementValue + "</"+closeTag+">");    	
+		appendElement(elements, openTag, closeTag, elementValue, 0);
     }
 	
 }
