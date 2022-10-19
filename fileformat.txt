@@ -50,3 +50,14 @@ The following file format versions exist:
 1.7:  Introduced with OpenRocket 15.03.
       Added simulation extensions and related configuration.
       Support for TubeFins.
+
+1.8:  Introduced with OpenRocket 22.02.
+      Added new RailButton (<railbutton>, Pods (<podset>), and Booster (<parallelstage>) components
+      Added separate internal appearance option (<insideappearance>) for Body Tubes, Nose Cones,
+      Transitions, Inner Tubes, Launch Lugs, and Fins.
+      Added PhotoStudio settings saving (<photostudio>)
+      Added override CD parameter (<overridecd>)
+      Separated <overridesubcomponents> into individual parameters for mass, CG, and CD.
+      Rename <fincount> to <instancecount> (<fincount> remains for backward compatibility)
+      Rename <position> to <axialoffset> (<position> remains for backward compatibility)
+      Rename <rotation> to <angleoffset> (<rotation> remains for backward compatibility)
