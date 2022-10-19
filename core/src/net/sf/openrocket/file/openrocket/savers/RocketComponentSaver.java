@@ -57,11 +57,11 @@ public class RocketComponentSaver {
 			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
 			Appearance ap_in = handler.getInsideAppearance();
 			if (ap_in != null) {
-				elements.add("<inside-appearance>");
-				appendElement(elements, "edgesSameAsInside", handler.isEdgesSameAsInside(), 1);
-				appendElement(elements, "insideSameAsOutside", handler.isSeparateInsideOutside(), 1);
+				elements.add("<insideappearance>");
+				appendElement(elements, "edgessameasinside", handler.isEdgesSameAsInside(), 1);
+				appendElement(elements, "insidesameasoutside", handler.isSeparateInsideOutside(), 1);
 				buildAppearanceElements(elements, ap_in);
-				elements.add("</inside-appearance>");
+				elements.add("</insideappearance>");
 			}
 		}
 		
