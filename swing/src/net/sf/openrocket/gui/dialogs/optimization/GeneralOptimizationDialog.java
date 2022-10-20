@@ -658,8 +658,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		} else if (GOAL_MINIMIZE.equals(value)) {
 			goal = new MinimizationGoal();
 		} else if (GOAL_SEEK.equals(value)) {
-			Unit u = parameter.getUnitGroup().getDefaultUnit();
-			goal = new ValueSeekGoal(u.toUnit(optimizationSeekValue.getValue()));
+			goal = new ValueSeekGoal(optimizationSeekValue.getValue());
 		} else {
 			throw new BugException("optimizationGoalCombo had invalid value: " + value);
 		}
