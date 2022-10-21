@@ -257,7 +257,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		if (type == null) {
 			throw new IllegalArgumentException("setType called with null argument");
 		}
-		if ((this.type == type) && (this.clipped == type.isClippable()) && (this.shapeParameter == type.defaultParameter()))
+
+		if (this.type == type)
 			return;
 		this.type = type;
 		this.clipped = type.isClippable();
@@ -687,6 +688,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		if ( preset.has(ComponentPreset.SHAPE) ) {
 			Shape s = preset.get(ComponentPreset.SHAPE);
 			this.setType(s);
+			this.setClipped(s.canClip);
+			this.setShapeParameter(s.defaultParameter());
 		}
 		if ( preset.has(ComponentPreset.AFT_OUTER_DIAMETER) )  {
 			double outerDiameter = preset.get(ComponentPreset.AFT_OUTER_DIAMETER);
