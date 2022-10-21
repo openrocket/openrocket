@@ -80,7 +80,7 @@ public class OptimizationPlotDialog extends JDialog {
 	
 	
 	public OptimizationPlotDialog(List<Point> path, Map<Point, FunctionEvaluationData> evaluations,
-			List<SimulationModifier> modifiers, OptimizableParameter parameter, UnitGroup stabilityUnit, Window parent) {
+			List<SimulationModifier> modifiers, OptimizableParameter parameter, Unit parameterUnit, UnitGroup stabilityUnit, Window parent) {
 		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 
@@ -88,9 +88,9 @@ public class OptimizationPlotDialog extends JDialog {
 		
 		ChartPanel chart;
 		if (modifiers.size() == 1) {
-			chart = create1DPlot(path, evaluations, modifiers, parameter, stabilityUnit);
+			chart = create1DPlot(path, evaluations, modifiers, parameter, parameterUnit, stabilityUnit);
 		} else if (modifiers.size() == 2) {
-			chart = create2DPlot(path, evaluations, modifiers, parameter, stabilityUnit);
+			chart = create2DPlot(path, evaluations, modifiers, parameter, parameterUnit, stabilityUnit);
 		} else {
 			throw new IllegalArgumentException("Invalid dimensionality, dim=" + modifiers.size());
 		}
@@ -134,11 +134,11 @@ public class OptimizationPlotDialog extends JDialog {
 	 * Create a 1D plot of the optimization path.
 	 */
 	private ChartPanel create1DPlot(List<Point> path, Map<Point, FunctionEvaluationData> evaluations,
-			List<SimulationModifier> modifiers, OptimizableParameter parameter, UnitGroup stabilityUnit) {
+			List<SimulationModifier> modifiers, OptimizableParameter parameter, Unit parameterUnit, UnitGroup stabilityUnit) {
 		
 		SimulationModifier modX = modifiers.get(0);
 		Unit xUnit = modX.getUnitGroup().getDefaultUnit();
-		Unit yUnit = parameter.getUnitGroup().getDefaultUnit();
+		Unit yUnit = parameterUnit;
 		
 		// Create the optimization path (with autosort)
 		XYSeries series = new XYSeries(trans.get("plot1d.series"), true, true);
@@ -232,10 +232,7 @@ public class OptimizationPlotDialog extends JDialog {
 	 * Create a 2D plot of the optimization path.
 	 */
 	private ChartPanel create2DPlot(List<Point> path, Map<Point, FunctionEvaluationData> evaluations,
-			List<SimulationModifier> modifiers, OptimizableParameter parameter, UnitGroup stabilityUnit) {
-		
-		Unit parameterUnit = parameter.getUnitGroup().getDefaultUnit();
-		
+			List<SimulationModifier> modifiers, OptimizableParameter parameter, Unit parameterUnit, UnitGroup stabilityUnit) {
 		SimulationModifier modX = modifiers.get(0);
 		SimulationModifier modY = modifiers.get(1);
 		
