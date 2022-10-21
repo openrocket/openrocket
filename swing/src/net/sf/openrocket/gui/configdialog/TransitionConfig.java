@@ -78,13 +78,13 @@ public class TransitionConfig extends RocketComponentConfig {
 			checkbox.setToolTipText(trans.get("TransitionCfg.checkbox.Clipped.ttip"));
 			panel.add(checkbox, "wrap");
 			order.add(checkbox);
-
-			////  Shape parameter:
-			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
-			panel.add(shapeLabel);
 		}
 
 		{
+			////  Shape parameter:
+			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
+			panel.add(shapeLabel);
+
 			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter");
 
 			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
