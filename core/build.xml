@@ -53,8 +53,8 @@
 	
 	<!-- BUILD -->
 	<target name="build">
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
 		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
@@ -88,15 +88,15 @@
 	
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
-		<echo>Building unit tests</echo>
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Building unit tests</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath" includeantruntime="false"/>
 		
 		<echo>Running unit tests</echo>
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure" dir="${basedir}">
 			<classpath>

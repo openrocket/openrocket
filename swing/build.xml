@@ -70,8 +70,8 @@
 	
 	<!-- BUILD -->
 	<target name="build">
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
 		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
@@ -116,7 +116,8 @@
 			<zipfileset src="${core.dir}/lib/jaxb-runtime.2.3.1.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
-			<zipfileset src="${core.dir}/lib/opencsv-4.3.2.jar"/>
+			<zipfileset src="${core.dir}/lib/opencsv-5.7.1.jar"/>
+			<zipfileset src="${core.dir}/lib/commons-lang3-3.12.0.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.11.jar"/>
@@ -317,15 +318,15 @@ ${nonascii}</fail>
 	
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
-		<echo>Building unit tests</echo>
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Building unit tests</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${build-test.dir}"/>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
 		
-		<echo>Running unit tests</echo>
-		<echo>Java/JVM version: ${ant.java.version}</echo>
-		<echo>Java/JVM detail version: ${java.version}</echo>
+		<echo level="info">Running unit tests</echo>
+		<echo level="info">Java/JVM version: ${ant.java.version}</echo>
+		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
 			<classpath>
