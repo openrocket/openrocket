@@ -79,7 +79,8 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		}
 		// but don't let it get *too* small
 		timeStep = Math.max(timeStep, MIN_TIME_STEP);
-
+		log.debug("timeStep is " + timeStep);
+		
 		// Perform Euler integration
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 			add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
@@ -94,6 +95,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			// The new timestep is the solution of
 			// 1/2 at^2 + vt + z0 = 0
 			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
+			log.debug("ground hit changes timeStep to " + timeStep);
 			
 			newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
@@ -101,7 +103,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			// avoid rounding error in new altitude
 			newPosition = newPosition.setZ(0);
 		}
-		
+
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
 		status.setPreviousTimeStep(timeStep);
 
@@ -113,7 +115,6 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
-		
 
 		// Store data
 		FlightDataBranch data = status.getFlightData();
