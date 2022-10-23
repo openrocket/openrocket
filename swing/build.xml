@@ -145,7 +145,7 @@
 				classpathref="run-classpath"
 				failonerror="true">
 				<arg value="@{dir}"/>
-				<arg value="${resources-src.dir}/datafiles/components-openrocket/@{vendor}.orc"/>
+				<arg value="${resources-src.dir}/datafiles/components-openrocket/@{vendor}-legacy.orc"/>
 			</java>
 		</sequential>
 	</macrodef>
