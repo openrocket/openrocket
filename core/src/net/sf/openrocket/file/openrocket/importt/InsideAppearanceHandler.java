@@ -21,13 +21,15 @@ public class InsideAppearanceHandler extends AppearanceHandler {
 
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
-        if ("edgesSameAsInside".equals(element)) {
+        // TODO: delete 'edgesSameAsInside' when backward compatibility with 22.02.beta.01-22.02.beta.05 is not needed anymore
+        if ("edgessameasinside".equals(element) || "edgesSameAsInside".equals(element)) {
             boolean edgesSameAsInside = Boolean.parseBoolean(content);
             if (component instanceof InsideColorComponent)
                 ((InsideColorComponent)component).getInsideColorComponentHandler().setEdgesSameAsInside(edgesSameAsInside);
             return;
         }
-        if ("insideSameAsOutside".equals(element)) {
+        // TODO: delete 'insideSameAsOutside' when backward compatibility with 22.02.beta.01-22.02.beta.05 is not needed anymore
+        if ("insidesameasoutside".equals(element) || "insideSameAsOutside".equals(element)) {
             boolean insideSameAsOutside = Boolean.parseBoolean(content);
             if (component instanceof InsideColorComponent)
                 ((InsideColorComponent)component).getInsideColorComponentHandler().setSeparateInsideOutside(insideSameAsOutside);

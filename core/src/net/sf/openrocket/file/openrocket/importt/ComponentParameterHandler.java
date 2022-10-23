@@ -40,7 +40,8 @@ class ComponentParameterHandler extends AbstractElementHandler {
 		if ( element.equals("appearance")) {
 			return new AppearanceHandler(component,context);
 		}
-		if (element.equals("inside-appearance")) {
+		// TODO: delete 'inside-appearance' when backward compatibility with 22.02.beta.01-22.02.beta.05 is not needed anymore
+		if (element.equals("insideappearance") || element.equals("inside-appearance")) {
 			return new InsideAppearanceHandler(component, context);
 		}
 		if (element.equals("motormount")) {
@@ -92,10 +93,11 @@ class ComponentParameterHandler extends AbstractElementHandler {
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-		
+
+		// TODO: delete 'inside-appearance' when backward compatibility with 22.02.beta.01-22.02.beta.05 is not needed anymore
 		if (element.equals("subcomponents") || element.equals("motormount") ||
 				element.equals("finpoints") || element.equals("motorconfiguration") ||
-				element.equals("appearance") || element.equals("inside-appearance") ||
+				element.equals("appearance") || element.equals("insideappearance") || element.equals("inside-appearance") ||
 				element.equals("deploymentconfiguration") || element.equals("separationconfiguration")) {
 			return;
 		}

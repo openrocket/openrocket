@@ -345,7 +345,8 @@ public class TestRockets {
 		c.setMassOverridden(rnd.nextBoolean());
 		c.setOverrideCGX(rnd(0.2));
 		c.setOverrideMass(rnd(0.05));
-		c.setSubcomponentsOverridden(rnd.nextBoolean());
+		c.setSubcomponentsOverriddenMass(rnd.nextBoolean());
+		c.setSubcomponentsOverriddenCG(rnd.nextBoolean());
 		
 		if (c.isMassive()) {
 			// Only massive components are drawn

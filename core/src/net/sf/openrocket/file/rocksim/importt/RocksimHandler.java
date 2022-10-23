@@ -208,12 +208,12 @@ class RocketDesignHandler extends AbstractElementHandler {
 			final AxialStage stage = new AxialStage();
 			if (stage3Mass > 0.0d) {
 				stage.setMassOverridden(true);
-				stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+				stage.setSubcomponentsOverriddenMass(true); //Rocksim does not support this type of override
 				stage.setOverrideMass(stage3Mass);
 			}
 			if (stage3CG > 0.0d) {
 				stage.setCGOverridden(true);
-				stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+				stage.setSubcomponentsOverriddenCG(true); //Rocksim does not support this type of override
 				stage.setOverrideCGX(stage3CG);
 			}
 			component.addChild(stage);
@@ -224,12 +224,12 @@ class RocketDesignHandler extends AbstractElementHandler {
 				final AxialStage stage = new AxialStage();
 				if (stage2Mass > 0.0d) {
 					stage.setMassOverridden(true);
-					stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+					stage.setSubcomponentsOverriddenMass(true); //Rocksim does not support this type of override
 					stage.setOverrideMass(stage2Mass);
 				}
 				if (stage2CG > 0.0d) {
 					stage.setCGOverridden(true);
-					stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+					stage.setSubcomponentsOverriddenCG(true); //Rocksim does not support this type of override
 					stage.setOverrideCGX(stage2CG);
 				}
 				component.addChild(stage);
@@ -241,12 +241,12 @@ class RocketDesignHandler extends AbstractElementHandler {
 				final AxialStage stage = new AxialStage();
 				if (stage1Mass > 0.0d) {
 					stage.setMassOverridden(true);
-					stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+					stage.setSubcomponentsOverriddenMass(true); //Rocksim does not support this type of override
 					stage.setOverrideMass(stage1Mass);
 				}
 				if (stage1CG > 0.0d) {
 					stage.setCGOverridden(true);
-					stage.setSubcomponentsOverridden(true); //Rocksim does not support this type of override
+					stage.setSubcomponentsOverriddenCG(true); //Rocksim does not support this type of override
 					stage.setOverrideCGX(stage1CG);
 				}
 				component.addChild(stage);

@@ -65,19 +65,19 @@ public class OverrideTest extends BaseTestCase {
 		// We start by just checking the override flags
 		// Initially no overrides
 		assertFalse(sustainer.isCDOverridden());
-		assertFalse(sustainer.isSubcomponentsOverridden());
+		assertFalse(sustainer.isSubcomponentsOverriddenCD());
 		assertFalse(sustainer.isCDOverriddenByAncestor());
 		
 		assertFalse(bodytube.isCDOverridden());		
-		assertFalse(bodytube.isSubcomponentsOverridden());
+		assertFalse(bodytube.isSubcomponentsOverriddenCD());
 		assertFalse(bodytube.isCDOverriddenByAncestor());
 		
 		assertFalse(finset.isCDOverridden());
-		assertFalse(finset.isSubcomponentsOverridden());
+		assertFalse(finset.isSubcomponentsOverriddenCD());
 		assertFalse(finset.isCDOverriddenByAncestor());
 
 		// Override sustainer CD and subcomponents
-		sustainer.setSubcomponentsOverridden(true);
+		sustainer.setSubcomponentsOverriddenCD(true);
 		sustainer.setCDOverridden(true);
 		sustainer.setOverrideCD(0.5);
 
@@ -87,7 +87,7 @@ public class OverrideTest extends BaseTestCase {
 		// Set body tube to override subcomponents, override its CD; it's still
 		// overridden by ancestor
 		bodytube.setCDOverridden(true);
-		bodytube.setSubcomponentsOverridden(true);
+		bodytube.setSubcomponentsOverriddenCD(true);
 		bodytube.setOverrideCD(0.25);
 
 		assertTrue(bodytube.isCDOverriddenByAncestor());
@@ -103,7 +103,7 @@ public class OverrideTest extends BaseTestCase {
 		assertEquals(sustainer.getOverrideCD(), forces.getCD(), MathUtil.EPSILON);
 
 		// Turn off sustainer subcomponents override; body tube and nose cone aren't overridden by ancestor but fin set is
-		sustainer.setSubcomponentsOverridden(false);
+		sustainer.setSubcomponentsOverriddenCD(false);
 
 		// CD of rocket should be overridden CD of sustainer plus body tube plus calculated CD of nose cone
 		Map<RocketComponent, AerodynamicForces> forceMap = calc.getForceAnalysis(configuration, conditions, warnings);
