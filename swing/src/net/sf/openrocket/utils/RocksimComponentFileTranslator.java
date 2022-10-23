@@ -51,7 +51,7 @@ public class RocksimComponentFileTranslator {
 
         MaterialHolder materialMap = loadAll(allPresets, new File(args[0]));
         LOGGER.println("\tMarshalling to XML");
-        String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<Material>(materialMap.values()), allPresets);
+        String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<Material>(materialMap.values()), allPresets, true);
 
         // Try parsing the file
         LOGGER.println("\tValidating XML");
