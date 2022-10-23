@@ -9,10 +9,15 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.List;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.StringUtil;
 import com.opencsv.CSVReader;
 
@@ -115,11 +120,18 @@ public abstract class RocksimComponentFileLoader {
 			r = new InputStreamReader(is);
 			
 			// Create the CSV reader.  Use comma separator.
-			CSVReader reader = new CSVReader(r, ',', '\'', '\\');
-			
+			CSVParser parser = new CSVParserBuilder()
+					.withSeparator(',')
+					.withQuoteChar('\'')
+					.withEscapeChar('\\')
+					.build();
+			CSVReader reader = new CSVReaderBuilder(r)
+					.withCSVParser(parser)
+					.build();
+
 			//Read and throw away the header row.
 			parseHeaders(reader.readNext());
-			
+
 			String[] data = null;
 			while ((data = reader.readNext()) != null) {
 				// detect empty lines and skip:
@@ -133,13 +145,13 @@ public abstract class RocksimComponentFileLoader {
 			}
 			//Read the rest of the file as data rows.
 			return;
-		} catch (IOException e) {
+		} catch (IOException | CsvValidationException e) {
+			throw new BugException("Could not read component file", e);
 		} finally {
 			if (r != null) {
 				try {
 					r.close();
-				} catch (IOException e) {
-				}
+				} catch (IOException ignored) { }
 			}
 		}
 		

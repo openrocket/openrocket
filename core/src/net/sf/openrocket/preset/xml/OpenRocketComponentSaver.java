@@ -59,12 +59,13 @@ public class OpenRocketComponentSaver {
      *
      * @param theMaterialList the list of materials to be included
      * @param thePresetList   the list of presets to be included
+     * @param isLegacy       true if the legacy format should be used
      *
      * @return ORC-compliant XML
      *
      * @throws JAXBException
      */
-    public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
+    public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList, boolean isLegacy) throws
                                                                                                                     JAXBException {
         /** The context is thread-safe, but marshallers are not.  Create a local one. */
         Marshaller marshaller = context.createMarshaller();
@@ -97,9 +98,23 @@ public class OpenRocketComponentSaver {
 
         });
 
-        marshaller.marshal(toOpenRocketComponentDTO(theMaterialList, thePresetList), sw);
+        marshaller.marshal(toOpenRocketComponentDTO(theMaterialList, thePresetList, isLegacy), sw);
         return sw.toString();
+    }
 
+    /**
+     * This method marshals a list of materials and ComponentPresets into an .orc formatted XML string.
+     *
+     * @param theMaterialList the list of materials to be included
+     * @param thePresetList   the list of presets to be included
+     *
+     * @return ORC-compliant XML
+     *
+     * @throws JAXBException
+     */
+    public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
+            JAXBException {
+        return marshalToOpenRocketComponent(theMaterialList, thePresetList, false);
     }
 
     /**
@@ -156,8 +171,9 @@ public class OpenRocketComponentSaver {
      *
      * @return a corresponding ORC representation
      */
-    private OpenRocketComponentDTO toOpenRocketComponentDTO(List<Material> theMaterialList, List<ComponentPreset> thePresetList) {
+    private OpenRocketComponentDTO toOpenRocketComponentDTO(List<Material> theMaterialList, List<ComponentPreset> thePresetList, boolean isLegacy) {
         OpenRocketComponentDTO rsd = new OpenRocketComponentDTO();
+        rsd.setLegacy(isLegacy);
 
         if (theMaterialList != null) {
             for (Material material : theMaterialList) {
