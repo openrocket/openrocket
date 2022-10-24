@@ -57,6 +57,7 @@ The following file format versions exist:
       Transitions, Inner Tubes, Launch Lugs, and Fins.
       Added PhotoStudio settings saving (<photostudio>)
       Added override CD parameter (<overridecd>)
+      Added stage activeness remembrance (<stage> under <motorconfiguration>)
       Separated <overridesubcomponents> into individual parameters for mass, CG, and CD.
       Rename <fincount> to <instancecount> (<fincount> remains for backward compatibility)
       Rename <position> to <axialoffset> (<position> remains for backward compatibility)

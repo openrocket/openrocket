@@ -154,7 +154,6 @@ public class BasicFrame extends JFrame {
 
 		this.document = document;
 		this.rocket = document.getRocket();
-		this.rocket.getSelectedConfiguration().setAllStages();
 		BasicFrame.lastFrameInstance = this;
 
 		//	Create the component tree selection model that will be used

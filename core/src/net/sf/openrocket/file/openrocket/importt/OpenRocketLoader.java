@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -53,7 +54,10 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-		doc.getSelectedConfiguration().setAllStages();
+		// load the stage activeness
+		for (FlightConfiguration config : doc.getRocket().getFlightConfigurations()) {
+			config.applyPreloadedStageActiveness();
+		}
 		
 		// Deduce suitable time skip
 		double timeSkip = StorageOptions.SIMULATION_DATA_NONE;
