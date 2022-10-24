@@ -49,8 +49,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
-
 
 public class SimulationRunDialog extends JDialog {
 	private static final long serialVersionUID = -1593459321777026455L;
@@ -328,10 +328,11 @@ public class SimulationRunDialog extends JDialog {
 			// in order to calculate things like optimal coast time, we'll keep updating max altitude
 			// whenever we see that the rocket is going upwards.  The last apogee found is the real one.
 			for (SimulationStatus s : chunks) {
-				if (s.getConfiguration().isStageActive(0) && (s.getRocketVelocity().z > 0)) {
+				if (s.getConfiguration().isStageActive(0) &&
+					((s.getRocketVelocity().z > 0) || (s.getRocketPosition().z > simulationMaxAltitude[index]))) {
 					log.debug("updating simulationMaxAltitude[" + index + "] to " + s.getRocketPosition().z);
 					simulationMaxAltitude[index] = s.getRocketPosition().z;
-					simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().length());
+					simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().z);
 				}
 			}
 
@@ -372,7 +373,6 @@ public class SimulationRunDialog extends JDialog {
 
 			// >= 0 Landing. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
-			System.out.flush();
 			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + simulationMaxAltitude[index]);
 			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, simulationMaxAltitude[index], 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
@@ -449,16 +449,17 @@ public class SimulationRunDialog extends JDialog {
 				switch (event.getType()) {
 				case APOGEE:
 					log.debug("APOGEE");
-					publish(status);
+					publish(new SimulationStatus(status));
 					break;
 
 				case LAUNCH:
-					publish(status);
+					log.debug("LAUNCH");
+					publish(new SimulationStatus(status));
 					break;
 
 				case SIMULATION_END:
 					log.debug("END");
-					publish(status);
+					publish(new SimulationStatus(status));
 					break;
 					
 				default:
@@ -471,7 +472,7 @@ public class SimulationRunDialog extends JDialog {
 			public void postStep(SimulationStatus status) {
 				if (System.currentTimeMillis() >= time + UPDATE_MS) {
 					time = System.currentTimeMillis();
-					publish(status);
+					publish(new SimulationStatus(status));
 				}
 			}
 		}
