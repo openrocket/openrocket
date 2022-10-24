@@ -270,6 +270,7 @@ public class SimulationRunDialog extends JDialog {
 		private final int index;
 		private final double burnoutTimeEstimate;
 		private volatile double burnoutVelocity;
+		private volatile double apogeeAltitude;
 
 		private final CustomExpressionSimulationListener exprListener;
 
@@ -368,13 +369,14 @@ public class SimulationRunDialog extends JDialog {
 			// Past apogee, switch to landing
 			if (simulationStage == -1 && status.getRocketVelocity().z < 0) {
 				simulationStage++;
-				log.debug("CHANGING to simulationStage " + simulationStage + ", apogee=" + simulationMaxAltitude[index]);
+				apogeeAltitude = MathUtil.max(simulationMaxAltitude[index], 1);
+				log.debug("CHANGING to simulationStage " + simulationStage + ", apogee=" + apogeeAltitude);
 			}
 
 			// >= 0 Landing. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
-			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + simulationMaxAltitude[index]);
-			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, simulationMaxAltitude[index], 0, APOGEE_PROGRESS, 1.0));
+			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + apogeeAltitude);
+			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, apogeeAltitude, 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
 		}
 
