@@ -1625,6 +1625,14 @@ public class TestRockets {
 			
 		return document;
 	}
+
+	public static OpenRocketDocument makeTestRocket_v108_withDisabledStage() {
+		Rocket rocket = makeFalcon9Heavy();
+		rocket.getSelectedConfiguration()._setStageActive(0, false, false);
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		return document;
+	}
 	
 	/*
 	 * Create a new test rocket for testing OpenRocketSaver.estimateFileSize()
