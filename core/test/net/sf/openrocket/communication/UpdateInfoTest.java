@@ -26,11 +26,6 @@ public class UpdateInfoTest extends BaseTestCase {
 	/** How much long does the test allow it to take */
 	private static final int ALLOWANCE = 2000;
 
-	@Test
-	public void dummyTest() {
-		// Yes, I passed!
-	}
-
 	// TODO: write unit test for new software update
 	/*private HttpURLConnectionMock setup() {
 		HttpURLConnectionMock connection = new HttpURLConnectionMock();
