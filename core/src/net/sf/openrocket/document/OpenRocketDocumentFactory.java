@@ -15,6 +15,7 @@ public class OpenRocketDocumentFactory {
 		//// Sustainer
 		stage.setName(trans.get("BasicFrame.StageName.Sustainer"));
 		rocket.addChild(stage);
+		rocket.getSelectedConfiguration().setAllStages();
 		OpenRocketDocument doc = new OpenRocketDocument(rocket);
 		doc.setSaved(true);
 		return doc;
