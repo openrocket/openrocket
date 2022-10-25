@@ -941,7 +941,7 @@ public class TestRockets {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
 
-		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9H_FCID_1 ));
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9H_FCID_1 )).getFlightConfigurationID();
         rocket.setSelectedConfiguration(selFCID);
 
 		// ====== Payload Stage ======
