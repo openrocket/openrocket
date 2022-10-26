@@ -403,6 +403,10 @@ public class UpdateInfoRetriever {
 			String[] tag1Split = tag1.split("[.-]");
 			String[] tag2Split = tag2.split("[.-]");
 
+			// Check malformed tags
+			checkMalformedReleaseTag(tag1Split);
+			checkMalformedReleaseTag(tag2Split);
+
 			for (int i = 0; i < tag2Split.length; i++) {
 				// If the loop is still going until this condition, you have the situation where tag1 is e.g.
 				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
@@ -437,7 +441,7 @@ public class UpdateInfoRetriever {
 					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release with a number instead of
 					// a text, e.g. '20.01'
 					if (tag2Split[i].matches("\\d+")) {
-						return ReleaseStatus.NEWER;
+						return ReleaseStatus.OLDER;
 					}
 
 					String message = String.format("Unrecognized release tag format, tag 1: %s, tag 2: %s", tag1, tag2);
@@ -449,10 +453,43 @@ public class UpdateInfoRetriever {
 			// If tag 1 is bigger than tag 2 and by this point, all the other elements of the tags were the same, tag 1
 			// must be newer (e.g. tag 1 = '15.03.01' and tag 2 = '15.03').
 			if (tag1Split.length > tag2Split.length) {
+				// If tag 1 is e.g. 22.02.beta.01, and tag 2 22.02, then tag 1 is older (tag 2 is an official release of 22.02)
+				if (devTags.containsKey(tag1Split[tag2Split.length])) {
+					return ReleaseStatus.OLDER;
+				}
 				return ReleaseStatus.NEWER;
 			}
 
 			return ReleaseStatus.LATEST;
+		}
+
+		private static void checkMalformedReleaseTag(String[] tagSplit) throws UpdateCheckerException {
+			if (tagSplit.length == 0) {
+				String message = "Zero-length tag";
+				log.warn(message);
+				throw new UpdateCheckerException(message);
+			}
+			for (int i = 0; i < tagSplit.length; i++) {
+				try {
+					int test = Integer.parseInt(tagSplit[i]);
+					if (test < 0) {
+						String message = String.format("Tag item must be greater than zero, tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+				} catch (NumberFormatException e) {
+					if (i == 0) {
+						String message = String.format("First tag item must be decimal, tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+					if (!devTags.containsKey(tagSplit[i])) {
+						String message = String.format("Malformed release tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+				}
+			}
 		}
 
 		/**
