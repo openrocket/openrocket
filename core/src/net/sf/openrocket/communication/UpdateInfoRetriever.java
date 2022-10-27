@@ -282,10 +282,12 @@ public class UpdateInfoRetriever {
 		 * This function extracts all the release names that start with the specified preTag.
 		 * If preTag is null, the default release names without a pre-tag, starting with a number, are returned (e.g. '15.03').
 		 * @param names list of release names to filter
-		 * @param preTag pre-tag to filter the names on. If null, no special preTag filtering is applied
+		 * @param preTag pre-tag to filter the names on. If null, return all tags that start with a number
 		 * @return list of names starting with the preTag
 		 */
-		public List<String> filterReleasePreTag(List<String> names, String preTag) {
+		public static List<String> filterReleasePreTag(List<String> names, String preTag) {
+			if (names == null) return null;
+
 			List<String> filteredTags = new LinkedList<>();
 
 			// Filter out the names that are not related to the preTag
@@ -317,7 +319,7 @@ public class UpdateInfoRetriever {
 		 * @param tags filter tags
 		 * @return list of release names containing the filter tag
 		 */
-		public List<String> filterReleaseTags(List<String> names, String[] tags) {
+		public static List<String> filterReleaseTags(List<String> names, String[] tags) {
 			if (names == null) return null;
 			if (tags == null) return names;
 			return names.stream().filter(c -> Arrays.stream(tags)
@@ -330,7 +332,7 @@ public class UpdateInfoRetriever {
 		 * @param names list of release names to filter
 		 * @return list of release names that do not contain a devTag
 		 */
-		public List<String> filterOfficialRelease(List<String> names) {
+		public static List<String> filterOfficialRelease(List<String> names) {
 			if (names == null) return null;
 			return names.stream().filter(c -> Arrays.stream(devTags.keySet().toArray(new String[0]))
 					.noneMatch(c::contains)).collect(Collectors.toList());
@@ -346,7 +348,7 @@ public class UpdateInfoRetriever {
 		 * @param onlyOfficial bool to check whether to only include official (non-test) releases
 		 * @return latest JSON GitHub release object
 		 */
-		public JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags, boolean onlyOfficial) throws UpdateCheckerException {
+		public static JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags, boolean onlyOfficial) throws UpdateCheckerException {
 			if (jsonArr == null) return null;
 
 			JsonObject latestObj = null;
@@ -403,6 +405,10 @@ public class UpdateInfoRetriever {
 			String[] tag1Split = tag1.split("[.-]");
 			String[] tag2Split = tag2.split("[.-]");
 
+			// Check malformed tags
+			checkMalformedReleaseTag(tag1Split);
+			checkMalformedReleaseTag(tag2Split);
+
 			for (int i = 0; i < tag2Split.length; i++) {
 				// If the loop is still going until this condition, you have the situation where tag1 is e.g.
 				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
@@ -437,7 +443,7 @@ public class UpdateInfoRetriever {
 					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release with a number instead of
 					// a text, e.g. '20.01'
 					if (tag2Split[i].matches("\\d+")) {
-						return ReleaseStatus.NEWER;
+						return ReleaseStatus.OLDER;
 					}
 
 					String message = String.format("Unrecognized release tag format, tag 1: %s, tag 2: %s", tag1, tag2);
@@ -449,10 +455,43 @@ public class UpdateInfoRetriever {
 			// If tag 1 is bigger than tag 2 and by this point, all the other elements of the tags were the same, tag 1
 			// must be newer (e.g. tag 1 = '15.03.01' and tag 2 = '15.03').
 			if (tag1Split.length > tag2Split.length) {
+				// If tag 1 is e.g. 22.02.beta.01, and tag 2 22.02, then tag 1 is older (tag 2 is an official release of 22.02)
+				if (devTags.containsKey(tag1Split[tag2Split.length])) {
+					return ReleaseStatus.OLDER;
+				}
 				return ReleaseStatus.NEWER;
 			}
 
 			return ReleaseStatus.LATEST;
+		}
+
+		private static void checkMalformedReleaseTag(String[] tagSplit) throws UpdateCheckerException {
+			if (tagSplit.length == 0) {
+				String message = "Zero-length tag";
+				log.warn(message);
+				throw new UpdateCheckerException(message);
+			}
+			for (int i = 0; i < tagSplit.length; i++) {
+				try {
+					int test = Integer.parseInt(tagSplit[i]);
+					if (test < 0) {
+						String message = String.format("Tag item must be greater than zero, tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+				} catch (NumberFormatException e) {
+					if (i == 0) {
+						String message = String.format("First tag item must be decimal, tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+					if (!devTags.containsKey(tagSplit[i])) {
+						String message = String.format("Malformed release tag: '%s'", String.join(".", tagSplit));
+						log.warn(message);
+						throw new UpdateCheckerException(message);
+					}
+				}
+			}
 		}
 
 		/**
