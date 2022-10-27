@@ -686,7 +686,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 */
 	private WarningSet warnings = new WarningSet();
 
-	private void updateExtras() {
+	public void updateExtras() {
 		Coordinate cp, cg;
 		double cgx = Double.NaN;
 		double cgy = Double.NaN;
