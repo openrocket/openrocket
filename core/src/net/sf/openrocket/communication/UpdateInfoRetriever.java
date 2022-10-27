@@ -282,10 +282,12 @@ public class UpdateInfoRetriever {
 		 * This function extracts all the release names that start with the specified preTag.
 		 * If preTag is null, the default release names without a pre-tag, starting with a number, are returned (e.g. '15.03').
 		 * @param names list of release names to filter
-		 * @param preTag pre-tag to filter the names on. If null, no special preTag filtering is applied
+		 * @param preTag pre-tag to filter the names on. If null, return all tags that start with a number
 		 * @return list of names starting with the preTag
 		 */
-		public List<String> filterReleasePreTag(List<String> names, String preTag) {
+		public static List<String> filterReleasePreTag(List<String> names, String preTag) {
+			if (names == null) return null;
+
 			List<String> filteredTags = new LinkedList<>();
 
 			// Filter out the names that are not related to the preTag
@@ -317,7 +319,7 @@ public class UpdateInfoRetriever {
 		 * @param tags filter tags
 		 * @return list of release names containing the filter tag
 		 */
-		public List<String> filterReleaseTags(List<String> names, String[] tags) {
+		public static List<String> filterReleaseTags(List<String> names, String[] tags) {
 			if (names == null) return null;
 			if (tags == null) return names;
 			return names.stream().filter(c -> Arrays.stream(tags)
@@ -330,7 +332,7 @@ public class UpdateInfoRetriever {
 		 * @param names list of release names to filter
 		 * @return list of release names that do not contain a devTag
 		 */
-		public List<String> filterOfficialRelease(List<String> names) {
+		public static List<String> filterOfficialRelease(List<String> names) {
 			if (names == null) return null;
 			return names.stream().filter(c -> Arrays.stream(devTags.keySet().toArray(new String[0]))
 					.noneMatch(c::contains)).collect(Collectors.toList());
@@ -346,7 +348,7 @@ public class UpdateInfoRetriever {
 		 * @param onlyOfficial bool to check whether to only include official (non-test) releases
 		 * @return latest JSON GitHub release object
 		 */
-		public JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags, boolean onlyOfficial) throws UpdateCheckerException {
+		public static JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags, boolean onlyOfficial) throws UpdateCheckerException {
 			if (jsonArr == null) return null;
 
 			JsonObject latestObj = null;

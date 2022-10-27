@@ -84,12 +84,10 @@ public class UpdateInfoDialog extends JDialog {
 
 		// 		Release notes
 		String releaseNotes = release.getReleaseNotes();
-		releaseNotes = releaseNotes.replaceAll("^\"|\"$", "");	// Remove leading and trailing quotations
 		sb.append(MarkdownUtil.toHtml(releaseNotes)).append("<br><br>");
 
 		//		GitHub link
 		String releaseURL = release.getReleaseURL();
-		releaseURL = releaseURL.replaceAll("^\"|\"$", "");	// Remove leading and trailing quotations
 		sb.append(String.format("<a href='%s'>%s</a>", releaseURL, trans.get("update.dlg.updateAvailable.txtPane.readMore")));
 		sb.append("</html>");
 		textPane.addHyperlinkListener(new HyperlinkListener() {
