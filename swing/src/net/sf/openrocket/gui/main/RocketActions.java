@@ -652,7 +652,7 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (components != null) {
+			if (components.size() > 0) {
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
 
@@ -719,7 +719,7 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (components != null) {
+			if (components.size() > 0) {
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
 
@@ -866,7 +866,7 @@ public class RocketActions {
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 			List<RocketComponent> topComponents = new LinkedList<>();		// Components without a parent component in <components>
-			if (components != null) {
+			if (components.size() > 0) {
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
@@ -980,7 +980,7 @@ public class RocketActions {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if ((components != null) && (components.size() > 0)) {
+			if (components.size() > 0) {
 				if (ComponentConfigDialog.isDialogVisible())
 					ComponentConfigDialog.disposeDialog();
 
@@ -1002,7 +1002,7 @@ public class RocketActions {
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 
-			this.setEnabled((components != null && components.size() > 0) || isSimulationSelected());
+			this.setEnabled(components.size() > 0 || isSimulationSelected());
 		}
 	}
 
@@ -1055,7 +1055,7 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components =  selectionModel.getSelectedComponents();
-			if (components == null || components.size() == 0) return;
+			if (components.size() == 0) return;
 			components = new ArrayList<>(components);
 			components.sort(Comparator.comparing(c -> c.getParent() != null ? c.getParent().getChildPosition(c) : 0));
 
@@ -1131,7 +1131,7 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components =  selectionModel.getSelectedComponents();
-			if (components == null || components.size() == 0) return;
+			if (components.size() == 0) return;
 			components = new ArrayList<>(components);
 			components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 
