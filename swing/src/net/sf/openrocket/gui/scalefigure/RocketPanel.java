@@ -824,7 +824,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				@Override
 				public void stateChanged(EventObject e) {
 					if (updateFlightData(sim) && sim.getFlightConfigurationId() == document.getSelectedConfiguration().getFlightConfigurationID()) {
-						// TODO HIGH: this gets updated for every sim run; not necessary...
+						// TODO: HIGH: this gets updated for every sim run; not necessary...
 						updateFigures();
 					}
 				}

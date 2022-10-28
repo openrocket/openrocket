@@ -324,9 +324,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		}
 		rr.render(drawable, configuration, selection);
 		
-		drawExtras(gl, glu);
+		drawExtras(drawable, gl, glu);
 		if (drawCarets) {
-			drawCarets(gl, glu);
+			drawCarets(drawable, gl, glu);
 		}
 		
 		// GLJPanel with GLSL Flipper relies on this:
@@ -353,12 +353,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		return og2d;
 	}
 	
-	private void drawCarets(final GL2 gl, final GLU glu) {
+	private void drawCarets(final GLAutoDrawable drawable, final GL2 gl, final GLU glu) {
 		final Graphics2D og2d = createOverlayGraphics(caretOverlay);
 		
 		og2d.setBackground(new Color(0, 0, 0, 0));
-		og2d.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		caretOverlay.markDirty(0, 0, canvas.getWidth(), canvas.getHeight());
+		og2d.clearRect(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+		caretOverlay.markDirty(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 		
 		// The existing relative Extras don't really work right for 3d.
 		Coordinate pCP = project(cp, gl, glu);
@@ -399,7 +399,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	 * Re-blits the overlay every frame. Only re-renders the overlay
 	 * when needed.
 	 */
-	private void drawExtras(final GL2 gl, final GLU glu) {
+	private void drawExtras(final GLAutoDrawable drawable, final GL2 gl, final GLU glu) {
 		//Only re-render if needed
 		//	redrawExtras: Some external change (new simulation data) means
 		//		the data is out of date.
@@ -411,8 +411,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			final Graphics2D og2d = createOverlayGraphics(extrasOverlay);
 			
 			og2d.setBackground(new Color(0, 0, 0, 0));
-			og2d.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-			extrasOverlay.markDirty(0, 0, canvas.getWidth(), canvas.getHeight());
+			og2d.clearRect(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+			extrasOverlay.markDirty(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 			
 			for (FigureElement e : relativeExtra) {
 				e.paint(og2d, 1);
