@@ -376,25 +376,25 @@ class FinSetHandler extends AbstractElementHandler {
 		List<Coordinate> result = new LinkedList<>();
 		if (newPointList != null && newPointList.length() > 0) {
 			String[] points = newPointList.split("\\Q|\\E");
-			for (int i = 0; i < points.length; i++) {
-				String[] aPoint = points[i].split(",");
+			for (String point : points) {
+				String[] aPoint = point.split(",");
 				try {
-					if (aPoint.length > 1) {
-						Coordinate c = new Coordinate(
-								Double.parseDouble(aPoint[0]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
-								Double.parseDouble(aPoint[1]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-						if (result.size() == 0) {
-							result.add(c);
-							continue;
-						}
-						Coordinate lastCoord = result.get(result.size() - 1);
-						// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
-						if (! ((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
-							result.add(c);
-						}
-					}
-					else {
+					if (aPoint.length <= 1) {
 						warnings.add("Invalid fin point pair.");
+						continue;
+					}
+
+					Coordinate c = new Coordinate(
+							Double.parseDouble(aPoint[0]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+							Double.parseDouble(aPoint[1]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+					if (result.size() == 0) {
+						result.add(c);
+						continue;
+					}
+					Coordinate lastCoord = result.get(result.size() - 1);
+					// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
+					if (!((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
+						result.add(c);
 					}
 				} catch (NumberFormatException nfe) {
 					warnings.add("Fin point not in numeric format.");
@@ -409,8 +409,8 @@ class FinSetHandler extends AbstractElementHandler {
 				}
 			}
 		}
-		final Coordinate[] coords = new Coordinate[result.size()];
-		return result.toArray(coords);
+
+		return result.toArray(new Coordinate[0]);
 	}
 
 
