@@ -437,18 +437,60 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return maximum tab height value
 	 */
 	public double getMaxTabHeight() {
-		// check tab height 
-		if (null != getParent() ){
+		Double radiusFront = getParentFrontRadius();
+		Double radiusTrailing = getParentTrailingRadius();
+		if (radiusFront != null && radiusTrailing != null) {
+			return MathUtil.min(radiusFront, radiusTrailing);
+		}
+		return Double.MAX_VALUE;
+	}
+
+	/**
+	 * Returns the radius of the parent at the front of the fin, or null if no parent is present.
+	 * @param parent the fin's parent component
+	 */
+	public Double getParentFrontRadius(RocketComponent parent) {
+		if (parent instanceof SymmetricComponent) {
 			final Coordinate finFront = this.getFinFront();
 
 			// pulls the parent-body radius at the fin-tab reference point.
 			final double xLead = this.getTabFrontEdge();
-			final double xTrail = this.getTabTrailingEdge();
-			
-			final SymmetricComponent sym = (SymmetricComponent)this.parent;
-			return MathUtil.min(sym.getRadius(finFront.x + xLead), sym.getRadius(finFront.x + xTrail));
+
+			final SymmetricComponent sym = (SymmetricComponent) parent;
+			return sym.getRadius(finFront.x + xLead);
 		}
-		return Double.MAX_VALUE;
+		return null;
+	}
+
+	/**
+	 * Returns the radius of the parent at the front of the fin, or null if no parent is present.
+	 */
+	public Double getParentFrontRadius() {
+		return getParentFrontRadius(getParent());
+	}
+
+	/**
+	 * Returns the radius of the parent at the trailing edge of the fin, or null if no parent is present.
+	 * @param parent the fin's parent component
+	 */
+	public Double getParentTrailingRadius(RocketComponent parent) {
+		if (parent instanceof SymmetricComponent) {
+			final Coordinate finFront = this.getFinFront();
+
+			// pulls the parent-body radius at the fin-tab reference point.
+			final double xTrail = this.getTabTrailingEdge();
+
+			final SymmetricComponent sym = (SymmetricComponent) parent;
+			return sym.getRadius(finFront.x + xTrail);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the radius of the parent at the trailing edge of the fin, or null if no parent is present.
+	 */
+	public Double getParentTrailingRadius() {
+		return getParentTrailingRadius(getParent());
 	}
 	
 	///////////  Calculation methods  //////////
