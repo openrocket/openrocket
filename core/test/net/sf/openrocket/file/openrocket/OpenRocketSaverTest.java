@@ -2,6 +2,8 @@ package net.sf.openrocket.file.openrocket;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -19,6 +21,7 @@ import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
@@ -29,6 +32,10 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
 import net.sf.openrocket.startup.Application;
@@ -126,6 +133,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withStageSeparationConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
         rocketDocs.add(TestRockets.makeTestRocket_v108_withBoosters());
+		rocketDocs.add(TestRockets.makeTestRocket_v108_withDisabledStage());
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
 		
 		StorageOptions options = new StorageOptions();
@@ -137,6 +145,77 @@ public class OpenRocketSaverTest {
 			OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
 			assertNotNull(rocketDocLoaded);
 		}
+	}
+
+	@Test
+	public void testSaveStageActiveness() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v108_withDisabledStage();
+		StorageOptions options = new StorageOptions();
+		options.setSimulationTimeSkip(0.05);
+
+		// Save rockets, load, validate
+		File file = saveRocket(rocketDoc, options);
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+
+		// Check that the stages activeness is saved
+		FlightConfiguration config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		assertFalse(" selected config, stage 0 should have been disabled after saving", config.isStageActive(0));
+		assertTrue(" selected config, stage 1 should have been enabled after saving", config.isStageActive(1));
+		assertTrue(" selected config, stage 2 should have been enabled after saving", config.isStageActive(2));
+
+		// Disable second stage
+		config._setStageActive(1, false, false);
+		file = saveRocket(rocketDocLoaded, options);
+		rocketDocLoaded = loadRocket(file.getPath());
+		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		assertFalse(" selected config, stage 0 should have been disabled after saving", config.isStageActive(0));
+		assertFalse(" selected config, stage 1 should have been disabled after saving", config.isStageActive(1));
+		assertTrue(" selected config, stage 2 should have been enabled after saving", config.isStageActive(2));
+
+		// Re-enable first stage
+		config._setStageActive(0, true, false);
+		file = saveRocket(rocketDocLoaded, options);
+		rocketDocLoaded = loadRocket(file.getPath());
+		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		assertTrue(" selected config, stage 0 should have been enabled after saving", config.isStageActive(0));
+		assertFalse(" selected config, stage 1 should have been disabled after saving", config.isStageActive(1));
+		assertTrue(" selected config, stage 2 should have been enabled after saving", config.isStageActive(2));
+
+		// Check that other configurations are not affected
+		FlightConfiguration extraConfig = rocketDocLoaded.getRocket().createFlightConfiguration(TestRockets.TEST_FCID_0);
+		extraConfig.setAllStages();
+		file = saveRocket(rocketDocLoaded, options);
+		rocketDocLoaded = loadRocket(file.getPath());
+		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		extraConfig = rocketDocLoaded.getRocket().getFlightConfiguration(TestRockets.TEST_FCID_0);
+		assertTrue(" selected config, stage 0 should have been enabled after saving", config.isStageActive(0));
+		assertFalse(" selected config, stage 1 should have been disabled after saving", config.isStageActive(1));
+		assertTrue(" selected config, stage 2 should have been enabled after saving", config.isStageActive(2));
+		assertTrue(" extra config, stage 0 should have been enabled after saving", extraConfig.isStageActive(0));
+		assertTrue(" extra config, stage 1 should have been enabled after saving", extraConfig.isStageActive(1));
+		assertTrue(" extra config, stage 2 should have been enabled after saving", extraConfig.isStageActive(2));
+
+		// Disable a stage in the extra config, and an extra one in the selected config
+		extraConfig._setStageActive(0, false, false);
+		config._setStageActive(2, false, false);
+		file = saveRocket(rocketDocLoaded, options);
+		rocketDocLoaded = loadRocket(file.getPath());
+		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		extraConfig = rocketDocLoaded.getRocket().getFlightConfiguration(TestRockets.TEST_FCID_0);
+		assertTrue(" selected config, stage 0 should have been enabled after saving", config.isStageActive(0));
+		assertFalse(" selected config, stage 1 should have been disabled after saving", config.isStageActive(1));
+		assertFalse(" selected config, stage 2 should have been disabled after saving", config.isStageActive(2));
+		assertFalse(" extra config, stage 0 should have been disabled after saving", extraConfig.isStageActive(0));
+		assertTrue(" extra config, stage 1 should have been enabled after saving", extraConfig.isStageActive(1));
+		assertTrue(" extra config, stage 2 should have been enabled after saving", extraConfig.isStageActive(2));
+
+		// Test an empty rocket with no configurations
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		file = saveRocket(document, options);
+		rocketDocLoaded = loadRocket(file.getPath());
+		rocketDocLoaded.getRocket().getStage(0).addChild(new BodyTube());		// Add a child, otherwise the stage is always marked inactive
+		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
+		assertTrue(" empty rocket, selected config, stage 0 should have been enabled after saving", config.isStageActive(0));
 	}
 	
 	@Test

@@ -20,6 +20,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	private final Rocket rocket;
 	private String name = null;
 	private boolean inNameElement = false;
+	private HashMap<Integer, Boolean> stageActiveness = new HashMap<>();
 	
 	public MotorConfigurationHandler(Rocket rocket, DocumentLoadingContext context) {
 		this.rocket = rocket;
@@ -30,11 +31,13 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		if (inNameElement || !element.equals("name")) {
+		if ((inNameElement && element.equals("name")) || !(element.equals("name") || element.equals("stage"))) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return null;
 		}
-		inNameElement = true;
+		if (element.equals("name")) {
+			inNameElement = true;
+		}
 		
 		return PlainTextHandler.INSTANCE;
 	}
@@ -42,7 +45,13 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-		name = content;
+		if (element.equals("name")) {
+			name = content;
+		} else if (element.equals("stage")) {
+			int stageNr = Integer.parseInt(attributes.get("number"));
+			boolean isActive = Boolean.parseBoolean(attributes.get("active"));
+			stageActiveness.put(stageNr, isActive);
+		}
 	}
 	
 	@Override
@@ -60,7 +69,11 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		if (name != null && name.trim().length() > 0) {
 			rocket.getFlightConfiguration(fcid).setName(name);
 		}
-		
+
+		for (int stageNr : stageActiveness.keySet()) {
+			rocket.getFlightConfiguration(fcid).preloadStageActiveness(stageNr, stageActiveness.get(stageNr));
+		}
+
 		if ("true".equals(attributes.remove("default"))) {
 			rocket.setSelectedConfiguration( fcid);
 		}

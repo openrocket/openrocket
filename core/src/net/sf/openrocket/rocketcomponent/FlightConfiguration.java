@@ -64,6 +64,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected Map<Integer, StageFlags> stages = new HashMap<>();	// Map of stage number to StageFlags of the corresponding stage
 	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	private Map<Integer, Boolean> preloadStageActiveness = null;
 	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	
@@ -274,6 +275,34 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		AxialStage stage = rocket.getStage(stageNumber);
 		return stage != null && stage.getChildCount() > 0 &&
 				stages.get(stageNumber) != null && stages.get(stageNumber).active;
+	}
+
+	/**
+	 * Preload the stage activeness of a certain stage.
+	 * This method is to be used during the import and readout of an OpenRocket design file.
+	 * @param stageNumber stage number to preload the stage activeness for
+	 * @param isActive whether the stage should be active or not
+	 */
+	public void preloadStageActiveness(int stageNumber, boolean isActive) {
+		if (this.preloadStageActiveness == null) {
+			preloadStageActiveness = new HashMap<>();
+		}
+		this.preloadStageActiveness.put(stageNumber, isActive);
+	}
+
+	/**
+	 * Applies preloaded stage activeness.
+	 * This method should be called after the rocket has been loaded from a file.
+	 */
+	public void applyPreloadedStageActiveness() {
+		if (preloadStageActiveness == null) {
+			return;
+		}
+		for (int stageNumber : preloadStageActiveness.keySet()) {
+			_setStageActive(stageNumber, preloadStageActiveness.get(stageNumber), false);
+		}
+		preloadStageActiveness.clear();
+		preloadStageActiveness = null;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
@@ -795,6 +824,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
         // Note the stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
 		clone.setName(configurationName);
+		clone.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
 		
         clone.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
 		clone.cachedBounds = this.cachedBounds.clone();
@@ -824,6 +854,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
             cloneMotor.getMount().setMotorConfig(cloneMotor, copyId);
         }
 
+		copy.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
 		copy.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
         copy.cachedBounds = this.cachedBounds.clone();
         copy.modID = this.modID;

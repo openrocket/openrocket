@@ -16,7 +16,7 @@ public class AxialStageTest extends BaseTestCase {
     public void testDisableStage() {
         final Rocket rocket = TestRockets.makeFalcon9Heavy();
         final FlightConfiguration config = rocket.getSelectedConfiguration();
-        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId());
+        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId()).getFlightConfigurationID();
         final FlightConfiguration config2 = rocket.getFlightConfiguration(fcid);
 
         // Disable the payload stage
@@ -106,7 +106,7 @@ public class AxialStageTest extends BaseTestCase {
     public void testDisableStageAndMove() {
         final Rocket rocket = TestRockets.makeFalcon9Heavy();
         final FlightConfiguration config = rocket.getSelectedConfiguration();
-        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId());
+        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId()).getFlightConfigurationID();
         final FlightConfiguration config2 = rocket.getFlightConfiguration(fcid);
 
         // Disable the payload stage
@@ -173,7 +173,7 @@ public class AxialStageTest extends BaseTestCase {
     public void testDisableStageAndCopy() {
         final Rocket rocket = TestRockets.makeFalcon9Heavy();
         final FlightConfiguration config = rocket.getSelectedConfiguration();
-        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId());
+        final FlightConfigurationId fcid = rocket.createFlightConfiguration(new FlightConfigurationId()).getFlightConfigurationID();
         final FlightConfiguration config2 = rocket.getFlightConfiguration(fcid);
 
         // Disable the core stage

@@ -941,7 +941,7 @@ public class TestRockets {
 		Rocket rocket = new Rocket();
 		rocket.setName("Falcon9H Scale Rocket");
 
-		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9H_FCID_1 ));
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration( new FlightConfigurationId( FALCON_9H_FCID_1 )).getFlightConfigurationID();
         rocket.setSelectedConfiguration(selFCID);
 
 		// ====== Payload Stage ======
@@ -1623,6 +1623,14 @@ public class TestRockets {
 		Rocket rocket = makeFalcon9Heavy();
 		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 			
+		return document;
+	}
+
+	public static OpenRocketDocument makeTestRocket_v108_withDisabledStage() {
+		Rocket rocket = makeFalcon9Heavy();
+		rocket.getSelectedConfiguration()._setStageActive(0, false, false);
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
 		return document;
 	}
 	

@@ -752,23 +752,23 @@ public class Rocket extends ComponentAssembly {
 	 * Return a flight configuration.  If the supplied id does not have a specific instance, the default is returned.  
 	 *
 	 * @param fcid the flight configuration id
-	 * @return	FlightConfiguration instance 
+	 * @return	FlightConfiguration instance
 	 */
-	public FlightConfigurationId createFlightConfiguration( final FlightConfigurationId fcid) {
+	public FlightConfiguration createFlightConfiguration( final FlightConfigurationId fcid) {
 		checkState();
 
         if( null == fcid ){
             // fall-through to the default case:
             // ...creating a FlightConfiguration( null ) just allocates a fresh new FCID
 		}else if( fcid.hasError() ){
-			return configSet.getDefault().getFlightConfigurationID();
+			return configSet.getDefault();
 		}else if( configSet.containsId(fcid)){
-			return fcid;
+			return configSet.get(fcid);
 		}
         FlightConfiguration nextConfig = new FlightConfiguration(this, fcid);
         this.configSet.set(nextConfig.getId(), nextConfig);
         fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
-        return nextConfig.getFlightConfigurationID();
+        return nextConfig;
 	}
 
 	/**

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
@@ -53,15 +55,23 @@ public class RocketSaver extends RocketComponentSaver {
 			if ( rocket.getSelectedConfiguration().equals( flightConfig )){
 				str += " default=\"true\"";
 			}
-			
+
+			// close motorconfiguration opening tag
+			str += ">";
+			elements.add(str);
+
+			// flight configuration name
 			if (flightConfig.isNameOverridden()){
-				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(flightConfig.getNameRaw())
-						+ "</name></motorconfiguration>";
-			} else {
-				str += "/>";
+				elements.add(OpenRocketSaver.INDENT + "<name>" + net.sf.openrocket.util.TextUtil.escapeXML(flightConfig.getNameRaw())
+						+ "</name>");
+			}
+			// stage activeness
+			for (AxialStage stage : rocket.getStageList()) {
+				elements.add(OpenRocketSaver.INDENT + "<stage number=\"" + stage.getStageNumber() + "\"" +
+						" active=\"" + flightConfig.isStageActive(stage.getStageNumber()) + "\"/>");
 			}
 
-			elements.add(str);
+			elements.add("</motorconfiguration>");
 		}
 		
 		// Reference diameter
