@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
@@ -33,7 +34,7 @@ public class PreferencesDialog extends JDialog {
 	private final SwingPreferences preferences = (SwingPreferences) Application
 			.getPreferences();
 
-	private PreferencesDialog(Window parent) {
+	private PreferencesDialog(BasicFrame parent) {
 		// // Preferences
 		super(parent, trans.get("pref.dlg.title.Preferences"),
 				Dialog.ModalityType.APPLICATION_MODAL);
@@ -93,6 +94,11 @@ public class PreferencesDialog extends JDialog {
 			@Override
 			public void windowClosed(WindowEvent e) {
 				preferences.storeDefaultUnits();
+				// Make sure unit change applies to the rocket figure
+				if (parent != null) {
+					parent.getRocketPanel().updateExtras();
+					parent.getRocketPanel().updateFigures();
+				}
 			}
 		});
 
@@ -103,7 +109,7 @@ public class PreferencesDialog extends JDialog {
 
 	private static PreferencesDialog dialog = null;
 
-	public static void showPreferences(Window parent) {
+	public static void showPreferences(BasicFrame parent) {
 		if (dialog != null) {
 			dialog.dispose();
 		}

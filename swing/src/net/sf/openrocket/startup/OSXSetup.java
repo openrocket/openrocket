@@ -67,12 +67,12 @@ final class OSXSetup {
 	/**
 	 * The handler for the About item in the OSX app menu
 	 */
-	private static final AboutHandler ABOUT_HANDLER = a -> new AboutDialog(null).setVisible(true);
+	private static final AboutHandler ABOUT_HANDLER = a -> new AboutDialog(BasicFrame.lastFrameInstance).setVisible(true);
 
 	/**
 	 * The handler for the Preferences item in the OSX app menu
 	 */
-	private static final PreferencesHandler PREFERENCES_HANDLER = p -> PreferencesDialog.showPreferences(null);
+	private static final PreferencesHandler PREFERENCES_HANDLER = p -> PreferencesDialog.showPreferences(BasicFrame.lastFrameInstance);
 
 	/**
 	 * Sets up the Application's Icon, Name, Menu and some menu item handlers
