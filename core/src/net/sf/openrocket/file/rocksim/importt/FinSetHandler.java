@@ -3,12 +3,12 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.openrocket.rocketcomponent.Transition;
 import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -279,7 +279,11 @@ class FinSetHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		//Create the fin set and correct for overrides and actual material densities
-		final FinSet finSet = asOpenRocket(warnings);
+		FinSet finSet = asOpenRocket(warnings);
+
+		if (component instanceof Transition && shapeCode == 0) {
+			finSet = FreeformFinSet.convertFinSet(finSet);
+		}
 
 		finSet.setAppearance(appearanceBuilder.getAppearance());
 
@@ -313,18 +317,18 @@ class FinSetHandler extends AbstractElementHandler {
 		FinSet result;
 
 		if (shapeCode == 0) {
-			//Trapezoidal
+			// Trapezoidal
 			result = new TrapezoidFinSet();
 			((TrapezoidFinSet) result).setFinShape(rootChord, tipChord, sweepDistance, semiSpan, thickness);
 		}
 		else if (shapeCode == 1) {
-			//Elliptical
+			// Elliptical
 			result = new EllipticalFinSet();
 			((EllipticalFinSet) result).setHeight(semiSpan);
 			((EllipticalFinSet) result).setLength(rootChord);
 		}
 		else if (shapeCode == 2) {
-
+			// Freeform
 			result = new FreeformFinSet();
 			((FreeformFinSet) result).setPoints(toCoordinates(pointList, warnings));
 
@@ -335,16 +339,25 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setThickness(thickness);
 		result.setName(name);
 		result.setFinCount(finCount);
-		result.setFinish(finish);
-		//All TTW tabs in Rocksim are relative to the front of the fin.
-		result.setTabOffsetMethod( AxialMethod.TOP);
-		result.setTabHeight(tabDepth);
-		result.setTabLength(tabLength);
-		result.setTabOffset(taboffset);
-		result.setBaseRotation(radialAngle);
-		result.setCrossSection(convertTipShapeCode(tipShapeCode));
 		result.setAxialMethod(axialMethod);
 		result.setAxialOffset(location);
+		result.setBaseRotation(radialAngle);
+		result.setCrossSection(convertTipShapeCode(tipShapeCode));
+		result.setFinish(finish);
+		result.setTabOffsetMethod(AxialMethod.TOP);
+		result.setTabOffset(taboffset);
+		result.setTabLength(tabLength);
+		//All TTW tabs in Rocksim are relative to the front of the fin, so set an offset if the parent's fore radius is larger than the aft radius.
+		Double radiusFront = result.getParentFrontRadius(component);
+		Double radiusTrailing = result.getParentTrailingRadius(component);
+		if (radiusFront == null) {
+			radiusFront = 0d;
+		}
+		if (radiusTrailing == null) {
+			radiusTrailing = 0d;
+		}
+		double tabDepthOffset = Math.max(radiusFront - radiusTrailing, 0);
+		result.setTabHeight(tabDepth - tabDepthOffset);
 
 		return result;
 
@@ -363,25 +376,25 @@ class FinSetHandler extends AbstractElementHandler {
 		List<Coordinate> result = new LinkedList<>();
 		if (newPointList != null && newPointList.length() > 0) {
 			String[] points = newPointList.split("\\Q|\\E");
-			for (int i = 0; i < points.length; i++) {
-				String[] aPoint = points[i].split(",");
+			for (String point : points) {
+				String[] aPoint = point.split(",");
 				try {
-					if (aPoint.length > 1) {
-						Coordinate c = new Coordinate(
-								Double.parseDouble(aPoint[0]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
-								Double.parseDouble(aPoint[1]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-						if (result.size() == 0) {
-							result.add(c);
-							continue;
-						}
-						Coordinate lastCoord = result.get(result.size() - 1);
-						// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
-						if (! ((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
-							result.add(c);
-						}
-					}
-					else {
+					if (aPoint.length <= 1) {
 						warnings.add("Invalid fin point pair.");
+						continue;
+					}
+
+					Coordinate c = new Coordinate(
+							Double.parseDouble(aPoint[0]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+							Double.parseDouble(aPoint[1]) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+					if (result.size() == 0) {
+						result.add(c);
+						continue;
+					}
+					Coordinate lastCoord = result.get(result.size() - 1);
+					// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
+					if (!((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
+						result.add(c);
 					}
 				} catch (NumberFormatException nfe) {
 					warnings.add("Fin point not in numeric format.");
@@ -396,8 +409,8 @@ class FinSetHandler extends AbstractElementHandler {
 				}
 			}
 		}
-		final Coordinate[] coords = new Coordinate[result.size()];
-		return result.toArray(coords);
+
+		return result.toArray(new Coordinate[0]);
 	}
 
 
