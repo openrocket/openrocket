@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,15 +10,15 @@ import javax.xml.bind.annotation.XmlElement;
  * High-level placeholder element for Rocksim.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RocksimDesignDTO {
+public class RockSimDesignDTO {
 
-    @XmlElement(name = RocksimCommonConstants.ROCKET_DESIGN)
+    @XmlElement(name = RockSimCommonConstants.ROCKET_DESIGN)
     private RocketDesignDTO design;
 
     /**
      * Constructor.
      */
-    public RocksimDesignDTO() {
+    public RockSimDesignDTO() {
     }
 
     /**

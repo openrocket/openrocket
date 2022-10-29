@@ -5,7 +5,7 @@ import java.util.Locale;
 import net.sf.openrocket.preset.TypedPropertyMap;
 
 
-public abstract class BaseColumnParser implements RocksimComponentFileColumnParser {
+public abstract class BaseColumnParser implements RockSimComponentFileColumnParser {
 
 	protected String columnHeader;
 	protected boolean isConfigured = false;

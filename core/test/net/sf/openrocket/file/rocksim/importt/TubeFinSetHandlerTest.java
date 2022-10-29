@@ -1,7 +1,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
@@ -45,7 +45,7 @@ public class TubeFinSetHandlerTest {
          handler.closeElement("OD", attributes, "0", warnings);
          Assert.assertEquals(0d, fins.getOuterRadius(), 0.001);
          handler.closeElement("OD", attributes, "75", warnings);
-         Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, fins.getOuterRadius(), 0.001);
+         Assert.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, fins.getOuterRadius(), 0.001);
          handler.closeElement("OD", attributes, "foo", warnings);
          Assert.assertEquals(1, warnings.size());
          warnings.clear();
@@ -55,7 +55,7 @@ public class TubeFinSetHandlerTest {
          handler.closeElement("ID", attributes, "0", warnings);
          Assert.assertEquals(0d, fins.getInnerRadius(), 0.001);
          handler.closeElement("ID", attributes, "75", warnings);
-         Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, fins.getInnerRadius(), 0.001);
+         Assert.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, fins.getInnerRadius(), 0.001);
          handler.closeElement("ID", attributes, "foo", warnings);
          Assert.assertEquals(1, warnings.size());
          warnings.clear();
@@ -63,9 +63,9 @@ public class TubeFinSetHandlerTest {
          handler.closeElement("Len", attributes, "-1", warnings);
          Assert.assertEquals(0d, fins.getLength(), 0.001);
          handler.closeElement("Len", attributes, "10", warnings);
-         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, fins.getLength(), 0.001);
+         Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, fins.getLength(), 0.001);
          handler.closeElement("Len", attributes, "10.0", warnings);
-         Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, fins.getLength(), 0.001);
+         Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, fins.getLength(), 0.001);
          handler.closeElement("Len", attributes, "foo", warnings);
          Assert.assertEquals(1, warnings.size());
          warnings.clear();

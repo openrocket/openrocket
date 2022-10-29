@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -61,16 +61,16 @@ class StreamerHandler extends RecoveryDeviceHandler<Streamer> {
 		super.closeElement(element, attributes, content, warnings);
 		
 		try {
-			if (RocksimCommonConstants.WIDTH.equals(element)) {
-				streamer.setStripWidth(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
+			if (RockSimCommonConstants.WIDTH.equals(element)) {
+				streamer.setStripWidth(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
-			if (RocksimCommonConstants.LEN.equals(element)) {
-				streamer.setStripLength(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
+			if (RockSimCommonConstants.LEN.equals(element)) {
+				streamer.setStripLength(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
-			if (RocksimCommonConstants.DRAG_COEFFICIENT.equals(element)) {
+			if (RockSimCommonConstants.DRAG_COEFFICIENT.equals(element)) {
 				streamer.setCD(Double.parseDouble(content));
 			}
-			if (RocksimCommonConstants.MATERIAL.equals(element)) {
+			if (RockSimCommonConstants.MATERIAL.equals(element)) {
 				setMaterialName(content);
 			}
 		} catch (NumberFormatException nfe) {

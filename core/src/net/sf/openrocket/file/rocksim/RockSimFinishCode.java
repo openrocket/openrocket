@@ -1,5 +1,5 @@
 /*
- * RocksimFinishCode.java
+ * RockSimFinishCode.java
  */
 package net.sf.openrocket.file.rocksim;
 
@@ -8,13 +8,13 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent;
 /**
  * Models the finish of a component.
  */
-public enum RocksimFinishCode {
+public enum RockSimFinishCode {
     POLISHED(0, ExternalComponent.Finish.POLISHED),
     GLOSS(1, ExternalComponent.Finish.SMOOTH),
     MATT(2, ExternalComponent.Finish.NORMAL),
     UNFINISHED(3, ExternalComponent.Finish.UNFINISHED);
 
-    /** The Rocksim code (from XML). */
+    /** The RockSim code (from XML). */
     private final int ordinal;
     
     /** The corresponding OpenRocket finish. */
@@ -23,10 +23,10 @@ public enum RocksimFinishCode {
     /**
      * Constructor.
      * 
-     * @param idx   the Rocksim enum value
+     * @param idx   the RockSim enum value
      * @param theFinish  the OpenRocket finish
      */
-    private RocksimFinishCode(int idx, ExternalComponent.Finish theFinish) {
+    private RockSimFinishCode(int idx, ExternalComponent.Finish theFinish) {
         ordinal = idx;
         finish = theFinish;
     }
@@ -41,15 +41,15 @@ public enum RocksimFinishCode {
     }
 
     /**
-     * Lookup an instance of this enum from a Rocksim value.
+     * Lookup an instance of this enum from a RockSim value.
      * 
-     * @param rocksimFinishCode  the Rocksim value
+     * @param rocksimFinishCode  the RockSim value
      * 
      * @return an instance of this enum; Defaults to MATT
      */
-    public static RocksimFinishCode fromCode(int rocksimFinishCode) {
-        RocksimFinishCode[] values = values();
-        for (RocksimFinishCode value : values) {
+    public static RockSimFinishCode fromCode(int rocksimFinishCode) {
+        RockSimFinishCode[] values = values();
+        for (RockSimFinishCode value : values) {
             if (value.ordinal == rocksimFinishCode) {
                 return value;
             }
@@ -62,7 +62,7 @@ public enum RocksimFinishCode {
      *
      * @param type  the OR type
      *
-     * @return  the Rocksim XML value
+     * @return  the RockSim XML value
      */
     public static int toCode(ExternalComponent.Finish type) {
         if (type.equals(ExternalComponent.Finish.UNFINISHED)) {

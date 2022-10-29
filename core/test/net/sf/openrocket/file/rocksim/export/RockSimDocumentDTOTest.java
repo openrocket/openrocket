@@ -8,20 +8,20 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
-import net.sf.openrocket.file.rocksim.importt.RocksimLoaderTest;
-import net.sf.openrocket.file.rocksim.importt.RocksimTestBase;
+import net.sf.openrocket.file.rocksim.importt.RockSimLoader;
+import net.sf.openrocket.file.rocksim.importt.RockSimLoaderTest;
+import net.sf.openrocket.file.rocksim.importt.RockSimTestBase;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  */
-public class RocksimDocumentDTOTest extends RocksimTestBase {
+public class RockSimDocumentDTOTest extends RockSimTestBase {
 	
 	@Test
 	public void testDTO() throws Exception {
-		JAXBContext binder = JAXBContext.newInstance(RocksimDocumentDTO.class);
+		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
 		Marshaller marshaller = binder.createMarshaller();
 		marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 		
@@ -36,9 +36,9 @@ public class RocksimDocumentDTOTest extends RocksimTestBase {
 		design2.setName("Test");
 		design2.setStage3(stage1);
 		
-		RocksimDesignDTO design = new RocksimDesignDTO();
+		RockSimDesignDTO design = new RockSimDesignDTO();
 		design.setDesign(design2);
-		RocksimDocumentDTO message = new RocksimDocumentDTO();
+		RockSimDocumentDTO message = new RockSimDocumentDTO();
 		message.setDesign(design);
 		
 		StringWriter stringWriter = new StringWriter();
@@ -53,10 +53,10 @@ public class RocksimDocumentDTOTest extends RocksimTestBase {
 	@Test
 	public void testRoundTrip() throws Exception {
 		// TODO need checks here to validate that correct things were done
-		OpenRocketDocument ord = RocksimLoaderTest.loadRocksimRocket3(new RocksimLoader());
+		OpenRocketDocument ord = RockSimLoaderTest.loadRockSimRocket3(new RockSimLoader());
 		
 		Assert.assertNotNull(ord);
-		String result = new RocksimSaver().marshalToRocksim(ord);
+		String result = new RockSimSaver().marshalToRockSim(ord);
 		
 		//  System.err.println(result);
 		

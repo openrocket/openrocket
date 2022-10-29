@@ -18,7 +18,7 @@ public class StreamerLoader extends BaseComponentLoader {
         //The base component loader adds a bulk material loader, which is incompatible with the surface loader
         //for a streamer.  Remove the file column parser here so we can set your own in the code that follows.
         for (int i = 0; i < fileColumns.size(); i++) {
-            RocksimComponentFileColumnParser rocksimComponentFileColumnParser = fileColumns.get(i);
+            RockSimComponentFileColumnParser rocksimComponentFileColumnParser = fileColumns.get(i);
             if (rocksimComponentFileColumnParser instanceof MaterialColumnParser) {
                 fileColumns.remove(rocksimComponentFileColumnParser);
             }
@@ -38,8 +38,8 @@ public class StreamerLoader extends BaseComponentLoader {
 
 
 	@Override
-	protected RocksimComponentFileType getFileType() {
-		return RocksimComponentFileType.STREAMER;
+	protected RockSimComponentFileType getFileType() {
+		return RockSimComponentFileType.STREAMER;
 	}
 
 

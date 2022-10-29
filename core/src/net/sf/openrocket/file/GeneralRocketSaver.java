@@ -19,7 +19,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.file.rocksim.export.RocksimSaver;
+import net.sf.openrocket.file.rocksim.export.RockSimSaver;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.DecalNotFoundException;
@@ -143,7 +143,7 @@ public class GeneralRocketSaver {
 	 */
 	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
 		if (options.getFileType() == StorageOptions.FileType.ROCKSIM) {
-			return new RocksimSaver().estimateFileSize(doc, options);
+			return new RockSimSaver().estimateFileSize(doc, options);
 		} else {
 			return new OpenRocketSaver().estimateFileSize(doc, options);
 		}
@@ -233,7 +233,7 @@ public class GeneralRocketSaver {
 			throws IOException {
 		
 		if (options.getFileType() == StorageOptions.FileType.ROCKSIM) {
-			new RocksimSaver().save(output, document, options);
+			new RockSimSaver().save(output, document, options);
 		} else {
 			new OpenRocketSaver().save(output, document, options);
 		}

@@ -3,7 +3,7 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -30,11 +30,11 @@ public class SubAssemblyHandler extends AttachedPartsHandler {
         // the AttachedPartsHandler assumes that all body tubes are inner body tubes (Rocksim makes no distinction).  OR does not allow things
         // like fins to be attached to inner body tubes - which is often what these Rocksim subassemblies contain.  So just return this instance
         // which treats body tubes as external body tubes.
-        if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
+        if (RockSimCommonConstants.ATTACHED_PARTS.equals(element)) {
             return this;
         }
         // The key override of this class - treat body tubes as external body tubes.
-        else if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
+        else if (RockSimCommonConstants.BODY_TUBE.equals(element)) {
             return new BodyTubeHandler(getContext(), getComponent(), warnings);
         }
         return super.openElement(element, attributes, warnings);

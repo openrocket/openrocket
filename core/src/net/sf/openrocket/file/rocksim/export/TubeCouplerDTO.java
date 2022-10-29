@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Conversion DTO for a TubeCoupler.  TubeCoupler's are represented as Rings in Rocksim.
  */
-@XmlRootElement(name = RocksimCommonConstants.RING)
+@XmlRootElement(name = RockSimCommonConstants.RING)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TubeCouplerDTO extends CenteringRingDTO {
 

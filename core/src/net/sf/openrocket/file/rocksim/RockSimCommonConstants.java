@@ -2,7 +2,7 @@ package net.sf.openrocket.file.rocksim;
 
 /**
  */
-public class RocksimCommonConstants {
+public class RockSimCommonConstants {
 
     public static final String SHAPE_CODE = "ShapeCode";
     public static final String CONSTRUCTION_TYPE = "ConstructionType";
@@ -88,27 +88,27 @@ public class RocksimCommonConstants {
     public static final String MAX_TUBES_ALLOWED = "MaxTubesAllowed";
 
     /**
-     * Length conversion.  Rocksim is in millimeters, OpenRocket in meters.
+     * Length conversion.  RockSim is in millimeters, OpenRocket in meters.
      */
     public static final int ROCKSIM_TO_OPENROCKET_LENGTH = 1000;
     /**
-     * Mass conversion.  Rocksim is in grams, OpenRocket in kilograms.
+     * Mass conversion.  RockSim is in grams, OpenRocket in kilograms.
      */
     public static final int ROCKSIM_TO_OPENROCKET_MASS = 1000;
     /**
-     * Bulk Density conversion.  Rocksim is in kilograms/cubic meter, OpenRocket in kilograms/cubic meter.
+     * Bulk Density conversion.  RockSim is in kilograms/cubic meter, OpenRocket in kilograms/cubic meter.
      */
     public static final int ROCKSIM_TO_OPENROCKET_BULK_DENSITY = 1;
     /**
-     * Surface Density conversion.  Rocksim is in grams/sq centimeter, OpenRocket in kilograms/sq meter.  1000/(100*100) = 1/10
+     * Surface Density conversion.  RockSim is in grams/sq centimeter, OpenRocket in kilograms/sq meter.  1000/(100*100) = 1/10
      */
     public static final double ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY = 1/10d;
     /**
-     * Line Density conversion.  Rocksim is in kilograms/meter, OpenRocket in kilograms/meter.
+     * Line Density conversion.  RockSim is in kilograms/meter, OpenRocket in kilograms/meter.
      */
     public static final int ROCKSIM_TO_OPENROCKET_LINE_DENSITY = 1;
     /**
-     * Radius conversion.  Rocksim is always in diameters, OpenRocket mostly in radius.
+     * Radius conversion.  RockSim is always in diameters, OpenRocket mostly in radius.
      */
     public static final int ROCKSIM_TO_OPENROCKET_RADIUS = 2 * ROCKSIM_TO_OPENROCKET_LENGTH;
 }

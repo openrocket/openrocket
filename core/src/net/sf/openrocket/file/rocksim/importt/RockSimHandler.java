@@ -1,5 +1,5 @@
 /*
- * RocksimHandler.java
+ * RockSimHandler.java
  *
  */
 package net.sf.openrocket.file.rocksim.importt;
@@ -10,7 +10,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -27,16 +27,16 @@ import org.xml.sax.SAXException;
  * <p/>
  * Limitations: Rocksim flight simulations are not imported; tube fins are not supported; Rocksim 'pods' are not supported.
  */
-public class RocksimHandler extends AbstractElementHandler {
+public class RockSimHandler extends AbstractElementHandler {
 	
 	/**
 	 * The main content handler.
 	 */
-	private RocksimContentHandler handler = null;
+	private RockSimContentHandler handler = null;
 	
 	private final DocumentLoadingContext context;
 	
-	public RocksimHandler(DocumentLoadingContext context) {
+	public RockSimHandler(DocumentLoadingContext context) {
 		super();
 		this.context = context;
 	}
@@ -68,7 +68,7 @@ public class RocksimHandler extends AbstractElementHandler {
 			return null;
 		}
 		
-		handler = new RocksimContentHandler(context);
+		handler = new RockSimContentHandler(context);
 		return handler;
 	}
 	
@@ -77,7 +77,7 @@ public class RocksimHandler extends AbstractElementHandler {
 /**
  * Handles the content of the <DesignInformation> tag.
  */
-class RocksimContentHandler extends AbstractElementHandler {
+class RockSimContentHandler extends AbstractElementHandler {
 	/**
 	 * The DocumentLoadingContext
 	 */
@@ -93,7 +93,7 @@ class RocksimContentHandler extends AbstractElementHandler {
 	 */
 	private String version;
 	
-	public RocksimContentHandler(DocumentLoadingContext context) {
+	public RockSimContentHandler(DocumentLoadingContext context) {
 		super();
 		this.context = context;
 		this.rocket = context.getOpenRocketDocument().getRocket();
@@ -111,15 +111,15 @@ class RocksimContentHandler extends AbstractElementHandler {
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-		if (RocksimCommonConstants.DESIGN_INFORMATION.equals(element)) {
+		if (RockSimCommonConstants.DESIGN_INFORMATION.equals(element)) {
 			//The next sub-element is "RocketDesign", which is really the only thing that matters.  Rather than
 			//create another handler just for that element, handle it here.
 			return this;
 		}
-		if (RocksimCommonConstants.FILE_VERSION.equals(element)) {
+		if (RockSimCommonConstants.FILE_VERSION.equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
-		if (RocksimCommonConstants.ROCKET_DESIGN.equals(element)) {
+		if (RockSimCommonConstants.ROCKET_DESIGN.equals(element)) {
 			return new RocketDesignHandler(context, rocket);
 		}
 		return null;
@@ -132,7 +132,7 @@ class RocksimContentHandler extends AbstractElementHandler {
 		 * SAX handler for Rocksim file version number.  The value is not used currently, but could be used in the future
 		 * for backward/forward compatibility reasons (different lower level handlers could be called via a strategy pattern).
 		 */
-		if (RocksimCommonConstants.FILE_VERSION.equals(element)) {
+		if (RockSimCommonConstants.FILE_VERSION.equals(element)) {
 			version = content;
 		}
 	}
@@ -253,7 +253,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 				return new StageHandler(context, stage);
 			}
 		}
-		if (RocksimCommonConstants.NAME.equals(element)) {
+		if (RockSimCommonConstants.NAME.equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
 		if ("StageCount".equals(element)) {
@@ -284,29 +284,29 @@ class RocketDesignHandler extends AbstractElementHandler {
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		try {
-			if (RocksimCommonConstants.NAME.equals(element)) {
+			if (RockSimCommonConstants.NAME.equals(element)) {
 				component.setName(content);
 			}
 			if ("StageCount".equals(element)) {
 				stageCount = Integer.parseInt(content);
 			}
 			if ("Stage3Mass".equals(element)) {
-				stage3Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
+				stage3Mass = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
 			}
 			if ("Stage2Mass".equals(element)) {
-				stage2Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
+				stage2Mass = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
 			}
 			if ("Stage1Mass".equals(element)) {
-				stage1Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
+				stage1Mass = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
 			}
 			if ("Stage3CG".equals(element)) {
-				stage3CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				stage3CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 			if ("Stage2CGAlone".equals(element)) {
-				stage2CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				stage2CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 			if ("Stage1CGAlone".equals(element)) {
-				stage1CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				stage1CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
@@ -341,13 +341,13 @@ class StageHandler extends AbstractElementHandler {
 	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
-		if (RocksimCommonConstants.NOSE_CONE.equals(element)) {
+		if (RockSimCommonConstants.NOSE_CONE.equals(element)) {
 			return new NoseConeHandler(context, component, warnings);
 		}
-		if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
+		if (RockSimCommonConstants.BODY_TUBE.equals(element)) {
 			return new BodyTubeHandler(context, component, warnings);
 		}
-		if (RocksimCommonConstants.TRANSITION.equals(element)) {
+		if (RockSimCommonConstants.TRANSITION.equals(element)) {
 			return new TransitionHandler(context, component, warnings);
 		}
 		return null;

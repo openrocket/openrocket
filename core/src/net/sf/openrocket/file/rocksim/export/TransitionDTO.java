@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.Transition;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,22 +11,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * This class models a transition XML element in Rocksim file format.
  */
-@XmlRootElement(name = RocksimCommonConstants.TRANSITION)
+@XmlRootElement(name = RockSimCommonConstants.TRANSITION)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TransitionDTO extends AbstractTransitionDTO {
 
 
-    @XmlElement(name = RocksimCommonConstants.FRONT_SHOULDER_LEN)
+    @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_LEN)
     private double frontShoulderLen = 0d;
-    @XmlElement(name = RocksimCommonConstants.REAR_SHOULDER_LEN)
+    @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_LEN)
     private double rearShoulderLen = 0d;
-    @XmlElement(name = RocksimCommonConstants.FRONT_SHOULDER_DIA)
+    @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_DIA)
     private double frontShoulderDia = 0d;
-    @XmlElement(name = RocksimCommonConstants.REAR_SHOULDER_DIA)
+    @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_DIA)
     private double rearShoulderDia = 0d;
-    @XmlElement(name = RocksimCommonConstants.FRONT_DIA)
+    @XmlElement(name = RockSimCommonConstants.FRONT_DIA)
     private double frontDia = 0d;
-    @XmlElement(name = RocksimCommonConstants.REAR_DIA)
+    @XmlElement(name = RockSimCommonConstants.REAR_DIA)
     private double rearDia = 0d;
 
     /**
@@ -43,12 +43,12 @@ public class TransitionDTO extends AbstractTransitionDTO {
      */
     public TransitionDTO(Transition theORTransition) {
         super(theORTransition);
-        setFrontDia(theORTransition.getForeRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRearDia(theORTransition.getAftRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setFrontShoulderDia(theORTransition.getForeShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setFrontShoulderLen(theORTransition.getForeShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setRearShoulderDia(theORTransition.getAftShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRearShoulderLen(theORTransition.getAftShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setFrontDia(theORTransition.getForeRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setRearDia(theORTransition.getAftRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setFrontShoulderDia(theORTransition.getForeShoulderRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setFrontShoulderLen(theORTransition.getForeShoulderLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setRearShoulderDia(theORTransition.getAftShoulderRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setRearShoulderLen(theORTransition.getAftShoulderLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
 
     }

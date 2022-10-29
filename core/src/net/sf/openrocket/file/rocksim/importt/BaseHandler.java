@@ -10,8 +10,8 @@ import java.util.HashMap;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimDensityType;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimDensityType;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -46,7 +46,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	/**
 	 * The internal Rocksim density type.
 	 */
-	private RocksimDensityType densityType = RocksimDensityType.ROCKSIM_BULK;
+	private RockSimDensityType densityType = RockSimDensityType.ROCKSIM_BULK;
 	
 	/**
 	 * The material name.
@@ -77,24 +77,24 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 			throws SAXException {
 		final C component = getComponent();
 		try {
-			if (RocksimCommonConstants.NAME.equals(element)) {
+			if (RockSimCommonConstants.NAME.equals(element)) {
 				component.setName(content);
 			}
-			if (RocksimCommonConstants.KNOWN_MASS.equals(element)) {
-				mass = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+			if (RockSimCommonConstants.KNOWN_MASS.equals(element)) {
+				mass = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
-			if (RocksimCommonConstants.DENSITY.equals(element)) {
+			if (RockSimCommonConstants.DENSITY.equals(element)) {
 				density = Math.max(0d, Double.parseDouble(content));
 			}
-			if (RocksimCommonConstants.KNOWN_CG.equals(element)) {
-				cg = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
+				cg = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
-			if (RocksimCommonConstants.USE_KNOWN_CG.equals(element)) { //Rocksim sets UseKnownCG to true to control the override of both cg and mass
+			if (RockSimCommonConstants.USE_KNOWN_CG.equals(element)) { //Rocksim sets UseKnownCG to true to control the override of both cg and mass
 				boolean override = "1".equals(content);
 				setOverride(component, override, mass, cg);
 			}
-			if (RocksimCommonConstants.DENSITY_TYPE.equals(element)) {
-				densityType = RocksimDensityType.fromCode(Integer.parseInt(content));
+			if (RockSimCommonConstants.DENSITY_TYPE.equals(element)) {
+				densityType = RockSimDensityType.fromCode(Integer.parseInt(content));
 			}
 			
 			appearanceBuilder.processElement(element, content, warnings);
@@ -141,7 +141,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 *
 	 * @return a value in OpenRocket SURFACE density units
 	 */
-	protected double computeDensity(RocksimDensityType type, double rawDensity) {
+	protected double computeDensity(RockSimDensityType type, double rawDensity) {
 		return rawDensity / type.asOpenRocket();
 	}
 	
@@ -219,7 +219,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 *
 	 * @return a Rocksim density type
 	 */
-	protected RocksimDensityType getDensityType() {
+	protected RockSimDensityType getDensityType() {
 		return densityType;
 	}
 	

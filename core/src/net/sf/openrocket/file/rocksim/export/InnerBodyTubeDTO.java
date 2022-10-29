@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -23,7 +23,7 @@ import net.sf.openrocket.util.Coordinate;
 /**
  * This class models the XML element for a Rocksim inside tube.
  */
-@XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
+@XmlRootElement(name = RockSimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	
@@ -45,14 +45,14 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	 */
 	public InnerBodyTubeDTO(InnerTube bt, AttachableParts parent) {
 		super(bt);
-		setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-		setID(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-		setOD(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-		setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+		setEngineOverhang(bt.getMotorOverhang() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+		setID(bt.getInnerRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+		setOD(bt.getOuterRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+		setMotorDia((bt.getMotorMountDiameter() / 2) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 		setMotorMount(bt.isMotorMount());
 		setInsideTube(true);
 		setRadialAngle(bt.getRadialDirection());
-		setRadialLoc(bt.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+		setRadialLoc(bt.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 		
 		List<RocketComponent> children = bt.getChildren();
 		for (int i = 0; i < children.size(); i++) {

@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 
@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
- * Centering ring conversion from OR to Rocksim.
+ * Centering ring conversion from OR to RockSim.
  */
-@XmlRootElement(name = RocksimCommonConstants.RING)
+@XmlRootElement(name = RockSimCommonConstants.RING)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CenteringRingDTO extends BasePartDTO {
 
@@ -33,13 +33,13 @@ public class CenteringRingDTO extends BasePartDTO {
         }
     }
 
-    @XmlElement(name = RocksimCommonConstants.OD)
+    @XmlElement(name = RockSimCommonConstants.OD)
     private double od = 0d;
-    @XmlElement(name = RocksimCommonConstants.ID)
+    @XmlElement(name = RockSimCommonConstants.ID)
     private double id = 0d;
-    @XmlElement(name = RocksimCommonConstants.USAGE_CODE)
+    @XmlElement(name = RockSimCommonConstants.USAGE_CODE)
     private int usageCode = UsageCode.CenteringRing.ordinal;
-    @XmlElement(name = RocksimCommonConstants.AUTO_SIZE)
+    @XmlElement(name = RockSimCommonConstants.AUTO_SIZE)
     private int autoSize = 0;
 
     /**
@@ -55,8 +55,8 @@ public class CenteringRingDTO extends BasePartDTO {
      */
     public CenteringRingDTO(RadiusRingComponent theORRadiusRing) {
         super(theORRadiusRing);
-        setId(theORRadiusRing.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(theORRadiusRing.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(theORRadiusRing.getInnerRadius()* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORRadiusRing.getOuterRadius()* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
 
     /**
@@ -66,8 +66,8 @@ public class CenteringRingDTO extends BasePartDTO {
      */
     public CenteringRingDTO(ThicknessRingComponent theORThicknessRing) {
         super(theORThicknessRing);
-        setId(theORThicknessRing.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(theORThicknessRing.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(theORThicknessRing.getInnerRadius()* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORThicknessRing.getOuterRadius()* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
 
     public double getOd() {

@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,28 +10,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * The top level Rocksim document.
  */
-@XmlRootElement(name = RocksimCommonConstants.ROCK_SIM_DOCUMENT)
+@XmlRootElement(name = RockSimCommonConstants.ROCK_SIM_DOCUMENT)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RocksimDocumentDTO {
+public class RockSimDocumentDTO {
 
-    @XmlElement(name = RocksimCommonConstants.FILE_VERSION)
+    @XmlElement(name = RockSimCommonConstants.FILE_VERSION)
     private final String version = "4";
 
-    @XmlElement(name = RocksimCommonConstants.DESIGN_INFORMATION)
-    private RocksimDesignDTO design;
+    @XmlElement(name = RockSimCommonConstants.DESIGN_INFORMATION)
+    private RockSimDesignDTO design;
 
     /**
      * Constructor.
      */
-    public RocksimDocumentDTO() {
+    public RockSimDocumentDTO() {
     }
 
     /**
      * Get the subordinate design DTO.
      *
-     * @return  the RocksimDesignDTO
+     * @return  the RockSimDesignDTO
      */
-    public RocksimDesignDTO getDesign() {
+    public RockSimDesignDTO getDesign() {
         return design;
     }
 
@@ -40,7 +40,7 @@ public class RocksimDocumentDTO {
      *
      * @param theDesign
      */
-    public void setDesign(RocksimDesignDTO theDesign) {
+    public void setDesign(RockSimDesignDTO theDesign) {
         this.design = theDesign;
     }
 

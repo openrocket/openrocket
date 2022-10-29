@@ -24,8 +24,8 @@ public class NoseConeLoader extends BaseComponentLoader {
 	}
 
 	@Override
-	protected RocksimComponentFileType getFileType() {
-		return RocksimComponentFileType.NOSE_CONE;
+	protected RockSimComponentFileType getFileType() {
+		return RockSimComponentFileType.NOSE_CONE;
 	}
 
 	@Override

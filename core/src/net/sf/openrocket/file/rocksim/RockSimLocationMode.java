@@ -1,19 +1,19 @@
 /*
- * RocksimLocationMode.java
+ * RockSimLocationMode.java
  */
 package net.sf.openrocket.file.rocksim;
 
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
- * Models the relative position of parts on a rocket.  Maps from Rocksim's notion to OpenRocket's.
+ * Models the relative position of parts on a rocket.  Maps from RockSim's notion to OpenRocket's.
  */
-public enum RocksimLocationMode {
+public enum RockSimLocationMode {
     FRONT_OF_OWNING_PART (0, AxialMethod.TOP),
     FROM_TIP_OF_NOSE     (1, AxialMethod.ABSOLUTE),
     BACK_OF_OWNING_PART  (2, AxialMethod.BOTTOM);
 
-    /** The value Rocksim uses internally (and in the XML file). */
+    /** The value RockSim uses internally (and in the XML file). */
     private final int ordinal;
     
     /** The OpenRocket position equivalent. */
@@ -25,7 +25,7 @@ public enum RocksimLocationMode {
      * @param idx   the rocksim enum value
      * @param theOpenRocketPosition  the corresponding OpenRocket position
      */
-    RocksimLocationMode(int idx, AxialMethod theOpenRocketPosition) {
+    RockSimLocationMode(int idx, AxialMethod theOpenRocketPosition) {
         ordinal = idx;
         position = theOpenRocketPosition;
     }
@@ -46,9 +46,9 @@ public enum RocksimLocationMode {
      * 
      * @return an instance of this enum
      */
-    public static RocksimLocationMode fromCode(int rocksimCode) {
-        RocksimLocationMode[] values = values();
-        for (RocksimLocationMode value : values) {
+    public static RockSimLocationMode fromCode(int rocksimCode) {
+        RockSimLocationMode[] values = values();
+        for (RockSimLocationMode value : values) {
             if (value.ordinal == rocksimCode) {
                 return value;
             }

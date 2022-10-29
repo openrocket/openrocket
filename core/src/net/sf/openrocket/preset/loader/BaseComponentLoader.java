@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseComponentLoader extends RocksimComponentFileLoader {
+public abstract class BaseComponentLoader extends RockSimComponentFileLoader {
 
 	List<ComponentPreset> presets;
 

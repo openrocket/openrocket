@@ -4,7 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -19,7 +19,7 @@ import java.util.HashMap;
  * BodyTubeHandler Tester.
  *
  */
-public class BodyTubeHandlerTest extends RocksimTestBase {
+public class BodyTubeHandlerTest extends RockSimTestBase {
 
     /**
      * Method: constructor
@@ -73,7 +73,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
         handler.closeElement("OD", attributes, "0", warnings);
         Assert.assertEquals(0d, component.getInnerRadius(), 0.001);
         handler.closeElement("OD", attributes, "75", warnings);
-        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
+        Assert.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
         handler.closeElement("OD", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -83,7 +83,7 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
         handler.closeElement("ID", attributes, "0", warnings);
         Assert.assertEquals(0d, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "75", warnings);
-        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
+        Assert.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -91,9 +91,9 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
         handler.closeElement("Len", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -106,11 +106,11 @@ public class BodyTubeHandlerTest extends RocksimTestBase {
         Assert.assertFalse(component.isMotorMount());
 
         handler.closeElement("EngineOverhang", attributes, "-1", warnings);
-        Assert.assertEquals(-1d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
+        Assert.assertEquals(-1d/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
         handler.closeElement("EngineOverhang", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
         handler.closeElement("EngineOverhang", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getMotorOverhang(), 0.001);
         handler.closeElement("EngineOverhang", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();

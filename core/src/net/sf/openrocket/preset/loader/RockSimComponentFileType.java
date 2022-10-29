@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Definition of the typical Rocksim component files and their formats.
  */
-public enum RocksimComponentFileType {
+public enum RockSimComponentFileType {
     BODY_TUBE("BTDATA.CSV", "Mfg.", "Part No.", "Desc.", "Units", "ID", "OD", "Length", "Material", "Engine"),
     BULKHEAD("BHDATA.CSV", "Mfg.", "Part No.", "Desc.", "Units", "ID", "OD", "Length", "Material", "Engine", "Engine",
             "Engine", "Engine", "Engine", "Engine", "Engine", "Engine", "Engine", "Engine", "Engine"),
@@ -44,7 +44,7 @@ public enum RocksimComponentFileType {
      * @param theDefaultFileName  the default filename
      * @param theColumns the array of column names in the file
      */
-    private RocksimComponentFileType(final String theDefaultFileName, String... theColumns) {
+    private RockSimComponentFileType(final String theDefaultFileName, String... theColumns) {
         defaultFileName = theDefaultFileName;
         columns = theColumns;
     }
@@ -64,10 +64,10 @@ public enum RocksimComponentFileType {
      * @param headers an array of column names
      * @return the data type of the file, or null if unable to match the header names
      */
-    public static RocksimComponentFileType determineType(String[] headers) {
-        RocksimComponentFileType[] types = values();
+    public static RockSimComponentFileType determineType(String[] headers) {
+        RockSimComponentFileType[] types = values();
         for (int i = 0; i < types.length; i++) {
-            RocksimComponentFileType type = types[i];
+            RockSimComponentFileType type = types[i];
             if (Arrays.equals(headers, type.columns)) {
                 return type;
             }

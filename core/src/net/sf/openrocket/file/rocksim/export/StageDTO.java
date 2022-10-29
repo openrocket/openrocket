@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -21,9 +21,9 @@ import java.util.List;
 public class StageDTO {
 
     @XmlElementRefs({
-            @XmlElementRef(name = RocksimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RocksimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
-            @XmlElementRef(name = RocksimCommonConstants.TRANSITION, type = TransitionDTO.class)
+            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
+            @XmlElementRef(name = RockSimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
+            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class)
     })
     private final List<BasePartDTO> externalPart = new ArrayList<BasePartDTO>();
 
@@ -44,31 +44,31 @@ public class StageDTO {
 
         if (stageNumber == 3) {
             if (theORStage.isMassOverridden()) {
-                design.setStage3Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+                design.setStage3Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
             if (theORStage.isCGOverridden()) {
-                design.setStage3CG(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+                design.setStage3CG(theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
         
         if (stageNumber == 2) {
             if (theORStage.isMassOverridden()) {
-                design.setStage2Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+                design.setStage2Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
             if (theORStage.isCGOverridden()) {
-                design.setStage2CGAlone(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+                design.setStage2CGAlone(theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
 
         if (stageNumber == 1) {
             if (theORStage.isMassOverridden()) {
-                design.setStage1Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+                design.setStage1Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
             if (theORStage.isCGOverridden()) {
-                design.setStage1CGAlone(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+                design.setStage1CGAlone(theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
 

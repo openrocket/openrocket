@@ -363,7 +363,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 					file = file.getParentFile();
 				}
 				presets = new ArrayList<ComponentPreset>();
-				MaterialHolder materialHolder = RocksimComponentFileTranslator.loadAll(presets, file);
+				MaterialHolder materialHolder = RockSimComponentFileTranslator.loadAll(presets, file);
 				editContext.setMaterialsLoaded(materialHolder);
 			}
 			if (presets != null) {

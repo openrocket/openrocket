@@ -140,7 +140,7 @@
 		<attribute name="vendor"/>
 		<sequential>
 			<echo>Generating ORC file for vendor @{vendor}</echo>
-			<java classname="net.sf.openrocket.utils.RocksimComponentFileTranslator"
+			<java classname="net.sf.openrocket.utils.RockSimComponentFileTranslator"
 				fork="true"
 				classpathref="run-classpath"
 				failonerror="true">

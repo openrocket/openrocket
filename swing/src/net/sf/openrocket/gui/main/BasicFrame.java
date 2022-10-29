@@ -62,7 +62,6 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -406,7 +405,7 @@ public class BasicFrame extends JFrame {
 		JMenu exportSubMenu = new JMenu();
 		JMenuItem exportMenu = new JMenuItem(),
 				RASAero= new JMenuItem("RASAero (Unavailable)"),
-				Rocksim = new JMenuItem("Rocksim"),
+				RockSim = new JMenuItem("RockSim"),
 				Print3D = new JMenuItem("Exterior airframe");
 
 		//	//	CREATE File > "Export as" menu line with icon, and "Export as" submenu
@@ -426,14 +425,14 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				exportRASAeroAction();}});
 */
-		//	//	ADD Rocksim to "Export as" exportSubMenu options
-		exportSubMenu.add(Rocksim);
+		//	//	ADD RockSim to "Export as" exportSubMenu options
+		exportSubMenu.add(RockSim);
 
-		//	//	CREATE Rocksim listener
-		Rocksim.addActionListener(new ActionListener() {
+		//	//	CREATE RockSim listener
+		RockSim.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				exportRocksimAction();}});
+				exportRockSimAction();}});
 
 		//	//	ADD Export options in exportSubMenu to "Export as" menu
 		menu.add(exportSubMenu);
@@ -492,7 +491,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 
-		////	BEGIN IMPORT Rocksim RKT design file
+		////	BEGIN IMPORT RockSim RKT design file
 		JMenuItem importMenu;
 		item = new JMenuItem(trans.get("main.menu.file.import"));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
@@ -505,7 +504,7 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		menu.add(item);
-		////	END IMPORT Rocksim RKT design file
+		////	END IMPORT RockSim RKT design file
 */
 
 /* 		////	PENDING Future development
@@ -1308,7 +1307,7 @@ public class BasicFrame extends JFrame {
 	 * "Save" action.  If the design is new, then this is identical to "Save As", with a default file filter for .ork.
 	 * If the rocket being edited previously was opened from a .ork file, then it will be saved immediately to the same
 	 * file.  But clicking on 'Save' for an existing design file with a .rkt will bring up a confirmation dialog because
-	 * it's potentially a destructive write (loss of some fidelity if it's truly an original Rocksim generated file).
+	 * it's potentially a destructive write (loss of some fidelity if it's truly an original RockSim generated file).
 	 *
 	 * @return true if the file was saved, false otherwise
 	 */
@@ -1350,7 +1349,7 @@ public class BasicFrame extends JFrame {
 	*
 	* @return true if the file was saved, false otherwise
 	*/
-	public boolean exportRocksimAction() {
+	public boolean exportRockSimAction() {
 		File file;
 
 		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.ROCKSIM);
@@ -1372,7 +1371,7 @@ public class BasicFrame extends JFrame {
 
 		file = FileHelper.forceExtension(file, "rkt");
 		if (FileHelper.confirmWrite(file, this) ) {
-			return saveAsRocksim(file);
+			return saveAsRockSim(file);
 		}
 		return false;
 	}
@@ -1380,15 +1379,15 @@ public class BasicFrame extends JFrame {
 
 
 	/**
-	 * Perform the writing of the design to the given file in Rocksim format.
+	 * Perform the writing of the design to the given file in RockSim format.
 	 *
 	 * @param file  the chosen file
 	 *
 	 * @return true if the file was written
 	 */
-	private boolean saveAsRocksim(File file) {
+	private boolean saveAsRockSim(File file) {
 		if ( prefs.getShowRockSimFormatWarning() ) {
-			// Show Rocksim format warning
+			// Show RockSim format warning
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new StyledLabel(trans.get("SaveRktWarningDialog.txt1")), "wrap");
 			final JCheckBox check = new JCheckBox(trans.get("SaveRktWarningDialog.donotshow"));
@@ -1415,17 +1414,17 @@ public class BasicFrame extends JFrame {
 
 		StorageOptions options = new StorageOptions();
 		options.setFileType(StorageOptions.FileType.ROCKSIM);
-		return saveRocksimFile(file, options);
+		return saveRockSimFile(file, options);
 	}
 
 
 	/**
-	 * Perform the actual saving of the Rocksim file
+	 * Perform the actual saving of the RockSim file
 	 * @param file file to be stored
 	 * @param options storage options to use
 	 * @return true if the file was written
 	 */
-	private boolean saveRocksimFile(File file, StorageOptions options) {
+	private boolean saveRockSimFile(File file, StorageOptions options) {
 		try {
 			ROCKET_SAVER.save(file, document, options);
 			// Do not update the save state of the document.
@@ -1438,7 +1437,7 @@ public class BasicFrame extends JFrame {
 			if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
 				decal.setIgnored(true);
 			}
-			return saveRocksimFile(file, options);	// Re-save
+			return saveRockSimFile(file, options);	// Re-save
 		}
 	}
 

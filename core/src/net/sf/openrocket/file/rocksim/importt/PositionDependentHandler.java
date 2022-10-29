@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimLocationMode;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimLocationMode;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
@@ -39,11 +39,11 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
 			throws SAXException {
 		super.closeElement(element, attributes, content, warnings);
-		if (RocksimCommonConstants.XB.equals(element)) {
-			positionValue = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+		if (RockSimCommonConstants.XB.equals(element)) {
+			positionValue = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 		}
-		if (RocksimCommonConstants.LOCATION_MODE.equals(element)) {
-			axialMethod = RocksimLocationMode.fromCode(Integer.parseInt(
+		if (RockSimCommonConstants.LOCATION_MODE.equals(element)) {
+			axialMethod = RockSimLocationMode.fromCode(Integer.parseInt(
 					content)).asOpenRocket();
 		}
 	}

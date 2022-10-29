@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 
 import org.junit.Test;
@@ -37,12 +36,12 @@ public class TestMotorLoader {
 	}
 	
 	@Test
-	public void testRocksimMotorLoader() throws IOException {
+	public void testRockSimMotorLoader() throws IOException {
 		test(new RockSimMotorLoader(), "test2.rse", DIGEST2);
 	}
 	
 	@Test
-	public void testRocksimMotorLoader3() throws IOException {
+	public void testRockSimMotorLoader3() throws IOException {
 		test(new RockSimMotorLoader(), "test3.rse", DIGEST3);
 	}
 	

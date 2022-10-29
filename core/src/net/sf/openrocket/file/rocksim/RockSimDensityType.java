@@ -1,19 +1,19 @@
 /*
- * RocksimDensityType.java
+ * RockSimDensityType.java
  */
 package net.sf.openrocket.file.rocksim;
 
 import net.sf.openrocket.material.Material;
 
 /**
- * Models the nose cone shape of a rocket.  Maps from Rocksim's notion to OpenRocket's.
+ * Models the nose cone shape of a rocket.  Maps from RockSim's notion to OpenRocket's.
  */
-public enum RocksimDensityType {
-    ROCKSIM_BULK   (0, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY),
-    ROCKSIM_SURFACE(1, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY),
-    ROCKSIM_LINE   (2, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
+public enum RockSimDensityType {
+    ROCKSIM_BULK   (0, RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY),
+    ROCKSIM_SURFACE(1, RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY),
+    ROCKSIM_LINE   (2, RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
 
-    /** The Rocksim enumeration value. Sent in XML. */
+    /** The RockSim enumeration value. Sent in XML. */
     private final int ordinal;
 
     /** The corresponding OpenRocket shape. */
@@ -22,16 +22,16 @@ public enum RocksimDensityType {
     /**
      * Constructor.
      *
-     * @param idx            the Rocksim shape code
+     * @param idx            the RockSim shape code
      * @param theConversion  the numerical conversion ratio to OpenRocket
      */
-    private RocksimDensityType(int idx, double theConversion) {
+    private RockSimDensityType(int idx, double theConversion) {
         ordinal = idx;
         conversion = theConversion;
     }
 
     /**
-     * Get the OpenRocket shape that corresponds to the Rocksim value.
+     * Get the OpenRocket shape that corresponds to the RockSim value.
      *
      * @return a conversion
      */
@@ -40,14 +40,14 @@ public enum RocksimDensityType {
     }
 
     /**
-     * Lookup an instance of this enum based upon the Rocksim code.
+     * Lookup an instance of this enum based upon the RockSim code.
      *
-     * @param rocksimDensityType  the Rocksim code (from XML)
+     * @param rocksimDensityType  the RockSim code (from XML)
      * @return an instance of this enum
      */
-    public static RocksimDensityType fromCode(int rocksimDensityType) {
-        RocksimDensityType[] values = values();
-        for (RocksimDensityType value : values) {
+    public static RockSimDensityType fromCode(int rocksimDensityType) {
+        RockSimDensityType[] values = values();
+        for (RockSimDensityType value : values) {
             if (value.ordinal == rocksimDensityType) {
                 return value;
             }
@@ -60,7 +60,7 @@ public enum RocksimDensityType {
      *
      * @param type  the OR type
      *
-     * @return  the Rocksim XML value
+     * @return  the RockSim XML value
      */
     public static int toCode(Material.Type type) {
         if (type.equals(Material.Type.BULK)) {
