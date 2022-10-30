@@ -80,27 +80,27 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
         for (int i = 0; i < children.size(); i++) {
             RocketComponent rocketComponents = children.get(i);
             if (rocketComponents instanceof InnerTube) {
-                attachedParts.add(new InnerBodyTubeDTO((InnerTube) rocketComponents, this));
+                addAttachedPart(new InnerBodyTubeDTO((InnerTube) rocketComponents, this));
             } else if (rocketComponents instanceof BodyTube) {
-                attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
+                addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
             } else if (rocketComponents instanceof Transition) {
-                attachedParts.add(new TransitionDTO((Transition) rocketComponents));
+                addAttachedPart(new TransitionDTO((Transition) rocketComponents));
             } else if (rocketComponents instanceof EngineBlock) {
-                attachedParts.add(new EngineBlockDTO((EngineBlock) rocketComponents));
+                addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
             } else if (rocketComponents instanceof TubeCoupler) {
-                attachedParts.add(new TubeCouplerDTO((TubeCoupler) rocketComponents));
+                addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents, this));
             } else if (rocketComponents instanceof CenteringRing) {
-                attachedParts.add(new CenteringRingDTO((CenteringRing) rocketComponents));
+                addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
             } else if (rocketComponents instanceof Bulkhead) {
-                attachedParts.add(new BulkheadDTO((Bulkhead) rocketComponents));
+                addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
             } else if (rocketComponents instanceof Parachute) {
-                attachedParts.add(new ParachuteDTO((Parachute) rocketComponents));
+                addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
             } else if (rocketComponents instanceof MassObject) {
-                attachedParts.add(new MassObjectDTO((MassObject) rocketComponents));
+                addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
             } else if (rocketComponents instanceof FreeformFinSet) {
-                attachedParts.add(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
+                addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
             } else if (rocketComponents instanceof FinSet) {
-                attachedParts.add(new FinSetDTO((FinSet) rocketComponents));
+                addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
             }
         }
     }
@@ -139,7 +139,9 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
 
     @Override
     public void addAttachedPart(BasePartDTO part) {
-        attachedParts.add(part);
+        if (!attachedParts.contains(part)) {
+            attachedParts.add(part);
+        }
     }
 
     @Override

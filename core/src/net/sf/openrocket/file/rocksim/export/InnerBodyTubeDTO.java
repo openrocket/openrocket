@@ -63,26 +63,26 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 				//to the list of attached parts.  If it is a cluster, then it is handled specially outside of this
 				//loop.
 				if (innerTube.getInstanceCount() == 1) {
-					attachedParts.add(new InnerBodyTubeDTO(innerTube, this));
+					addAttachedPart(new InnerBodyTubeDTO(innerTube, this));
 				}
 			} else if (rocketComponents instanceof BodyTube) {
-				attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
+				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
 			} else if (rocketComponents instanceof Transition) {
-				attachedParts.add(new TransitionDTO((Transition) rocketComponents));
+				addAttachedPart(new TransitionDTO((Transition) rocketComponents));
 			} else if (rocketComponents instanceof EngineBlock) {
-				attachedParts.add(new EngineBlockDTO((EngineBlock) rocketComponents));
+				addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
 			} else if (rocketComponents instanceof TubeCoupler) {
-				attachedParts.add(new TubeCouplerDTO((TubeCoupler) rocketComponents));
+				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents));
 			} else if (rocketComponents instanceof CenteringRing) {
-				attachedParts.add(new CenteringRingDTO((CenteringRing) rocketComponents));
+				addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
 			} else if (rocketComponents instanceof Bulkhead) {
-				attachedParts.add(new BulkheadDTO((Bulkhead) rocketComponents));
+				addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
 			} else if (rocketComponents instanceof Streamer) {
-				attachedParts.add(new StreamerDTO((Streamer) rocketComponents));
+				addAttachedPart(new StreamerDTO((Streamer) rocketComponents));
 			} else if (rocketComponents instanceof Parachute) {
-				attachedParts.add(new ParachuteDTO((Parachute) rocketComponents));
+				addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
 			} else if (rocketComponents instanceof MassObject) {
-				attachedParts.add(new MassObjectDTO((MassObject) rocketComponents));
+				addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
 			}
 		}
 		//Do the cluster.  For now this splits the cluster into separate tubes, which is how Rocksim represents it.
@@ -119,7 +119,9 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	
 	@Override
 	public void addAttachedPart(BasePartDTO part) {
-		attachedParts.add(part);
+		if (!attachedParts.contains(part)) {
+			attachedParts.add(part);
+		}
 	}
 	
 	@Override

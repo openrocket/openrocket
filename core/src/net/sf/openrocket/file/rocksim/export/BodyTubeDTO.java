@@ -97,34 +97,34 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
                 final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
                 //Only add the inner tube if it is NOT a cluster.
                 if (innerTube.getInstanceCount() == 1) {
-                    attachedParts.add(innerBodyTubeDTO);
+                    addAttachedPart(innerBodyTubeDTO);
                 }
             } else if (rocketComponents instanceof BodyTube) {
-                attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
+                addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
             } else if (rocketComponents instanceof Transition) {
-                attachedParts.add(new TransitionDTO((Transition) rocketComponents));
+                addAttachedPart(new TransitionDTO((Transition) rocketComponents));
             } else if (rocketComponents instanceof EngineBlock) {
-                attachedParts.add(new EngineBlockDTO((EngineBlock) rocketComponents));
+                addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
             } else if (rocketComponents instanceof TubeCoupler) {
-                attachedParts.add(new TubeCouplerDTO((TubeCoupler) rocketComponents));
+                addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents, this));
             } else if (rocketComponents instanceof CenteringRing) {
-                attachedParts.add(new CenteringRingDTO((CenteringRing) rocketComponents));
+                addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
             } else if (rocketComponents instanceof Bulkhead) {
-                attachedParts.add(new BulkheadDTO((Bulkhead) rocketComponents));
+                addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
             } else if (rocketComponents instanceof LaunchLug) {
-                attachedParts.add(new LaunchLugDTO((LaunchLug) rocketComponents));
+                addAttachedPart(new LaunchLugDTO((LaunchLug) rocketComponents));
             } else if (rocketComponents instanceof Streamer) {
-                attachedParts.add(new StreamerDTO((Streamer) rocketComponents));
+                addAttachedPart(new StreamerDTO((Streamer) rocketComponents));
             } else if (rocketComponents instanceof Parachute) {
-                attachedParts.add(new ParachuteDTO((Parachute) rocketComponents));
+                addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
             } else if (rocketComponents instanceof MassObject) {
-                attachedParts.add(new MassObjectDTO((MassObject) rocketComponents));
+                addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
             } else if (rocketComponents instanceof FreeformFinSet) {
-                attachedParts.add(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
+                addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
             } else if (rocketComponents instanceof FinSet) {
-                attachedParts.add(new FinSetDTO((FinSet) rocketComponents));
+                addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
             } else if (rocketComponents instanceof TubeFinSet) {
-                attachedParts.add(new TubeFinSetDTO((TubeFinSet) rocketComponents));
+                addAttachedPart(new TubeFinSetDTO((TubeFinSet) rocketComponents));
             }
         }
     }
@@ -199,8 +199,10 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
     }
 
     @Override
-    public void addAttachedPart(BasePartDTO thePart) {
-        attachedParts.add(thePart);
+    public void addAttachedPart(BasePartDTO part) {
+        if (!attachedParts.contains(part)) {
+            attachedParts.add(part);
+        }
     }
 
     @Override
