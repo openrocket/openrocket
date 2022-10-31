@@ -1765,6 +1765,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.checkComponentStructure();
 		return children.clone();
 	}
+
+	/**
+	 * Returns all the children of this component, including children of sub-components (children of children).
+	 * The order is the same as you would read in the component tree (disregarding parent-child relations; just top to
+	 * bottom).
+	 */
+	public final List<RocketComponent> getAllChildren() {
+		checkState();
+		this.checkComponentStructure();
+		List<RocketComponent> children = new ArrayList<>();
+		for (RocketComponent child : getChildren()) {
+			children.add(child);
+			children.addAll(child.getAllChildren());
+		}
+		return children;
+	}
 	
 	
 	/**
