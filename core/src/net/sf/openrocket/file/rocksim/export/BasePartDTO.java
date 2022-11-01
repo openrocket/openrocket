@@ -5,14 +5,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimDensityType;
-import net.sf.openrocket.file.rocksim.RocksimFinishCode;
-import net.sf.openrocket.file.rocksim.RocksimLocationMode;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimDensityType;
+import net.sf.openrocket.file.rocksim.RockSimFinishCode;
+import net.sf.openrocket.file.rocksim.RockSimLocationMode;
 import net.sf.openrocket.file.rocksim.importt.BaseHandler;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -20,49 +19,49 @@ import net.sf.openrocket.rocketcomponent.StructuralComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 /**
- * The base class for all OpenRocket to Rocksim conversions.
+ * The base class for all OpenRocket to RockSim conversions.
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class BasePartDTO {
 
     /**
-     * The very important Rocksim serial number.  Each component needs one.  This is not multi-thread safe.  Trying
+     * The very important RockSim serial number.  Each component needs one.  This is not multi-thread safe.  Trying
      * to save multiple files at the same time will have unpredictable results with respect to the serial numbering.
      */
     private static int currentSerialNumber = 1;
 
-    @XmlElement(name = RocksimCommonConstants.KNOWN_MASS)
+    @XmlElement(name = RockSimCommonConstants.KNOWN_MASS)
     private double knownMass = 0d;
-    @XmlElement(name = RocksimCommonConstants.DENSITY)
+    @XmlElement(name = RockSimCommonConstants.DENSITY)
     private double density = 0d;
-    @XmlElement(name = RocksimCommonConstants.MATERIAL)
+    @XmlElement(name = RockSimCommonConstants.MATERIAL)
     private String material = "";
-    @XmlElement(name = RocksimCommonConstants.NAME)
+    @XmlElement(name = RockSimCommonConstants.NAME)
     private String name = "";
-    @XmlElement(name = RocksimCommonConstants.KNOWN_CG)
+    @XmlElement(name = RockSimCommonConstants.KNOWN_CG)
     private double knownCG = 0;
-    @XmlElement(name = RocksimCommonConstants.USE_KNOWN_CG)
+    @XmlElement(name = RockSimCommonConstants.USE_KNOWN_CG)
     private int useKnownCG = 1;
-    @XmlElement(name = RocksimCommonConstants.XB)
+    @XmlElement(name = RockSimCommonConstants.XB)
     private double xb = 0;
-    @XmlElement(name = RocksimCommonConstants.CALC_MASS)
+    @XmlElement(name = RockSimCommonConstants.CALC_MASS)
     private double calcMass = 0d;
-    @XmlElement(name = RocksimCommonConstants.CALC_CG)
+    @XmlElement(name = RockSimCommonConstants.CALC_CG)
     private double calcCG = 0d;
-    @XmlElement(name = RocksimCommonConstants.DENSITY_TYPE)
+    @XmlElement(name = RockSimCommonConstants.DENSITY_TYPE)
     private int densityType = 0;
-    @XmlElement(name = RocksimCommonConstants.RADIAL_LOC)
+    @XmlElement(name = RockSimCommonConstants.RADIAL_LOC)
     private double radialLoc = 0;
-    @XmlElement(name = RocksimCommonConstants.RADIAL_ANGLE)
+    @XmlElement(name = RockSimCommonConstants.RADIAL_ANGLE)
     private double radialAngle = 0;
-    @XmlElement(name = RocksimCommonConstants.LOCATION_MODE)
+    @XmlElement(name = RockSimCommonConstants.LOCATION_MODE)
     private int locationMode = 0;
-    @XmlElement(name = RocksimCommonConstants.LEN, required = false, nillable = false)
+    @XmlElement(name = RockSimCommonConstants.LEN, required = false, nillable = false)
     private double len = 0d;
-    @XmlElement(name = RocksimCommonConstants.FINISH_CODE)
+    @XmlElement(name = RockSimCommonConstants.FINISH_CODE)
     private int finishCode = 0;
-    @XmlElement(name = RocksimCommonConstants.SERIAL_NUMBER)
+    @XmlElement(name = RockSimCommonConstants.SERIAL_NUMBER)
     private int serialNumber = -1;
 
     /**
@@ -79,50 +78,50 @@ public abstract class BasePartDTO {
      */
     protected BasePartDTO(RocketComponent ec) {
         serialNumber = currentSerialNumber++;
-        setCalcCG(ec.getCG().x * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setCalcMass(ec.getComponentMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
-        setKnownCG(ec.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setKnownMass(ec.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+        setCalcCG(ec.getCG().x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setCalcMass(ec.getComponentMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+        setKnownCG(ec.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setKnownMass(ec.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 
         if (!(ec instanceof FinSet)) {
-            setLen(ec.getLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setLen(ec.getLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         setUseKnownCG(ec.isCGOverridden() || ec.isMassOverridden() ? 1 : 0);
         setName(ec.getName());
 
-        setXb(ec.getAxialOffset() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setXb(ec.getAxialOffset() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         //When the relative position is BOTTOM, the position location of the bottom edge of the component is +
         //to the right of the bottom of the parent, and - to the left.
-        //But in Rocksim, it's + to the left and - to the right
+        //But in RockSim, it's + to the left and - to the right
         if (ec.getAxialMethod().equals(AxialMethod.BOTTOM)) {
-            setXb((-1 * ec.getAxialOffset()) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setXb((-1 * ec.getAxialOffset()) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         else if (ec.getAxialMethod().equals(AxialMethod.MIDDLE)) {
             //Mapped to TOP, so adjust accordingly
-            setXb((ec.getAxialOffset() + (ec.getParent().getLength() - ec.getLength()) /2)* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setXb((ec.getAxialOffset() + (ec.getParent().getLength() - ec.getLength()) /2)* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
 
         if (ec instanceof ExternalComponent) {
             ExternalComponent comp = (ExternalComponent) ec;
-            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
+            setLocationMode(RockSimLocationMode.toCode(comp.getAxialMethod()));
 
-            setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
-            setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
+            setDensity(comp.getMaterial().getDensity() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
+            setDensityType(RockSimDensityType.toCode(comp.getMaterial().getType()));
             String compMaterial = comp.getMaterial().getName();
             if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
                 compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
             }
             setMaterial(compMaterial);
 
-            setFinishCode(RocksimFinishCode.toCode(comp.getFinish()));
+            setFinishCode(RockSimFinishCode.toCode(comp.getFinish()));
         }
         else if (ec instanceof StructuralComponent) {
             StructuralComponent comp = (StructuralComponent) ec;
 
-            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
-            setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
-            setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
+            setLocationMode(RockSimLocationMode.toCode(comp.getAxialMethod()));
+            setDensity(comp.getMaterial().getDensity() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
+            setDensityType(RockSimDensityType.toCode(comp.getMaterial().getType()));
             String compMaterial = comp.getMaterial().getName();
             if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
                 compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
@@ -132,9 +131,9 @@ public abstract class BasePartDTO {
         else if (ec instanceof RecoveryDevice) {
             RecoveryDevice comp = (RecoveryDevice) ec;
 
-            setLocationMode(RocksimLocationMode.toCode(comp.getAxialMethod()));
-            setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY);
-            setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
+            setLocationMode(RockSimLocationMode.toCode(comp.getAxialMethod()));
+            setDensity(comp.getMaterial().getDensity() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY);
+            setDensityType(RockSimDensityType.toCode(comp.getMaterial().getType()));
             String compMaterial = comp.getMaterial().getName();
             if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
                 compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
@@ -145,7 +144,7 @@ public abstract class BasePartDTO {
         if (ec instanceof RingComponent) {
             RingComponent rc = (RingComponent)ec;
             setRadialAngle(rc.getRadialDirection());
-            setRadialLoc(rc.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            setRadialLoc(rc.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
     }
 

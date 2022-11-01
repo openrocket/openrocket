@@ -1,5 +1,5 @@
 /*
- * RocksimLoader.java
+ * RockSimLoader.java
  */
 package net.sf.openrocket.file.rocksim.importt;
 
@@ -30,7 +30,7 @@ import net.sf.openrocket.file.simplesax.SimpleSAX;
  *          setMaterial
  *          getMaterial
  */
-public class RocksimLoader extends AbstractRocketLoader {
+public class RockSimLoader extends AbstractRocketLoader {
 	/**
 	 * This method is called by the default implementations of {@link #load(java.io.File)}
 	 * and {@link #load(java.io.InputStream)} to load the rocket.
@@ -39,11 +39,11 @@ public class RocksimLoader extends AbstractRocketLoader {
 	 *          if an error occurs during loading.
 	 */
 	@Override
-	protected void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException {
+	public void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException {
 		
 		InputSource xmlSource = new InputSource(source);
 		
-		RocksimHandler handler = new RocksimHandler(context);
+		RockSimHandler handler = new RockSimHandler(context);
 		
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);

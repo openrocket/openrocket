@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -18,7 +18,7 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 /**
  * ParachuteHandler Tester.
  */
-public class ParachuteHandlerTest extends RocksimTestBase {
+public class ParachuteHandlerTest extends RockSimTestBase {
 
     /**
      * Method: openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
@@ -56,9 +56,9 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         warnings.clear();
 
         handler.closeElement("Dia", attributes, "-1", warnings);
-        Assert.assertEquals(-1d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
+        Assert.assertEquals(-1d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -74,7 +74,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         handler.closeElement("ShroudLineLen", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getLineLength(), 0.001);
         handler.closeElement("ShroudLineLen", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength(), 0.001);
+        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength(), 0.001);
         handler.closeElement("ShroudLineLen", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -154,12 +154,12 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
         Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), -10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
         Assert.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), 10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
     }
 }

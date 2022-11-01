@@ -1,5 +1,5 @@
 /*
- * RocksimLoaderTest.java
+ * RockSimLoaderTest.java
  *
  */
 package net.sf.openrocket.file.rocksim.importt;
@@ -22,9 +22,9 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 /**
- * RocksimLoader Tester.
+ * RockSimLoader Tester.
  */
-public class RocksimLoaderTest extends BaseTestCase {
+public class RockSimLoaderTest extends BaseTestCase {
 
     /**
      * Test a bug reported via automated bug report.  I have been unable to reproduce this bug (hanging finset off of an inner body tube) when creating
@@ -32,7 +32,7 @@ public class RocksimLoaderTest extends BaseTestCase {
      */
     @org.junit.Test
     public void testFinsOnInnerTube() throws Exception {
-        RocksimLoader loader = new RocksimLoader();
+        RockSimLoader loader = new RockSimLoader();
         InputStream stream = this.getClass().getResourceAsStream("PodFins.rkt");
         Assert.assertNotNull("Could not open PodFins.rkt", stream);
         try {
@@ -57,9 +57,9 @@ public class RocksimLoaderTest extends BaseTestCase {
      */
     @org.junit.Test
     public void testLoadFromStream() throws Exception {
-        RocksimLoader loader = new RocksimLoader();
+        RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRocksimRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader);
         InputStream stream;
 
         Assert.assertNotNull(doc);
@@ -147,9 +147,9 @@ public class RocksimLoaderTest extends BaseTestCase {
 
     @org.junit.Test
     public void testSubAssemblyRocket() throws IOException, RocketLoadException {
-        RocksimLoader loader = new RocksimLoader();
+        RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRocksimSubassemblyRocket(loader);
+        OpenRocketDocument doc = loadRockSimSubassemblyRocket(loader);
         InputStream stream;
 
         Assert.assertNotNull(doc);
@@ -188,8 +188,8 @@ public class RocksimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Centering ring", subassemblyBodyTube.getChild(7).getName());
     }
 
-    public static OpenRocketDocument loadRocksimRocket(RocksimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RocksimLoaderTest.class.getResourceAsStream("rocksimTestRocket1.rkt");
+    public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
+        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket1.rkt");
         try {
             Assert.assertNotNull("Could not open rocksimTestRocket1.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -204,8 +204,8 @@ public class RocksimLoaderTest extends BaseTestCase {
         }
     }
 
-    public static OpenRocketDocument loadRocksimRocket3(RocksimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RocksimLoaderTest.class.getResourceAsStream("rocksimTestRocket3.rkt");
+    public static OpenRocketDocument loadRockSimRocket3(RockSimLoader theLoader) throws IOException, RocketLoadException {
+        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket3.rkt");
         try {
             Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -220,8 +220,8 @@ public class RocksimLoaderTest extends BaseTestCase {
         }
     }
 
-    public static OpenRocketDocument loadRocksimSubassemblyRocket(RocksimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RocksimLoaderTest.class.getResourceAsStream("SubAssemblyTest.rkt");
+    public static OpenRocketDocument loadRockSimSubassemblyRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
+        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("SubAssemblyTest.rkt");
         try {
             Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();

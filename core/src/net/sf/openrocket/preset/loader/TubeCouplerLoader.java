@@ -17,8 +17,8 @@ public class TubeCouplerLoader extends BodyTubeLoader {
 	}
 
 	@Override
-	protected RocksimComponentFileType getFileType() {
-		return RocksimComponentFileType.TUBE_COUPLER;
+	protected RockSimComponentFileType getFileType() {
+		return RockSimComponentFileType.TUBE_COUPLER;
 	}
 
 }

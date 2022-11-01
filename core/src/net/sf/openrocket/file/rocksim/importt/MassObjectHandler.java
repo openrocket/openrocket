@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimDensityType;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimDensityType;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -82,13 +82,13 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 			throws SAXException {
 		super.closeElement(element, attributes, content, warnings);
 		try {
-			if (RocksimCommonConstants.LEN.equals(element)) {
-				mass.setLength(Double.parseDouble(content) / (RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
+			if (RockSimCommonConstants.LEN.equals(element)) {
+				mass.setLength(Double.parseDouble(content) / (RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
-			if (RocksimCommonConstants.KNOWN_MASS.equals(element)) {
-				mass.setComponentMass(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+			if (RockSimCommonConstants.KNOWN_MASS.equals(element)) {
+				mass.setComponentMass(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
-			if (RocksimCommonConstants.KNOWN_CG.equals(element)) {
+			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
 				//Setting the CG of the Mass Object to 0 is important because of the different ways that Rocksim and
 				//OpenRocket treat mass objects.  Rocksim treats them as points (even though the data file contains a
 				//length) and because Rocksim sets the CG of the mass object to really be relative to the front of
@@ -96,10 +96,10 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 				//Thus it needs to be set to 0 to say that the mass object's CG is at the point of the mass object.
 				super.setCG(0);
 			}
-			if (RocksimCommonConstants.TYPE_CODE.equals(element)) {
+			if (RockSimCommonConstants.TYPE_CODE.equals(element)) {
 				typeCode = Integer.parseInt(content);
 			}
-			if (RocksimCommonConstants.MATERIAL.equals(element)) {
+			if (RockSimCommonConstants.MATERIAL.equals(element)) {
 				setMaterialName(content);
 			}
 		} catch (NumberFormatException nfe) {
@@ -133,7 +133,7 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
 	 * @return true if we think it's a shock cord
 	 */
 	private boolean inferAsShockCord(int theTypeCode, WarningSet warnings) {
-		return (theTypeCode == 1 || (mass.getLength() >= 2 * parent.getLength() && RocksimDensityType.ROCKSIM_LINE
+		return (theTypeCode == 1 || (mass.getLength() >= 2 * parent.getLength() && RockSimDensityType.ROCKSIM_LINE
 				.equals(getDensityType()))) && isCompatible(parent, ShockCord.class, warnings, true);
 	}
 	

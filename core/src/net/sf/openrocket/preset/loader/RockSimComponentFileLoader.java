@@ -24,7 +24,7 @@ import com.opencsv.CSVReader;
 /**
  * Primary entry point for parsing component CSV files that are in Rocksim format.
  */
-public abstract class RocksimComponentFileLoader {
+public abstract class RockSimComponentFileLoader {
 	
 	private static final PrintStream LOGGER = System.err;
 	
@@ -32,14 +32,14 @@ public abstract class RocksimComponentFileLoader {
 	
 	private final File dir;
 	
-	protected List<RocksimComponentFileColumnParser> fileColumns = new ArrayList<RocksimComponentFileColumnParser>();
+	protected List<RockSimComponentFileColumnParser> fileColumns = new ArrayList<RockSimComponentFileColumnParser>();
 	
 	/**
 	 * Constructor.
 	 *
 	 * @param theBasePathToLoadFrom base path
 	 */
-	public RocksimComponentFileLoader(File theBasePathToLoadFrom) {
+	public RockSimComponentFileLoader(File theBasePathToLoadFrom) {
 		dir = theBasePathToLoadFrom;
 		basePath = dir.getAbsolutePath();
 	}
@@ -49,12 +49,12 @@ public abstract class RocksimComponentFileLoader {
 	 *
 	 * @param theBasePathToLoadFrom base path
 	 */
-	public RocksimComponentFileLoader(String theBasePathToLoadFrom) {
+	public RockSimComponentFileLoader(String theBasePathToLoadFrom) {
 		dir = new File(basePath);
 		basePath = theBasePathToLoadFrom;
 	}
 	
-	protected abstract RocksimComponentFileType getFileType();
+	protected abstract RockSimComponentFileType getFileType();
 	
 	public void load() {
 		try {
@@ -74,7 +74,7 @@ public abstract class RocksimComponentFileLoader {
 	 *         component data file; the element in the list itself is an array of String, where each item in the array
 	 *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
 	 */
-	private void load(RocksimComponentFileType type) throws FileNotFoundException {
+	private void load(RockSimComponentFileType type) throws FileNotFoundException {
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(basePath + " does not exist");
 		}
@@ -158,7 +158,7 @@ public abstract class RocksimComponentFileLoader {
 	}
 	
 	protected void parseHeaders(String[] headers) {
-		for (RocksimComponentFileColumnParser column : fileColumns) {
+		for (RockSimComponentFileColumnParser column : fileColumns) {
 			column.configure(headers);
 		}
 	}
@@ -171,7 +171,7 @@ public abstract class RocksimComponentFileLoader {
 		
 		preProcess(data);
 		
-		for (RocksimComponentFileColumnParser column : fileColumns) {
+		for (RockSimComponentFileColumnParser column : fileColumns) {
 			column.parse(data, props);
 		}
 		postProcess(props);

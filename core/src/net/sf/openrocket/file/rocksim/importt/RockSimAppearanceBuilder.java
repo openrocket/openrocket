@@ -9,7 +9,7 @@ import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.util.Color;
 
 public class RockSimAppearanceBuilder extends AppearanceBuilder {
@@ -25,7 +25,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	
 	public void processElement(String element, String content, WarningSet warnings) {
 		try {
-			if (RocksimCommonConstants.TEXTURE.equals(element)) {
+			if (RockSimCommonConstants.TEXTURE.equals(element)) {
 				parseTexture(content);
 			} else if ("Ambient".equals(element)) {
 				//ignored

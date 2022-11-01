@@ -22,8 +22,8 @@ public class BulkHeadLoader extends BaseComponentLoader {
 
 
 	@Override
-	protected RocksimComponentFileType getFileType() {
-		return RocksimComponentFileType.BULKHEAD;
+	protected RockSimComponentFileType getFileType() {
+		return RockSimComponentFileType.BULKHEAD;
 	}
 
 	@Override

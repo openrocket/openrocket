@@ -17,8 +17,8 @@ public class EngineBlockLoader extends BodyTubeLoader {
 	}
 
 	@Override
-	protected RocksimComponentFileType getFileType() {
-		return RocksimComponentFileType.ENGINE_BLOCK;
+	protected RockSimComponentFileType getFileType() {
+		return RockSimComponentFileType.ENGINE_BLOCK;
 	}
 
 }

@@ -4,7 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -18,7 +18,7 @@ import java.util.HashMap;
  * MassObjectHandler Tester.
  *
  */
-public class MassObjectHandlerTest extends RocksimTestBase {
+public class MassObjectHandlerTest extends RockSimTestBase {
 
     /**
      * Method: constructor
@@ -83,7 +83,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         handler.closeElement("KnownMass", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "100", warnings);
-        Assert.assertEquals(100d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(), 0.001);
+        Assert.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();

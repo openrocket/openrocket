@@ -9,8 +9,8 @@ import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimFinishCode;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimFinishCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -46,7 +46,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
-		if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
+		if (RockSimCommonConstants.ATTACHED_PARTS.equals(element)) {
 			return new AttachedPartsHandler(context, bodyTube);
 		}
 		return PlainTextHandler.INSTANCE;
@@ -58,26 +58,26 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 		super.closeElement(element, attributes, content, warnings);
 		
 		try {
-			if (RocksimCommonConstants.OD.equals(element)) {
-				bodyTube.setOuterRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+			if (RockSimCommonConstants.OD.equals(element)) {
+				bodyTube.setOuterRadius(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 			}
-			if (RocksimCommonConstants.ID.equals(element)) {
-				final double r = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
+			if (RockSimCommonConstants.ID.equals(element)) {
+				final double r = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
 				bodyTube.setInnerRadius(r);
 			}
-			if (RocksimCommonConstants.LEN.equals(element)) {
-				bodyTube.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+			if (RockSimCommonConstants.LEN.equals(element)) {
+				bodyTube.setLength(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
-			if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
-				bodyTube.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+			if (RockSimCommonConstants.FINISH_CODE.equals(element)) {
+				bodyTube.setFinish(RockSimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
 			}
-			if (RocksimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
+			if (RockSimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
 				bodyTube.setMotorMount("1".equals(content));
 			}
-			if (RocksimCommonConstants.ENGINE_OVERHANG.equals(element)) {
-				bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+			if (RockSimCommonConstants.ENGINE_OVERHANG.equals(element)) {
+				bodyTube.setMotorOverhang(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
-			if (RocksimCommonConstants.MATERIAL.equals(element)) {
+			if (RockSimCommonConstants.MATERIAL.equals(element)) {
 				setMaterialName(content);
 			}
 		} catch (NumberFormatException nfe) {

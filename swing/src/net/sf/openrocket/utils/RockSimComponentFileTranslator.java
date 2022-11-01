@@ -23,13 +23,13 @@ import net.sf.openrocket.preset.loader.TubeCouplerLoader;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.util.ArrayList;
 
-public class RocksimComponentFileTranslator {
+public class RockSimComponentFileTranslator {
 
     private static PrintStream LOGGER = System.err;
 
     private static void printUsage() {
-        LOGGER.println("RocksimComponentFileLoader <dir> <file>");
-        LOGGER.println("<dir> is base directory for a set of Rocksim component csv files");
+        LOGGER.println("RockSimComponentFileLoader <dir> <file>");
+        LOGGER.println("<dir> is base directory for a set of RockSim component csv files");
         LOGGER.println("<file> is where the orc file is written");
     }
 

@@ -2,7 +2,7 @@ package net.sf.openrocket.preset.loader;
 
 import net.sf.openrocket.preset.TypedPropertyMap;
 
-public interface RocksimComponentFileColumnParser {
+public interface RockSimComponentFileColumnParser {
 
 	/**
 	 * Examine the array of column headers and configure parsing for this type. 

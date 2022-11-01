@@ -2,8 +2,8 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.file.rocksim.RocksimFinishCode;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimFinishCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -80,26 +80,26 @@ public class TubeFinSetHandler extends PositionDependentHandler<TubeFinSet> {
    		super.closeElement(element, attributes, content, warnings);
 
    		try {
-   			if (RocksimCommonConstants.OD.equals(element)) {
-   				tubeFin.setOuterRadius(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
+   			if (RockSimCommonConstants.OD.equals(element)) {
+   				tubeFin.setOuterRadius(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
    			}
-   			if (RocksimCommonConstants.ID.equals(element)) {
-                tubeFin.setInnerRadius(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
+   			if (RockSimCommonConstants.ID.equals(element)) {
+                tubeFin.setInnerRadius(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
    			}
-   			if (RocksimCommonConstants.LEN.equals(element)) {
-                tubeFin.setLength(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
+   			if (RockSimCommonConstants.LEN.equals(element)) {
+                tubeFin.setLength(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
    			}
-   			if (RocksimCommonConstants.MATERIAL.equals(element)) {
+   			if (RockSimCommonConstants.MATERIAL.equals(element)) {
    				setMaterialName(content);
    			}
-            if (RocksimCommonConstants.RADIAL_ANGLE.equals(element)) {
+            if (RockSimCommonConstants.RADIAL_ANGLE.equals(element)) {
                 tubeFin.setBaseRotation(Double.parseDouble(content));
             }
-   			if (RocksimCommonConstants.TUBE_COUNT.equals(element)) {
+   			if (RockSimCommonConstants.TUBE_COUNT.equals(element)) {
                 tubeFin.setFinCount(Integer.parseInt(content));
    			}
-   			if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
-                tubeFin.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+   			if (RockSimCommonConstants.FINISH_CODE.equals(element)) {
+                tubeFin.setFinish(RockSimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
    			}
    		} catch (NumberFormatException nfe) {
    			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");

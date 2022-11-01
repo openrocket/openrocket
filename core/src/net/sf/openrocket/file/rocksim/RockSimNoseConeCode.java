@@ -1,5 +1,5 @@
 /*
- * RocksimNoseConeCode.java
+ * RockSimNoseConeCode.java
  */
 package net.sf.openrocket.file.rocksim;
 
@@ -9,19 +9,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Models the nose cone shape of a rocket.  Maps from Rocksim's notion to OpenRocket's.
+ * Models the nose cone shape of a rocket.  Maps from RockSim's notion to OpenRocket's.
  */
-public enum RocksimNoseConeCode {
+public enum RockSimNoseConeCode {
     CONICAL(0, Transition.Shape.CONICAL, "Conic", "Cone"),
     OGIVE(1, Transition.Shape.OGIVE),
-    PARABOLIC(2, Transition.Shape.ELLIPSOID),  //Rocksim' PARABOLIC most closely resembles an ELLIPSOID in OpenRocket
+    PARABOLIC(2, Transition.Shape.ELLIPSOID),  //RockSim' PARABOLIC most closely resembles an ELLIPSOID in OpenRocket
     ELLIPTICAL(3, Transition.Shape.ELLIPSOID),
     POWER_SERIES(4, Transition.Shape.POWER),
     PARABOLIC_SERIES(5, Transition.Shape.PARABOLIC),
     HAACK(6, Transition.Shape.HAACK);
 
     /**
-     * The Rocksim enumeration value. Sent in XML.
+     * The RockSim enumeration value. Sent in XML.
      */
     private final int ordinal;
 
@@ -38,11 +38,11 @@ public enum RocksimNoseConeCode {
     /**
      * Constructor.
      *
-     * @param idx           the Rocksim shape code
+     * @param idx           the RockSim shape code
      * @param aShape        the corresponding OpenRocket shape
      * @param theShapeNames an array of alternate names
      */
-    private RocksimNoseConeCode(int idx, Transition.Shape aShape, String... theShapeNames) {
+    private RockSimNoseConeCode(int idx, Transition.Shape aShape, String... theShapeNames) {
         ordinal = idx;
         shape = aShape;
         shapeNames.add(this.name().toLowerCase());
@@ -54,7 +54,7 @@ public enum RocksimNoseConeCode {
     }
 
     /**
-     * Get the OpenRocket shape that corresponds to the Rocksim shape.
+     * Get the OpenRocket shape that corresponds to the RockSim shape.
      *
      * @return a shape
      */
@@ -63,14 +63,14 @@ public enum RocksimNoseConeCode {
     }
 
     /**
-     * Lookup an instance of this enum based upon the Rocksim code.
+     * Lookup an instance of this enum based upon the RockSim code.
      *
-     * @param rocksimShapeCode the Rocksim code (from XML)
+     * @param rocksimShapeCode the RockSim code (from XML)
      * @return an instance of this enum
      */
-    public static RocksimNoseConeCode fromCode(int rocksimShapeCode) {
-        RocksimNoseConeCode[] values = values();
-        for (RocksimNoseConeCode value : values) {
+    public static RockSimNoseConeCode fromCode(int rocksimShapeCode) {
+        RockSimNoseConeCode[] values = values();
+        for (RockSimNoseConeCode value : values) {
             if (value.ordinal == rocksimShapeCode) {
                 return value;
             }
@@ -79,14 +79,14 @@ public enum RocksimNoseConeCode {
     }
 
     /**
-     * Lookup an ordinal value for the Rocksim code.
+     * Lookup an ordinal value for the RockSim code.
      *
      * @param type the OR Shape
-     * @return the Rocksim code
+     * @return the RockSim code
      */
     public static int toCode(Transition.Shape type) {
-        RocksimNoseConeCode[] values = values();
-        for (RocksimNoseConeCode value : values) {
+        RockSimNoseConeCode[] values = values();
+        for (RockSimNoseConeCode value : values) {
             if (value.shape.equals(type)) {
                 if (value.ordinal == 2) {
                     return 3;
@@ -103,9 +103,9 @@ public enum RocksimNoseConeCode {
      * @param theName the name of the shape; case does not matter
      * @return the corresponding enum instance; defaults to PARABOLIC if not found.
      */
-    public static RocksimNoseConeCode fromShapeName(String theName) {
-        RocksimNoseConeCode[] values = values();
-        for (RocksimNoseConeCode value : values) {
+    public static RockSimNoseConeCode fromShapeName(String theName) {
+        RockSimNoseConeCode[] values = values();
+        for (RockSimNoseConeCode value : values) {
             if (value.shapeNames.contains(theName.toLowerCase())) {
                 return value;
             }
@@ -120,7 +120,7 @@ public enum RocksimNoseConeCode {
      * @param nameOrOrdinalString the shape number or shape name
      * @return an instance of this enum; defaults to PARABOLIC if not found
      */
-    public static RocksimNoseConeCode fromShapeNameOrCode(String nameOrOrdinalString) {
+    public static RockSimNoseConeCode fromShapeNameOrCode(String nameOrOrdinalString) {
         try {
             return fromCode(Integer.parseInt(nameOrOrdinalString));
         }

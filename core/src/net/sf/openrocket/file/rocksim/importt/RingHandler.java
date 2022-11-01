@@ -9,7 +9,7 @@ import org.xml.sax.SAXException;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -66,19 +66,19 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
 		super.closeElement(element, attributes, content, warnings);
 		
 		try {
-			if (RocksimCommonConstants.OD.equals(element)) {
-				ring.setOuterRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+			if (RockSimCommonConstants.OD.equals(element)) {
+				ring.setOuterRadius(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 			}
-			if (RocksimCommonConstants.ID.equals(element)) {
-				ring.setInnerRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+			if (RockSimCommonConstants.ID.equals(element)) {
+				ring.setInnerRadius(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 			}
-			if (RocksimCommonConstants.LEN.equals(element)) {
-				ring.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+			if (RockSimCommonConstants.LEN.equals(element)) {
+				ring.setLength(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
-			if (RocksimCommonConstants.MATERIAL.equals(element)) {
+			if (RockSimCommonConstants.MATERIAL.equals(element)) {
 				setMaterialName(content);
 			}
-			if (RocksimCommonConstants.USAGE_CODE.equals(element)) {
+			if (RockSimCommonConstants.USAGE_CODE.equals(element)) {
 				usageCode = Integer.parseInt(content);
 			}
 		} catch (NumberFormatException nfe) {

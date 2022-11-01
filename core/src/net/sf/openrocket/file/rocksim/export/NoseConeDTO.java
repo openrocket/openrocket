@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,18 +9,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class models a Rocksim XML Element for a nose cone.
+ * This class models a RockSim XML Element for a nose cone.
  */
-@XmlRootElement(name = RocksimCommonConstants.NOSE_CONE)
+@XmlRootElement(name = RockSimCommonConstants.NOSE_CONE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NoseConeDTO extends AbstractTransitionDTO {
 
 
-    @XmlElement(name = RocksimCommonConstants.BASE_DIA)
+    @XmlElement(name = RockSimCommonConstants.BASE_DIA)
     private double baseDia = 0d;
-    @XmlElement(name = RocksimCommonConstants.SHOULDER_LEN)
+    @XmlElement(name = RockSimCommonConstants.SHOULDER_LEN)
     private double shoulderLen = 0d;
-    @XmlElement(name = RocksimCommonConstants.SHOULDER_OD)
+    @XmlElement(name = RockSimCommonConstants.SHOULDER_OD)
     private double shoulderOD = 0d;
 
     /**
@@ -36,9 +36,9 @@ public class NoseConeDTO extends AbstractTransitionDTO {
      */
     public NoseConeDTO(NoseCone nc) {
         super(nc);
-        setBaseDia(nc.getAftRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setShoulderLen(nc.getAftShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setShoulderOD(nc.getAftShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setBaseDia(nc.getAftRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setShoulderLen(nc.getAftShoulderLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setShoulderOD(nc.getAftShoulderRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
 
     public double getBaseDia() {

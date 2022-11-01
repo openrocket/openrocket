@@ -14,7 +14,7 @@ import org.junit.Assert;
 /**
  * A base class for the Rocksim tests.  Includes code from the junitx.addons project.
  */
-public abstract class RocksimTestBase extends BaseTestCase {
+public abstract class RockSimTestBase extends BaseTestCase {
 	
 	public void assertContains(RocketComponent child, List<RocketComponent> components) {
 		Assert.assertTrue("Components did not contain child", components.contains(child));

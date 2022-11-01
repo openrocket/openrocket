@@ -17,11 +17,11 @@ import net.sf.openrocket.util.DecalNotFoundException;
  * File is saved with the .rkt extension replaced with .ork.
  * 
  * Usage:
- *   java -cp OpenRocket.jar net.sf.openrocket.utils.RocksimConverter <files...>
+ *   java -cp OpenRocket.jar net.sf.openrocket.utils.RockSimConverter <files...>
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class RocksimConverter {
+public class RockSimConverter {
 	
 	
 	public static void main(String[] args) {

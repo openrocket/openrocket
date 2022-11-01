@@ -5,19 +5,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 
 /**
  * This class models an XML element for a Rocksim LaunchLug.
  */
-@XmlRootElement(name = RocksimCommonConstants.LAUNCH_LUG)
+@XmlRootElement(name = RockSimCommonConstants.LAUNCH_LUG)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LaunchLugDTO extends BasePartDTO {
 
-    @XmlElement(name = RocksimCommonConstants.OD)
+    @XmlElement(name = RockSimCommonConstants.OD)
     private double od = 0d;
-    @XmlElement(name = RocksimCommonConstants.ID)
+    @XmlElement(name = RockSimCommonConstants.ID)
     private double id = 0d;
 
     /**
@@ -33,8 +33,8 @@ public class LaunchLugDTO extends BasePartDTO {
      */
     public LaunchLugDTO(LaunchLug theORLaunchLug) {
         super(theORLaunchLug);
-        setId(theORLaunchLug.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(theORLaunchLug.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(theORLaunchLug.getInnerRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORLaunchLug.getOuterRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setRadialAngle(theORLaunchLug.getAngleOffset());
     }
 
