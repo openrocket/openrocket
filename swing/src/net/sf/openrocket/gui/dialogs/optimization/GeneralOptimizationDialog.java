@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -264,9 +265,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		addButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
 		addButton.setToolTipText(trans.get("btn.add.ttip"));
 		addButton.addActionListener(e -> {
-			SimulationModifier mod = getSelectedAvailableModifier();
-			if (mod != null) {
-				addModifier(mod);
+			List<SimulationModifier> mods = getSelectedAvailableModifiers();
+			if (mods.size() > 0) {
+				addModifiers(mods);
 				clearHistory();
 			} else {
 				log.error("Attempting to add simulation modifier when none is selected");
@@ -328,9 +329,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					SimulationModifier mod = getSelectedAvailableModifier();
-					if (mod != null) {
-						addModifier(mod);
+					List<SimulationModifier> mods = getSelectedAvailableModifiers();
+					if (mods.size() == 1) {
+						addModifiers(mods);
 						clearHistory();
 					} else {
 						log.info(Markers.USER_MARKER, "Double-clicked non-available option");
@@ -1027,15 +1028,20 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 	}
 	
-	private void addModifier(SimulationModifier mod) {
-		if (!selectedModifiers.contains(mod)) {
+	private void addModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		for (SimulationModifier mod : mods) {
+			if (selectedModifiers.contains(mod)) {
+				log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
+				continue;
+			}
 			log.info(Markers.USER_MARKER, "Adding simulation modifier " + mod);
 			selectedModifiers.add(mod);
-			selectedModifierTableModel.fireTableDataChanged();
-			availableModifierTree.repaint();
-		} else {
-			log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
 		}
+		selectedModifierTableModel.fireTableDataChanged();
+		availableModifierTree.repaint();
 	}
 	
 	private void removeModifier(SimulationModifier mod) {
@@ -1069,8 +1075,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// "Add" button
-		SimulationModifier mod = getSelectedAvailableModifier();
-		state = (mod != null && !selectedModifiers.contains(mod));
+		List<SimulationModifier> mods = getSelectedAvailableModifiers();
+		state = (mods.size() > 0 && !new HashSet<>(selectedModifiers).containsAll(mods));
 		log.debug("addButton enabled: " + state);
 		addButton.setEnabled(state);
 		
@@ -1122,9 +1128,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update description text
-		mod = getSelectedModifier();
-		if (mod != null) {
-			selectedModifierDescription.setText(mod.getDescription());
+		SimulationModifier selectedMod = getSelectedModifier();
+		if (selectedMod != null) {
+			selectedModifierDescription.setText(selectedMod.getDescription());
 		} else {
 			selectedModifierDescription.setText("");
 		}
@@ -1221,18 +1227,20 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	/**
-	 * Return the currently selected available simulation modifier from the modifier tree,
-	 * or <code>null</code> if none selected.
+	 * Return the currently selected available simulation modifier from the modifier tree.
 	 */
-	private SimulationModifier getSelectedAvailableModifier() {
-		TreePath treepath = availableModifierTree.getSelectionPath();
-		if (treepath != null) {
-			Object o = ((DefaultMutableTreeNode) treepath.getLastPathComponent()).getUserObject();
-			if (o instanceof SimulationModifier) {
-				return (SimulationModifier) o;
+	private List<SimulationModifier> getSelectedAvailableModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		TreePath[] treepaths = availableModifierTree.getSelectionPaths();
+		if (treepaths != null) {
+			for (TreePath treepath : treepaths) {
+				Object obj = ((DefaultMutableTreeNode) treepath.getLastPathComponent()).getUserObject();
+				if (obj instanceof SimulationModifier) {
+					result.add((SimulationModifier) obj);
+				}
 			}
 		}
-		return null;
+		return result;
 	}
 	
 	/**
