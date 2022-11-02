@@ -219,7 +219,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		selectedModifierTable.setDefaultRenderer(Double.class, new DoubleCellRenderer());
 		selectedModifierTable.setRowSelectionAllowed(true);
 		selectedModifierTable.setColumnSelectionAllowed(false);
-		selectedModifierTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		selectedModifierTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		// Make sure spinner editor fits into the cell height
 		selectedModifierTable.setRowHeight(new JSpinner().getPreferredSize().height - 4);
@@ -282,8 +282,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		removeButton = new SelectColorButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
 		removeButton.setToolTipText(trans.get("btn.delete.ttip"));
 		removeButton.addActionListener(e -> {
-			SimulationModifier mod = getSelectedModifier();
-			if (mod == null) {
+			List<SimulationModifier> mods = getSelectedModifiers();
+			if (mods.size() == 0) {
 				log.error("Attempting to remove simulation modifier when none is selected");
 				return;
 			}
@@ -292,7 +292,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				selectedModifierTable.getCellEditor().stopCellEditing();
 			}
 
-			removeModifier(mod);
+			removeModifiers(mods);
 			clearHistory();
 		});
 		disableComponents.add(removeButton);
@@ -1044,9 +1044,14 @@ public class GeneralOptimizationDialog extends JDialog {
 		availableModifierTree.repaint();
 	}
 	
-	private void removeModifier(SimulationModifier mod) {
-		log.info(Markers.USER_MARKER, "Removing simulation modifier " + mod);
-		selectedModifiers.remove(mod);
+	private void removeModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		log.info(Markers.USER_MARKER, "Removing simulation modifiers " + mods);
+		for (SimulationModifier mod : mods) {
+			selectedModifiers.remove(mod);
+		}
 		selectedModifierTableModel.fireTableDataChanged();
 		availableModifierTree.repaint();
 	}
@@ -1128,9 +1133,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update description text
-		SimulationModifier selectedMod = getSelectedModifier();
-		if (selectedMod != null) {
-			selectedModifierDescription.setText(selectedMod.getDescription());
+		List<SimulationModifier> selectedMods = getSelectedModifiers();
+		if (selectedMods.size() == 1) {
+			selectedModifierDescription.setText(selectedMods.get(0).getDescription());
 		} else {
 			selectedModifierDescription.setText("");
 		}
@@ -1265,17 +1270,17 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	/**
-	 * Return the currently selected simulation modifier from the table,
-	 * or <code>null</code> if none selected.
-	 * @return the selected modifier or <code>null</code>.
+	 * Return the currently selected simulation modifiers from the table.
+	 * @return the selected modifier.
 	 */
-	private SimulationModifier getSelectedModifier() {
-		int row = selectedModifierTable.getSelectedRow();
-		if (row < 0) {
-			return null;
+	private List<SimulationModifier> getSelectedModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		int[] rows = selectedModifierTable.getSelectedRows();
+		for (int row : rows) {
+			int idx = selectedModifierTable.convertRowIndexToModel(row);
+			result.add(selectedModifiers.get(idx));
 		}
-		row = selectedModifierTable.convertRowIndexToModel(row);
-		return selectedModifiers.get(row);
+		return result;
 	}
 	
 	/**
