@@ -66,16 +66,12 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		// // Default Mach number
 		JLabel dfn = new JLabel(trans.get("pref.dlg.lbl.DefaultMach"));
 		this.add(dfn, "gapright para");
-		dfn.setToolTipText(trans.get("pref.dlg.ttip.DefaultMach1")
-				+ trans.get("pref.dlg.ttip.DefaultMach2"));
 
 		DoubleModel m = new DoubleModel(preferences, "DefaultMach", 1.0,
 				UnitGroup.UNITS_COEFFICIENT, 0.1, 0.9);
 
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(trans.get("pref.dlg.ttip.DefaultMach1")
-				+ trans.get("pref.dlg.ttip.DefaultMach2"));
 		this.add(spin, "wrap");
 
 		final JCheckBox autoOpenDesignFile = new JCheckBox(
