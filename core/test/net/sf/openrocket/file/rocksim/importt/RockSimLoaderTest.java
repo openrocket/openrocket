@@ -146,20 +146,20 @@ public class RockSimLoaderTest extends BaseTestCase {
     }
 
     @org.junit.Test
-    public void testSubAssemblyRocket() throws IOException, RocketLoadException {
+    public void testBodyTubeChildrenRocket() throws IOException, RocketLoadException {
         RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRockSimSubassemblyRocket(loader);
+        OpenRocketDocument doc = loadBodyTubeChildrenRocket(loader);
         InputStream stream;
 
         Assert.assertNotNull(doc);
         Rocket rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
-        Assert.assertEquals("SubAssembly Element Test", doc.getRocket().getName());
+        Assert.assertEquals("Body Tube Children Test", doc.getRocket().getName());
         Assert.assertTrue(loader.getWarnings().isEmpty());
 
-        stream = this.getClass().getResourceAsStream("SubAssemblyTest.rkt");
-        Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
+        stream = this.getClass().getResourceAsStream("BodyTubeChildrenTest.rkt");
+        Assert.assertNotNull("Could not open BodyTubeChildrenTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
@@ -220,10 +220,10 @@ public class RockSimLoaderTest extends BaseTestCase {
         }
     }
 
-    public static OpenRocketDocument loadRockSimSubassemblyRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("SubAssemblyTest.rkt");
+    public static OpenRocketDocument loadBodyTubeChildrenRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
+        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("BodyTubeChildrenTest.rkt");
         try {
-            Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
+            Assert.assertNotNull("Could not open BodyTubeChildrenTest.rkt", stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);

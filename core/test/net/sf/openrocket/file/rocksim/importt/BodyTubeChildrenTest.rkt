@@ -2,7 +2,7 @@
     <FileVersion>4</FileVersion>
     <DesignInformation>
         <RocketDesign>
-            <Name>SubAssembly Element Test</Name>
+            <Name>Body Tube Children Test</Name>
             <StageCount>1</StageCount>
             <DisplayFlags>7</DisplayFlags>
             <ViewType>0</ViewType>
