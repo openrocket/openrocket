@@ -78,7 +78,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 	@Test
 	public void testRoundTrip() throws Exception {
 		// TODO need checks here to validate that correct things were done
-		OpenRocketDocument ord = RockSimLoaderTest.loadRockSimRocket3(new RockSimLoader());
+		OpenRocketDocument ord = RockSimLoaderTest.loadRockSimRocket(new RockSimLoader(), "rocksimTestRocket3.rkt");
 		
 		Assert.assertNotNull(ord);
 		String result = new RockSimSaver().marshalToRockSim(ord);

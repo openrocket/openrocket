@@ -8,6 +8,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.Transition;
 import org.junit.Assert;
 
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -20,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+import org.junit.Test;
 
 /**
  * RockSimLoader Tester.
@@ -59,7 +62,7 @@ public class RockSimLoaderTest extends BaseTestCase {
     public void testLoadFromStream() throws Exception {
         RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRockSimRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader, "rocksimTestRocket1.rkt");
         InputStream stream;
 
         Assert.assertNotNull(doc);
@@ -149,7 +152,7 @@ public class RockSimLoaderTest extends BaseTestCase {
     public void testBodyTubeChildrenRocket() throws IOException, RocketLoadException {
         RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadBodyTubeChildrenRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader, "BodyTubeChildrenTest.rkt");
         InputStream stream;
 
         Assert.assertNotNull(doc);
@@ -188,10 +191,74 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Centering ring", subassemblyBodyTube.getChild(7).getName());
     }
 
-    public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket1.rkt");
-        try {
-            Assert.assertNotNull("Could not open rocksimTestRocket1.rkt", stream);
+    @Test
+    public void testSubAssemblyRocket() throws IOException, RocketLoadException {
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = loadRockSimRocket(loader, "SubAssemblyTest.rkt");
+
+        Assert.assertNotNull(doc);
+        Rocket rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals("SubAssembly Test", doc.getRocket().getName());
+        Assert.assertEquals(2, loader.getWarnings().size());    // can't add BodyTube to NoseCone, and can't add Transition to Transition
+
+        InputStream stream = this.getClass().getResourceAsStream("SubAssemblyTest.rkt");
+        Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
+
+        doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new BufferedInputStream(stream));
+
+        Assert.assertNotNull(doc);
+        rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals(1, rocket.getStageCount());
+        AxialStage stage1 = (AxialStage) rocket.getChild(0);
+
+        Assert.assertEquals(5, stage1.getChildCount());
+        NoseCone noseCone1 = (NoseCone) stage1.getChild(0);
+        BodyTube bodyTube2 = (BodyTube) stage1.getChild(1);
+        Transition transition1 = (Transition) stage1.getChild(2);
+        Transition transition3 = (Transition) stage1.getChild(3);
+        BodyTube bodyTube3 = (BodyTube) stage1.getChild(4);
+        Assert.assertEquals("Nose cone 1", noseCone1.getName());
+        Assert.assertEquals("Body tube 2", bodyTube2.getName());
+        Assert.assertEquals("Transition 1", transition1.getName());
+        Assert.assertEquals("Transition 3", transition3.getName());
+        Assert.assertEquals("Body tube 3", bodyTube3.getName());
+
+        Assert.assertEquals(1, noseCone1.getChildCount());
+        Assert.assertEquals("Mass object 1", noseCone1.getChild(0).getName());
+
+        Assert.assertEquals(12, bodyTube2.getChildCount());
+        Assert.assertEquals("Mass object 2", bodyTube2.getChild(0).getName());
+        Assert.assertEquals("Launch lug 1", bodyTube2.getChild(1).getName());
+        Assert.assertEquals("Centering ring 1", bodyTube2.getChild(2).getName());
+        Assert.assertEquals("Tube coupler 1", bodyTube2.getChild(3).getName());
+        Assert.assertEquals("Fin set 1", bodyTube2.getChild(4).getName());
+        Assert.assertEquals("Fin set 2", bodyTube2.getChild(5).getName());
+        Assert.assertEquals("Parachute 1", bodyTube2.getChild(6).getName());
+        Assert.assertEquals("Streamer 1", bodyTube2.getChild(7).getName());
+        Assert.assertEquals("Bulkhead 1", bodyTube2.getChild(8).getName());
+        Assert.assertEquals("Engine block 1", bodyTube2.getChild(9).getName());
+        Assert.assertEquals("Tube fins 1", bodyTube2.getChild(10).getName());
+        Assert.assertEquals("Sleeve 1", bodyTube2.getChild(11).getName());
+
+        Assert.assertEquals(3, transition1.getChildCount());
+        Assert.assertEquals("Mass object 3", transition1.getChild(0).getName());
+        Assert.assertEquals("Fin set 3", transition1.getChild(1).getName());
+        Assert.assertEquals("Fin set 4", transition1.getChild(2).getName());
+
+        Assert.assertEquals(0, transition3.getChildCount());
+
+        Assert.assertEquals(0, bodyTube3.getChildCount());
+    }
+
+    public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName) throws IOException, RocketLoadException {
+        try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream(fileName)) {
+            Assert.assertNotNull("Could not open " + fileName, stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);
@@ -199,41 +266,5 @@ public class RockSimLoaderTest extends BaseTestCase {
             theLoader.loadFromStream(context, new BufferedInputStream(stream));
             return doc;
         }
-        finally {
-            stream.close();
-        }
     }
-
-    public static OpenRocketDocument loadRockSimRocket3(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket3.rkt");
-        try {
-            Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
-            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
-            DocumentLoadingContext context = new DocumentLoadingContext();
-            context.setOpenRocketDocument(doc);
-            context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
-            return doc;
-        }
-        finally {
-            stream.close();
-        }
-    }
-
-    public static OpenRocketDocument loadBodyTubeChildrenRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("BodyTubeChildrenTest.rkt");
-        try {
-            Assert.assertNotNull("Could not open BodyTubeChildrenTest.rkt", stream);
-            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
-            DocumentLoadingContext context = new DocumentLoadingContext();
-            context.setOpenRocketDocument(doc);
-            context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
-            return doc;
-        }
-        finally {
-            stream.close();
-        }
-    }
-
 }
