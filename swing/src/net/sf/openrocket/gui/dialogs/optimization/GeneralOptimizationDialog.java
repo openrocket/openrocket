@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -218,7 +219,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		selectedModifierTable.setDefaultRenderer(Double.class, new DoubleCellRenderer());
 		selectedModifierTable.setRowSelectionAllowed(true);
 		selectedModifierTable.setColumnSelectionAllowed(false);
-		selectedModifierTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		selectedModifierTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		// Make sure spinner editor fits into the cell height
 		selectedModifierTable.setRowHeight(new JSpinner().getPreferredSize().height - 4);
@@ -264,9 +265,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		addButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
 		addButton.setToolTipText(trans.get("btn.add.ttip"));
 		addButton.addActionListener(e -> {
-			SimulationModifier mod = getSelectedAvailableModifier();
-			if (mod != null) {
-				addModifier(mod);
+			List<SimulationModifier> mods = getSelectedAvailableModifiers();
+			if (mods.size() > 0) {
+				addModifiers(mods);
 				clearHistory();
 			} else {
 				log.error("Attempting to add simulation modifier when none is selected");
@@ -281,8 +282,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		removeButton = new SelectColorButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
 		removeButton.setToolTipText(trans.get("btn.delete.ttip"));
 		removeButton.addActionListener(e -> {
-			SimulationModifier mod = getSelectedModifier();
-			if (mod == null) {
+			List<SimulationModifier> mods = getSelectedModifiers();
+			if (mods.size() == 0) {
 				log.error("Attempting to remove simulation modifier when none is selected");
 				return;
 			}
@@ -291,7 +292,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				selectedModifierTable.getCellEditor().stopCellEditing();
 			}
 
-			removeModifier(mod);
+			removeModifiers(mods);
 			clearHistory();
 		});
 		disableComponents.add(removeButton);
@@ -328,9 +329,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					SimulationModifier mod = getSelectedAvailableModifier();
-					if (mod != null) {
-						addModifier(mod);
+					List<SimulationModifier> mods = getSelectedAvailableModifiers();
+					if (mods.size() == 1) {
+						addModifiers(mods);
 						clearHistory();
 					} else {
 						log.info(Markers.USER_MARKER, "Double-clicked non-available option");
@@ -1027,20 +1028,30 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 	}
 	
-	private void addModifier(SimulationModifier mod) {
-		if (!selectedModifiers.contains(mod)) {
+	private void addModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		for (SimulationModifier mod : mods) {
+			if (selectedModifiers.contains(mod)) {
+				log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
+				continue;
+			}
 			log.info(Markers.USER_MARKER, "Adding simulation modifier " + mod);
 			selectedModifiers.add(mod);
-			selectedModifierTableModel.fireTableDataChanged();
-			availableModifierTree.repaint();
-		} else {
-			log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
 		}
+		selectedModifierTableModel.fireTableDataChanged();
+		availableModifierTree.repaint();
 	}
 	
-	private void removeModifier(SimulationModifier mod) {
-		log.info(Markers.USER_MARKER, "Removing simulation modifier " + mod);
-		selectedModifiers.remove(mod);
+	private void removeModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		log.info(Markers.USER_MARKER, "Removing simulation modifiers " + mods);
+		for (SimulationModifier mod : mods) {
+			selectedModifiers.remove(mod);
+		}
 		selectedModifierTableModel.fireTableDataChanged();
 		availableModifierTree.repaint();
 	}
@@ -1069,8 +1080,8 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// "Add" button
-		SimulationModifier mod = getSelectedAvailableModifier();
-		state = (mod != null && !selectedModifiers.contains(mod));
+		List<SimulationModifier> mods = getSelectedAvailableModifiers();
+		state = (mods.size() > 0 && !new HashSet<>(selectedModifiers).containsAll(mods));
 		log.debug("addButton enabled: " + state);
 		addButton.setEnabled(state);
 		
@@ -1122,9 +1133,9 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		// Update description text
-		mod = getSelectedModifier();
-		if (mod != null) {
-			selectedModifierDescription.setText(mod.getDescription());
+		List<SimulationModifier> selectedMods = getSelectedModifiers();
+		if (selectedMods.size() == 1) {
+			selectedModifierDescription.setText(selectedMods.get(0).getDescription());
 		} else {
 			selectedModifierDescription.setText("");
 		}
@@ -1221,18 +1232,20 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	/**
-	 * Return the currently selected available simulation modifier from the modifier tree,
-	 * or <code>null</code> if none selected.
+	 * Return the currently selected available simulation modifier from the modifier tree.
 	 */
-	private SimulationModifier getSelectedAvailableModifier() {
-		TreePath treepath = availableModifierTree.getSelectionPath();
-		if (treepath != null) {
-			Object o = ((DefaultMutableTreeNode) treepath.getLastPathComponent()).getUserObject();
-			if (o instanceof SimulationModifier) {
-				return (SimulationModifier) o;
+	private List<SimulationModifier> getSelectedAvailableModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		TreePath[] treepaths = availableModifierTree.getSelectionPaths();
+		if (treepaths != null) {
+			for (TreePath treepath : treepaths) {
+				Object obj = ((DefaultMutableTreeNode) treepath.getLastPathComponent()).getUserObject();
+				if (obj instanceof SimulationModifier) {
+					result.add((SimulationModifier) obj);
+				}
 			}
 		}
-		return null;
+		return result;
 	}
 	
 	/**
@@ -1257,17 +1270,17 @@ public class GeneralOptimizationDialog extends JDialog {
 	}
 	
 	/**
-	 * Return the currently selected simulation modifier from the table,
-	 * or <code>null</code> if none selected.
-	 * @return the selected modifier or <code>null</code>.
+	 * Return the currently selected simulation modifiers from the table.
+	 * @return the selected modifier.
 	 */
-	private SimulationModifier getSelectedModifier() {
-		int row = selectedModifierTable.getSelectedRow();
-		if (row < 0) {
-			return null;
+	private List<SimulationModifier> getSelectedModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		int[] rows = selectedModifierTable.getSelectedRows();
+		for (int row : rows) {
+			int idx = selectedModifierTable.convertRowIndexToModel(row);
+			result.add(selectedModifiers.get(idx));
 		}
-		row = selectedModifierTable.convertRowIndexToModel(row);
-		return selectedModifiers.get(row);
+		return result;
 	}
 	
 	/**

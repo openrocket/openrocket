@@ -350,6 +350,9 @@ class StageHandler extends AbstractElementHandler {
 		if (RockSimCommonConstants.TRANSITION.equals(element)) {
 			return new TransitionHandler(context, component, warnings);
 		}
+		if (RockSimCommonConstants.SUBASSEMBLY.equals(element)) {
+			return new SubAssemblyHandler(context, component);
+		}
 		return null;
 	}
 }

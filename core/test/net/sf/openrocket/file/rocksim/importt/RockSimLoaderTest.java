@@ -7,7 +7,6 @@ package net.sf.openrocket.file.rocksim.importt;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
@@ -62,6 +61,88 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertTrue(loader.getWarnings().size() == 2);
     }
 
+    @Test
+    public void testFinsOnTransitions() throws IOException, RocketLoadException {
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = loadRockSimRocket(loader, "FinsOnTransitions.rkt");
+
+        Assert.assertNotNull(doc);
+        Rocket rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals("FinsOnTransitions", doc.getRocket().getName());
+        Assert.assertTrue(loader.getWarnings().isEmpty());
+
+        InputStream stream = this.getClass().getResourceAsStream("FinsOnTransitions.rkt");
+        Assert.assertNotNull("Could not open FinsOnTransitions.rkt", stream);
+
+        doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new BufferedInputStream(stream));
+
+        Assert.assertNotNull(doc);
+        rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals(1, rocket.getStageCount());
+        AxialStage stage1 = (AxialStage) rocket.getChild(0);
+
+        RocketComponent transition1 = stage1.getChild(0);
+        RocketComponent transition2 = stage1.getChild(1);
+        Assert.assertEquals(" Component should have been transition", Transition.class, transition1.getClass());
+        Assert.assertEquals(" Component should have been transition", Transition.class, transition2.getClass());
+        Assert.assertEquals("Transition 1", transition1.getName());
+        Assert.assertEquals("Transition 2", transition2.getName());
+        Assert.assertEquals(1, transition1.getChildCount());
+        Assert.assertEquals(1, transition2.getChildCount());
+
+        Assert.assertEquals(" Transition 1 length does not match", 0.075, transition1.getLength(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 1 fore radius does not match", 0.0125,((Transition) transition1).getForeRadius(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 1 aft radius does not match", 0.025, ((Transition) transition1).getAftRadius(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 1 shape does not match", Transition.Shape.CONICAL, ((Transition) transition1).getType());
+
+        Assert.assertEquals(" Transition 2 length does not match", 0.075, transition2.getLength(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 2 fore radius does not match", 0.025,((Transition) transition2).getForeRadius(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 2 aft radius does not match", 0.0125, ((Transition) transition2).getAftRadius(), MathUtil.EPSILON);
+        Assert.assertEquals(" Transition 2 shape does not match", Transition.Shape.CONICAL, ((Transition) transition2).getType());
+
+        RocketComponent finSet1 = transition1.getChild(0);
+        RocketComponent finSet2 = transition2.getChild(0);
+        Assert.assertEquals(" Component should have been free form fin set", FreeformFinSet.class, finSet1.getClass());
+        Assert.assertEquals(" Component should have been free form fin set", FreeformFinSet.class, finSet2.getClass());
+        Assert.assertEquals("Fin set 1", finSet1.getName());
+        Assert.assertEquals("Fin set 2", finSet2.getName());
+
+        FreeformFinSet freeformFinSet1 = (FreeformFinSet) finSet1;
+        FreeformFinSet freeformFinSet2 = (FreeformFinSet) finSet2;
+        Assert.assertEquals(3, freeformFinSet1.getFinCount());
+        Assert.assertEquals(3, freeformFinSet2.getFinCount());
+
+        Coordinate[] points1 =  freeformFinSet1.getFinPoints();
+        Coordinate[] expectedPoints1 = new Coordinate[] {
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.035, 0.03, 0.0),
+                new Coordinate(0.07250, 0.03, 0.0),
+                new Coordinate(0.07500, 0.01250, 0.0)
+        };
+        Assert.assertArrayEquals(" Fin set 1 fin points do not match", expectedPoints1, points1);
+        Assert.assertEquals(" Fin set 1 fin tab length does not match", 0.05, freeformFinSet1.getTabLength(), MathUtil.EPSILON);
+        Assert.assertEquals(" Fin set 1 fin tab height does not match", 0.0075, freeformFinSet1.getTabHeight(), MathUtil.EPSILON);
+        Assert.assertEquals(" Fin set 1 fin tab offset does not match", 0.01, freeformFinSet1.getTabOffset(), MathUtil.EPSILON);
+
+        Coordinate[] points2 =  freeformFinSet2.getFinPoints();
+        Coordinate[] expectedPoints2 = new Coordinate[] {
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.025, 0.035, 0.0),
+                new Coordinate(0.05, 0.03, 0.0),
+                new Coordinate(0.06, -0.01, 0.0)
+        };
+        Assert.assertArrayEquals(" Fin set 2 fin points do not match", expectedPoints2, points2);
+        Assert.assertEquals(" Fin set 2 fin tab length does not match", 0.03, freeformFinSet2.getTabLength(), MathUtil.EPSILON);
+        Assert.assertEquals(" Fin set 2 fin tab height does not match", 0.005, freeformFinSet2.getTabHeight(), MathUtil.EPSILON);
+        Assert.assertEquals(" Fin set 2 fin tab offset does not match", 0, freeformFinSet2.getTabOffset(), MathUtil.EPSILON);
+    }
+
     /**
      * Method: loadFromStream(InputStream source)
      *
@@ -71,7 +152,7 @@ public class RockSimLoaderTest extends BaseTestCase {
     public void testLoadFromStream() throws Exception {
         RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRockSimRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader, "rocksimTestRocket1.rkt");
         InputStream stream;
 
         Assert.assertNotNull(doc);
@@ -192,20 +273,20 @@ public class RockSimLoaderTest extends BaseTestCase {
     }
 
     @org.junit.Test
-    public void testSubAssemblyRocket() throws IOException, RocketLoadException {
+    public void testBodyTubeChildrenRocket() throws IOException, RocketLoadException {
         RockSimLoader loader = new RockSimLoader();
         //Stupid single stage rocket
-        OpenRocketDocument doc = loadRockSimSubassemblyRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader, "BodyTubeChildrenTest.rkt");
         InputStream stream;
 
         Assert.assertNotNull(doc);
         Rocket rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
-        Assert.assertEquals("SubAssembly Element Test", doc.getRocket().getName());
+        Assert.assertEquals("Body Tube Children Test", doc.getRocket().getName());
         Assert.assertTrue(loader.getWarnings().isEmpty());
 
-        stream = this.getClass().getResourceAsStream("SubAssemblyTest.rkt");
-        Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
+        stream = this.getClass().getResourceAsStream("BodyTubeChildrenTest.rkt");
+        Assert.assertNotNull("Could not open BodyTubeChildrenTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
@@ -235,18 +316,18 @@ public class RockSimLoaderTest extends BaseTestCase {
     }
 
     @Test
-    public void testFinsOnTransitions() throws IOException, RocketLoadException {
+    public void testSubAssemblyRocket() throws IOException, RocketLoadException {
         RockSimLoader loader = new RockSimLoader();
-        OpenRocketDocument doc = loadRockSimFinsOnTransitionsRocket(loader);
+        OpenRocketDocument doc = loadRockSimRocket(loader, "SubAssemblyTest.rkt");
 
         Assert.assertNotNull(doc);
         Rocket rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
-        Assert.assertEquals("FinsOnTransitions", doc.getRocket().getName());
-        Assert.assertTrue(loader.getWarnings().isEmpty());
+        Assert.assertEquals("SubAssembly Test", doc.getRocket().getName());
+        Assert.assertEquals(2, loader.getWarnings().size());    // can't add BodyTube to NoseCone, and can't add Transition to Transition
 
-        InputStream stream = this.getClass().getResourceAsStream("FinsOnTransitions.rkt");
-        Assert.assertNotNull("Could not open FinsOnTransitions.rkt", stream);
+        InputStream stream = this.getClass().getResourceAsStream("SubAssemblyTest.rkt");
+        Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
@@ -260,113 +341,48 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(1, rocket.getStageCount());
         AxialStage stage1 = (AxialStage) rocket.getChild(0);
 
-        RocketComponent transition1 = stage1.getChild(0);
-        RocketComponent transition2 = stage1.getChild(1);
-        Assert.assertEquals(" Component should have been transition", Transition.class, transition1.getClass());
-        Assert.assertEquals(" Component should have been transition", Transition.class, transition2.getClass());
+        Assert.assertEquals(5, stage1.getChildCount());
+        NoseCone noseCone1 = (NoseCone) stage1.getChild(0);
+        BodyTube bodyTube2 = (BodyTube) stage1.getChild(1);
+        Transition transition1 = (Transition) stage1.getChild(2);
+        Transition transition3 = (Transition) stage1.getChild(3);
+        BodyTube bodyTube3 = (BodyTube) stage1.getChild(4);
+        Assert.assertEquals("Nose cone 1", noseCone1.getName());
+        Assert.assertEquals("Body tube 2", bodyTube2.getName());
         Assert.assertEquals("Transition 1", transition1.getName());
-        Assert.assertEquals("Transition 2", transition2.getName());
-        Assert.assertEquals(1, transition1.getChildCount());
-        Assert.assertEquals(1, transition2.getChildCount());
+        Assert.assertEquals("Transition 3", transition3.getName());
+        Assert.assertEquals("Body tube 3", bodyTube3.getName());
 
-        Assert.assertEquals(" Transition 1 length does not match", 0.075, transition1.getLength(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 1 fore radius does not match", 0.0125,((Transition) transition1).getForeRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 1 aft radius does not match", 0.025, ((Transition) transition1).getAftRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 1 shape does not match", Transition.Shape.CONICAL, ((Transition) transition1).getType());
+        Assert.assertEquals(1, noseCone1.getChildCount());
+        Assert.assertEquals("Mass object 1", noseCone1.getChild(0).getName());
 
-        Assert.assertEquals(" Transition 2 length does not match", 0.075, transition2.getLength(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 2 fore radius does not match", 0.025,((Transition) transition2).getForeRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 2 aft radius does not match", 0.0125, ((Transition) transition2).getAftRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 2 shape does not match", Transition.Shape.CONICAL, ((Transition) transition2).getType());
+        Assert.assertEquals(12, bodyTube2.getChildCount());
+        Assert.assertEquals("Mass object 2", bodyTube2.getChild(0).getName());
+        Assert.assertEquals("Launch lug 1", bodyTube2.getChild(1).getName());
+        Assert.assertEquals("Centering ring 1", bodyTube2.getChild(2).getName());
+        Assert.assertEquals("Tube coupler 1", bodyTube2.getChild(3).getName());
+        Assert.assertEquals("Fin set 1", bodyTube2.getChild(4).getName());
+        Assert.assertEquals("Fin set 2", bodyTube2.getChild(5).getName());
+        Assert.assertEquals("Parachute 1", bodyTube2.getChild(6).getName());
+        Assert.assertEquals("Streamer 1", bodyTube2.getChild(7).getName());
+        Assert.assertEquals("Bulkhead 1", bodyTube2.getChild(8).getName());
+        Assert.assertEquals("Engine block 1", bodyTube2.getChild(9).getName());
+        Assert.assertEquals("Tube fins 1", bodyTube2.getChild(10).getName());
+        Assert.assertEquals("Sleeve 1", bodyTube2.getChild(11).getName());
 
-        RocketComponent finSet1 = transition1.getChild(0);
-        RocketComponent finSet2 = transition2.getChild(0);
-        Assert.assertEquals(" Component should have been free form fin set", FreeformFinSet.class, finSet1.getClass());
-        Assert.assertEquals(" Component should have been free form fin set", FreeformFinSet.class, finSet2.getClass());
-        Assert.assertEquals("Fin set 1", finSet1.getName());
-        Assert.assertEquals("Fin set 2", finSet2.getName());
+        Assert.assertEquals(3, transition1.getChildCount());
+        Assert.assertEquals("Mass object 3", transition1.getChild(0).getName());
+        Assert.assertEquals("Fin set 3", transition1.getChild(1).getName());
+        Assert.assertEquals("Fin set 4", transition1.getChild(2).getName());
 
-        FreeformFinSet freeformFinSet1 = (FreeformFinSet) finSet1;
-        FreeformFinSet freeformFinSet2 = (FreeformFinSet) finSet2;
-        Assert.assertEquals(3, freeformFinSet1.getFinCount());
-        Assert.assertEquals(3, freeformFinSet2.getFinCount());
+        Assert.assertEquals(0, transition3.getChildCount());
 
-        Coordinate[] points1 =  freeformFinSet1.getFinPoints();
-        Coordinate[] expectedPoints1 = new Coordinate[] {
-                new Coordinate(0.0, 0.0, 0.0),
-                new Coordinate(0.035, 0.03, 0.0),
-                new Coordinate(0.07250, 0.03, 0.0),
-                new Coordinate(0.07500, 0.01250, 0.0)
-        };
-        Assert.assertArrayEquals(" Fin set 1 fin points do not match", expectedPoints1, points1);
-        Assert.assertEquals(" Fin set 1 fin tab length does not match", 0.05, freeformFinSet1.getTabLength(), MathUtil.EPSILON);
-        Assert.assertEquals(" Fin set 1 fin tab height does not match", 0.0075, freeformFinSet1.getTabHeight(), MathUtil.EPSILON);
-        Assert.assertEquals(" Fin set 1 fin tab offset does not match", 0.01, freeformFinSet1.getTabOffset(), MathUtil.EPSILON);
-
-        Coordinate[] points2 =  freeformFinSet2.getFinPoints();
-        Coordinate[] expectedPoints2 = new Coordinate[] {
-                new Coordinate(0.0, 0.0, 0.0),
-                new Coordinate(0.025, 0.035, 0.0),
-                new Coordinate(0.05, 0.03, 0.0),
-                new Coordinate(0.06, -0.01, 0.0)
-        };
-        Assert.assertArrayEquals(" Fin set 2 fin points do not match", expectedPoints2, points2);
-        Assert.assertEquals(" Fin set 2 fin tab length does not match", 0.03, freeformFinSet2.getTabLength(), MathUtil.EPSILON);
-        Assert.assertEquals(" Fin set 2 fin tab height does not match", 0.005, freeformFinSet2.getTabHeight(), MathUtil.EPSILON);
-        Assert.assertEquals(" Fin set 2 fin tab offset does not match", 0, freeformFinSet2.getTabOffset(), MathUtil.EPSILON);
+        Assert.assertEquals(0, bodyTube3.getChildCount());
     }
 
-    public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket1.rkt");
-        try {
-            Assert.assertNotNull("Could not open rocksimTestRocket1.rkt", stream);
-            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
-            DocumentLoadingContext context = new DocumentLoadingContext();
-            context.setOpenRocketDocument(doc);
-            context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
-            return doc;
-        }
-        finally {
-            stream.close();
-        }
-    }
-
-    public static OpenRocketDocument loadRockSimRocket3(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("rocksimTestRocket3.rkt");
-        try {
-            Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
-            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
-            DocumentLoadingContext context = new DocumentLoadingContext();
-            context.setOpenRocketDocument(doc);
-            context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
-            return doc;
-        }
-        finally {
-            stream.close();
-        }
-    }
-
-    public static OpenRocketDocument loadRockSimSubassemblyRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        InputStream stream = RockSimLoaderTest.class.getResourceAsStream("SubAssemblyTest.rkt");
-        try {
-            Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
-            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
-            DocumentLoadingContext context = new DocumentLoadingContext();
-            context.setOpenRocketDocument(doc);
-            context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
-            return doc;
-        }
-        finally {
-            stream.close();
-        }
-    }
-
-    public static OpenRocketDocument loadRockSimFinsOnTransitionsRocket(RockSimLoader theLoader) throws IOException, RocketLoadException {
-        try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream("FinsOnTransitions.rkt")) {
-            Assert.assertNotNull("Could not open FinsOnTransitions.rkt", stream);
+    public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName) throws IOException, RocketLoadException {
+        try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream(fileName)) {
+            Assert.assertNotNull("Could not open " + fileName, stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);
@@ -375,5 +391,4 @@ public class RockSimLoaderTest extends BaseTestCase {
             return doc;
         }
     }
-
 }
