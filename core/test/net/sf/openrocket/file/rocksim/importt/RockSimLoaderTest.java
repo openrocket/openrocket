@@ -9,7 +9,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.Coordinate;
@@ -130,7 +135,41 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(0.185d, stage1.getOverrideMass(), 0.001);
         Assert.assertTrue(stage1.isCGOverridden());
         Assert.assertEquals(0.3d, stage1.getOverrideCG().x, 0.001);
-        Assert.assertEquals(3, loader.getWarnings().size());
+        Assert.assertEquals(2, loader.getWarnings().size());
+
+        NoseCone nc = (NoseCone) stage1.getChild(0);
+        Assert.assertEquals(2, nc.getChildCount());
+        Assert.assertEquals("Clay", nc.getChild(0).getName());
+        RocketComponent it = nc.getChild(1);
+        Assert.assertEquals(InnerTube.class, it.getClass());
+        Assert.assertEquals("Attachment Rod", it.getName());
+
+        Assert.assertEquals(3, it.getChildCount());
+        RocketComponent c = it.getChild(0);
+        Assert.assertEquals(CenteringRing.class, c.getClass());
+        Assert.assertEquals("Plate", c.getName());
+        c = it.getChild(1);
+        Assert.assertEquals(CenteringRing.class, c.getClass());
+        Assert.assertEquals("Sleeve ", c.getName());
+        c = it.getChild(2);
+        Assert.assertEquals(Parachute.class, c.getClass());
+        Assert.assertEquals("Nose Cone Parachute", c.getName());
+
+        BodyTube bt1 = (BodyTube) stage1.getChild(1);
+        Assert.assertEquals(5, bt1.getChildCount());
+        Assert.assertEquals("Centering ring", bt1.getChild(0).getName());
+        Assert.assertEquals("Centering ring", bt1.getChild(1).getName());
+        c = bt1.getChild(2);
+        Assert.assertEquals(InnerTube.class, c.getClass());
+        Assert.assertEquals("Body tube", c.getName());
+        Assert.assertEquals("Launch lug", bt1.getChild(3).getName());
+        Assert.assertEquals("Pod", bt1.getChild(4).getName());
+
+        PodSet pod = (PodSet) bt1.getChild(4);
+        Assert.assertEquals(1, pod.getChildCount());
+        c = pod.getChild(0);
+        Assert.assertEquals(BodyTube.class, c.getClass());
+        Assert.assertEquals("Body tube", pod.getChild(0).getName());
 
         Assert.assertEquals(1, stage2.getChildCount());
         Assert.assertEquals("2nd Stage Tube", stage2.getChild(0).getName());
@@ -139,8 +178,8 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertTrue(stage2.isCGOverridden());
         Assert.assertEquals(0.4d, stage2.getOverrideCG().x, 0.001);
 
-        BodyTube bt = (BodyTube) stage2.getChild(0);
-        LaunchLug ll = (LaunchLug) bt.getChild(6);
+        BodyTube bt2 = (BodyTube) stage2.getChild(0);
+        LaunchLug ll = (LaunchLug) bt2.getChild(6);
         Assert.assertEquals(1.22d, ll.getAngleOffset(), 0.001);
 
         Assert.assertEquals(2, stage3.getChildCount());
