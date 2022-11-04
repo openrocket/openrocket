@@ -8,14 +8,17 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import org.junit.Assert;
@@ -378,6 +381,97 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(0, transition3.getChildCount());
 
         Assert.assertEquals(0, bodyTube3.getChildCount());
+    }
+
+    @Test
+    public void testPodRocket() throws IOException, RocketLoadException{
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = loadRockSimRocket(loader, "PodTest.rkt");
+
+        Assert.assertNotNull(doc);
+        Rocket rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals("Pod Test", doc.getRocket().getName());
+        Assert.assertEquals(3, loader.getWarnings().size());
+
+        InputStream stream = this.getClass().getResourceAsStream("PodTest.rkt");
+        Assert.assertNotNull("Could not open PodTest.rkt", stream);
+
+        doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new BufferedInputStream(stream));
+
+        Assert.assertNotNull(doc);
+        rocket = doc.getRocket();
+        Assert.assertNotNull(rocket);
+        Assert.assertEquals(1, rocket.getStageCount());
+        AxialStage stage1 = (AxialStage) rocket.getChild(0);
+
+        Assert.assertEquals(3, stage1.getChildCount());
+        RocketComponent noseCone1 = stage1.getChild(0);
+        RocketComponent bodyTube1 = stage1.getChild(1);
+        RocketComponent transition1 = stage1.getChild(2);
+        Assert.assertEquals(NoseCone.class, noseCone1.getClass());
+        Assert.assertEquals(BodyTube.class, bodyTube1.getClass());
+        Assert.assertEquals(Transition.class, transition1.getClass());
+        Assert.assertEquals("Nose cone 1", noseCone1.getName());
+        Assert.assertEquals("Body tube 1", bodyTube1.getName());
+        Assert.assertEquals("Transition 1", transition1.getName());
+
+        Assert.assertEquals(1, noseCone1.getChildCount());
+        RocketComponent component = noseCone1.getChild(0);
+        Assert.assertEquals(MassComponent.class, component.getClass());
+        Assert.assertEquals("Mass object 1", component.getName());
+
+        Assert.assertEquals(2, bodyTube1.getChildCount());
+        RocketComponent pod2 = bodyTube1.getChild(0);
+        Assert.assertEquals(PodSet.class, pod2.getClass());
+        Assert.assertEquals("Pod 2", pod2.getName());
+        component = bodyTube1.getChild(1);
+        Assert.assertEquals(Bulkhead.class, component.getClass());
+        Assert.assertEquals("Bulkhead 1", component.getName());
+
+        Assert.assertEquals(3, pod2.getChildCount());
+        RocketComponent noseCone2 = pod2.getChild(0);
+        Assert.assertEquals(NoseCone.class, noseCone2.getClass());
+        Assert.assertEquals("Nose cone 2", noseCone2.getName());
+        RocketComponent bodyTube2 = pod2.getChild(1);
+        Assert.assertEquals(BodyTube.class, bodyTube2.getClass());
+        Assert.assertEquals("Body tube 2", bodyTube2.getName());
+        component = pod2.getChild(2);
+        Assert.assertEquals(Transition.class, component.getClass());
+        Assert.assertEquals("Transition 2", component.getName());
+
+        Assert.assertEquals(1, noseCone2.getChildCount());
+        component = noseCone2.getChild(0);
+        Assert.assertEquals(MassComponent.class, component.getClass());
+        Assert.assertEquals("Mass object 2", component.getName());
+
+        Assert.assertEquals(3, bodyTube2.getChildCount());
+        component = bodyTube2.getChild(0);
+        Assert.assertEquals(TrapezoidFinSet.class, component.getClass());
+        Assert.assertEquals("Fin set 2", component.getName());
+        RocketComponent pod3 = bodyTube2.getChild(1);
+        Assert.assertEquals(PodSet.class, pod3.getClass());
+        Assert.assertEquals("Pod 3", pod3.getName());
+        component = bodyTube2.getChild(2);
+        Assert.assertEquals(LaunchLug.class, component.getClass());
+        Assert.assertEquals("Launch lug 1", component.getName());
+
+        Assert.assertEquals(1, pod3.getChildCount());
+        component = pod3.getChild(0);
+        Assert.assertEquals(BodyTube.class, component.getClass());
+        Assert.assertEquals("Body tube 3", component.getName());
+        Assert.assertEquals(0.04, pod3.getAxialOffset(), MathUtil.EPSILON);
+        Assert.assertEquals(Math.PI / 2, pod3.getAngleOffset(), 0.0001);
+        Assert.assertEquals(0.05, pod3.getRadiusOffset(), MathUtil.EPSILON);
+
+        Assert.assertEquals(1, transition1.getChildCount());
+        component = transition1.getChild(0);
+        Assert.assertEquals(MassComponent.class, component.getClass());
+        Assert.assertEquals("Mass object 3", component.getName());
     }
 
     public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName) throws IOException, RocketLoadException {
