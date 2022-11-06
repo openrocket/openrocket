@@ -13,6 +13,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.util.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,9 +211,16 @@ public class IntegerModel implements StateChangeListener {
 	 * Sets the value of the variable.
 	 */
 	public void setValue(int v) {
+		int clampedValue = MathUtil.clamp(v, minValue, maxValue);
+		if (clampedValue != v) {
+			log.debug("Clamped value " + v + " to " + clampedValue + " for " + this);
+			v = clampedValue;
+		}
+
 		log.debug("Setting value " + v + " for " + this);
 		try {
 			setMethod.invoke(source, v);
+			fireStateChanged();
 		} catch (IllegalArgumentException e) {
 			throw new BugException(e);
 		} catch (IllegalAccessException e) {
