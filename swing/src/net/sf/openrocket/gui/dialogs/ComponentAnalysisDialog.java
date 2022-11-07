@@ -548,6 +548,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				continue;
 			}
 
+			if ((comp instanceof ComponentAssembly) && !(comp instanceof Rocket)){
+				continue;
+			}
+
 			String name = cmEntry.name;
 			if (cmEntry.source instanceof Rocket) {
 				name = trans.get("componentanalysisdlg.TOTAL");
