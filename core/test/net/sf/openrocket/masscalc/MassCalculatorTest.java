@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
+import net.sf.openrocket.util.MathUtil;
 import org.junit.Test;
 
 import net.sf.openrocket.motor.Motor;
@@ -377,10 +379,12 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
+			assertEquals(expSingleBodyMass, sustainerBody.getSectionMass(), EPSILON);
 			
 			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getMass(), EPSILON);
+			assertEquals(expSingleBodyMass, boosterBody.getSectionMass(), EPSILON);
 		}
 		
 		{ // [1] test Rocket CM, before:
@@ -397,13 +401,16 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		boosterBody.setSubcomponentsOverriddenMass(false);
 		boosterBody.setMassOverridden(true);
-		boosterBody.setOverrideMass(0.001);
+		double newMass = 0.001;
+		boosterBody.setOverrideMass(newMass);
 		
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
 			final double actualRocketDryMass = actualStructure.cm.weight;
-			assertEquals(expSingleBodyMass+0.001, actualRocketDryMass, EPSILON);
+			assertEquals(expSingleBodyMass+newMass, actualRocketDryMass, EPSILON);
+			assertEquals(newMass, boosterBody.getMass(), EPSILON);
+			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
@@ -411,13 +418,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		boosterBody.setSubcomponentsOverriddenMass(true); // change.  Also, this body lacks subcomponents.
 		boosterBody.setMassOverridden(true); // repeat
-		boosterBody.setOverrideMass(0.001);  // repeat
+		boosterBody.setOverrideMass(newMass);  // repeat
 		
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
 			final double actualRocketDryMass = actualStructure.cm.weight;
-			assertEquals(expSingleBodyMass+0.001, actualRocketDryMass, EPSILON);
+			assertEquals(expSingleBodyMass+newMass, actualRocketDryMass, EPSILON);
+			assertEquals(newMass, boosterBody.getMass(), EPSILON);
+			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
@@ -1231,6 +1240,32 @@ public class MassCalculatorTest extends BaseTestCase {
 		double overrideMOIlong = overrideStructure.getLongitudinalInertia();
 		assertEquals("Empty Stages Rocket Rotational MOI calculated incorrectly: ", overrideMOIrotRef, overrideMOIrot, EPSILON);
 		assertEquals("Empty Stages Rocket Longitudinal MOI calculated incorrectly: ", overrideMOIlongRef, overrideMOIlong, EPSILON);
+	}
+
+	@Test
+	public void testStructureMass() {
+		Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
+		AxialStage stage = rocket.getStage(0);
+		stage.addChild(new NoseCone());
+		BodyTube bodyTube = new BodyTube();
+		stage.addChild(bodyTube);
+		MassComponent massComponent = new MassComponent();
+		massComponent.setComponentMass(0.01);
+		bodyTube.addChild(massComponent);
+
+		assertEquals(0.041016634, bodyTube.getMass(), EPSILON);
+		assertEquals(0.051016634, bodyTube.getSectionMass(), EPSILON);
+
+		bodyTube.setMassOverridden(true);
+		bodyTube.setOverrideMass(0.02);
+
+		assertEquals(0.02, bodyTube.getMass(), EPSILON);
+		assertEquals(0.03, bodyTube.getSectionMass(), EPSILON);
+
+		bodyTube.setSubcomponentsOverriddenMass(true);
+
+		assertEquals(0.02, bodyTube.getMass(), EPSILON);
+		assertEquals(0.02, bodyTube.getSectionMass(), EPSILON);
 	}
 	
 }
