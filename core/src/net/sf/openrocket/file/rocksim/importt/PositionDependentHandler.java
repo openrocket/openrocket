@@ -9,6 +9,8 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.rocksim.RockSimLocationMode;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
@@ -70,6 +72,10 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 	 * Set the axialMethod of a component.
 	 */
 	protected void setLocation() {
+		if ((getComponent() instanceof ComponentAssembly || getComponent() instanceof ParallelStage) &&
+				getComponent().getParent() == null) {
+			return;
+		}
 		getComponent().setAxialMethod(axialMethod);
 		if (axialMethod.equals(AxialMethod.BOTTOM)) {
 			getComponent().setAxialOffset(-1d * positionValue);

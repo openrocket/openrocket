@@ -11,6 +11,7 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -50,6 +51,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
     @XmlElementRefs({
             @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = InnerBodyTubeDTO.class),
+            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.RING, type = CenteringRingDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.LAUNCH_LUG, type = LaunchLugDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.FIN_SET, type = FinSetDTO.class),
@@ -57,7 +59,8 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
             @XmlElementRef(name = RockSimCommonConstants.TUBE_FIN_SET, type = TubeFinSetDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.STREAMER, type = StreamerDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
+            @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class),
+            @XmlElementRef(name = RockSimCommonConstants.EXTERNAL_POD, type = PodSetDTO.class)})
     List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
 
     /**
@@ -125,6 +128,8 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
                 addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
             } else if (rocketComponents instanceof TubeFinSet) {
                 addAttachedPart(new TubeFinSetDTO((TubeFinSet) rocketComponents));
+            } else if (rocketComponents instanceof PodSet) {
+                addAttachedPart(new PodSetDTO((PodSet) rocketComponents));
             }
         }
     }

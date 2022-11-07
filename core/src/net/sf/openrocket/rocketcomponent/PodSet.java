@@ -121,19 +121,23 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	
 	@Override
 	public double getAxialOffset() {
+		return getAxialOffset(this.axialMethod);
+	}
+	@Override
+	public double getAxialOffset(AxialMethod method) {
 		double returnValue;
-		
+
 		if (this.isAfter()){
 			// remember the implicit (this instanceof Stage)
 			throw new BugException("found a pod positioned via: AFTER, but is not on the centerline?!: " + this.getName() + "  is " + this.getAxialMethod().name() );
 		} else {
-			returnValue = super.getAxialOffset(this.axialMethod);
+			returnValue = super.getAxialOffset(method);
 		}
-		
+
 		if (MathUtil.EPSILON > Math.abs(returnValue)) {
 			returnValue = 0.0;
 		}
-		
+
 		return returnValue;
 	}
 
