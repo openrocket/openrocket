@@ -321,6 +321,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 
 			gl.glEnable(GL.GL_MULTISAMPLE);
 			gl.glEnable(GLLightingFunc.GL_LIGHTING);
+
+			updateFigure();
 		}
 		rr.render(drawable, configuration, selection);
 		
