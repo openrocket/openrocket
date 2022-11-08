@@ -96,18 +96,23 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private LineStyle lineStyle = null;
 	
 	
-	// Override mass/CG/CD
+	// Override mass
     protected double overrideMass = 0;
 	protected boolean massOverridden = false;
 	private boolean overrideSubcomponentsMass = false;
-	
+	private RocketComponent massOverriddenBy = null;	// The (super-)parent component that overrides the mass of this component
+
+	// Override CG
 	private double overrideCGX = 0;
 	private boolean cgOverridden = false;
 	private boolean overrideSubcomponentsCG = false;
-	
+	private RocketComponent CGOverriddenBy = null;	// The (super-)parent component that overrides the CG of this component
+
+	// Override CD
 	private double overrideCD = 0;
 	private boolean cdOverridden = false;
 	private boolean overrideSubcomponentsCD = false;
+	private RocketComponent CDOverriddenBy = null;	// The (super-)parent component that overrides the CD of this component
 
 	private boolean cdOverriddenByAncestor = false;
 	
@@ -606,6 +611,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		massOverridden = o;
+		updateChildrenMassOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -680,6 +686,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cgOverridden = o;
+		updateChildrenCGOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
@@ -746,6 +753,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cdOverridden = o;
+		updateChildrenCDOverriddenBy();
 
 		// if overrideSubcompoents is set, we need to descend the component
 		// tree.  If we are overriding our own CD, we need to override all
@@ -784,7 +792,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return overrideSubcomponentsMass;
 	}
 
-	// TODO: delete no compatibility is needed anymore with OR 15.03
+	// TODO: delete when compatibility with OR 15.03 is not needed anymore
 	public void setSubcomponentsOverridden(boolean override) {
 		setSubcomponentsOverriddenMass(override);
 		setSubcomponentsOverriddenCG(override);
@@ -808,6 +816,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		overrideSubcomponentsMass = override;
+
+		updateChildrenMassOverriddenBy();
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -845,6 +855,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		overrideSubcomponentsCG = override;
 
+		updateChildrenCGOverriddenBy();
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
@@ -880,6 +892,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		overrideSubcomponentsCD = override;
+
+		updateChildrenCDOverriddenBy();
 
 		overrideSubcomponentsCD(override);
 
@@ -931,8 +945,50 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		return isCGOverridden() || isMassOverridden() || isCDOverridden();
 	}
-	
-	/** 
+
+	/**
+	 * Returns which (super-)parent overrides the mass of this component, or null if no parent does so.
+	 */
+	public RocketComponent getMassOverriddenBy() {
+		return massOverriddenBy;
+	}
+
+	/**
+	 * Returns which (super-)parent overrides the CG of this component, or null if no parent does so.
+	 */
+	public RocketComponent getCGOverriddenBy() {
+		return CGOverriddenBy;
+	}
+
+	/**
+	 * Returns which (super-)parent overrides the CD of this component, or null if no parent does so.
+	 */
+	public RocketComponent getCDOverriddenBy() {
+		return CDOverriddenBy;
+	}
+
+	private void updateChildrenMassOverriddenBy() {
+		RocketComponent overriddenBy = massOverridden && overrideSubcomponentsMass ? this : null;
+		for (RocketComponent c : getAllChildren()) {
+			c.massOverriddenBy = overriddenBy;
+		}
+	}
+
+	private void updateChildrenCGOverriddenBy() {
+		RocketComponent overriddenBy = cgOverridden && overrideSubcomponentsCG ? this : null;
+		for (RocketComponent c : getAllChildren()) {
+			c.CGOverriddenBy = overriddenBy;
+		}
+	}
+
+	private void updateChildrenCDOverriddenBy() {
+		RocketComponent overriddenBy = cdOverridden && overrideSubcomponentsCD ? this : null;
+		for (RocketComponent c : getAllChildren()) {
+			c.CDOverriddenBy = overriddenBy;
+		}
+	}
+
+	/**
 	 * placeholder. This allows code to generally test if this component represents multiple instances with just one function call. 
 	 * 
 	 * @return number of instances
@@ -1642,6 +1698,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		children.add(index, component);
 		component.parent = this;
+		if (this.massOverridden && this.overrideSubcomponentsMass) {
+			component.massOverriddenBy = this;
+		} else {
+			component.massOverriddenBy = this.massOverriddenBy;
+		}
+		if (this.cgOverridden && this.overrideSubcomponentsCG) {
+			component.CGOverriddenBy = this;
+		} else {
+			component.CGOverriddenBy = this.CGOverriddenBy;
+		}
+		if (this.cdOverridden && this.overrideSubcomponentsCD) {
+			component.CDOverriddenBy = this;
+		} else {
+			component.CDOverriddenBy = this.CDOverriddenBy;
+		}
 		
 		if (component instanceof AxialStage) {
 			AxialStage nStage = (AxialStage) component;
@@ -1663,7 +1734,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final void removeChild(int n) {
 		checkState();
-		RocketComponent component = this.getChild(n); 
+		RocketComponent component = this.getChild(n);
 		this.removeChild(component);
 	}
 	
@@ -1682,6 +1753,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		if (children.remove(component)) {
 			component.parent = null;
+			component.massOverriddenBy = null;
+			component.CGOverriddenBy = null;
+			component.CDOverriddenBy = null;
 			
 			if (component instanceof AxialStage) {
 				AxialStage stage = (AxialStage) component;
