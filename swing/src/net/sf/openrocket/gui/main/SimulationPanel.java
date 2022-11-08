@@ -504,8 +504,7 @@ public class SimulationPanel extends JPanel {
 
 	private void openDialog(final Simulation sim) {
 		boolean plotMode = false;
-		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.LOADED
-				|| sim.getStatus() == Status.EXTERNAL)) {
+		if (sim.hasSimulationData() && Simulation.isStatusUpToDate(sim.getStatus())) {
 			plotMode = true;
 		}
 		openDialog(plotMode, sim);

@@ -857,8 +857,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Re-run the present simulation(s)
 		List<Simulation> sims = new LinkedList<>();
 		for (Simulation sim : document.getSimulations()) {
-			if (sim.getStatus() == Simulation.Status.UPTODATE || sim.getStatus() == Simulation.Status.LOADED
-					|| !document.getRocket().getFlightConfiguration(sim.getFlightConfigurationId()).hasMotors())
+			if (Simulation.isStatusUpToDate(sim.getStatus()) ||
+					!document.getRocket().getFlightConfiguration(sim.getFlightConfigurationId()).hasMotors())
 				continue;
 
 			// Find a Simulation based on the current flight configuration
