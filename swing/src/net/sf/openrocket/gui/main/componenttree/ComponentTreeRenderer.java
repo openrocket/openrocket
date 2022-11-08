@@ -49,23 +49,31 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		} else {
 			setIcon(ComponentIcons.getSmallIcon(value.getClass()));
 		}
-		if (c.isMassOverridden() || c.isCGOverridden() || c.isCDOverridden()) {
+		if (c.isMassOverridden() || c.getMassOverriddenBy() != null ||
+				c.isCGOverridden() || c.getCGOverriddenBy() != null ||
+				c.isCDOverridden() || c.getCDOverriddenBy() != null) {
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 1));
 			p.setBackground(UIManager.getColor("Tree.textBackground"));
 			p.setForeground(UIManager.getColor("Tree.textForeground"));
 			p.add(comp/* , BorderLayout.WEST */);
-			if (c.isMassOverridden()) {
+			if (c.getMassOverriddenBy() != null) {
+				p.add(new JLabel(Icons.MASS_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isMassOverridden()) {
 				p.add(new JLabel(Icons.MASS_OVERRIDE));
 			}
-			if (c.isCGOverridden()) {
+			if (c.getCGOverriddenBy() != null) {
+				p.add(new JLabel(Icons.CG_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isCGOverridden()) {
 				p.add(new JLabel(Icons.CG_OVERRIDE));
 			}
-			if (c.isCDOverridden()) {
+			if (c.getCDOverriddenBy() != null) {
+				p.add(new JLabel(Icons.CD_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isCDOverridden()) {
 				p.add(new JLabel(Icons.CD_OVERRIDE));
 			}
 			
-
+			// Make sure the tooltip also works on the override icons
 			if (components != null && components.size() > 1 && components.contains(c)) {
 				p.setToolTipText(getToolTipMultipleComponents(components));
 			} else {

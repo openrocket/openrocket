@@ -14,8 +14,9 @@ public class ComponentChangeEvent extends EventObject {
 		UNDO( 16, "UNDO"),
 		MOTOR( 32, "Motor"),
 		EVENT( 64, "Event"),
-		TEXTURE ( 128, "Texture")
-		, GRAPHIC( 256, "Configuration")
+		TEXTURE ( 128, "Texture"),
+		GRAPHIC( 256, "Configuration"),
+		TREE_CHILDREN( 512, "TREE_CHILDREN"),
 		;
 		
 		protected int value;
@@ -45,6 +46,8 @@ public class ComponentChangeEvent extends EventObject {
 	
 	/** A change that affects the rocket tree structure */
 	public static final int TREE_CHANGE = TYPE.TREE.value;
+	/** A change that affects the children's tree structure */
+	public static final int TREE_CHANGE_CHILDREN = TYPE.TREE_CHILDREN.value;
 	/** A change caused by undo/redo. */
 	public static final int UNDO_CHANGE = TYPE.UNDO.value;
 	/** A change in the motor configurations or names */
@@ -124,6 +127,9 @@ public class ComponentChangeEvent extends EventObject {
 	public boolean isTreeChange() {
 		return TYPE.TREE.matches(this.type);
 	}
+	public boolean isTreeChildrenChange() {
+		return TYPE.TREE_CHILDREN.matches(this.type);
+	}
 	
 	public boolean isUndoChange() {
 		return TYPE.UNDO.matches(this.type);
@@ -150,6 +156,8 @@ public class ComponentChangeEvent extends EventObject {
 			s += ",aero";
 		if (isTreeChange())
 			s += ",tree";
+		if (isTreeChildrenChange())
+			s += ",treechild";
 		if (isUndoChange())
 			s += ",undo";
 		if (isMotorChange())
