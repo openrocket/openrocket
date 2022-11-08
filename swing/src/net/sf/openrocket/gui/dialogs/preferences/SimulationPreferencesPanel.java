@@ -15,6 +15,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.unit.UnitGroup;
@@ -78,6 +79,14 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		// Separate panel for computation methods, as they use a different
 		// layout
 		subsub = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
+
+		// // Warning
+		StyledLabel warning = new StyledLabel(String.format(
+				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
+				0, StyledLabel.Style.BOLD);
+		warning.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
+		subsub.add(warning, "spanx, wrap para");
 
 		// // Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
