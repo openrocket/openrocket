@@ -171,9 +171,10 @@ class DocumentConfig {
        
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
-				Reflection.findMethod(SymmetricComponent.class, "setThickness", double.class),
+				Reflection.findMethod(SymmetricComponent.class, "setThickness", double.class, boolean.class),
 				"filled",
-				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class)));
+				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class),
+				false));
 		
 		// LaunchLug
 		setters.put("LaunchLug:instancecount", new IntSetter(
@@ -218,13 +219,15 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setShapeParameter", double.class)));
 		
 		setters.put("Transition:foreradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setForeRadius", double.class),
+				Reflection.findMethod(Transition.class, "setForeRadius", double.class, boolean.class),
 				"auto", " ",
-				Reflection.findMethod(Transition.class, "setForeRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(Transition.class, "setForeRadiusAutomatic", boolean.class),
+				false));
 		setters.put("Transition:aftradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setAftRadius", double.class),
+				Reflection.findMethod(Transition.class, "setAftRadius", double.class, boolean.class),
 				"auto", " ",
-				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class),
+				false));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class)));

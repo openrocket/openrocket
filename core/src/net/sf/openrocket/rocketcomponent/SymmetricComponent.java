@@ -103,15 +103,15 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	public double getThickness() {
 		if (filled)
 			return Math.max(getForeRadius(), getAftRadius());
-		return Math.min(thickness, Math.max(getForeRadius(), getAftRadius()));
+		return thickness;
 	}
-	
-	
+
 	/**
-	 * Set the component wall thickness.  Values greater than the maximum radius are not
-	 * allowed, and will result in setting the thickness to the maximum radius.
+	 * Set the component wall thickness.  If <code>doClamping</code> is true, values greater than
+	 * the maximum radius will be clamped the thickness to the maximum radius.
+	 * @param doClamping If true, the thickness will be clamped to the maximum radius.
 	 */
-	public void setThickness(double thickness) {
+	public void setThickness(double thickness, boolean doClamping) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof SymmetricComponent) {
 				((SymmetricComponent) listener).setThickness(thickness);
@@ -120,10 +120,19 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 		if ((this.thickness == thickness) && !filled)
 			return;
-		this.thickness = MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius()));
+		this.thickness = doClamping ? MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius())) : thickness;
 		filled = false;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();
+	}
+	
+	
+	/**
+	 * Set the component wall thickness.  Values greater than the maximum radius are not
+	 * allowed, and will result in setting the thickness to the maximum radius.
+	 */
+	public void setThickness(double thickness) {
+		setThickness(thickness, true);
 	}
 	
 	

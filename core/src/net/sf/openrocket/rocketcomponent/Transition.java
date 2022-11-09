@@ -102,7 +102,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return foreRadius;
 	}
 
-	public void setForeRadius(double radius) {
+	/**
+	 * Set the new fore radius, with option to clamp the thickness to the new radius if it's too large.
+	 * @param radius new radius
+	 * @param doClamping whether to clamp the thickness
+	 */
+	public void setForeRadius(double radius, boolean doClamping) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeRadius(radius);
@@ -115,11 +120,15 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		this.autoForeRadius = false;
 		this.foreRadius = Math.max(radius, 0);
 
-		if (this.thickness > this.foreRadius && this.thickness > this.aftRadius)
+		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setForeRadius(double radius) {
+		setForeRadius(radius, true);
 	}
 
 	@Override
@@ -170,7 +179,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return aftRadius;
 	}
 
-	public void setAftRadius(double radius) {
+	/**
+	 * Set the new aft radius, with option to clamp the thickness to the new radius if it's too large.
+	 * @param radius new radius
+	 * @param doClamping whether to clamp the thickness
+	 */
+	public void setAftRadius(double radius, boolean doClamping) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftRadius(radius);
@@ -183,11 +197,15 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		this.autoAftRadius2 = false;
 		this.aftRadius = Math.max(radius, 0);
 
-		if (this.thickness > this.foreRadius && this.thickness > this.aftRadius)
+		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setAftRadius(double radius) {
+		setAftRadius(radius, true);
 	}
 
 	@Override

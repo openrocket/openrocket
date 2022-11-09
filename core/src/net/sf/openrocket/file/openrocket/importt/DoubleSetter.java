@@ -2,7 +2,6 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -20,6 +19,7 @@ class DoubleSetter implements Setter {
 	private final Reflection.Method specialMethod;
 	private final double multiplier;
 	private String separator;
+	private Object[] extraParameters = null;
 	
 	/**
 	 * Set only the double value.
@@ -45,22 +45,24 @@ class DoubleSetter implements Setter {
 		this.specialMethod = null;
 		this.multiplier = mul;
 	}
-	
+
 	/**
 	 * Set the double value, or if the value equals the special string, use the
 	 * special setter and set it to true.
-	 * 
+	 *
 	 * @param set			double setter.
 	 * @param special		special string
 	 * @param specialMethod	boolean setter.
+	 * @param parameters	(optional) extra parameter set to use for the setter method.
 	 */
 	public DoubleSetter(Reflection.Method set, String special,
-			Reflection.Method specialMethod) {
+						Reflection.Method specialMethod, Object... parameters) {
 		this.setMethod = set;
 		this.configGetter = null;
 		this.specialString = special;
 		this.specialMethod = specialMethod;
 		this.multiplier = 1.0;
+		this.extraParameters = parameters;
 	}
 
 	/**
@@ -73,11 +75,13 @@ class DoubleSetter implements Setter {
 	 * @param set			double setter.
 	 * @param special		special string
 	 * @param specialMethod	boolean setter.
+	 * @param parameters	(optional) extra parameter set to use for the setter method.
 	 */
 	public DoubleSetter(Reflection.Method set, String special, String separator,
-						Reflection.Method specialMethod) {
+						Reflection.Method specialMethod, Object... parameters) {
 		this(set, special, specialMethod);
 		this.separator = separator;
+		this.extraParameters = parameters;
 	}
 	
 	
@@ -118,11 +122,17 @@ class DoubleSetter implements Setter {
 			try {
 				double d = Double.parseDouble(data);
 
-				if (configGetter == null) {
-					setMethod.invoke(c, d * multiplier);
-				} else {
+				Object obj = c;
+				if (configGetter != null) {
 					FlightConfigurableParameterSet<?> config = (FlightConfigurableParameterSet<?>) configGetter.invoke(c);
-					Object obj = config.getDefault();
+					obj = config.getDefault();
+				}
+				if (extraParameters != null) {
+					Object[] parameters = new Object[extraParameters.length + 1];
+					parameters[0] = d * multiplier;
+					System.arraycopy(extraParameters, 0, parameters, 1, extraParameters.length);
+					setMethod.invoke(obj, parameters);
+				} else {
 					setMethod.invoke(obj, d * multiplier);
 				}
 			} catch (NumberFormatException e) {
