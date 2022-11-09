@@ -76,10 +76,10 @@ public class FlightEventsTest extends BaseTestCase {
             switch (b) {
                 case 0:
                     expectedEventTypes = new FlightEvent.Type[]{FlightEvent.Type.LAUNCH, FlightEvent.Type.IGNITION, FlightEvent.Type.IGNITION,
-                            FlightEvent.Type.LIFTOFF, FlightEvent.Type.LAUNCHROD, FlightEvent.Type.APOGEE, FlightEvent.Type.BURNOUT,
-                            FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.EJECTION_CHARGE,
-                            FlightEvent.Type.STAGE_SEPARATION, FlightEvent.Type.STAGE_SEPARATION, FlightEvent.Type.TUMBLE, FlightEvent.Type.GROUND_HIT,
-                            FlightEvent.Type.SIMULATION_END};
+                            FlightEvent.Type.LIFTOFF, FlightEvent.Type.LAUNCHROD, FlightEvent.Type.APOGEE,
+                            FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.STAGE_SEPARATION,
+                            FlightEvent.Type.BURNOUT, FlightEvent.Type.EJECTION_CHARGE, FlightEvent.Type.STAGE_SEPARATION,
+                            FlightEvent.Type.TUMBLE, FlightEvent.Type.GROUND_HIT, FlightEvent.Type.SIMULATION_END};
                     break;
                 case 1:
                 case 2:
