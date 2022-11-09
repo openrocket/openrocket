@@ -389,7 +389,6 @@ public class RocketComponentConfig extends JPanel {
 			labelMassOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
 			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
-			check.setEnabled(false);
 		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
@@ -409,6 +408,18 @@ public class RocketComponentConfig extends JPanel {
 		bs = new BasicSlider(m.getSliderModel(0, 0.03, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
+
+		if (component.getMassOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(us);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			us.setEnabled(false);
+			bs.setEnabled(false);
+		}
 
 		// END OVERRIDE MASS ----------------------------------
 	
@@ -441,7 +452,6 @@ public class RocketComponentConfig extends JPanel {
 			labelCGOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
 			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
-			check.setEnabled(false);
 		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
@@ -492,6 +502,18 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 
+		if (component.getCGOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(us);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			us.setEnabled(false);
+			bs.setEnabled(false);
+		}
+
 		// END OVERRIDE CG ---------------------------------------------------
 
 
@@ -515,7 +537,7 @@ public class RocketComponentConfig extends JPanel {
 		checkboxes.add(checkSub, "gapleft 25lp, wrap");
 		order.add(checkSub);
 
-		////// CG overridden by
+		////// CD overridden by
 		if (component.getCDOverriddenBy() != null) {
 			StyledLabel labelCDOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
@@ -524,7 +546,6 @@ public class RocketComponentConfig extends JPanel {
 			labelCDOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
 			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
-			check.setEnabled(false);
 		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
@@ -541,6 +562,16 @@ public class RocketComponentConfig extends JPanel {
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "top, skip, growx 5, w 100lp, wrap");
+
+		if (component.getCDOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			bs.setEnabled(false);
+		}
 
 		// END OVERRIDE CD --------------------------------------------------
 
