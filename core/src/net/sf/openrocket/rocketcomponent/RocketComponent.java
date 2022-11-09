@@ -971,6 +971,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		RocketComponent overriddenBy = massOverridden && overrideSubcomponentsMass ? this : null;
 		for (RocketComponent c : getAllChildren()) {
 			c.massOverriddenBy = overriddenBy;
+			// We need to update overriddenBy in case one of the children components has its subcomponents overridden
+			if (overriddenBy == null) {
+				overriddenBy = c.massOverridden && c.overrideSubcomponentsMass ? c : null;
+			}
 		}
 	}
 
@@ -978,6 +982,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		RocketComponent overriddenBy = cgOverridden && overrideSubcomponentsCG ? this : null;
 		for (RocketComponent c : getAllChildren()) {
 			c.CGOverriddenBy = overriddenBy;
+			// We need to update overriddenBy in case one of the children components has its subcomponents overridden
+			if (overriddenBy == null) {
+				overriddenBy = c.cgOverridden && c.overrideSubcomponentsCG ? c : null;
+			}
 		}
 	}
 
@@ -985,6 +993,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		RocketComponent overriddenBy = cdOverridden && overrideSubcomponentsCD ? this : null;
 		for (RocketComponent c : getAllChildren()) {
 			c.CDOverriddenBy = overriddenBy;
+			// We need to update overriddenBy in case one of the children components has its subcomponents overridden
+			if (overriddenBy == null) {
+				overriddenBy = c.cdOverridden && c.overrideSubcomponentsCD ? c : null;
+			}
 		}
 	}
 
@@ -1715,9 +1727,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		for (Iterator<RocketComponent> it = component.iterator(false); it.hasNext(); ) {
 			RocketComponent child = it.next();
-			child.massOverriddenBy = component.massOverriddenBy;
-			child.CGOverriddenBy = component.CGOverriddenBy;
-			child.CDOverriddenBy = component.CDOverriddenBy;
+			// You only want to change the overriddenBy if the overriddenBy of component changed (i.e. is not null),
+			// otherwise you could lose overriddenBy information of the sub-children that have one of this component's
+			// children as its overrideBy component.
+			if (component.massOverriddenBy != null) {
+				child.massOverriddenBy = component.massOverriddenBy;
+			}
+			if (component.CGOverriddenBy != null) {
+				child.CGOverriddenBy = component.CGOverriddenBy;
+			}
+			if (component.CDOverriddenBy != null) {
+				child.CDOverriddenBy = component.CDOverriddenBy;
+			}
 		}
 		
 		if (component instanceof AxialStage) {
@@ -1760,9 +1781,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (children.remove(component)) {
 			component.parent = null;
 			for (RocketComponent c : component) {
-				c.massOverriddenBy = null;
-				c.CGOverriddenBy = null;
-				c.CDOverriddenBy = null;
+				// You only want to set the override components to null if the child's override component is either
+				// this component, or a (super-)parent of this component. Otherwise, you could lose the overrideBy
+				// information of sub-children that have one of this component's children as its overrideBy component.
+				if (c.massOverriddenBy == this || c.massOverriddenBy == this.massOverriddenBy) {
+					c.massOverriddenBy = null;
+				}
+				if (c.CGOverriddenBy == this || c.CGOverriddenBy == this.CGOverriddenBy) {
+					c.CGOverriddenBy = null;
+				}
+				if (c.CDOverriddenBy == this || c.CDOverriddenBy == this.CDOverriddenBy) {
+					c.CDOverriddenBy = null;
+				}
 			}
 			
 			if (component instanceof AxialStage) {
