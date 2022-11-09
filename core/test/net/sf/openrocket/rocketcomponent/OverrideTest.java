@@ -361,5 +361,82 @@ public class OverrideTest extends BaseTestCase {
 		assertNull(bulkhead.getMassOverriddenBy());
 		assertEquals(bodyTube, bulkhead.getCGOverriddenBy());
 		assertEquals(bodyTube, bulkhead.getCDOverriddenBy());
+
+		// Set body tube mass override, reset CG & CD, and move inner tube back to body tube
+		bodyTube.setMassOverridden(true);
+		bodyTube.setSubcomponentsOverriddenMass(true);
+		bodyTube.setCGOverridden(false);
+		bodyTube.setCDOverridden(false);
+		noseCone.removeChild(innerTube);
+		bodyTube.addChild(innerTube);
+
+		assertNull(noseCone.getMassOverriddenBy());
+		assertNull(noseCone.getCGOverriddenBy());
+		assertNull(noseCone.getCDOverriddenBy());
+		assertNull(bodyTube.getMassOverriddenBy());
+		assertNull(bodyTube.getCGOverriddenBy());
+		assertNull(bodyTube.getCDOverriddenBy());
+		assertEquals(bodyTube, finSet.getMassOverriddenBy());
+		assertNull(finSet.getCGOverriddenBy());
+		assertNull(finSet.getCDOverriddenBy());
+		assertEquals(bodyTube, launchLug.getMassOverriddenBy());
+		assertNull(launchLug.getCGOverriddenBy());
+		assertNull(launchLug.getCDOverriddenBy());
+		assertEquals(bodyTube, parachute.getMassOverriddenBy());
+		assertNull(parachute.getCGOverriddenBy());
+		assertNull(parachute.getCDOverriddenBy());
+		assertEquals(bodyTube, bulkhead.getMassOverriddenBy());
+		assertNull(bulkhead.getCGOverriddenBy());
+		assertNull(bulkhead.getCDOverriddenBy());
+		assertEquals(bodyTube, innerTube.getMassOverriddenBy());
+		assertNull(innerTube.getCGOverriddenBy());
+		assertNull(innerTube.getCDOverriddenBy());
+		assertEquals(bodyTube, engineBlock.getMassOverriddenBy());
+		assertEquals(innerTube, engineBlock.getCGOverriddenBy());
+		assertNull(engineBlock.getCDOverriddenBy());
+
+		// Toggle the body tube CG override for all subcomponents
+		bodyTube.setCGOverridden(true);
+		bodyTube.setSubcomponentsOverriddenCG(true);
+
+		assertEquals(bodyTube, finSet.getMassOverriddenBy());
+		assertEquals(bodyTube, finSet.getCGOverriddenBy());
+		assertNull(finSet.getCDOverriddenBy());
+		assertEquals(bodyTube, launchLug.getMassOverriddenBy());
+		assertEquals(bodyTube, launchLug.getCGOverriddenBy());
+		assertNull(launchLug.getCDOverriddenBy());
+		assertEquals(bodyTube, parachute.getMassOverriddenBy());
+		assertEquals(bodyTube, parachute.getCGOverriddenBy());
+		assertNull(parachute.getCDOverriddenBy());
+		assertEquals(bodyTube, bulkhead.getMassOverriddenBy());
+		assertEquals(bodyTube, bulkhead.getCGOverriddenBy());
+		assertNull(bulkhead.getCDOverriddenBy());
+		assertEquals(bodyTube, innerTube.getMassOverriddenBy());
+		assertEquals(bodyTube, innerTube.getCGOverriddenBy());
+		assertNull(innerTube.getCDOverriddenBy());
+		assertEquals(bodyTube, engineBlock.getMassOverriddenBy());
+		assertEquals(bodyTube, engineBlock.getCGOverriddenBy());
+		assertNull(engineBlock.getCDOverriddenBy());
+
+		// Toggle back
+		bodyTube.setSubcomponentsOverriddenCG(false);
+		assertEquals(bodyTube, finSet.getMassOverriddenBy());
+		assertNull(finSet.getCGOverriddenBy());
+		assertNull(finSet.getCDOverriddenBy());
+		assertEquals(bodyTube, launchLug.getMassOverriddenBy());
+		assertNull(launchLug.getCGOverriddenBy());
+		assertNull(launchLug.getCDOverriddenBy());
+		assertEquals(bodyTube, parachute.getMassOverriddenBy());
+		assertNull(parachute.getCGOverriddenBy());
+		assertNull(parachute.getCDOverriddenBy());
+		assertEquals(bodyTube, bulkhead.getMassOverriddenBy());
+		assertNull(bulkhead.getCGOverriddenBy());
+		assertNull(bulkhead.getCDOverriddenBy());
+		assertEquals(bodyTube, innerTube.getMassOverriddenBy());
+		assertNull(innerTube.getCGOverriddenBy());
+		assertNull(innerTube.getCDOverriddenBy());
+		assertEquals(bodyTube, engineBlock.getMassOverriddenBy());
+		assertEquals(innerTube, engineBlock.getCGOverriddenBy());
+		assertNull(engineBlock.getCDOverriddenBy());
 	}
 }
