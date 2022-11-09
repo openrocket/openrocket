@@ -25,6 +25,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 	 * The OpenRocket BodyTube.
 	 */
 	private final BodyTube bodyTube;
+	private int isInsideTube = 0;
 	
 	/**
 	 * Constructor.
@@ -80,6 +81,9 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 			if (RockSimCommonConstants.MATERIAL.equals(element)) {
 				setMaterialName(content);
 			}
+			if (RockSimCommonConstants.IS_INSIDE_TUBE.equals(element)) {
+				isInsideTube = Integer.parseInt(content);
+			}
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
 		}
@@ -103,5 +107,12 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 	@Override
 	public Material.Type getMaterialType() {
 		return Material.Type.BULK;
+	}
+
+	/**
+	 * Returns 0 if this is a body tube, 1 if it is an inside tube.
+	 */
+	public int isInsideTube() {
+		return isInsideTube;
 	}
 }

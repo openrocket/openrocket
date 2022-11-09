@@ -221,25 +221,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// and thrust < THRUST_TUMBLE_CONDITION threshold
 				
 				if (!currentStatus.isTumbling()) {
-					final double t = currentStatus.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE);
 					final double cp = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightData().getLast(FlightDataType.TYPE_AOA);
 					
 					final boolean wantToTumble = (cg > cp && aoa > AOA_TUMBLE_CONDITION);
-					
-					if (wantToTumble) {
-						final boolean tooMuchThrust = t > THRUST_TUMBLE_CONDITION;
-						final boolean isSustainer = currentStatus.getConfiguration().isStageActive(0);
-						final boolean isApogee = currentStatus.isApogeeReached();
-						if (tooMuchThrust) {
-							currentStatus.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
-						} else if (isApogee || !isSustainer) {
-							addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
-							currentStatus.setTumbling(true);
-						}
-					}
-					
+					final boolean isSustainer = currentStatus.getConfiguration().isStageActive(0);
+					final boolean isApogee = currentStatus.isApogeeReached();
+					if (wantToTumble && (isApogee || !isSustainer)) {
+						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+					}					
 				}
 
 				// If I'm on the ground and have no events in the queue, I'm done
@@ -535,6 +526,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					currentStatus.getFlightData().addEvent(event);
 				}
+				log.debug("deployed recovery devices: " + currentStatus.getDeployedRecoveryDevices().size()	);
 				break;
 			
 			case GROUND_HIT:
@@ -556,10 +548,19 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case TUMBLE:
-				if (!currentStatus.isLanded()) {
-					currentStepper = tumbleStepper;
-					currentStatus = currentStepper.initialize(currentStatus);
-				}
+				// Inhibit if we've deployed a parachute or we're on the ground
+				if ((currentStatus.getDeployedRecoveryDevices().size() > 0) || currentStatus.isLanded())
+					break;
+
+				currentStepper = tumbleStepper;
+				currentStatus = currentStepper.initialize(currentStatus);
+				
+				final boolean tooMuchThrust = currentStatus.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
+				if (tooMuchThrust) {
+					currentStatus.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
+				}					
+				
+				currentStatus.setTumbling(true);
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			}

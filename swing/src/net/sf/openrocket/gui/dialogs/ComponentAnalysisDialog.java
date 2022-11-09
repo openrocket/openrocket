@@ -199,6 +199,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					@Override
 					public Object getValueAt(int row) {
 						Object c = stabData.get(row).name;
+						
 						return c.toString();
 					}
 
@@ -237,7 +238,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return NOUNIT.toString(stabData.get(row).cpx);
+						return unit.toString(stabData.get(row).cpx);
 					}
 				},
 				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
@@ -541,11 +542,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		rollData.clear();
 
 		for(final RocketComponent comp: configuration.getAllComponents()) {
-			// // this is actually redundant, because the analysis will not contain inactive stages.
-			// if (!configuration.isComponentActive(comp)) {
-			// 	continue;
-			// }
-
 			CMAnalysisEntry cmEntry = cmMap.get(comp.hashCode());
 			if (null == cmEntry) {
 				log.warn("Could not find massData entry for component: " + comp.getName());
@@ -556,7 +552,11 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				continue;
 			}
 
-			LongitudinalStabilityRow row = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source);
+			String name = cmEntry.name;
+			if (cmEntry.source instanceof Rocket) {
+				name = trans.get("componentanalysisdlg.TOTAL");
+			}
+			LongitudinalStabilityRow row = new LongitudinalStabilityRow(name, cmEntry.source);
 			stabData.add(row);
 
 			row.source = cmEntry.source;

@@ -146,15 +146,33 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	
 	/**
 	 * Compares this event to another event depending on the event time.  Secondary
+	 * sorting is performed on stages; lower (numerically higher) stage first.  Tertiary
 	 * sorting is performed based on the event type ordinal.
 	 */
 	@Override
 	public int compareTo(FlightEvent o) {
+
+		// first, sort on time
 		if (this.time < o.time)
 			return -1;
 		if (this.time > o.time)
 			return 1;
 		
+		// second, sort on stage presence.  Events with no source go first
+		if ((this.getSource() == null) && (o.getSource() != null))
+			return -1;
+		if ((this.getSource() != null) && (o.getSource() == null))
+			return 1;
+
+		// third, sort on stage order.  Bigger stage number goes first
+		if ((this.getSource() != null) && (o.getSource() != null)) {
+			if (this.getSource().getStageNumber() > o.getSource().getStageNumber())
+				return -1;
+			if (this.getSource().getStageNumber() < o.getSource().getStageNumber())
+				return 1;
+		}
+
+		// finally, sort on event type
 		return this.type.ordinal() - o.type.ordinal();
 	}
 	

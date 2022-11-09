@@ -29,6 +29,8 @@ public class RockSimCommonConstants {
     public static final String DENSITY_TYPE = "DensityType";
     public static final String RADIAL_LOC = "RadialLoc";
     public static final String RADIAL_ANGLE = "RadialAngle";
+    public static final String AUTO_CALC_RADIAL_DISTANCE = "AutoCalcRadialDistance";
+    public static final String AUTO_CALC_RADIAL_ANGLE = "AutoCalcRadialAngle";
     public static final String LOCATION_MODE = "LocationMode";
     public static final String FINISH_CODE = "FinishCode";
     public static final String SERIAL_NUMBER = "SerialNo";

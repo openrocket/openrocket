@@ -217,7 +217,7 @@ public class TestRockets {
 				.setDiameter(0.029)
 				.setLength(0.124)
 				.setTimePoints(new double[] { 0, 1, 2 })
-				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setThrustPoints(new double[] { 0, 20, 0 })
 				.setCGPoints(new Coordinate[] {
 						new Coordinate(.062, 0, 0, 0.123),new Coordinate(.062, 0, 0, .0935),new Coordinate(.062, 0, 0, 0.064)})
 				.setDigest("digest G77 test")

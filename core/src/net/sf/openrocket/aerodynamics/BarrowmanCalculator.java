@@ -140,12 +140,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 														WarningSet warnings)
 	{
 		// forces for this component, and all forces below it, in the rocket-tree
-		// => regardless `if(comp isinstance ComponentAssembly)`, or not.
 		AerodynamicForces aggregateForces = new AerodynamicForces().zero();
 		aggregateForces.setComponent(comp);
 
 		// forces for this component, _only_
-		if(comp.isAerodynamic()) {
+		if(comp.isAerodynamic() || comp instanceof ComponentAssembly) {
 			RocketComponentCalc calcObj = calcMap.get(comp);
 			if (null == calcObj) {
 				throw new NullPointerException("Could not find a CalculationObject for aerodynamic Component!: " + comp.getComponentName());
@@ -163,6 +162,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
 				continue;
 			}
+			
 			// forces particular to each component
 			AerodynamicForces childForces = calculateForceAnalysis(configuration, conds, child, instances, eachForces, assemblyForces, warnings);
 
@@ -173,7 +173,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		assemblyForces.put(comp, aggregateForces);
 
-		return eachForces.get(comp);
+		return assemblyForces.get(comp);
 	}
 
 	@Override
@@ -944,7 +944,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		calcMap = new HashMap<>();
 
 		for (RocketComponent comp: configuration.getAllComponents()) {
-			if (!comp.isAerodynamic()) {
+			if (!comp.isAerodynamic() && !(comp instanceof ComponentAssembly)) {
 				continue;
 			}
 
