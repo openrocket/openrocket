@@ -235,11 +235,9 @@ public class RocketComponentConfig extends JPanel {
 				overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
 						toStringUnit(component.getOverrideMass()) + ")";
 			}
-			
-			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
-				if (c.isMassOverridden() && c.isSubcomponentsOverriddenMass()) {
-					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
-				}
+
+			if (component.getMassOverriddenBy() != null) {
+				overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + component.getMassOverriddenBy().getName() + ")";
 			}
 			
 			if (overridetext != null) {
