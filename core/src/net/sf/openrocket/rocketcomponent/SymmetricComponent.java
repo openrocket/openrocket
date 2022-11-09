@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.PodSet;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -94,8 +92,14 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	public final double getInnerRadius(double x, double theta) {
 		return getInnerRadius(x);
 	}
-	
-	
+
+	/**
+	 * Returns the largest radius of the component (either the aft radius, or the fore radius).
+	 */
+	public double getMaxRadius() {
+		return MathUtil.max(getForeRadius(), getAftRadius());
+	}
+
 
 	/**
 	 * Return the component wall thickness.
@@ -120,7 +124,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 		if ((this.thickness == thickness) && !filled)
 			return;
-		this.thickness = doClamping ? MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius())) : thickness;
+		this.thickness = doClamping ? MathUtil.clamp(thickness, 0, getMaxRadius()) : thickness;
 		filled = false;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		clearPreset();

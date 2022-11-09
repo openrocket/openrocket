@@ -230,7 +230,6 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 
-
 	//// Radius automatics
 
 	@Override

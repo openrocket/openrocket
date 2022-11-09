@@ -133,7 +133,9 @@ public class NoseConeConfig extends RocketComponentConfig {
 			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
-			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
+			panel.add(new BasicSlider(thicknessModel.getSliderModel(0,
+							new DoubleModel(component, "MaxRadius", UnitGroup.UNITS_LENGTH))),
+					"w 100lp, wrap 0px");
 
 
 			final JCheckBox filledCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
