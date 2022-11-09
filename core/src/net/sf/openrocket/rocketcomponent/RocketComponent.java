@@ -1713,6 +1713,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		} else {
 			component.CDOverriddenBy = this.CDOverriddenBy;
 		}
+		for (Iterator<RocketComponent> it = component.iterator(false); it.hasNext(); ) {
+			RocketComponent child = it.next();
+			child.massOverriddenBy = component.massOverriddenBy;
+			child.CGOverriddenBy = component.CGOverriddenBy;
+			child.CDOverriddenBy = component.CDOverriddenBy;
+		}
 		
 		if (component instanceof AxialStage) {
 			AxialStage nStage = (AxialStage) component;
@@ -1753,9 +1759,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		if (children.remove(component)) {
 			component.parent = null;
-			component.massOverriddenBy = null;
-			component.CGOverriddenBy = null;
-			component.CDOverriddenBy = null;
+			for (RocketComponent c : component) {
+				c.massOverriddenBy = null;
+				c.CGOverriddenBy = null;
+				c.CDOverriddenBy = null;
+			}
 			
 			if (component instanceof AxialStage) {
 				AxialStage stage = (AxialStage) component;
