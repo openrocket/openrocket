@@ -236,9 +236,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
 	 * @param rememberPreviousTab if true, the previous tab will be remembered and used for the new dialog
-	 * @param includeUndoModify	if true, include a 'Modify component' undo action
+	 * @param isNewComponent	whether the component is just created, or has already been created and is being edited
 	 */
-	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab, boolean includeUndoModify) {
+	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab, boolean isNewComponent) {
 		if (dialog != null) {
 			// Don't remember the previous tab for rockets or stages, because this will leave you in the override tab for
 			// the next component, which is generally not what you want.
@@ -267,13 +267,20 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
 		}
 
-		////Modify
-		if (includeUndoModify) {
+		// Only add a modify undo action if the component is not a new component (because a "Create new component" undo action is already added)
+		if (!isNewComponent) {
 			if (component.getConfigListeners().size() == 0) {
 				document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 			} else {
 				document.addUndoPosition(trans.get("ComponentCfgDlg.ModifyComponents"));
 			}
+		}
+
+		// Open preset dialog if set in preferences
+		if (isNewComponent && component.getPresetType() != null &&
+				preferences.getBoolean(component.getComponentName() + "AlwaysOpenPreset", true) &&
+				component.getConfigListeners().size() == 0) {
+			dialog.configurator.selectPreset();
 		}
 	}
 
@@ -286,7 +293,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * @param rememberPreviousTab if true, the previous tab will be remembered and used for the new dialog
 	 */
 	public static void showDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean rememberPreviousTab) {
-		ComponentConfigDialog.showDialog(parent, document, component, rememberPreviousTab, true);
+		ComponentConfigDialog.showDialog(parent, document, component, rememberPreviousTab, false);
 	}
 
 	/**

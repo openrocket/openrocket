@@ -270,7 +270,10 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 
-	private void selectPreset() {
+	/**
+	 * Open the component preset dialog.
+	 */
+	public void selectPreset() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

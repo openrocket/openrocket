@@ -488,7 +488,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				}
 			}
 			
-			ComponentConfigDialog.showDialog(parent, document, component, false, false);
+			ComponentConfigDialog.showDialog(parent, document, component, false, true);
 		}
 	}
 	
