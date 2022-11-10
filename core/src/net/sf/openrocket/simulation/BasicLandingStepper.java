@@ -79,7 +79,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		}
 		// but don't let it get *too* small
 		timeStep = Math.max(timeStep, MIN_TIME_STEP);
-		log.debug("timeStep is " + timeStep);
+		log.trace("timeStep is " + timeStep);
 		
 		// Perform Euler integration
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
@@ -95,7 +95,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			// The new timestep is the solution of
 			// 1/2 at^2 + vt + z0 = 0
 			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
-			log.debug("ground hit changes timeStep to " + timeStep);
+			log.trace("ground hit changes timeStep to " + timeStep);
 			
 			newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
@@ -176,7 +176,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 		data.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
 				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
-		log.debug("time " + data.getLast(FlightDataType.TYPE_TIME) + ", altitude " + data.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + data.getLast(FlightDataType.TYPE_VELOCITY_Z));
+		log.trace("time " + data.getLast(FlightDataType.TYPE_TIME) + ", altitude " + data.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + data.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 	
 }
