@@ -458,6 +458,10 @@ public class PlotConfiguration implements Cloneable {
 			double max = unit.toUnit(data.get(0).getMaximum(type));
 
 			for (int j = 1; j < data.size(); j++) {
+				// Ignore empty data
+				if (data.get(j).getLength() == 0) {
+					continue;
+				}
 				min = Math.min(min, unit.toUnit(data.get(j).getMinimum(type)));
 				max = Math.max(max, unit.toUnit(data.get(j).getMaximum(type)));
 			}
