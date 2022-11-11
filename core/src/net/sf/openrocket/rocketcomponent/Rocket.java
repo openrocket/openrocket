@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class Rocket extends ComponentAssembly {
 	// Flight configuration list
 	private FlightConfiguration selectedConfiguration;
 	private FlightConfigurableParameterSet<FlightConfiguration> configSet;
-	private HashMap<Integer, AxialStage> stageMap = new HashMap<>();
+	private ConcurrentHashMap<Integer, AxialStage> stageMap = new ConcurrentHashMap<>();
 	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
@@ -371,7 +372,7 @@ public class Rocket extends ComponentAssembly {
 		final Rocket copyRocket = (Rocket) super.copyWithOriginalID();
 
 		// Rocket copy is cloned, so non-trivial members must be cloned as well:
-		copyRocket.stageMap = new HashMap<>();
+		copyRocket.stageMap = new ConcurrentHashMap<>();
 		for( Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
 			final AxialStage stage = (AxialStage)copyRocket.findComponent(entry.getValue().getID());
 			copyRocket.stageMap.put(entry.getKey(), stage);
