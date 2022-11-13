@@ -67,7 +67,17 @@ public class WarningSet extends AbstractSet<Warning> implements Cloneable, Monit
 		mutable.check();
 		return add(Warning.fromString(s));
 	}
-	
+
+	/**
+	 * Add a <code>Warning</code> of the specified type with the specified discriminator to the
+	 * set.
+	 * @param w the warning
+	 * @param d the extra discriminator
+	 *
+	 */
+	public boolean add (Warning w, String d) {
+		return this.add(w.toString() + ": " + d);
+	}
 	
 	@Override
 	public Iterator<Warning> iterator() {
