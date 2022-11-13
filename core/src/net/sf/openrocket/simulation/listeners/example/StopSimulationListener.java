@@ -22,7 +22,11 @@ public class StopSimulationListener extends AbstractSimulationListener {
 	
 	private long startTime = -1;
 	private long time = -1;
-	
+
+	public StopSimulationListener() {
+		this(0, 0);
+	}
+
 	public StopSimulationListener(double t, int n) {
 		stopTime = t;
 		stopStep = n;
