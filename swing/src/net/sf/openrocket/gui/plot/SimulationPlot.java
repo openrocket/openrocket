@@ -193,6 +193,15 @@ public class SimulationPlot {
 				FlightDataBranch primaryBranch = simulation.getSimulatedData().getBranch(0);
 				FlightDataBranch thisBranch = simulation.getSimulatedData().getBranch(branchIndex);
 
+				// Ignore empty branches
+				if (thisBranch.getLength() == 0) {
+					// Add an empty series to keep the series count consistent
+					XYSeries series = new XYSeries(seriesCount++, false, true);
+					series.setDescription(thisBranch.getBranchName() + ": " + name);
+					data[axis].addSeries(series);
+					continue;
+				}
+
 				// Get first time index used in secondary branch;
 				double firstSampleTime = thisBranch.get(FlightDataType.TYPE_TIME).get(0);
 
