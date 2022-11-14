@@ -38,7 +38,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(Color.RED);
+		warning.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 

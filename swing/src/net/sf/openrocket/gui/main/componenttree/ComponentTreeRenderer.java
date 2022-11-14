@@ -49,23 +49,31 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		} else {
 			setIcon(ComponentIcons.getSmallIcon(value.getClass()));
 		}
-		if (c.isMassOverridden() || c.isCGOverridden() || c.isCDOverridden()) {
+		if (c.isMassOverridden() || c.getMassOverriddenBy() != null ||
+				c.isCGOverridden() || c.getCGOverriddenBy() != null ||
+				c.isCDOverridden() || c.getCDOverriddenBy() != null) {
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 1));
 			p.setBackground(UIManager.getColor("Tree.textBackground"));
 			p.setForeground(UIManager.getColor("Tree.textForeground"));
 			p.add(comp/* , BorderLayout.WEST */);
-			if (c.isMassOverridden()) {
+			if (c.getMassOverriddenBy() != null) {
+				p.add(new JLabel(Icons.MASS_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isMassOverridden()) {
 				p.add(new JLabel(Icons.MASS_OVERRIDE));
 			}
-			if (c.isCGOverridden()) {
+			if (c.getCGOverriddenBy() != null) {
+				p.add(new JLabel(Icons.CG_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isCGOverridden()) {
 				p.add(new JLabel(Icons.CG_OVERRIDE));
 			}
-			if (c.isCDOverridden()) {
+			if (c.getCDOverriddenBy() != null) {
+				p.add(new JLabel(Icons.CD_OVERRIDE_SUBCOMPONENT));
+			} else if (c.isCDOverridden()) {
 				p.add(new JLabel(Icons.CD_OVERRIDE));
 			}
 			
-
+			// Make sure the tooltip also works on the override icons
 			if (components != null && components.size() > 1 && components.contains(c)) {
 				p.setToolTipText(getToolTipMultipleComponents(components));
 			} else {
@@ -88,32 +96,60 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 
+		// Component name title
 		sb.append("<b>").append(c.getName()).append("</b>");
-		if (c.isMassive() || c.isMassOverridden()) {
+
+		// Only add mass information if mass is not overridden by a parent component
+		RocketComponent overriddenBy = c.getMassOverriddenBy();
+		if (overriddenBy == null) {
+			if (c.isMassive() || c.isMassOverridden()) {
+				sb.append(" (").append(
+						UnitGroup.UNITS_MASS.toStringUnit(c.getMass()));
+				if (c.getChildCount() > 0) {
+					sb.append(" of ")
+							.append(UnitGroup.UNITS_MASS.toStringUnit(c
+									.getSectionMass())).append(" ").append(trans.get("ComponentTreeRenderer.total"));
+				}
+				sb.append(")");
+			} else {
+				if ((c.getChildCount() > 0) && (c.getSectionMass() > 0)) {
+					sb.append(" (")
+							.append(UnitGroup.UNITS_MASS.toStringUnit(c
+									.getSectionMass())).append(" ").append(trans.get("ComponentTreeRenderer.total")).append(")");
+				}
+			}
+		}
+
+		// Add component override information in title
+		if (c.isMassOverridden() && c.getMassOverriddenBy() == null) {
+			sb.append(", ").append(trans.get("ComponentTree.ttip.massoverride"));
+		}
+		if (c.isCGOverridden() && c.getCGOverriddenBy() == null) {
+			sb.append(", ").append(trans.get("ComponentTree.ttip.cgoverride"));
+		}
+		if (c.isCDOverridden() && c.getCDOverriddenBy() == null) {
+			sb.append(", ").append(trans.get("ComponentTree.ttip.cdoverride"));
+		}
+
+		// Add parent component override information on new lines
+		if (overriddenBy != null) {
+			sb.append("<br>").append(String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), overriddenBy.getName()));
 			sb.append(" (").append(
-					UnitGroup.UNITS_MASS.toStringUnit(c.getMass()));
-			if (c.getChildCount() > 0) {
-				sb.append(" of ")
-						.append(UnitGroup.UNITS_MASS.toStringUnit(c
-								.getSectionMass())).append(" total");
-			}
-			sb.append(")");
-		} else {
-			if ((c.getChildCount() > 0) && (c.getSectionMass() > 0)) {
-				sb.append(" (")
-						.append(UnitGroup.UNITS_MASS.toStringUnit(c
-								.getSectionMass())).append(" total)");
-			}
+					UnitGroup.UNITS_MASS.toStringUnit(overriddenBy.getMass())).append(")");
+		}
+		overriddenBy = c.getCGOverriddenBy();
+		if (overriddenBy != null) {
+			sb.append("<br>").append(String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), overriddenBy.getName()));
+			sb.append(" (").append(
+					UnitGroup.UNITS_LENGTH.toStringUnit(overriddenBy.getOverrideCGX())).append(")");
+		}
+		overriddenBy = c.getCDOverriddenBy();
+		if (overriddenBy != null) {
+			sb.append("<br>").append(String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), overriddenBy.getName()));
+			sb.append(" (").append(overriddenBy.getOverrideCD()).append(")");
 		}
 
-		if (c.isMassOverridden()) {
-			sb.append(" ").append(trans.get("ComponentTree.ttip.massoverride"));
-		}
-
-		if (c.isCGOverridden()) {
-			sb.append(" ").append(trans.get("ComponentTree.ttip.cgoverride"));
-		}
-
+		// Add component comment on new line
 		String comment = c.getComment().trim();
 		if (comment.length() > 0) {
 			comment = TextUtil.escapeXML(comment);
@@ -132,11 +168,24 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 
+		// Components title
 		sb.append("<b>Components</b>");
+
+		// Calculate the total mass of the selected components
 		double totalMass = 0;
 		double totalSectionMass = 0;
 		boolean containsSectionMass = false;
+		List<RocketComponent> overriddenByComponents = new java.util.ArrayList<>();	// Components that override the mass of the selected components
 		for (RocketComponent c : components) {
+			RocketComponent overriddenBy = c.getMassOverriddenBy();
+			if (overriddenBy != null) {
+				if (!components.contains(overriddenBy) && !overriddenByComponents.contains(overriddenBy)) {
+					totalMass += overriddenBy.getMass();
+					overriddenByComponents.add(overriddenBy);
+				}
+				continue;
+			}
+
 			if (c.isMassive() || c.isMassOverridden()) {
 				totalMass += c.getMass();
 				// Don't add this component's mass to the section mass if its parent is in the list, otherwise you add up duplicate mass
@@ -155,9 +204,11 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			}
 		}
 
+		// Add total mass of the selected components in the title
 		sb.append(" (").append(UnitGroup.UNITS_MASS.toStringUnit(totalMass));
 		if (containsSectionMass) {
-			sb.append(" of ").append(UnitGroup.UNITS_MASS.toStringUnit(totalSectionMass)).append(" total)");
+			sb.append(" of ").append(UnitGroup.UNITS_MASS.toStringUnit(totalSectionMass))
+					.append(" ").append(trans.get("ComponentTreeRenderer.total")).append(")");
 		} else {
 			sb.append(")");
 		}

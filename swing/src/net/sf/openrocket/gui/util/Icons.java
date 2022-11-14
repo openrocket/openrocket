@@ -94,8 +94,11 @@ public class Icons {
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
 	
 	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
+	public static final Icon CG_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cg-override-subcomponent.png", "CG Override Subcomponent");
 	public static final Icon CD_OVERRIDE = loadImageIcon("pix/icons/cd-override.png", "CD Override");
+	public static final Icon CD_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cd-override-subcomponent.png", "CD Override Subcomponent");
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
+	public static final Icon MASS_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/mass-override-subcomponent.png", "Mass Override Subcomponent");
 
 // MANUFACTURERS ICONS
 	public static final Icon RASAERO_ICON = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");

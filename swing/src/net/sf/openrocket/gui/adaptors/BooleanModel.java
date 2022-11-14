@@ -201,6 +201,15 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 		componentEnableState.add(enableState);
 		updateEnableStatus();
 	}
+
+	/**
+	 * Remove a component from the list of enable components controlled by this model.
+	 * @param component component to remove from the list
+	 */
+	public void removeEnableComponent(Component component) {
+		checkState(true);
+		components.remove(component);
+	}
 	
 	/**
 	 * Add a component which will be enabled when this boolean is <code>true</code>.

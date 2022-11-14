@@ -235,11 +235,9 @@ public class RocketComponentConfig extends JPanel {
 				overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
 						toStringUnit(component.getOverrideMass()) + ")";
 			}
-			
-			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
-				if (c.isMassOverridden() && c.isSubcomponentsOverriddenMass()) {
-					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
-				}
+
+			if (component.getMassOverriddenBy() != null) {
+				overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + component.getMassOverriddenBy().getName() + ")";
 			}
 			
 			if (overridetext != null) {
@@ -355,6 +353,7 @@ public class RocketComponentConfig extends JPanel {
 		//// Override the mass, center of gravity, or drag coeficient of the component
 
 		JCheckBox check;
+		JCheckBox checkSub;
 		BooleanModel bm;
 		UnitSelector us;
 		BasicSlider bs;
@@ -371,15 +370,26 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		BooleanModel bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenMass");
-		check = new JCheckBox(bmSubcomp);
-		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
-		Font smallFont = check.getFont();
+		checkSub = new JCheckBox(bmSubcomp);
+		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		Font smallFont = checkSub.getFont();
 		smallFont = smallFont.deriveFont(smallFont.getSize2D() - 1);
-		check.setFont(smallFont);
-		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.Mass.ttip"));
-		bm.addEnableComponent(check, true);
-		checkboxes.add(check, "gapleft 25lp, wrap");
-		order.add(check);
+		checkSub.setFont(smallFont);
+		checkSub.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.Mass.ttip"));
+		bm.addEnableComponent(checkSub, true);
+		checkboxes.add(checkSub, "gapleft 25lp, wrap");
+		order.add(checkSub);
+
+		////// Mass overridden by
+		if (component.getMassOverriddenBy() != null) {
+			StyledLabel labelMassOverriddenBy = new StyledLabel(
+					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), component.getMassOverriddenBy().getName()),
+					0, StyledLabel.Style.BOLD);
+			labelMassOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelMassOverriddenBy.setToolTipText(
+					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
+			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
+		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
@@ -399,6 +409,18 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 
+		if (component.getMassOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(us);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			us.setEnabled(false);
+			bs.setEnabled(false);
+		}
+
 		// END OVERRIDE MASS ----------------------------------
 	
 		// OVERRIDE CG ----------------------------------
@@ -413,13 +435,24 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCG");
-		check = new JCheckBox(bmSubcomp);
-		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
-		check.setFont(smallFont);
-		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CG.ttip"));
-		bm.addEnableComponent(check, true);
-		checkboxes.add(check, "gapleft 25lp, wrap");
-		order.add(check);
+		checkSub = new JCheckBox(bmSubcomp);
+		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		checkSub.setFont(smallFont);
+		checkSub.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CG.ttip"));
+		bm.addEnableComponent(checkSub, true);
+		checkboxes.add(checkSub, "gapleft 25lp, wrap");
+		order.add(checkSub);
+
+		////// CG overridden by
+		if (component.getCGOverriddenBy() != null) {
+			StyledLabel labelCGOverriddenBy = new StyledLabel(
+					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), component.getCGOverriddenBy().getName()),
+					0, StyledLabel.Style.BOLD);
+			labelCGOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCGOverriddenBy.setToolTipText(
+					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
+			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
+		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
@@ -469,6 +502,18 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 
+		if (component.getCGOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(us);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			us.setEnabled(false);
+			bs.setEnabled(false);
+		}
+
 		// END OVERRIDE CG ---------------------------------------------------
 
 
@@ -484,13 +529,24 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCD");
-		check = new JCheckBox(bmSubcomp);
-		check.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
-		check.setFont(smallFont);
-		check.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CD.ttip"));
-		bm.addEnableComponent(check, true);
-		checkboxes.add(check, "gapleft 25lp, wrap");
-		order.add(check);
+		checkSub = new JCheckBox(bmSubcomp);
+		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
+		checkSub.setFont(smallFont);
+		checkSub.setToolTipText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents.CD.ttip"));
+		bm.addEnableComponent(checkSub, true);
+		checkboxes.add(checkSub, "gapleft 25lp, wrap");
+		order.add(checkSub);
+
+		////// CD overridden by
+		if (component.getCDOverriddenBy() != null) {
+			StyledLabel labelCDOverriddenBy = new StyledLabel(
+					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
+					0, StyledLabel.Style.BOLD);
+			labelCDOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCDOverriddenBy.setToolTipText(
+					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
+			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
+		}
 
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
@@ -506,6 +562,16 @@ public class RocketComponentConfig extends JPanel {
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
 		panel.add(bs, "top, skip, growx 5, w 100lp, wrap");
+
+		if (component.getCDOverriddenBy() != null) {
+			check.setEnabled(false);
+			bm.removeEnableComponent(checkSub);
+			bm.removeEnableComponent(spin);
+			bm.removeEnableComponent(bs);
+			checkSub.setEnabled(false);
+			spin.setEnabled(false);
+			bs.setEnabled(false);
+		}
 
 		// END OVERRIDE CD --------------------------------------------------
 
