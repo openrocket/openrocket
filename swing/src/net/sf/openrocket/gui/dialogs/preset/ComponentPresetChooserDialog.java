@@ -179,6 +179,18 @@ public class ComponentPresetChooserDialog extends JDialog {
 				}
 			}
 		});
+
+		// Always open this window when creating a new component
+		JCheckBox alwaysOpenPreset = new JCheckBox(String.format(trans.get("ComponentPresetChooserDialog.checkbox.alwaysOpenPreset"),
+				component.getComponentName()));
+		alwaysOpenPreset.setSelected(preferences.getBoolean(component.getComponentName() +  "AlwaysOpenPreset", true));
+		alwaysOpenPreset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.putBoolean(component.getComponentName() + "AlwaysOpenPreset", ((JCheckBox) e.getSource()).isSelected());
+			}
+		});
+		panel.add(alwaysOpenPreset, "spanx 2");
 		
 		// Close buttons
 		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
