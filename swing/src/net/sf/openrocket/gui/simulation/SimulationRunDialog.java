@@ -207,9 +207,12 @@ public class SimulationRunDialog extends JDialog {
 	 *            the parent Window of the dialog to use.
 	 * @param simulations
 	 *            the simulations to run.
+	 * @return	  the simulation run dialog instance.
 	 */
-	public static void runSimulations(Window parent, OpenRocketDocument document, Simulation... simulations) {
-		new SimulationRunDialog(parent, document, simulations).setVisible(true);
+	public static SimulationRunDialog runSimulations(Window parent, OpenRocketDocument document, Simulation... simulations) {
+		SimulationRunDialog dialog = new SimulationRunDialog(parent, document, simulations);
+		dialog.setVisible(true);
+		return dialog;
 	}
 
 	private void updateProgress() {
@@ -255,6 +258,18 @@ public class SimulationRunDialog extends JDialog {
 		u = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
 		velLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketVelocity().z) + " (max. "
 				+ u.toStringUnit(simulationMaxVelocity[index]) + ")");
+	}
+
+	/**
+	 * Returns true if all the simulations ran successfully. Returns false if the simulations encountered
+	 * an exception, or were cancelled.
+	 */
+	public boolean isAllSimulationsSuccessful() {
+		for (SimulationWorker w : simulationWorkers) {
+			if (w.getThrowable() != null)
+				return false;
+		}
+		return true;
 	}
 
 	/**
