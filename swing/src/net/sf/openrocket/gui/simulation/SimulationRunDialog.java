@@ -23,6 +23,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import net.sf.openrocket.document.events.DocumentChangeEvent;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,6 +275,7 @@ public class SimulationRunDialog extends JDialog {
 		private volatile double apogeeAltitude;
 
 		private final CustomExpressionSimulationListener exprListener;
+		private final OpenRocketDocument document;
 
 		/*
 		 * Keep track of current phase ("stage") of simulation
@@ -287,7 +290,8 @@ public class SimulationRunDialog extends JDialog {
 
 		public InteractiveSimulationWorker(OpenRocketDocument doc, Simulation sim, int index) {
 			super(sim);
-			List<CustomExpression> exprs = doc.getCustomExpressions();
+			this.document = doc;
+			List<CustomExpression> exprs = document.getCustomExpressions();
 			exprListener = new CustomExpressionSimulationListener(exprs);
 			this.index = index;
 
@@ -389,6 +393,7 @@ public class SimulationRunDialog extends JDialog {
 			log.debug("Simulation done");
 			setSimulationProgress(1.0);
 			updateProgress();
+			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 		}
 
 		/**
