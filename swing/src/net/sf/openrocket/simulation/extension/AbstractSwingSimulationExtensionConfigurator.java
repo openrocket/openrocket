@@ -4,6 +4,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -50,17 +52,21 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dialog.setVisible(false);
+				close();
 			}
 		});
 		panel.add(close, "right");
-		
+
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				close();
+			}
+		});
+
 		dialog.add(panel);
 		GUIUtil.setDisposableDialogOptions(dialog, close);
 		dialog.setVisible(true);
-		close();
-		GUIUtil.setNullModels(dialog);
-		dialog = null;
 	}
 	
 	/**
@@ -78,10 +84,12 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 	}
 	
 	/**
-	 * Called when the default dialog is closed.  By default does nothing.
+	 * Called when the default dialog is closed.  By default hides the dialog and cleans up the component models.
 	 */
 	protected void close() {
-		
+		dialog.setVisible(false);
+		GUIUtil.setNullModels(dialog);
+		dialog = null;
 	}
 	
 	protected abstract JComponent getConfigurationComponent(E extension, Simulation simulation, JPanel panel);

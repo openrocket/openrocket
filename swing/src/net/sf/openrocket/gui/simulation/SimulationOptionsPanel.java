@@ -234,6 +234,7 @@ class SimulationOptionsPanel extends JPanel {
 							SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
 							if (configurator != null) {
 								configurator.configure(e, simulation, SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+								updateCurrentExtensions();
 							}
 						}
 					});
@@ -257,6 +258,7 @@ class SimulationOptionsPanel extends JPanel {
 							SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
 							if (configurator != null) {
 								configurator.configure(e, simulation, SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+								updateCurrentExtensions();
 							}
 						}
 					});
