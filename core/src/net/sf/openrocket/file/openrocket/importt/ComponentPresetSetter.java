@@ -68,7 +68,10 @@ class ComponentPresetSetter implements Setter {
 		if (digest != null && !matchingPreset.getDigest().equals(digest)) {
 			warnings.add(Warning.fromString("ComponentPreset for component " + c.getName() + " has wrong digest"));
 		}
-		
+
+		// The preset loader can override the component name, so first store it and then apply it again
+		String componentName = c.getName();
 		setMethod.invoke(c, matchingPreset);
+		c.setName(componentName);
 	}
 }
