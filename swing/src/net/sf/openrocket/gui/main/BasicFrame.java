@@ -279,11 +279,13 @@ public class BasicFrame extends JFrame {
 		if( componentSelectionModel.isSelectionEmpty() ){
 			final Rocket rocket = document.getRocket();
 			if( rocket != null ) {
-				final AxialStage topStage = (AxialStage) rocket.getChild(0);
+				final RocketComponent topStage = rocket.getChild(0);
 				if (topStage != null) {
 					final TreePath selectionPath = new TreePath(topStage);
 					componentSelectionModel.setSelectionPath(selectionPath);
 					tree.setSelectionRow(1);
+					// Don't select children components at startup (so override the default behavior with this new selection)
+					rocketpanel.getFigure().setSelection(new RocketComponent[] { topStage });
 					log.debug("... Setting Initial Selection: " + tree.getSelectionPath() );
 				}
 			}
