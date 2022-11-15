@@ -19,6 +19,7 @@ import net.sf.openrocket.util.Color;
 public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfigurator<JavaCode> {
 	private JavaCode extension;
 	private JTextField classNameField;
+	private StyledLabel errorMsg;
 
 	private static final Translator trans = Application.getTranslator();
 
@@ -33,7 +34,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 		panel.add(new JLabel(trans.get("SimulationExtension.javacode.className")), "wrap rel");
 		classNameField = new JTextField(extension.getClassName());
 		panel.add(classNameField, "growx, wrap");
-		StyledLabel errorMsg = new StyledLabel();
+		this.errorMsg = new StyledLabel();
 		errorMsg.setFontColor(Color.DARK_RED.toAWTColor());
 		errorMsg.setVisible(false);
 		panel.add(errorMsg, "growx, wrap");
@@ -52,24 +53,32 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 			}
 			
 			public void update() {
-				// Display error message if the class name is invalid
-				String text = classNameField.getText().trim();
-				try {
-					Class.forName(text);
-					errorMsg.setVisible(false);
-				} catch (ClassNotFoundException e) {
-					// Don't display an error message for an empty field
-					if (text.length() == 0) {
-						errorMsg.setVisible(false);
-						return;
-					}
-					errorMsg.setText(trans.get("SimulationExtension.javacode.classnotfound"));
-					errorMsg.setVisible(true);
-				}
+				updateErrorMsg();
 			}
 		});
+		updateErrorMsg();
 
 		return panel;
+	}
+
+	private void updateErrorMsg() {
+		if (this.errorMsg == null) {
+			return;
+		}
+		// Display error message if the class name is invalid
+		String text = classNameField.getText().trim();
+		try {
+			Class.forName(text);
+			errorMsg.setVisible(false);
+		} catch (ClassNotFoundException e) {
+			// Don't display an error message for an empty field
+			if (text.length() == 0) {
+				errorMsg.setVisible(false);
+				return;
+			}
+			errorMsg.setText(trans.get("SimulationExtension.javacode.classnotfound"));
+			errorMsg.setVisible(true);
+		}
 	}
 
 	@Override
