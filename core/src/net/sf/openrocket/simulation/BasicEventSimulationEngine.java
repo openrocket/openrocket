@@ -73,6 +73,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 		
 		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
+
+		// Sanity checks on design and configuration
+		
+		// No recovery device
+		if (!currentStatus.getConfiguration().hasRecoveryDevice()) {
+			currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
+		}
+		
 		currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 		{
 			// main simulation branch 
@@ -340,11 +348,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
 							event.getTime() + Math.max(0.001, deployConfig.getDeployDelay()), c));
 				}
-			}
-
-			// Add a warning if there is no recovery device defined.
-			if (!currentStatus.getConfiguration().hasRecoveryDevice()) {
-				currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
 			}
 			
 			// Handle event
