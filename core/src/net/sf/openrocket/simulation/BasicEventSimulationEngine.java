@@ -1,6 +1,7 @@
 package net.sf.openrocket.simulation;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
 
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -68,16 +70,22 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
 		FlightConfiguration simulationConfig = origConfig.clone();
 		simulationConfig.copyStages(origConfig);	// Clone the stage activation configuration
-		if ( ! simulationConfig.hasMotors() ) {
-			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
-		}
 		
 		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
 
 		// Sanity checks on design and configuration
-		
+
+		// Problems that keep us from simulating at all
+
+		// No motors in configuration
+		if (!simulationConfig.hasMotors() ) {
+			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
+		}
+
+		// Problems that let us simulate, but result is likely bad
+			
 		// No recovery device
-		if (!currentStatus.getConfiguration().hasRecoveryDevice()) {
+		if (!simulationConfig.hasRecoveryDevice()) {
 			currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
 		}
 		
@@ -116,7 +124,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		return flightData;
 	}
 	
-	private FlightDataBranch simulateLoop() {
+	private FlightDataBranch simulateLoop() throws SimulationException {
 		
 		// Initialize the simulation.  We'll use the flight stepper unless we're already on the ground
 		if (currentStatus.isLanded())
@@ -248,9 +256,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 		} catch (SimulationException e) {
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
+
 			// Add FlightEvent for Abort.
 			currentStatus.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
-			currentStatus.getWarnings().add(e.getLocalizedMessage());
+			
+			throw e;
 		}
 		
 		return currentStatus.getFlightData();
