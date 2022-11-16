@@ -251,10 +251,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		if (calcMap == null)
 			buildCalcMap(configuration);
-		
-		if (!isContinuous(configuration, configuration.getRocket())){
-			warnings.add( Warning.DIAMETER_DISCONTINUITY);
-		}
+
+		testIsContinuous(configuration, configuration.getRocket(), warnings);
 		
 		final InstanceMap imap = configuration.getActiveInstances();
 
@@ -276,13 +274,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		return assemblyForces;
 	}
-	
+
 	@Override
-	public boolean isContinuous(FlightConfiguration configuration, final Rocket rkt){
-		return testIsContinuous(configuration, rkt);
-	}
-	
-	private boolean testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot ){
+	public void testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
 		Queue<RocketComponent> queue = new LinkedList<>();
 		for (RocketComponent child : treeRoot.getChildren()) {
 			// Ignore inactive stages
@@ -292,9 +286,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			queue.add(child);
 		}
 		
-		boolean isContinuous = true;
 		SymmetricComponent prevComp = null; 
-		while((isContinuous)&&( null != queue.peek())){
+		while(null != queue.peek()) {
 			RocketComponent comp = queue.poll();
 			if( comp instanceof SymmetricComponent ){
 				for (RocketComponent child : comp.getChildren()) {
@@ -313,7 +306,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 				// Check for radius discontinuity
 				if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
-					isContinuous = false;
+					warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
 				}
 				
 				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
@@ -327,11 +320,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						
 				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
-				isContinuous &= testIsContinuous(configuration, comp);
+				testIsContinuous(configuration, comp, warnings);
 			}
 			
 		}
-		return isContinuous;
 	}
 		
 	
