@@ -67,4 +67,9 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @return	a new, independent instance of this aerodynamic calculator type
 	 */
 	public AerodynamicCalculator newInstance();
+
+	/**
+	 * Test component assembly for continuity (esp. diameter), and post any needed warnings
+	 */
+	public void testIsContinuous(FlightConfiguration configuration, final RocketComponent component, WarningSet warnings);
 }

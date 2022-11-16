@@ -274,8 +274,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		return assemblyForces;
 	}
-	
-	private void testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
+
+	@Override
+	public void testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
 		Queue<RocketComponent> queue = new LinkedList<>();
 		for (RocketComponent child : treeRoot.getChildren()) {
 			// Ignore inactive stages
