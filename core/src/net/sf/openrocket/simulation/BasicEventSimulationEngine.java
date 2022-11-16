@@ -97,6 +97,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 							dataBranch.getBranchName(),
 							currentStatus.getSimulationTime(),
 							dataBranch.getLast(FlightDataType.TYPE_TIME)));
+
+
+			// Did the branch generate any data?
+			if (dataBranch.getLength() == 0) {
+				flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getBranchName());
+			}
 		}while( ! toSimulate.isEmpty());
 		
 		SimulationListenerHelper.fireEndSimulation(currentStatus, null);
