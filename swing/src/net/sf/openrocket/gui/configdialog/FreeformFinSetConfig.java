@@ -91,6 +91,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private ScaleScrollPane figurePane = null;
 	private ScaleSelector selector;
 
+	private FinPointAction insertFinPointAction;
 	private FinPointAction deleteFinPointAction;
 	
 	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
@@ -294,8 +295,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		});
 
 		// Context menu for table
+		insertFinPointAction = new InsertPointAction();
 		deleteFinPointAction = new DeletePointAction();
 		pm = new JPopupMenu();
+		pm.add(insertFinPointAction);
 		pm.add(deleteFinPointAction);
 
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -457,16 +460,32 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 
 	/**
-	 * Delete the selected point in the fin point table.
+	 * Insert a new fin point between the currently selected point and the next point.
+	 * The coordinates of the new point will be the average of the two points.
+	 */
+	private void insertPoint() {
+		int currentPointIdx = table.getSelectedRow();
+		if (currentPointIdx == -1 || currentPointIdx >= table.getRowCount() - 1) {
+			return;
+		}
+		final FreeformFinSet finSet = (FreeformFinSet) component;
+		Coordinate currentPoint = finSet.getFinPoints()[currentPointIdx];
+		Coordinate nextPoint = finSet.getFinPoints()[currentPointIdx + 1];
+		Point2D.Double toAdd = new Point2D.Double((currentPoint.x + nextPoint.x) / 2, (currentPoint.y + nextPoint.y) / 2);
+		finSet.addPoint(currentPointIdx + 1, toAdd);
+	}
+
+	/**
+	 * Delete the currently selected fin point.
 	 */
 	private void deletePoint() {
-		int row = table.getSelectedRow();
-		if (row == -1) {
+		int currentPointIdx = table.getSelectedRow();
+		if (currentPointIdx == -1) {
 			return;
 		}
 		final FreeformFinSet finSet = (FreeformFinSet) component;
 		try {
-			finSet.removePoint(row);
+			finSet.removePoint(currentPointIdx);
 		} catch (IllegalFinPointException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -477,9 +496,12 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	}
 
 	private void updateActionStates() {
-		if (deleteFinPointAction != null) {
-			deleteFinPointAction.updateEnabledState();
+		if (insertFinPointAction == null) {		// If one of the actions is null, the rest will be too
+			return;
 		}
+
+		insertFinPointAction.updateEnabledState();
+		deleteFinPointAction.updateEnabledState();
 	}
 	
 	private class FinPointScrollPane extends ScaleScrollPane {
@@ -765,6 +787,24 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		private static final long serialVersionUID = 1L;
 
 		public abstract void updateEnabledState();
+	}
+
+	private class InsertPointAction extends FinPointAction {
+		public InsertPointAction() {
+			putValue(NAME, trans.get("FreeformFinSetConfig.lbl.insertPoint"));
+			this.putValue(SMALL_ICON, Icons.FILE_NEW);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			insertPoint();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			// You can't add to the last fin point
+			setEnabled(table.getSelectedRow() < table.getRowCount() - 1);
+		}
 	}
 
 	private class DeletePointAction extends FinPointAction {
