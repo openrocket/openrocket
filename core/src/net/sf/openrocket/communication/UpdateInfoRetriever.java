@@ -179,10 +179,10 @@ public class UpdateInfoRetriever {
 			JsonArray arr1 = retrieveReleaseJSONArr(relUrl);
 
 			if (arr1 == null) return null;
-			if (Communicator.UPDATE_ADDITIONAL_URL == null) return arr1;
+			if (Communicator.UPDATE_URL_LATEST == null) return arr1;
 
 			// Get release tags from latest release page
-			String latestRelUrl = Communicator.UPDATE_ADDITIONAL_URL;
+			String latestRelUrl = Communicator.UPDATE_URL_LATEST;
 			latestRelUrl = generateUrlWithParameters(latestRelUrl, params);
 			JsonArray arr2 = retrieveReleaseJSONArr(latestRelUrl);
 
