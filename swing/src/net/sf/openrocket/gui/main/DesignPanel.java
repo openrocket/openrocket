@@ -69,35 +69,29 @@ public class DesignPanel extends JSplitPane {
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
 
-        // Visually select all child components of a stage/rocket/podset when it is selected
+        // Highlight all child components of a stage/rocket/podset when it is selected
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
-                        || parent.getRocketPanel() == null) return;
-
-                // Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
-                List<RocketComponent> children = new ArrayList<>(Arrays.asList(parent.getRocketPanel().getFigure().getSelection()));
-                for (TreePath p : tree.getSelectionPaths()) {
-                    if (p != null) {
-                        RocketComponent c = (RocketComponent) p.getLastPathComponent();
-                        if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
-                            Iterator<RocketComponent> iter = c.iterator(false);
-                            while (iter.hasNext()) {
-                                RocketComponent child = iter.next();
-                                children.add(child);
-                            }
-                        }
-                    }
-                }
-
-                // Select all the child components
-                if (parent.getRocketPanel().getFigure() != null && parent.getRocketPanel().getFigure3d() != null) {
-                    parent.getRocketPanel().getFigure().setSelection(children.toArray(new RocketComponent[0]));
-                    parent.getRocketPanel().getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
-                }
+                highlightAssemblyChildren(tree, parent);
             }
         });
+
+        // Add a mouse listener for when the sustainer is selected at startup, to ensure that its children are highlighted.
+        // This is necessary because we force the children to not be highlighted when the tree is first created, and
+        // re-clicking the sustainer would not fire a change event in the tree (which normally highlights the children).
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (tree.getSelectionPath() != null &&
+                        tree.getSelectionPath().getLastPathComponent() == document.getRocket().getChild(0)) {
+                    highlightAssemblyChildren(tree, parent);
+                }
+                // Delete the listener again. We only need it at start-up, i.e. when the first click is registered.
+                tree.removeMouseListener(this);
+            }
+        };
+        tree.addMouseListener(mouseAdapter);
 
         // Double-click opens config dialog
         MouseListener ml = new MouseAdapter() {
@@ -232,6 +226,37 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
+    }
+
+    /**
+     * Highlight all child components of a stage/rocket/podset when it is selected
+     * @param tree the tree in which the component selection took place
+     * @param parent the parent frame to highlight the components in
+     */
+    private static void highlightAssemblyChildren(ComponentTree tree, BasicFrame parent) {
+        if (tree == null || tree.getSelectionPaths() == null || tree.getSelectionPaths().length == 0
+                || parent.getRocketPanel() == null) return;
+
+        // Get all the components that need to be selected = currently selected components + children of stages/boosters/podsets
+        List<RocketComponent> children = new ArrayList<>(Arrays.asList(parent.getRocketPanel().getFigure().getSelection()));
+        for (TreePath p : tree.getSelectionPaths()) {
+            if (p != null) {
+                RocketComponent c = (RocketComponent) p.getLastPathComponent();
+                if (c instanceof AxialStage || c instanceof Rocket || c instanceof PodSet) {
+                    Iterator<RocketComponent> iter = c.iterator(false);
+                    while (iter.hasNext()) {
+                        RocketComponent child = iter.next();
+                        children.add(child);
+                    }
+                }
+            }
+        }
+
+        // Select all the child components
+        if (parent.getRocketPanel().getFigure() != null && parent.getRocketPanel().getFigure3d() != null) {
+            parent.getRocketPanel().getFigure().setSelection(children.toArray(new RocketComponent[0]));
+            parent.getRocketPanel().getFigure3d().setSelection(children.toArray(new RocketComponent[0]));
+        }
     }
 
     /**
