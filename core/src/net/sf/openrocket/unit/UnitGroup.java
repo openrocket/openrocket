@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.util.StringUtil;
 
 
 /**
@@ -670,8 +671,8 @@ public class UnitGroup {
 		if (!matcher.matches()) {
 			throw new NumberFormatException("string did not match required pattern");
 		}
-		
-		double value = Double.parseDouble(matcher.group(1));
+
+		double value = StringUtil.convertToDouble(matcher.group(1));
 		String unit = matcher.group(2).trim();
 		
 		if (unit.equals("")) {
