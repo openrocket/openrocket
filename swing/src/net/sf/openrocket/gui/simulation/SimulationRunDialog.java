@@ -23,6 +23,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import net.sf.openrocket.document.events.DocumentChangeEvent;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,9 +209,12 @@ public class SimulationRunDialog extends JDialog {
 	 *            the parent Window of the dialog to use.
 	 * @param simulations
 	 *            the simulations to run.
+	 * @return	  the simulation run dialog instance.
 	 */
-	public static void runSimulations(Window parent, OpenRocketDocument document, Simulation... simulations) {
-		new SimulationRunDialog(parent, document, simulations).setVisible(true);
+	public static SimulationRunDialog runSimulations(Window parent, OpenRocketDocument document, Simulation... simulations) {
+		SimulationRunDialog dialog = new SimulationRunDialog(parent, document, simulations);
+		dialog.setVisible(true);
+		return dialog;
 	}
 
 	private void updateProgress() {
@@ -258,6 +263,18 @@ public class SimulationRunDialog extends JDialog {
 	}
 
 	/**
+	 * Returns true if all the simulations ran successfully. Returns false if the simulations encountered
+	 * an exception, or were cancelled.
+	 */
+	public boolean isAllSimulationsSuccessful() {
+		for (SimulationWorker w : simulationWorkers) {
+			if (w.getThrowable() != null)
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * A SwingWorker that performs a flight simulation. It periodically updates
 	 * the simulation statuses of the parent class and calls updateProgress().
 	 * The progress of the simulation is stored in the progress property of the
@@ -273,6 +290,7 @@ public class SimulationRunDialog extends JDialog {
 		private volatile double apogeeAltitude;
 
 		private final CustomExpressionSimulationListener exprListener;
+		private final OpenRocketDocument document;
 
 		/*
 		 * Keep track of current phase ("stage") of simulation
@@ -287,7 +305,8 @@ public class SimulationRunDialog extends JDialog {
 
 		public InteractiveSimulationWorker(OpenRocketDocument doc, Simulation sim, int index) {
 			super(sim);
-			List<CustomExpression> exprs = doc.getCustomExpressions();
+			this.document = doc;
+			List<CustomExpression> exprs = document.getCustomExpressions();
 			exprListener = new CustomExpressionSimulationListener(exprs);
 			this.index = index;
 
@@ -389,6 +408,7 @@ public class SimulationRunDialog extends JDialog {
 			log.debug("Simulation done");
 			setSimulationProgress(1.0);
 			updateProgress();
+			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 		}
 
 		/**

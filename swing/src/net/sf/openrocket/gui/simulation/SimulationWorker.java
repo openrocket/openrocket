@@ -70,6 +70,17 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	protected SimulationListener[] getExtraListeners() {
 		return new SimulationListener[0];
 	}
+
+	/**
+	 * Returns the throwable that caused the simulation to fail or cancel,
+	 * or null if the simulation ran successfully.
+	 *
+	 * @return throwable that caused the simulation to fail or cancel,
+	 * 		or null if the simulation ran successfully.
+	 */
+	public Throwable getThrowable() {
+		return throwable;
+	}
 	
 	
 	/**

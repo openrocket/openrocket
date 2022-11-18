@@ -209,12 +209,10 @@ public class SimulationEditDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				copyChangesToAllSims();
-				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulationList);
-				refreshView();
-				if (allowsPlotMode()) {
+				SimulationRunDialog dialog = SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulationList);
+				if (allowsPlotMode() && dialog.isAllSimulationsSuccessful()) {
+					refreshView();
 					setPlotMode();
-				} else {
-					setVisible(false);
 				}
 			}
 		});

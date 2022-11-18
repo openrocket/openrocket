@@ -208,13 +208,10 @@ public class SimulationPanel extends JPanel {
 				}
 				// Show context menu
 				else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
-					// Get the row that the right-click action happened on
-					int r = simulationTable.rowAtPoint(e.getPoint());
-
 					// Select new row
-					if (!simulationTable.isRowSelected(r)) {
-						if (r >= 0 && r < simulationTable.getRowCount()) {
-							simulationTable.setRowSelectionInterval(r, r);
+					if (!simulationTable.isRowSelected(row)) {
+						if (row >= 0 && row < simulationTable.getRowCount()) {
+							simulationTable.setRowSelectionInterval(row, row);
 						} else {
 							return;
 						}

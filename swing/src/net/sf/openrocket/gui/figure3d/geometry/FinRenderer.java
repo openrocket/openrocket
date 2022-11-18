@@ -17,7 +17,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 
 public class FinRenderer {
-	private GLUtessellator tobj = GLU.gluNewTess();
+	private GLUtessellator tess = GLU.gluNewTess();
 	
 	public void renderFinSet(final GL2 gl, FinSet finSet, Surface which) {
 		
@@ -50,7 +50,7 @@ public class FinRenderer {
             GLUtessellatorCallback cb = new GLUtessellatorCallbackAdapter() {
 				@Override
 				public void vertex(Object vertexData) {
-					double d[] = (double[]) vertexData;
+					double[] d = (double[]) vertexData;
 					gl.glTexCoord2d(d[0], d[1]);
 					gl.glVertex3dv(d, 0);
 				}
@@ -64,69 +64,82 @@ public class FinRenderer {
 				public void end() {
 					gl.glEnd();
 				}
+
+				@Override
+				public void combine(double[] coords, Object[] data, float[] weight, Object[] outData) {
+					double[] vertex = new double[3];
+					vertex[0] = coords[0];
+					vertex[1] = coords[1];
+					vertex[2] = coords[2];
+					outData[0] = vertex;
+				}
 			};
 			
-			GLU.gluTessCallback(tobj, GLU.GLU_TESS_VERTEX, cb);
-			GLU.gluTessCallback(tobj, GLU.GLU_TESS_BEGIN, cb);
-			GLU.gluTessCallback(tobj, GLU.GLU_TESS_END, cb);
-			
+			GLU.gluTessCallback(tess, GLU.GLU_TESS_VERTEX, cb);
+			GLU.gluTessCallback(tess, GLU.GLU_TESS_BEGIN, cb);
+			GLU.gluTessCallback(tess, GLU.GLU_TESS_END, cb);
+			GLU.gluTessCallback(tess, GLU.GLU_TESS_COMBINE, cb);
+
 			// fin side: +z
 			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.INSIDE) {		// Right side
-				GLU.gluTessBeginPolygon(tobj, null);
-				GLU.gluTessBeginContour(tobj);
+				GLU.gluTessBeginPolygon(tess, null);
+				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
 				for (int i = finPoints.length - 1; i >= 0; i--) {
 					Coordinate c = finPoints[i];
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z + finSet.getThickness() / 2.0};
-					GLU.gluTessVertex(tobj, p, 0, p);
+					GLU.gluTessVertex(tess, p, 0, p);
 				}
-				GLU.gluTessEndContour(tobj);
-				GLU.gluTessEndPolygon(tobj);
+				GLU.gluTessEndContour(tess);
+				GLU.gluTessEndPolygon(tess);
 			}
 			// tab side: +z
 			if (finSet.getTabHeight() > 0 && finSet.getTabLength() > 0 && which == Surface.INSIDE) {		// Right side
-				GLU.gluTessBeginPolygon(tobj, null);
-				GLU.gluTessBeginContour(tobj);
+				GLU.gluTessBeginPolygon(tess, null);
+				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
 				for (int i = tabPoints.length - 1; i >= 0; i--) {
 					Coordinate c = tabPoints[i];
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z + finSet.getThickness() / 2.0};
-					GLU.gluTessVertex(tobj, p, 0, p);
+					GLU.gluTessVertex(tess, p, 0, p);
 				}
-				GLU.gluTessEndContour(tobj);
-				GLU.gluTessEndPolygon(tobj);
+				GLU.gluTessEndContour(tess);
+				GLU.gluTessEndPolygon(tess);
 			}
 			
 			// fin side: -z
 			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.OUTSIDE) {		// Left side
-				GLU.gluTessBeginPolygon(tobj, null);
-				GLU.gluTessBeginContour(tobj);
+				GLU.gluTessBeginPolygon(tess, null);
+				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
 				for (Coordinate c : finPoints) {
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z - finSet.getThickness() / 2.0};
-					GLU.gluTessVertex(tobj, p, 0, p);
+					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
-				GLU.gluTessEndContour(tobj);
-				GLU.gluTessEndPolygon(tobj);
+				GLU.gluTessEndContour(tess);
+				GLU.gluTessEndPolygon(tess);
 			}
 			// tab side: -z
 			if (finSet.getTabHeight() > 0 && finSet.getTabLength() > 0 && which == Surface.OUTSIDE) {		// Left side
-				GLU.gluTessBeginPolygon(tobj, null);
-				GLU.gluTessBeginContour(tobj);
+				GLU.gluTessBeginPolygon(tess, null);
+				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
 				for (Coordinate c : tabPoints) {
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z - finSet.getThickness() / 2.0};
-					GLU.gluTessVertex(tobj, p, 0, p);
+					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
-				GLU.gluTessEndContour(tobj);
-				GLU.gluTessEndPolygon(tobj);
+				GLU.gluTessEndContour(tess);
+				GLU.gluTessEndPolygon(tess);
 			}
+
+			// delete tessellator after processing
+			GLU.gluDeleteTess(tess);
 			
 			// Fin strip around the edge
 			if (finSet.getSpan() > 0 && finSet.getLength() > 0 && which == Surface.EDGES) {

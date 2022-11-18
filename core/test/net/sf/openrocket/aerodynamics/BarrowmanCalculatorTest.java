@@ -288,8 +288,10 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		WarningSet warnings = new WarningSet();
 		
-		assertTrue("Estes Alpha III should be continuous: ", calc.isContinuous(configuration, rocket));
+		calc.testIsContinuous(configuration, rocket, warnings);
+		assertTrue("Estes Alpha III should be continuous: ", warnings.isEmpty());		
 	}
 	
 	@Test
@@ -297,8 +299,10 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		WarningSet warnings = new WarningSet();
 		
-		assertTrue("F9H should be continuous: ", calc.isContinuous(configuration, rocket));
+		calc.testIsContinuous(configuration, rocket, warnings);
+		assertTrue("F9H should be continuous: ", warnings.isEmpty());		
 	}
 	
 	@Test
@@ -306,6 +310,7 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		WarningSet warnings = new WarningSet();
 		
 		NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
 		BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
@@ -313,8 +318,9 @@ public class BarrowmanCalculatorTest {
 		nose.setAftRadius(0.015);
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
-		
-		assertFalse(" Estes Alpha III has an undetected discontinuity:", calc.isContinuous(configuration, rocket));
+
+		calc.testIsContinuous(configuration, rocket, warnings);
+		assertFalse(" Estes Alpha III has an undetected discontinuity:", warnings.isEmpty());		
 	}
 	
 	@Test
@@ -322,6 +328,7 @@ public class BarrowmanCalculatorTest {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		AerodynamicCalculator calc = new BarrowmanCalculator();
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		WarningSet warnings = new WarningSet();
 		
 		final AxialStage coreStage = (AxialStage)rocket.getChild(1);
 		final ParallelStage booster = (ParallelStage)coreStage.getChild(0).getChild(0);
@@ -333,7 +340,8 @@ public class BarrowmanCalculatorTest {
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
 		
-		assertFalse(" Missed discontinuity in Falcon 9 Heavy:", calc.isContinuous(configuration, rocket));
+		calc.testIsContinuous(configuration, rocket, warnings);
+		assertFalse(" Missed discontinuity in Falcon 9 Heavy:" , warnings.isEmpty());		
 	}
 
 	@Test
