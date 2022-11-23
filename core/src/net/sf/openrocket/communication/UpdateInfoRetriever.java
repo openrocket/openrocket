@@ -70,7 +70,7 @@ public class UpdateInfoRetriever {
 	 */
 	public boolean isRunning() {
 		if (this.fetcher == null) {
-			throw new IllegalStateException("startFetchUpdateInfo() has not been called"); 
+			throw new IllegalStateException("Fetcher has not been called yet");
 		}
 		return this.fetcher.isAlive();
 	}
@@ -91,7 +91,7 @@ public class UpdateInfoRetriever {
 	 */
 	public UpdateInfo getUpdateInfo() {
 		if (this.fetcher == null) {
-			throw new IllegalStateException("startFetchUpdateInfo() has not been called");
+			throw new IllegalStateException("Fetcher has not been called yet");
 		}
 		return this.fetcher.info;
 	}
