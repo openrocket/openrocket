@@ -748,7 +748,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			} else {
 				// Legacy Case: These components do not implement the BoxBounded Interface.
 				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
+				List<RocketComponent> parsedContexts = new ArrayList<>();
 				for (InstanceContext context : contexts) {
+					// Don't parse the same context component twice (e.g. multiple copies in a pod set).
+					if (parsedContexts.contains(context.component)) {
+						continue;
+					}
 					Collection<Coordinate> transformedCoords = new ArrayList<>(instanceCoordinates);
 					// mutating.  Transforms coordinates in place.
 					context.transform.transform(instanceCoordinates);
@@ -759,7 +764,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 						}
 						componentBounds.update(tc);
 					}
+					parsedContexts.add(context.component);
 				}
+				parsedContexts.clear();
 			}
 
 			rocketBoundsAerodynamic.update(componentBoundsAerodynamic);
