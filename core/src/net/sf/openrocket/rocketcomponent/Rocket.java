@@ -209,16 +209,16 @@ public class Rocket extends ComponentAssembly {
 	}
 
 	/**
-	 * Get the topmost stage, only taking into account active stages from the flight configuration.
+	 * Get the topmost stage (including boosters), only taking into account active stages from the flight configuration.
 	 * @param config flight configuration dictating which stages are active
 	 * @return the topmost active stage, or null if there are no active stages.
 	 */
 	public AxialStage getTopmostStage(FlightConfiguration config) {
 		if (config == null) return null;
 
-		for (int i = 0; i < getChildCount(); i++) {
-			if (getChild(i) instanceof AxialStage && config.isStageActive(getChild(i).getStageNumber())) {
-				return (AxialStage) getChild(i);
+		for (AxialStage stage : getStageList()) {
+			if (config.isStageActive(stage.getStageNumber())) {
+				return stage;
 			}
 		}
 		return null;
