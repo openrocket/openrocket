@@ -102,4 +102,37 @@ public class BoundingBoxTest extends BaseTestCase {
 		assertEquals(  0.12069451, bounds.max.z, EPSILON);
 	}
 
+	@Test
+	public void testPodsBoundingBox() {
+		Rocket rocket = TestRockets.makeEndPlateRocket();
+
+		// DEBUG
+		System.err.println(rocket.toDebugTree());
+
+		BoundingBox bounds = rocket.getBoundingBox();
+		assertEquals( 0.0,   bounds.min.x,  EPSILON);
+		assertEquals( 0.304, bounds.max.x, EPSILON);
+
+		assertEquals( -0.0365, bounds.min.y, EPSILON);
+		assertEquals(  0.0365, bounds.max.y, EPSILON);
+
+		assertEquals( -0.0365, bounds.min.z, EPSILON);
+		assertEquals(  0.0365, bounds.max.z, EPSILON);
+
+		// Add a mass component to the pod set (to test GitHub issue #1849)
+		PodSet podSet = (PodSet) rocket.getChild(0).getChild(1).getChild(1);
+		BodyTube tube = (BodyTube) podSet.getChild(0);
+		tube.addChild(new MassComponent());
+
+		bounds = rocket.getBoundingBox();
+		assertEquals( 0.0,   bounds.min.x,  EPSILON);
+		assertEquals( 0.304, bounds.max.x, EPSILON);
+
+		assertEquals( -0.0365, bounds.min.y, EPSILON);
+		assertEquals(  0.0365, bounds.max.y, EPSILON);
+
+		assertEquals( -0.0365, bounds.min.z, EPSILON);
+		assertEquals(  0.0365, bounds.max.z, EPSILON);
+	}
+
 }
