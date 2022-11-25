@@ -20,17 +20,23 @@ import net.sf.openrocket.unit.UnitGroup;
 public abstract class ExternalComponent extends RocketComponent {
 	
 	public enum Finish {
-		//// Rough
-		ROUGH("ExternalComponent.Rough", 500e-6),
+		//// Sawn Surface
+		SAWN("ExternalComponent.Sawnsurface", 1000e-6),
+		//// Rough Sand
+		ROUGH("ExternalComponent.Roughsand", 600e-6),
 		//// Unfinished
-		UNFINISHED("ExternalComponent.Unfinished", 150e-6),
-		//// Regular paint
-		NORMAL("ExternalComponent.Regularpaint", 60e-6),
-		//// Smooth paint
-		SMOOTH("ExternalComponent.Smoothpaint", 20e-6),
+		UNFINISHED("ExternalComponent.Unfinished", 120e-6),
+		//// Flat Paint
+		FLAT("ExternalComponent.Flatpaint", 40e-6),
+		//// Gloss Paint
+		NORMAL("ExternalComponent.Glosspaint", 25e-6),
+		//// Gloss Paint
+		HIGHGLOSS("ExternalComponent.Highglosspaint", 16e-6),
 		//// Polished
-		POLISHED("ExternalComponent.Polished", 2e-6);
-		
+		POLISHED("ExternalComponent.Polished", 5e-6),
+		//// Smooth
+		SMOOTH("ExternalComponent.Smooth", .001e-6);
+
 		private static final Translator trans = Application.getTranslator();
 		private final String name;
 		private final double roughnessSize;
