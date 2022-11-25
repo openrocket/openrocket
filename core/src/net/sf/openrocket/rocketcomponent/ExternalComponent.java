@@ -23,13 +23,13 @@ public abstract class ExternalComponent extends RocketComponent {
 		//// Sawn Surface
 		SAWN("ExternalComponent.Sawnsurface", 1000e-6),
 		//// Rough Sand
-		ROUGH("ExternalComponent.Roughsand", 600e-6),
+		ROUGH("ExternalComponent.Rough", 600e-6),
 		//// Unfinished
 		UNFINISHED("ExternalComponent.Unfinished", 120e-6),
 		//// Flat Paint
-		FLAT("ExternalComponent.Flatpaint", 40e-6),
+		FLAT("ExternalComponent.Regularpaint", 40e-6),
 		//// Gloss Paint
-		NORMAL("ExternalComponent.Glosspaint", 25e-6),
+		NORMAL("ExternalComponent.Smoothpaint", 25e-6),
 		//// Gloss Paint
 		HIGHGLOSS("ExternalComponent.Highglosspaint", 16e-6),
 		//// Polished
