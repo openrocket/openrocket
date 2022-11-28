@@ -1009,6 +1009,9 @@ public class SimulationPanel extends JPanel {
 		} else {
 			simulationTable.clearSelection();
 			for (int row : previousSelection) {
+				if (row < 0 || row >= simulationTable.getRowCount()) {
+					continue;
+				}
 				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
