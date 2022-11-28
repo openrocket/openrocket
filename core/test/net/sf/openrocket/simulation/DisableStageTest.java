@@ -236,6 +236,34 @@ public class DisableStageTest extends BaseTestCase {
     }
 
     /**
+     * Test whether the simulations run when only the booster stage is active.
+     */
+    @Test
+    public void testBooster3() {
+        Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();
+
+        FlightConfigurationId fid =  new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
+        Simulation simDisabled = new Simulation(rocketDisabled);
+        simDisabled.setFlightConfigurationId(fid);
+        simDisabled.getOptions().setISAAtmosphere(true);
+        simDisabled.getOptions().setTimeStep(0.05);
+
+        //// Test only enabling the booster stage (test for GitHub issue #1848)
+        simDisabled.getActiveConfiguration().setOnlyStage(2);
+
+        //// Test that the top stage is the booster stage
+        Assert.assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()), rocketDisabled.getStage(2));
+
+        try {       // Just check that the simulation runs without exceptions
+            simDisabled.simulate();
+        } catch (SimulationException e) {
+            if (!(e instanceof MotorIgnitionException)) {
+                Assert.fail("Simulation failed: " + e);
+            }
+        }
+    }
+
+    /**
      * Compare simActual to simExpected and fail the unit test if there was an error during simulation or
      * the two don't match.
      * Tested parameters:
