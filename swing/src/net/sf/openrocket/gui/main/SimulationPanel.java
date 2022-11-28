@@ -275,6 +275,7 @@ public class SimulationPanel extends JPanel {
 		simulationTableModel.fireTableDataChanged();
 		simulationTable.clearSelection();
 		simulationTable.addRowSelectionInterval(n, n);
+		updatePreviousSelection();
 
 		openDialog(false, sim);
 	}
@@ -347,6 +348,7 @@ public class SimulationPanel extends JPanel {
 			document.removeSimulation(selection[i]);
 		}
 		simulationTableModel.fireTableDataChanged();
+		updatePreviousSelection();
 		takeTheSpotlight();
 	}
 
