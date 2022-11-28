@@ -8,6 +8,8 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Graphics;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class SelectColorButton extends JButton {
     public SelectColorButton() {
@@ -51,6 +53,14 @@ public class SelectColorButton extends JButton {
                 else {
                     setForeground(UIManager.getColor("Button.foreground"));
                 }
+            }
+        });
+
+        // Need to add this, otherwise the foreground can remain in the selectForeground state when the button is clicked
+        addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                setForeground(UIManager.getColor("Button.foreground"));
             }
         });
     }
