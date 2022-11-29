@@ -275,6 +275,7 @@ public class SimulationPanel extends JPanel {
 		simulationTableModel.fireTableDataChanged();
 		simulationTable.clearSelection();
 		simulationTable.addRowSelectionInterval(n, n);
+		updatePreviousSelection();
 
 		openDialog(false, sim);
 	}
@@ -347,6 +348,7 @@ public class SimulationPanel extends JPanel {
 			document.removeSimulation(selection[i]);
 		}
 		simulationTableModel.fireTableDataChanged();
+		updatePreviousSelection();
 		takeTheSpotlight();
 	}
 
@@ -1007,6 +1009,9 @@ public class SimulationPanel extends JPanel {
 		} else {
 			simulationTable.clearSelection();
 			for (int row : previousSelection) {
+				if (row < 0 || row >= simulationTable.getRowCount()) {
+					continue;
+				}
 				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
