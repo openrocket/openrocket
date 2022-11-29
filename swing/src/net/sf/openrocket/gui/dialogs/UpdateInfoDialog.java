@@ -124,7 +124,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Lower row buttons
 		//// Remind me later button
-		JButton btnLater = new SelectColorButton("Remind Me Later");
+		JButton btnLater = new SelectColorButton(trans.get("update.dlg.btn.remindMeLater"));
 		btnLater.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -134,7 +134,7 @@ public class UpdateInfoDialog extends JDialog {
 		panel.add(btnLater, "skip 1, split 2");
 
 		//// Skip this version button
-		JButton btnSkip = new SelectColorButton("Skip This Version");
+		JButton btnSkip = new SelectColorButton(trans.get("update.dlg.checkbox.skipThisVersion"));
 		btnSkip.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
