@@ -1,7 +1,8 @@
 <project name="OpenRocket-Core" basedir=".">
 
 	<property file="resources/build.properties" />
-	
+
+	<property name="root.dir"    	value=".."/>					<!-- Root directory -->
 	<property name="src.dir"    	value="${basedir}/src"/>		<!-- Source directory -->
 	<property name="src-test.dir"	value="${basedir}/test"/>		<!-- Test directory -->
 	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
@@ -34,6 +35,7 @@
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${src-test.dir}"/>
+		<pathelement location="${root.dir}"/>
 		<fileset dir="${libtest.dir}/" includes="*.jar"/>
 	</path>
 
