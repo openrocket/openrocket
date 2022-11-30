@@ -54,6 +54,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private int modID = -1;
 
 	protected BoundingBox finBounds_m = null;
+	// Fin parent bounds
 	protected BoundingBox mountBounds_m = null;
 
 	protected final List<StateChangeListener> listeners = new LinkedList<>();
@@ -386,20 +387,20 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	protected void updateCanvasOrigin() {
-		final int finHeightPx = (int)(finBounds_m.max.y*scale);
-		final int mountHeightPx = (int)(mountBounds_m.span().y*scale);
+		final int finBottomPy = (int)(finBounds_m.max.y*scale);
+		final int mountHeight = (int)(mountBounds_m.span().y*scale);
 		// this is non-intuitive: it's an offset _from_ the origin(0,0) _to_ the lower-left of the content --
 		// because the canvas is drawn from that lower-left corner of the content, and the fin-front
 		// is fixed-- by definition-- to the origin.
 		final int finFrontPx = -(int)(contentBounds_m.getX()*scale);  // pixels from left-border to fin-front
-		final int contentHeightPx = (int)(contentBounds_m.getHeight()*scale);
+		final int contentHeight = (int)(contentBounds_m.getHeight()*scale);
 
 		originLocation_px.x = borderThickness_px.width + finFrontPx;
 
-		if( visibleBounds_px.height > (contentHeightPx + 2*borderThickness_px.height)){
-			originLocation_px.y = getHeight() - mountHeightPx - borderThickness_px.height;
+		if( visibleBounds_px.height > (contentHeight + 2*borderThickness_px.height)){
+			originLocation_px.y = getHeight() - mountHeight - borderThickness_px.height;
 		}else {
-			originLocation_px.y = borderThickness_px.height + finHeightPx;
+			originLocation_px.y = borderThickness_px.height + finBottomPy;
 		}
 	}
 

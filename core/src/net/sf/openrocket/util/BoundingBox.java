@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BoundingBox {
-	public Coordinate min;
-	public Coordinate max;
+	public Coordinate min;		// Top-left coordinate of the bounding box
+	public Coordinate max;		// Bottom-right coordinate of the bounding box
 
 	public BoundingBox() {
 	    clear();
@@ -158,7 +158,7 @@ public class BoundingBox {
 	public Rectangle2D toRectangle() {
 		return new Rectangle2D.Double(min.x, min.y, (max.x-min.x), (max.y - min.y));
     }
-	
+
 	@Override
 	public String toString() {
 		return String.format("[( %g, %g, %g) < ( %g, %g, %g)]",
