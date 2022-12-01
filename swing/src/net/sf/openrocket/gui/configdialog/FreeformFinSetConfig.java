@@ -466,7 +466,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	 * Insert a new fin point between the currently selected point and the next point.
 	 * The coordinates of the new point will be the average of the two points.
 	 */
-	private void insertPoint() {
+	private void insertPoint() throws IllegalFinPointException {
 		int currentPointIdx = table.getSelectedRow();
 		if (currentPointIdx == -1 || currentPointIdx >= table.getRowCount() - 1) {
 			return;
@@ -532,7 +532,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final int segmentIndex = getSegment(event);
 			if (segmentIndex >= 0) {
 				Point2D.Double point = getCoordinates(event);
-				finset.addPoint(segmentIndex, point);
+				try {
+					finset.addPoint(segmentIndex, point);
+				} catch (IllegalFinPointException e) {
+					throw new RuntimeException(e);
+				}
 
 				dragIndex = segmentIndex;
 				dragPoint = event.getPoint();
@@ -554,7 +558,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 			Point2D.Double point = getCoordinates(event);
 			final FreeformFinSet finset = (FreeformFinSet) component;
-			finset.setPoint(dragIndex, point.x, point.y);
+			try {
+				finset.setPoint(dragIndex, point.x, point.y);
+			} catch (IllegalFinPointException e) {
+				throw new RuntimeException(e);
+			}
 
 			dragPoint.x = event.getX();
 			dragPoint.y = event.getY();
@@ -782,6 +790,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				updateFields();
 			} catch (NumberFormatException ignore) {
 			    log.warn("ignoring NumberFormatException while editing a Freeform Fin");
+			} catch (IllegalFinPointException e) {
+				throw new RuntimeException(e);
 			}
 		}
 	}
@@ -800,7 +810,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			insertPoint();
+			try {
+				insertPoint();
+			} catch (IllegalFinPointException ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 
 		@Override
