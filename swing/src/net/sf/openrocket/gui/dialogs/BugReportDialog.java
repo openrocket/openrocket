@@ -53,15 +53,15 @@ public class BugReportDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Some fscking Swing bug that makes html labels initially way too high
-		JLabel label = new JLabel(labelText);
-		Dimension d = label.getPreferredSize();
+		StyledLabel titleLabel = new StyledLabel(labelText, 0);
+		Dimension d = titleLabel.getPreferredSize();
 		d.width = 100000;
-		label.setMaximumSize(d);
-		panel.add(label, "gapleft para, wrap para");
+		titleLabel.setMaximumSize(d);
+		panel.add(titleLabel, "gapleft para, wrap para");
 		
 		//// <html>If connected to the Internet, you can simply click 
 		//// <em>Send bug report</em>.
-		label = new JLabel(trans.get("bugreport.dlg.connectedInternet"));
+		JLabel label = new JLabel(trans.get("bugreport.dlg.connectedInternet"));
 		panel.add(label, "gapleft para, split 2, gapright rel");
 		
 		panel.add(new URLLabel(NEW_ISSUES_URL), "growx, wrap para");
@@ -160,13 +160,17 @@ public class BugReportDialog extends JDialog {
 		
 		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		sb.append("<b>Please include a description about what actions you were " +
+		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
 				"performing when the exception occurred:</b>\n");
 		sb.append("<i>(You can edit text directly in this window)</i>\n");
 		sb.append('\n');
 		sb.append("1. \n");
 		sb.append("2. \n");
 		sb.append("3. \n");
+
+		sb.append("\n");
+		sb.append("<b>If possible, please send us the .ork file that caused the bug.</b>\n");
+		sb.append('\n');
 		
 		
 		sb.append("Include your email address (optional; it helps if we can " +
