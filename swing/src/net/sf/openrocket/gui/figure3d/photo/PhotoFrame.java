@@ -69,6 +69,14 @@ public class PhotoFrame extends JFrame {
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
 		this(false, document);
 		setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
+
+		// Close this window when the parent is closed
+		parent.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				dispose();
+			}
+		});
 	}
 
 	public PhotoFrame(boolean app, OpenRocketDocument document) {
