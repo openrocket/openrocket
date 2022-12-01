@@ -29,7 +29,7 @@ public abstract class ExternalComponent extends RocketComponent {
 		//// Smooth paint
 		SMOOTH("ExternalComponent.Smoothpaint", 20e-6),
 		//// Polished
-		POLISHED("ExternalComponent.Polished", 2e-6);
+		POLISHED("ExternalComponent.Polished", .5e-6);
 		
 		private static final Translator trans = Application.getTranslator();
 		private final String name;
