@@ -18,9 +18,6 @@ import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
 public class ScaleSelector {
-
-    public static final double MINIMUM_ZOOM =    0.01; // ==      1 %
-    public static final double MAXIMUM_ZOOM = 1000.00; // == 10,000 %
     
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
