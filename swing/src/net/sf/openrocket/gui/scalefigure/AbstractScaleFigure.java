@@ -37,7 +37,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 	protected double userScale = 1.0;
 	protected double scale = -1;
 
-	// pixel offset from the the subject's origin to the canvas's upper-left-corner.
+	// pixel offset from the subject's origin to the canvas's upper-left-corner.
 	protected Point originLocation_px = new Point(0,0);
 	
 	// size of the visible region
