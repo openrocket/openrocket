@@ -27,9 +27,6 @@ public abstract class AbstractScaleFigure extends JPanel {
     public static final double INCHES_PER_METER = 39.3701;
     public static final double METERS_PER_INCH = 0.0254;
     
-    public static final double MINIMUM_ZOOM =    0.01; // ==      1 %
-    public static final double MAXIMUM_ZOOM = 1000.00; // == 10,000 %
-    
 	// Number of pixels to leave at edges when fitting figure
 	private static final int DEFAULT_BORDER_PIXELS_WIDTH = 30;
 	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
@@ -113,7 +110,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 	 * @return true if the scale changed, false if it was already at the requested scale or something went wrong.
 	 */
 	public boolean scaleTo(final double newScaleRequest, final Dimension newVisibleBounds) {
-		if (MathUtil.equals(this.userScale, newScaleRequest, 0.01) &&
+		if (MathUtil.equals(this.userScale, newScaleRequest, newScaleRequest * 0.01) &&
 			(visibleBounds_px.width == newVisibleBounds.width) &&
 			(visibleBounds_px.height == newVisibleBounds.height) ) {
 			return false;
@@ -122,7 +119,8 @@ public abstract class AbstractScaleFigure extends JPanel {
 			return false;
 		}
 
-		this.userScale = MathUtil.clamp( newScaleRequest, MINIMUM_ZOOM, MAXIMUM_ZOOM);
+		this.userScale = newScaleRequest;
+		
 		this.scale = baseScale * userScale;
 		updateCanvasOrigin();
 
