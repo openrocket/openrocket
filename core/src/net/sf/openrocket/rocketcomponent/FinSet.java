@@ -644,7 +644,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 			// calculate marginal area
 			final double delta_x = (cur.x - prev.x);
-			final double y_avg = (cur.y + prev.y)*0.5;
+			final double y_avg = (cur.y + prev.y)*0.5;	// TODO: MEDIUM: what if one of the points is below the x-axis? (can produce negative area)
 			double area_increment = delta_x*y_avg;
 			if( MathUtil.equals( 0, area_increment)){
 				prev = cur;
@@ -661,6 +661,11 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 			centroidSum = centroidSum.average( centroid_increment );
 
             prev=cur;
+		}
+
+		// Negative weight => make positive. TODO: This is NOT a correct solution, but at least it won't throw an exception...
+		if (centroidSum.weight < 0) {
+			centroidSum = new Coordinate(centroidSum.x, -centroidSum.y, centroidSum.z, Math.abs(centroidSum.weight));
 		}
 		
 		return centroidSum;
