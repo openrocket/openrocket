@@ -286,6 +286,7 @@ public class BasicFrame extends JFrame {
 					tree.setSelectionRow(1);
 					// Don't select children components at startup (so override the default behavior with this new selection)
 					rocketpanel.getFigure().setSelection(new RocketComponent[] { topStage });
+					rocketpanel.getFigure3d().setSelection(new RocketComponent[] { topStage });
 					log.debug("... Setting Initial Selection: " + tree.getSelectionPath() );
 				}
 			}
