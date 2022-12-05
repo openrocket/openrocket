@@ -60,14 +60,6 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 				return (mount == ignition);
 			}
 		},
-		//// Launch
-		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
-				return e.getType() == FlightEvent.Type.LAUNCH;
-			}
-		},
-		//// Never
 		NEVER(trans.get("Stage.SeparationEvent.NEVER")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
