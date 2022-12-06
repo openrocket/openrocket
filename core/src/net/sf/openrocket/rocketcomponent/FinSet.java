@@ -1036,14 +1036,83 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
 	public Coordinate[] getRootPoints(){
+		return getRootPoints(MAX_ROOT_DIVISIONS);
+	}
+
+	/**
+	 * use this for calculating physical properties, and routine drawing
+	 *
+	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
+	 */
+	public Coordinate[] getMountPoints() {
 		if( null == parent){
+			return null;
+		}
+
+		return getMountPoints(0., parent.getLength(), 0,0);
+	}
+
+	/**
+	 * used to get calculate body profile points:
+	 *
+	 * @param xStart - xStart, in Mount-frame
+	 * @param xEnd - xEnd, in Mount-frame
+	 * @param xOffset - x-Offset to apply to returned points
+	 * @param yOffset - y-Offset to apply to returned points
+	 *
+	 * @return points representing the mount's points
+	 */
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset,
+										final int maximumBodyDivisionCount) {
+		if (parent == null) {
 			return new Coordinate[]{Coordinate.ZERO};
 		}
 
-		final Coordinate finLead = getFinFront();
-		final double xFinEnd = finLead.x + getLength();
+		// for a simple body, one increment is perfectly accurate.
+		int divisionCount = 1;
+		final SymmetricComponent body = (SymmetricComponent) getParent();
+		final double intervalLength = xEnd - xStart;
 
-		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
+		// for anything more complicated, increase the count:
+		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
+			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
+			final double xWidth = 0.0025; // width (in meters) of each individual iteration
+			divisionCount = (int) Math.ceil(intervalLength / xWidth);
+
+			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
+			// a too high division count will cause the 3D render to have invisible faces because it can't deal with the geometry.
+			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
+		}
+
+		// Recalculate the x step increment, now with the (rounded) division count.
+		double xIncrement = intervalLength / divisionCount;
+
+		// Create the points: step through the radius of the parent
+		double xCur = xStart;
+		Coordinate[] points = new Coordinate[divisionCount+1];
+		for (int index = 0; index < points.length; index++) {
+			double yCur = body.getRadius(xCur);
+			points[index] = new Coordinate(xCur, yCur);
+
+			xCur += xIncrement;
+		}
+
+		// correct last point, if beyond a rounding error from body's end.
+		final int lastIndex = points.length - 1;
+		if (Math.abs(points[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
+			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
+		}
+
+		// translate the points if needed
+		if ((Math.abs(xOffset) + Math.abs(yOffset)) > MathUtil.EPSILON) {
+			points = translatePoints(points, xOffset, yOffset);
+		}
+
+		return points;
+	}
+
+	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+		return getMountPoints(xStart, xEnd, xOffset, yOffset, MAX_ROOT_DIVISIONS);
 	}
 
 	/**
@@ -1154,82 +1223,6 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		rootPoints.add(0, new Coordinate(xTabFront, yTabFront));
 
 		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
-	}
-
-	/**
-	 * use this for calculating physical properties, and routine drawing
-	 *
-	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
-	 */
-	public Coordinate[] getMountPoints() {
-		if( null == parent){
-			return null;
-		}
-
-		return getMountPoints(0., parent.getLength(), 0,0);
-	}
-
-	/**
-	 * used to get calculate body profile points:
-	 *
-	 * @param xStart - xStart, in Mount-frame
-	 * @param xEnd - xEnd, in Mount-frame
-	 * @param xOffset - x-Offset to apply to returned points
-	 * @param yOffset - y-Offset to apply to returned points
-	 *
-	 * @return points representing the mount's points
-	 */
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset,
-										final int maximumBodyDivisionCount) {
-		if (parent == null) {
-			return new Coordinate[]{Coordinate.ZERO};
-		}
-
-		// for a simple body, one increment is perfectly accurate.
-		int divisionCount = 1;
-		final SymmetricComponent body = (SymmetricComponent) getParent();
-		final double intervalLength = xEnd - xStart;
-
-		// for anything more complicated, increase the count:
-		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
-			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
-			final double xWidth = 0.0025; // width (in meters) of each individual iteration
-			divisionCount = (int) Math.ceil(intervalLength / xWidth);
-
-			// When creating body curves, don't create more than this many divisions. -- only relevant on very large components
-			// a too high division count will cause the 3D render to have invisible faces because it can't deal with the geometry.
-			divisionCount = Math.min(maximumBodyDivisionCount, divisionCount);
-		}
-
-		// Recalculate the x step increment, now with the (rounded) division count.
-		double xIncrement = intervalLength / divisionCount;
-
-		// Create the points: step through the radius of the parent
-		double xCur = xStart;
-		Coordinate[] points = new Coordinate[divisionCount+1];
-		for (int index = 0; index < points.length; index++) {
-			double yCur = body.getRadius(xCur);
-			points[index] = new Coordinate(xCur, yCur);
-
-			xCur += xIncrement;
-		}
-
-		// correct last point, if beyond a rounding error from body's end.
-		final int lastIndex = points.length - 1;
-		if (Math.abs(points[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
-			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
-		}
-
-		// translate the points if needed
-		if ((Math.abs(xOffset) + Math.abs(yOffset)) > MathUtil.EPSILON) {
-			points = translatePoints(points, xOffset, yOffset);
-		}
-
-		return points;
-	}
-
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
-		return getMountPoints(xStart, xEnd, xOffset, yOffset, MAX_ROOT_DIVISIONS);
 	}
 	
 	@Override
