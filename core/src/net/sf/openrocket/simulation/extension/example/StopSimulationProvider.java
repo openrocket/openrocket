@@ -4,10 +4,10 @@ import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSimulationExtensionProvider;
 
 @Plugin
-public class JavaCodeProvider extends AbstractSimulationExtensionProvider {
+public class StopSimulationProvider extends AbstractSimulationExtensionProvider {
 	
-	public JavaCodeProvider() {
-		super(JavaCode.class, "Scripts", "Java listeners");
+	public StopSimulationProvider() {
+		super(StopSimulation.class, "Simulation Conditions", "Stop Simulation");
 	}
 	
 }
