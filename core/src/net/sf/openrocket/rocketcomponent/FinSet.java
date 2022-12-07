@@ -1089,26 +1089,44 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		// Create the points: step through the radius of the parent
 		double xCur = xStart;
-		Coordinate[] points = new Coordinate[divisionCount+1];
-		for (int index = 0; index < points.length; index++) {
+		List<Coordinate> points = new ArrayList<>();
+		for (int index = 0; index < divisionCount+1; index++) {
 			double yCur = body.getRadius(xCur);
-			points[index] = new Coordinate(xCur, yCur);
+			points.add(new Coordinate(xCur, yCur));
 
 			xCur += xIncrement;
 		}
 
+		/*
+		If the front fin point is outside the parent's bounds, and the last point is still within the parent's bounds,
+		then we need to add an extra root point at the front of the parent. Same goes for the last point, but vice versa.
+		This ensures that fins are drawn correctly on transitions and nose cones (see GitHub issue #1021 for more info).
+		 */
+		// Front fin point is outside the parent's bounds and last point is still within the parent's bounds
+		if (xStart < 0 && xEnd > 0) {
+			points.add(1, new Coordinate(0, points.get(0).y));
+		}
+		// End fin point is outside the parent's bounds and first point is still within the parent's bounds
+		if (xEnd > parent.length && xStart < parent.length) {
+			final double x = parent.length;
+			final double y = points.get(points.size() - 1).y;
+			points.add(points.size() - 1, new Coordinate(x, y));
+		}
+
+		Coordinate[] rootPoints = points.toArray(new Coordinate[0]);
+
 		// correct last point, if beyond a rounding error from body's end.
-		final int lastIndex = points.length - 1;
-		if (Math.abs(points[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
-			points[lastIndex] = points[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
+		final int lastIndex = rootPoints.length - 1;
+		if (Math.abs(rootPoints[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
+			rootPoints[lastIndex] = rootPoints[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
 		}
 
 		// translate the points if needed
 		if ((Math.abs(xOffset) + Math.abs(yOffset)) > MathUtil.EPSILON) {
-			points = translatePoints(points, xOffset, yOffset);
+			rootPoints = translatePoints(rootPoints, xOffset, yOffset);
 		}
 
-		return points;
+		return rootPoints;
 	}
 
 	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
