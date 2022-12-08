@@ -1,4 +1,4 @@
-package net.sf.openrocket.simulation.extension.impl;
+package net.sf.openrocket.simulation.extension.example;
 
 import java.util.ArrayList;
 import java.util.List;
