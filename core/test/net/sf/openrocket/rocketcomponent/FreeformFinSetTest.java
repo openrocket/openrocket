@@ -1339,6 +1339,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			assertEquals("incorrect body points! ", 0.5f, rootPoints[2].x, EPSILON);
 			assertEquals("incorrect body points! ", -0.2f, rootPoints[2].y, EPSILON);
+
+			assertEquals("incorrect fin mass! ", 0.306, fins.getMass(), EPSILON);
 		} { // move both first and last point out of bounds to the left
 			fins.setAxialOffset(AxialMethod.TOP, 0);
 			fins.setPoints(initialPoints);
@@ -1357,6 +1359,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			assertEquals("incorrect body points! ", 0.1f, rootPoints[1].x, EPSILON);
 			assertEquals("incorrect body points! ", 0f, rootPoints[1].y, EPSILON);
+
+			assertEquals("incorrect fin mass! ", 0.034, fins.getMass(), EPSILON);
 		} { // move last point out of bounds, keep first point in bounds
 			fins.setPoints(initialPoints);
 			fins.setAxialOffset(AxialMethod.BOTTOM, fins.getLength());
@@ -1378,6 +1382,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			assertEquals("incorrect body points! ", 0.2f, rootPoints[2].x, EPSILON);
 			assertEquals("incorrect body points! ", -0.05f, rootPoints[2].y, EPSILON);
+
+			assertEquals("incorrect fin mass! ", 0.102, fins.getMass(), EPSILON);
 		} { // move both first and last point out of bounds to the right
 			fins.setPoints(initialPoints);
 			fins.setAxialOffset(AxialMethod.BOTTOM, fins.getLength());
@@ -1396,6 +1402,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			assertEquals("incorrect body points! ", 0.2f, rootPoints[1].x, EPSILON);
 			assertEquals("incorrect body points! ", 0f, rootPoints[1].y, EPSILON);
+
+			assertEquals("incorrect fin mass! ", 0.068, fins.getMass(), EPSILON);
 		}  { // move first point out of bounds to the left, and last point out of bounds to the right
 			fins.setAxialOffset(AxialMethod.TOP, 0);
 			fins.setPoints(initialPoints);
@@ -1420,6 +1428,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			assertEquals("incorrect body points! ", 1.2f, rootPoints[3].x, EPSILON);
 			assertEquals("incorrect body points! ", -0.5f, rootPoints[3].y, EPSILON);
+
+			assertEquals("incorrect fin mass! ", 0.833, fins.getMass(), EPSILON);
 		}
 	}
 
