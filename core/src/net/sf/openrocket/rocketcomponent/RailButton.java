@@ -126,7 +126,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.baseHeight_m = Math.max(newBaseHeight, 0);
-		this.baseHeight_m = Math.min(this.baseHeight_m, this.totalHeight_m - this.flangeHeight_m);
+		this.baseHeight_m = Math.min(this.baseHeight_m, getMaxBaseHeight());
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -139,9 +139,34 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 
 		this.flangeHeight_m = Math.max(newFlangeHeight, 0);
-		this.flangeHeight_m = Math.min(this.flangeHeight_m, this.totalHeight_m - this.baseHeight_m);
+		this.flangeHeight_m = Math.min(this.flangeHeight_m, getMaxFlangeHeight());
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setTotalHeight(double newHeight ) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RailButton) {
+				((RailButton) listener).setTotalHeight(newHeight);
+			}
+		}
+
+		this.totalHeight_m = Math.max(newHeight, getMinTotalHeight());
+
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public double getMaxBaseHeight() {
+		return this.totalHeight_m - this.flangeHeight_m;
+	}
+
+	public double getMaxFlangeHeight() {
+		return this.totalHeight_m - this.baseHeight_m;
+	}
+
+	public double getMinTotalHeight() {
+		return this.baseHeight_m + this.flangeHeight_m;
 	}
 
 	public void setScrewHeight(double height) {
