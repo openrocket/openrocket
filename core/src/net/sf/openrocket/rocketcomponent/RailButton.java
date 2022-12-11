@@ -46,7 +46,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	protected double totalHeight_m;
 	protected double flangeHeight_m;
  	protected double baseHeight_m;
-	protected double screwHeight_m;		// This has no effect at the moment; is for future use.
+	protected double screwHeight_m;
 
 
 	private double radialDistance_m=0;
@@ -208,19 +208,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
-	public void setTotalHeight(double newHeight ) {
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setTotalHeight(newHeight);
-			}
-		}
-
-		this.totalHeight_m = Math.max(newHeight, this.flangeHeight_m + this.baseHeight_m);
-
-		clearPreset();
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-
 	@Override
 	public boolean isAerodynamic(){
 		// TODO: implement aerodynamics
@@ -270,8 +257,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public BoundingBox getInstanceBoundingBox(){
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new Coordinate(0, this.totalHeight_m, 0));
-		instanceBounds.update(new Coordinate(0, -this.totalHeight_m, 0));
+		instanceBounds.update(new Coordinate(0, this.totalHeight_m + this.screwHeight_m, 0));
+		instanceBounds.update(new Coordinate(0, -this.totalHeight_m - this.screwHeight_m, 0));
 		
 		final double r = this.getOuterDiameter() / 2;
 		instanceBounds.update(new Coordinate(r, 0, r));
@@ -322,9 +309,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
 		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
-		return (volOuter+
-				volInner+
-				volStandoff);
+		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
+		return volOuter + volInner + volStandoff + volScrew;
 	}
 	
 	@Override
@@ -386,13 +372,18 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public Coordinate getComponentCG() {
 		// Math.PI and density are assumed constant through calculation, and thus may be factored out.
-		final double volumeBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
-		final double volumeFlange = Math.pow(outerDiameter_m / 2, 2)* this.flangeHeight_m;
-		final double volumeInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
-		final double totalVolume = volumeFlange + volumeInner + volumeBase;
-		final double heightCM = (volumeFlange*( this.totalHeight_m-getFlangeHeight()/2) + volumeInner*( this.baseHeight_m + this.getInnerHeight()/2) + volumeBase*(this.baseHeight_m /2))/totalVolume;
+		final double massBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
+		final double massInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
+		final double massFlange = Math.pow(outerDiameter_m / 2, 2)* this.flangeHeight_m;
+		final double massScrew = 2f/3 * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
+		final double totalMass = massFlange + massInner + massBase + massScrew;
+		final double baseCM = this.baseHeight_m /2;
+		final double innerCM = this.baseHeight_m + this.getInnerHeight()/2;
+		final double flangeCM = this.totalHeight_m - getFlangeHeight()/2;
+		final double screwCM = this.totalHeight_m + 4 * this.screwHeight_m / (3 * Math.PI);
+		final double heightCM = (massBase*baseCM + massInner*innerCM + massFlange*flangeCM + massScrew*screwCM)/totalMass;
 
-		if( heightCM > this.totalHeight_m ){
+		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 		
@@ -449,6 +440,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		}
 		if (preset.has(ComponentPreset.BASE_HEIGHT)) {
 			this.baseHeight_m = preset.get(ComponentPreset.BASE_HEIGHT);
+		}
+		if (preset.has(ComponentPreset.SCREW_HEIGHT)) {
+			this.screwHeight_m = preset.get(ComponentPreset.SCREW_HEIGHT);
 		}
 		if (preset.has(ComponentPreset.CD) && preset.get(ComponentPreset.CD) > 0) {
 			setCDOverridden(true);

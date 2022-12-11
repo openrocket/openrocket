@@ -29,6 +29,8 @@ import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
+import static com.jogamp.opengl.GL2ES3.GL_QUADS;
+
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  * @author Daniel Williams <equipoise@gmail.com>
@@ -314,17 +316,30 @@ public class ComponentRenderer {
 			glu.gluCylinder(q, ir, ir, r.getInnerHeight(), LOD, 1);
 			
 			// Flange Cylinder
+			gl.glTranslated(0, 0, r.getInnerHeight());
 			if (r.getFlangeHeight() > 0) {
-				gl.glTranslated(0, 0, r.getInnerHeight());
 				glu.gluCylinder(q, or, or, r.getFlangeHeight(), LOD, 1);
 				glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 				glu.gluDisk(q, 0, or, LOD, 2);
 				glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
 				gl.glTranslated(0, 0, r.getFlangeHeight());
 				glu.gluDisk(q, 0, or, LOD, 2);
-			} else {	// Draw a closing cap if there is no flange
-				gl.glTranslated(0, 0, r.getInnerHeight());
+			} else if (r.getScrewHeight() == 0) {	// Draw a closing cap if there is no flange
 				glu.gluDisk(q, 0, ir, LOD, 2);
+			}
+
+			// Screw
+			if (r.getScrewHeight() > 0) {
+				// Half dome
+				gl.glClipPlane(GL2.GL_CLIP_PLANE0, new double[] { 0, 0, 1, 0 }, 0);
+				gl.glEnable(GL2.GL_CLIP_PLANE0);
+				gl.glScaled(1, 1, r.getScrewHeight() / (r.getOuterDiameter() / 2));
+				glu.gluSphere(q, r.getOuterDiameter() / 2.0, LOD, LOD);
+				gl.glDisable(GL2.GL_CLIP_PLANE0);
+
+				// Closing disk
+				glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
+				glu.gluDisk(q, ir, or, LOD, 2);
 			}
 
 		}

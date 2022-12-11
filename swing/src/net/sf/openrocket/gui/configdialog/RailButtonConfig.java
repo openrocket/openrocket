@@ -100,6 +100,16 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider(heightModel.getSliderModel(new DoubleModel(component, "MinTotalHeight", UnitGroup.UNITS_LENGTH), 0.02)),
 					"w 100lp, wrap para");
 		}
+		{ //// Screw height
+			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.ScrewHeight")));
+			DoubleModel heightModel = new DoubleModel(component, "ScrewHeight", UnitGroup.UNITS_LENGTH, 0);
+			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
+			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
+			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
+			panel.add(new UnitSelector(heightModel), "growx");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap para");
+		}
 
 		{ //// Angular Position:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));

@@ -203,6 +203,8 @@ class DocumentConfig {
 				Reflection.findMethod( RailButton.class, "setBaseHeight", double.class)));
 		setters.put("RailButton:flangeheight",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setFlangeHeight", double.class)));
+		setters.put("RailButton:screwheight",  new DoubleSetter(
+				Reflection.findMethod( RailButton.class, "setScrewHeight", double.class)));
 		setters.put("RailButton:outerdiameter",  new DoubleSetter(
 				Reflection.findMethod( RailButton.class, "setOuterDiameter", double.class)));
 		setters.put("RailButton:innerdiameter",  new DoubleSetter(
