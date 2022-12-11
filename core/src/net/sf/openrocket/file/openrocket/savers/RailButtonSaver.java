@@ -30,6 +30,7 @@ public class RailButtonSaver extends ExternalComponentSaver {
 		emitDouble( elements, "height", rb.getTotalHeight());
 		emitDouble( elements, "baseheight", rb.getBaseHeight());
 		emitDouble( elements, "flangeheight", rb.getFlangeHeight());
+		emitDouble( elements, "screwheight", rb.getScrewHeight());
 	}
 
 	

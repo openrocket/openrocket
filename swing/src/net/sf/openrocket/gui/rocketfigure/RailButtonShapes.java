@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui.rocketfigure;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -32,6 +34,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double baseHeight = btn.getBaseHeight();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
+		final double screwHeight = btn.getScrewHeight();
 		
 		final double outerDiameter = btn.getOuterDiameter();
 		final double outerRadius = outerDiameter/2;
@@ -50,9 +53,16 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double baseHeightcos = baseHeight*cosr;
 		final double innerHeightcos = innerHeight*cosr;
 		final double flangeHeightcos = flangeHeight*cosr;
+		double screwHeightcos = screwHeight*cosr;
+
+		// Don't draw the screw if it will overlap with the ellipse of the flange
+		if (Math.abs(screwHeightcos) <= outerDiameter * Math.abs(sinr) / 2) {
+			screwHeightcos = 0;
+		}
 
 		Path2D.Double path = new Path2D.Double();
-		Path2D.Double pathInvis = new Path2D.Double();	// Path for the invisible triangles
+		Path2D.Double pathInvis = new Path2D.Double();	// Invisible paths to be used for selection of the rail button
+		Arc2D.Double screwShape = null;
 		{// base cylinder
 			if (baseHeight > 0) {
 				final double drawWidth = outerDiameter;
@@ -99,7 +109,7 @@ public class RailButtonShapes extends RocketComponentShape {
 			pathInvis.append(new Rectangle2D.Double(center.x - innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
 		}
 		{// flange cylinder
-			if (flangeHeight > 0) {
+			if (flangeHeight > 0 || screwHeight > 0) {		// Also draw when there is a screw (= the bottom of the screw)
 				final double drawWidth = outerDiameter;
 				final double drawHeight = outerDiameter * sinr;
 				final Point2D.Double center = new Point2D.Double(loc.x, loc.y + baseHeightcos + innerHeightcos);
@@ -121,12 +131,22 @@ public class RailButtonShapes extends RocketComponentShape {
 				pathInvis.append(new Rectangle2D.Double(center.x - outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 			}
 		}
+		{// screw
+			if (screwHeight > 0) {
+				final double drawWidth = outerDiameter;
+				final double drawHeight = Math.abs(screwHeightcos) * 2;        // Times 2 because it is the full ellipse height
+				final Point2D.Double origin = new Point2D.Double(loc.x - outerRadius, loc.y + baseHeightcos + innerHeightcos + flangeHeightcos - Math.abs(screwHeightcos));
+				screwShape = new Arc2D.Double(origin.x, origin.y, drawWidth, drawHeight, 0, -Math.signum(screwHeightcos) * 180, Arc2D.OPEN);
+			}
+		}
 
-		RocketComponentShape[] shapes = RocketComponentShape.toArray(new Shape[]{ path }, component);
+		Shape[] temp = screwShape == null ? new Shape[]{ path } : new Shape[]{ path, screwShape };
+		RocketComponentShape[] shapes = RocketComponentShape.toArray(temp, component);
 		RocketComponentShape[] shapesInvis = RocketComponentShape.toArray(new Shape[]{ pathInvis }, component);
 
-		for (RocketComponentShape s : shapesInvis)
+		for (RocketComponentShape s : shapesInvis) {
 			s.setColor(Color.INVISIBLE);
+		}
 
 		RocketComponentShape[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);
 		System.arraycopy(shapesInvis, 0, total, shapes.length, shapesInvis.length);
@@ -140,6 +160,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double baseHeight = btn.getBaseHeight();
 		final double innerHeight = btn.getInnerHeight();
 		final double flangeHeight = btn.getFlangeHeight();
+		final double screwHeight = btn.getScrewHeight();
 
 		final double outerDiameter = btn.getOuterDiameter();
 		final double outerRadius = outerDiameter/2;
@@ -158,6 +179,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		final double cosr = Math.cos(combined_angle_rad);
 		
 		Path2D.Double path = new Path2D.Double();
+		Shape screwShape = null;
 
 		// base
 		if (baseHeight > 0) {
@@ -171,15 +193,27 @@ public class RailButtonShapes extends RocketComponentShape {
 			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, innerRadius, innerHeight, combined_angle_rad), false);
 		}
 		{// flange
-			if (flangeHeight > 0) {
+			if (flangeHeight > 0 || screwHeight > 0) {		// Also draw when there is a screw (= the bottom of the screw)
 				final double delta_r = baseHeight + innerHeight;
 				final double delta_y = delta_r * cosr;
 				final double delta_z = delta_r * sinr;
 				path.append(getRotatedRectangle(loc.z + delta_z, loc.y + delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
 			}
 		}
+		{// screw
+			if (screwHeight > 0) {
+				final double drawWidth = outerDiameter;
+				final double drawHeight = 2*screwHeight;	// Times 2 because it is the full ellipse height
+				final double delta_y = baseHeight + innerHeight + flangeHeight - screwHeight;
+				final double delta_z = -outerRadius;
+				final Point2D.Double origin = new Point2D.Double(loc.z + delta_z, loc.y + delta_y);
+				screwShape = new Arc2D.Double(origin.x, origin.y, drawWidth, drawHeight, 0, -180, Arc2D.OPEN);
+				screwShape = getRotatedShape(screwShape, loc.z, loc.y, -combined_angle_rad);
+			}
+		}
 
-		return RocketComponentShape.toArray( new Shape[]{ path }, component);
+		Shape[] temp = screwShape == null ? new Shape[]{ path } : new Shape[]{ path, screwShape };
+		return RocketComponentShape.toArray(temp, component);
 	}
 	
 	
@@ -196,5 +230,25 @@ public class RailButtonShapes extends RocketComponentShape {
 		rect.closePath();
 		
 		return rect;
+	}
+
+	/**
+	 * Rotates a shape about the specified coordinates.
+	 *
+	 * @param base  the shape (<code>null</code> permitted, returns <code>null</code>).
+	 * @param angle  the angle (in radians).
+	 * @param x  the x coordinate for the rotation point (in Java2D space).
+	 * @param y  the y coordinate for the rotation point (in Java2D space).
+	 *
+	 * @return the rotated shape.
+	 *
+	 * @author David Gilbert
+	 */
+	public static Shape getRotatedShape(final Shape base, final double x, final double y, final double angle) {
+		if (base == null) {
+			return null;
+		}
+		final AffineTransform rotate = AffineTransform.getRotateInstance(angle, x, y);
+		return rotate.createTransformedShape(base);
 	}
 }

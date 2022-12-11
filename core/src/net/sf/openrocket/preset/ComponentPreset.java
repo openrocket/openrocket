@@ -131,7 +131,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.BASE_HEIGHT,
 				ComponentPreset.FLANGE_HEIGHT,
-				//ComponentPreset.SCREW_HEIGHT,		// Add this later when we implement screws in the rail button
+				ComponentPreset.SCREW_HEIGHT,
 				ComponentPreset.HEIGHT,
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,

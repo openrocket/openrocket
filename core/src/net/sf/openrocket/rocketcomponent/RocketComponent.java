@@ -173,7 +173,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	////////////  Methods that must be implemented  ////////////
 	
-	
+	 
 	/**
 	 * Static component name.  The name may not vary of the parameters, it must be static.
 	 */

@@ -55,7 +55,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(ODSpinner, "growx");
 			order.add(((SpinnerEditor) ODSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(ODModel), "growx");
-			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
+			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.02)), "w 100lp, wrap");
 		}
 		{ //// Inner Diameter
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.InnerDiam")));
@@ -65,7 +65,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(IDSpinner, "growx");
 			order.add(((SpinnerEditor) IDSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(IDModel), "growx");
-			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.02)), "w 100lp, wrap para");
 		}
 		{ //// Base Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.BaseHeight")));
@@ -75,7 +75,8 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(heightSpinner, "growx");
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, new DoubleModel(component, "MaxBaseHeight", UnitGroup.UNITS_LENGTH))),
+					"w 100lp, wrap");
 		}
 		{ //// Flange Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.FlangeHeight")));
@@ -85,9 +86,10 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(heightSpinner, "growx");
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, new DoubleModel(component, "MaxFlangeHeight", UnitGroup.UNITS_LENGTH))),
+					"w 100lp, wrap");
 		}
-		{ //// Height
+		{ //// Total Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.TotalHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "TotalHeight", UnitGroup.UNITS_LENGTH, 0);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
@@ -95,7 +97,18 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(heightSpinner, "growx");
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.001, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(heightModel.getSliderModel(new DoubleModel(component, "MinTotalHeight", UnitGroup.UNITS_LENGTH), 0.02)),
+					"w 100lp, wrap para");
+		}
+		{ //// Screw height
+			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.ScrewHeight")));
+			DoubleModel heightModel = new DoubleModel(component, "ScrewHeight", UnitGroup.UNITS_LENGTH, 0);
+			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
+			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
+			panel.add(heightSpinner, "growx");
+			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
+			panel.add(new UnitSelector(heightModel), "growx");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap para");
 		}
 
 		{ //// Angular Position:
