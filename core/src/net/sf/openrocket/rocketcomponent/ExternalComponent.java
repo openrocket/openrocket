@@ -22,14 +22,22 @@ public abstract class ExternalComponent extends RocketComponent {
 	public enum Finish {
 		//// Rough
 		ROUGH("ExternalComponent.Rough", 500e-6),
+		//// Rough unfinished
+		ROUGHUNFINISHED("ExternalComponent.Roughunfinished", 250e-6),
 		//// Unfinished
 		UNFINISHED("ExternalComponent.Unfinished", 150e-6),
 		//// Regular paint
 		NORMAL("ExternalComponent.Regularpaint", 60e-6),
 		//// Smooth paint
 		SMOOTH("ExternalComponent.Smoothpaint", 20e-6),
+		//// Optimum paint
+		OPTIMUM("ExternalComponent.Optimumpaint", 5e-6),
 		//// Polished
-		POLISHED("ExternalComponent.Polished", 2e-6);
+		POLISHED("ExternalComponent.Polished", 2e-6),
+		//// Optimum paint
+		FINISHPOLISHED("ExternalComponent.Finishedpolished", .5e-6),
+		//// Optimum paint
+		MIRROR("ExternalComponent.Mirror", 0.0e-6);
 		
 		private static final Translator trans = Application.getTranslator();
 		private final String name;
