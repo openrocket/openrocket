@@ -91,8 +91,8 @@ public class PhotoFrame extends JFrame {
 			}
 		});
 
-		setSize(1024, 768);
 		this.setMinimumSize(new Dimension(160, 150));
+		this.setSize(1024, 768);
 		photoPanel = new PhotoPanel(document, p);
 		photoPanel.setDoc(document);
 		setJMenuBar(getMenu(app));
@@ -117,6 +117,7 @@ public class PhotoFrame extends JFrame {
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
 			{
 				setContentPane(new PhotoSettingsConfig(p, document));
+				setPreferredSize(new Dimension(600, 500));
 				pack();
 				this.setLocationByPlatform(true);
 				GUIUtil.rememberWindowSize(this);
