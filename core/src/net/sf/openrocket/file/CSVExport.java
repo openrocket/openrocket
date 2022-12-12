@@ -182,7 +182,7 @@ public class CSVExport {
 			break;
 
 		case OUTDATED:
-			line += " (Data is out of date)";
+			line += " (Out of date)";
 			break;
 
 		case EXTERNAL:
