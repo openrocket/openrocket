@@ -7,6 +7,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.geom.Point2D;
 
@@ -432,7 +433,11 @@ public class FreeformFinSetTest extends BaseTestCase {
 		//   /    |
 		//  +=====+
 		Point2D.Double toAdd = new Point2D.Double(1.01, 0.8);
-		fin.addPoint(3, toAdd);
+		try {
+			fin.addPoint(3, toAdd);
+		} catch (IllegalFinPointException e) {
+			fail("IllegalFinPointException thrown");
+		}
 		
         assertEquals(5, fin.getPointCount());
         final Coordinate added = fin.getFinPoints()[3];
@@ -441,7 +446,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
     @Test
-    public void testSetFirstPoint() {
+    public void testSetFirstPoint() throws IllegalFinPointException {
     	// more transitions trigger more complicated positioning math:  
 		final Rocket rkt = createTemplateRocket();
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
@@ -605,7 +610,7 @@ public class FreeformFinSetTest extends BaseTestCase {
     }
 
     @Test
-    public void testSetLastPoint() {
+    public void testSetLastPoint() throws IllegalFinPointException {
     	final Rocket rkt = createTemplateRocket();
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = createFinOnConicalTransition(tailCone);
@@ -771,7 +776,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
     @Test
-    public void testSetInteriorPoint() {
+    public void testSetInteriorPoint() throws IllegalFinPointException {
     	final Rocket rkt = createTemplateRocket();
     	final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
@@ -875,7 +880,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
     @Test
-    public void testSetFirstPoint_clampToLast() {
+    public void testSetFirstPoint_clampToLast() throws IllegalFinPointException {
     	final Rocket rkt = createTemplateRocket();
     	final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
@@ -906,7 +911,7 @@ public class FreeformFinSetTest extends BaseTestCase {
     }
     
     @Test
-    public void testSetPoint_otherPoint(){
+    public void testSetPoint_otherPoint() throws IllegalFinPointException {
     	// combine the simple case with the complicated to ensure that the simple case is flagged, tested, and debugged before running the more complicated case...
     	{ // setting points on a Tube Body is the simpler case. Test this first: 
 	    	final Rocket rkt = createTemplateRocket();

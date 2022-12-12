@@ -103,6 +103,43 @@ public class FreeformFinSet extends FinSet {
 		}
 		return freeform;
 	}
+
+	/**
+	 * Converts a point of this fin set to edit into a point for a config listener to edit.
+	 *
+	 * The editing is as follows:
+	 * 		1) Editing the first point of this fin set will always edit the first point of the listener set
+	 * 		2) Editing the last point of this fin set will always edit the last point of the listener set
+	 * 		3) Editing any other point of this fin set will edit the corresponding point of the listener set, except
+	 * 		   for when the current point is not the last of this set, but it is the last of the listener set. In that
+	 * 		   case, no listener point will be edited.
+	 *
+	 * @param listener the listener which point needs to be edited
+	 * @param index the point index of this fin set that is being edited
+	 * @return the point index of the listener fin set that needs to be edited. Returns -1 if the listener's point should not be edited.
+	 */
+	private int getConfigListenerPointIdx(FreeformFinSet listener, int index) {
+		/*
+				The editing is as follows:
+					1) Editing the first point of this fin set will always edit the first point of the listener set
+					2) Editing the last point of this fin set will always edit the last point of the listener set
+					3) Editing any other point of this fin set will edit the corresponding point of the listener set, except
+					   for when the current point is not the last of this set, but it is the last of the listener set. In that
+					   case, no listener point will be edited.
+				 */
+		if (index == this.points.size() - 1) {
+			// If editing the last point, also edit the last point of the listener
+			return listener.getPointCount() - 1;
+		} else {
+			if (index == listener.getPointCount() - 1) {
+				// If editing the last point of the listener, but not the last point of this fin set, don't edit the listener
+				return -1;
+			} else {
+				// Index-wise editing
+				return index;
+			}
+		}
+	}
 	
 	/**
 	 * Add a fin point between indices <code>index-1</code> and <code>index</code>.
@@ -111,7 +148,22 @@ public class FreeformFinSet extends FinSet {
 	 * @param index   the fin point before which to add the new point.
 	 * @param location the target location to create the new point at
 	 */
-	public void addPoint(int index, Point2D.Double location) {
+	public void addPoint(int index, Point2D.Double location) throws IllegalFinPointException {
+		if (index < 1 || index > points.size() - 1) {
+			throw new IllegalFinPointException("Cannot add new point before the first or after the last point");
+		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				try {
+					int listenerIdx = getConfigListenerPointIdx((FreeformFinSet) listener, index);
+					((FreeformFinSet) listener).addPoint(listenerIdx, location);
+				} catch (IllegalFinPointException ignored) {
+					// ignore
+				}
+			}
+		}
+
 		// new method: add new point at closest point
 		points.add(index, new Coordinate(location.x, location.y));
 		
@@ -130,6 +182,20 @@ public class FreeformFinSet extends FinSet {
 	public void removePoint(int index) throws IllegalFinPointException {
 		if (index == 0 || index == points.size() - 1) {
 			throw new IllegalFinPointException("cannot remove first or last point");
+		}
+		if (index < 0 || index >= points.size() - 1) {
+			throw new IllegalFinPointException("index out of range");
+		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				try {
+					int listenerIdx = getConfigListenerPointIdx((FreeformFinSet) listener, index);
+					((FreeformFinSet) listener).removePoint(listenerIdx);
+				} catch (IllegalFinPointException ignored) {
+					// ignore
+				}
+			}
 		}
 		
 		// copy the old list in case the operation fails
@@ -226,9 +292,24 @@ public class FreeformFinSet extends FinSet {
 	 * @param xRequest the x-coordinate.
 	 * @param yRequest the y-coordinate.
 	 */
-	public void setPoint(final int index, final double xRequest, final double yRequest) {
-		if(null == this.getParent()) {
+	public void setPoint(final int index, final double xRequest, final double yRequest) throws IllegalFinPointException {
+		if (this.getParent() == null) {
 			return;
+		}
+
+		if (index < 0 || index > this.points.size() - 1) {
+			throw new IllegalFinPointException("index out of range");
+		}
+
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FreeformFinSet) {
+				try {
+					int listenerIdx = getConfigListenerPointIdx((FreeformFinSet) listener, index);
+					((FreeformFinSet) listener).setPoint(listenerIdx, xRequest, yRequest);
+				} catch (IllegalFinPointException ignored) {
+					// Ignore
+				}
+			}
 		}
 
 		// if the new x,y would cause a fin larger than our max-size, limit the new request:
