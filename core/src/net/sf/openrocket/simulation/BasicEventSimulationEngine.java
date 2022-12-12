@@ -139,6 +139,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			currentStepper = flightStepper;
 		
 		currentStatus = currentStepper.initialize(currentStatus);
+		double previousSimulationTime = currentStatus.getSimulationTime();
 		
 		// Get originating position (in case listener has modified launch position)
 		Coordinate origin = currentStatus.getRocketPosition();
@@ -219,8 +220,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Check for apogee
 				if (!currentStatus.isApogeeReached() && currentStatus.getRocketPosition().z < currentStatus.getMaxAlt() - 0.01) {
-					currentStatus.setMaxAltTime(currentStatus.getSimulationTime());
-					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, currentStatus.getSimulationTime(),
+					currentStatus.setMaxAltTime(previousSimulationTime);
+					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
 							currentStatus.getConfiguration().getRocket()));
 				}
 				
@@ -258,6 +259,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// If I'm on the ground and have no events in the queue, I'm done
 				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty())
 					addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+
+				previousSimulationTime = currentStatus.getSimulationTime();
 			}
 			
 		} catch (SimulationException e) {
