@@ -1,5 +1,19 @@
+<!-- 
+
+!! NOTE: This HTML formatting is required for the welcome info dialog.
+Always encapsulate each release with a <div> tag and the correct id.
+
+-->
+
+<body>
+<div>
+
 Release Notes
 =============
+
+</div>
+
+<div id="22.02.beta.05">
 
 OpenRocket 22.02.beta.05 (2022-09-28)
 ------------------------
@@ -66,6 +80,10 @@ OpenRocket 22.02.beta.05 (2022-09-28)
 * Fixed overlapping labels in motor selection diameter filter slider (fixes #1643)
 * More Russian translation updates
 
+</div>
+
+<div id="22.02.beta.04">
+
 OpenRocket 22.02.beta.04 (2022-06-17)
 ------------------------
 (through PR1456)
@@ -102,6 +120,9 @@ However, the JAR file will still allow Java 11 *or* 17, so if you want to keep e
 * Updated guided tours
 * Improved Russian translation
 
+</div>
+
+<div id="22.02.beta.03">
 
 OpenRocket 22.02.beta.03 (2022-05-18)
 ------------------------
@@ -130,6 +151,10 @@ OpenRocket 22.02.beta.03 (2022-05-18)
 * Major cleanup of File menu.  Let us know how you like it.
 * Improved time step selection for descent
 * Java 17 is now included in the packaged installers and supported by the JAR file.
+
+</div>
+
+<div id="22.02.beta.02">
 
 OpenRocket 22.02.beta.02 (2022-03-26)
 ------------------------
@@ -161,6 +186,9 @@ NOTE: Tube fin simulation is currently broken, and will be fixed in a future bet
 * Set default color for all components to #BBBBBB, with Shine=30 (closes issue 1192)
 * Update Mac installer style to more standard "drag app to Applications folder"
 
+</div>
+
+<div id="22.02.beta.01">
 
 OpenRocket 22.02.beta.01 (2022-02-25)
 ------------------------
@@ -239,6 +267,10 @@ OpenRocket 22.02.beta.01 (2022-02-25)
 
 ..._plus many, many additional bug fixes and refinements_
 
+</div>
+
+<div id="15.03">
+
 OpenRocket 15.03 (2015-03-28)
 -----------------------------
 
@@ -258,6 +290,10 @@ Bug Fixes
 
   * Always use the correct filename extension when saving
     
+</div>
+
+<div id="14.11">
+
 OpenRocket 14.11 (2014-11-02)
 -----------------------------
 
@@ -268,6 +304,10 @@ New Features
 Bug Fixes
 
   * Fixed a couple of bugs.
+
+</div>
+
+<div id="14.06">
 
 OpenRocket 14.06 (2014-06-25)
 -----------------------------
@@ -281,6 +321,10 @@ New Features
 Bug Fixes
 
   * Fixed annoying IndexOutOfBounds bug in tables.
+
+</div>
+
+<div id="14.05">
 
 OpenRocket 14.05 (2014-05-21)
 -----------------------------
@@ -296,6 +340,10 @@ Bug Fixes
   * Updated thrustcurves
   * Updated 3d libraries to 2.1.5
 
+</div>
+
+<div id="14.03">
+
 OpenRocket 14.03 (2014-03-20)
 -----------------------------
 
@@ -308,6 +356,10 @@ Bug Fixes
   * Fixes to the flight configuration tab and motor selection dialog
   * Updated thrustcurves
 
+</div>
+
+<div id="13.11.2">
+
 OpenRocket 13.11.2 (2014-01-01)
 -------------------------------
 
@@ -317,6 +369,10 @@ Bug Fixes
       flight configuration tab.
   * Fix couple of layout issues
   * Updated Spanish, French and Chinese translations
+
+</div>
+
+<div id="13.11.1">
 
 OpenRocket 13.11.1 (2013-11-15)
 -------------------------------
@@ -328,6 +384,10 @@ Bug Fixes
   * Made the motor filter remember previous settings
   * Fixed various exceptions in flight configuration tables due to column reordering
   * Fixed NPE when deleting a configuration
+
+</div>
+
+<div id="13.11">
 
 OpenRocket 13.11  (2013-11-08)
 ------------------------------
@@ -343,6 +403,10 @@ Bug Fixes
   * Updated jogl to correct 3d problems on various platforms
   * Fixed NPE introduced by changes in Java 1.7.0_45-b18
 
+</div>
+
+<div id="13.09.1">
+
 OpenRocket 13.09.1 (2013-10-05)
 -------------------------------
 
@@ -350,6 +414,9 @@ This release contains a number of bug fixes, updated 3D JOGL
 libraries.  Added preliminary thrustcurves for Aerotech C3 and D2 18mm
 reloads.
 
+</div>
+
+<div id="13.09">
 
 OpenRocket 13.09 (2013-09-08)
 -----------------------------
@@ -357,6 +424,9 @@ OpenRocket 13.09 (2013-09-08)
 This release contains a number of bug fixes, updated 3D JOGL
 libraries, and separates simulation edit and plot dialogs.
 
+</div>
+
+<div id="13.05">
 
 OpenRocket 13.05 (2013-05-04)
 -----------------------------
@@ -384,6 +454,9 @@ New Features
       scroll with mouse wheel.  If the alt key is used with either of these, only the domain is zoomed.  Richard
       contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
 
+</div>
+
+<div id="12.09.1">
 
 OpenRocket 12.09.1 (2012-06-28)
 -------------------------------
@@ -392,6 +465,9 @@ Bug-fix release for 12.09, fixing numerous bugs.  Only new feature is
 the possiblity to automatically open the latest design file on startup
 (in Edit -> Preferences -> Options).
 
+</div>
+
+<div id="12.09">
 
 OpenRocket 12.09  (2012-09-16)
 ------------------------------
@@ -411,6 +487,9 @@ Numerous new features by many contributors
 - Calibration rulers added to printed templates
 - Translations in Czech and Polish, numerous updates
 
+</div>
+
+<div id="12.03">
 
 OpenRocket 12.03  (2012-03-17)
 ------------------------------
@@ -430,6 +509,9 @@ release you can open files and examine existing simulations, stability
 data and motor files.  The Android port is thanks to work by Kevin
 Ruland.
 
+</div>
+
+<div id="1.1.9">
 
 OpenRocket 1.1.9  (2011-11-24)
 ------------------------------
@@ -440,6 +522,9 @@ to work by Richard Graham.  Printing of transitions, nose cone
 profiles and fin marking guides is available thanks to Doug Pedrick.
 It also contains some usability features and bug fixes.
 
+</div>
+
+<div id="1.1.8">
 
 OpenRocket 1.1.8  (2011-08-25)
 ------------------------------
@@ -448,6 +533,9 @@ This release contains bug fixes to the optimization methods.
 It also contains a workaround to a JRE bug that prevents running
 OpenRocket on Java 7.
 
+</div>
+
+<div id="1.1.7">
 
 OpenRocket 1.1.7  (2011-08-12)
 ------------------------------
@@ -456,6 +544,9 @@ This release contains automatic rocket design optimization
 functionality.  However, be cautious when using it and take the
 results with a grain of salt.
 
+</div>
+
+<div id="1.1.6">
 
 OpenRocket 1.1.6  (2011-07-22)
 ------------------------------
@@ -465,6 +556,9 @@ translations by Tripoli Spain, Tripoli France and Stefan Lobas
 (ERIG e.V.).  The release also contains rocket design scaling support
 and numerous bug fixes.
 
+</div>
+
+<div id="1.1.5">
 
 OpenRocket 1.1.5  (2011-06-10)
 ------------------------------
@@ -473,12 +567,18 @@ Removed native printing support.  Printing is now handled via PDF
 viewer, which should make printing much more reliable and less
 bug-prone.
 
+</div>
+
+<div id="1.1.4">
 
 OpenRocket 1.1.4  (2011-03-05)
 ------------------------------
 
 Initial printing support by Doug Pedrick, and various bug fixes.
 
+</div>
+
+<div id="1.1.3">
 
 OpenRocket 1.1.3  (2010-10-06)
 ------------------------------
@@ -486,12 +586,18 @@ OpenRocket 1.1.3  (2010-10-06)
 Support for drag-drop moving and copying of components.  Fixes a
 severe bug in the undo system.
 
+</div>
+
+<div id="1.1.2">
 
 OpenRocket 1.1.2  (2010-09-07)
 ------------------------------
 
 Fixes a severe bug that prevented adding stages to rockets.
 
+</div>
+
+<div id="1.1.1">
 
 OpenRocket 1.1.1  (2010-09-03)
 ------------------------------
@@ -501,6 +607,9 @@ curve loading and selection, faster startup time and bug fixes.
 
 Old simulation listeners are incompatible with this release.
 
+</div>
+
+<div id="1.1.0">
 
 OpenRocket 1.1.0  (2010-03-21)
 ------------------------------
@@ -508,6 +617,9 @@ OpenRocket 1.1.0  (2010-03-21)
 Support for loading RockSim rocket design files (.rkt) thanks to
 Doug Pedrick.
 
+</div>
+
+<div id="1.0.0">
 
 OpenRocket 1.0.0  (2010-03-10)
 ------------------------------
@@ -515,6 +627,9 @@ OpenRocket 1.0.0  (2010-03-10)
 Added numerous new motor thrustcurves from thrustcurve.org, and fixed
 a few more bugs.
 
+</div>
+
+<div id="0.9.6">
 
 OpenRocket 0.9.6  (2010-02-17)
 ------------------------------
@@ -523,6 +638,9 @@ Updated aerodynamic calculation methods to be more in line with the
 Barrowman method and enhanced simulation time step selection.  Fixed
 numerous bugs.
 
+</div>
+
+<div id="0.9.5">
 
 OpenRocket 0.9.5  (2009-11-28)
 ------------------------------
@@ -530,6 +648,9 @@ OpenRocket 0.9.5  (2009-11-28)
 Fixed a serious defect which prevented adding a tube coupler and
 centering ring on the same body tube.  Other minor improvements.
 
+</div>
+
+<div id="0.9.4">
 
 OpenRocket 0.9.4  (2009-11-24)
 ------------------------------
@@ -538,6 +659,9 @@ Added through-the-wall fin tabs, attaching components to tube
 couplers, material editing and automatic update checks, and fixed
 numerous of the most commonly occurring bugs.
 
+</div>
+
+<div id="0.9.3">
 
 OpenRocket 0.9.3  (2009-09-01)
 ------------------------------
@@ -546,6 +670,9 @@ Numerous bug fixes and enhancements including data exporting, showing
 flight events in plots, example rocket designs, splitting clustered
 inner tubes and automated bug reporting.
 
+</div>
+
+<div id="0.9.2">
 
 OpenRocket 0.9.2  (2009-07-13)
 ------------------------------
@@ -554,6 +681,9 @@ Fixed imperial unit conversions.  Significant UI enhancements to the
 motor configuration edit dialog, motor selection dialog and file
 open/save.
 
+</div>
+
+<div id="0.9.1">
 
 OpenRocket 0.9.1  (2009-06-09)
 ------------------------------
@@ -561,8 +691,14 @@ OpenRocket 0.9.1  (2009-06-09)
 Bug fixes to file dialog and saving; initial support for cut/copy/paste
 of simulations.
 
+</div>
+
+<div id="0.9.0">
 
 OpenRocket 0.9.0  (2009-05-24)
 ------------------------------
 
 Initial release.
+
+</div>
+</body>

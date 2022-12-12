@@ -30,7 +30,6 @@ import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
 import net.sf.openrocket.communication.ReleaseInfo;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -58,6 +57,7 @@ public class UpdateInfoDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("insets n n 8px n, fill"));
 
+		//	OpenRocket logo on the left
 		panel.add(new JLabel(Icons.getScaledIcon(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket"), 0.6)),
 				"spany, top, gapright 20px, cell 0 0");
 
@@ -124,7 +124,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Lower row buttons
 		//// Remind me later button
-		JButton btnLater = new SelectColorButton("Remind Me Later");
+		JButton btnLater = new SelectColorButton(trans.get("update.dlg.btn.remindMeLater"));
 		btnLater.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -134,15 +134,15 @@ public class UpdateInfoDialog extends JDialog {
 		panel.add(btnLater, "skip 1, split 2");
 
 		//// Skip this version button
-		JButton btnSkip = new SelectColorButton("Skip This Version");
+		JButton btnSkip = new SelectColorButton(trans.get("update.dlg.checkbox.skipThisVersion"));
 		btnSkip.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<String> ignoreVersions = new ArrayList<>(preferences.getIgnoreVersions());
+				List<String> ignoreVersions = new ArrayList<>(preferences.getIgnoreUpdateVersions());
 				String ignore = release.getReleaseName();
 				if (!ignoreVersions.contains(ignore)) {
 					ignoreVersions.add(ignore);
-					preferences.setIgnoreVersions(ignoreVersions);
+					preferences.setIgnoreUpdateVersions(ignoreVersions);
 				}
 				UpdateInfoDialog.this.dispose();
 			}

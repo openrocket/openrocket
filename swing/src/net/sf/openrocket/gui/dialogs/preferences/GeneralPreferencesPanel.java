@@ -342,7 +342,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		ReleaseInfo release = info.getLatestRelease();
 
 		// Do nothing if the release is part of the ignore versions
-		if (preferences.getIgnoreVersions().contains(release.getReleaseName())) {
+		if (preferences.getIgnoreUpdateVersions().contains(release.getReleaseName())) {
 			return;
 		}
 
