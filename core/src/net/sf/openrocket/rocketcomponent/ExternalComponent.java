@@ -20,6 +20,12 @@ import net.sf.openrocket.unit.UnitGroup;
 public abstract class ExternalComponent extends RocketComponent {
 	
 	public enum Finish {
+
+		/*	The surface roughness changes are intended to begin the implementation of known values derived from
+		 *	the Thesis and Hoerner Fluid Dynamics. It is anticipated that the ability to enter a custom surface
+		 * 	roughness value will be added as a feature in the future.
+		 */
+
 		//// Rough
 		ROUGH("ExternalComponent.Rough", 500e-6),
 		//// Rough unfinished
@@ -34,6 +40,15 @@ public abstract class ExternalComponent extends RocketComponent {
 		OPTIMUM("ExternalComponent.Optimumpaint", 5e-6),
 		//// Polished
 		POLISHED("ExternalComponent.Polished", 2e-6),
+
+		/*	The "polished" surface roughness was originally set at 2.0 microns. However, after reviewing the Thesis
+		 * 	and  Hoerner Fluid Dynamics, upon which the Thesis surface roughness values were based, it was determined
+		 * 	that the "polished" surface roughness should have been 0.5 microns. To reduce the potential for causing
+		 * 	inadvertent errors, "POLISHED" was retained and "FINISHPOLISHED" added, with the correct values for each.
+		 * 	"POLISHED" is now described to the user as "Aircraft sheet-metal" with a value of 2.0 microns and
+		 * 	"FINISHPOLISHED" is now described to the user as "Polished" with a value of 0.5 microns.
+		 */
+
 		//// Optimum paint
 		FINISHPOLISHED("ExternalComponent.Finishedpolished", .5e-6),
 		//// Optimum paint
