@@ -226,7 +226,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private void paintFinShape(final Graphics2D g2){
 		// excludes fin tab points
-		final Coordinate[] drawPoints = finset.getFinPoints();
+		final Coordinate[] drawPoints = finset.getFinPointsWithRoot();
 
 		Path2D.Double shape = new Path2D.Double();
 		Coordinate startPoint= drawPoints[0];
