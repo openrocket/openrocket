@@ -1316,7 +1316,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testGenerateBodyPointsWhenFinOutsideParentBounds() {
+	public void testGenerateBodyPointsWhenFinOutsideParentBounds() throws IllegalFinPointException {
 		final Rocket rkt = createTemplateRocket();
 		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
