@@ -1,4 +1,4 @@
-package net.sf.openrocket.simulation.listeners.example;
+package net.sf.openrocket.simulation.extension.example;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,12 +9,14 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.extension.AbstractSimulationExtension;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 
 
-public class CSVSaveListener extends AbstractSimulationListener {
+public class CSVSave extends AbstractSimulationExtension {
 	
 	private static enum Types {
 		TIME {
@@ -218,78 +220,89 @@ public class CSVSaveListener extends AbstractSimulationListener {
 	
 	private File file;
 	private PrintStream output = null;
-	
-	
+
 	@Override
-	public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
-		
-		if (event.getType() == FlightEvent.Type.LAUNCH) {
-			int n = 1;
-			
-			if (output != null) {
-				System.err.println("WARNING: Ending simulation logging to CSV file " +
-						"(SIMULATION_END not encountered).");
-				output.close();
-				output = null;
-			}
-			
-			do {
-				file = new File(String.format(FILENAME_FORMAT, n));
-				n++;
-			} while (file.exists());
-			
-			System.err.println("Opening file " + file + " for CSV output.");
-			try {
-				output = new PrintStream(file);
-			} catch (FileNotFoundException e) {
-				System.err.println("ERROR OPENING FILE: " + e);
-			}
-			
-			final Types[] types = Types.values();
-			StringBuilder s = new StringBuilder("# " + types[0].toString());
-			for (int i = 1; i < types.length; i++) {
-				s.append("," + types[i].toString());
-			}
-			output.println(s);
-			
-		} else if (event.getType() == FlightEvent.Type.SIMULATION_END && output != null) {
-			
-			System.err.println("Ending simulation logging to CSV file: " + file);
-			output.close();
-			output = null;
-			
-		} else if (event.getType() != FlightEvent.Type.ALTITUDE) {
-			
-			if (output != null) {
-				output.println("# Event " + event);
-			} else {
-				System.err.println("WARNING: Event " + event + " encountered without open file");
-			}
-			
-		}
-		
-		return true;
+	public String getDescription() {
+		return "dump a CSV file with a predetermined set of flight variables to a CSV file while running";
 	}
 	
 	@Override
-	public void postStep(SimulationStatus status) throws SimulationException {
+	public void initialize(SimulationConditions conditions) throws SimulationException {
+		conditions.getSimulationListenerList().add(new CSVSaveListener());
+	}
+	
+	private class CSVSaveListener extends AbstractSimulationListener {
 		
-		final Types[] types = Types.values();
-		StringBuilder s;
-		
-		if (output != null) {
+		@Override
+		public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
 			
-			s = new StringBuilder("" + types[0].getValue(status));
-			for (int i = 1; i < types.length; i++) {
-				s.append("," + types[i].getValue(status));
+			if (event.getType() == FlightEvent.Type.LAUNCH) {
+				int n = 1;
+				
+				if (output != null) {
+					System.err.println("WARNING: Ending simulation logging to CSV file " +
+									   "(SIMULATION_END not encountered).");
+					output.close();
+					output = null;
+				}
+				
+				do {
+					file = new File(String.format(FILENAME_FORMAT, n));
+					n++;
+				} while (file.exists());
+				
+				System.err.println("Opening file " + file + " for CSV output.");
+				try {
+					output = new PrintStream(file);
+				} catch (FileNotFoundException e) {
+					System.err.println("ERROR OPENING FILE: " + e);
+				}
+				
+				final Types[] types = Types.values();
+				StringBuilder s = new StringBuilder("# " + types[0].toString());
+				for (int i = 1; i < types.length; i++) {
+					s.append("," + types[i].toString());
+				}
+				output.println(s);
+				
+			} else if (event.getType() == FlightEvent.Type.SIMULATION_END && output != null) {
+				
+				System.err.println("Ending simulation logging to CSV file: " + file);
+				output.close();
+				output = null;
+				
+			} else if (event.getType() != FlightEvent.Type.ALTITUDE) {
+				
+				if (output != null) {
+					output.println("# Event " + event);
+				} else {
+					System.err.println("WARNING: Event " + event + " encountered without open file");
+				}
+				
 			}
-			output.println(s);
 			
-		} else {
-			
-			System.err.println("WARNING: stepTaken called with no open file " +
-					"(t=" + status.getSimulationTime() + ")");
+			return true;
 		}
 		
+		@Override
+		public void postStep(SimulationStatus status) throws SimulationException {
+			
+			final Types[] types = Types.values();
+			StringBuilder s;
+			
+			if (output != null) {
+				
+				s = new StringBuilder("" + types[0].getValue(status));
+				for (int i = 1; i < types.length; i++) {
+					s.append("," + types[i].getValue(status));
+				}
+				output.println(s);
+				
+			} else {
+				
+				System.err.println("WARNING: stepTaken called with no open file " +
+								   "(t=" + status.getSimulationTime() + ")");
+			}
+		}
 	}
 }
