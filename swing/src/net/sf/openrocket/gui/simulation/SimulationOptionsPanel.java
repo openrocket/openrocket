@@ -197,12 +197,12 @@ class SimulationOptionsPanel extends JPanel {
 		
 		
 		final JButton addExtension = new SelectColorButton(trans.get("simedtdlg.SimExt.add"));
-		this.extensionMenu = getExtensionMenu();
+		extensionMenu = getExtensionMenu();
 		addExtension.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ev) {
-				extensionMenu.show(addExtension, 5, addExtension.getBounds().height);
-			}
-		});
+				public void actionPerformed(ActionEvent ev) {
+					extensionMenu.show(addExtension, 5, addExtension.getBounds().height);
+				}
+			});
 		sub.add(addExtension, "growx, wrap 0");
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));

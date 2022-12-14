@@ -123,6 +123,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 	@Override
 	protected void close() {
 		util.setTrustedScript(extension.getLanguage(), extension.getScript(), trusted.isSelected());
+		super.close();
 	}
 	
 	private void setLanguage(String language) {
