@@ -2,6 +2,7 @@ package net.sf.openrocket.aerodynamics.barrowman;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -44,7 +45,12 @@ public class RailButtonCalc extends RocketComponentCalc {
 		// I expect we'll have compressibility effects having an impact well below that, so this is probably good up
 		// to the transonic regime.
 		double CDmul = 1.2;
-												  
+
+		// warn the user about accuracy if we're transonic (roughly Mach 0.8) or faster
+		if (conditions.getMach() > 0.8) {
+			warnings.add(Warning.RAILBUTTON_TRANSONIC);
+		}
+		
 		return CDmul*stagnationCD * refArea / conditions.getRefArea();
 	}
 }

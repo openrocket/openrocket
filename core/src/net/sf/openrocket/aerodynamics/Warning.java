@@ -399,4 +399,6 @@ public abstract class Warning {
 	public static final Warning SEPARATION_ORDER = new Other(trans.get("Warning.SEPARATION_ORDER"));
 
 	public static final Warning EMPTY_BRANCH = new Other(trans.get("Warning.EMPTY_BRANCH"));
+
+	public static final Warning RAILBUTTON_TRANSONIC = new Other(trans.get("Warning.RAILBUTTON_TRANSONIC"));
 }
