@@ -136,6 +136,21 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 		updateActiveInstances();
 	}
+
+	/**
+	 * Copy only the stage activeness from another configuration.
+	 * @param other the configuration to copy the stage active flags from.
+	 */
+	public void copyStageActiveness(FlightConfiguration other) {
+		for (StageFlags flags : this.stages.values()) {
+			StageFlags otherFlags = other.stages.get(flags.stageNumber);
+			if (otherFlags != null) {
+				flags.active = otherFlags.active;
+			}
+		}
+		updateMotors();
+		updateActiveInstances();
+	}
 	
 	/** 
 	 * This method flags a stage inactive.  Other stages are unaffected.
@@ -831,6 +846,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
         // Note the stages are updated in the constructor call.
 		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
 		clone.setName(configurationName);
+		clone.copyStageActiveness(this);
 		clone.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
 		
         clone.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
@@ -851,7 +867,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
     @Override
     public FlightConfiguration copy( final FlightConfigurationId newId ) {
         // Note the stages are updated in the constructor call.
-        FlightConfiguration copy= new FlightConfiguration( this.rocket, newId );
+        FlightConfiguration copy = new FlightConfiguration( this.rocket, newId );
 		final FlightConfigurationId copyId = copy.getId();
 		
         // copy motor instances.
@@ -861,6 +877,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
             cloneMotor.getMount().setMotorConfig(cloneMotor, copyId);
         }
 
+		copy.copyStages(this);
 		copy.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
 		copy.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
         copy.cachedBounds = this.cachedBounds.clone();

@@ -496,17 +496,14 @@ public class RocketFigure extends AbstractScaleFigure {
 	protected void updateSubjectDimensions() {
 		// calculate bounds, and store in class variables
 		
-		final FlightConfiguration config = rocket.getSelectedConfiguration().clone();
-		// Explicitly zoom & draw at a scale to fit the entire rocket, but only show the selected stages.
-		config.setAllStages();
-		final BoundingBox newBounds = config.getBoundingBox();
+		final BoundingBox bounds = rocket.getSelectedConfiguration().getBoundingBox();
 		
-		final double maxR = Math.max( Math.hypot(newBounds.min.y, newBounds.min.z),
-									  Math.hypot(newBounds.max.y, newBounds.max.z));
+		final double maxR = Math.max( Math.hypot(bounds.min.y, bounds.min.z),
+									  Math.hypot(bounds.max.y, bounds.max.z));
 
 		switch (currentViewType) {
 			case SideView:
-				subjectBounds_m = new Rectangle2D.Double(newBounds.min.x, -maxR, newBounds.span().x, 2 * maxR);
+				subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
 				break;
 			case BackView:
 				subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
