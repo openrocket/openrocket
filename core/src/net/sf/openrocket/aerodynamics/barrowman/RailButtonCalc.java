@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -97,7 +96,6 @@ public class RailButtonCalc extends RocketComponentCalc {
 			// add to CDmul
 			CDmul += cd;
 		}
-		
 		return CDmul*stagnationCD * refArea / conditions.getRefArea();
 	}
 }
