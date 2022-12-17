@@ -101,12 +101,9 @@ public class FinSetCalc extends RocketComponentCalc {
 			return;
 		}
 
-		if((EPSILON > bodyLength)) {
+		if ((bodyLength < EPSILON) || (bodyRadius < EPSILON)) {
 			// Add warnings: Phantom Body
-			warnings.add(Warning.ZERO_LENGTH_BODY);
-		}else if((EPSILON > bodyRadius)){
-				// Add warnings: Phantom Body
-				warnings.add(Warning.ZERO_RADIUS_BODY);
+			warnings.add(Warning.ZERO_VOLUME_BODY);
 		}else if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
 			// Add warnings  (radius/2 == diameter/4)
 			warnings.add(Warning.THICK_FIN);
