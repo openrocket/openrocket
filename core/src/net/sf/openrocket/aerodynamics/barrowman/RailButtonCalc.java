@@ -47,8 +47,8 @@ public class RailButtonCalc extends RocketComponentCalc {
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
 									  double stagnationCD, double baseCD, WarningSet warnings) {
+
 		// grab relevant button params
-		
 		final int instanceCount = button.getInstanceCount();
 		final Coordinate[] instanceOffsets = button.getInstanceOffsets();
 
@@ -65,10 +65,10 @@ public class RailButtonCalc extends RocketComponentCalc {
 			// compute boundary layer height at button location.  I can't find a good reference for the
 			// formula, e.g. https://aerospaceengineeringblog.com/boundary-layers/ simply says it's the
 			// "scientific consensus".
-			double x = (button.toAbsolute(instanceOffsets[i]))[0].x;  // location of button
+			double x = (button.toAbsolute(instanceOffsets[i]))[0].x;   // location of button
 			double rex = calculateReynoldsNumber(x, conditions);       // Reynolds number of button location
 			double del = 0.37 * x / Math.pow(rex, 0.2);                // Boundary layer thickness
-			
+
 			// compute mean airspeed over button
 			// this assumes airspeed changes linearly through boundary layer
 			// and that all parts of the railbutton contribute equally to Cd,
@@ -96,6 +96,7 @@ public class RailButtonCalc extends RocketComponentCalc {
 			// add to CDmul
 			CDmul += cd;
 		}
-		return CDmul*stagnationCD * refArea / conditions.getRefArea();
+		
+		return CDmul * stagnationCD * refArea / conditions.getRefArea();
 	}
 }
