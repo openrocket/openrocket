@@ -48,6 +48,7 @@ public class AboutDialog extends JDialog {
 		"Neil Weinstock (tester, icons, forum support)<br>" +
 		"H. Craig Miller (tester)<br><br>" +
 		"<b>Translations by:</b><br><br>" +
+		"Mohamed Amin Elkebsi (Arabic)<br>" +
 		"Tripoli France (French)<br>" +
 		"Stefan Lobas / ERIG e.V. (German)<br>" +
 		"Tripoli Spain (Spanish)<br>" +
