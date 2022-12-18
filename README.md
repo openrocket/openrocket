@@ -69,3 +69,4 @@ OpenRocket needs help to become even better. Implementing features, writing docu
 - Vladimir Beran
 - Polish Rocketry Society / Łukasz & Alex Kazanski
 - Sibo Van Gool
+- Mohamed Amin Elkebsi
