@@ -220,6 +220,9 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 				(type != m.getMotorType())) {
 			return false;
 		}
+
+		if (!designation.equalsIgnoreCase(m.getDesignation()))
+			return false;
 		
 		if (!commonName.equalsIgnoreCase(m.getCommonName()))
 			return false;
