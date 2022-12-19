@@ -228,18 +228,16 @@ public class TransitionConfig extends RocketComponentConfig {
 	private void updateCheckboxAutoAftRadius() {
 		if (component == null || checkAutoAftRadius == null) return;
 
-		// Disable check button if there is no component to get the diameter from
-		SymmetricComponent nextComp = ((Transition) component).getNextSymmetricComponent();
-		if (nextComp == null) {
+		Transition transition = (Transition) component;
+		boolean enabled = transition.canUseNextCompAutomatic();
+		if (enabled) {														// Can use auto radius
+			checkAutoAftRadius.setEnabled(true);
+			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
+		} else if (transition.getNextSymmetricComponent() == null) {		// No next component to take the auto radius from
 			checkAutoAftRadius.setEnabled(false);
 			((Transition) component).setAftRadiusAutomatic(false);
 			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_noReferenceComponent"));
-			return;
-		}
-		if (!nextComp.usesPreviousCompAutomatic()) {
-			checkAutoAftRadius.setEnabled(true);
-			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
-		} else {
+		} else {															// Next component already has its auto radius checked
 			checkAutoAftRadius.setEnabled(false);
 			((Transition) component).setAftRadiusAutomatic(false);
 			checkAutoAftRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_alreadyAuto"));
@@ -254,18 +252,16 @@ public class TransitionConfig extends RocketComponentConfig {
 	private void updateCheckboxAutoForeRadius() {
 		if (component == null || checkAutoForeRadius == null) return;
 
-		// Disable check button if there is no component to get the diameter from
-		SymmetricComponent prevComp = ((Transition) component).getPreviousSymmetricComponent();
-		if (prevComp == null) {
+		Transition transition = (Transition) component;
+		boolean enabled = transition.canUsePreviousCompAutomatic();
+		if (enabled) {														// Can use auto radius
+			checkAutoForeRadius.setEnabled(true);
+			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
+		} else if (transition.getPreviousSymmetricComponent() == null) {		// No next component to take the auto radius from
 			checkAutoForeRadius.setEnabled(false);
 			((Transition) component).setForeRadiusAutomatic(false);
 			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_noReferenceComponent"));
-			return;
-		}
-		if (!prevComp.usesNextCompAutomatic()) {
-			checkAutoForeRadius.setEnabled(true);
-			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic"));
-		} else {
+		} else {															// Next component already has its auto radius checked
 			checkAutoForeRadius.setEnabled(false);
 			((Transition) component).setForeRadiusAutomatic(false);
 			checkAutoForeRadius.setToolTipText(trans.get("TransitionCfg.checkbox.ttip.Automatic_alreadyAuto"));

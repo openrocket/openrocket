@@ -613,157 +613,170 @@ public class RocketComponentConfig extends JPanel {
 	
 	protected JPanel shoulderTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
-		JPanel sub;
-		DoubleModel m, m2;
 		DoubleModel m0 = new DoubleModel(0);
-		BooleanModel bm;
-		JCheckBox check;
-		JSpinner spin;
-		
 		
 		////  Fore shoulder, not for NoseCone
-		
 		if (!(component instanceof NoseCone)) {
-			sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-			
-			//// Fore shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.border.Foreshoulder")));
-			
-			
-			////  Radius
-			//// Diameter:
-			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
-			
-			m = new DoubleModel(component, "ForeShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-			m2 = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH);
-			
-			spin = new JSpinner(m.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			sub.add(spin, "growx");
-			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-			
-			sub.add(new UnitSelector(m), "growx");
-			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
-			
-			
-			////  Length:
-			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
-			
-			m = new DoubleModel(component, "ForeShoulderLength", UnitGroup.UNITS_LENGTH, 0);
-			
-			spin = new JSpinner(m.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			sub.add(spin, "growx");
-			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-			
-			sub.add(new UnitSelector(m), "growx");
-			sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
-			
-			
-			////  Thickness:
-			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
-			
-			m = new DoubleModel(component, "ForeShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
-			m2 = new DoubleModel(component, "ForeShoulderRadius", UnitGroup.UNITS_LENGTH);
-			
-			spin = new JSpinner(m.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			sub.add(spin, "growx");
-			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-			
-			sub.add(new UnitSelector(m), "growx");
-			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
-			
-			
-			////  Capped
-			bm = new BooleanModel(component, "ForeShoulderCapped");
-			check = new JCheckBox(bm);
-			//// End capped
-			check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
-			check.setToolTipText(trans.get("RocketCompCfg.checkbox.Endcapped.ttip"));
-			sub.add(check, "spanx");
-			order.add(check);
-			
-			
-			panel.add(sub);
+			addForeShoulderSection(panel, m0);
 		}
-		
-		
+
 		////  Aft shoulder
+		addAftShoulderSection(panel, m0);
+
+		return panel;
+	}
+
+	private void addForeShoulderSection(JPanel panel, DoubleModel m0) {
+		DoubleModel m;
+		JCheckBox check;
+		JPanel sub;
+		DoubleModel m2;
+		JSpinner spin;
+		BooleanModel bm;
 		sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-		if (component instanceof NoseCone)
-			//// Nose cone shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Noseconeshoulder")));
-		else
-			//// Aft shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
-		
-		
+
+		//// Fore shoulder
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.border.Foreshoulder")));
+
+
 		////  Radius
 		//// Diameter:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
-		
-		m = new DoubleModel(component, "AftShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		m2 = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH);
-		
+
+		m = new DoubleModel(component, "ForeShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		m2 = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH);
+
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
+
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
-		
-		
+
+
 		////  Length:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
-		
-		m = new DoubleModel(component, "AftShoulderLength", UnitGroup.UNITS_LENGTH, 0);
-		
+
+		m = new DoubleModel(component, "ForeShoulderLength", UnitGroup.UNITS_LENGTH, 0);
+
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
+
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
-		
-		
+
+
 		////  Thickness:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
-		
-		m = new DoubleModel(component, "AftShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
-		m2 = new DoubleModel(component, "AftShoulderRadius", UnitGroup.UNITS_LENGTH);
-		
+
+		m = new DoubleModel(component, "ForeShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
+		m2 = new DoubleModel(component, "ForeShoulderRadius", UnitGroup.UNITS_LENGTH);
+
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		sub.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
+
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
-		
-		
+
+
 		////  Capped
-		bm = new BooleanModel(component, "AftShoulderCapped");
+		bm = new BooleanModel(component, "ForeShoulderCapped");
 		check = new JCheckBox(bm);
 		//// End capped
 		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
 		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Endcapped.ttip"));
 		sub.add(check, "spanx");
 		order.add(check);
-		
-		
+
 		panel.add(sub);
-		
-		
-		return panel;
 	}
-	
-	
-	
-	
+
+	private void addAftShoulderSection(JPanel panel, DoubleModel m0) {
+		JSpinner spin;
+		JCheckBox check;
+		DoubleModel m;
+		DoubleModel m2;
+		JPanel sub;
+		BooleanModel bm;
+		sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+
+		String valueNameShoulder = "AftShoulder";
+		String valueNameRadius = "AftRadius";
+
+		if (component instanceof NoseCone) {
+			// Nose cones have a special shoulder method to cope with flipped nose cones
+			valueNameShoulder = "Shoulder";
+			valueNameRadius = "BaseRadius";
+			//// Nose cone shoulder
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Noseconeshoulder")));
+		} else {
+			//// Aft shoulder
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
+		}
+
+
+		////  Radius
+		//// Diameter:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
+
+		m = new DoubleModel(component, valueNameShoulder+"Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+		m2 = new DoubleModel(component, valueNameRadius, 2, UnitGroup.UNITS_LENGTH);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		sub.add(new UnitSelector(m), "growx");
+		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
+
+
+		////  Length:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
+
+		m = new DoubleModel(component, valueNameShoulder+"Length", UnitGroup.UNITS_LENGTH, 0);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		sub.add(new UnitSelector(m), "growx");
+		sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
+
+
+		////  Thickness:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
+
+		m = new DoubleModel(component, valueNameShoulder+"Thickness", UnitGroup.UNITS_LENGTH, 0);
+		m2 = new DoubleModel(component, valueNameShoulder+"Radius", UnitGroup.UNITS_LENGTH);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		sub.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		sub.add(new UnitSelector(m), "growx");
+		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
+
+
+		////  Capped
+		bm = new BooleanModel(component, valueNameShoulder+"Capped");
+		check = new JCheckBox(bm);
+		//// End capped
+		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
+		check.setToolTipText(trans.get("RocketCompCfg.checkbox.Endcapped.ttip"));
+		sub.add(check, "spanx");
+		order.add(check);
+
+		panel.add(sub);
+	}
+
 	/*
 	 * Private inner class to handle events in componentNameField.
 	 */
