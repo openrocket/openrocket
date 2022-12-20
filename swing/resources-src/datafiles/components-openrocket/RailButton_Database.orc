@@ -146,7 +146,25 @@
 			<Mass Unit="g">1.355</Mass>		
 			<ScrewMass Unit="g">2.720</ScrewMass>		
 			<NutMass Unit="g"></NutMass>		
-		</RailButton>			
+		</RailButton>
+
+		 <RailButton>
+			<Manufacturer>Wildman Rocketry</Manufacturer>
+			<PartNumber>2052-LG</PartNumber>
+			<Description>1 Piece 1515 Rail Button, Countersunk 10-32 Screw, and T-Nut</Description>
+			<Material Type="BULK">Delrin</Material>
+			<Finish>Polished</Finish>
+			<OuterDiameter Unit="in">0.621</OuterDiameter>
+			<InnerDiameter Unit="in">0.308</InnerDiameter>
+			<Height Unit="in">0.6845</Height>
+			<BaseHeight Unit="in">0.338</BaseHeight>
+			<FlangeHeight Unit="in">0.1675</FlangeHeight>
+			<ScrewHeight Unit="in">0.0000</ScrewHeight>
+			<DragCoefficient></DragCoefficient>
+			<Mass Unit="g">3.215</Mass>
+			<ScrewMass Unit="g">3.795</ScrewMass>
+			<NutMass Unit="g">2.195</NutMass>
+		</RailButton>
 					
 	</Components>				
 					

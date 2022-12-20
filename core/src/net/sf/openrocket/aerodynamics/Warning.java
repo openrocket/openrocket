@@ -390,8 +390,7 @@ public abstract class Warning {
 
 	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"));
 
-	public static final Warning ZERO_LENGTH_BODY = new Other(trans.get("Warning.ZERO_LENGTH_BODY"));
-	public static final Warning ZERO_RADIUS_BODY = new Other(trans.get("Warning.ZERO_RADIUS_BODY"));
+	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"));
 
 	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"));
 	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"));

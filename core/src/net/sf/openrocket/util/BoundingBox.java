@@ -165,4 +165,11 @@ public class BoundingBox {
 				min.x, min.y, min.z,
 				max.x, max.y, max.z );
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof BoundingBox &&
+				((BoundingBox) other).min.equals(this.min) &&
+				((BoundingBox) other).max.equals(this.max);
+	}
 }
