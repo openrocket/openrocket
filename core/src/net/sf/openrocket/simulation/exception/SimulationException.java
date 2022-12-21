@@ -1,7 +1,11 @@
 package net.sf.openrocket.simulation.exception;
 
+import net.sf.openrocket.simulation.FlightData;
+	
 public class SimulationException extends Exception {
 
+	private FlightData flightData = null;
+	
 	public SimulationException() {
 
 	}
@@ -18,4 +22,11 @@ public class SimulationException extends Exception {
 		super(message, cause);
 	}
 
+	public void setFlightData(FlightData f) {
+		flightData = f;
+	}
+
+	public FlightData getFlightData() {
+		return flightData;
+	}
 }
