@@ -93,6 +93,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	public enum VIEW_TYPE {
 		SideView(false, RocketFigure.VIEW_SIDE),
+		TopView(false, RocketFigure.VIEW_TOP),
 		BackView(false, RocketFigure.VIEW_BACK),
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
 		Unfinished(true, RocketFigure3d.TYPE_UNFINISHED),
@@ -773,7 +774,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
 		}
 
-		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
+		if (length > 0 &&
+				((figure.getType() == RocketPanel.VIEW_TYPE.TopView) || (figure.getType() == RocketPanel.VIEW_TYPE.SideView))) {
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
 		} else {

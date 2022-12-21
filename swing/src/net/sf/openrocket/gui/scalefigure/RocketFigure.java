@@ -58,9 +58,10 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
-	
-	public static final int VIEW_SIDE=0;
-	public static final int VIEW_BACK=1;
+
+	public static final int VIEW_SIDE = 0;
+	public static final int VIEW_TOP = 1;
+	public static final int VIEW_BACK = 2;
 	
 	// Width for drawing normal and selected components
 	public static final double NORMAL_WIDTH = 1.0;
@@ -130,10 +131,6 @@ public class RocketFigure extends AbstractScaleFigure {
 		return rotation;
 	}
 	
-	public Transformation getRotateTransformation() {
-		return axialRotation;
-	}
-	
 	public void setRotation(double rot) {
 		if (MathUtil.equals(rotation, rot))
 			return;
@@ -142,6 +139,14 @@ public class RocketFigure extends AbstractScaleFigure {
 		updateFigure();
         fireChangeEvent();
 	}
+
+	private Transformation getFigureRotation() {
+		if (currentViewType == RocketPanel.VIEW_TYPE.TopView) {
+			return this.axialRotation.applyTransformation(Transformation.rotate_x(-Math.PI / 2));
+		} else {
+			return this.axialRotation;
+		}
+	}
 	
 	
 	public RocketPanel.VIEW_TYPE  getType() {
@@ -149,7 +154,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	public void setType(final RocketPanel.VIEW_TYPE type) {
-		if (type != RocketPanel.VIEW_TYPE.BackView && type != RocketPanel.VIEW_TYPE.SideView) {
+		if (type != RocketPanel.VIEW_TYPE.BackView && type != RocketPanel.VIEW_TYPE.SideView && type != RocketPanel.VIEW_TYPE.TopView) {
 			throw new IllegalArgumentException("Illegal type: " + type);
 		}
 		if (this.currentViewType == type)
@@ -201,7 +206,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		AffineTransform baseTransform = g2.getTransform();
 
 		PriorityQueue<RocketComponentShape> figureShapes;
-		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView)
 			figureShapes = figureShapes_side;
 		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
 			figureShapes = figureShapes_back;
@@ -300,11 +305,11 @@ public class RocketFigure extends AbstractScaleFigure {
 //		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
 
 				// rotate by figure's axial rotation:
-				curMotorLocation = this.axialRotation.transform(curMotorLocation);
+				curMotorLocation = getFigureRotation().transform(curMotorLocation);
 
 				{
 					Shape s;
-					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
+					if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView) {
 						s = new Rectangle2D.Double(curMotorLocation.x,
 								(curMotorLocation.y - motorRadius),
 								motorLength,
@@ -354,7 +359,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
 
 		PriorityQueue<RocketComponentShape> figureShapes;
-		if (currentViewType == RocketPanel.VIEW_TYPE.SideView)
+		if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView)
 			figureShapes = figureShapes_side;
 		else if (currentViewType == RocketPanel.VIEW_TYPE.BackView)
 			figureShapes = figureShapes_back;
@@ -399,7 +404,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			final ArrayList<InstanceContext> contextList = entry.getValue();
 
 			for (InstanceContext context : contextList) {
-				final Transformation currentTransform = this.axialRotation.applyTransformation(context.transform);
+				final Transformation currentTransform = getFigureRotation().applyTransformation(context.transform);
 				allShapes = addThisShape(allShapes, this.currentViewType, comp, currentTransform);
 			}
 		}
@@ -432,9 +437,10 @@ public class RocketFigure extends AbstractScaleFigure {
 		// Find the appropriate method
 		switch (viewType) {
 		case SideView:
+		case TopView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesSide",
 					RocketComponent.class, Transformation.class);
-			break;
+				break;
 		
 		case BackView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesBack",
@@ -503,6 +509,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		switch (currentViewType) {
 			case SideView:
+			case TopView:
 				subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
 				break;
 			case BackView:
@@ -528,9 +535,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 			final int newOriginX = mid_x;
 			final int newOriginY = borderThickness_px.height + getHeight() / 2;
-			
 			originLocation_px = new Point(newOriginX, newOriginY);
-		}else if (currentViewType == RocketPanel.VIEW_TYPE.SideView){
+		} else if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView) {
 			final int newOriginX = mid_x - (subjectWidth / 2) - (int)(subjectBounds_m.getMinX() * scale);
 			final int newOriginY = Math.max(getHeight(), subjectHeight + 2*borderThickness_px.height )/ 2;
 			originLocation_px = new Point(newOriginX, newOriginY);
