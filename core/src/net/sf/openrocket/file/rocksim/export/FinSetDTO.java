@@ -6,6 +6,7 @@ import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -64,7 +65,7 @@ public class FinSetDTO extends BasePartDTO {
         setCantAngle(theORFinSet.getCantAngle());
         setTabDepth(theORFinSet.getTabHeight() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setTabLength(theORFinSet.getTabLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setTabOffset(theORFinSet.getTabOffset() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setTabOffset(theORFinSet.getTabOffset(AxialMethod.TOP) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setThickness(theORFinSet.getThickness() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         setRadialAngle(theORFinSet.getBaseRotation());
