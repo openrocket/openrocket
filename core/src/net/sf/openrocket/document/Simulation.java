@@ -384,15 +384,19 @@ public class Simulation implements ChangeSource, Cloneable {
 			simulatedData = simulator.simulate(simulationConditions);
 			t2 = System.currentTimeMillis();
 			log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
-			
-			// Set simulated info after simulation, will not be set in case of exception
+
+		} catch (SimulationException e) {
+			simulatedData = e.getFlightData();
+			throw e;
+		} finally {
+			// Set simulated info after simulation
 			simulatedConditions = options.clone();
 			simulatedConfigurationDescription = descriptor.format( this.rocket, getId());
 			simulatedRocketID = rocket.getFunctionalModID();
 			
 			status = Status.UPTODATE;
 			fireChangeEvent();
-		} finally {
+
 			mutex.unlock("simulate");
 		}
 	}
