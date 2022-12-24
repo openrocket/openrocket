@@ -27,6 +27,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
@@ -44,6 +45,7 @@ public class BugReportDialog extends JDialog {
 	private static final String REPORT_EMAIL_URL = "mailto:" + REPORT_EMAIL;
 	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	
 	public BugReportDialog(Window parent, String labelText, final String message, final boolean sendIfUnchanged) {
@@ -201,6 +203,7 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
 		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
+		sbTemp.append("User-defined thrust curves location: " + preferences.getUserThrustCurveFilesAsString() + "\n");
 		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
 		sbTemp.append("System properties:\n");
