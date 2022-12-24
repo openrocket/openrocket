@@ -44,7 +44,7 @@ public class ZipFileMotorLoader implements MotorLoader {
 	
 	
 	@Override
-	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException {
+	public List<ThrustCurveMotor.Builder> load(InputStream stream, String filename) throws IOException, IllegalArgumentException {
 		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
 		
 		ZipInputStream is = new ZipInputStream(stream);
