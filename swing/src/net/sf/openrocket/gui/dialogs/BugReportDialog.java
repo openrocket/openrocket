@@ -108,31 +108,10 @@ public class BugReportDialog extends JDialog {
 	 * @param parent	the parent window (may be null).
 	 */
 	public static void showBugReportDialog(Window parent) {
-		
 		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<html>---------- Bug report ----------\n");
-		sb.append('\n');
-		sb.append("<b>Include detailed steps on how to trigger the bug:</b>\n");
-		sb.append("<i>(You can edit text directly in this window)</i>\n");
-		sb.append('\n');
-		sb.append("1. \n");
-		sb.append("2. \n");
-		sb.append("3. \n");
-		sb.append('\n');
-		
-		sb.append("<b>What does the software do and what in your opinion should it do in the " +
-				"case described above:</b>\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		
-		sb.append("Include your email address (optional; it helps if we can " +
-				"contact you in case we need additional information):\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		
+
+		// ---------- Bug report ----------
+		addBugReportInformation(sb);
 		
 		sb.append("(Do not modify anything below this line.)\n");
 		sb.append("---------- System information ----------\n");
@@ -157,28 +136,9 @@ public class BugReportDialog extends JDialog {
 	 */
 	public static void showExceptionDialog(Window parent, Thread t, Throwable e) {
 		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<html>---------- Bug report ----------\n");
-		sb.append('\n');
-		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
-				"performing when the exception occurred:</b>\n");
-		sb.append("<i>(You can edit text directly in this window)</i>\n");
-		sb.append('\n');
-		sb.append("1. \n");
-		sb.append("2. \n");
-		sb.append("3. \n");
 
-		sb.append("\n");
-		sb.append("<b>If possible, please send us the .ork file that caused the bug.</b>\n");
-		sb.append('\n');
-		
-		
-		sb.append("Include your email address (optional; it helps if we can " +
-				"contact you in case we need additional information):\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
+		// ---------- Bug report ----------
+		addBugReportInformation(sb);
 		
 		sb.append("(Do not modify anything below this line.)\n");
 		sb.append("---------- Exception stack trace ----------\n");
@@ -210,6 +170,30 @@ public class BugReportDialog extends JDialog {
 				//// <html><b>Please include a short description about what you were doing when the exception occurred.</b>
 				new BugReportDialog(parent, trans.get("bugreport.reportDialog.txt2"), sb.toString(), true);
 		reportDialog.setVisible(true);
+	}
+
+	private static void addBugReportInformation(StringBuilder sb) {
+		sb.append("<html>---------- Bug report ----------\n");
+		sb.append('\n');
+		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
+				"performing when the exception occurred:</b>\n");
+		sb.append("<i>(You can edit text directly in this window)</i>\n");
+		sb.append('\n');
+		sb.append("1. \n");
+		sb.append("2. \n");
+		sb.append("3. \n");
+
+		sb.append("\n");
+		sb.append("<b>If possible, please send us the .ork file that caused the bug.</b>\n");
+		sb.append('\n');
+
+
+		sb.append("Include your email address (optional; it helps if we can " +
+				"contact you in case we need additional information):\n");
+		sb.append('\n');
+		sb.append('\n');
+		sb.append('\n');
+		sb.append('\n');
 	}
 	
 	private static void addSystemInformation(StringBuilder sb) {
