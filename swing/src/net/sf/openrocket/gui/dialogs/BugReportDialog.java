@@ -27,6 +27,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
@@ -44,6 +45,7 @@ public class BugReportDialog extends JDialog {
 	private static final String REPORT_EMAIL_URL = "mailto:" + REPORT_EMAIL;
 	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	
 	public BugReportDialog(Window parent, String labelText, final String message, final boolean sendIfUnchanged) {
@@ -108,31 +110,10 @@ public class BugReportDialog extends JDialog {
 	 * @param parent	the parent window (may be null).
 	 */
 	public static void showBugReportDialog(Window parent) {
-		
 		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<html>---------- Bug report ----------\n");
-		sb.append('\n');
-		sb.append("<b>Include detailed steps on how to trigger the bug:</b>\n");
-		sb.append("<i>(You can edit text directly in this window)</i>\n");
-		sb.append('\n');
-		sb.append("1. \n");
-		sb.append("2. \n");
-		sb.append("3. \n");
-		sb.append('\n');
-		
-		sb.append("<b>What does the software do and what in your opinion should it do in the " +
-				"case described above:</b>\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		
-		sb.append("Include your email address (optional; it helps if we can " +
-				"contact you in case we need additional information):\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		
+
+		// ---------- Bug report ----------
+		addBugReportInformation(sb);
 		
 		sb.append("(Do not modify anything below this line.)\n");
 		sb.append("---------- System information ----------\n");
@@ -157,28 +138,9 @@ public class BugReportDialog extends JDialog {
 	 */
 	public static void showExceptionDialog(Window parent, Thread t, Throwable e) {
 		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<html>---------- Bug report ----------\n");
-		sb.append('\n');
-		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
-				"performing when the exception occurred:</b>\n");
-		sb.append("<i>(You can edit text directly in this window)</i>\n");
-		sb.append('\n');
-		sb.append("1. \n");
-		sb.append("2. \n");
-		sb.append("3. \n");
 
-		sb.append("\n");
-		sb.append("<b>If possible, please send us the .ork file that caused the bug.</b>\n");
-		sb.append('\n');
-		
-		
-		sb.append("Include your email address (optional; it helps if we can " +
-				"contact you in case we need additional information):\n");
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
-		sb.append('\n');
+		// ---------- Bug report ----------
+		addBugReportInformation(sb);
 		
 		sb.append("(Do not modify anything below this line.)\n");
 		sb.append("---------- Exception stack trace ----------\n");
@@ -211,12 +173,37 @@ public class BugReportDialog extends JDialog {
 				new BugReportDialog(parent, trans.get("bugreport.reportDialog.txt2"), sb.toString(), true);
 		reportDialog.setVisible(true);
 	}
+
+	private static void addBugReportInformation(StringBuilder sb) {
+		sb.append("<html>---------- Bug report ----------\n");
+		sb.append('\n');
+		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
+				"performing when the exception occurred:</b>\n");
+		sb.append("<i>(You can edit text directly in this window)</i>\n");
+		sb.append('\n');
+		sb.append("1. \n");
+		sb.append("2. \n");
+		sb.append("3. \n");
+
+		sb.append("\n");
+		sb.append("<b>If possible, please send us the .ork file that caused the bug.</b>\n");
+		sb.append('\n');
+
+
+		sb.append("Include your email address (optional; it helps if we can " +
+				"contact you in case we need additional information):\n");
+		sb.append('\n');
+		sb.append('\n');
+		sb.append('\n');
+		sb.append('\n');
+	}
 	
 	private static void addSystemInformation(StringBuilder sb) {
 		StringBuilder sbTemp = new StringBuilder();
 		sbTemp.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
 		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
+		sbTemp.append("User-defined thrust curves location: " + preferences.getUserThrustCurveFilesAsString() + "\n");
 		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
 		sbTemp.append("System properties:\n");
