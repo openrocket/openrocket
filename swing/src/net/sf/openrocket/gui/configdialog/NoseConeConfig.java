@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -40,7 +42,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private JSlider shapeSlider;
-	private final JCheckBox checkAutoAftRadius;
+	private final JCheckBox checkAutoBaseRadius;
 	private static final Translator trans = Application.getTranslator();
 	
 	// Prepended to the description from NoseCone.DESCRIPTIONS
@@ -106,21 +108,21 @@ public class NoseConeConfig extends RocketComponentConfig {
 
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
 
-			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
-			final JSpinner radiusSpinner = new JSpinner(aftRadiusModel.getSpinnerModel());
+			final DoubleModel baseRadius = new DoubleModel(component, "BaseRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
+			final JSpinner radiusSpinner = new JSpinner(baseRadius.getSpinnerModel());
 			radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
 			panel.add(radiusSpinner, "growx");
 			order.add(((SpinnerEditor) radiusSpinner.getEditor()).getTextField());
 
-			panel.add(new UnitSelector(aftRadiusModel), "growx");
-			panel.add(new BasicSlider(aftRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
+			panel.add(new UnitSelector(baseRadius), "growx");
+			panel.add(new BasicSlider(baseRadius.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
 
-			checkAutoAftRadius = new JCheckBox(aftRadiusModel.getAutomaticAction());
+			checkAutoBaseRadius = new JCheckBox(baseRadius.getAutomaticAction());
 			//// Automatic
-			checkAutoAftRadius.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
-			panel.add(checkAutoAftRadius, "skip, span 2, wrap");
-			order.add(checkAutoAftRadius);
-			updateCheckboxAutoAftRadius();
+			checkAutoBaseRadius.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
+			panel.add(checkAutoBaseRadius, "skip, span 2, wrap");
+			order.add(checkAutoBaseRadius);
+			updateCheckboxAutoBaseRadius(((NoseCone) component).isFlipped());
 		}
 
 		{////  Wall thickness:
@@ -142,8 +144,22 @@ public class NoseConeConfig extends RocketComponentConfig {
 			//// Filled
 			filledCheckbox.setText(trans.get("NoseConeCfg.checkbox.Filled"));
 			filledCheckbox.setToolTipText(trans.get("NoseConeCfg.checkbox.Filled.ttip"));
-			panel.add(filledCheckbox, "skip, span 2, wrap");
+			panel.add(filledCheckbox, "skip, span 2, wrap para");
 			order.add(filledCheckbox);
+		}
+
+		{//// Flip to tail cone:
+			final JCheckBox flipCheckbox = new JCheckBox(new BooleanModel(component, "Flipped"));
+			flipCheckbox.setText(trans.get("NoseConeCfg.checkbox.Flip"));
+			flipCheckbox.setToolTipText(trans.get("NoseConeCfg.checkbox.Flip.ttip"));
+			panel.add(flipCheckbox, "spanx, wrap");
+			order.add(flipCheckbox);
+			flipCheckbox.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					updateCheckboxAutoBaseRadius(e.getStateChange() == ItemEvent.SELECTED);
+				}
+			});
 		}
 
 		panel.add(new JLabel(""), "growy");
@@ -189,25 +205,29 @@ public class NoseConeConfig extends RocketComponentConfig {
 	 * Sets the checkAutoAftRadius checkbox's enabled state and tooltip text, based on the state of its next component.
 	 * If there is no next symmetric component or if that component already has its auto checkbox checked, the
 	 * checkAutoAftRadius checkbox is disabled.
+	 *
+	 * @param isFlipped	whether the nose cone is flipped
 	 */
-	private void updateCheckboxAutoAftRadius() {
-		if (component == null || checkAutoAftRadius == null) return;
+	private void updateCheckboxAutoBaseRadius(boolean isFlipped) {
+		if (component == null || checkAutoBaseRadius == null) return;
 
 		// Disable check button if there is no component to get the diameter from
-		SymmetricComponent nextComp = ((NoseCone) component).getNextSymmetricComponent();
-		if (nextComp == null) {
-			checkAutoAftRadius.setEnabled(false);
-			((NoseCone) component).setAftRadiusAutomatic(false);
-			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_noReferenceComponent"));
+		NoseCone noseCone = ((NoseCone) component);
+		SymmetricComponent referenceComp = isFlipped ? noseCone.getPreviousSymmetricComponent() : noseCone.getNextSymmetricComponent();
+		if (referenceComp == null) {
+			checkAutoBaseRadius.setEnabled(false);
+			((NoseCone) component).setBaseRadiusAutomatic(false);
+			checkAutoBaseRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_noReferenceComponent"));
 			return;
 		}
-		if (!nextComp.usesPreviousCompAutomatic()) {
-			checkAutoAftRadius.setEnabled(true);
-			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic"));
+		if ((!isFlipped&& !referenceComp.usesPreviousCompAutomatic()) ||
+				isFlipped && !referenceComp.usesNextCompAutomatic()) {
+			checkAutoBaseRadius.setEnabled(true);
+			checkAutoBaseRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic"));
 		} else {
-			checkAutoAftRadius.setEnabled(false);
-			((NoseCone) component).setAftRadiusAutomatic(false);
-			checkAutoAftRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_alreadyAuto"));
+			checkAutoBaseRadius.setEnabled(false);
+			((NoseCone) component).setBaseRadiusAutomatic(false);
+			checkAutoBaseRadius.setToolTipText(trans.get("NoseConeCfg.checkbox.ttip.Automatic_alreadyAuto"));
 		}
 	}
 }

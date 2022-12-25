@@ -58,12 +58,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	// this is just a list of simulation branches to 
 	Deque<SimulationStatus> toSimulate = new ArrayDeque<SimulationStatus>();
+
+	FlightData flightData;
 	
 	@Override
 	public FlightData simulate(SimulationConditions simulationConditions) throws SimulationException {
 		
 		// Set up flight data
-		FlightData flightData = new FlightData();
+		flightData = new FlightData();
 		
 		// Set up rocket configuration
 		this.fcid = simulationConditions.getFlightConfigurationID();
@@ -268,6 +270,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 			// Add FlightEvent for Abort.
 			currentStatus.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
+
+			flightData.addBranch(currentStatus.getFlightData());
+			flightData.getWarningSet().addAll(currentStatus.getWarnings());
+
+			e.setFlightData(flightData);
 			
 			throw e;
 		}

@@ -83,7 +83,7 @@ public class ScaleDialog extends JDialog {
 		// SymmetricComponent
 		addScaler(SymmetricComponent.class, "Thickness", "isFilled", SCALERS_NO_OFFSET);
 		
-		// Transition + Nose cone
+		// Transition
 		addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "ForeShoulderRadius", SCALERS_NO_OFFSET);
@@ -92,6 +92,12 @@ public class ScaleDialog extends JDialog {
 		addScaler(Transition.class, "AftShoulderRadius", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "AftShoulderThickness", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "AftShoulderLength", SCALERS_NO_OFFSET);
+
+		// Nose cone
+		addScaler(NoseCone.class, "BaseRadius", "isBaseRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(NoseCone.class, "ShoulderRadius", SCALERS_NO_OFFSET);
+		addScaler(NoseCone.class, "ShoulderThickness", SCALERS_NO_OFFSET);
+		addScaler(NoseCone.class, "ShoulderLength", SCALERS_NO_OFFSET);
 		
 		// Body tube
 		addScaler(BodyTube.class, "OuterRadius", "isOuterRadiusAutomatic", SCALERS_NO_OFFSET);
@@ -559,6 +565,10 @@ public class ScaleDialog extends JDialog {
 		}
 		Collections.reverse(classes);	// Always do the super component scales first (can cause problems otherwise in the scale order)
 		for (Class<?> cl : classes) {
+			// Don't use the super-class methods of transitions for nose cones
+			if (cl == Transition.class && component instanceof NoseCone) {
+				continue;
+			}
 			List<Scaler> list = SCALERS_NO_OFFSET.get(cl);
 			if (list != null && list.size() > 0) {
 				for (Scaler s : list) {

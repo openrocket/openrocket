@@ -56,7 +56,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		 */
 		
 		addModifier("optimization.modifier.nosecone.length", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Length");
-		addModifier("optimization.modifier.nosecone.diameter", UnitGroup.UNITS_LENGTH, 2.0, NoseCone.class, "AftRadius", "isAftRadiusAutomatic");
+		addModifier("optimization.modifier.nosecone.diameter", UnitGroup.UNITS_LENGTH, 2.0, NoseCone.class, "BaseRadius", "isBaseRadiusAutomatic");
 		addModifier("optimization.modifier.nosecone.thickness", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Thickness", "isFilled");
 		
 		addModifier("optimization.modifier.transition.length", UnitGroup.UNITS_LENGTH, 1.0, Transition.class, "Length");

@@ -127,8 +127,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 					new Pair<String,InputStream>(
 							file.getName(),
 							new BufferedInputStream(new FileInputStream(file))));
-		} catch (IOException e) {
-			log.warn("IOException while reading " + file + ": " + e, e);
+		} catch (Exception e) {
+			log.warn("Exception while reading " + file + ": " + e, e);
 		}
 	}
 	
@@ -158,8 +158,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 				dialog.setVisible(true);
 			}
 			f.getV().close();
-		} catch (IOException e) {
-			log.warn("IOException while loading file " + f.getU() + ": " + e, e);
+		} catch (Exception e) {
+			log.warn("Exception while loading file " + f.getU() + ": " + e, e);
 			try {
 				f.getV().close();
 			} catch (IOException e1) {
@@ -178,7 +178,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		FileIterator iterator;
 		try {
 			iterator = new DirectoryIterator(file, fileFilter, true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.warn("Unable to read directory " + file + ": " + e, e);
 			return;
 		}

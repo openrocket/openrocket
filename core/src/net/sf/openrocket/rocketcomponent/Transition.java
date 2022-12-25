@@ -5,17 +5,13 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import static net.sf.openrocket.util.MathUtil.pow3;
 
 import java.util.Collection;
-import java.util.EventObject;
 
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StateChangeListener;
 
 
 public class Transition extends SymmetricComponent implements InsideColorComponent {
@@ -27,8 +23,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	private double shapeParameter;
 	private boolean clipped; // Not to be read - use isClipped(), which may be overridden
 
-	private double foreRadius, aftRadius;
-	private boolean autoForeRadius, autoAftRadius2; // Whether the start radius is automatic
+	protected double foreRadius, aftRadius;		// Warning: avoid using these directly, use getForeRadius() and getAftRadius() instead (because the definition of the two can change for flipped nose cones)
+	protected boolean autoForeRadius, autoAftRadius; // Whether the start radius is automatic
 
 
 	private double foreShoulderRadius;
@@ -53,7 +49,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		this.aftRadius = DEFAULT_RADIUS;
 		this.length = DEFAULT_RADIUS * 3;
 		this.autoForeRadius = true;
-		this.autoAftRadius2 = true;
+		this.autoAftRadius = true;
 
 		this.type = Shape.CONICAL;
 		this.shapeParameter = 0;
@@ -81,17 +77,22 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	@Override
 	public double getForeRadius() {
 		if (isForeRadiusAutomatic()) {
-			// Get the automatic radius from the front
-			double r = -1;
-			SymmetricComponent c = this.getPreviousSymmetricComponent();
-			if (c != null) {
-				r = c.getFrontAutoRadius();
-			}
-			if (r < 0)
-				r = DEFAULT_RADIUS;
-			return r;
+			return getAutoForeRadius();
 		}
 		return foreRadius;
+	}
+
+	/**
+	 * Returns the automatic radius from the front, taken from the previous component. Returns the default radius if there
+	 * is no previous component.
+	 */
+	protected double getAutoForeRadius() {
+		SymmetricComponent c = this.getPreviousSymmetricComponent();
+		if (c != null) {
+			return c.getFrontAutoRadius();
+		} else {
+			return DEFAULT_RADIUS;
+		}
 	}
 
 	/**
@@ -136,11 +137,22 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return autoForeRadius;
 	}
 
-	public void setForeRadiusAutomatic(boolean auto) {
+	/**
+	 * Set the fore radius to automatic mode (takes its value from the previous symmetric component's radius).
+	 *
+	 * @param auto whether to set the fore radius to automatic mode
+	 * @param sanityCheck whether to sanity check auto mode for whether there is a previous component of which you can take the radius
+	 */
+	public void setForeRadiusAutomatic(boolean auto, boolean sanityCheck) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setForeRadiusAutomatic(auto);
 			}
+		}
+
+		// You can only set the auto fore radius if it is possible
+		if (sanityCheck) {
+			auto = auto && canUsePreviousCompAutomatic();
 		}
 
 		if (autoForeRadius == auto)
@@ -152,23 +164,32 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
+	public void setForeRadiusAutomatic(boolean auto) {
+		setForeRadiusAutomatic(auto, false);
+	}
+
 
 	////////  Aft radius  /////////
 
 	@Override
 	public double getAftRadius() {
 		if (isAftRadiusAutomatic()) {
-			// Return the auto radius from the rear
-			double r = -1;
-			SymmetricComponent c = this.getNextSymmetricComponent();
-			if (c != null) {
-				r = c.getRearAutoRadius();
-			}
-			if (r < 0)
-				r = DEFAULT_RADIUS;
-			return r;
+			return getAutoAftRadius();
 		}
 		return aftRadius;
+	}
+
+	/**
+	 * Returns the automatic radius from the rear, taken from the next component. Returns the default radius if there
+	 * is no next component.
+	 */
+	protected double getAutoAftRadius() {
+		SymmetricComponent c = this.getNextSymmetricComponent();
+		if (c != null) {
+			return c.getRearAutoRadius();
+		} else {
+			return DEFAULT_RADIUS;
+		}
 	}
 
 	/**
@@ -191,10 +212,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 		}
 
-		if ((this.aftRadius == radius) && (autoAftRadius2 == false))
+		if ((this.aftRadius == radius) && (autoAftRadius == false))
 			return;
 
-		this.autoAftRadius2 = false;
+		this.autoAftRadius = false;
 		this.aftRadius = Math.max(radius, 0);
 
 		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
@@ -210,23 +231,38 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 	@Override
 	public boolean isAftRadiusAutomatic() {
-		return autoAftRadius2;
+		return autoAftRadius;
 	}
 
-	public void setAftRadiusAutomatic(boolean auto) {
+	/**
+	 * Set the aft radius to automatic mode (takes its value from the next symmetric component's radius).
+	 *
+	 * @param auto whether to set the aft radius to automatic mode
+	 * @param sanityCheck whether to sanity check auto mode for whether there is a next component of which you can take the radius
+	 */
+	public void setAftRadiusAutomatic(boolean auto, boolean sanityCheck) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
 				((Transition) listener).setAftRadiusAutomatic(auto);
 			}
 		}
 
-		if (autoAftRadius2 == auto)
+		// You can only set the auto aft radius if it is possible
+		if (sanityCheck) {
+			auto = auto && canUseNextCompAutomatic();
+		}
+
+		if (autoAftRadius == auto)
 			return;
 
-		autoAftRadius2 = auto;
+		autoAftRadius = auto;
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public void setAftRadiusAutomatic(boolean auto) {
+		setAftRadiusAutomatic(auto, false);
 	}
 
 
@@ -255,6 +291,32 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	@Override
 	public boolean usesNextCompAutomatic() {
 		return isAftRadiusAutomatic();
+	}
+
+	/**
+	 * Checks whether this component can use the automatic radius of the previous symmetric component.
+	 * @return false if there is no previous symmetric component, or if the previous component already has this component
+	 * 			as its auto dimension reference
+	 */
+	public boolean canUsePreviousCompAutomatic() {
+		SymmetricComponent referenceComp = getPreviousSymmetricComponent();
+		if (referenceComp == null) {
+			return false;
+		}
+		return !referenceComp.usesNextCompAutomatic();
+	}
+
+	/**
+	 * Checks whether this component can use the automatic radius of the next symmetric component.
+	 * @return false if there is no next symmetric component, or if the next component already has this component
+	 * 			as its auto dimension reference
+	 */
+	public boolean canUseNextCompAutomatic() {
+		SymmetricComponent referenceComp = getNextSymmetricComponent();
+		if (referenceComp == null) {
+			return false;
+		}
+		return !referenceComp.usesPreviousCompAutomatic();
 	}
 
 
