@@ -90,8 +90,11 @@ public abstract class Unit {
 	 * @return       A string representation of the number in these units.
 	 */
 	public String toString(double value) {
-		double val = toUnit(value);
+		if (Double.isNaN(value))
+			return "N/A";
 		
+		double val = toUnit(value);
+
 		if (Math.abs(val) > 1E6) {
 			return expFormat.format(val);
 		}
