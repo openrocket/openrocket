@@ -94,8 +94,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";		// Dummy string to indicate a horizontal separator item in the view type combobox
 	public enum VIEW_TYPE {
-		SideView(false, RocketFigure.VIEW_SIDE),
 		TopView(false, RocketFigure.VIEW_TOP),
+		SideView(false, RocketFigure.VIEW_SIDE),
 		BackView(false, RocketFigure.VIEW_BACK),
 		SEPARATOR(false, -248),		// Horizontal combobox separator dummy item
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
@@ -116,6 +116,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				return VIEW_TYPE_SEPARATOR;
 			}
 			return trans.get("RocketPanel.FigTypeAct." + super.toString());
+		}
+
+		public static VIEW_TYPE getDefaultViewType() {
+			return SideView;
 		}
 
 	}
@@ -315,7 +319,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JPanel ribbon = new JPanel(new MigLayout("insets 0, fill"));
 
 		// View Type drop-down
-		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
+		ComboBoxModel<VIEW_TYPE> cm = new ViewTypeComboBoxModel(VIEW_TYPE.values(), VIEW_TYPE.getDefaultViewType()) {
 
 			@Override
 			public void setSelectedItem(Object o) {
@@ -787,7 +791,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 
 		if (length > 0 &&
-				((figure.getType() == RocketPanel.VIEW_TYPE.TopView) || (figure.getType() == RocketPanel.VIEW_TYPE.SideView))) {
+				((figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.TopView) || (figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.SideView))) {
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
 		} else {
@@ -1073,6 +1077,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure.setSelection(components);
 
 		figure3d.setSelection(components);
+	}
+
+	private static class ViewTypeComboBoxModel extends DefaultComboBoxModel<VIEW_TYPE> {
+		public ViewTypeComboBoxModel(VIEW_TYPE[] items, VIEW_TYPE initialItem) {
+			super(items);
+			super.setSelectedItem(initialItem);
+		}
 	}
 
 	/**

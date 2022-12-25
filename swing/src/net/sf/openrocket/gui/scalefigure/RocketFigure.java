@@ -59,8 +59,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
 
-	public static final int VIEW_SIDE = 0;
-	public static final int VIEW_TOP = 1;
+	public static final int VIEW_TOP = 0;
+	public static final int VIEW_SIDE = 1;
 	public static final int VIEW_BACK = 2;
 	
 	// Width for drawing normal and selected components
@@ -149,7 +149,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	
-	public RocketPanel.VIEW_TYPE  getType() {
+	public RocketPanel.VIEW_TYPE getCurrentViewType() {
 		return currentViewType;
 	}
 	
