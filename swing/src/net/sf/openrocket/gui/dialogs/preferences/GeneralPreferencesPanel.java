@@ -86,14 +86,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		//// User-defined thrust curves:
 		this.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
-		List<File> files = preferences.getUserThrustCurveFiles();
-		String str = "";
-		for (File file : files) {
-			if (str.length() > 0) {
-				str += ";";
-			}
-			str += file.getAbsolutePath();
-		}
+		String str = preferences.getUserThrustCurveFilesAsString();
 		field.setText(str);
 		field.getDocument().addDocumentListener(new DocumentListener() {
 			@Override

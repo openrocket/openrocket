@@ -65,7 +65,11 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
             } else if (child instanceof BodyTube) {
                 addAttachedPart(new BodyTubeDTO((BodyTube) child));
             } else if (child instanceof NoseCone) {
-                addAttachedPart(new NoseConeDTO((NoseCone) child));
+                if (((NoseCone) child).isFlipped()) {
+                    addAttachedPart(new TransitionDTO((NoseCone) child));
+                } else {
+                    addAttachedPart(new NoseConeDTO((NoseCone) child));
+                }
             } else if (child instanceof Transition) {
                 addAttachedPart(new TransitionDTO((Transition) child));
             }

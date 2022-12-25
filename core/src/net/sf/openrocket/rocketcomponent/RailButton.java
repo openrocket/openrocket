@@ -207,12 +207,6 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-	@Override
-	public boolean isAerodynamic(){
-		// TODO: implement aerodynamics
-		return false;
-	}
 	
 	@Override
 	public double getAngleOffset(){

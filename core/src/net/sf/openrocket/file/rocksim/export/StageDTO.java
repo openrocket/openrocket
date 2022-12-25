@@ -93,8 +93,12 @@ public class StageDTO {
         externalPart.add(theExternalPartDTO);
     }
 
-    private NoseConeDTO toNoseConeDTO(NoseCone nc) {
-        return new NoseConeDTO(nc);
+    private AbstractTransitionDTO toNoseConeDTO(NoseCone nc) {
+        if (nc.isFlipped()) {
+            return new TransitionDTO(nc);
+        } else {
+            return new NoseConeDTO(nc);
+        }
     }
 
     private BodyTubeDTO toBodyTubeDTO(BodyTube bt) {
