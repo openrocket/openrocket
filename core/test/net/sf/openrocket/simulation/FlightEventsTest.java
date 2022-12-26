@@ -66,7 +66,7 @@ public class FlightEventsTest extends BaseTestCase {
         // Test that the event times are correct
         for (int i = 0; i < expectedEventTimes.length; i++) {
             assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong time",
-                    expectedEventTimes[i], eventList.get(i).getTime(), 0.001);
+                    expectedEventTimes[i], eventList.get(i).getTime(), 0.002);
 
         }
 
@@ -142,7 +142,7 @@ public class FlightEventsTest extends BaseTestCase {
             // Test that the event times are correct
             for (int i = 0; i < expectedEventTimes.length; i++) {
                 assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong time",
-                        expectedEventTimes[i], eventList.get(i).getTime(), 0.001);
+                        expectedEventTimes[i], eventList.get(i).getTime(), 0.002);
             }
 
             // Test that the event sources are correct

@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.scalefigure;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -91,9 +92,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
 
+	private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";		// Dummy string to indicate a horizontal separator item in the view type combobox
 	public enum VIEW_TYPE {
+		TopView(false, RocketFigure.VIEW_TOP),
 		SideView(false, RocketFigure.VIEW_SIDE),
 		BackView(false, RocketFigure.VIEW_BACK),
+		SEPARATOR(false, -248),		// Horizontal combobox separator dummy item
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
 		Unfinished(true, RocketFigure3d.TYPE_UNFINISHED),
 		Finished(true, RocketFigure3d.TYPE_FINISHED);
@@ -108,7 +112,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		@Override
 		public String toString() {
+			if (type == -248) {
+				return VIEW_TYPE_SEPARATOR;
+			}
 			return trans.get("RocketPanel.FigTypeAct." + super.toString());
+		}
+
+		public static VIEW_TYPE getDefaultViewType() {
+			return SideView;
 		}
 
 	}
@@ -308,12 +319,16 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JPanel ribbon = new JPanel(new MigLayout("insets 0, fill"));
 
 		// View Type drop-down
-		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
+		ComboBoxModel<VIEW_TYPE> cm = new ViewTypeComboBoxModel(VIEW_TYPE.values(), VIEW_TYPE.getDefaultViewType()) {
 
 			@Override
 			public void setSelectedItem(Object o) {
-				super.setSelectedItem(o);
 				VIEW_TYPE v = (VIEW_TYPE) o;
+				if (v == VIEW_TYPE.SEPARATOR) {
+					return;
+				}
+
+				super.setSelectedItem(o);
 				if (v.is3d) {
 					figure3d.setType(v.type);
 					go3D();
@@ -325,7 +340,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		};
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "cell 0 0");
-		ribbon.add(new JComboBox<VIEW_TYPE>(cm), "cell 0 1");
+		final JComboBox viewSelector = new JComboBox(cm);
+		viewSelector.setRenderer(new SeparatorComboBoxRenderer(viewSelector.getRenderer()));
+		ribbon.add(viewSelector, "cell 0 1");
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
@@ -773,7 +790,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
 		}
 
-		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
+		if (length > 0 &&
+				((figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.TopView) || (figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.SideView))) {
 			extraCP.setPosition(cpx, cpy);
 			extraCG.setPosition(cgx, cgy);
 		} else {
@@ -1061,40 +1079,34 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure3d.setSelection(components);
 	}
 
-		// /**
-		// * An <code>Action</code> that shows whether the figure type is the
-		// type
-		// * given in the constructor.
-		// *
-		// * @author Sampo Niskanen <sampo.niskanen@iki.fi>
-		// */
-		// private class FigureTypeAction extends AbstractAction implements
-		// StateChangeListener {
-		// private static final long serialVersionUID = 1L;
-		// private final VIEW_TYPE type;
-		//
-		// public FigureTypeAction(VIEW_TYPE type) {
-		// this.type = type;
-		// stateChanged(null);
-		// figure.addChangeListener(this);
-		// }
-		//
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// boolean state = (Boolean) getValue(Action.SELECTED_KEY);
-		// if (state == true) {
-		// // This view has been selected
-		// figure.setType(type);
-		// go2D();
-		// updateExtras();
-		// }
-		// stateChanged(null);
-		// }
-		//
-		// @Override
-		// public void stateChanged(EventObject e) {
-		// putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
-		// }
-		// }
+	private static class ViewTypeComboBoxModel extends DefaultComboBoxModel<VIEW_TYPE> {
+		public ViewTypeComboBoxModel(VIEW_TYPE[] items, VIEW_TYPE initialItem) {
+			super(items);
+			super.setSelectedItem(initialItem);
+		}
+	}
+
+	/**
+	 * Custom combobox renderer that supports the display of horizontal separators between items.
+	 * ComboBox objects with the text {@link VIEW_TYPE_SEPARATOR} objects in the combobox are replaced by a separator object.
+	 */
+	private static class SeparatorComboBoxRenderer extends JLabel implements ListCellRenderer {
+		private final JSeparator separator;
+		private final ListCellRenderer defaultRenderer;
+
+		public SeparatorComboBoxRenderer(ListCellRenderer defaultRenderer) {
+			this.defaultRenderer = defaultRenderer;
+			this.separator = new JSeparator(JSeparator.HORIZONTAL);
+		}
+
+		public Component getListCellRendererComponent(JList list, Object value,
+													  int index, boolean isSelected, boolean cellHasFocus) {
+			String str = (value == null) ? "" : value.toString();
+			if (VIEW_TYPE_SEPARATOR.equals(str)) {
+				return separator;
+			};
+			return defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		}
+	}
 
 }
