@@ -348,7 +348,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * warnings.size();
-		g2.setColor(new Color(255,0,0,130));
+		g2.setColor(Color.RED);
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();
