@@ -571,7 +571,12 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 
 			if (forces.getCP() != null) {
-				row.cpx = forces.getCP().x;
+				if ((comp instanceof Rocket) &&
+					(forces.getCP().weight < MathUtil.EPSILON)) {
+					row.cpx = Double.NaN;
+				} else {
+					row.cpx = forces.getCP().x;
+				}
 				row.cna = forces.getCNa();
 			}
 
