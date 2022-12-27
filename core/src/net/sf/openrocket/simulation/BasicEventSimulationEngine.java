@@ -7,7 +7,9 @@ import java.util.Deque;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -83,6 +85,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (!simulationConfig.hasMotors() ) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
+
+		// Can't calculate stability
+		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
+			.getCP(currentStatus.getConfiguration(),
+				   new FlightConditions(currentStatus.getConfiguration()),
+				   new WarningSet()).weight < MathUtil.EPSILON)
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
 
 		// Problems that let us simulate, but result is likely bad
 			
