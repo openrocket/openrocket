@@ -44,7 +44,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
 
-	
 	public BarrowmanCalculator() {
 		
 	}
@@ -299,14 +298,16 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 				
 				SymmetricComponent sym = (SymmetricComponent) comp;
+				prevComp = sym.getPreviousSymmetricComponent();
 				if( null == prevComp){
-					prevComp = sym;
-					continue;
-				}
-				
-				// Check for radius discontinuity
-				if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
-					warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
+					if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
+						warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
+					}
+				} else {
+					// Check for radius discontinuity
+					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
+						warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
+					}
 				}
 				
 				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
@@ -318,7 +319,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
                 //}
 				//componentX = component.toAbsolute(new Coordinate(component.getLengthAerodynamic()))[0].x;
 						
-				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
 				checkGeometry(configuration, comp, warnings);
 			}
