@@ -21,6 +21,7 @@ import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
@@ -305,7 +306,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					}
 				} else {
 					// Check for radius discontinuity
-					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
+					// We're going to say it's discontinuous if it is presented to the user as having two different
+					// string representations.  Hopefully there are enough digits in the string that it will
+					// present as different if the discontinuity is big enough to matter.
+					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius()).equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
+						//					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
 						warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
 					}
 				}
