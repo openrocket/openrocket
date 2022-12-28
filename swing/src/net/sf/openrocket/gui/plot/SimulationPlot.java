@@ -286,32 +286,19 @@ public class SimulationPlot {
 						}
 						XYSeries ser = collection.getSeries(series);
 						String name = ser.getDescription();
+
 						// Extract the unit from the last part of the series description, between parenthesis
 						Matcher m = Pattern.compile(".*\\((.*?)\\)").matcher(name);
-						String unit_y = "";
+						String unitY = "";
 						if (m.find()) {
-							unit_y = m.group(1);
+							unitY = m.group(1);
 						}
-						String unit_x = domainUnit.getUnit();
-						String ord_end = "th";		// Ordinal number ending (1'st', 2'nd'...)
-						if (item % 10 == 1)
-							ord_end = "st";
-						else if (item % 10 == 2)
-							ord_end = "nd";
-						else if (item % 10 == 3)
-							ord_end = "rd";
-						double data_y = dataset.getYValue(series, item);
-						double data_x = dataset.getXValue(series, item);
-						DecimalFormat df_y = DecimalFormatter.df(data_y, 2, false);
-						DecimalFormat df_x = DecimalFormatter.df(data_x, 2, false);
-						return String.format("<html>" +
-										"<b><i>%s</i></b><br>" +
-										"Y: %s %s<br>" +
-										"X: %s %s<br>" +
-										"%d<sup>%s</sup> sample" +
-										"</html>",
-								name, df_y.format(data_y), unit_y,
-								df_x.format(data_x), unit_x, item, ord_end);
+						String unitX = domainUnit.getUnit();
+
+						double dataY = dataset.getYValue(series, item);
+						double dataX = dataset.getXValue(series, item);
+
+						return formatSampleTooltip(name, dataX, unitX, dataY, unitY, item);
 					}
 				};
 
@@ -362,6 +349,42 @@ public class SimulationPlot {
 
 	JFreeChart getJFreeChart() {
 		return chart;
+	}
+
+	private String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY, int sampleIdx, boolean addYValue) {
+		String ord_end = "th";		// Ordinal number ending (1'st', 2'nd'...)
+		if (sampleIdx % 10 == 1) {
+			ord_end = "st";
+		} else if (sampleIdx % 10 == 2) {
+			ord_end = "nd";
+		} else if (sampleIdx % 10 == 3) {
+			ord_end = "rd";
+		}
+
+		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
+		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(String.format("<html>" +
+						"<b><i>%s</i></b><br>", dataName));
+
+		if (addYValue) {
+			sb.append(String.format("Y: %s %s<br>", df_y.format(dataY), unitY));
+		}
+
+		sb.append(String.format("X: %s %s<br>" +
+						"%d<sup>%s</sup> sample" +
+						"</html>", df_x.format(dataX), unitX, sampleIdx, ord_end));
+
+		return sb.toString();
+	}
+
+	private String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY, int sampleIdx) {
+		return formatSampleTooltip(dataName, dataX, unitX, dataY, unitY, sampleIdx, true);
+	}
+
+	private String formatSampleTooltip(String dataName, double dataX, String unitX, int sampleIdx) {
+		return formatSampleTooltip(dataName, dataX, unitX, 0, "", sampleIdx, false);
 	}
 
 	private String getLabel(FlightDataType type, Unit unit) {
@@ -466,13 +489,13 @@ public class SimulationPlot {
 
 			for (int i = 0; i < eventTimes.size(); i++) {
 				double t = eventTimes.get(i);
-				String event = eventLabels.get(i);
 				Image image = eventImages.get(i);
 
 				if (image == null)
 					continue;
 
 				double xcoord = domainInterpolator.getValue(t);
+
 				for (int index = 0; index < config.getTypeCount(); index++) {
 					FlightDataType type = config.getType(index);
 					List<Double> range = mainBranch.get(type);
@@ -490,9 +513,18 @@ public class SimulationPlot {
 					xcoord = config.getDomainAxisUnit().toUnit(xcoord);
 					ycoord = config.getUnit(index).toUnit(ycoord);
 
+					// Get the sample index of the flight event. Because this can be an interpolation between two samples,
+					// take the closest sample.
+					final int sampleIdx;
+					Optional<Double> closestSample = time.stream()
+							.min(Comparator.comparingDouble(sample -> Math.abs(sample - t)));
+					sampleIdx = closestSample.map(time::indexOf).orElse(-1);
+
+					String tooltipText = formatSampleTooltip(eventLabels.get(i), xcoord, config.getDomainAxisUnit().getUnit(), sampleIdx) ;
+
 					XYImageAnnotation annotation =
 							new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
-					annotation.setToolTipText(event);
+					annotation.setToolTipText(tooltipText);
 					plot.addAnnotation(annotation);
 				}
 			}
