@@ -290,7 +290,7 @@ public class BarrowmanCalculatorTest {
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		WarningSet warnings = new WarningSet();
 		
-		calc.testIsContinuous(configuration, rocket, warnings);
+		calc.checkGeometry(configuration, rocket, warnings);
 		assertTrue("Estes Alpha III should be continuous: ", warnings.isEmpty());		
 	}
 	
@@ -301,7 +301,7 @@ public class BarrowmanCalculatorTest {
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		WarningSet warnings = new WarningSet();
 		
-		calc.testIsContinuous(configuration, rocket, warnings);
+		calc.checkGeometry(configuration, rocket, warnings);
 		assertTrue("F9H should be continuous: ", warnings.isEmpty());		
 	}
 	
@@ -319,7 +319,7 @@ public class BarrowmanCalculatorTest {
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
 
-		calc.testIsContinuous(configuration, rocket, warnings);
+		calc.checkGeometry(configuration, rocket, warnings);
 		assertFalse(" Estes Alpha III has an undetected discontinuity:", warnings.isEmpty());		
 	}
 	
@@ -340,7 +340,7 @@ public class BarrowmanCalculatorTest {
 		body.setOuterRadius( 0.012 );
 		body.setName( body.getName()+"  << discontinuous");
 		
-		calc.testIsContinuous(configuration, rocket, warnings);
+		calc.checkGeometry(configuration, rocket, warnings);
 		assertFalse(" Missed discontinuity in Falcon 9 Heavy:" , warnings.isEmpty());		
 	}
 

@@ -252,7 +252,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 
-		testIsContinuous(configuration, configuration.getRocket(), warnings);
+		checkGeometry(configuration, configuration.getRocket(), warnings);
 		
 		final InstanceMap imap = configuration.getActiveInstances();
 
@@ -276,7 +276,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 
 	@Override
-	public void testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
+	public void checkGeometry(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
 		Queue<RocketComponent> queue = new LinkedList<>();
 		for (RocketComponent child : treeRoot.getChildren()) {
 			// Ignore inactive stages
@@ -320,7 +320,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						
 				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
-				testIsContinuous(configuration, comp, warnings);
+				checkGeometry(configuration, comp, warnings);
 			}
 			
 		}
