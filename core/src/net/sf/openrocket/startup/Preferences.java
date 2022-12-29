@@ -76,6 +76,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
 	

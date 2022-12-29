@@ -20,9 +20,12 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.simulation.SimulationPlotPanel;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LinearInterpolator;
@@ -65,6 +68,8 @@ import org.jfree.ui.TextAnchor;
  */
 @SuppressWarnings("serial")
 public class SimulationPlot {
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+
 
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 
@@ -79,7 +84,7 @@ public class SimulationPlot {
 
 	private final LegendItems legendItems;
 
-	int branchCount;
+	private int branchCount;
 
 	void setShowPoints(boolean showPoints) {
 		for (ModifiedXYItemRenderer r : renderers) {
@@ -457,7 +462,7 @@ public class SimulationPlot {
 		}
 
 		// Plot the markers
-		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME) {
+		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false)) {
 			double markerWidth = 0.01 * plot.getDomainAxis().getUpperBound();
 
 			// Domain time is plotted as vertical markers
