@@ -270,9 +270,12 @@ public class NoseCone extends Transition implements InsideColorComponent {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		// We first need to unflip, because the preset loading always applies settings for a normal nose cone (e.g. aft diameter)
+		boolean flipped = isFlipped;
 		setFlipped(false);
 		//Many parameters are handled by the super class Transition.loadFromPreset
 		super.loadFromPreset(preset);
+		setFlipped(flipped);
 	}
 
 	/**

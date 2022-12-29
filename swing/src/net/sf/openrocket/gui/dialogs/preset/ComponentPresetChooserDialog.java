@@ -35,6 +35,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
@@ -257,6 +258,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			 * Add filter by fore diameter
 			 */
 			foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
+			foreDiameterFilterCheckBox.setToolTipText(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter.ttip"));
 			final SymmetricComponent prevSym = curSym.getPreviousSymmetricComponent();
 			if (prevSym != null && foreDiameterColumnIndex >= 0) {
 				foreDiameterFilterCheckBox.setSelected(preferences.isMatchForeDiameter());
@@ -274,8 +276,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 			/*
 			 * Add filter by aft diameter
 			 */
-			aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
-			final SymmetricComponent nextSym = curSym.getNextSymmetricComponent();
+			final SymmetricComponent nextSym;
+			if (curSym instanceof NoseCone && ((NoseCone) curSym).isFlipped()) {
+				aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
+				aftDiameterFilterCheckBox.setToolTipText(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter.ttip"));
+				nextSym = curSym.getPreviousSymmetricComponent();
+			} else {
+				aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
+				aftDiameterFilterCheckBox.setToolTipText(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter.ttip"));
+				nextSym = curSym.getNextSymmetricComponent();
+			}
 			if (nextSym != null && aftDiameterColumnIndex >= 0) {
 				aftDiameterFilterCheckBox.setSelected(preferences.isMatchAftDiameter());
 				aftDiameterFilter = new ComponentPresetRowFilter(nextSym.getForeRadius() * 2.0, aftDiameterColumnIndex);
