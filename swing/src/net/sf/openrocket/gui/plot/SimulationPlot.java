@@ -94,6 +94,7 @@ public class SimulationPlot {
 
 	void setShowBranch(int branch) {
 		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.clearAnnotations();
 		int datasetcount = plot.getDatasetCount();
 		for (int i = 0; i < datasetcount; i++) {
 			int seriescount = ((XYSeriesCollection) plot.getDataset(i)).getSeriesCount();
@@ -400,9 +401,13 @@ public class SimulationPlot {
 		return name;
 	}
 
-	private void drawDomainMarkers(int stage) {
+	/**
+	 * Draw the domain markers for a certain branch. Draws all the markers if the branch is -1.
+	 * @param branch branch to draw, or -1 to draw all
+	 */
+	private void drawDomainMarkers(int branch) {
 		XYPlot plot = chart.getXYPlot();
-		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
+		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(Math.max(branch, 0));
 
 		// Clear existing domain markers
 		plot.clearDomainMarkers();
@@ -420,7 +425,7 @@ public class SimulationPlot {
 			Color color = null;
 			Image image = null;
 			for (EventDisplayInfo info : eventList) {
-				if (stage >= 0 && stage != info.stage) {
+				if (branch >= 0 && branch != info.stage) {
 					continue;
 				}
 
@@ -484,11 +489,9 @@ public class SimulationPlot {
 				}
 			}
 
-		} else {
-
-			// Other domains are plotted as image annotations
-			List<Double> time = mainBranch.get(FlightDataType.TYPE_TIME);
-			List<Double> domain = mainBranch.get(config.getDomainAxisType());
+		} else {	// Other domains are plotted as image annotations
+			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+			List<Double> domain = dataBranch.get(config.getDomainAxisType());
 
 			LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 
@@ -503,7 +506,7 @@ public class SimulationPlot {
 
 				for (int index = 0; index < config.getTypeCount(); index++) {
 					FlightDataType type = config.getType(index);
-					List<Double> range = mainBranch.get(type);
+					List<Double> range = dataBranch.get(type);
 
 					LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 					// Image annotations are not supported on the right-side axis
