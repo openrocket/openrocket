@@ -94,7 +94,6 @@ public class SimulationPlot {
 
 	void setShowBranch(int branch) {
 		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.clearAnnotations();
 		int datasetcount = plot.getDatasetCount();
 		for (int i = 0; i < datasetcount; i++) {
 			int seriescount = ((XYSeriesCollection) plot.getDataset(i)).getSeriesCount();
@@ -409,132 +408,158 @@ public class SimulationPlot {
 		XYPlot plot = chart.getXYPlot();
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(Math.max(branch, 0));
 
-		// Clear existing domain markers
+		// Clear existing domain markers and annotations
 		plot.clearDomainMarkers();
+		plot.clearAnnotations();
 
-		// Construct domain marker lists collapsing based on time.
-
-		List<Double> eventTimes = new ArrayList<Double>();
-		List<String> eventLabels = new ArrayList<String>();
-		List<Color> eventColors = new ArrayList<Color>();
-		List<Image> eventImages = new ArrayList<Image>();
-		{
-			HashSet<FlightEvent.Type> typeSet = new HashSet<FlightEvent.Type>();
-			double prevTime = -100;
-			String text = null;
-			Color color = null;
-			Image image = null;
-			for (EventDisplayInfo info : eventList) {
-				if (branch >= 0 && branch != info.stage) {
-					continue;
-				}
-
-				double t = info.time;
-				FlightEvent.Type type = info.event.getType();
-
-				if (Math.abs(t - prevTime) <= 0.05) {
-
-					if (!typeSet.contains(type)) {
-						text = text + ", " + type.toString();
-						color = EventGraphics.getEventColor(type);
-						image = EventGraphics.getEventImage(type);
-						typeSet.add(type);
-					}
-
-				} else {
-
-					if (text != null) {
-						eventTimes.add(prevTime);
-						eventLabels.add(text);
-						eventColors.add(color);
-						eventImages.add(image);
-					}
-					prevTime = t;
-					text = type.toString();
-					color = EventGraphics.getEventColor(type);
-					image = EventGraphics.getEventImage(type);
-					typeSet.clear();
-					typeSet.add(type);
-				}
-
-			}
-			if (text != null) {
-				eventTimes.add(prevTime);
-				eventLabels.add(text);
-				eventColors.add(color);
-				eventImages.add(image);
-			}
-		}
+		// Store flight event information
+		List<Double> eventTimes = new ArrayList<>();
+		List<String> eventLabels = new ArrayList<>();
+		List<Color> eventColors = new ArrayList<>();
+		List<Image> eventImages = new ArrayList<>();
 
 		// Plot the markers
 		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false)) {
-			double markerWidth = 0.01 * plot.getDomainAxis().getUpperBound();
-
-			// Domain time is plotted as vertical markers
-			for (int i = 0; i < eventTimes.size(); i++) {
-				double t = eventTimes.get(i);
-				String event = eventLabels.get(i);
-				Color color = eventColors.get(i);
-
-				ValueMarker m = new ValueMarker(t);
-				m.setLabel(event);
-				m.setPaint(color);
-				m.setLabelPaint(color);
-				m.setAlpha(0.7f);
-				m.setLabelFont(new Font("Dialog", Font.PLAIN, 13));
-				plot.addDomainMarker(m);
-
-				if (t > plot.getDomainAxis().getUpperBound() - markerWidth) {
-					plot.setDomainAxis(new PresetNumberAxis(plot.getDomainAxis().getLowerBound(), t + markerWidth));
-				}
-			}
+			fillEventLists(branch, eventTimes, eventLabels, eventColors, eventImages);
+			plotVerticalMarkers(plot, eventTimes, eventLabels, eventColors);
 
 		} else {	// Other domains are plotted as image annotations
-			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
-			List<Double> domain = dataBranch.get(config.getDomainAxisType());
-
-			LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
-
-			for (int i = 0; i < eventTimes.size(); i++) {
-				double t = eventTimes.get(i);
-				Image image = eventImages.get(i);
-
-				if (image == null)
-					continue;
-
-				double xcoord = domainInterpolator.getValue(t);
-
-				for (int index = 0; index < config.getTypeCount(); index++) {
-					FlightDataType type = config.getType(index);
-					List<Double> range = dataBranch.get(type);
-
-					LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
-					// Image annotations are not supported on the right-side axis
-					// TODO: LOW: Can this be achieved by JFreeChart?
-					if (filled.getAxis(index) != SimulationPlotPanel.LEFT) {
-						continue;
-					}
-
-					double ycoord = rangeInterpolator.getValue(t);
-
-					// Convert units
-					xcoord = config.getDomainAxisUnit().toUnit(xcoord);
-					ycoord = config.getUnit(index).toUnit(ycoord);
-
-					// Get the sample index of the flight event. Because this can be an interpolation between two samples,
-					// take the closest sample.
-					final int sampleIdx;
-					Optional<Double> closestSample = time.stream()
-							.min(Comparator.comparingDouble(sample -> Math.abs(sample - t)));
-					sampleIdx = closestSample.map(time::indexOf).orElse(-1);
-
-					String tooltipText = formatSampleTooltip(eventLabels.get(i), xcoord, config.getDomainAxisUnit().getUnit(), sampleIdx) ;
-
-					XYImageAnnotation annotation =
-							new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
-					annotation.setToolTipText(tooltipText);
-					plot.addAnnotation(annotation);
+			if (branch == -1) {
+				// For icon markers, we need to do the plotting separately, otherwise you can have icon markers from e.g.
+				// branch 1 be plotted on branch 0
+				for (int b = 0; b < simulation.getSimulatedData().getBranchCount(); b++) {
+					fillEventLists(b, eventTimes, eventLabels, eventColors, eventImages);
+					dataBranch = simulation.getSimulatedData().getBranch(b);
+					plotIconMarkers(plot, dataBranch, eventTimes, eventLabels, eventImages);
+					eventTimes.clear();
+					eventLabels.clear();
+					eventColors.clear();
+					eventImages.clear();
 				}
+			} else {
+				fillEventLists(branch, eventTimes, eventLabels, eventColors, eventImages);
+				plotIconMarkers(plot, dataBranch, eventTimes, eventLabels, eventImages);
+			}
+		}
+	}
+
+	private void fillEventLists(int branch, List<Double> eventTimes, List<String> eventLabels,
+								List<Color> eventColors, List<Image> eventImages) {
+		HashSet<FlightEvent.Type> typeSet = new HashSet<>();
+		double prevTime = -100;
+		String text = null;
+		Color color = null;
+		Image image = null;
+		for (EventDisplayInfo info : eventList) {
+			if (branch >= 0 && branch != info.stage) {
+				continue;
+			}
+
+			double t = info.time;
+			FlightEvent.Type type = info.event.getType();
+
+			if (Math.abs(t - prevTime) <= 0.05) {
+				if (!typeSet.contains(type)) {
+					text = text + ", " + type.toString();
+					color = EventGraphics.getEventColor(type);
+					image = EventGraphics.getEventImage(type);
+					typeSet.add(type);
+				}
+
+			} else {
+				if (text != null) {
+					eventTimes.add(prevTime);
+					eventLabels.add(text);
+					eventColors.add(color);
+					eventImages.add(image);
+				}
+				prevTime = t;
+				text = type.toString();
+				color = EventGraphics.getEventColor(type);
+				image = EventGraphics.getEventImage(type);
+				typeSet.clear();
+				typeSet.add(type);
+			}
+
+		}
+		if (text != null) {
+			eventTimes.add(prevTime);
+			eventLabels.add(text);
+			eventColors.add(color);
+			eventImages.add(image);
+		}
+	}
+
+	private static void plotVerticalMarkers(XYPlot plot, List<Double> eventTimes, List<String> eventLabels, List<Color> eventColors) {
+		double markerWidth = 0.01 * plot.getDomainAxis().getUpperBound();
+
+		// Domain time is plotted as vertical markers
+		for (int i = 0; i < eventTimes.size(); i++) {
+			double t = eventTimes.get(i);
+			String event = eventLabels.get(i);
+			Color color = eventColors.get(i);
+
+			ValueMarker m = new ValueMarker(t);
+			m.setLabel(event);
+			m.setPaint(color);
+			m.setLabelPaint(color);
+			m.setAlpha(0.7f);
+			m.setLabelFont(new Font("Dialog", Font.PLAIN, 13));
+			plot.addDomainMarker(m);
+
+			if (t > plot.getDomainAxis().getUpperBound() - markerWidth) {
+				plot.setDomainAxis(new PresetNumberAxis(plot.getDomainAxis().getLowerBound(), t + markerWidth));
+			}
+		}
+	}
+
+	private void plotIconMarkers(XYPlot plot, FlightDataBranch dataBranch, List<Double> eventTimes,
+								List<String> eventLabels, List<Image> eventImages) {
+		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> domain = dataBranch.get(config.getDomainAxisType());
+
+		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
+
+		for (int i = 0; i < eventTimes.size(); i++) {
+			double t = eventTimes.get(i);
+			Image image = eventImages.get(i);
+
+			if (image == null) {
+				continue;
+			}
+
+			double xcoord = domainInterpolator.getValue(t);
+
+			for (int index = 0; index < config.getTypeCount(); index++) {
+				FlightDataType type = config.getType(index);
+				List<Double> range = dataBranch.get(type);
+
+				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
+				// Image annotations are not supported on the right-side axis
+				// TODO: LOW: Can this be achieved by JFreeChart?
+				if (filled.getAxis(index) != SimulationPlotPanel.LEFT) {
+					continue;
+				}
+
+				double ycoord = rangeInterpolator.getValue(t);
+
+				// Convert units
+				xcoord = config.getDomainAxisUnit().toUnit(xcoord);
+				ycoord = config.getUnit(index).toUnit(ycoord);
+
+				// Get the sample index of the flight event. Because this can be an interpolation between two samples,
+				// take the closest sample.
+				final int sampleIdx;
+				Optional<Double> closestSample = time.stream()
+						.min(Comparator.comparingDouble(sample -> Math.abs(sample - t)));
+				sampleIdx = closestSample.map(time::indexOf).orElse(-1);
+
+				String tooltipText = formatSampleTooltip(eventLabels.get(i), xcoord, config.getDomainAxisUnit().getUnit(), sampleIdx) ;
+
+				XYImageAnnotation annotation =
+						new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
+				annotation.setToolTipText(tooltipText);
+				plot.addAnnotation(annotation);
 			}
 		}
 	}
