@@ -421,7 +421,7 @@ public class SimulationPlot {
 		// Plot the markers
 		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false)) {
 			fillEventLists(branch, eventTimes, eventLabels, eventColors, eventImages);
-			plotVerticalMarkers(plot, eventTimes, eventLabels, eventColors);
+			plotVerticalLineMarkers(plot, eventTimes, eventLabels, eventColors);
 
 		} else {	// Other domains are plotted as image annotations
 			if (branch == -1) {
@@ -490,10 +490,10 @@ public class SimulationPlot {
 		}
 	}
 
-	private static void plotVerticalMarkers(XYPlot plot, List<Double> eventTimes, List<String> eventLabels, List<Color> eventColors) {
+	private static void plotVerticalLineMarkers(XYPlot plot, List<Double> eventTimes, List<String> eventLabels, List<Color> eventColors) {
 		double markerWidth = 0.01 * plot.getDomainAxis().getUpperBound();
 
-		// Domain time is plotted as vertical markers
+		// Domain time is plotted as vertical lines
 		for (int i = 0; i < eventTimes.size(); i++) {
 			double t = eventTimes.get(i);
 			String event = eventLabels.get(i);
