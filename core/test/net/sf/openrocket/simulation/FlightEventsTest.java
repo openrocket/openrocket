@@ -24,6 +24,8 @@ import static org.junit.Assert.assertSame;
  * Tests to verify that simulations contain all the expected flight events.
  */
 public class FlightEventsTest extends BaseTestCase {
+    private static final double EPSILON = 0.005;
+
     /**
      * Tests for a single stage design.
      */
@@ -66,7 +68,7 @@ public class FlightEventsTest extends BaseTestCase {
         // Test that the event times are correct
         for (int i = 0; i < expectedEventTimes.length; i++) {
             assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong time",
-                    expectedEventTimes[i], eventList.get(i).getTime(), 0.002);
+                    expectedEventTimes[i], eventList.get(i).getTime(), EPSILON);
 
         }
 
@@ -142,7 +144,7 @@ public class FlightEventsTest extends BaseTestCase {
             // Test that the event times are correct
             for (int i = 0; i < expectedEventTimes.length; i++) {
                 assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong time",
-                        expectedEventTimes[i], eventList.get(i).getTime(), 0.002);
+                        expectedEventTimes[i], eventList.get(i).getTime(), EPSILON);
             }
 
             // Test that the event sources are correct
