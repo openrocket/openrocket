@@ -82,7 +82,7 @@ public class LinearInterpolator implements Cloneable {
 
 		if ( y1 != null ) {
 			// Wow, x was a key in the map.  Such luck.
-			return y1.doubleValue();
+			return y1;
 		}
 
 		// we now know that x is not in the map, so we need to find the lower and higher keys.
@@ -96,16 +96,16 @@ public class LinearInterpolator implements Cloneable {
 		Double firstKey = sortMap.firstKey();
 
 		// x is smaller than the first entry in the map.
-		if ( x < firstKey.doubleValue() ) {
+		if ( x < firstKey) {
 			y1 = sortMap.get(firstKey);
-			return y1.doubleValue();
+			return y1;
 		}
 		
 		// floor key is the largest key smaller than x - since we have at least one key,
 		// and x>=firstKey, we know that floorKey != null.
 		Double floorKey = sortMap.subMap(firstKey, x).lastKey();
 
-		x1 = floorKey.doubleValue();
+		x1 = floorKey;
 		y1 = sortMap.get(floorKey);
 
 		// Now we need to find the key that is greater or equal to x
@@ -113,16 +113,16 @@ public class LinearInterpolator implements Cloneable {
 
 		// Check if x is bigger than all the entries.
 		if ( tailMap.isEmpty() ) {
-			return y1.doubleValue();
+			return y1;
 		}
 		Double ceilKey = tailMap.firstKey();
 		
 		// Check if x is bigger than all the entries.
 		if ( ceilKey == null ) {
-			return y1.doubleValue();
+			return y1;
 		}
 		
-		x2 = ceilKey.doubleValue();
+		x2 = ceilKey;
 		y2 = sortMap.get(ceilKey);
 
 		return (x - x1)/(x2-x1) * (y2-y1) + y1;

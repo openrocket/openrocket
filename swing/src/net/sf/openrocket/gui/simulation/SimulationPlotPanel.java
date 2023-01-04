@@ -9,12 +9,15 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -29,11 +32,13 @@ import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -47,6 +52,7 @@ public class SimulationPlotPanel extends JPanel {
 	private static final long serialVersionUID = -2227129713185477998L;
 
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	// TODO: LOW: Should these be somewhere else?
 	public static final int AUTO = -1;
@@ -201,7 +207,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		this.add(scroll, "spany 2, height 10px, wmin 400lp, grow 100, gapright para");
+		this.add(scroll, "spany 3, height 10px, wmin 400lp, grow 100, gapright para");
 		
 		
 		//// Flight events
@@ -244,10 +250,46 @@ public class SimulationPlotPanel extends JPanel {
 				eventTableModel.fireTableDataChanged();
 			}
 		});
-		this.add(button, "gapleft para, gapright para, growx, sizegroup buttons, wrap para");
+		this.add(button, "gapleft para, gapright para, growx, sizegroup buttons, wrap");
 		
-		
-		
+
+		//// Style event marker
+		JLabel styleEventMarker = new JLabel(trans.get("simplotpanel.MarkerStyle.lbl.MarkerStyle"));
+		JRadioButton radioVerticalMarker = new JRadioButton(trans.get("simplotpanel.MarkerStyle.btn.VerticalMarker"));
+		JRadioButton radioIcon = new JRadioButton(trans.get("simplotpanel.MarkerStyle.btn.Icon"));
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(radioVerticalMarker);
+		bg.add(radioIcon);
+
+		boolean useIcon = preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false);
+		if (useIcon) {
+			radioIcon.setSelected(true);
+		} else {
+			radioVerticalMarker.setSelected(true);
+		}
+
+		radioIcon.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (modifying > 0)
+					return;
+				preferences.putBoolean(Preferences.MARKER_STYLE_ICON, radioIcon.isSelected());
+			}
+		});
+
+		domainTypeSelector.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateStyleEventWidgets(styleEventMarker, radioVerticalMarker, radioIcon);
+			}
+		});
+		updateStyleEventWidgets(styleEventMarker, radioVerticalMarker, radioIcon);
+
+		this.add(styleEventMarker, "split 3, growx");
+		this.add(radioVerticalMarker);
+		this.add(radioIcon, "wrap para");
+
+
 		//// New Y axis plot type
 		button = new SelectColorButton(trans.get("simplotpanel.but.NewYaxisplottype"));
 		button.addActionListener(new ActionListener() {
@@ -321,6 +363,19 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(button, "right");
 		*/
 		updatePlots();
+	}
+
+	private void updateStyleEventWidgets(JLabel styleEventMarker, JRadioButton radioVerticalMarker, JRadioButton radioIcon) {
+		if (modifying > 0)
+			return;
+		FlightDataType type = (FlightDataType) domainTypeSelector.getSelectedItem();
+		boolean isTime = type == FlightDataType.TYPE_TIME;
+		styleEventMarker.setEnabled(isTime);
+		radioVerticalMarker.setEnabled(isTime);
+		radioIcon.setEnabled(isTime);
+		styleEventMarker.setToolTipText(isTime ? trans.get("simplotpanel.MarkerStyle.lbl.MarkerStyle.ttip") : trans.get("simplotpanel.MarkerStyle.OnlyInTime"));
+		radioVerticalMarker.setToolTipText(isTime ? null : trans.get("simplotpanel.MarkerStyle.OnlyInTime"));
+		radioIcon.setToolTipText(isTime ? null : trans.get("simplotpanel.MarkerStyle.OnlyInTime"));
 	}
 	
 	public JDialog doPlot(Window parent) {
