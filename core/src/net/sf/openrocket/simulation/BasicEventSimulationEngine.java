@@ -396,7 +396,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			case IGNITION: {
 				MotorClusterState motorState = (MotorClusterState) event.getData();
-				
+
+				// If there are multiple ignition events (as is the case if the preceding stage has several burnout events, for instance)
+				// We get multiple ignition events for the upper stage motor.  Ignore are all after the first.
+				if (motorState.getIgnitionTime() < currentStatus.getSimulationTime()) {
+					log.info("Ignoring motor " +motorState.toDescription()+" ignition event @"+currentStatus.getSimulationTime());
+					continue;
+				}
 				log.info("  Igniting motor: "+motorState.toDescription()+" @"+currentStatus.getSimulationTime());
 				motorState.ignite( event.getTime());
 
