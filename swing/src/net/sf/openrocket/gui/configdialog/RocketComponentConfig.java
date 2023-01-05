@@ -73,7 +73,10 @@ public class RocketComponentConfig extends JPanel {
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
-	
+
+	private DescriptionArea componentInfo;
+	private IconToggleButton infoBtn;
+
 	private JPanel buttonPanel;
 	protected JButton closeButton;
 	private AppearancePanel appearancePanel = null;
@@ -177,6 +180,12 @@ public class RocketComponentConfig extends JPanel {
 	 * Add a section to the component configuration dialog that displays information about the component.
 	 */
 	private void addComponentInfo(JPanel buttonPanel) {
+		// Don't add the info panel if this is a multi-comp edit
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (listeners != null && listeners.size() > 0) {
+			return;
+		}
+
 		final String helpText;
 		final String key = "ComponentInfo." + component.getClass().getSimpleName();
 		if (!trans.checkIfKeyExists(key)) {
@@ -185,13 +194,13 @@ public class RocketComponentConfig extends JPanel {
 		helpText = "<html>" + trans.get(key) + "</html>";
 
 		// Component info
-		DescriptionArea description = new DescriptionArea(helpText, 5);
-		description.setTextFont(null);
-		description.setVisible(false);
-		this.add(description, "gapleft 10, gapright 10, growx, spanx, wrap");
+		componentInfo = new DescriptionArea(helpText, 5);
+		componentInfo.setTextFont(null);
+		componentInfo.setVisible(false);
+		this.add(componentInfo, "gapleft 10, gapright 10, growx, spanx, wrap");
 
 		// Component info toggle button
-		IconToggleButton infoBtn = new IconToggleButton();
+		infoBtn = new IconToggleButton();
 		infoBtn.setToolTipText(trans.get("RocketCompCfg.btn.ComponentInfo.ttip"));
 		infoBtn.setIconScale(1.2f);
 		infoBtn.setSelectedIcon(Icons.HELP_ABOUT);
@@ -202,7 +211,7 @@ public class RocketComponentConfig extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				// Note: we will display the help text if the infoButton is not selected, and hide it if it is selected.
 				// This way, the info button is displayed as "enabled" to draw attention to it.
-				description.setVisible(e.getStateChange() != ItemEvent.SELECTED);
+				componentInfo.setVisible(e.getStateChange() != ItemEvent.SELECTED);
 
 				// Repaint to fit to the new size
 				if (parent != null) {
@@ -217,6 +226,9 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	protected void addButtons(JButton... buttons) {
+		if (componentInfo != null) {
+			this.remove(componentInfo);
+		}
 		if (buttonPanel != null) {
 			this.remove(buttonPanel);
 		}
@@ -298,6 +310,11 @@ public class RocketComponentConfig extends JPanel {
 
 		// Multi-comp edit label
 		if (listeners != null && listeners.size() > 0) {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setVisible(false);
+			}
+
 			multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
 
 			StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
@@ -311,6 +328,11 @@ public class RocketComponentConfig extends JPanel {
 			}
 			multiCompEditLabel.setToolTipText(components.toString());
 		} else {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setSelected(true);
+				infoBtn.setVisible(true);
+			}
 			multiCompEditLabel.setText("");
 		}
 	}
