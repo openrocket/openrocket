@@ -1,6 +1,7 @@
 package net.sf.openrocket.simulation;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
@@ -35,8 +36,10 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		
 		// Get total CD
 		double mach = airSpeed.length() / atmosphere.getMachSpeed();
+		
+		final InstanceMap imap = status.getConfiguration().getActiveInstances();
 		for (RecoveryDevice c : status.getDeployedRecoveryDevices()) {
-			totalCD += c.getCD(mach) * c.getArea() / refArea;
+			totalCD += imap.count(c) * c.getCD(mach) * c.getArea() / refArea;
 		}
 		
 		// Compute drag force
