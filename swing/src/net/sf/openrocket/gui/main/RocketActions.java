@@ -25,7 +25,6 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
