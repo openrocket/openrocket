@@ -94,7 +94,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		// OpenRocket logo
-		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")), "top");
+		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-128.png", "OpenRocket")), "top");
 		
 		
 		// OpenRocket version info + copyright
