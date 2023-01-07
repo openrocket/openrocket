@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +38,7 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
+import net.sf.openrocket.gui.adaptors.TextComponentSelectionKeyListener;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -120,6 +124,7 @@ public class RocketComponentConfig extends JPanel {
 		textFieldListener = new TextFieldListener();
 		componentNameField.addActionListener(textFieldListener);
 		componentNameField.addFocusListener(textFieldListener);
+		componentNameField.addKeyListener(new TextComponentSelectionKeyListener(componentNameField));
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(componentNameField, "growx");
@@ -672,6 +677,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.setEditable(true);
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
+		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));
 		
 		panel.add(new JScrollPane(commentTextArea), "grow");
 		order.add(commentTextArea);
