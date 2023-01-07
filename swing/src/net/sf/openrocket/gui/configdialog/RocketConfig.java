@@ -35,7 +35,7 @@ public class RocketConfig extends RocketComponentConfig {
 		rocket = (Rocket) c;
 		
 		this.removeAll();
-		setLayout(new MigLayout("fill"));
+		setLayout(new MigLayout("fill, hideMode 3"));
 		
 		//// Design name:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designname")), "top, pad 4lp, gapright 10lp");
