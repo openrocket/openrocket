@@ -290,8 +290,8 @@ public class RocketComponentConfig extends JPanel {
 				JPanel msg = createCancelOperationContent();
 				int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
 						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				ComponentConfigDialog.disposeDialog();
 				if (resultYesNo == JOptionPane.YES_OPTION) {
+					ComponentConfigDialog.disposeDialog();
 					document.undo();
 				}
 			}
