@@ -436,6 +436,8 @@ public class AppearancePanel extends JPanel {
 						remove(outsideInsidePane);
 						add(outsidePanel, "span 4, growx, wrap");
 					}
+
+					// Repaint to fit to the new size
 					if (parent != null) {
 						parent.pack();
 					} else {

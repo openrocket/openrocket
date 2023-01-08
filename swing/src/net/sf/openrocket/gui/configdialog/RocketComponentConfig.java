@@ -43,11 +43,14 @@ import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.adaptors.TextComponentSelectionKeyListener;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconToggleButton;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -83,7 +86,10 @@ public class RocketComponentConfig extends JPanel {
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
-	
+
+	private DescriptionArea componentInfo;
+	private IconToggleButton infoBtn;
+
 	private JPanel buttonPanel;
 	protected JButton okButton;
 	protected JButton cancelButton;
@@ -96,7 +102,7 @@ public class RocketComponentConfig extends JPanel {
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
 
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
-		setLayout(new MigLayout("fill, gap 4!, ins panel", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
+		setLayout(new MigLayout("fill, gap 4!, ins panel, hidemode 3", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
 
 		this.document = document;
 		this.component = component;
@@ -188,18 +194,71 @@ public class RocketComponentConfig extends JPanel {
 
 		updateFields();
 	}
-	
+
+	/**
+	 * Add a section to the component configuration dialog that displays information about the component.
+	 */
+	private void addComponentInfo(JPanel buttonPanel) {
+		// Don't add the info panel if this is a multi-comp edit
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (listeners != null && listeners.size() > 0) {
+			return;
+		}
+
+		final String helpText;
+		final String key = "ComponentInfo." + component.getClass().getSimpleName();
+		if (!trans.checkIfKeyExists(key)) {
+			return;
+		}
+		helpText = "<html>" + trans.get(key) + "</html>";
+
+		// Component info
+		componentInfo = new DescriptionArea(helpText, 5);
+		componentInfo.setTextFont(null);
+		componentInfo.setVisible(false);
+		this.add(componentInfo, "gapleft 10, gapright 10, growx, spanx, wrap");
+
+		// Component info toggle button
+		infoBtn = new IconToggleButton();
+		infoBtn.setToolTipText(trans.get("RocketCompCfg.btn.ComponentInfo.ttip"));
+		infoBtn.setIconScale(1.2f);
+		infoBtn.setSelectedIcon(Icons.HELP_ABOUT);
+		buttonPanel.add(infoBtn, "split 3, gapright para");
+
+		infoBtn.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// Note: we will display the help text if the infoButton is not selected, and hide it if it is selected.
+				// This way, the info button is displayed as "enabled" to draw attention to it.
+				componentInfo.setVisible(e.getStateChange() != ItemEvent.SELECTED);
+
+				// Repaint to fit to the new size
+				if (parent != null) {
+					parent.pack();
+				} else {
+					updateUI();
+				}
+			}
+		});
+
+		infoBtn.setSelected(true);
+	}
 	
 	protected void addButtons(JButton... buttons) {
+		if (componentInfo != null) {
+			this.remove(componentInfo);
+		}
 		if (buttonPanel != null) {
 			this.remove(buttonPanel);
 		}
 		
-		buttonPanel = new JPanel(new MigLayout("fillx, ins 5"));
+		buttonPanel = new JPanel(new MigLayout("fill, ins 5, hidemode 3"));
+
+		//// Component info
+		addComponentInfo(buttonPanel);
 
 		//// Multi-comp edit label
 		multiCompEditLabel = new StyledLabel(" ", -1, Style.BOLD);
-		//multiCompEditLabel.setFontColor(new Color(0, 0, 239));
 		multiCompEditLabel.setFontColor(new Color(170, 0, 100));
 		buttonPanel.add(multiCompEditLabel, "split 2");
 
@@ -322,6 +381,11 @@ public class RocketComponentConfig extends JPanel {
 
 		// Multi-comp edit label
 		if (listeners != null && listeners.size() > 0) {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setVisible(false);
+			}
+
 			multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
 
 			StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
@@ -335,6 +399,11 @@ public class RocketComponentConfig extends JPanel {
 			}
 			multiCompEditLabel.setToolTipText(components.toString());
 		} else {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setSelected(true);
+				infoBtn.setVisible(true);
+			}
 			multiCompEditLabel.setText("");
 		}
 	}

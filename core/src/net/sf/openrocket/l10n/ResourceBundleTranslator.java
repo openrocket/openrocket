@@ -66,4 +66,14 @@ public class ResourceBundleTranslator implements Translator {
 		}
 		return translation;
 	}
+
+	@Override
+	public boolean checkIfKeyExists(String key) {
+		try {
+			get(key);
+			return true;
+		} catch (MissingResourceException e) {
+			return false;
+		}
+	}
 }

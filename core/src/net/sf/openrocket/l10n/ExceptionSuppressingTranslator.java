@@ -52,7 +52,16 @@ public class ExceptionSuppressingTranslator implements Translator {
 	public String getBaseText(String base, String translation) {
 		return translator.getBaseText(base, translation);
 	}
-	
+
+	@Override
+	public boolean checkIfKeyExists(String key) {
+		try {
+			translator.get(key);
+			return true;
+		} catch (MissingResourceException e) {
+			return false;
+		}
+	}
 	
 	private static synchronized void handleError(String key, MissingResourceException e) {
 		if (!errorReported) {
