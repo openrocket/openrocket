@@ -482,6 +482,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
+		// The motor config also has listeners, so clear them as well
 		getDefaultMotorConfig().clearConfigListeners();
 	}
 	

@@ -448,6 +448,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		// Make sure the config listeners aren't cloned
 		clone.configListeners = new LinkedList<>();
+		clone.bypassComponentChangeEvent = false;
 		return clone;
 	}
 	
@@ -603,7 +604,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		for (RocketComponent listener : configListeners) {
 			listener.setBypassChangeEvent(false);
 			listener.setMassOverridden(o);
-			listener.setBypassChangeEvent(false);
+			listener.setBypassChangeEvent(true);
 		}
 
 		if (massOverridden == o) {
@@ -2277,7 +2278,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.bypassComponentChangeEvent = newValue;
 	}
 
-	public boolean getBypassComponentChangeEvent() {
+	/**
+	 * Returns whether the current component if ignoring ComponentChangeEvents.
+	 * @return true if the component is ignoring ComponentChangeEvents.
+	 */
+	public boolean isBypassComponentChangeEvent() {
 		return this.bypassComponentChangeEvent;
 	}
 
@@ -2287,7 +2292,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return true if listener was successfully added, false if not
 	 */
 	public boolean addConfigListener(RocketComponent listener) {
-		if (listener == null || configListeners.contains(listener) || listener == this) {
+		if (isBypassComponentChangeEvent()) {
+			// This is a precaution. If you are multi-comp editing and the current component is bypassing events,
+			// the editing will be REALLY weird, see GitHub issue #1956.
+			throw new IllegalStateException("Cannot add config listener while bypassing events");
+		}
+		if (listener == null) {
+			return false;
+		}
+		if (listener.getConfigListeners().size() > 0) {
+			throw new IllegalArgumentException("Listener already has config listeners");
+		}
+		if (configListeners.contains(listener) || listener == this) {
 			return false;
 		}
 		configListeners.add(listener);
@@ -2555,6 +2571,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.displayOrder_side = src.displayOrder_side;
 		this.displayOrder_back = src.displayOrder_back;
 		this.configListeners = new LinkedList<>();
+		this.bypassComponentChangeEvent = false;
 		if (this instanceof InsideColorComponent && src instanceof InsideColorComponent) {
 			InsideColorComponentHandler icch = new InsideColorComponentHandler(this);
 			icch.copyFrom(((InsideColorComponent) src).getInsideColorComponentHandler());
