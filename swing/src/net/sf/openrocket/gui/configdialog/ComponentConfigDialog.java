@@ -46,7 +46,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private RocketComponentConfig configurator = null;
 	private boolean isModified = false;
 	private final boolean isNewComponent;
-	protected static boolean clearConfigListeners = true;
+	public static boolean clearConfigListeners = true;
 	private static String previousSelectedTab = null;	// Name of the previous selected tab
 
 

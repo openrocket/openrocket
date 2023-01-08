@@ -277,6 +277,7 @@ public class RocketComponentConfig extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (preferences.getBoolean(IGNORE_DISCARD_EDITING_WARNING, false)) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
 					ComponentConfigDialog.disposeDialog();
 					document.undo();
 					return;
@@ -291,6 +292,7 @@ public class RocketComponentConfig extends JPanel {
 				int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
 						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (resultYesNo == JOptionPane.YES_OPTION) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
 					ComponentConfigDialog.disposeDialog();
 					document.undo();
 				}
