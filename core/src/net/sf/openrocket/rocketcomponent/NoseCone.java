@@ -1,14 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.StateChangeListener;
-
-import java.util.EventObject;
 
 /**
  * Rocket nose cones of various types.  Implemented as a transition with the
@@ -195,10 +190,17 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	 * @param sanityCheck whether to check if the auto radius parameter can be used for the new nose cone orientation
 	 */
 	public void setFlipped(boolean flipped, boolean sanityCheck) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof NoseCone) {
+				((NoseCone) listener).setFlipped(flipped, sanityCheck);
+			}
+		}
+
 		if (isFlipped == flipped) {
 			return;
 		}
 
+		boolean previousByPass = isBypassComponentChangeEvent();
 		setBypassChangeEvent(true);
 		if (flipped) {
 			setForeRadius(getAftRadiusNoAutomatic());
@@ -219,7 +221,7 @@ public class NoseCone extends Transition implements InsideColorComponent {
 
 			resetForeRadius();
 		}
-		setBypassChangeEvent(false);
+		setBypassChangeEvent(previousByPass);
 
 		isFlipped = flipped;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);

@@ -549,6 +549,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
+		// The motor config also has listeners, so clear them as well
 		getDefaultMotorConfig().clearConfigListeners();
 	}
 }
