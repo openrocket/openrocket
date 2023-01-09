@@ -636,6 +636,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			if (event.isShiftDown() || event.isMetaDown()) {
 				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
 				RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
+				component.clearConfigListeners();
 
 				// Make sure the clicked component is selected
 				for (RocketComponent c : clicked) {

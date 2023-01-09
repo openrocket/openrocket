@@ -241,6 +241,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	@Override
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
+		// StageSeparationConfiguration also has config listeners, so clear them as well
 		StageSeparationConfiguration thisConfig = getSeparationConfiguration();
 		thisConfig.clearConfigListeners();
 	}

@@ -177,6 +177,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	@Override
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
+		// The DeploymentConfiguration also has listeners, so clear them as well
 		DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
 		thisConfig.clearConfigListeners();
 	}

@@ -984,6 +984,7 @@ public class RocketActions {
 					ComponentConfigDialog.disposeDialog();
 
 				RocketComponent component = components.get(0);
+				component.clearConfigListeners();
 				if (components.size() > 1) {
 					for (int i = 1; i < components.size(); i++) {
 						RocketComponent listener = components.get(i);

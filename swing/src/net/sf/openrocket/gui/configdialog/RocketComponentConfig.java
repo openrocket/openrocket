@@ -22,6 +22,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -56,18 +57,24 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 
 public class RocketComponentConfig extends JPanel {
 	private static final long serialVersionUID = -2925484062132243982L;
 
+	// Preference key
+	private static final String IGNORE_DISCARD_EDITING_WARNING = "IgnoreDiscardEditingWarning";
+
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences preferences = Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
-	protected final JDialog parent;
+	protected final ComponentConfigDialog parent;
+	protected boolean isNewComponent = false;		// Checks whether this config dialog is editing an existing component, or a new one
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
 	protected final List<Component> order = new ArrayList<>();		// Component traversal order
@@ -84,7 +91,8 @@ public class RocketComponentConfig extends JPanel {
 	private IconToggleButton infoBtn;
 
 	private JPanel buttonPanel;
-	protected JButton closeButton;
+	protected JButton okButton;
+	protected JButton cancelButton;
 	private AppearancePanel appearancePanel = null;
 	
 	private JLabel infoLabel;
@@ -98,7 +106,11 @@ public class RocketComponentConfig extends JPanel {
 
 		this.document = document;
 		this.component = component;
-		this.parent = parent;
+		if (parent instanceof ComponentConfigDialog) {
+			this.parent = (ComponentConfigDialog) parent;
+		} else {
+			this.parent = null;
+		}
 
 		// Check the listeners for the same type and massive status
 		allSameType = true;
@@ -257,20 +269,74 @@ public class RocketComponentConfig extends JPanel {
 		for (JButton b : buttons) {
 			buttonPanel.add(b, "right, gap para");
 		}
-		
-		//// Close button
-		this.closeButton = new SelectColorButton(trans.get("dlg.but.close"));
-		closeButton.addActionListener(new ActionListener() {
+
+		//// Cancel button
+		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		this.cancelButton.setToolTipText(trans.get("RocketCompCfg.btn.Cancel.ttip"));
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (preferences.getBoolean(IGNORE_DISCARD_EDITING_WARNING, false)) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
+					ComponentConfigDialog.disposeDialog();
+					document.undo();
+					return;
+				}
+				if (!isNewComponent && parent != null && !parent.isModified()) {
+					ComponentConfigDialog.disposeDialog();
+					return;
+				}
+
+				// Yes/No dialog: Are you sure you want to discard your changes?
+				JPanel msg = createCancelOperationContent();
+				int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
+						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (resultYesNo == JOptionPane.YES_OPTION) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
+					ComponentConfigDialog.disposeDialog();
+					document.undo();
+				}
+			}
+		});
+		buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
+
+		//// Ok button
+		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		this.okButton.setToolTipText(trans.get("RocketCompCfg.btn.OK.ttip"));
+		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ComponentConfigDialog.disposeDialog();
 			}
 		});
-		buttonPanel.add(closeButton, "right, gap 30lp");
-		
+		buttonPanel.add(okButton);
+
 		updateFields();
 		
 		this.add(buttonPanel, "newline, spanx, growx");
+	}
+
+	private JPanel createCancelOperationContent() {
+		JPanel panel = new JPanel(new MigLayout());
+		String msg = isNewComponent ? trans.get("RocketCompCfg.CancelOperation.msg.undoAdd") :
+				trans.get("RocketCompCfg.CancelOperation.msg.discardChanges");
+		JLabel msgLabel = new JLabel(msg);
+		JCheckBox dontAskAgain = new JCheckBox(trans.get("RocketCompCfg.CancelOperation.checkbox.dontAskAgain"));
+		dontAskAgain.setSelected(false);
+		dontAskAgain.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					preferences.putBoolean(IGNORE_DISCARD_EDITING_WARNING, true);
+				}
+				// Unselected state should be impossible
+			}
+		});
+
+		panel.add(msgLabel, "left, wrap");
+		panel.add(dontAskAgain, "left, gaptop para");
+
+		return panel;
 	}
 	
 	
@@ -852,6 +918,14 @@ public class RocketComponentConfig extends JPanel {
 		order.add(check);
 
 		panel.add(sub);
+	}
+
+	/**
+	 * Sets whether this dialog is editing a new component (true), or an existing one (false).
+	 * @param newComponent true if this dialog is editing a new component.
+	 */
+	public void setNewComponent(boolean newComponent) {
+		isNewComponent = newComponent;
 	}
 
 	/*

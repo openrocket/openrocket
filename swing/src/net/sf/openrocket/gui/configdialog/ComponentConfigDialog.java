@@ -1,15 +1,11 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -48,16 +44,19 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private OpenRocketDocument document = null;
 	protected RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
-	protected static boolean clearConfigListeners = true;
+	private boolean isModified = false;
+	private final boolean isNewComponent;
+	public static boolean clearConfigListeners = true;
 	private static String previousSelectedTab = null;	// Name of the previous selected tab
 
 
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
 
-	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component) {
+	private ComponentConfigDialog(Window parent, OpenRocketDocument document, RocketComponent component, boolean isNewComponent) {
 		super(parent);
 		this.parent = parent;
+		this.isNewComponent = isNewComponent;
 
 		setComponent(document, component);
 
@@ -104,8 +103,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		this.document = document;
 		this.component = component;
 		this.document.getRocket().addComponentChangeListener(this);
+		this.isModified = false;
 
 		configurator = getDialogContents();
+		configurator.setNewComponent(isNewComponent);
 		this.setContentPane(configurator);
 		configurator.updateFields();
 
@@ -172,10 +173,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isTreeChange() || e.isUndoChange()) {
-
 			// Hide dialog in case of tree or undo change
 			disposeDialog();
-
 		} else {
 			/*
 			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)
@@ -183,8 +182,13 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			 * root cause should be analyzed.
 			 * [Openrocket-bugs] 2009-12-12 19:23:22 Automatic bug report for OpenRocket 0.9.5
 			 */
-			if (configurator != null)
+			if (configurator != null) {
 				configurator.updateFields();
+			}
+			if (!this.isModified) {
+				setTitle("*" + getTitle());
+				this.isModified = true;
+			}
 		}
 	}
 
@@ -261,7 +265,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			previousSelectedTab = null;
 		}
 
-		dialog = new ComponentConfigDialog(parent, document, component);
+		dialog = new ComponentConfigDialog(parent, document, component, isNewComponent);
 		dialog.setVisible(true);
 		if (parent instanceof BasicFrame && BasicFrame.getStartupFrame() == parent) {
 			WindowLocationUtil.moveIfOutsideOfParentMonitor(dialog, parent);
@@ -333,6 +337,13 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static boolean isDialogVisible() {
 		return (dialog != null) && (dialog.isVisible());
+	}
+
+	/**
+	 * Returns true if the current component has been modified or not.
+	 */
+	public boolean isModified() {
+		return isModified;
 	}
 
 	public int getSelectedTabIndex() {

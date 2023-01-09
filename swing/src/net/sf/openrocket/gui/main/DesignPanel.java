@@ -105,6 +105,7 @@ public class DesignPanel extends JSplitPane {
                     // Double-click
                     if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
                         RocketComponent component = (RocketComponent) selPath.getLastPathComponent();
+                        component.clearConfigListeners();
 
                         // Multi-component edit if shift/meta key is pressed
                         if ((e.isShiftDown() || e.isMetaDown()) && tree.getSelectionPaths() != null) {
