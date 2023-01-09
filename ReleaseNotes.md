@@ -13,7 +13,7 @@ Release Notes
 
 </div>
 
-<div id="22.02.RC1">
+<div id="22.02.RC.01">
 
 </div>
 
