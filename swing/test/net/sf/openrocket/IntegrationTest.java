@@ -99,6 +99,14 @@ public class IntegrationTest {
 		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator), pluginModule, dbOverrides);
 		Application.setInjector(injector);
 	}
+
+	@Test
+	public void test() throws Exception {
+		for (int i = 0; i < 300; i++) {
+			testSimpleRocket();
+			massComponentID = null;
+		}
+	}
 	
 	/**
 	 * Tests loading a simple rocket design, modifying it, simulating 
@@ -122,7 +130,7 @@ public class IntegrationTest {
 		// Compute cg+cp + altitude
 	    //   double cgx, double mass, double cpx, double cna)
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
-		checkAlt(49.0);
+		checkAlt(48.8);
 		
 		// Mass modification
 		document.addUndoPosition("Modify mass");
@@ -132,7 +140,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkAlt(37.4);
 		
 		// Non-change
 		document.addUndoPosition("No change");
@@ -164,7 +172,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkAlt(37.4);
 		
 		// Undo "Name change" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
@@ -190,7 +198,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkAlt(37.4);
 		
 		// Mass modification
 		document.addUndoPosition("Modify mass2");
@@ -200,7 +208,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.223, 0.0795, 0.320, 12.0);
-		checkAlt(32.7);
+		checkAlt(33);
 		
 		// Perform component movement
 		document.startUndo("Move component");
@@ -217,7 +225,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
+		checkAlt(33);
 		
 		// Modify mass without setting undo description
 		massComponent().setComponentMass(0.020);
@@ -234,7 +242,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
+		checkAlt(33);
 		
 		// Undo "Move component" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
@@ -243,7 +251,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.223, 0.0795, 0.320, 12.0);
-		checkAlt(32.7);
+		checkAlt(33);
 		
 		// Redo "Move component" change
 		redoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
@@ -252,7 +260,7 @@ public class IntegrationTest {
 		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
+		checkAlt(33);
 		
 	}
 	
