@@ -99,6 +99,14 @@ public class IntegrationTest {
 		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator), pluginModule, dbOverrides);
 		Application.setInjector(injector);
 	}
+
+	@Test
+	public void test() throws Exception {
+		for (int i = 0; i < 300; i++) {
+			testSimpleRocket();
+			massComponentID = null;
+		}
+	}
 	
 	/**
 	 * Tests loading a simple rocket design, modifying it, simulating 
