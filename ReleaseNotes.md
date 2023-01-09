@@ -13,6 +13,10 @@ Release Notes
 
 </div>
 
+<div id="22.02.RC1">
+
+</div>
+
 <div id="22.02.beta.05">
 
 OpenRocket 22.02.beta.05 (2022-09-28)
