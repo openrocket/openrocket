@@ -215,7 +215,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 	}
 
 	protected JPanel positionTab() {
-		JPanel panel = new JPanel(new MigLayout("align 20% 20%, gap rel unrel",
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 35",
 				"[][65lp::][30lp::]", ""));
 
 		////  Radial position
@@ -237,7 +237,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1, 1.0));
 		//// Distance from the rocket centerline
 		bs.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
-		panel.add(bs, "w 100lp, wrap");
+		panel.add(bs, "w 130lp, wrap");
 
 
 		//// Radial direction
@@ -259,7 +259,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		bs = new BasicSlider(m.getSliderModel(-Math.PI, Math.PI));
 		//// The radial direction from the rocket centerline
 		bs.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
-		panel.add(bs, "w 100lp, wrap");
+		panel.add(bs, "w 130lp, wrap");
 
 
 		//// Reset button
@@ -277,7 +277,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(button);
 
 
-		DescriptionArea note = new DescriptionArea(3);
+		DescriptionArea note = new DescriptionArea(4);
 		//// Note: An inner tube will not affect the aerodynamics of the rocket even if located outside the body tube.
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
@@ -340,7 +340,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		subPanel.add(new UnitSelector(dm), "growx");
-		bs = new BasicSlider(dm.getSliderModel(-Math.PI, 0, Math.PI));
+		bs = new BasicSlider(dm.getSliderModel());
 		//// Rotation angle of the cluster configuration
 		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(bs, "w 100lp, wrap para");

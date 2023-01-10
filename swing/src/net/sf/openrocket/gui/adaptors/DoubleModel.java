@@ -443,8 +443,14 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 				fireStateChanged();
 		}
 	}
-	
-	
+
+	public BoundedRangeModel getSliderModel() {
+		if (minValue == Double.NEGATIVE_INFINITY || maxValue == Double.POSITIVE_INFINITY) {
+			throw new IllegalArgumentException("Cannot create slider model for unbounded range");
+		}
+		return new ValueSliderModel(minValue, maxValue);
+	}
+
 	public BoundedRangeModel getSliderModel(DoubleModel min, DoubleModel max) {
 		return new ValueSliderModel(min, max);
 	}
