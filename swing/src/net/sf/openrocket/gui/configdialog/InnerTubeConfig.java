@@ -65,7 +65,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		super(d, c, parent);
 
 		//// General and General properties
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][15lp]", ""));
 
 		DoubleModel m;
 		JSpinner spin;
@@ -87,7 +87,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "wmin 100lp, growx, wrap");
+		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "growx, wrap");
 
 		if (od.isAutomaticAvailable()) {
 			JCheckBox check = new JCheckBox(od.getAutomaticAction());
@@ -108,7 +108,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "wmin 100lp, growx, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "growx, wrap");
 
 		if (m.isAutomaticAvailable()) {
 			JCheckBox check = new JCheckBox(m.getAutomaticAction());
@@ -130,7 +130,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "wmin 100lp, growx, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "growx, wrap");
 
 
 		////  Inner tube length
@@ -146,7 +146,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "wmin 100lp, growx, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "growx, wrap");
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
@@ -154,7 +154,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 
 		//// Right side of panel ----
-		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][15lp]", ""));
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		//// Placement
@@ -181,7 +181,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel2.add(new BasicSlider(m.getSliderModel(
 						new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 						new DoubleModel(component.getParent(), "Length"))),
-				"wmin 100lp, growx, wrap");
+				"growx, wrap");
 
 
 
