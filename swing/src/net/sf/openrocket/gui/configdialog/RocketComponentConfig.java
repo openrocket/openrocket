@@ -755,7 +755,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	protected JPanel shoulderTab() {
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fillx"));
 		DoubleModel m0 = new DoubleModel(0);
 		
 		////  Fore shoulder, not for NoseCone
@@ -856,7 +856,7 @@ public class RocketComponentConfig extends JPanel {
 			valueNameShoulder = "Shoulder";
 			valueNameRadius = "BaseRadius";
 			//// Nose cone shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Noseconeshoulder")));
+			sub.setBorder(null);
 		} else {
 			//// Aft shoulder
 			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
