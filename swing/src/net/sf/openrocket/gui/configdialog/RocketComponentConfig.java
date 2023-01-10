@@ -493,8 +493,8 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	private JPanel overrideTab() {
-		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
-				"[][65lp::][30lp::][]", ""));
+		JPanel panel = new JPanel(new MigLayout("align 0% 20%, gap rel unrel",
+				"[][65lp::80lp][::20lp][]", ""));
 		//// Override the mass, center of gravity, or drag coeficient of the component
 
 		JCheckBox check;
@@ -543,7 +543,7 @@ public class RocketComponentConfig extends JPanel {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
-		panel.add(spin, "growx 1");
+		panel.add(spin, "growx 2");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
@@ -552,7 +552,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(0, 0.03, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap");
+		panel.add(bs, "w 150lp, wrap");
 
 		if (component.getMassOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -636,7 +636,7 @@ public class RocketComponentConfig extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
-		panel.add(spin, "growx 1");
+		panel.add(spin, "growx 2");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
@@ -645,7 +645,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(new DoubleModel(0), length));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap");
+		panel.add(bs, "w 150lp, wrap");
 
 		if (component.getCGOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -706,7 +706,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "top, skip, growx 5, w 100lp, wrap");
+		panel.add(bs, "top, skip, w 150lp, wrap");
 
 		if (component.getCDOverriddenBy() != null) {
 			check.setEnabled(false);
