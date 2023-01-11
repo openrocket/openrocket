@@ -43,21 +43,22 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	
 		// only stages which are actually off-centerline will get the dialog here:
 		if( ParallelStage.class.isAssignableFrom( component.getClass()) || PodSet.class.isAssignableFrom( component.getClass())){
-			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Assembly"), null, parallelTab( (ComponentAssembly)component ), trans.get("RocketCompCfg.tab.AssemblyComment"), 0);
+			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Assembly"), null, parallelTab( (ComponentAssembly)component ),
+					trans.get("RocketCompCfg.tab.AssemblyComment"), 0);
 			tabbedPane.setSelectedIndex(0);
 		}
 	}
 
 	
 	private JPanel parallelTab( final ComponentAssembly boosters ){
-		JPanel motherPanel = new JPanel( new MigLayout("fill"));
+		JPanel motherPanel = new JPanel( new MigLayout("fillx"));
 		
 		// radial distance method
 		JLabel radiusMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Radius.Label"));
         motherPanel.add( radiusMethodLabel, "align left");
 		final ComboBoxModel<RadiusMethod> radiusMethodModel = new EnumModel<RadiusMethod>( boosters, "RadiusMethod", RadiusMethod.choices());
 		final JComboBox<RadiusMethod> radiusMethodCombo = new JComboBox<RadiusMethod>( radiusMethodModel );
-		motherPanel.add( radiusMethodCombo, "spanx 3, growx, wrap");
+		motherPanel.add( radiusMethodCombo, "spanx 3, wrap");
 		order.add(radiusMethodCombo);
 		
 		// set radial distance
@@ -72,7 +73,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) radiusSpinner.getEditor()).getTextField());
 //		autoRadOffsModel.addEnableComponent(radiusSpinner, false);
 		UnitSelector radiusUnitSelector = new UnitSelector(radiusModel);
-		motherPanel.add(radiusUnitSelector, "growx 1");
+		motherPanel.add(radiusUnitSelector);
 		motherPanel.add(new BasicSlider(radiusModel.getSliderModel(0, new DoubleModel(component.getParent(), "OuterRadius", 4.0, UnitGroup.UNITS_LENGTH))),
 				"gapleft para, growx 2, wrap");
 
@@ -93,7 +94,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		motherPanel.add(angleSpinner, "wmin 65lp, growx 1");
 		order.add(((SpinnerEditor) angleSpinner.getEditor()).getTextField());
 		UnitSelector angleUnitSelector = new UnitSelector(angleModel);
-		motherPanel.add( angleUnitSelector, "growx 1");
+		motherPanel.add( angleUnitSelector);
 		motherPanel.add(new BasicSlider(angleModel.getSliderModel(-Math.PI, Math.PI)), "gapleft para, growx 2, wrap");
 
 		// set multiplicity
@@ -112,7 +113,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		
 		ComboBoxModel<AxialMethod> axialPositionMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
 		JComboBox<?> positionMethodCombo = new JComboBox<AxialMethod>( axialPositionMethodModel );
-		motherPanel.add(positionMethodCombo, "spanx 3, growx, wrap");
+		motherPanel.add(positionMethodCombo, "spanx 3, wrap");
 		order.add(positionMethodCombo);
 		
 		// plus
@@ -131,7 +132,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 			}
 		});
 
-		motherPanel.add(new UnitSelector(axialOffsetModel), "growx");
+		motherPanel.add(new UnitSelector(axialOffsetModel));
 		motherPanel.add(new BasicSlider(axialOffsetModel.getSliderModel(
 						new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 						new DoubleModel(component.getParent(), "Length"))),
