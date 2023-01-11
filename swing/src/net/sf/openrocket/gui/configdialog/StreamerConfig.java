@@ -62,7 +62,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)), "w 150lp, wrap");
 		
 		//// Strip width:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Stripwidth")));
@@ -74,7 +74,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 100lp, wrap 10lp");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 150lp, wrap 10lp");
 
 		//// Strip area:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
@@ -86,7 +86,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)), "w 150lp, wrap");
 		
 		//// Aspect ratio:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Aspectratio")));
@@ -98,7 +98,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		//		panel.add(new UnitSelector(m),"growx");
-		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 100lp, wrap 10lp");
+		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 150lp, wrap 10lp");
 
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
@@ -169,7 +169,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+				"w 150lp, wrap");
 		
 		
 		////  Packed length:
@@ -183,7 +183,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 150lp, wrap");
 		
 		
 		//// Tube diameter
@@ -199,7 +199,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 150lp, wrap");
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
@@ -260,7 +260,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(unit, "growx");
 		BasicSlider slider = new BasicSlider(m.getSliderModel(100, 1000));
 		altitudeComponents.add(slider);
-		panel.add(slider, "w 100lp, wrap");
+		panel.add(slider, "w 150lp, wrap");
 
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
@@ -303,7 +303,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 150lp, wrap");
 
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdirection")));
@@ -316,7 +316,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		
 		
 		//// Reset button

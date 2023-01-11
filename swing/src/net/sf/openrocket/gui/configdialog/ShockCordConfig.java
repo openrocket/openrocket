@@ -54,7 +54,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 1, 10)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 1, 10)), "w 150lp, wrap");
 
 		// Material
 		//// Shock cord material:
@@ -93,7 +93,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		panel2.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+				"w 150lp, wrap");
 		
 
 		////  Spatial length
@@ -108,7 +108,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel2.add(new UnitSelector(m), "growx");
-		panel2.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
+		panel2.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 150lp, wrap");
 		
 
 		//// Tube diameter
@@ -124,7 +124,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel2.add(new UnitSelector(od), "growx");
-		panel2.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+		panel2.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 150lp, wrap");
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
@@ -165,7 +165,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 150lp, wrap");
 
 
 		//// Radial direction:
@@ -179,7 +179,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 
 
 		//// Reset button

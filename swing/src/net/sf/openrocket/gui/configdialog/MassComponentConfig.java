@@ -189,7 +189,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 150lp, wrap");
 		
 		
 		//// Radial direction:
@@ -203,7 +203,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		
 		
 		//// Reset button
