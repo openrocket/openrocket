@@ -149,7 +149,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	
 	private JPanel finTabPanel() {
 		JPanel panel = new JPanel(
-				new MigLayout("align 50% 20%, fillx, gap rel unrel, ins 20lp 10% 20lp 10%",
+				new MigLayout("gap rel unrel, ins 25lp",
 						"[150lp::][65lp::][30lp::][200lp::]", ""));
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
@@ -181,7 +181,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tablength"));
 		//// The length of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
-		panel.add(label, "gapleft para, gapright 40lp, growx 1");
+		panel.add(label);
 		
 		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -199,7 +199,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
 		//// The span-wise height of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
-		panel.add(label, "gapleft para");
+		panel.add(label);
 		
 		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
 		component.addChangeListener( tabHeightModel );
@@ -216,7 +216,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabposition"));
 		//// The position of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
-		panel.add(label, "gapleft para");
+		panel.add(label);
 		
 		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
 		component.addChangeListener( tabOffset);
@@ -568,7 +568,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
 	    BasicSlider bs =new BasicSlider(m.getSliderModel(0, 10));
-	    filletPanel.add(bs, "w 100lp, wrap para");
+	    filletPanel.add(bs, "w 150lp, wrap para");
 	    bs.setToolTipText(tip);
 
 		// Fillet Material:

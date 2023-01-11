@@ -117,8 +117,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private JPanel generalPane() {
-		
-
 		JPanel mainPanel = new JPanel(new MigLayout("fill"));
 		
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel", "[][65lp::][30lp::]", ""));
@@ -145,7 +143,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(m), "growx");
-			panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+			panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		}
 
 
@@ -163,7 +161,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) cantAngleSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(cantAngleModel), "growx");
-			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 40lp");
+			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 150lp, wrap 40lp");
 		}
 
 
@@ -187,7 +185,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) axialOffsetSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(axialOffsetModel), "growx");
-			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
+			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 150lp, wrap");
 
 			axialMethodCombo.addActionListener(new ActionListener() {
 				@Override
@@ -223,7 +221,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(m), "growx");
-			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
+			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 150lp, wrap 30lp");
 		}
 
 		{ //// Material

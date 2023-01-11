@@ -73,7 +73,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) baseRotationSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(baseRotationModel), "growx");
-			panel.add(new BasicSlider(baseRotationModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+			panel.add(new BasicSlider(baseRotationModel.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		}
 
 		{////  Fin cant:
@@ -91,7 +91,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 			panel.add(new UnitSelector(cantModel), "growx");
 			panel.add(new BasicSlider(cantModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
-					"w 100lp, wrap");
+					"w 150lp, wrap");
 		}
 
 		{////  Root chord:
@@ -105,7 +105,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) rootChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(rootChordModel), "growx");
-			panel.add(new BasicSlider(rootChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
+			panel.add(new BasicSlider(rootChordModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
 		}
 
 		{////  Tip chord:
@@ -119,7 +119,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) tipChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(tipChordModel), "growx");
-			panel.add(new BasicSlider(tipChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
+			panel.add(new BasicSlider(tipChordModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
 		}
 
 		{////  Height:
@@ -133,7 +133,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
 		}
 
 		{////  Sweep length:
@@ -151,7 +151,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			// sweep slider from -1.1*TipChord to 1.1*RootChord
 			DoubleModel tc = new DoubleModel(component, "TipChord", -1.1, UnitGroup.UNITS_LENGTH);
 			DoubleModel rc = new DoubleModel(component, "RootChord", 1.1, UnitGroup.UNITS_LENGTH);
-			panel.add(new BasicSlider(sweepDistanceModel.getSliderModel(tc, rc)), "w 100lp, wrap");
+			panel.add(new BasicSlider(sweepDistanceModel.getSliderModel(tc, rc)), "w 150lp, wrap");
 		}
 
 		{////  Sweep angle:
@@ -168,7 +168,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 			panel.add(new UnitSelector(sweepAngleModel), "growx");
 			panel.add(new BasicSlider(sweepAngleModel.getSliderModel(-Math.PI / 4, Math.PI / 4)),
-					"w 100lp, wrap paragraph");
+					"w 150lp, wrap paragraph");
 		}
 
 		{//// Position relative to:
@@ -200,7 +200,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
 					new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 					new DoubleModel(component.getParent(), "Length"))),
-					"w 100lp, wrap para");
+					"w 150lp, wrap para");
 
 
 			mainPanel.add(panel, "aligny 20%");
@@ -231,7 +231,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
-			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 150lp, wrap para");
 		}
 		
 		

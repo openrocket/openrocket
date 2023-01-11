@@ -66,7 +66,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		
 		
 		////  Fin cant
@@ -85,7 +85,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
-				"w 100lp, wrap");
+				"w 150lp, wrap");
 		
 		
 		
@@ -100,7 +100,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
 		
 		
 		////  Height
@@ -114,7 +114,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
 		
 		
 		////  Position
@@ -146,7 +146,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+				"w 150lp, wrap");
 
 		
 		//// Right portion
@@ -178,7 +178,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 150lp, wrap 30lp");
 		
 		
 		
