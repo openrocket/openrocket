@@ -61,7 +61,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
 
 		// TODO COMPLETE Spill hole development
 /*		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.SpillDia") + CommonStrings.daggerDouble));
@@ -73,18 +73,18 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01, .1)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.01, .1)), "w 150lp, wrap");
 			// The slider maximum value is "max", however, manual entry above that value is possible.
 */
 		// TODO END Spill hole development
 
 		//// Material:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "wrap rel");
 
 		JComboBox<Material> surfaceMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component,
 				Material.Type.SURFACE));
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
-		panel.add( surfaceMaterialCombo, "spanx 3, growx, wrap 15lp");
+		panel.add( surfaceMaterialCombo, "spanx, growx, wrap 15lp");
 		order.add(surfaceMaterialCombo);
 
 		// Drag Coefficient:
@@ -139,14 +139,14 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
 		
 		//// Material:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "wrap rel");
 		
 		JComboBox<Material> shroudMaterialCombo =
 				new JComboBox<Material>(new MaterialModel(panel, component, Material.Type.LINE, "LineMaterial"));
-		panel.add( shroudMaterialCombo, "spanx 3, growx, wrap 15lp");
+		panel.add( shroudMaterialCombo, "spanx, growx, wrap 15lp");
 		order.add(shroudMaterialCombo);
 
 		
@@ -180,7 +180,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+				"w 150lp, wrap");
 		
 		////  Spatial length
 		//// Packed length:
@@ -194,7 +194,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 150lp, wrap");
 		
 		
 		//// Tube diameter
@@ -210,7 +210,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 150lp, wrap");
 
 		////// Automatic
 		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
@@ -274,7 +274,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(unit, "growx");
 		BasicSlider slider = new BasicSlider(m.getSliderModel(100, 1000));
 		altitudeComponents.add(slider);
-		panel.add(slider, "w 100lp, wrap");
+		panel.add(slider, "w 150lp, wrap");
 		
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
@@ -299,11 +299,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 
 	protected JPanel positionTab() {
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 25lp", "[][65lp::][30lp::]", ""));
 		
 		////  Radial position
 		//// Radial distance:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdistance")));
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdistance")), "gapright para");
 		
 		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -313,11 +313,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 150lp, wrap");
 		
 		
 		//// Radial direction:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")));
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")), "gapright para");
 		
 		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
@@ -327,7 +327,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		
 		
 		//// Reset button
