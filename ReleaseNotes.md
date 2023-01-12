@@ -17,16 +17,42 @@ Release Notes
  
 OpenRocket 22.02.RC.01 (2023-01-xx)
 ------------------------
-(through PRxxxx)
+(through PR1966)
 
 ## New Features
+* **Native ARM build for Apple Silicon Macs!** (fixes #1136 and #1533)
+* Added "Cancel" button to component config window (fixes #960)
+* Added component information box in config window (fixes #1564)
+* Example designs have been updated and reorganized
+* Add option to switch flight event markers to icons in sim plots
+* Add support for tail cones (fixes #1889)
+* Added "plugged" to delay options for all motors
+* Support rail button screws, updated rail button aerodynamics
+* Updated surface roughness settings to be consistent with standard terminology
+* Separate "override subcomponents" option for mass, CG, and drag (fixes #1750)
+* Add motor designation to motor selection table
 
 ## UI Improvements
+* Added "Top View" option to rocket display
+* Add option to automatically open preset dialog when creating new component (fixes #1479)
+* Tell user where body discontinuities are (fixes #241)
+* Improved consistency of warning message text
+* Hitting left arrow moves cursor to front of text fields (fixes #1942)
+* New app icons
+* Zoom to active stages in rocket display
+* Added welcome dialog (fixes #1768)
+* Updated bug report form
 
 ## Notable Bug Fixes
-
-## Other
-
+* Fix various significant 3D view issues (fixes #939, #966, #1191, #1771)
+* Account for all recovery devices in pods when calculating descent rate (fixes #1910)
+* Eliminated many occurrences of mystery discontinuity warnings (fixes #999)
+* Rocksim import/export file updates
+** Support import and export of pods (fixes #1348)
+** Support import of trapezoidal fins on transitions (fixes #1553)
+** Support subassembly import
+* Assorted extension and plug-in fixes
+ 
 </div>
  
 <div id="22.02.beta.05">
