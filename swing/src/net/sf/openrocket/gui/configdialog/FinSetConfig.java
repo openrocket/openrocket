@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -20,7 +19,6 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
@@ -549,13 +547,13 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	protected JPanel filletMaterialPanel(){
 	    
 	    JPanel filletPanel=new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
-	    String tip = trans.get("FinsetCfg.ttip.Finfillets1") +
-		    	trans.get("FinsetCfg.ttip.Finfillets2") +
-		    	trans.get("FinsetCfg.ttip.Finfillets3");
-	    filletPanel.setBorder(BorderFactory.createTitledBorder("Root Fillets"));
+	    String tip = trans.get("FinsetConfig.ttip.Finfillets1") +
+		    	trans.get("FinsetConfig.ttip.Finfillets2") +
+		    	trans.get("FinsetConfig.ttip.Finfillets3");
+	    filletPanel.setBorder(BorderFactory.createTitledBorder(trans.get("FinSetConfig.title.RootFillets")));
 
 		// Fillet Radius:
-	    filletPanel.add(new JLabel(trans.get("FinSetCfg.lbl.Filletradius")));
+	    filletPanel.add(new JLabel(trans.get("FinSetConfig.lbl.Filletradius")));
 		
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -572,7 +570,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    bs.setToolTipText(tip);
 
 		// Fillet Material:
-	    JLabel label = new JLabel(trans.get("FinSetCfg.lbl.Finfilletmaterial"));
+	    JLabel label = new JLabel(trans.get("FinSetConfig.lbl.Finfilletmaterial"));
 	    label.setToolTipText(tip);
 	    //// The component material affects the weight of the component.
 	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
