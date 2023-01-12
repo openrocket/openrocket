@@ -46,7 +46,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		
 		JPanel primary = new JPanel(new MigLayout("fill")); 
 		
-		JPanel panel = new JPanel( new MigLayout());
+		JPanel panel = new JPanel( new MigLayout("gap rel unrel"));
 		
 			
 		{ //// Outer Diameter
@@ -67,7 +67,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(IDSpinner, "growx");
 			order.add(((SpinnerEditor) IDSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(IDModel), "growx");
-			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.02)), "w 100lp, wrap 20lp");
 		}
 		{ //// Base Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.BaseHeight")));
@@ -100,7 +100,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(new DoubleModel(component, "MinTotalHeight", UnitGroup.UNITS_LENGTH), 0.02)),
-					"w 100lp, wrap para");
+					"w 100lp, wrap 20lp");
 		}
 		{ //// Screw height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.ScrewHeight")));
@@ -110,10 +110,10 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(heightSpinner, "growx");
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap para");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap 20lp");
 		}
 
-		{ //// Angular Position:
+		{ //// Rotation:
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));
 			DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
 			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());

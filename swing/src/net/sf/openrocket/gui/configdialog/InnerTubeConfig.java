@@ -154,8 +154,8 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 
 		//// Right side of panel ----
-		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][15lp]", ""));
-		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, insets 0", "[][65lp::][30lp::][15lp]", ""));
+		panel.add(panel2, "cell 4 0, gapleft 15lp, aligny 0%, spany");
 
 		//// Placement
 		panel2.add(new StyledLabel(trans.get("InnerTubeCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");

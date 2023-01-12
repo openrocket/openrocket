@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -37,7 +38,9 @@ public class RingComponentConfig extends RocketComponentConfig {
 		DoubleModel m;
 		JSpinner spin;
 		DoubleModel od = null;
-		
+
+		//// Attributes ----
+		panel.add(new StyledLabel(trans.get("ringcompcfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
 		
 		//// Outer diameter
 		if (outer != null) {
@@ -131,20 +134,25 @@ public class RingComponentConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		}
-		
-		
-		////  Position
-		
+
+		//// Material
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		panel.add(materialPanel, "gaptop 20lp, spanx 4, growx, wrap");
+
+		//// Placement ----
+		JPanel positionPanel = new JPanel(new MigLayout("gap rel unrel, insets 0", "[][65lp::][30lp::]", ""));
+		positionPanel.add(new StyledLabel(trans.get("ringcompcfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+
 		//// Position relative to:
-		panel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
+		positionPanel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));
 		
 	    final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
         final JComboBox<AxialMethod> positionCombo = new JComboBox<AxialMethod>( methodModel );
-		panel.add( positionCombo, "spanx 3, growx, wrap");
+		positionPanel.add(positionCombo, "spanx 3, growx, wrap");
 		order.add(positionCombo);
 		
 		//// plus
-		panel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
+		positionPanel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
 		
 		//// PositionValue
 		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
@@ -153,19 +161,16 @@ public class RingComponentConfig extends RocketComponentConfig {
 		if (!(component instanceof ThicknessRingComponent)) {
 			focusElement = spin;
 		}
-		panel.add(spin, "growx");
+		positionPanel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+
+		positionPanel.add(new UnitSelector(m), "growx");
+		positionPanel.add(new BasicSlider(m.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
-		
-		
-		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+
+		panel.add(positionPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		return panel;
 	}

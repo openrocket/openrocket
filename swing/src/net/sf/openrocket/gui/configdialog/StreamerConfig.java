@@ -137,7 +137,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		//// The drag coefficient is relative to the area of the streamer.
 		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
-				-1), "span, wrap");
+				-1, StyledLabel.Style.ITALIC), "gapleft para, span, wrap");
 		
 
 		//	Right side

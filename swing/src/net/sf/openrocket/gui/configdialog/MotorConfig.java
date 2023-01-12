@@ -36,7 +36,7 @@ public class MotorConfig extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 	
 	public MotorConfig(MotorMount motorMount, List<Component> order) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fillx"));
 		
 		this.mount = motorMount;
 		
@@ -76,7 +76,7 @@ public class MotorConfig extends JPanel {
 		
 		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
 		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
-		panel.add(eventBox , "growx, wrap");
+		panel.add(eventBox , "wrap");
 		order.add(eventBox);
 		
 		// ... and delay

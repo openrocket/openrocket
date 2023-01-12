@@ -150,7 +150,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 		
 		//// Right portion
-		mainPanel.add(panel, "aligny 20%");
+		mainPanel.add(panel, "aligny 0");
 		
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
 		

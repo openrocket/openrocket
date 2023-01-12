@@ -203,7 +203,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 					"w 150lp, wrap para");
 
 
-			mainPanel.add(panel, "aligny 20%");
+			mainPanel.add(panel, "aligny 0");
 
 			mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
 		}

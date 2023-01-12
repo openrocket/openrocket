@@ -69,7 +69,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 					updateEnabled();
 				}
 			});
-			panel.add(typeBox, "span, wrap rel");
+			panel.add(typeBox, "spanx 3, growx, wrap rel");
 			order.add(typeBox);
 
 			////  Shape parameter:

@@ -161,7 +161,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) cantAngleSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(cantAngleModel), "growx");
-			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 150lp, wrap 40lp");
+			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 150lp, wrap 20lp");
 		}
 
 
@@ -195,7 +195,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			});
 		}
 
-		mainPanel.add(panel, "aligny 20%");
+		mainPanel.add(panel, "aligny 0");
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, height 150lp");
 		
 		
