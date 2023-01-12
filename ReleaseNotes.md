@@ -14,9 +14,11 @@ Release Notes
 </div>
 
 <div id="22.02.RC.01">
+ 
 OpenRocket 22.02.RC.01 (2023-01-xx)
 ------------------------
 (through PRxxxx)
+
 ## New Features
 
 ## UI Improvements
