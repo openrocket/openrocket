@@ -185,8 +185,8 @@ public class SerializeThrustcurveMotors {
 			System.exit(1);
 		} else {
 			while (iterator.hasNext()) {
-				Pair<String, InputStream> f = iterator.next();
-				String fileName = f.getU();
+				Pair<File, InputStream> f = iterator.next();
+				String fileName = f.getU().getName();
 				InputStream is = f.getV();
 				
 				List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);

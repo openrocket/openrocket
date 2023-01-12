@@ -3,6 +3,7 @@ package net.sf.openrocket.file.iterator;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 
 import net.sf.openrocket.util.Pair;
@@ -13,14 +14,14 @@ public class TestFileIterator {
 	
 	@Test
 	public void testFileIterator() {
-		final Pair<String, InputStream> one = new Pair<String, InputStream>("one", new ByteArrayInputStream(new byte[] { 1 }));
-		final Pair<String, InputStream> two = new Pair<String, InputStream>("two", new ByteArrayInputStream(new byte[] { 2 }));
+		final Pair<File, InputStream> one = new Pair<>(new File("one"), new ByteArrayInputStream(new byte[] { 1 }));
+		final Pair<File, InputStream> two = new Pair<>(new File("two"), new ByteArrayInputStream(new byte[] { 2 }));
 		
 		FileIterator iterator = new FileIterator() {
 			private int count = 0;
 			
 			@Override
-			protected Pair<String, InputStream> findNext() {
+			protected Pair<File, InputStream> findNext() {
 				count++;
 				switch (count) {
 				case 1:
