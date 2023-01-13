@@ -104,7 +104,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		IntegerModel countModel = new IntegerModel( boosters, "InstanceCount", 1);
 		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
 		countSpinner.setEditor(new SpinnerEditor(countSpinner));
-		motherPanel.add(countSpinner, "wmin 65lp, growx 1, wrap");
+		motherPanel.add(countSpinner, "wmin 65lp, growx 1, wrap 10lp");
 		order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
 		
 		// setPositions relative to parent component

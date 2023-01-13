@@ -151,8 +151,8 @@ public class RailButtonConfig extends RocketComponentConfig {
 					"w 100lp, wrap para");
 
 		}
-		//// Instance count
-		panel.add(instanceablePanel(rbc), "span, wrap");
+		//// Instance count/separation
+		panel.add(instanceablePanel(), "span, wrap");
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);

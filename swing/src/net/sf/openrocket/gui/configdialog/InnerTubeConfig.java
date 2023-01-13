@@ -37,7 +37,6 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -71,8 +70,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		JSpinner spin;
 		DoubleModel od = null;
 
-		//// Attributes ----
-		panel.add(new StyledLabel(trans.get("InnerTubeCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
+		//// ---------------------------- Attributes ----------------------------
 
 		//// Outer diameter
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Outerdiam")));
@@ -157,8 +155,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, insets 0", "[][65lp::][30lp::][15lp]", ""));
 		panel.add(panel2, "cell 4 0, gapleft 15lp, aligny 0%, spany");
 
-		//// Placement
-		panel2.add(new StyledLabel(trans.get("InnerTubeCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+		//// ---------------------------- Placement ----------------------------
 
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));

@@ -464,7 +464,7 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 	
-	protected JPanel instanceablePanel( Instanceable inst ){
+	protected JPanel instanceablePanel() {
 		JPanel panel = new JPanel( new MigLayout("fill, insets 0") );
 		{ // Instance Count
 			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));

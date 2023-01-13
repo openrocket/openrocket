@@ -14,7 +14,6 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -40,8 +39,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		DoubleModel od = null;
 
 		//// Attributes ----
-		panel.add(new StyledLabel(trans.get("ringcompcfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
-		
+
 		//// Outer diameter
 		if (outer != null) {
 			panel.add(new JLabel(outer));
@@ -141,7 +139,6 @@ public class RingComponentConfig extends RocketComponentConfig {
 
 		//// Placement ----
 		JPanel positionPanel = new JPanel(new MigLayout("gap rel unrel, insets 0", "[][65lp::][30lp::]", ""));
-		positionPanel.add(new StyledLabel(trans.get("ringcompcfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
 
 		//// Position relative to:
 		positionPanel.add(new JLabel(trans.get("ringcompcfg.Positionrelativeto")));

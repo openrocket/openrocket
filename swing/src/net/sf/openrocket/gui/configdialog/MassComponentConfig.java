@@ -18,7 +18,6 @@ import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -39,14 +38,13 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// Left side
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 
-		//// Attributes
-		panel.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
+		// Attributes
 
 		//// Mass component type
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.type")));
 		
-		final JComboBox<?> typecombo = new JComboBox<MassComponent.MassComponentType>(
-				new EnumModel<MassComponent.MassComponentType>(component, "MassComponentType",
+		final JComboBox<?> typecombo = new JComboBox<>(
+				new EnumModel<>(component, "MassComponentType",
 						new MassComponent.MassComponentType[] {
 								MassComponent.MassComponentType.MASSCOMPONENT,
 								MassComponent.MassComponentType.ALTIMETER,
@@ -57,7 +55,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 								MassComponent.MassComponentType.RECOVERYHARDWARE,
 								MassComponent.MassComponentType.BATTERY}));
 		
-		panel.add(typecombo, "spanx, wrap");
+		panel.add(typecombo, "spanx 3, growx, wrap");
 		order.add(typecombo);
 		
 		////  Mass
@@ -127,17 +125,16 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 
 		//// Right side
-		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
-		//// Placement
-		panel2.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+		// Placement
 
 		//// Position relative to:
 		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 		
-        final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-        final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
+        final EnumModel<AxialMethod> methodModel = new EnumModel<>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+        final JComboBox<?> methodCombo = new JComboBox<>( methodModel );
 		panel2.add(methodCombo, "spanx, growx, wrap");
 		order.add(methodCombo);
 
