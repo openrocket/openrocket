@@ -1,9 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.EventObject;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -26,7 +23,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -40,8 +36,8 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 		JPanel mainPanel = new JPanel(new MigLayout());
 
-
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		// Left side
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 
 		////  Number of fins:
 		JLabel label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Nbroffins"));
@@ -58,24 +54,6 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(finCountSpinner, "growx, wrap");
 		order.add(((SpinnerEditor) finCountSpinner.getEditor()).getTextField());
 
-
-		{ ///  Base rotation
-			label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Finrotation"));
-			//// The angle of the first fin in the fin set.
-			label.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Finrotation"));
-			panel.add(label);
-
-			final DoubleModel baseRotationModel = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
-
-			final JSpinner baseRotationSpinner = new JSpinner(baseRotationModel.getSpinnerModel());
-			baseRotationSpinner.setEditor(new SpinnerEditor(baseRotationSpinner));
-			panel.add(baseRotationSpinner, "growx");
-			order.add(((SpinnerEditor) baseRotationSpinner.getEditor()).getTextField());
-
-			panel.add(new UnitSelector(baseRotationModel), "growx");
-			panel.add(new BasicSlider(baseRotationModel.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
-		}
-
 		{////  Fin cant:
 			label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Fincant"));
 			//// The angle that the fins are canted with respect to the rocket
@@ -91,7 +69,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 			panel.add(new UnitSelector(cantModel), "growx");
 			panel.add(new BasicSlider(cantModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)),
-					"w 150lp, wrap");
+					"w 100lp, wrap");
 		}
 
 		{////  Root chord:
@@ -105,7 +83,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) rootChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(rootChordModel), "growx");
-			panel.add(new BasicSlider(rootChordModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
+			panel.add(new BasicSlider(rootChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		}
 
 		{////  Tip chord:
@@ -119,7 +97,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) tipChordSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(tipChordModel), "growx");
-			panel.add(new BasicSlider(tipChordModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
+			panel.add(new BasicSlider(tipChordModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		}
 
 		{////  Height:
@@ -133,7 +111,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.05, 0.2)), "w 150lp, wrap");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		}
 
 		{////  Sweep length:
@@ -151,7 +129,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			// sweep slider from -1.1*TipChord to 1.1*RootChord
 			DoubleModel tc = new DoubleModel(component, "TipChord", -1.1, UnitGroup.UNITS_LENGTH);
 			DoubleModel rc = new DoubleModel(component, "RootChord", 1.1, UnitGroup.UNITS_LENGTH);
-			panel.add(new BasicSlider(sweepDistanceModel.getSliderModel(tc, rc)), "w 150lp, wrap");
+			panel.add(new BasicSlider(sweepDistanceModel.getSliderModel(tc, rc)), "w 100lp, wrap");
 		}
 
 		{////  Sweep angle:
@@ -168,59 +146,18 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 			panel.add(new UnitSelector(sweepAngleModel), "growx");
 			panel.add(new BasicSlider(sweepAngleModel.getSliderModel(-Math.PI / 4, Math.PI / 4)),
-					"w 150lp, wrap paragraph");
+					"w 100lp, wrap 30lp");
 		}
-
-		{//// Position relative to:
-			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
-
-			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
-			panel.add(axialMethodCombo, "spanx, growx, wrap");
-			order.add(axialMethodCombo);
-
-			//// plus
-			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
-
-			final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-			final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
-			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
-
-			panel.add(axialOffsetSpinner, "growx");
-			order.add(((SpinnerEditor) axialOffsetSpinner.getEditor()).getTextField());
-
-			axialMethodCombo.addActionListener(new ActionListener() {
-												@Override
-												public void actionPerformed(ActionEvent e) {
-													axialOffsetModel.stateChanged(new EventObject(e));
-												}
-											});
-
-			panel.add(new UnitSelector(axialOffsetModel), "growx");
-			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
-					new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-					new DoubleModel(component.getParent(), "Length"))),
-					"w 150lp, wrap para");
-
-
-			mainPanel.add(panel, "aligny 0");
-
-			mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
-		}
-		
-		
-		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-
 
 		{////  Fin cross section:
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.FincrossSection")));
 			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
-					new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+					new EnumModel<>(component, "CrossSection"));
 			panel.add(sectionCombo, "span, growx, wrap");
 			order.add(sectionCombo);
+		}
 
-
-			////  Thickness:
+		{ ////  Thickness:
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Thickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
@@ -231,19 +168,49 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) thicknessSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(thicknessModel), "growx");
-			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 150lp, wrap para");
+			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap para");
 		}
-		
+
+		mainPanel.add(panel, "aligny 0, gapright 50lp");
+
+		// Separator
+		//mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 20lp 20lp");
+
+		// Right side panel
+		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+
+		// Root fillets
+		panel.add(filletMaterialPanel(), "span, grow, wrap");
 		
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel, "span, wrap");
-		
-		
-		
-		mainPanel.add(panel, "aligny 20%");
-		
-		panel.add(filletMaterialPanel(), "span, wrap");
+		panel.add(materialPanel, "span, grow, wrap");
+
+		{//// -------- Placement -------
+			// Position relative to:
+			JPanel placementPanel = new PlacementPanel(component, order);
+			panel.add(placementPanel, "span, grow");
+
+			{ ///  Fin rotation
+				label = new JLabel(trans.get("FinSetCfg.lbl.FinRotation"));
+				label.setToolTipText(trans.get("FinSetCfg.lbl.FinRotation.ttip"));
+				placementPanel.add(label, "newline");
+
+				final DoubleModel baseRotationModel = new DoubleModel(component, "BaseRotation",
+						UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+
+				final JSpinner baseRotationSpinner = new JSpinner(baseRotationModel.getSpinnerModel());
+				baseRotationSpinner.setEditor(new SpinnerEditor(baseRotationSpinner));
+				placementPanel.add(baseRotationSpinner, "growx");
+				order.add(((SpinnerEditor) baseRotationSpinner.getEditor()).getTextField());
+
+				placementPanel.add(new UnitSelector(baseRotationModel), "growx");
+				placementPanel.add(new BasicSlider(baseRotationModel.getSliderModel()), "w 100lp, wrap");
+			}
+		}
+
+		mainPanel.add(panel, "aligny 0");
+
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("TrapezoidFinSetCfg.tab.General"), null, mainPanel,
 				trans.get("TrapezoidFinSetCfg.tab.Generalproperties"), 0);

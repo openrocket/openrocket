@@ -33,8 +33,7 @@ public class TransitionConfig extends RocketComponentConfig {
 	
 	private static final Translator trans = Application.getTranslator();
 	private JComboBox<Transition.Shape> typeBox;
-	//private JLabel description;
-	
+
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private BasicSlider shapeSlider;
@@ -194,7 +193,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel2.add(materialPanel, "span, wrap");
-		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 		
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("TransitionCfg.tab.General"), null, panel,

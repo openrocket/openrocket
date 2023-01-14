@@ -22,7 +22,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -126,32 +125,12 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 		//// Right side
 		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
-		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 
 		// Placement
 
-		//// Position relative to:
-		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
-		
-        final EnumModel<AxialMethod> methodModel = new EnumModel<>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-        final JComboBox<?> methodCombo = new JComboBox<>( methodModel );
-		panel2.add(methodCombo, "spanx, growx, wrap");
-		order.add(methodCombo);
-
-		//// plus
-		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel2.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel2.add(new UnitSelector(m), "growx");
-		panel2.add(new BasicSlider(m.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+		//// Position
+		panel2.add(new PlacementPanel(component, order), "span, grow, wrap");
 		
 		
 		//// General and General properties

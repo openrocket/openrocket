@@ -31,7 +31,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.startup.Application;
@@ -45,71 +44,69 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		super(d, component, parent);
 		Streamer streamer = (Streamer) component;
 
-		//	Left side
 		JPanel primary = new JPanel(new MigLayout());
-		
-		JPanel panel = new JPanel(new MigLayout());
+
+		//	Left side
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]"));
 		
 		//// ---------------------------- Attributes ----------------------------
-		JPanel attributesPanel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]"));
-		attributesPanel.setBorder(BorderFactory.createTitledBorder(trans.get("StreamerCfg.lbl.Attributes")));
 
 		//// Strip length:
-		attributesPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
 		
 		DoubleModel m = new DoubleModel(component, "StripLength", UnitGroup.UNITS_LENGTH, 0);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		attributesPanel.add(spin, "growx");
+		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		attributesPanel.add(new UnitSelector(m), "growx");
-		attributesPanel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)), "w 150lp, wrap");
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)), "w 150lp, wrap");
 		
 		//// Strip width:
-		attributesPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Stripwidth")));
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Stripwidth")));
 		
 		m = new DoubleModel(component, "StripWidth", UnitGroup.UNITS_LENGTH, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		attributesPanel.add(spin, "growx");
+		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		attributesPanel.add(new UnitSelector(m), "growx");
-		attributesPanel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 150lp, wrap 10lp");
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 150lp, wrap 10lp");
 
 		//// Strip area:
-		attributesPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
 		
 		m = new DoubleModel(component, "Area", UnitGroup.UNITS_AREA, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		attributesPanel.add(spin, "growx");
+		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		attributesPanel.add(new UnitSelector(m), "growx");
-		attributesPanel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)), "w 150lp, wrap");
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)), "w 150lp, wrap");
 		
 		//// Aspect ratio:
-		attributesPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Aspectratio")));
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Aspectratio")));
 		
 		m = new DoubleModel(component, "AspectRatio", UnitGroup.UNITS_NONE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		attributesPanel.add(spin, "growx");
+		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		//		panel.add(new UnitSelector(m),"growx");
-		attributesPanel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 150lp, wrap 10lp");
+		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 150lp, wrap 10lp");
 
 		//// Material:
-		attributesPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 		
-		JComboBox<Material> streamerMaterialCombo = new JComboBox<Material>(new MaterialModel(attributesPanel, component,
+		JComboBox<Material> streamerMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component,
 				Material.Type.SURFACE));
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
-		attributesPanel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
+		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
 		order.add(streamerMaterialCombo);
 
 		// CD
@@ -120,97 +117,73 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				//// "A larger drag coefficient yields a slowed descent rate.
 				trans.get("StreamerCfg.lbl.longB2");
 		label.setToolTipText(tip);
-		attributesPanel.add(label);
+		panel.add(label);
 		
 		m = new DoubleModel(component, "CD", UnitGroup.UNITS_COEFFICIENT, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setToolTipText(tip);
 		spin.setEditor(new SpinnerEditor(spin));
-		attributesPanel.add(spin, "growx");
+		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		JCheckBox check = new JCheckBox(m.getAutomaticAction());
 		//// Automatic
 		check.setText(trans.get("StreamerCfg.lbl.AutomaticCd"));
 		check.setToolTipText(trans.get("StreamerCfg.lbl.AutomaticCd.ttip"));
-		attributesPanel.add(check, "skip, span, wrap");
+		panel.add(check, "skip, span, wrap");
 		order.add(check);
 		
 		//// The drag coefficient is relative to the area of the streamer.
-		attributesPanel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
+		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
 				-1, StyledLabel.Style.ITALIC), "gapleft para, span, wrap");
-		
-		panel.add(attributesPanel, "growx, wrap");
 
+		primary.add(panel, "grow, gapright 20lp");
+
+		// Separator
+		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
 
 		//	Right side
-		primary.add(panel, "grow");
-		panel = new JPanel(new MigLayout());
+		panel = new JPanel(new MigLayout("ins 0"));
 
 
-		//// ---------------------------- Placement ----------------------------
-		JPanel placementPanel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]"));
-		placementPanel.setBorder(BorderFactory.createTitledBorder(trans.get("StreamerCfg.lbl.Placement")));
+		{//// ---------------------------- Placement ----------------------------
+			JPanel placementPanel = new PlacementPanel(component, order);
 
-		//// Position relative to:
-		placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Posrelativeto")));
-		
-		final EnumModel<AxialMethod> methodModel = new EnumModel<>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-		final JComboBox<AxialMethod> positionCombo = new JComboBox<>( methodModel );
-		placementPanel.add( positionCombo, "spanx, growx, wrap");
-		order.add(positionCombo);
-		
-		//// plus
-		placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		focusElement = spin;
-		placementPanel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+			////  Packed length:
+			placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")), "newline");
 
-		placementPanel.add(new UnitSelector(m), "growx");
-		placementPanel.add(new BasicSlider(m.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
-				"w 150lp, wrap");
-		
-		////  Packed length:
-		placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")));
-		
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		placementPanel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
 
-		placementPanel.add(new UnitSelector(m), "growx");
-		placementPanel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 150lp, wrap");
-		
-		//// Packed diameter:
-		placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packeddiam")));
-		
-		DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
-		spin = new JSpinner(od.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		placementPanel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+			spin = new JSpinner(m.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			placementPanel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
-		placementPanel.add(new UnitSelector(od), "growx");
-		placementPanel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 150lp, wrap");
+			placementPanel.add(new UnitSelector(m), "growx");
+			placementPanel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
 
-		////// Automatic
-		JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
-		checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
-		checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
-		placementPanel.add(checkAutoPackedRadius, "skip, spanx 2");
-		order.add(checkAutoPackedRadius);
+			//// Packed diameter:
+			placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packeddiam")));
 
-		panel.add(placementPanel, "growx, wrap 15lp");
+			DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+			spin = new JSpinner(od.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			placementPanel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
+			placementPanel.add(new UnitSelector(od), "growx");
+			placementPanel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+
+			////// Automatic
+			JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+			checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
+			checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
+			placementPanel.add(checkAutoPackedRadius, "skip, spanx 2");
+			order.add(checkAutoPackedRadius);
+
+			panel.add(placementPanel, "growx, wrap");
+		}
 		
 		//// ---------------------------- Deployment ----------------------------
 		JPanel deploymentPanel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]"));
@@ -265,7 +238,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		deploymentPanel.add(unit, "growx");
 		BasicSlider slider = new BasicSlider(m.getSliderModel(100, 1000));
 		altitudeComponents.add(slider);
-		deploymentPanel.add(slider, "w 150lp, wrap");
+		deploymentPanel.add(slider, "w 100lp, wrap");
 
 		deploymentPanel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap");
 

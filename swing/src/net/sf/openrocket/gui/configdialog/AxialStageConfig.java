@@ -66,7 +66,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		DoubleModel dm = new DoubleModel( sepConfig, "SeparationDelay", 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "width 45lp");
+		panel.add(spin, "width 65lp");
 		order.add(((SpinnerEditor)spin.getEditor()).getTextField());
 		
 		//// seconds

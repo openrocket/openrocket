@@ -1,24 +1,24 @@
 package net.sf.openrocket.gui.configdialog;
 
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.EnumModel;
+import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -44,9 +44,9 @@ public class RailButtonConfig extends RocketComponentConfig {
 	
 	private JPanel buttonTab( final RailButton rbc ){
 		
-		JPanel primary = new JPanel(new MigLayout("fill")); 
+		JPanel primary = new JPanel(new MigLayout());
 		
-		JPanel panel = new JPanel( new MigLayout("gap rel unrel"));
+		JPanel panel = new JPanel( new MigLayout("gap rel unrel, ins 0"));
 		
 			
 		{ //// Outer Diameter
@@ -110,53 +110,62 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(heightSpinner, "growx");
 			order.add(((SpinnerEditor) heightSpinner.getEditor()).getTextField());
 			panel.add(new UnitSelector(heightModel), "growx");
-			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap 20lp");
+			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap 30lp");
 		}
 
-		{ //// Rotation:
-			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")));
-			DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
-			JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
-			angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
-			panel.add(angleSpinner, "growx");
-			order.add(((SpinnerEditor) angleSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector( angleModel), "growx");
-			panel.add(new BasicSlider( angleModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		{ //// Instance Count
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
+			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
+			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
+			countSpinner.setEditor(new SpinnerEditor(countSpinner));
+			panel.add(countSpinner, "growx, wrap rel");
+			order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
 		}
 
-		primary.add(panel, "grow, gapright 201p");
-		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-
-		{ //// Position relative to:
-			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.PosRelativeTo")));
-
-			final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-			JComboBox<AxialMethod> relToCombo = new JComboBox<AxialMethod>( methodModel );
-			panel.add( relToCombo, "spanx, growx, wrap");
-			order.add(relToCombo);
+		{ //// Instance separation
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceSeparation")));
+			DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
+			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
+			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
+			panel.add(separationSpinner, "growx");
+			order.add(((SpinnerEditor) separationSpinner.getEditor()).getTextField());
+			panel.add(new UnitSelector(separationModel), "growx");
+			double maxSeparationDistance = 0.1;
+			if (component.getParent() != null && component.getParent().getLength() > 0) {
+				maxSeparationDistance = component.getParent().getLength();
+			}
+			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
 		}
 
-		{ //// plus
-			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.Plus")), "right");
-			DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-			JSpinner offsetSpinner = new JSpinner(offsetModel.getSpinnerModel());
-			offsetSpinner.setEditor(new SpinnerEditor(offsetSpinner));
-			focusElement = offsetSpinner;
-			panel.add(offsetSpinner, "growx");
-			order.add(((SpinnerEditor) offsetSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(offsetModel), "growx");
-			panel.add(new BasicSlider(offsetModel.getSliderModel(
-							new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-							new DoubleModel(component.getParent(), "Length"))),
-					"w 100lp, wrap para");
 
-		}
-		//// Instance count/separation
-		panel.add(instanceablePanel(), "span, wrap");
+		primary.add(panel, "grow, gapright 50lp");
+
+		// Separator
+		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 20lp 20lp");
+
+		// Right side panel
+		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel,"span, wrap");
+		panel.add(materialPanel,"span, grow, wrap");
+
+		{// -------- Placement ------
+			//// Position relative to:
+			JPanel placementPanel = new PlacementPanel(component, order);
+			panel.add(placementPanel, "span, grow, wrap");
+
+			{ //// Rotation:
+				placementPanel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")), "newline");
+				DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
+				JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
+				angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
+				placementPanel.add(angleSpinner, "growx");
+				order.add(((SpinnerEditor) angleSpinner.getEditor()).getTextField());
+				placementPanel.add(new UnitSelector(angleModel), "growx");
+				placementPanel.add(new BasicSlider(angleModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp");
+			}
+		}
 
 		primary.add(panel, "grow");
 

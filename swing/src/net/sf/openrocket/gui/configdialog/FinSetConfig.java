@@ -148,7 +148,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	private JPanel finTabPanel() {
 		JPanel panel = new JPanel(
 				new MigLayout("gap rel unrel, ins 25lp",
-						"[150lp::][65lp::][30lp::][200lp::]", ""));
+						"[100lp::][65lp::][30lp::][200lp::]", ""));
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
 		
@@ -565,22 +565,22 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    UnitSelector us = new UnitSelector(m); 
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
-	    BasicSlider bs =new BasicSlider(m.getSliderModel(0, 10));
-	    filletPanel.add(bs, "w 150lp, wrap para");
+	    BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1));
+	    filletPanel.add(bs, "w 100lp, wrap para");
 	    bs.setToolTipText(tip);
 
 		// Fillet Material:
 	    JLabel label = new JLabel(trans.get("FinSetConfig.lbl.Finfilletmaterial"));
 	    label.setToolTipText(tip);
 	    //// The component material affects the weight of the component.
-	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
+	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 		
 	    JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
 
 	    //// The component material affects the weight of the component.
-	    materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-	    filletPanel.add( materialCombo, "spanx 4, growx, wrap paragraph");
+	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+	    filletPanel.add( materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
 

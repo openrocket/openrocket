@@ -464,34 +464,6 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 	
-	protected JPanel instanceablePanel() {
-		JPanel panel = new JPanel( new MigLayout("fill, insets 0") );
-		{ // Instance Count
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
-			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
-			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
-			countSpinner.setEditor(new SpinnerEditor(countSpinner));
-			panel.add(countSpinner, "w 100lp, wrap rel");
-			order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
-		}
-		
-		{ // Instance separation
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceSeparation")));
-			DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
-			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
-			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
-			panel.add(separationSpinner, "growx");
-			order.add(((SpinnerEditor) separationSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(separationModel), "growx");
-			double maxSeparationDistance = 0.1;
-			if (component.getParent() != null && component.getParent().getLength() > 0) {
-				maxSeparationDistance = component.getParent().getLength();
-			}
-			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
-		}
-		return panel;
-	}
-	
 	private JPanel overrideTab() {
 		JPanel panel = new JPanel(new MigLayout("align 0% 20%, gap rel unrel",
 				"[][65lp::80lp][::20lp][]", ""));
