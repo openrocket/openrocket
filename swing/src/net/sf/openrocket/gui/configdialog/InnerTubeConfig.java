@@ -307,18 +307,15 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		// Tube separation scale
 		//// Tube separation:
 		JLabel l = new JLabel(trans.get("InnerTubeCfg.lbl.TubeSep"));
-		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(l);
 		DoubleModel dm = new DoubleModel(component, "ClusterSeparation", 1, UnitGroup.UNITS_LENGTH, 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		subPanel.add(new UnitSelector(dm), "growx");
 		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 0.04, 0.1));
-		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(bs, "w 100lp, wrap");
 
 		// Rotation:
