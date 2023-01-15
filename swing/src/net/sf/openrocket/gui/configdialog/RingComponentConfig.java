@@ -135,9 +135,6 @@ public class RingComponentConfig extends RocketComponentConfig {
 
 		primary.add(panel, "grow, gapright 40lp");
 
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
-
 		// Right side panel
 		JPanel rightSide = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 		primary.add(rightSide, "cell 4 0, aligny 0, spany");

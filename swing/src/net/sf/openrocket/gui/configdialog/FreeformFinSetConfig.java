@@ -169,11 +169,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
 		}
 
-		mainPanel.add(panel, "aligny 0, gapright 50lp");
-
-		// Separator
-		//mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 20lp 20lp");
-
+		mainPanel.add(panel, "aligny 0, gapright 40lp");
 
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));

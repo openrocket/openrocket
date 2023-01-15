@@ -138,10 +138,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		}
 
 
-		primary.add(panel, "grow, gapright 50lp");
-
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 20lp 20lp");
+		primary.add(panel, "grow, gapright 40lp");
 
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));

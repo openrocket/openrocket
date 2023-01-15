@@ -648,7 +648,7 @@ public class AppearancePanel extends JPanel {
 
 		panel.add(spinShine, "split 3, w 60");
 		panel.add(unitShine);
-		panel.add(slideShine, "w 50, growx");
+		panel.add(slideShine, "w 100lp");
 		order.add(order.indexOf(colorButton) + 1, ((SpinnerEditor) spinShine.getEditor()).getTextField());
 
 		// Offset
@@ -685,7 +685,7 @@ public class AppearancePanel extends JPanel {
 
 		panel.add(spinOpacity, "split 3, w 60");
 		panel.add(unitOpacity);
-		panel.add(slideOpacity, "w 50, growx");
+		panel.add(slideOpacity, "w 100lp");
 		order.add(order.indexOf(((SpinnerEditor) spinShine.getEditor()).getTextField()) + 1,
 				((SpinnerEditor) spinOpacity.getEditor()).getTextField());
 
@@ -702,7 +702,7 @@ public class AppearancePanel extends JPanel {
 		BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(
 				-Math.PI, Math.PI));
 		mDefault.addEnableComponent(bs, false);
-		panel.add(bs, "w 100, wrap");
+		panel.add(bs, "w 100lp, wrap");
 
 		// Repeat
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2, gapleft para");

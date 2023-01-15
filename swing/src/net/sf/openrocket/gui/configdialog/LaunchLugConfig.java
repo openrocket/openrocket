@@ -98,9 +98,6 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		primary.add(panel, "grow, gapright 40lp");
 
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 20lp 20lp");
-
 		// Right panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
 

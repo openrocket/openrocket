@@ -81,11 +81,8 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 
 		////  Inner diameter:
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Innerdiam")));
-		
-		// Diameter = 2*Radius
+
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-		
-		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -95,7 +92,6 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap rel");
 		
 		
-		////  Wall thickness
 		//// Thickness:
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Thickness")));
 		
@@ -109,10 +105,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 20lp");
 		
-		primary.add(panel, "grow, gapright 50lp");
-
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
+		primary.add(panel, "grow, gapright 40lp");
 
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));

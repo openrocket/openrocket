@@ -59,9 +59,6 @@ public class ShockCordConfig extends RocketComponentConfig {
 				trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null, "Material", order);
 		panel.add(materialPanel, "spanx 4, wrap, gapright 40lp");
 
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
-
 		/////  Right side
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 		primary.add(panel, "aligny 0%, grow, spany");

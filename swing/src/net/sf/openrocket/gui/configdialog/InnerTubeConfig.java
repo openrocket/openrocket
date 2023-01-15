@@ -148,9 +148,6 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		mainPanel.add(panel, "aligny 0, gapright 40lp");
 
-		// Separator
-		//mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
-
 		//// Right side of panel ----
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]"));
 

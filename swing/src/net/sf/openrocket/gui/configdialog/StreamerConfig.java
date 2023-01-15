@@ -140,9 +140,6 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		primary.add(panel, "grow, gapright 20lp");
 
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
-
 		//	Right side
 		panel = new JPanel(new MigLayout("ins 0"));
 

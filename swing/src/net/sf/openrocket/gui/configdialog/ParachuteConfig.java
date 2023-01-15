@@ -158,9 +158,6 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(shroudPanel, "spanx, wrap");
 		primary.add(panel, "grow, gapright 20lp");
 
-		// Separator
-		//primary.add(new JSeparator(SwingConstants.VERTICAL), "growy, gapx 10lp 10lp");
-
 		// Right side
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
 
