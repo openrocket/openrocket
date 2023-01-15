@@ -146,6 +146,7 @@ public class RollControl extends AbstractSimulationExtension {
 			if (finset == null) {
 				throw new SimulationException("A fin set with name '" + getControlFinName() + "' was not found");
 			}
+			System.out.println("fin set found at " + finset.hashCode());
 
 			// remember the initial fin position so we can set it back after running the simulation
 			initialFinPosition = finset.getCantAngle();
@@ -165,6 +166,8 @@ public class RollControl extends AbstractSimulationExtension {
 				prevTime = status.getSimulationTime();
 				return;
 			}
+			System.out.println("using fin set at " + finset.hashCode());
+			
 			
 			// Determine time step
 			double deltaT = status.getSimulationTime() - prevTime;
@@ -187,10 +190,10 @@ public class RollControl extends AbstractSimulationExtension {
 			}
 			
 			// Clamp the fin angle between bounds
-			if (Math.abs(value) > getMaxFinAngle()) {
+			if (Math.abs(finPosition) > getMaxFinAngle()) {
 				System.err.printf("Attempting to set angle %.1f at t=%.3f, clamping.\n",
-								  value * 180 / Math.PI, status.getSimulationTime());
-				value = MathUtil.clamp(value, -getMaxFinAngle(), getMaxFinAngle());
+								  finPosition * 180 / Math.PI, status.getSimulationTime());
+				finPosition = MathUtil.clamp(finPosition, -getMaxFinAngle(), getMaxFinAngle());
 			}
 			
 			// Set the control fin cant and store the data
