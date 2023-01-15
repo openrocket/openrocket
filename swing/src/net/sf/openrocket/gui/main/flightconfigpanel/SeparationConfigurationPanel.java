@@ -219,7 +219,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}
@@ -245,7 +245,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.AEROMASS_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}

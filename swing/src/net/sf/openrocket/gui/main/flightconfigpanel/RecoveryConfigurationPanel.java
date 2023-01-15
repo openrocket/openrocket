@@ -209,7 +209,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}
@@ -235,7 +235,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			}
 		}
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}

@@ -525,6 +525,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateMotors();
 		updateActiveInstances();
 	}
+
+	/**
+	 * Update the configuration's modID, thus staging it in need to update.
+	 */
+	public void updateModID() {
+		this.modID++;
+	}
 	
 	private void updateStages() {
 		Map<Integer, FlightConfiguration.StageFlags> stagesBackup = new HashMap<>(this.stages);
@@ -890,13 +897,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	@Override
 	public int getModID() {
-		// TODO: this doesn't seem consistent...
-		int id = modID;
-//		for (MotorInstance motor : motors.values()) {
-//			id += motor.getModID();
-//		}
-		id += rocket.getModID();
-		return id; 
+		return modID;
 	}
 
 	public void setName(final String newName) {
