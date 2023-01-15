@@ -1070,7 +1070,7 @@ public class TestRockets {
 						boosterMotorTubes.setThickness(0.0005);
 						boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[5]); // 4-ring
 						//boosterMotorTubes.setClusterConfiguration( ClusterConfiguration.CONFIGURATIONS[13]); // 9-star
-						boosterMotorTubes.setClusterScale(1.0);
+						boosterMotorTubes.setClusterSeparation(0.03);
 						boosterBody.addChild( boosterMotorTubes);
 						
 						MotorConfiguration boosterMotorConfig = new MotorConfiguration( boosterMotorTubes, selFCID);

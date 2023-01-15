@@ -359,6 +359,8 @@ class DocumentConfig {
 		setters.put("InnerTube:clusterconfiguration", new ClusterConfigurationSetter());
 		setters.put("InnerTube:clusterscale", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterScale", double.class)));
+		setters.put("InnerTube:clusterseparation", new DoubleSetter(
+				Reflection.findMethod(InnerTube.class, "setClusterSeparation", double.class)));
 		setters.put("InnerTube:clusterrotation", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterRotation", double.class),
 				Math.PI / 180.0));

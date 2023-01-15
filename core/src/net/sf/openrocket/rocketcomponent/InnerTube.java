@@ -31,7 +31,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	private static final Logger log = LoggerFactory.getLogger(InnerTube.class);
 	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
-	private double clusterScale = 1.0;
+	private double clusterSeparation = 0.0;
 	private double clusterRotation = 0.0;
 	
 	private double overhang = 0;
@@ -48,7 +48,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 		this.setOuterRadius(0.019 / 2);
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
-		
+		this.setClusterSeparation(0.019);
+
 		motors = new MotorConfigurationSet(this);
 
 		super.displayOrder_side = 5;		// Order for displaying the component in the 2D side view
@@ -177,35 +178,51 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 * pack inside each other.
 	 */
 	public double getClusterScale() {
-		return clusterScale;
+		return getClusterSeparation() / (getOuterRadius() * 2);
+	}
+
+	/**
+	 * Set the cluster scale.
+	 */
+	public void setClusterScale(double scale) {
+		double separation = scale * getOuterRadius() * 2;
+		setClusterSeparation(separation);
 	}
 	
 	@Override
 	public boolean isAfter(){ 
 		return false;
 	}
-	
+
 	/**
-	 * Set the cluster scaling.
-	 * @see #getClusterScale()
+	 * Return the distance between the closest two cluster inner tube center points.
+	 * This is equivalent to the cluster scale multiplied by the tube diameter.
 	 */
-	public void setClusterScale(double scale) {
-		scale = Math.max(scale, 0);
+	@Override
+	public double getClusterSeparation() {
+		return clusterSeparation;
+	}
+
+	/**
+	 * Set the cluster separation distance.
+	 * @see #getClusterSeparation()
+	 */
+	public void setClusterSeparation(double distance) {
+		distance = Math.max(distance, 0);
 
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setClusterScale(scale);
+				((InnerTube) listener).setClusterSeparation(distance);
 			}
 		}
 
-		if (MathUtil.equals(clusterScale, scale))
+		if (MathUtil.equals(clusterSeparation, distance))
 			return;
-		clusterScale = scale;
+		clusterSeparation = distance;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 	}
-	
-	
-	
+
+
 	/**
 	 * @return the clusterRotation
 	 */
@@ -231,16 +248,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
-	
-	/**
-	 * Return the distance between the closest two cluster inner tube center points.
-	 * This is equivalent to the cluster scale multiplied by the tube diameter.
-	 */
-	@Override
-	public double getClusterSeparation() {
-		return 2 * getOuterRadius() * clusterScale;
-	}
-	
+
+
 	public List<Coordinate> getClusterPoints() {
 		List<Coordinate> list = new ArrayList<Coordinate>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
@@ -438,7 +447,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 		copy.clearConfigListeners();
 		copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
 		copy.setClusterRotation(0.0);
-		copy.setClusterScale(1.0);
+		copy.setClusterSeparation(copy.getOuterRadius() * 2);
 		copy.setRadialShift(coord.y, coord.z);
 		copy.setName(splitName);
 		return copy;

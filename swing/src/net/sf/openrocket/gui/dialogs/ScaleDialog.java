@@ -169,6 +169,7 @@ public class ScaleDialog extends JDialog {
 		
 		// InnerTube
 		addScaler(InnerTube.class, "MotorOverhang", SCALERS_NO_OFFSET);
+		addScaler(InnerTube.class, "ClusterSeparation", SCALERS_NO_OFFSET);
 		
 		// RadiusRingComponent
 		list = new ArrayList<>(1);

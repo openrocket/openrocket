@@ -307,22 +307,19 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		// Tube separation scale
 		//// Tube separation:
 		JLabel l = new JLabel(trans.get("InnerTubeCfg.lbl.TubeSep"));
-		//// The separation of the tubes, 1.0 = touching each other
 		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(l);
-		DoubleModel dm = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
-
+		DoubleModel dm = new DoubleModel(component, "ClusterSeparation", 1, UnitGroup.UNITS_LENGTH, 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		//// The separation of the tubes, 1.0 = touching each other
 		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
-		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 1, 4));
-		//// The separation of the tubes, 1.0 = touching each other
+		subPanel.add(new UnitSelector(dm), "growx");
+		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 0.04, 0.1));
 		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
-		subPanel.add(bs, "skip,w 100lp, wrap");
+		subPanel.add(bs, "w 100lp, wrap");
 
 		// Rotation:
 		l = new JLabel(trans.get("InnerTubeCfg.lbl.Rotation"));
@@ -406,7 +403,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		reset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				((InnerTube) component).setClusterScale(1.0);
+				((InnerTube) component).setClusterSeparation(((InnerTube) component).getOuterRadius() * 2);
 				((InnerTube) component).setClusterRotation(0.0);
 			}
 		});
@@ -423,7 +420,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 class ClusterSelectionPanel extends JPanel {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1804786106133398810L;
 	private static final int BUTTON_SIZE = 50;
@@ -453,9 +450,9 @@ class ClusterSelectionPanel extends JPanel {
 
 
 	private class ClusterButton extends JPanel implements StateChangeListener, MouseListener,
-	Resettable {
+			Resettable {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 3626386642481889629L;
 		private Clusterable component;

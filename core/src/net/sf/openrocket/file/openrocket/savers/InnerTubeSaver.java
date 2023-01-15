@@ -28,6 +28,7 @@ public class InnerTubeSaver extends ThicknessRingComponentSaver {
 
 		elements.add("<clusterconfiguration>" + tube.getClusterConfiguration().getXMLName()
 				+ "</clusterconfiguration>");
+		elements.add("<clusterseparation>" + tube.getClusterSeparation() + "</clusterseparation>");
 		elements.add("<clusterscale>" + tube.getClusterScale() + "</clusterscale>");
 		elements.add("<clusterrotation>" + (tube.getClusterRotation() * 180.0 / Math.PI)
 				+ "</clusterrotation>");

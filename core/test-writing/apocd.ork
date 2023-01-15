@@ -211,7 +211,7 @@
                 <outerradius>0.02743</outerradius>
                 <thickness>2.500000000000002E-4</thickness>
                 <clusterconfiguration>single</clusterconfiguration>
-                <clusterscale>1.0</clusterscale>
+                <clusterseparation>0.05486</clusterseparation>
                 <clusterrotation>0.0</clusterrotation>
                 <motormount>
                   <ignitionevent>automatic</ignitionevent>

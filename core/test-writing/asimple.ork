@@ -65,7 +65,7 @@
                 <outerradius>0.0095</outerradius>
                 <thickness>5.000000000000004E-4</thickness>
                 <clusterconfiguration>single</clusterconfiguration>
-                <clusterscale>1.0</clusterscale>
+                <clusterseparation>0.019</clusterseparation>
                 <clusterrotation>0.0</clusterrotation>
                 <motormount>
                   <motor configid="da326836-0959-4c94-bcd5-49dee07235a4">
