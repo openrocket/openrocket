@@ -25,7 +25,6 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -985,6 +984,7 @@ public class RocketActions {
 					ComponentConfigDialog.disposeDialog();
 
 				RocketComponent component = components.get(0);
+				component.clearConfigListeners();
 				if (components.size() > 1) {
 					for (int i = 1; i < components.size(); i++) {
 						RocketComponent listener = components.get(i);

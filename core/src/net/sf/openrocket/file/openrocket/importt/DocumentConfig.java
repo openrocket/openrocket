@@ -248,7 +248,9 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setAftShoulderThickness", double.class)));
 		setters.put("Transition:aftshouldercapped", new BooleanSetter(
 				Reflection.findMethod(Transition.class, "setAftShoulderCapped", boolean.class)));
-		
+
+		setters.put("NoseCone:isflipped", new BooleanSetter(
+				Reflection.findMethod(NoseCone.class, "setFlipped", boolean.class, boolean.class), false));
 		// NoseCone - disable disallowed elements
 		setters.put("NoseCone:foreradius", null);
 		setters.put("NoseCone:foreshoulderradius", null);

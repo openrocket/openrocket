@@ -1,7 +1,9 @@
 package net.sf.openrocket.gui.main.componenttree;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -80,6 +82,8 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 				p.setToolTipText(getToolTipSingleComponent(c));
 			}
 
+			Font originalFont = tree.getFont();
+			p.setFont(originalFont);
 			comp = p;
 		}
 

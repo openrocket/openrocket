@@ -78,7 +78,7 @@ public class ZipDirectoryIterator extends FileIterator {
 	
 	
 	@Override
-	protected Pair<String, InputStream> findNext() {
+	protected Pair<File, InputStream> findNext() {
 		if (entries == null) {
 			return null;
 		}
@@ -90,7 +90,7 @@ public class ZipDirectoryIterator extends FileIterator {
 			if (name.startsWith(directory) && filter.accept(file)) {
 				try {
 					InputStream is = zipFile.getInputStream(entry);
-					return new Pair<String, InputStream>(name, is);
+					return new Pair<>(file, is);
 				} catch (IOException e) {
 					logger.error("IOException when reading ZIP file " + zipFileName, e);
 				}

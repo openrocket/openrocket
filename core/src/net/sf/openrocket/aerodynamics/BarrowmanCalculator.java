@@ -21,6 +21,7 @@ import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
@@ -44,7 +45,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
 
-	
 	public BarrowmanCalculator() {
 		
 	}
@@ -252,7 +252,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 
-		testIsContinuous(configuration, configuration.getRocket(), warnings);
+		checkGeometry(configuration, configuration.getRocket(), warnings);
 		
 		final InstanceMap imap = configuration.getActiveInstances();
 
@@ -276,7 +276,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 
 	@Override
-	public void testIsContinuous(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
+	public void checkGeometry(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
 		Queue<RocketComponent> queue = new LinkedList<>();
 		for (RocketComponent child : treeRoot.getChildren()) {
 			// Ignore inactive stages
@@ -299,14 +299,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 				
 				SymmetricComponent sym = (SymmetricComponent) comp;
+				prevComp = sym.getPreviousSymmetricComponent();
 				if( null == prevComp){
-					prevComp = sym;
-					continue;
-				}
-				
-				// Check for radius discontinuity
-				if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
-					warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
+					if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
+						warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
+					}
+				} else {
+					// Check for radius discontinuity
+					// We're going to say it's discontinuous if it is presented to the user as having two different
+					// string representations.  Hopefully there are enough digits in the string that it will
+					// present as different if the discontinuity is big enough to matter.
+					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius()).equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
+						//					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
+						warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
+					}
 				}
 				
 				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
@@ -318,9 +324,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
                 //}
 				//componentX = component.toAbsolute(new Coordinate(component.getLengthAerodynamic()))[0].x;
 						
-				prevComp = sym;
 			}else if( comp instanceof ComponentAssembly ){
-				testIsContinuous(configuration, comp, warnings);
+				checkGeometry(configuration, comp, warnings);
 			}
 			
 		}

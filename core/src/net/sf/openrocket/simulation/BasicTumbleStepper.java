@@ -69,6 +69,27 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
 		
 		// Perform Euler integration
+		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
+			add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+
+		// If I've hit the ground, recalculate time step and position
+		if (newPosition.z < 0) {
+
+			final double a = linearAcceleration.z;
+			final double v = status.getRocketVelocity().z;
+			final double z0 = status.getRocketPosition().z;
+
+			// The new timestep is the solution of
+			// 1/2 at^2 + vt + z0 = 0
+			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
+			
+			newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
+				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+
+			// avoid rounding error in new altitude
+			newPosition = newPosition.setZ(0);
+		}
+
 		status.setRocketPosition(status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2)));
 		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
