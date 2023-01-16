@@ -357,6 +357,7 @@ class DocumentConfig {
 		setters.put("InnerTube:outerradius", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setOuterRadius", double.class)));
 		setters.put("InnerTube:clusterconfiguration", new ClusterConfigurationSetter());
+		// TODO: delete clusterscale when compatibility with OpenRocket 15.03 is not needed anymore
 		setters.put("InnerTube:clusterscale", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterScale", double.class)));
 		setters.put("InnerTube:clusterseparation", new DoubleSetter(

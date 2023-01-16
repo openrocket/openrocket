@@ -196,7 +196,6 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 
 	/**
 	 * Return the distance between the closest two cluster inner tube center points.
-	 * This is equivalent to the cluster scale multiplied by the tube diameter.
 	 */
 	@Override
 	public double getClusterSeparation() {
