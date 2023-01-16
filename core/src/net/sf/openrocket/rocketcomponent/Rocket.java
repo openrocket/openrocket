@@ -476,11 +476,23 @@ public class Rocket extends ComponentAssembly {
 	 * @param ids IDs of the flight configurations to update, or null to update all.
 	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
 	 */
-	public void fireComponentChangeEvent(int type, FlightConfigurationId[] ids) {
+	public void fireComponentChangeEvent(int type, final FlightConfigurationId[] ids) {
 		fireComponentChangeEvent(new ComponentChangeEvent(this, type), ids);
 	}
 
-	protected void fireComponentChangeEvent(ComponentChangeEvent cce, FlightConfigurationId[] ids) {
+	/**
+	 * Fires a ComponentChangeEvent of the given type.  The source of the event is set to
+	 * this rocket.
+	 *
+	 * @param type  Type of event
+	 * @param id ID of the flight configurations to update, or null to update all.
+	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
+	 */
+	public void fireComponentChangeEvent(int type, FlightConfigurationId id) {
+		fireComponentChangeEvent(type, new FlightConfigurationId[]{ id });
+	}
+
+	protected void fireComponentChangeEvent(ComponentChangeEvent cce, final FlightConfigurationId[] ids) {
 		if (!this.eventsEnabled) {
 			return;
 		}
