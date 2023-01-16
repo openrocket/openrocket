@@ -139,12 +139,12 @@ public class RingComponentConfig extends RocketComponentConfig {
 		JPanel rightSide = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 		primary.add(rightSide, "cell 4 0, aligny 0, spany");
 
+		//// Position
+		rightSide.add(new PlacementPanel(component, order), "span, grow");
+
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		rightSide.add(materialPanel, "span, grow, wrap");
-
-		//// Position
-		rightSide.add(new PlacementPanel(component, order), "span, grow");
 
 		return primary;
 	}

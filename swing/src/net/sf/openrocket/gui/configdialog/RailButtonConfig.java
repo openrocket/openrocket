@@ -143,10 +143,6 @@ public class RailButtonConfig extends RocketComponentConfig {
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
 
-		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel,"span, grow, wrap");
-
 		{// -------- Placement ------
 			//// Position relative to:
 			JPanel placementPanel = new PlacementPanel(component, order);
@@ -163,6 +159,10 @@ public class RailButtonConfig extends RocketComponentConfig {
 				placementPanel.add(new BasicSlider(angleModel.getSliderModel(-Math.PI, Math.PI)), "w 100lp");
 			}
 		}
+
+		//// Material
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		panel.add(materialPanel,"span, grow, wrap");
 
 		primary.add(panel, "grow");
 

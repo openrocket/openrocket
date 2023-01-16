@@ -174,15 +174,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 
-		{ //// Root fillets
-			panel.add(filletMaterialPanel(), "span, grow, wrap");
-		}
-
-		{ //// Material
-			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-			panel.add(materialPanel, "span, grow, wrap");
-		}
-
 		{//// -------- Placement ------
 			//// Position relative to:
 			JPanel placementPanel = new PlacementPanel(component, order);
@@ -203,6 +194,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				placementPanel.add(new UnitSelector(m), "growx");
 				placementPanel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 			}
+		}
+
+		{ //// Material
+			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			panel.add(materialPanel, "span, grow, wrap");
+		}
+
+		{ //// Root fillets
+			panel.add(filletMaterialPanel(), "span, grow, wrap");
 		}
 		
 		mainPanel.add(panel, "aligny 0");

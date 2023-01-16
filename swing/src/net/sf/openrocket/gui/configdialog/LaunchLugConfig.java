@@ -101,10 +101,6 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		// Right panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
 
-		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel, "span, grow, wrap");
-
 		{//// Placement
 			//// Position relative to:
 			JPanel placementPanel = new PlacementPanel(component, order);
@@ -123,6 +119,10 @@ public class LaunchLugConfig extends RocketComponentConfig {
 			placementPanel.add(new UnitSelector(m), "growx");
 			placementPanel.add(new BasicSlider(m.getSliderModel()), "w 100lp, wrap");
 		}
+
+		//// Material
+		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		panel.add(materialPanel, "span, grow, wrap");
 
 		primary.add(panel, "grow");
 		

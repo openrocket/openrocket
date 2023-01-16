@@ -151,12 +151,12 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// Right side of panel ----
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]"));
 
+		//// ---------------------------- Placement ----------------------------
+		panel.add(new PlacementPanel(component, order), "span, grow");
+
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel.add(materialPanel, "span, grow, wrap");
-
-		//// ---------------------------- Placement ----------------------------
-		panel.add(new PlacementPanel(component, order), "span, grow");
 
 		mainPanel.add(panel, "aligny 0");
 
