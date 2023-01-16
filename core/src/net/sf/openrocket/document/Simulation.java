@@ -339,7 +339,13 @@ public class Simulation implements ChangeSource, Cloneable {
 	public static boolean isStatusUpToDate(Status status) {
 		return status == Status.UPTODATE || status == Status.LOADED || status == Status.EXTERNAL;
 	}
-	
+
+	/**
+	 * Syncs the modID with its flight configuration.
+	 */
+	public void syncModID() {
+		this.simulatedConfigurationID = getActiveConfiguration().getModID();
+	}
 	
 	
 	/**

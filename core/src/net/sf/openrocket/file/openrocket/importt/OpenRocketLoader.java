@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 		// Deduce suitable time skip
 		double timeSkip = StorageOptions.SIMULATION_DATA_NONE;
 		for (Simulation s : doc.getSimulations()) {
+			s.syncModID();		// The config's modID can be out of sync with the simulation's after the whole loading process
 			if (s.getStatus() == Simulation.Status.EXTERNAL ||
 					s.getStatus() == Simulation.Status.NOT_SIMULATED)
 				continue;
