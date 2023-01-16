@@ -32,10 +32,8 @@ public class MaterialPanel extends JPanel {
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
                          Material.Type type, String materialString, String finishString,
                          String partName,  List<Component> order) {
-        super(new MigLayout(component instanceof ExternalComponent ? "" : "ins 0"));
-        if (component instanceof ExternalComponent) {
-            this.setBorder(BorderFactory.createTitledBorder(trans.get("MaterialPanel.title.Material")));
-        }
+        super(new MigLayout());
+        this.setBorder(BorderFactory.createTitledBorder(trans.get("MaterialPanel.title.Material")));
 
         JLabel label = new JLabel(materialString);
         //// The component material affects the weight of the component.
