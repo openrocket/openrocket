@@ -36,5 +36,8 @@
 	<classpathentry kind="lib" path="lib/jaxb-api.2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-runtime.2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-26.0-jre.jar"/>
+	<classpathentry kind="lib" path="lib/istack-commons-runtime.jar"/>
+	<classpathentry kind="lib" path="lib/graal-sdk-22.1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/js-scriptengine-22.1.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
