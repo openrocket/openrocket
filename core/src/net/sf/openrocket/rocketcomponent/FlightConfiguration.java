@@ -427,7 +427,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 			// constructs entry in-place if this component is active
 			if (this.isComponentActive(component)) {
-				results.emplace(component, this.isComponentActive(component), currentInstanceNumber, currentTransform);
+				results.emplace(component, currentInstanceNumber, currentTransform);
 			}
 
 			for(RocketComponent child : component.getChildren()) {
