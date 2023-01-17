@@ -146,7 +146,6 @@ public class RollControl extends AbstractSimulationExtension {
 			if (finset == null) {
 				throw new SimulationException("A fin set with name '" + getControlFinName() + "' was not found");
 			}
-			System.out.println("fin set found at " + finset.hashCode());
 
 			// remember the initial fin position so we can set it back after running the simulation
 			initialFinPosition = finset.getCantAngle();
@@ -166,8 +165,6 @@ public class RollControl extends AbstractSimulationExtension {
 				prevTime = status.getSimulationTime();
 				return;
 			}
-			System.out.println("using fin set at " + finset.hashCode());
-			
 			
 			// Determine time step
 			double deltaT = status.getSimulationTime() - prevTime;

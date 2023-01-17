@@ -323,7 +323,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				//		radius = 0;
                 //}
 				//componentX = component.toAbsolute(new Coordinate(component.getLengthAerodynamic()))[0].x;
-						
+				
 			}else if( comp instanceof ComponentAssembly ){
 				checkGeometry(configuration, comp, warnings);
 			}

@@ -464,7 +464,6 @@ public class Rocket extends ComponentAssembly {
 	
 	
 	public void printListeners() {
-		System.out.println("" + this + " has " + listenerList.size() + " listeners:");
 		int i = 0;
 		for (EventListener l : listenerList) {
 			System.out.println("  " + (i) + ": " + l);
