@@ -58,7 +58,7 @@ public class UpdateInfoDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("insets n n 8px n, fill"));
 
 		//	OpenRocket logo on the left
-		panel.add(new JLabel(Icons.getScaledIcon(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket"), 0.6)),
+		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-128.png", "OpenRocket")),
 				"spany, top, gapright 20px, cell 0 0");
 
 		//	OpenRocket version available!

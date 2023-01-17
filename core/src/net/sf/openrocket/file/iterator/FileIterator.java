@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.iterator;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -20,10 +21,10 @@ import net.sf.openrocket.util.Pair;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class FileIterator implements Iterator<Pair<String, InputStream>> {
+public abstract class FileIterator implements Iterator<Pair<File, InputStream>> {
 	private static final Logger logger = LoggerFactory.getLogger(FileIterator.class);
 	
-	private Pair<String, InputStream> next = null;
+	private Pair<File, InputStream> next = null;
 	private int fileCount = 0;
 	
 	@Override
@@ -37,7 +38,7 @@ public abstract class FileIterator implements Iterator<Pair<String, InputStream>
 	
 	
 	@Override
-	public Pair<String, InputStream> next() {
+	public Pair<File, InputStream> next() {
 		if (next == null) {
 			next = findNext();
 		}
@@ -45,7 +46,7 @@ public abstract class FileIterator implements Iterator<Pair<String, InputStream>
 			throw new NoSuchElementException("No more files");
 		}
 		
-		Pair<String, InputStream> n = next;
+		Pair<File, InputStream> n = next;
 		next = null;
 		fileCount++;
 		return n;
@@ -86,10 +87,10 @@ public abstract class FileIterator implements Iterator<Pair<String, InputStream>
 	}
 	
 	/**
-	 * Return the next pair of file name and InputStream.
+	 * Return the next pair of file and InputStream.
 	 * 
-	 * @return	a pair with the file name and input stream reading the file.
+	 * @return	a pair with the file and input stream reading the file.
 	 */
-	protected abstract Pair<String, InputStream> findNext();
+	protected abstract Pair<File, InputStream> findNext();
 	
 }

@@ -58,7 +58,17 @@ public class DescriptionArea extends JScrollPane {
 	public DescriptionArea(String text, int rows, float size) {
 		this(text, rows, size, true);
 	}
-	
+
+	/**
+	 * Construct an opaque description area with the specified number of rows, size and text, being opaque.
+	 *
+	 * @param text	the initial text.
+	 * @param rows	the number of rows.
+	 */
+	public DescriptionArea(String text, int rows) {
+		this(text, rows, -1);
+	}
+
 	/**
 	 * Constructor with all options.
 	 * 

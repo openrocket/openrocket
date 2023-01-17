@@ -78,8 +78,16 @@ public class ClassBasedTranslator implements Translator {
 	public String getBaseText(String base, String translation) {
 		return translator.getBaseText(base, translation);
 	}
-	
-	
+
+	@Override
+	public boolean checkIfKeyExists(String key) {
+		try {
+			get(key);
+			return true;
+		} catch (MissingResourceException e) {
+			return false;
+		}
+	}
 	
 	private String findClassName() {
 		Throwable trace = new Throwable();

@@ -50,8 +50,8 @@ public class SerializePresets extends BasicApplication {
 			}
 			
 			while (iterator.hasNext()) {
-				Pair<String, InputStream> f = iterator.next();
-				String fileName = f.getU();
+				Pair<File, InputStream> f = iterator.next();
+				String fileName = f.getU().getName();
 				InputStream is = f.getV();
 				
 				OpenRocketComponentLoader loader = new OpenRocketComponentLoader();

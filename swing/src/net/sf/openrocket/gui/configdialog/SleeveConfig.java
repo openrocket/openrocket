@@ -31,7 +31,9 @@ public class SleeveConfig extends RingComponentConfig {
 		tabbedPane.setSelectedIndex(0);
 
 		// Apply the custom focus travel policy to this panel
-		order.add(closeButton);		// Make sure the close button is the last component
+		//// Make sure the cancel & ok button is the last component
+		order.add(cancelButton);
+		order.add(okButton);
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 	}

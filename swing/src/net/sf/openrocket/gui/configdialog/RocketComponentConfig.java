@@ -5,7 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +22,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -35,30 +41,40 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
+import net.sf.openrocket.gui.adaptors.TextComponentSelectionKeyListener;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconToggleButton;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 
 public class RocketComponentConfig extends JPanel {
 	private static final long serialVersionUID = -2925484062132243982L;
 
+	// Preference key
+	private static final String IGNORE_DISCARD_EDITING_WARNING = "IgnoreDiscardEditingWarning";
+
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences preferences = Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
-	protected final JDialog parent;
+	protected final ComponentConfigDialog parent;
+	protected boolean isNewComponent = false;		// Checks whether this config dialog is editing an existing component, or a new one
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
 	protected final List<Component> order = new ArrayList<>();		// Component traversal order
@@ -70,9 +86,13 @@ public class RocketComponentConfig extends JPanel {
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
-	
+
+	private DescriptionArea componentInfo;
+	private IconToggleButton infoBtn;
+
 	private JPanel buttonPanel;
-	protected JButton closeButton;
+	protected JButton okButton;
+	protected JButton cancelButton;
 	private AppearancePanel appearancePanel = null;
 	
 	private JLabel infoLabel;
@@ -82,11 +102,15 @@ public class RocketComponentConfig extends JPanel {
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
 
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
-		setLayout(new MigLayout("fill, gap 4!, ins panel", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
+		setLayout(new MigLayout("fill, gap 4!, ins panel, hidemode 3", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
 
 		this.document = document;
 		this.component = component;
-		this.parent = parent;
+		if (parent instanceof ComponentConfigDialog) {
+			this.parent = (ComponentConfigDialog) parent;
+		} else {
+			this.parent = null;
+		}
 
 		// Check the listeners for the same type and massive status
 		allSameType = true;
@@ -114,6 +138,7 @@ public class RocketComponentConfig extends JPanel {
 		textFieldListener = new TextFieldListener();
 		componentNameField.addActionListener(textFieldListener);
 		componentNameField.addFocusListener(textFieldListener);
+		componentNameField.addKeyListener(new TextComponentSelectionKeyListener(componentNameField));
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.lbl.Componentname.ttip"));
 		this.add(componentNameField, "growx");
@@ -169,18 +194,71 @@ public class RocketComponentConfig extends JPanel {
 
 		updateFields();
 	}
-	
+
+	/**
+	 * Add a section to the component configuration dialog that displays information about the component.
+	 */
+	private void addComponentInfo(JPanel buttonPanel) {
+		// Don't add the info panel if this is a multi-comp edit
+		List<RocketComponent> listeners = component.getConfigListeners();
+		if (listeners != null && listeners.size() > 0) {
+			return;
+		}
+
+		final String helpText;
+		final String key = "ComponentInfo." + component.getClass().getSimpleName();
+		if (!trans.checkIfKeyExists(key)) {
+			return;
+		}
+		helpText = "<html>" + trans.get(key) + "</html>";
+
+		// Component info
+		componentInfo = new DescriptionArea(helpText, 5);
+		componentInfo.setTextFont(null);
+		componentInfo.setVisible(false);
+		this.add(componentInfo, "gapleft 10, gapright 10, growx, spanx, wrap");
+
+		// Component info toggle button
+		infoBtn = new IconToggleButton();
+		infoBtn.setToolTipText(trans.get("RocketCompCfg.btn.ComponentInfo.ttip"));
+		infoBtn.setIconScale(1.2f);
+		infoBtn.setSelectedIcon(Icons.HELP_ABOUT);
+		buttonPanel.add(infoBtn, "split 3, gapright para");
+
+		infoBtn.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// Note: we will display the help text if the infoButton is not selected, and hide it if it is selected.
+				// This way, the info button is displayed as "enabled" to draw attention to it.
+				componentInfo.setVisible(e.getStateChange() != ItemEvent.SELECTED);
+
+				// Repaint to fit to the new size
+				if (parent != null) {
+					parent.pack();
+				} else {
+					updateUI();
+				}
+			}
+		});
+
+		infoBtn.setSelected(true);
+	}
 	
 	protected void addButtons(JButton... buttons) {
+		if (componentInfo != null) {
+			this.remove(componentInfo);
+		}
 		if (buttonPanel != null) {
 			this.remove(buttonPanel);
 		}
 		
-		buttonPanel = new JPanel(new MigLayout("fillx, ins 5"));
+		buttonPanel = new JPanel(new MigLayout("fill, ins 5, hidemode 3"));
+
+		//// Component info
+		addComponentInfo(buttonPanel);
 
 		//// Multi-comp edit label
 		multiCompEditLabel = new StyledLabel(" ", -1, Style.BOLD);
-		//multiCompEditLabel.setFontColor(new Color(0, 0, 239));
 		multiCompEditLabel.setFontColor(new Color(170, 0, 100));
 		buttonPanel.add(multiCompEditLabel, "split 2");
 
@@ -191,20 +269,74 @@ public class RocketComponentConfig extends JPanel {
 		for (JButton b : buttons) {
 			buttonPanel.add(b, "right, gap para");
 		}
-		
-		//// Close button
-		this.closeButton = new SelectColorButton(trans.get("dlg.but.close"));
-		closeButton.addActionListener(new ActionListener() {
+
+		//// Cancel button
+		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		this.cancelButton.setToolTipText(trans.get("RocketCompCfg.btn.Cancel.ttip"));
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (preferences.getBoolean(IGNORE_DISCARD_EDITING_WARNING, false)) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
+					ComponentConfigDialog.disposeDialog();
+					document.undo();
+					return;
+				}
+				if (!isNewComponent && parent != null && !parent.isModified()) {
+					ComponentConfigDialog.disposeDialog();
+					return;
+				}
+
+				// Yes/No dialog: Are you sure you want to discard your changes?
+				JPanel msg = createCancelOperationContent();
+				int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
+						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (resultYesNo == JOptionPane.YES_OPTION) {
+					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
+					ComponentConfigDialog.disposeDialog();
+					document.undo();
+				}
+			}
+		});
+		buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
+
+		//// Ok button
+		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		this.okButton.setToolTipText(trans.get("RocketCompCfg.btn.OK.ttip"));
+		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ComponentConfigDialog.disposeDialog();
 			}
 		});
-		buttonPanel.add(closeButton, "right, gap 30lp");
-		
+		buttonPanel.add(okButton);
+
 		updateFields();
 		
 		this.add(buttonPanel, "newline, spanx, growx");
+	}
+
+	private JPanel createCancelOperationContent() {
+		JPanel panel = new JPanel(new MigLayout());
+		String msg = isNewComponent ? trans.get("RocketCompCfg.CancelOperation.msg.undoAdd") :
+				trans.get("RocketCompCfg.CancelOperation.msg.discardChanges");
+		JLabel msgLabel = new JLabel(msg);
+		JCheckBox dontAskAgain = new JCheckBox(trans.get("RocketCompCfg.CancelOperation.checkbox.dontAskAgain"));
+		dontAskAgain.setSelected(false);
+		dontAskAgain.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					preferences.putBoolean(IGNORE_DISCARD_EDITING_WARNING, true);
+				}
+				// Unselected state should be impossible
+			}
+		});
+
+		panel.add(msgLabel, "left, wrap");
+		panel.add(dontAskAgain, "left, gaptop para");
+
+		return panel;
 	}
 	
 	
@@ -251,6 +383,11 @@ public class RocketComponentConfig extends JPanel {
 
 		// Multi-comp edit label
 		if (listeners != null && listeners.size() > 0) {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setVisible(false);
+			}
+
 			multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
 
 			StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
@@ -264,6 +401,11 @@ public class RocketComponentConfig extends JPanel {
 			}
 			multiCompEditLabel.setToolTipText(components.toString());
 		} else {
+			if (infoBtn != null) {
+				componentInfo.setVisible(false);
+				infoBtn.setSelected(true);
+				infoBtn.setVisible(true);
+			}
 			multiCompEditLabel.setText("");
 		}
 	}
@@ -603,6 +745,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.setEditable(true);
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
+		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));
 		
 		panel.add(new JScrollPane(commentTextArea), "grow");
 		order.add(commentTextArea);
@@ -775,6 +918,14 @@ public class RocketComponentConfig extends JPanel {
 		order.add(check);
 
 		panel.add(sub);
+	}
+
+	/**
+	 * Sets whether this dialog is editing a new component (true), or an existing one (false).
+	 * @param newComponent true if this dialog is editing a new component.
+	 */
+	public void setNewComponent(boolean newComponent) {
+		isNewComponent = newComponent;
 	}
 
 	/*

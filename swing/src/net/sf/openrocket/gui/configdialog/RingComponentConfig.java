@@ -11,15 +11,12 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -168,13 +165,6 @@ public class RingComponentConfig extends RocketComponentConfig {
 		
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-
-		if (component instanceof EngineBlock) {
-			final DescriptionArea desc = new DescriptionArea(6);
-			//// <html>An <b>engine block</b> stops the motor from moving forwards in the motor mount tube.<br><br>In order to add a motor, create a <b>body tube</b> or <b>inner tube</b> and mark it as a motor mount in the <em>Motor</em> tab.
-			desc.setText(trans.get("ringcompcfg.EngineBlock.desc"));
-			materialPanel.add(desc, "width 1px, growx, wrap");
-		}
 		panel.add(materialPanel, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		return panel;

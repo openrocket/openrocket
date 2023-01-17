@@ -24,7 +24,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -206,7 +205,9 @@ public class TransitionConfig extends RocketComponentConfig {
 		tabbedPane.setSelectedIndex(0);
 
 		// Apply the custom focus travel policy to this config dialog
-		order.add(closeButton);		// Make sure the close button is the last component
+		//// Make sure the cancel & ok button is the last component
+		order.add(cancelButton);
+		order.add(okButton);
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 	}

@@ -16,7 +16,6 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
@@ -38,7 +37,9 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		}
 
 		// Apply the custom focus travel policy to this config dialog
-		order.add(closeButton);		// Make sure the close button is the last component
+		//// Make sure the cancel & ok button is the last component
+		order.add(cancelButton);
+		order.add(okButton);
 		CustomFocusTraversalPolicy policy = new CustomFocusTraversalPolicy(order);
 		parent.setFocusTraversalPolicy(policy);
 	}

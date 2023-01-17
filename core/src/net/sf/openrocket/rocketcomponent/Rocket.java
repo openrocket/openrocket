@@ -406,37 +406,37 @@ public class Rocket extends ComponentAssembly {
 	 * and therefore fires an UNDO_EVENT, masked with all applicable mass/aerodynamic/tree
 	 * changes.
 	 */
-	public void loadFrom(Rocket r) {
+	public void loadFrom(Rocket source) {
 		
 		// Store list of components to invalidate after event has been fired
-		List<RocketComponent> toInvalidate = this.copyFrom(r);
+		List<RocketComponent> toInvalidate = this.copyFrom(source);
 		
 		int type = ComponentChangeEvent.UNDO_CHANGE | ComponentChangeEvent.NONFUNCTIONAL_CHANGE;
-		if (this.massModID != r.massModID)
+		if (this.massModID != source.massModID)
 			type |= ComponentChangeEvent.MASS_CHANGE;
-		if (this.aeroModID != r.aeroModID)
+		if (this.aeroModID != source.aeroModID)
 			type |= ComponentChangeEvent.AERODYNAMIC_CHANGE;
 		// Loading a rocket is always a tree change since the component objects change
 		type |= ComponentChangeEvent.TREE_CHANGE;
 		
-		this.modID = r.modID;
-		this.massModID = r.massModID;
-		this.aeroModID = r.aeroModID;
-		this.treeModID = r.treeModID;
-		this.functionalModID = r.functionalModID;
-		this.refType = r.refType;
-		this.customReferenceLength = r.customReferenceLength;
-		this.stageMap = r.stageMap;		
+		this.modID = source.modID;
+		this.massModID = source.massModID;
+		this.aeroModID = source.aeroModID;
+		this.treeModID = source.treeModID;
+		this.functionalModID = source.functionalModID;
+		this.refType = source.refType;
+		this.customReferenceLength = source.customReferenceLength;
+		this.stageMap = source.stageMap;
 
 		// these flight configurations need to reference the _this_ Rocket:
 		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
-		for (FlightConfigurationId key : r.configSet.map.keySet()) {
+		for (FlightConfigurationId key : source.configSet.map.keySet()) {
 			this.configSet.set(key, new FlightConfiguration(this, key));
 		}
-		this.selectedConfiguration = this.configSet.get(r.getSelectedConfiguration().getId());
+		this.selectedConfiguration = this.configSet.get(source.getSelectedConfiguration().getId());
 
-		this.perfectFinish = r.perfectFinish;
+		this.perfectFinish = source.perfectFinish;
 		
 		this.checkComponentStructure();
 		
@@ -495,10 +495,6 @@ public class Rocket extends ComponentAssembly {
 		mutex.lock("fireComponentChangeEvent");
 		try {
 			checkState();
-			
-			{ // vvvv DEVEL vvvv
-				//System.err.println("fireEvent@rocket.");
-			} // ^^^^ DEVEL ^^^^
 			
 			// Update modification ID's only for normal (not undo/redo) events
 			if (!cce.isUndoChange()) {
