@@ -314,7 +314,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ncFilledCB = new JCheckBox("Filled");
 			ncPanel.add(ncFilledCB, "cell 1 1");
 			
-			JLabel ncMaterialLabel = new JLabel(trans.get("RocketCompCfg.lbl.Componentmaterial"));
+			JLabel ncMaterialLabel = new JLabel(trans.get("MaterialPanel.lbl.ComponentMaterial"));
 			ncPanel.add(ncMaterialLabel, "cell 0 1,alignx left");
 			
 			JLabel ncMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Componentmass"));

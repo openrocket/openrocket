@@ -464,37 +464,9 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 	
-	protected JPanel instanceablePanel( Instanceable inst ){
-		JPanel panel = new JPanel( new MigLayout("fill, insets 0") );
-		{ // Instance Count
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
-			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
-			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
-			countSpinner.setEditor(new SpinnerEditor(countSpinner));
-			panel.add(countSpinner, "w 100lp, wrap rel");
-			order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
-		}
-		
-		{ // Instance separation
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceSeparation")));
-			DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
-			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
-			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
-			panel.add(separationSpinner, "growx");
-			order.add(((SpinnerEditor) separationSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(separationModel), "growx");
-			double maxSeparationDistance = 0.1;
-			if (component.getParent() != null && component.getParent().getLength() > 0) {
-				maxSeparationDistance = component.getParent().getLength();
-			}
-			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
-		}
-		return panel;
-	}
-	
 	private JPanel overrideTab() {
-		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
-				"[][65lp::][30lp::][]", ""));
+		JPanel panel = new JPanel(new MigLayout("align 0% 20%, gap rel unrel",
+				"[][65lp::80lp][::20lp][]", ""));
 		//// Override the mass, center of gravity, or drag coeficient of the component
 
 		JCheckBox check;
@@ -543,7 +515,7 @@ public class RocketComponentConfig extends JPanel {
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
-		panel.add(spin, "growx 1");
+		panel.add(spin, "growx 2");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
@@ -552,7 +524,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(0, 0.03, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap");
+		panel.add(bs, "w 150lp, wrap");
 
 		if (component.getMassOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -636,7 +608,7 @@ public class RocketComponentConfig extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		bm.addEnableComponent(spin, true);
-		panel.add(spin, "growx 1");
+		panel.add(spin, "growx 2");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		us = new UnitSelector(m);
@@ -645,7 +617,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(new DoubleModel(0), length));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "growx 5, w 100lp, wrap");
+		panel.add(bs, "w 150lp, wrap");
 
 		if (component.getCGOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -706,7 +678,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "top, skip, growx 5, w 100lp, wrap");
+		panel.add(bs, "top, skip, w 150lp, wrap");
 
 		if (component.getCDOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -755,7 +727,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	protected JPanel shoulderTab() {
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fillx"));
 		DoubleModel m0 = new DoubleModel(0);
 		
 		////  Fore shoulder, not for NoseCone
@@ -856,7 +828,7 @@ public class RocketComponentConfig extends JPanel {
 			valueNameShoulder = "Shoulder";
 			valueNameRadius = "BaseRadius";
 			//// Nose cone shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Noseconeshoulder")));
+			sub.setBorder(null);
 		} else {
 			//// Aft shoulder
 			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
