@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -20,7 +19,6 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
@@ -149,8 +147,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	
 	private JPanel finTabPanel() {
 		JPanel panel = new JPanel(
-				new MigLayout("align 50% 20%, fillx, gap rel unrel, ins 20lp 10% 20lp 10%",
-						"[150lp::][65lp::][30lp::][200lp::]", ""));
+				new MigLayout("gap rel unrel, ins 25lp",
+						"[100lp::][65lp::][30lp::][200lp::]", ""));
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
 		
@@ -181,7 +179,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tablength"));
 		//// The length of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
-		panel.add(label, "gapleft para, gapright 40lp, growx 1");
+		panel.add(label);
 		
 		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -199,7 +197,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
 		//// The span-wise height of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
-		panel.add(label, "gapleft para");
+		panel.add(label);
 		
 		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
 		component.addChangeListener( tabHeightModel );
@@ -216,7 +214,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label = new JLabel(trans.get("FinSetConfig.lbl.Tabposition"));
 		//// The position of the fin tab.
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
-		panel.add(label, "gapleft para");
+		panel.add(label);
 		
 		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
 		component.addChangeListener( tabOffset);
@@ -549,13 +547,13 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	protected JPanel filletMaterialPanel(){
 	    
 	    JPanel filletPanel=new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
-	    String tip = trans.get("FinsetCfg.ttip.Finfillets1") +
-		    	trans.get("FinsetCfg.ttip.Finfillets2") +
-		    	trans.get("FinsetCfg.ttip.Finfillets3");
-	    filletPanel.setBorder(BorderFactory.createTitledBorder("Root Fillets"));
+	    String tip = trans.get("FinsetConfig.ttip.Finfillets1") +
+		    	trans.get("FinsetConfig.ttip.Finfillets2") +
+		    	trans.get("FinsetConfig.ttip.Finfillets3");
+	    filletPanel.setBorder(BorderFactory.createTitledBorder(trans.get("FinSetConfig.title.RootFillets")));
 
 		// Fillet Radius:
-	    filletPanel.add(new JLabel(trans.get("FinSetCfg.lbl.Filletradius")));
+	    filletPanel.add(new JLabel(trans.get("FinSetConfig.lbl.Filletradius")));
 		
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -567,22 +565,22 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    UnitSelector us = new UnitSelector(m); 
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
-	    BasicSlider bs =new BasicSlider(m.getSliderModel(0, 10));
+	    BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1));
 	    filletPanel.add(bs, "w 100lp, wrap para");
 	    bs.setToolTipText(tip);
 
 		// Fillet Material:
-	    JLabel label = new JLabel(trans.get("FinSetCfg.lbl.Finfilletmaterial"));
+	    JLabel label = new JLabel(trans.get("FinSetConfig.lbl.Finfilletmaterial"));
 	    label.setToolTipText(tip);
 	    //// The component material affects the weight of the component.
-	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
+	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 		
 	    JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
 
 	    //// The component material affects the weight of the component.
-	    materialCombo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-	    filletPanel.add( materialCombo, "spanx 4, growx, wrap paragraph");
+	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+	    filletPanel.add( materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
 

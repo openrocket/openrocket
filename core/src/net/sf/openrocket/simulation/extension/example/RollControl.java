@@ -187,10 +187,10 @@ public class RollControl extends AbstractSimulationExtension {
 			}
 			
 			// Clamp the fin angle between bounds
-			if (Math.abs(value) > getMaxFinAngle()) {
+			if (Math.abs(finPosition) > getMaxFinAngle()) {
 				System.err.printf("Attempting to set angle %.1f at t=%.3f, clamping.\n",
-								  value * 180 / Math.PI, status.getSimulationTime());
-				value = MathUtil.clamp(value, -getMaxFinAngle(), getMaxFinAngle());
+								  finPosition * 180 / Math.PI, status.getSimulationTime());
+				finPosition = MathUtil.clamp(finPosition, -getMaxFinAngle(), getMaxFinAngle());
 			}
 			
 			// Set the control fin cant and store the data

@@ -72,7 +72,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// Set up rocket configuration
 		this.fcid = simulationConditions.getFlightConfigurationID();
 		FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
-		FlightConfiguration simulationConfig = origConfig.clone();
+		FlightConfiguration simulationConfig = origConfig.clone(simulationConditions.getRocket().copyWithOriginalID());
 		simulationConfig.copyStages(origConfig);	// Clone the stage activation configuration
 		
 		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);

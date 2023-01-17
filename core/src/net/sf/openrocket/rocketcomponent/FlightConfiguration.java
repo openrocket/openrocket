@@ -840,11 +840,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * - configurables 
 	 * 
 	 */
-	@Override
-	public FlightConfiguration clone() {
-
+	public FlightConfiguration clone(Rocket rocket) {
         // Note the stages are updated in the constructor call.
-		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
+		FlightConfiguration clone = new FlightConfiguration( rocket, this.fcid );
 		clone.setName(configurationName);
 		clone.copyStageActiveness(this);
 		clone.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
@@ -855,6 +853,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
 		return clone;
+	}
+		
+	@Override
+	public FlightConfiguration clone() {
+		return this.clone(this.rocket);
 	}
 
     /**

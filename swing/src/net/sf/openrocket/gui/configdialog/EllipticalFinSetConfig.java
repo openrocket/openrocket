@@ -1,16 +1,11 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.EventObject;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -25,7 +20,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -41,8 +35,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
 		
-		
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
+		// Left side
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 		
 		////  Number of fins
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Nbroffins")));
@@ -53,21 +47,6 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx, wrap");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		
-		////  Base rotation
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rotation")));
-		
-		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
-		
 		
 		////  Fin cant
 		JLabel label = new JLabel(trans.get("EllipticalFinSetCfg.Fincant"));
@@ -114,84 +93,68 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
-		
-		
-		////  Position
-		//// Position relative to:
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Positionrelativeto")));
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap 30lp");
 
-		final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-		final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>( axialMethodModel );
-		panel.add(axialMethodCombo, "spanx, growx, wrap");
-		order.add(axialMethodCombo);
-		
-		//// plus
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.plus")), "right");
-		
-		final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(axialOffsetModel.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-
-		axialMethodCombo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				axialOffsetModel.stateChanged(new EventObject(e));
-			}
-		});
-
-		panel.add(new UnitSelector(axialOffsetModel), "growx");
-		panel.add(new BasicSlider(axialOffsetModel.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
-
-		
-		//// Right portion
-		mainPanel.add(panel, "aligny 20%");
-		
-		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
-		
-		
-		
-		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		
-		
 		////  Cross section
-		//// Fin cross section:
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")), "span, split");
-		JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
-				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
-		panel.add( sectionCombo, "growx, wrap unrel");
-		order.add(sectionCombo);
-		
-		////  Thickness:
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
-		
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
-		
-		
-		
-		//// Material
-		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-		panel.add(materialPanel, "span, wrap");
+		{//// Fin cross section:
+			panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")), "span, split");
+			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
+					new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+			panel.add(sectionCombo, "growx, wrap unrel");
+			order.add(sectionCombo);
+		}
 
-		panel.add(filletMaterialPanel(), "span, wrap");
-	
+		{////  Thickness:
+			panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
+
+			m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+
+			spin = new JSpinner(m.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+			panel.add(new UnitSelector(m), "growx");
+			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
+		}
+
+		mainPanel.add(panel, "aligny 0, gapright 40lp");
+
+		// Right side panel
+		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+
+		{// ------ Placement ------
+			//// Position relative to:
+			JPanel placementPanel = new PlacementPanel(component, order);
+			panel.add(placementPanel, "span, grow");
+
+			{////  Fin rotation
+				label = new JLabel(trans.get("FinSetCfg.lbl.FinRotation"));
+				label.setToolTipText(trans.get("FinSetCfg.lbl.FinRotation.ttip"));
+				placementPanel.add(label, "newline");
+
+				m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+
+				spin = new JSpinner(m.getSpinnerModel());
+				spin.setEditor(new SpinnerEditor(spin));
+				placementPanel.add(spin, "growx");
+				order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+				placementPanel.add(new UnitSelector(m), "growx");
+				placementPanel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+			}
+		}
+
+		{//// Material
+			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			panel.add(materialPanel, "span, grow, wrap");
+		}
+
+		{//// Root fillets
+			panel.add(filletMaterialPanel(), "span, grow, wrap");
+		}
 		
-		
-		
-		mainPanel.add(panel, "aligny 20%");
+		mainPanel.add(panel, "aligny 0");
 		
 		addFinSetButtons();
 		
