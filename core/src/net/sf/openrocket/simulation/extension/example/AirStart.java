@@ -35,7 +35,7 @@ public class AirStart extends AbstractSimulationExtension {
 	}
 	
 	public double getLaunchAltitude() {
-		return config.getDouble("launchAltitude", 0.0);
+		return config.getDouble("launchAltitude", 100.0);
 	}
 	
 	public void setLaunchAltitude(double launchAltitude) {
@@ -44,7 +44,7 @@ public class AirStart extends AbstractSimulationExtension {
 	}
 	
 	public double getLaunchVelocity() {
-		return config.getDouble("launchVelocity", 0.0);
+		return config.getDouble("launchVelocity", 50.0);
 	}
 	
 	public void setLaunchVelocity(double launchVelocity) {
