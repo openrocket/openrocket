@@ -210,7 +210,7 @@ public class AppearancePanel extends JPanel {
 	 * @param order component traversal order object of the component config dialog
 	 */
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent, List<Component> order) {
-		super(new MigLayout("fill", "[150][grow][150][grow]"));
+		super(new MigLayout("fillx", "[150][grow][150][grow]"));
 
 		this.order = order;
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
@@ -604,6 +604,7 @@ public class AppearancePanel extends JPanel {
 		});
 		p.add(editBtn);
 
+		// TODO: move the separate columns in two separate panels instead of adding them in a zig-zag way
 		// Color
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
 		mDefault.addEnableComponent(colorButton, false);
@@ -611,14 +612,14 @@ public class AppearancePanel extends JPanel {
 		order.add(colorButton);
 
 		// Scale
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")), "gapleft para");
 
 		panel.add(new JLabel("x:"), "split 4");
 		JSpinner scaleU = new JSpinner(new DoubleModel(builder, "ScaleX",
 				TEXTURE_UNIT).getSpinnerModel());
 		scaleU.setEditor(new SpinnerEditor(scaleU));
 		mDefault.addEnableComponent(scaleU, false);
-		panel.add(scaleU, "w 40");
+		panel.add(scaleU, "w 50lp");
 		order.add(((SpinnerEditor) scaleU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
@@ -626,7 +627,7 @@ public class AppearancePanel extends JPanel {
 				TEXTURE_UNIT).getSpinnerModel());
 		scaleV.setEditor(new SpinnerEditor(scaleV));
 		mDefault.addEnableComponent(scaleV, false);
-		panel.add(scaleV, "wrap, w 40");
+		panel.add(scaleV, "wrap, w 50lp");
 		order.add(((SpinnerEditor) scaleV.getEditor()).getTextField());
 
 		// Shine
@@ -647,18 +648,18 @@ public class AppearancePanel extends JPanel {
 
 		panel.add(spinShine, "split 3, w 60");
 		panel.add(unitShine);
-		panel.add(slideShine, "w 50, growx");
+		panel.add(slideShine, "w 100lp");
 		order.add(order.indexOf(colorButton) + 1, ((SpinnerEditor) spinShine.getEditor()).getTextField());
 
 		// Offset
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")), "gapleft para");
 
 		panel.add(new JLabel("x:"), "split 4");
 		JSpinner offsetU = new JSpinner(new DoubleModel(builder, "OffsetU",
 				TEXTURE_UNIT).getSpinnerModel());
 		offsetU.setEditor(new SpinnerEditor(offsetU));
 		mDefault.addEnableComponent(offsetU, false);
-		panel.add(offsetU, "w 40");
+		panel.add(offsetU, "w 50lp");
 		order.add(((SpinnerEditor) offsetU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
@@ -666,7 +667,7 @@ public class AppearancePanel extends JPanel {
 				TEXTURE_UNIT).getSpinnerModel());
 		offsetV.setEditor(new SpinnerEditor(offsetV));
 		mDefault.addEnableComponent(offsetV, false);
-		panel.add(offsetV, "wrap, w 40");
+		panel.add(offsetV, "wrap, w 50lp");
 		order.add(((SpinnerEditor) offsetV.getEditor()).getTextField());
 
 		// Opacity
@@ -684,12 +685,12 @@ public class AppearancePanel extends JPanel {
 
 		panel.add(spinOpacity, "split 3, w 60");
 		panel.add(unitOpacity);
-		panel.add(slideOpacity, "w 50, growx");
+		panel.add(slideOpacity, "w 100lp");
 		order.add(order.indexOf(((SpinnerEditor) spinShine.getEditor()).getTextField()) + 1,
 				((SpinnerEditor) spinOpacity.getEditor()).getTextField());
 
 		// Rotation
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")), "gapleft para");
 		DoubleModel rotationModel = new DoubleModel(builder, "Rotation",
 				UnitGroup.UNITS_ANGLE);
 		JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
@@ -701,10 +702,10 @@ public class AppearancePanel extends JPanel {
 		BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(
 				-Math.PI, Math.PI));
 		mDefault.addEnableComponent(bs, false);
-		panel.add(bs, "w 50, wrap");
+		panel.add(bs, "w 100lp, wrap");
 
 		// Repeat
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2");
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2, gapleft para");
 		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
 		System.arraycopy(EdgeMode.values(), 0, list, 0,
 				EdgeMode.values().length);

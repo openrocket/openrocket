@@ -32,7 +32,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 
 	public SimulationPreferencesPanel() {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fillx"));
 
 		// Confirm deletion of simulations:
 		final JCheckBox confirmDelete = new JCheckBox(
@@ -74,7 +74,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		// // Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
-		this.add(sub, "growx, growy, aligny 0");
+		this.add(sub, "grow, aligny 0, gaptop 40lp");
 
 		// Separate panel for computation methods, as they use a different
 		// layout

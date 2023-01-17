@@ -453,6 +453,24 @@ public class Rocket extends ComponentAssembly {
 	
 	///////  Implement the ComponentChangeListener lists
 	
+	/**
+	 * Creates a new EventListenerList for this component.  This is necessary when cloning
+	 * the structure.
+	 */
+	public void resetListeners() {
+		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
+		listenerList = new HashSet<EventListener>();
+	}
+	
+	
+	public void printListeners() {
+		int i = 0;
+		for (EventListener l : listenerList) {
+			System.out.println("  " + (i) + ": " + l);
+			i++;
+		}
+	}
+	
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();

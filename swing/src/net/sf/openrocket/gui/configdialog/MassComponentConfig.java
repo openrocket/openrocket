@@ -18,12 +18,10 @@ import net.sf.openrocket.gui.adaptors.CustomFocusTraversalPolicy;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -39,14 +37,13 @@ public class MassComponentConfig extends RocketComponentConfig {
 		//// Left side
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 
-		//// Attributes
-		panel.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Attributes"), StyledLabel.Style.BOLD), "wrap unrel");
+		// Attributes
 
 		//// Mass component type
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.type")));
 		
-		final JComboBox<?> typecombo = new JComboBox<MassComponent.MassComponentType>(
-				new EnumModel<MassComponent.MassComponentType>(component, "MassComponentType",
+		final JComboBox<?> typecombo = new JComboBox<>(
+				new EnumModel<>(component, "MassComponentType",
 						new MassComponent.MassComponentType[] {
 								MassComponent.MassComponentType.MASSCOMPONENT,
 								MassComponent.MassComponentType.ALTIMETER,
@@ -57,7 +54,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 								MassComponent.MassComponentType.RECOVERYHARDWARE,
 								MassComponent.MassComponentType.BATTERY}));
 		
-		panel.add(typecombo, "spanx, wrap");
+		panel.add(typecombo, "spanx 3, growx, wrap");
 		order.add(typecombo);
 		
 		////  Mass
@@ -127,34 +124,13 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 
 		//// Right side
-		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 
-		//// Placement
-		panel2.add(new StyledLabel(trans.get("MassComponentCfg.lbl.Placement"), StyledLabel.Style.BOLD), "wrap unrel");
+		// Placement
 
-		//// Position relative to:
-		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
-		
-        final EnumModel<AxialMethod> methodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
-        final JComboBox<?> methodCombo = new JComboBox<AxialMethod>( methodModel );
-		panel2.add(methodCombo, "spanx, growx, wrap");
-		order.add(methodCombo);
-
-		//// plus
-		panel2.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel2.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel2.add(new UnitSelector(m), "growx");
-		panel2.add(new BasicSlider(m.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap");
+		//// Position
+		panel2.add(new PlacementPanel(component, order), "span, grow, wrap");
 		
 		
 		//// General and General properties
@@ -189,7 +165,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 150lp, wrap");
 		
 		
 		//// Radial direction:
@@ -203,7 +179,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 150lp, wrap");
 		
 		
 		//// Reset button

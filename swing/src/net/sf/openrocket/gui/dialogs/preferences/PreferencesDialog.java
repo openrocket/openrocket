@@ -28,7 +28,6 @@ public class PreferencesDialog extends JDialog {
 	private static final Logger log = LoggerFactory
 			.getLogger(PreferencesDialog.class);
 
-	private File defaultDirectory = null;
 	private static final Translator trans = Application.getTranslator();
 
 	private final SwingPreferences preferences = (SwingPreferences) Application

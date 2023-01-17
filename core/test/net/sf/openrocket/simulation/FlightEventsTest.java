@@ -74,7 +74,7 @@ public class FlightEventsTest extends BaseTestCase {
 
         // Test that the event sources are correct
         for (int i = 0; i < expectedSources.length; i++) {
-            assertSame(" Flight type " + expectedEventTypes[i] + " has wrong source",
+            assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong source",
                     expectedSources[i], eventList.get(i).getSource());
         }
     }
@@ -149,7 +149,7 @@ public class FlightEventsTest extends BaseTestCase {
 
             // Test that the event sources are correct
             for (int i = 0; i < expectedSources.length; i++) {
-                assertSame(" Flight type " + expectedEventTypes[i] + " has wrong source",
+                assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong source",
                         expectedSources[i], eventList.get(i).getSource());
             }
         }
