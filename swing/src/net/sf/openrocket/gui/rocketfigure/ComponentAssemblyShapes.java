@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -11,6 +12,11 @@ import java.awt.Shape;
 public class ComponentAssemblyShapes extends RocketComponentShape {
 
     public static RocketComponentShape[] getShapesSide(final RocketComponent component, final Transformation transformation) {
+        // Ignore normal stages
+        if (component instanceof AxialStage && !(component instanceof ParallelStage)) {
+            return null;
+        }
+
         double radius = getDisplayRadius(component);
 
         Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(transformation, radius);
@@ -26,6 +32,10 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
     }
 
     public static RocketComponentShape[] getShapesBack(final RocketComponent component, final Transformation transformation) {
+        // Ignore normal stages
+        if (component instanceof AxialStage && !(component instanceof ParallelStage)) {
+            return null;
+        }
         double radius = getDisplayRadius(component);
 
         Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(transformation, radius);
