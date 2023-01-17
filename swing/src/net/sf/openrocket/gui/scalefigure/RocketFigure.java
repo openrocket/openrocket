@@ -387,8 +387,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : config.getActiveInstances().entrySet()) {
 			final RocketComponent comp = entry.getKey();
 
-			// Only draw podsets when they are selected
-			if ((comp instanceof PodSet || comp instanceof ParallelStage) && preferences.isShowMarkers()) {
+			// Only draw pod sets and boosters when they are selected
+			if (preferences.isShowMarkers() && (comp instanceof PodSet || comp instanceof ParallelStage)) {
 				boolean selected = false;
 
 				// Check if component is in the selection
