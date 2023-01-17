@@ -1,9 +1,11 @@
 package net.sf.openrocket.gui.rocketfigure;
 
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Transformation;
 
@@ -17,9 +19,19 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
             return null;
         }
 
+        ComponentAssembly assembly = (ComponentAssembly) component;
+
+        // Update the marker location based on the axial method. The axial method changes the "reference point" of the component.
+        Transformation newTransform = transformation;
+        if (assembly.getAxialMethod() == AxialMethod.BOTTOM) {
+            newTransform = transformation.applyTransformation(new Transformation(assembly.getLength(), 0, 0));
+        } else if (assembly.getAxialMethod() == AxialMethod.MIDDLE) {
+            newTransform = transformation.applyTransformation(new Transformation(assembly.getLength() / 2, 0, 0));
+        }
+
         double radius = getDisplayRadius(component);
 
-        Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(transformation, radius);
+        Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(newTransform, radius);
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
         // Set the color of the shapes
