@@ -309,25 +309,28 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					// We're going to say it's discontinuous if it is presented to the user as having two different
 					// string representations.  Hopefully there are enough digits in the string that it will
 					// present as different if the discontinuity is big enough to matter.
-					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius()).equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
-						//					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
-						warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
+					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius())
+						.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
+						warnings.add( Warning.DIAMETER_DISCONTINUITY, prevComp + ", " + sym);					
+					}
+
+					// check for gap in airframe.  We'll use a textual comparison as above to see if there is a
+					// gap or overlap, then use arithmetic comparison to see which it is.  This won't be quite as reliable
+					// as the case for radius, since we never actually display the absolute X position
+					double compX = comp.toAbsolute(Coordinate.NUL)[0].x;
+					double prevX = prevComp.toAbsolute(new Coordinate(prevComp.getLength(), 0, 0, 0))[0].x;
+					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(compX)
+						.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevX))) {
+						if (compX > prevX) {
+							warnings.add(Warning.AIRFRAME_GAP,  prevComp + ", " + sym);
+						} else {
+							warnings.add(Warning.AIRFRAME_OVERLAP,  prevComp + ", " + sym);
+						}
 					}
 				}
-				
-				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
-				// // Check for lengthwise discontinuity
-				// if (x > componentX + 0.0001) {
-				//	if (!MathUtil.equals(radius, 0)) {
-				//		warnings.add(Warning.DISCONTINUITY);
-				//		radius = 0;
-                //}
-				//componentX = component.toAbsolute(new Coordinate(component.getLengthAerodynamic()))[0].x;
-				
-			}else if( comp instanceof ComponentAssembly ){
+			} else if (comp instanceof ComponentAssembly) {
 				checkGeometry(configuration, comp, warnings);
 			}
-			
 		}
 	}
 		

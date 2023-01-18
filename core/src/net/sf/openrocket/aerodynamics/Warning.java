@@ -361,6 +361,12 @@ public abstract class Warning {
 
 	/** A <code>Warning</code> that a ComponentAssembly has an open forward end */	
 	public static final Warning OPEN_AIRFRAME_FORWARD = new Other(trans.get("Warning.OPEN_AIRFRAME_FORWARD"));
+
+	/** A <code>Warning</code> that there is a gap in the airframe */
+	public static final Warning AIRFRAME_GAP = new Other(trans.get("Warning.AIRFRAME_GAP"));
+
+	/** A <code>Warning</code> that two airframe components overlap*/
+	public static final Warning AIRFRAME_OVERLAP = new Other(trans.get("Warning.AIRFRAME_OVERLAP"));
 	
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */
 	////Thick fins may not be modeled accurately.
