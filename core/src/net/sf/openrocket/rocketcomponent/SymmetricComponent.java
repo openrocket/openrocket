@@ -599,7 +599,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 	/**
 	 * Return the previous symmetric component, or null if none exists.
-	 * 
+	 *
 	 * @return	the previous SymmetricComponent, or null.
 	 */
 	public final SymmetricComponent getPreviousSymmetricComponent() {
@@ -611,8 +611,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		//           (b) BodyTube -- for Parallel Stages & PodSets
 		final RocketComponent grandParent = this.parent.getParent();
 
-		int searchParentIndex = grandParent.getChildPosition(this.parent);       // position of stage w/in parent
-		int searchSiblingIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous stage
+		int searchParentIndex = grandParent.getChildPosition(this.parent);       // position of component w/in parent
+		int searchSiblingIndex = this.parent.getChildPosition(this)-1;  // guess at index of previous component
 
 		while( 0 <= searchParentIndex ) {
 			final RocketComponent searchParent = grandParent.getChild(searchParentIndex);
@@ -620,12 +620,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			if(searchParent instanceof ComponentAssembly){
 				while (0 <= searchSiblingIndex) {
 					final RocketComponent searchSibling = searchParent.getChild(searchSiblingIndex);
-					if (searchSibling instanceof SymmetricComponent) {
-						SymmetricComponent candidate = (SymmetricComponent) searchSibling;
-						if (inline(candidate)) {
-							return candidate;
-						}
-						return null;
+					if ((searchSibling instanceof SymmetricComponent) && inline(searchSibling)) {
+						return (SymmetricComponent) searchSibling;
 					}
 					--searchSiblingIndex;
 				}
@@ -635,6 +631,13 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 				searchSiblingIndex = grandParent.getChild(searchParentIndex).getChildCount() - 1;
 			}
 		}
+
+		// one last thing -- I could be the child of a PodSet, and in line with
+		// the SymmetricComponent that is my grandParent
+		if ((grandParent instanceof SymmetricComponent) && inline(grandParent)) {
+			return (SymmetricComponent) grandParent;
+		}
+
 		return null;
 	}
 	
@@ -662,12 +665,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			if(searchParent instanceof ComponentAssembly){
 				while (searchSiblingIndex < searchParent.getChildCount()) {
 					final RocketComponent searchSibling = searchParent.getChild(searchSiblingIndex);
-					if (searchSibling instanceof SymmetricComponent) {
-						SymmetricComponent candidate = (SymmetricComponent) searchSibling;
-						if (inline(candidate)) {
-							return candidate;
-						}
-						return null;
+					if ((searchSibling instanceof SymmetricComponent) && inline(searchSibling)) {
+						return (SymmetricComponent) searchSibling;
 					}
 					++searchSiblingIndex;
 				}
@@ -675,6 +674,19 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			++searchParentIndex;
 			searchSiblingIndex = 0;
 		}
+
+		// One last thing -- I could have a child that is a PodSet that is in line
+		// with me
+		for (RocketComponent child : getChildren()) {
+			if (child instanceof PodSet) {
+				for (RocketComponent grandchild : child.getChildren()) {
+					if ((grandchild instanceof SymmetricComponent) && inline(grandchild)) {
+						return (SymmetricComponent) grandchild;
+					}
+				}
+			}
+		}
+
 		return null;
 	}
 
@@ -682,7 +694,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * Determine whether a candidate symmetric component is in line with us
 	 *
 	 */
-	private boolean inline(final SymmetricComponent candidate) {
+	private boolean inline(final RocketComponent candidate) {
 		// if we share a parent, we are in line
 		if (this.parent == candidate.parent)
 			return true;
