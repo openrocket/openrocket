@@ -22,16 +22,19 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         ComponentAssembly assembly = (ComponentAssembly) component;
 
         // Update the marker location based on the axial method. The axial method changes the "reference point" of the component.
-        Transformation newTransform = transformation;
+        Transformation correctedTransform = transformation;
         if (assembly.getAxialMethod() == AxialMethod.BOTTOM) {
-            newTransform = transformation.applyTransformation(new Transformation(assembly.getLength(), 0, 0));
+            correctedTransform = transformation.applyTransformation(new Transformation(assembly.getLength(), 0, 0));
         } else if (assembly.getAxialMethod() == AxialMethod.MIDDLE) {
-            newTransform = transformation.applyTransformation(new Transformation(assembly.getLength() / 2, 0, 0));
+            correctedTransform = transformation.applyTransformation(new Transformation(assembly.getLength() / 2, 0, 0));
         }
 
-        double radius = getDisplayRadius(component);
+        // Correct the radius to be at the "reference point" dictated by the component's radius offset.
+        double boundingRadius = assembly.getBoundingRadius();
+        correctedTransform = correctedTransform.applyTransformation(new Transformation(0, -boundingRadius, 0));
 
-        Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(newTransform, radius);
+        double markerRadius = getDisplayRadius(component);
+        Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(correctedTransform, markerRadius);
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
         // Set the color of the shapes
@@ -48,9 +51,15 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         if (component instanceof AxialStage && !(component instanceof ParallelStage)) {
             return null;
         }
-        double radius = getDisplayRadius(component);
 
-        Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(transformation, radius);
+        ComponentAssembly assembly = (ComponentAssembly) component;
+
+        // Correct the radius to be at the "reference point" dictated by the component's radius offset.
+        double boundingRadius = assembly.getBoundingRadius();
+        Transformation correctedTransform = transformation.applyTransformation(new Transformation(0, -boundingRadius, 0));
+
+        double markerRadius = getDisplayRadius(component);
+        Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(correctedTransform, markerRadius);
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
         // Set the color of the shapes
@@ -62,6 +71,11 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         return shapes;
     }
 
+    /**
+     * Returns the radius of the marker (i.e. the marker size), based on the rocket size.
+     * @param component this component
+     * @return the radius to draw the marker with
+     */
     private static double getDisplayRadius(RocketComponent component) {
         return component.getRocket().getBoundingRadius() * 0.03;
     }
