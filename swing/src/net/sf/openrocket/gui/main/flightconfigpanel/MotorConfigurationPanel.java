@@ -330,7 +330,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}
@@ -349,7 +349,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 		}
 		
-		fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 	}
 
 	private void selectIgnition() {
@@ -396,7 +396,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}
@@ -426,7 +426,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		}
 
 		if (update) {
-			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE);
+			fireTableDataChanged(ComponentChangeEvent.MOTOR_CHANGE, fcIds.toArray(new FlightConfigurationId[0]));
 		} else {
 			table.requestFocusInWindow();
 		}

@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,8 +157,9 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	 * @param duplicate if True, then duplicate configuration operation, if False then create a new configuration
 	 */
 	private void newOrDuplicateConfigAction(boolean duplicate) {
-		addOrDuplicateConfiguration(duplicate);
-		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE);
+		Map<FlightConfigurationId, FlightConfiguration> newConfigs = addOrDuplicateConfiguration(duplicate);
+		FlightConfigurationId[] ids = newConfigs.keySet().toArray(new FlightConfigurationId[0]);
+		configurationChanged(ComponentChangeEvent.MOTOR_CHANGE, ids);
 		stateChanged(null);
 		if (!duplicate) {
 			switch (tabs.getSelectedIndex()) {
@@ -179,14 +181,16 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	 * either create or duplicate configuration
 	 * set new configuration as current
 	 * create simulation for new configuration
+	 *
+	 * @return the new/duplicated configurations
 	 */
-	private void addOrDuplicateConfiguration(boolean duplicate) {
+	private Map<FlightConfigurationId, FlightConfiguration> addOrDuplicateConfiguration(boolean duplicate) {
 		final Map<FlightConfigurationId, FlightConfiguration> newConfigs = new LinkedHashMap<>();
 
 		// create or duplicate configuration
 		if (duplicate) {
 			List<FlightConfigurationId> oldIds = getSelectedConfigurationIds();
-			if (oldIds == null || oldIds.size() == 0) return;
+			if (oldIds == null || oldIds.size() == 0) return Collections.emptyMap();
 
 			for (FlightConfigurationId oldId : oldIds) {
 				final FlightConfiguration oldConfig = rocket.getFlightConfiguration(oldId);
@@ -210,7 +214,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		}
 
 		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
-		if (doc == null) return;
+		if (doc == null) return Collections.emptyMap();
 
 		for (Map.Entry<FlightConfigurationId, FlightConfiguration> config : newConfigs.entrySet()) {
 			// associate configuration with Id and select it
@@ -226,6 +230,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 		// Reset to first selected flight config
 		rocket.setSelectedConfiguration((FlightConfigurationId) newConfigs.keySet().toArray()[0]);
+		return newConfigs;
 	}
 	
 	private void renameConfigurationAction() {
@@ -273,10 +278,14 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		return duplicateConfigAction;
 	}
 
+	private void configurationChanged(int cce, FlightConfigurationId[] ids) {
+		motorConfigurationPanel.fireTableDataChanged(cce, ids);
+		recoveryConfigurationPanel.fireTableDataChanged(cce, ids);
+		separationConfigurationPanel.fireTableDataChanged(cce, ids);
+	}
+
 	private void configurationChanged(int cce) {
-		motorConfigurationPanel.fireTableDataChanged(cce);
-		recoveryConfigurationPanel.fireTableDataChanged(cce);
-		separationConfigurationPanel.fireTableDataChanged(cce);
+		configurationChanged(cce, null);
 	}
 	
 	private void updateButtonState() {

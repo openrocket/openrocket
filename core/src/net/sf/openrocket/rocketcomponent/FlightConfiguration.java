@@ -160,8 +160,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -175,8 +173,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i = stageNumber; i < rocket.getStageCount(); i++) {
 			_setStageActive(i, false, false);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -188,8 +184,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i = 0; i < stageNumber; i++) {
 			_setStageActive(i, false, false);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 	
 	/**
@@ -215,8 +209,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i=0; i <= stage.getStageNumber(); i++) {
 			_setStageActive(i, true);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 	
 	/** 
@@ -227,8 +219,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void setOnlyStage(final int stageNumber) {
 		_setAllStages(false);
 		_setStageActive(stageNumber, true, false);
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -539,6 +529,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateStages();
 		updateMotors();
 		updateActiveInstances();
+	}
+
+	/**
+	 * Update the configuration's modID, thus staging it in need to update.
+	 */
+	public void updateModID() {
+		this.modID++;
 	}
 	
 	private void updateStages() {
@@ -908,13 +905,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	@Override
 	public int getModID() {
-		// TODO: this doesn't seem consistent...
-		int id = modID;
-//		for (MotorInstance motor : motors.values()) {
-//			id += motor.getModID();
-//		}
-		id += rocket.getModID();
-		return id; 
+		return modID;
 	}
 
 	public void setName(final String newName) {
