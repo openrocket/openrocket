@@ -1743,10 +1743,69 @@ public class TestRockets {
 		return rocket;
 	}
 	
+	// Alpha III modified to have an inline pod
+	public static final Rocket makeEstesAlphaIIIwithInlinePod() {
+
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		
+		// Find rocket components to manipulate
+		final InstanceMap imap = rocket.getSelectedConfiguration().getActiveInstances();
+		AxialStage stage = null;
+		BodyTube body = null;
+		
+		RocketComponent c = null;
+		for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			c = entry.getKey();
+
+			// reference everything to the bottom
+			c.setAxialMethod(AxialMethod.BOTTOM);
+			
+			if (c instanceof AxialStage) {
+				stage = (AxialStage) c;
+			}
+			
+			if (c instanceof BodyTube) {
+				body = (BodyTube) c;
+			}
+		}
+
+		// disconnect the body from the stage
+		stage.removeChild(body);
+
+		// We need to reference the components hooked to the body to its aft end, not forward
+
+		// Make a shorter copy of the body tube and connect it the Stage
+		// Notice -- total lengths of the short tubes must add up to match the original
+		BodyTube frontTube = new BodyTube(body.getLength()/2.0, body.getOuterRadius(), body.getThickness());
+		frontTube.setName("Front Body Tube");
+		stage.addChild(frontTube);
+		
+		// Add a PodSet to the front body tube.
+		PodSet pod = new PodSet();
+		pod.setInstanceCount(1);
+		pod.setRadiusMethod(RadiusMethod.COAXIAL);
+		frontTube.addChild(pod);
+		pod.setAxialMethod(AxialMethod.TOP);
+		pod.setAxialOffset(frontTube.getLength());
+		
+		// Add another even shorter tube to the pod
+		BodyTube middleTube = new BodyTube(body.getLength()/4.0, body.getOuterRadius(), body.getThickness());
+		middleTube.setName("Middle Body Tube");
+		pod.addChild(middleTube);
+		
+		// Shorten the original body tube, rename it, and put it on the pod
+		body.setName("Aft body tube");
+		body.setLength(body.getLength()/4.0);
+		pod.addChild(body);
+		
+		return rocket;
+		
+	}
+	
 	/**
 	 * dump a test rocket to a file, so we can open it in OR
 	 */
-	static void dumpRocket(Rocket rocket, String filename) {
+	public static void dumpRocket(Rocket rocket, String filename) {
 
 		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		OpenRocketSaver saver = new OpenRocketSaver();
