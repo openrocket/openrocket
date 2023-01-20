@@ -18,6 +18,8 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.InstanceMap;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -278,6 +280,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	@Override
 	public void checkGeometry(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings ){
 		Queue<RocketComponent> queue = new LinkedList<>();
+
 		for (RocketComponent child : treeRoot.getChildren()) {
 			// Ignore inactive stages
 			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
@@ -285,11 +288,18 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 			queue.add(child);
 		}
+
+		SymmetricComponent prevComp = null;		
+		if ((treeRoot instanceof ComponentAssembly) &&
+			(!(treeRoot instanceof Rocket))) {
+			prevComp = ((SymmetricComponent) (treeRoot.getChild(0))).getPreviousSymmetricComponent();
+		}
 		
-		SymmetricComponent prevComp = null; 
 		while(null != queue.peek()) {
 			RocketComponent comp = queue.poll();
-			if( comp instanceof SymmetricComponent ){
+			if(( comp instanceof SymmetricComponent ) ||
+			   ((comp instanceof AxialStage) &&
+				!(comp instanceof ParallelStage))) {
 				for (RocketComponent child : comp.getChildren()) {
 					// Ignore inactive stages
 					if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
@@ -297,38 +307,77 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					}
 					queue.add(child);
 				}
-				
-				SymmetricComponent sym = (SymmetricComponent) comp;
-				prevComp = sym.getPreviousSymmetricComponent();
-				if( null == prevComp){
-					if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
-						warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
-					}
-				} else {
-					// Check for radius discontinuity
-					// We're going to say it's discontinuous if it is presented to the user as having two different
-					// string representations.  Hopefully there are enough digits in the string that it will
-					// present as different if the discontinuity is big enough to matter.
-					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius())
-						.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
-						warnings.add( Warning.DIAMETER_DISCONTINUITY, prevComp + ", " + sym);					
-					}
 
-					// check for gap in airframe.  We'll use a textual comparison as above to see if there is a
-					// gap or overlap, then use arithmetic comparison to see which it is.  This won't be quite as reliable
-					// as the case for radius, since we never actually display the absolute X position
-					double compX = comp.toAbsolute(Coordinate.NUL)[0].x;
-					double prevX = prevComp.toAbsolute(new Coordinate(prevComp.getLength(), 0, 0, 0))[0].x;
-					if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(compX)
-						.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevX))) {
-						if (compX > prevX) {
-							warnings.add(Warning.AIRFRAME_GAP,  prevComp + ", " + sym);
-						} else {
-							warnings.add(Warning.AIRFRAME_OVERLAP,  prevComp + ", " + sym);
+				if (comp instanceof SymmetricComponent) {
+					SymmetricComponent sym = (SymmetricComponent) comp;
+					if( null == prevComp){
+						if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
+							warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
+						}
+					} else {
+						// Check for radius discontinuity
+						// We're going to say it's discontinuous if it is presented to the user as having two different
+						// string representations.  Hopefully there are enough digits in the string that it will
+						// present as different if the discontinuity is big enough to matter.
+						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius())
+							.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
+							warnings.add( Warning.DIAMETER_DISCONTINUITY, prevComp + ", " + sym);
+						}
+						
+						// check for gap gap or overlap in airframe.  We'll use a textual comparison to see if there is a
+						// gap or overlap, then use arithmetic comparison to see which it is.  This won't be quite as reliable
+						// as the case for radius, since we never actually display the absolute X position
+						
+						double symXfore = sym.toAbsolute(Coordinate.NUL)[0].x;
+						double prevXfore = prevComp.toAbsolute(Coordinate.NUL)[0].x;
+						
+						double symXaft = sym.toAbsolute(new Coordinate(comp.getLength(), 0, 0, 0))[0].x;
+						double prevXaft = prevComp.toAbsolute(new Coordinate(prevComp.getLength(), 0, 0, 0))[0].x;
+						
+						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(symXfore)
+							.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevXaft))) {
+							if (symXfore > prevXaft) {
+								warnings.add(Warning.AIRFRAME_GAP,  prevComp + ", " + sym);
+							} else {
+								// If we only have the component with a single forward compartment bring up
+								// a body component overlap message								
+								if ((symXfore >= prevXfore) &&
+									((symXaft >= prevXaft) || (null == sym.getNextSymmetricComponent()))) {
+									warnings.add(Warning.AIRFRAME_OVERLAP, prevComp + ", " + sym);
+								} else {
+									// We have a PodSet that is either overlapping or completely forward of its parent component.
+									// We'll find the forward-most and aft-most components and figure out which
+									SymmetricComponent firstComp = prevComp;
+									SymmetricComponent scout = prevComp;
+									while (null != scout) {
+										firstComp = scout;
+										scout = scout.getPreviousSymmetricComponent();
+									}
+									double firstCompXfore = firstComp.toAbsolute(Coordinate.NUL)[0].x;
+									
+									SymmetricComponent lastComp = sym;
+									scout = sym;
+									while (null != scout) {
+										lastComp = scout;
+										scout = scout.getNextSymmetricComponent();
+									}
+									double lastCompXaft = lastComp.toAbsolute(new Coordinate(lastComp.getLength(), 0, 0, 0))[0].x;
+									
+									// completely forward vs. overlap
+									if (lastCompXaft <= firstCompXfore) {
+										warnings.add(Warning.PODSET_FORWARD, comp.getParent().toString());
+									} else {
+										warnings.add(Warning.PODSET_OVERLAP, comp.getParent().toString());
+									}
+								}
+								
+							}
 						}
 					}
+					prevComp = sym;
 				}
-			} else if (comp instanceof ComponentAssembly) {
+			} else if ((comp instanceof PodSet) ||
+					   (comp instanceof ParallelStage)) {
 				checkGeometry(configuration, comp, warnings);
 			}
 		}
