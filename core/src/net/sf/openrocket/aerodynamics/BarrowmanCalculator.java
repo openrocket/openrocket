@@ -291,7 +291,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		SymmetricComponent prevComp = null;		
 		if ((treeRoot instanceof ComponentAssembly) &&
-			(!(treeRoot instanceof Rocket))) {
+			(!(treeRoot instanceof Rocket)) &&
+			(treeRoot.getChildCount() > 0)) {
 			prevComp = ((SymmetricComponent) (treeRoot.getChild(0))).getPreviousSymmetricComponent();
 		}
 		
