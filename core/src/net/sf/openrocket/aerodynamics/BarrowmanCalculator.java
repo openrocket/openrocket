@@ -1,5 +1,6 @@
 package net.sf.openrocket.aerodynamics;
 
+import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
@@ -300,9 +301,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 				SymmetricComponent sym = (SymmetricComponent) comp;
 				prevComp = sym.getPreviousSymmetricComponent();
-				if( null == prevComp){
+				if (prevComp == null) {
 					if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
-						warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
+						warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.getName());
 					}
 				} else {
 					// Check for radius discontinuity
@@ -313,6 +314,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						//					if ( !MathUtil.equals(sym.getForeRadius(), prevComp.getAftRadius())) {
 						warnings.add( Warning.DIAMETER_DISCONTINUITY, sym + ", " + prevComp);					
 					}
+				}
+
+				// Check for phantom tube
+				if ((sym.getLength() < MathUtil.EPSILON) ||
+						(sym.getAftRadius() < MathUtil.EPSILON && sym.getForeRadius() < MathUtil.EPSILON)) {
+					warnings.add(Warning.ZERO_VOLUME_BODY, sym.getName());
 				}
 				
 				// double x = component.toAbsolute(Coordinate.NUL)[0].x;
