@@ -593,6 +593,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * indicates a preferred radius, a negative value indicates that a
 	 * match was not found.
 	 */
+
 	protected abstract double getRearAutoRadius();
 	
 	
@@ -626,7 +627,10 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 					--searchSiblingIndex;
 				}
 			}
+
+			// Look forward to the previous stage
 			--searchParentIndex;
+			
 			if( 0 <= searchParentIndex){
 				searchSiblingIndex = grandParent.getChild(searchParentIndex).getChildCount() - 1;
 			}
@@ -671,6 +675,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 					++searchSiblingIndex;
 				}
 			}
+
+			// Look aft to the next stage
 			++searchParentIndex;
 			searchSiblingIndex = 0;
 		}
