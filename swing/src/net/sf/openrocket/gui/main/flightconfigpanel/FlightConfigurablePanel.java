@@ -64,11 +64,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	/**
 	 * Update the data in the table, with component change event type {cce}
 	 * @param cce index of the ComponentChangeEvent to use (e.g. ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
+	 * @param ids: the IDs of the flight configurations that are affected by the change
 	 */
-	public void fireTableDataChanged(int cce) {
+	public void fireTableDataChanged(int cce, FlightConfigurationId[] ids) {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();
-		this.rocket.fireComponentChangeEvent(cce);
+		this.rocket.fireComponentChangeEvent(cce, ids);
 		((AbstractTableModel)table.getModel()).fireTableDataChanged();
 		restoreSelection(selectedRow,selectedColumn);
 		updateButtonState();

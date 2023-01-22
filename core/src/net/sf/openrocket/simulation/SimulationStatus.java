@@ -33,8 +33,7 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 
 public class SimulationStatus implements Monitorable {
-	private static final Logger log = LoggerFactory.getLogger(SimulationStatus.class);
-	
+
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
 	private FlightDataBranch flightData;

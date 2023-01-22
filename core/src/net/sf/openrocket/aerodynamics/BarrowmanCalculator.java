@@ -1,5 +1,6 @@
 package net.sf.openrocket.aerodynamics;
 
+import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
@@ -324,8 +325,14 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 							.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
 							warnings.add( Warning.DIAMETER_DISCONTINUITY, prevComp + ", " + sym);
 						}
+
+						// Check for phantom tube
+						if ((sym.getLength() < MathUtil.EPSILON) ||
+							(sym.getAftRadius() < MathUtil.EPSILON && sym.getForeRadius() < MathUtil.EPSILON)) {
+							warnings.add(Warning.ZERO_VOLUME_BODY, sym.getName());
+						}
 						
-						// check for gap gap or overlap in airframe.  We'll use a textual comparison to see if there is a
+						// check for gap or overlap in airframe.  We'll use a textual comparison to see if there is a
 						// gap or overlap, then use arithmetic comparison to see which it is.  This won't be quite as reliable
 						// as the case for radius, since we never actually display the absolute X position
 						

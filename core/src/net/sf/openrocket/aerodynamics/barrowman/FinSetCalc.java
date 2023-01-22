@@ -46,10 +46,9 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
 	private final double[] poly = new double[6];
-	
+
 	private final double thickness;
 	private final double bodyRadius;
-	private final double bodyLength;
 	private final int finCount;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
@@ -62,20 +61,17 @@ public class FinSetCalc extends RocketComponentCalc {
 	///why not put FinSet in the parameter instead?
 	public FinSetCalc(FinSet component) {
 		super(component);
-		
-		FinSet fin = component;
 
-		thickness = fin.getThickness();
-		bodyLength = component.getParent().getLength();
-		bodyRadius = fin.getBodyRadius();
-		finCount = fin.getFinCount();
+		this.thickness = component.getThickness();
+		this.bodyRadius = component.getBodyRadius();
+		this.finCount = component.getFinCount();
+
+		this.cantAngle = component.getCantAngle();
+		this.span = component.getSpan();
+		this.finArea = component.getPlanformArea();
+		this.crossSection = component.getCrossSection();
 		
-		cantAngle = fin.getCantAngle();
-		span = fin.getSpan();
-		finArea = fin.getPlanformArea();
-		crossSection = fin.getCrossSection();
-		
-		calculateFinGeometry(fin);
+		calculateFinGeometry(component);
 		calculatePoly();
 		calculateInterferenceFinCount(component);
 	}
@@ -101,10 +97,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			return;
 		}
 
-		if ((bodyLength < EPSILON) || (bodyRadius < EPSILON)) {
-			// Add warnings: Phantom Body
-			warnings.add(Warning.ZERO_VOLUME_BODY);
-		}else if( (0 < bodyRadius) && (thickness > bodyRadius / 2)){
+		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
 			// Add warnings  (radius/2 == diameter/4)
 			warnings.add(Warning.THICK_FIN);
 		}

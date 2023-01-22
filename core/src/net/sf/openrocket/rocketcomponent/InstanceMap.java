@@ -27,15 +27,13 @@ public class InstanceMap extends ConcurrentHashMap<RocketComponent, ArrayList<In
 		}
 	}
 
-	public void emplace(final RocketComponent component, boolean active, int number, final Transformation xform) {
-		final RocketComponent key = component;
-
-		if(!containsKey(component)) {
-			put(key, new ArrayList<InstanceContext>());
+	public void emplace(final RocketComponent component, int number, final Transformation transform) {
+		if (!containsKey(component)) {
+			put(component, new ArrayList<>());
 		}
 
-		final InstanceContext context = new InstanceContext(component, number, xform);
-		get(key).add(context);
+		final InstanceContext context = new InstanceContext(component, number, transform);
+		get(component).add(context);
 	}
 
 	public List<InstanceContext> getInstanceContexts(final RocketComponent key) {
