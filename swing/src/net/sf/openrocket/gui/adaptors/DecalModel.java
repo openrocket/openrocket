@@ -13,6 +13,7 @@ import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.FileSystemAttachmentFactory;
+import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -70,6 +71,7 @@ public class DecalModel extends AbstractListModel<DecalImage> implements ComboBo
 					lastImageDir = current;
 					
 					JFileChooser fc = new JFileChooser(current);
+					fc.setFileFilter(FileHelper.getImageFileFilter());
 					fc.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 					int action = fc.showOpenDialog(SwingUtilities.getWindowAncestor(parent));
 					if (action == JFileChooser.APPROVE_OPTION) {
