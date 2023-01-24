@@ -427,6 +427,8 @@ public class AppearancePanel extends JPanel {
 					edgesComboBox.setEnabled(customInside.isSelected());
 					if (customInside.isSelected()) {
 						remove(outsidePanel);
+						MigLayout layout = (MigLayout) outsidePanel.getLayout();
+						layout.setLayoutConstraints("fill");
 						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
 								"Outside Tool Tip", 0);
 						outsideInsidePane.setSelectedIndex(0);
@@ -434,6 +436,8 @@ public class AppearancePanel extends JPanel {
 					}
 					else {
 						remove(outsideInsidePane);
+						MigLayout layout = (MigLayout) outsidePanel.getLayout();
+						layout.setLayoutConstraints("fill, ins 0");
 						add(outsidePanel, "span 4, growx, wrap");
 					}
 
