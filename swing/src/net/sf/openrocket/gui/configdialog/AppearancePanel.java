@@ -581,13 +581,19 @@ public class AppearancePanel extends JPanel {
 		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
 			JButton editBtn = new SelectColorButton(
 					trans.get("AppearanceCfg.but.edit"));
-			editBtn.setEnabled(builder.getImage() != null);
+			editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
 			// Enable the editBtn only when the appearance builder has an Image
 			// assigned to it.
 			builder.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
-					editBtn.setEnabled(builder.getImage() != null);
+					editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
+				}
+			});
+			materialDefault.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
 				}
 			});
 
@@ -605,7 +611,6 @@ public class AppearancePanel extends JPanel {
 								ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
 					}
 				}
-
 			});
 			p.add(editBtn);
 		}
