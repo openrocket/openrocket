@@ -615,14 +615,14 @@ return console.askYesNo(message, true);
       </jreBundle>
     </windows>
     <unixInstaller name="Unix Installer" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-Linux" />
-    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS" launcherId="59">
+    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-Intel" launcherId="59">
       <topLevelFiles>
         <file name=".DS_Store" file="./macOS_resources/DS_Store" />
         <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
         <symlink name="Applications" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
-    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS" architecture="aarch64" launcherId="59">
+    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-AppleSilicon" architecture="aarch64" launcherId="59">
       <topLevelFiles>
         <file name=".DS_Store" file="./macOS_resources/DS_Store" />
         <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
