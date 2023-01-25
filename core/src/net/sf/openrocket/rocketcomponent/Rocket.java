@@ -453,6 +453,24 @@ public class Rocket extends ComponentAssembly {
 	
 	///////  Implement the ComponentChangeListener lists
 	
+	/**
+	 * Creates a new EventListenerList for this component.  This is necessary when cloning
+	 * the structure.
+	 */
+	public void resetListeners() {
+		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
+		listenerList = new HashSet<EventListener>();
+	}
+	
+	
+	public void printListeners() {
+		int i = 0;
+		for (EventListener l : listenerList) {
+			System.out.println("  " + (i) + ": " + l);
+			i++;
+		}
+	}
+	
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
@@ -467,17 +485,40 @@ public class Rocket extends ComponentAssembly {
 		listenerList.remove(l);
 		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
 	}
-	
-	@Override
-	protected void fireComponentChangeEvent(ComponentChangeEvent cce) {
-		if( ! this.eventsEnabled ){
+
+	/**
+	 * Fires a ComponentChangeEvent of the given type.  The source of the event is set to
+	 * this rocket.
+	 *
+	 * @param type  Type of event
+	 * @param ids IDs of the flight configurations to update, or null to update all.
+	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
+	 */
+	public void fireComponentChangeEvent(int type, final FlightConfigurationId[] ids) {
+		fireComponentChangeEvent(new ComponentChangeEvent(this, type), ids);
+	}
+
+	/**
+	 * Fires a ComponentChangeEvent of the given type.  The source of the event is set to
+	 * this rocket.
+	 *
+	 * @param type  Type of event
+	 * @param id ID of the flight configurations to update, or null to update all.
+	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
+	 */
+	public void fireComponentChangeEvent(int type, FlightConfigurationId id) {
+		fireComponentChangeEvent(type, new FlightConfigurationId[]{ id });
+	}
+
+	protected void fireComponentChangeEvent(ComponentChangeEvent cce, final FlightConfigurationId[] ids) {
+		if (!this.eventsEnabled) {
 			return;
 		}
-		
+
 		mutex.lock("fireComponentChangeEvent");
 		try {
 			checkState();
-			
+
 			// Update modification ID's only for normal (not undo/redo) events
 			if (!cce.isUndoChange()) {
 				modID = UniqueID.next();
@@ -487,30 +528,37 @@ public class Rocket extends ComponentAssembly {
 					aeroModID = modID;
 				if (cce.isTreeChange())
 					treeModID = modID;
-				if (cce.isFunctionalChange())
+				if (cce.isFunctionalChange()) {
 					functionalModID = modID;
+					updateConfigurationsModID(ids);
+				}
 			}
-			
+
 			// Check whether frozen
 			if (freezeList != null) {
 				log.debug("Rocket is in frozen state, adding event " + cce + " info freeze list");
 				freezeList.add(cce);
 				return;
 			}
-		
+
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
 				RocketComponent next = iterator.next();
 				next.componentChanged(cce);
 			}
-			updateConfigurations();
+			updateConfigurations(ids);
 
 			notifyAllListeners(cce);
-			
+
 		} finally {
 			mutex.unlock("fireComponentChangeEvent");
 		}
+	}
+	
+	@Override
+	protected void fireComponentChangeEvent(ComponentChangeEvent cce) {
+		fireComponentChangeEvent(cce, null);
 	}
 	
 	@Override
@@ -537,11 +585,51 @@ public class Rocket extends ComponentAssembly {
 			trackStage(stage);
 		}
 	}
-	
-	private void updateConfigurations(){
-		for( FlightConfiguration config : configSet ){
-			config.update();
+
+	/**
+	 * Update the modIDs of the supplied flight configurations.
+	 * @param ids IDs of the flight configurations to update, or null to update all.
+	 */
+	private void updateConfigurationsModID(FlightConfigurationId[] ids) {
+		if (ids == null) {
+			for (FlightConfiguration config : configSet) {
+				config.updateModID();
+			}
+			return;
 		}
+		for (FlightConfiguration config : configSet) {
+			for (FlightConfigurationId id : ids) {
+				if (config.getId().equals(id)) {
+					config.updateModID();
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update the flight configurations.
+	 * @param ids IDs of the flight configurations to update, or null to update all.
+	 */
+	private void updateConfigurations(FlightConfigurationId[] ids) {
+		if (ids == null) {
+			for (FlightConfiguration config : configSet) {
+				config.update();
+			}
+			return;
+		}
+		for (FlightConfiguration config : configSet) {
+			for (FlightConfigurationId id : ids) {
+				if (config.getId().equals(id)) {
+					config.update();
+					break;
+				}
+			}
+		}
+	}
+	
+	private void updateConfigurations() {
+		updateConfigurations(null);
 	}
 	
 	
@@ -678,8 +766,8 @@ public class Rocket extends ComponentAssembly {
 		}
 				
 		// Get current configuration:
-		this.configSet.reset( fcid);
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		this.configSet.reset(fcid);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	

@@ -1,5 +1,6 @@
 package net.sf.openrocket.database;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -77,8 +78,8 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 			return;
 		}
 		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			Collection<ComponentPreset> presets = loadFile(f.getU(), f.getV());
+			Pair<File, InputStream> f = iterator.next();
+			Collection<ComponentPreset> presets = loadFile(f.getU().getName(), f.getV());
 			componentPresetDao.addAll(presets);
 			fileCount++;
 			presetCount += presets.size();
@@ -97,8 +98,8 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 			return;
 
 		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			Collection<ComponentPreset> presets = loadFile(f.getU(), f.getV());
+			Pair<File, InputStream> f = iterator.next();
+			Collection<ComponentPreset> presets = loadFile(f.getU().getName(), f.getV());
 			componentPresetDao.addAll(presets);
 			fileCount++;
 			presetCount += presets.size();

@@ -56,7 +56,7 @@ public class DirectoryIterator extends FileIterator {
 
 
 	@Override
-	protected Pair<String, InputStream> findNext() {
+	protected Pair<File, InputStream> findNext() {
 		
 		// Check if we're recursing
 		if (subIterator != null) {
@@ -86,7 +86,7 @@ public class DirectoryIterator extends FileIterator {
 				}
 				
 				InputStream is = new BufferedInputStream(new FileInputStream(file));
-				return new Pair<String, InputStream>(file.getName(), is);
+				return new Pair<>(file, is);
 			} catch (IOException e) {
 				logger.warn("Error opening file/directory " + file, e);
 			}

@@ -75,7 +75,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	private String name = "";
 	
-	private Status status = Status.NOT_SIMULATED;
+	private Status status;
 	
 	/** The conditions to use */
 	// TODO: HIGH: Change to use actual conditions class??
@@ -98,7 +98,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SimulationOptions simulatedConditions = null;
 	private String simulatedConfigurationDescription = null;
 	private FlightData simulatedData = null;
-	private int simulatedRocketID = -1;
+	private int simulatedConfigurationID = -1;
 	
 	
 	/**
@@ -147,7 +147,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		this.options = options;
 
-		this.setFlightConfigurationId( rocket.getSelectedConfiguration().getFlightConfigurationID());
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		this.setFlightConfigurationId(config.getFlightConfigurationID());
 				
 		options.addChangeListener(new ConditionListener());
 		
@@ -160,7 +161,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			simulatedData = data;
 			if (this.status == Status.LOADED) {
 				simulatedConditions = options.clone();
-				simulatedRocketID = rocket.getModID();
+				simulatedConfigurationID = config.getModID();
 			}
 		}
 		
@@ -308,8 +309,10 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		mutex.verify();
+		final FlightConfiguration config = rocket.getFlightConfiguration(this.getId()).clone();
+
 		if (isStatusUpToDate(status)) {
-			if (rocket.getFunctionalModID() != simulatedRocketID || !options.equals(simulatedConditions)) {
+			if (config.getModID() != simulatedConfigurationID || !options.equals(simulatedConditions)) {
 				status = Status.OUTDATED;
 			}
 		}
@@ -320,8 +323,6 @@ public class Simulation implements ChangeSource, Cloneable {
 			status = Status.CANT_RUN;
 			return status;
 		}
-		
-		FlightConfiguration config = rocket.getFlightConfiguration( this.getId()).clone();
 				
 		//Make sure this simulation has motors.
 		if ( ! config.hasMotors() ){
@@ -338,7 +339,13 @@ public class Simulation implements ChangeSource, Cloneable {
 	public static boolean isStatusUpToDate(Status status) {
 		return status == Status.UPTODATE || status == Status.LOADED || status == Status.EXTERNAL;
 	}
-	
+
+	/**
+	 * Syncs the modID with its flight configuration.
+	 */
+	public void syncModID() {
+		this.simulatedConfigurationID = getActiveConfiguration().getModID();
+	}
 	
 	
 	/**
@@ -392,7 +399,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			// Set simulated info after simulation
 			simulatedConditions = options.clone();
 			simulatedConfigurationDescription = descriptor.format( this.rocket, getId());
-			simulatedRocketID = rocket.getFunctionalModID();
+			simulatedConfigurationID = getActiveConfiguration().getModID();
 			
 			status = Status.UPTODATE;
 			fireChangeEvent();
@@ -492,7 +499,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.simulatedConditions = null;
 			copy.simulatedConfigurationDescription = null;
 			copy.simulatedData = null;
-			copy.simulatedRocketID = -1;
+			copy.simulatedConfigurationID = -1;
 			
 			return copy;
 			

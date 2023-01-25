@@ -76,7 +76,7 @@ public class WarningSet extends AbstractSet<Warning> implements Cloneable, Monit
 	 *
 	 */
 	public boolean add (Warning w, String d) {
-		return this.add(w.toString() + ": " + d);
+		return this.add(w.toString() + ":  \"" + d + "\"");
 	}
 	
 	@Override

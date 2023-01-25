@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -29,12 +28,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -69,7 +66,6 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
@@ -117,11 +113,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	
 	private JPanel generalPane() {
+		JPanel mainPanel = new JPanel(new MigLayout());
 		
-
-		JPanel mainPanel = new JPanel(new MigLayout("fill"));
-		
-		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel", "[][65lp::][30lp::]", ""));
+		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 
 		{ ////  Number of fins:
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Numberoffins")));
@@ -133,21 +127,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(spin, "growx, wrap");
 			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		}
-
-		{ ////  Base rotation
-			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Finrotation")));
-
-			DoubleModel m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
-
-			JSpinner spin = new JSpinner(m.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			panel.add(spin, "growx");
-			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-
-			panel.add(new UnitSelector(m), "growx");
-			panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
-		}
-
 
 		{ ////  Fin cant
 			JLabel label = new JLabel(trans.get("FreeformFinSetCfg.lbl.Fincant"));
@@ -163,46 +142,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			order.add(((SpinnerEditor) cantAngleSpinner.getEditor()).getTextField());
 
 			panel.add(new UnitSelector(cantAngleModel), "growx");
-			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 40lp");
+			panel.add(new BasicSlider(cantAngleModel.getSliderModel(-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS)), "w 100lp, wrap 30lp");
 		}
-
-
-		{ ////  Position
-			//// Position relative to:
-			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Posrelativeto")));
-
-
-			final EnumModel<AxialMethod> axialMethodModel = new EnumModel<AxialMethod>(component, "AxialMethod", AxialMethod.axialOffsetMethods);
-			final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<AxialMethod>(axialMethodModel);
-			panel.add(axialMethodCombo, "spanx 3, growx, wrap");
-			order.add(axialMethodCombo);
-
-			//// plus
-			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.plus")), "right");
-
-			final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-			final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
-			axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
-			panel.add(axialOffsetSpinner, "growx");
-			order.add(((SpinnerEditor) axialOffsetSpinner.getEditor()).getTextField());
-
-			panel.add(new UnitSelector(axialOffsetModel), "growx");
-			panel.add(new BasicSlider(axialOffsetModel.getSliderModel(new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE), new DoubleModel(component.getParent(), "Length"))), "w 100lp, wrap");
-
-			axialMethodCombo.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					axialOffsetModel.stateChanged(new EventObject(e));
-				}
-			});
-		}
-
-		mainPanel.add(panel, "aligny 20%");
-		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, height 150lp");
-		
-		
-		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
-
 
 		{ ////  Cross section
 			//// Fin cross section:
@@ -226,14 +167,43 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
 		}
 
+		mainPanel.add(panel, "aligny 0, gapright 40lp");
+
+		// Right side panel
+		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+
+		{//// -------- Placement ------
+			//// Position relative to:
+			JPanel placementPanel = new PlacementPanel(component, order);
+			panel.add(placementPanel, "span, grow");
+
+			{////  Fin rotation
+				JLabel label = new JLabel(trans.get("FinSetCfg.lbl.FinRotation"));
+				label.setToolTipText(trans.get("FinSetCfg.lbl.FinRotation.ttip"));
+				placementPanel.add(label, "newline");
+
+				DoubleModel m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+
+				JSpinner spin = new JSpinner(m.getSpinnerModel());
+				spin.setEditor(new SpinnerEditor(spin));
+				placementPanel.add(spin, "growx");
+				order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+				placementPanel.add(new UnitSelector(m), "growx");
+				placementPanel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
+			}
+		}
+
 		{ //// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
-			panel.add(materialPanel, "span, wrap");
+			panel.add(materialPanel, "span, grow, wrap");
+		}
 
-			panel.add(filletMaterialPanel(), "span, wrap");
+		{ //// Root fillets
+			panel.add(filletMaterialPanel(), "span, grow, wrap");
 		}
 		
-		mainPanel.add(panel, "aligny 20%");
+		mainPanel.add(panel, "aligny 0");
 
 		return mainPanel;
 	}
@@ -413,7 +383,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		
 		JPanel desc = new JPanel(new MigLayout("fill, ins 0 para 0 para"));
-		desc.add(new DescriptionArea(trans.get("CustomFinImport.description"), 5, 0), "grow, wmin 150lp");
+		desc.add(new DescriptionArea(trans.get("CustomFinImport.description"), 5, 0), "grow, wmin 100lp");
 		chooser.setAccessory(desc);
 		
 		int option = chooser.showOpenDialog(this);

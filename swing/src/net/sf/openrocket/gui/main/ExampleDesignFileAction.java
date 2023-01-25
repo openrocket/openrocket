@@ -46,7 +46,7 @@ public final class ExampleDesignFileAction extends JMenu {
         // Examples demonstrating customized functionality
         "Presets",
         "Simulation extensions",
-        "Simulation extensions and scripting"
+        "Simulation scripting"
     };
 
     /**

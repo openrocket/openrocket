@@ -69,7 +69,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 					updateEnabled();
 				}
 			});
-			panel.add(typeBox, "span, wrap rel");
+			panel.add(typeBox, "spanx 3, growx, wrap rel");
 			order.add(typeBox);
 
 			////  Shape parameter:
@@ -176,7 +176,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		panel2.add(materialPanel, "span, wrap");
-		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
+		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 		
 
 		//// General and General properties

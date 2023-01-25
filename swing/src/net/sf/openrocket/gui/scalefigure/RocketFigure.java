@@ -384,11 +384,16 @@ public class RocketFigure extends AbstractScaleFigure {
 		// allShapes is an output buffer -- it stores all the generated shapes
 		allShapes.clear();
 
-		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : config.getActiveInstances().entrySet()) {
+		addShapesFromInstanceEntries(allShapes, config.getActiveInstances().entrySet());
+		addShapesFromInstanceEntries(allShapes, config.getExtraRenderInstances().entrySet());
+	}
+
+	private void addShapesFromInstanceEntries(PriorityQueue<RocketComponentShape> allShapes, Set<Entry<RocketComponent, ArrayList<InstanceContext>>> entries) {
+		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : entries) {
 			final RocketComponent comp = entry.getKey();
 
-			// Only draw podsets when they are selected
-			if ((comp instanceof PodSet || comp instanceof ParallelStage) && preferences.isShowMarkers()) {
+			// Only draw pod sets and boosters when they are selected
+			if (preferences.isShowMarkers() && (comp instanceof PodSet || comp instanceof ParallelStage)) {
 				boolean selected = false;
 
 				// Check if component is in the selection
@@ -409,7 +414,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 		}
 	}
-	
+
 	/**
 	 * Gets the shapes required to draw the component.
 	 *

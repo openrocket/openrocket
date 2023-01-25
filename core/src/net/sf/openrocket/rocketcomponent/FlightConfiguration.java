@@ -67,6 +67,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private Map<Integer, Boolean> preloadStageActiveness = null;
 	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
 	final private InstanceMap activeInstances = new InstanceMap();
+	final private InstanceMap extraRenderInstances = new InstanceMap();		// Extra instances to be rendered, besides the active instances
 	
 	private int boundsModID = -1;
 	private BoundingBox cachedBoundsAerodynamic = new BoundingBox();	// Bounding box of all aerodynamic components
@@ -159,8 +160,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public void clearStage(final int stageNumber) {
 		_setStageActive( stageNumber, false );
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -174,8 +173,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i = stageNumber; i < rocket.getStageCount(); i++) {
 			_setStageActive(i, false, false);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -187,8 +184,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i = 0; i < stageNumber; i++) {
 			_setStageActive(i, false, false);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 	
 	/**
@@ -214,8 +209,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		for (int i=0; i <= stage.getStageNumber(); i++) {
 			_setStageActive(i, true);
 		}
-		updateMotors();
-		updateActiveInstances();
 	}
 	
 	/** 
@@ -226,8 +219,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public void setOnlyStage(final int stageNumber) {
 		_setAllStages(false);
 		_setStageActive(stageNumber, true, false);
-		updateMotors();
-		updateActiveInstances();
 	}
 
 	/**
@@ -288,7 +279,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 
 		AxialStage stage = rocket.getStage(stageNumber);
-		return stage != null && stage.getChildCount() > 0 &&
+		return stage != null && stage.getChildCount() > 0 &&		// Stages with no children are marked as inactive
 				stages.get(stageNumber) != null && stages.get(stageNumber).active;
 	}
 
@@ -398,6 +389,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public InstanceMap getActiveInstances() {
 		return activeInstances;
 	}
+
+	/**
+	 * Returns the InstanceMap of instances that need to be rendered, but are not present in {@link #getActiveInstances()}.
+	 * This is the case for example for a booster that has no children. It is marked as an inactive stage, but it still needs to be rendered.
+	 * @return the InstanceMap of instances that need to be rendered, but are not present in {@link #getActiveInstances()}.
+	 */
+	public InstanceMap getExtraRenderInstances() {
+		return extraRenderInstances;
+	}
 	
 	/*
 	 * Generates a read-only, instance-aware collection of the components for this rocket & configuration
@@ -406,7 +406,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	private void updateActiveInstances() {
 		activeInstances.clear();
-		getActiveContextListAt( this.rocket, activeInstances, Transformation.IDENTITY);
+		extraRenderInstances.clear();
+		getActiveContextListAt(this.rocket, activeInstances, Transformation.IDENTITY);
 	}
 
 	private InstanceMap getActiveContextListAt(final RocketComponent component, final InstanceMap results, final Transformation parentTransform ){
@@ -427,7 +428,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 			// constructs entry in-place if this component is active
 			if (this.isComponentActive(component)) {
-				results.emplace(component, this.isComponentActive(component), currentInstanceNumber, currentTransform);
+				results.emplace(component, currentInstanceNumber, currentTransform);
+			} else if (component instanceof ParallelStage && stages.get(component.getStageNumber()).active) {
+				// Boosters with no children are marked as inactive, but still need to be rendered.
+				// See GitHub issue #1980 for more information.
+				extraRenderInstances.emplace(component, currentInstanceNumber, currentTransform);
 			}
 
 			for(RocketComponent child : component.getChildren()) {
@@ -524,6 +529,13 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		updateStages();
 		updateMotors();
 		updateActiveInstances();
+	}
+
+	/**
+	 * Update the configuration's modID, thus staging it in need to update.
+	 */
+	public void updateModID() {
+		this.modID++;
 	}
 	
 	private void updateStages() {
@@ -840,11 +852,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * - configurables 
 	 * 
 	 */
-	@Override
-	public FlightConfiguration clone() {
-
+	public FlightConfiguration clone(Rocket rocket) {
         // Note the stages are updated in the constructor call.
-		FlightConfiguration clone = new FlightConfiguration( this.rocket, this.fcid );
+		FlightConfiguration clone = new FlightConfiguration( rocket, this.fcid );
 		clone.setName(configurationName);
 		clone.copyStageActiveness(this);
 		clone.preloadStageActiveness = this.preloadStageActiveness == null ? null : new HashMap<>(this.preloadStageActiveness);
@@ -855,6 +865,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		clone.boundsModID = -1;
 		clone.refLengthModID = -1;
 		return clone;
+	}
+		
+	@Override
+	public FlightConfiguration clone() {
+		return this.clone(this.rocket);
 	}
 
     /**
@@ -890,13 +905,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	@Override
 	public int getModID() {
-		// TODO: this doesn't seem consistent...
-		int id = modID;
-//		for (MotorInstance motor : motors.values()) {
-//			id += motor.getModID();
-//		}
-		id += rocket.getModID();
-		return id; 
+		return modID;
 	}
 
 	public void setName(final String newName) {
