@@ -32,6 +32,8 @@ import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
+import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -576,14 +578,14 @@ public class AppearancePanel extends JPanel {
 		p.add(textureDropDown, "grow");
 		panel.add(p, "spanx 3, growx, wrap");
 		order.add(textureDropDown);
-
+			
 		//// Edit button
-		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
+		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
 			JButton editBtn = new SelectColorButton(
 					trans.get("AppearanceCfg.but.edit"));
-			editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
 			// Enable the editBtn only when the appearance builder has an Image
 			// assigned to it.
+			editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
 			builder.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
