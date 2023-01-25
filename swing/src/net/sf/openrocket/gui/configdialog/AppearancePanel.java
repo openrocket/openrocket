@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -427,6 +428,8 @@ public class AppearancePanel extends JPanel {
 					edgesComboBox.setEnabled(customInside.isSelected());
 					if (customInside.isSelected()) {
 						remove(outsidePanel);
+						MigLayout layout = (MigLayout) outsidePanel.getLayout();
+						layout.setLayoutConstraints("fill");
 						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
 								"Outside Tool Tip", 0);
 						outsideInsidePane.setSelectedIndex(0);
@@ -434,6 +437,8 @@ public class AppearancePanel extends JPanel {
 					}
 					else {
 						remove(outsideInsidePane);
+						MigLayout layout = (MigLayout) outsidePanel.getLayout();
+						layout.setLayoutConstraints("fill, ins 0");
 						add(outsidePanel, "span 4, growx, wrap");
 					}
 
@@ -490,13 +495,11 @@ public class AppearancePanel extends JPanel {
 		if (!insideBuilder) {
 			builder = ab;
 			mDefault = new BooleanModel(c.getAppearance() == null || defaultAppearance.equals(c.getAppearance()));
-		}
-		else if (c instanceof InsideColorComponent) {
+		} else if (c instanceof InsideColorComponent) {
 			builder = insideAb;
-			Appearance appearance = ((InsideColorComponent)c).getInsideColorComponentHandler().getInsideAppearance();
+			Appearance appearance = ((InsideColorComponent) c).getInsideColorComponentHandler().getInsideAppearance();
 			mDefault = new BooleanModel(appearance == null || defaultAppearance.equals(appearance));
-		}
-		else return;
+		} else return;
 
 		DecalModel decalModel = new DecalModel(panel, document, builder);
 		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
@@ -505,6 +508,7 @@ public class AppearancePanel extends JPanel {
 		// for multi-comp edits, the listeners' decals may not be updated otherwise
 		textureDropDown.addActionListener(new ActionListener() {
 			private DecalImage previousSelection = (DecalImage) decalModel.getSelectedItem();
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				DecalImage decal = (DecalImage) textureDropDown.getSelectedItem();
@@ -530,8 +534,7 @@ public class AppearancePanel extends JPanel {
 					if (!insideBuilder) {
 						previousUserSelectedAppearance = (builder == null) ? null
 								: builder.getAppearance();
-					}
-					else {
+					} else {
 						previousUserSelectedInsideAppearance = (builder == null) ? null
 								: builder.getAppearance();
 					}
@@ -552,8 +555,7 @@ public class AppearancePanel extends JPanel {
 							listener.setAppearance(previousUserSelectedAppearance);
 						}
 						builder.setAppearance(previousUserSelectedAppearance);
-					}
-					else {
+					} else {
 						// Set the listeners' inside appearance to the previous user selected appearance
 						for (AppearanceBuilder listener : builder.getConfigListeners().values()) {
 							listener.setAppearance(previousUserSelectedInsideAppearance);
@@ -572,43 +574,46 @@ public class AppearancePanel extends JPanel {
 		JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
 		mDefault.addEnableComponent(textureDropDown, false);
 		p.add(textureDropDown, "grow");
-		panel.add(p, "span 3, growx, wrap");
+		panel.add(p, "spanx 3, growx, wrap");
 		order.add(textureDropDown);
-		JButton editBtn = new SelectColorButton(
-				trans.get("AppearanceCfg.but.edit"));
-		editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
-		// Enable the editBtn only when the appearance builder has an Image
-		// assigned to it.
-		builder.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
-			}
-		});
-		materialDefault.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
-			}
-		});
 
-		editBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					DecalImage newImage = editDecalHelper.editDecal(
-							SwingUtilities
-									.getWindowAncestor(panel),
-							document, c, builder.getImage(), insideBuilder);
-					builder.setImage(newImage);
-				} catch (EditDecalHelperException ex) {
-					JOptionPane.showMessageDialog(panel,
-							ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+		//// Edit button
+		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
+			JButton editBtn = new SelectColorButton(
+					trans.get("AppearanceCfg.but.edit"));
+			editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
+			// Enable the editBtn only when the appearance builder has an Image
+			// assigned to it.
+			builder.addChangeListener(new StateChangeListener() {
+				@Override
+				public void stateChanged(EventObject e) {
+					editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
 				}
-			}
+			});
+			materialDefault.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
+				}
+			});
 
-		});
-		p.add(editBtn);
+			editBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						DecalImage newImage = editDecalHelper.editDecal(
+								SwingUtilities
+										.getWindowAncestor(panel),
+								document, c, builder.getImage(), insideBuilder);
+						builder.setImage(newImage);
+					} catch (EditDecalHelperException ex) {
+						JOptionPane.showMessageDialog(panel,
+								ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
+			p.add(editBtn);
+		}
 
 		// TODO: move the separate columns in two separate panels instead of adding them in a zig-zag way
 		// Color
