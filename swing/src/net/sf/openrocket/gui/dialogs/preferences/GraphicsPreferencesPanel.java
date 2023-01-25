@@ -145,7 +145,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 		 * we will rely on using the xdg-open command which allows the user to pick
 		 * their preferred application.
 		 */
-		if (SystemInfo.getPlatform() != Platform.UNIX && !SystemInfo.isConfined()) {
+		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
 			this.add(editorPrefPanel, "growx, span");
 		}
 		
