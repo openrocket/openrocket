@@ -92,6 +92,12 @@ public class UpdateInfoTest extends BaseTestCase {
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.beta.01", "22.beta.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.beta.02", "22.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.01", "22.RC.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.LATEST,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.01", "22.RC.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.02", "22.RC.01"));
 
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.alpha.01", "22.02.alpha.02"));
@@ -105,6 +111,12 @@ public class UpdateInfoTest extends BaseTestCase {
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.beta.01", "22.02.beta.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.beta.02", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.01", "22.02.RC.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.01", "22.02.RC.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.RC.02", "22.02.RC.01"));
 
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.01", "22.02.beta.02"));
@@ -112,12 +124,36 @@ public class UpdateInfoTest extends BaseTestCase {
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.01", "22.02.beta.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.02", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.01", "22.02.RC.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.01", "22.02.RC.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.02", "22.02.RC.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.RC.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.RC.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.02", "22.02.RC.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.alpha.02"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.alpha.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.02", "22.02.alpha.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.alpha.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.alpha.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.02", "22.02.alpha.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.beta.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.02", "22.02.beta.01"));
 
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.alpha.01", "22"));
@@ -148,6 +184,21 @@ public class UpdateInfoTest extends BaseTestCase {
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.01"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.02"));
+
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.03"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.02"));
 
 
 		// Test bogus releases

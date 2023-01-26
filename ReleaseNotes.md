@@ -14,7 +14,7 @@ Release Notes
 </div>
 
 <div id="22.02.RC.01">
- 
+
 OpenRocket 22.02.RC.01 (2023-01-xx)
 ------------------------
 (through PR1996)
@@ -60,6 +60,7 @@ OpenRocket 22.02.RC.01 (2023-01-xx)
  
 </div>
  
+
 <div id="22.02.beta.05">
 
 OpenRocket 22.02.beta.05 (2022-09-28)

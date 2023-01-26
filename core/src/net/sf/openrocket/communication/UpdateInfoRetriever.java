@@ -36,6 +36,7 @@ public class UpdateInfoRetriever {
 	private static final Map<String, Integer> devTags = Stream.of(new Object[][] {
 			{ "alpha", 1 },
 			{ "beta", 2 },
+			{ "RC", 3 },	// Release Candidate
 	}).collect(Collectors.toMap(c -> (String) c[0], c -> (Integer) c[1]));
 
 	/* Enum for the current build version. Values:
