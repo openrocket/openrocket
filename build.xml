@@ -64,6 +64,19 @@
         <ant dir="swing" target="unittest-no-junit-report" inheritAll="false" />
     </target>
 
+    <target name="serialize-motors-core">
+        <ant dir="core" target="serialize-motors" inheritAll="false" />
+    </target>
+
+    <!-- UPDATE -->
+    <target name="update" depends="serialize-motors-core">
+        <exec dir="." executable="git">
+            <arg value="submodule"/>
+            <arg value="update"/>
+            <arg value="--remote"/>
+        </exec>
+    </target>
+
     <!-- CHECK -->
     <target name="check" depends="checktodo,checkascii"/>
 
