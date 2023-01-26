@@ -76,7 +76,8 @@
 			<fileset dir="${basedir}/.." includes="LICENSE.TXT README.md ChangeLog ReleaseNotes.md fileformat.txt" />
 		</jar>
 	</target>
-	
+
+	<!-- Update thrust curves -->
 	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
 	    <java classname="net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors"
 	          fork="true"

@@ -15,7 +15,7 @@ Release Notes
 
 <div id="22.02.RC.01">
 
-OpenRocket 22.02.RC.01 (2023-01-xx)
+OpenRocket 22.02.RC.01 (2023-01-27)
 ------------------------
 (through PR1996)
 
