@@ -343,26 +343,27 @@ public class RocketInfo implements FigureElement {
 		double max = 0;
 
 		if (showWarnings) {
-			texts = new GlyphVector[Math.min(warnings.size()+1, MAX_WARNINGS+2)];
+			texts = new GlyphVector[1 + Math.min(warnings.size(), MAX_WARNINGS)];
 
 			//// Warning:
 			texts[0] = createText(trans.get("RocketInfo.Warning"));
 
 			//// Actual warnings
 			int i = 1;
-			int j = 0;
+			int nrOfWarnings = 0;
 			for (Warning w : warnings) {
 				texts[i] = createText(w.toString());
 				i++;
-				j++;
-				if (j >= MAX_WARNINGS) {
+				nrOfWarnings++;
+				// Stop drawing warnings if you're at the maximum and there's still warnings to come
+				if (nrOfWarnings >= MAX_WARNINGS-1 && warnings.size() > MAX_WARNINGS) {
 					break;
 				}
 			}
 
 			//// X warnings remaining
 			if (warnings.size() > MAX_WARNINGS) {
-				texts[i] = createText(String.format(trans.get("RocketInfo.lbl.warningsRemaining"), warnings.size() - MAX_WARNINGS,
+				texts[i] = createText(String.format(trans.get("RocketInfo.lbl.warningsRemaining"), warnings.size() - MAX_WARNINGS + 1,
 						trans.get("RocketPanel.btn.showAllWarnings")));
 			}
 		} else {		// Hide warnings
