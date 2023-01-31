@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,7 @@ import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.dialogs.GeometryWarningsDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
@@ -52,6 +55,7 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.RigidBody;
@@ -133,6 +137,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private final JPanel figureHolder;
 
 	private JLabel infoMessage;
+	private JCheckBox displayWarnings;
+	private JButton showAllWarnings;
 
 	private TreeSelectionModel selectionModel = null;
 
@@ -423,11 +429,43 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 		rotationSlider.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 
+		// Warning options
+		JPanel bottomRow = new JPanel(new MigLayout("fill, gapy 0, ins 0"));
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
 		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
 		infoMessage.setFont(new Font("Sans Serif", Font.PLAIN, 9));
-		add(infoMessage, "skip, span, gapleft 25, wrap");
+		bottomRow.add(infoMessage);
+
+
+		//// Display warnings
+		this.displayWarnings = new JCheckBox(trans.get("RocketPanel.check.displayWarnings"));
+		displayWarnings.setSelected(true);
+		displayWarnings.setToolTipText(trans.get("RocketPanel.check.displayWarnings.ttip"));
+		bottomRow.add(displayWarnings, "pushx, right");
+		displayWarnings.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateExtras();
+				updateFigures();
+			}
+		});
+
+		//// Show all warnings
+		this.showAllWarnings = new SelectColorButton(trans.get("RocketPanel.btn.showAllWarnings"));
+		boolean warningsPresent = warnings.size() > 0;
+		showAllWarnings.setToolTipText(warningsPresent ? trans.get("RocketPanel.btn.showAllWarnings.ttip.warnings") :
+				trans.get("RocketPanel.btn.showAllWarnings.ttip.noWarnings"));
+		showAllWarnings.setEnabled(warningsPresent);
+		showAllWarnings.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openWarningsDialog();
+			}
+		});
+		bottomRow.add(showAllWarnings);
+
+		add(bottomRow, "skip, growx, span, gapleft 25");
 
 		addExtras();
 	}
@@ -546,6 +584,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		updateExtras();
 		updateFigures();
 		fireChangeEvent();
+	}
+
+	private void openWarningsDialog() {
+		GeometryWarningsDialog.showDialog(SwingUtilities.getWindowAncestor(this), warnings);
 	}
 
 	@Override
@@ -782,6 +824,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setMassWithMotors(cg.weight);
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
 		extraText.setWarnings(warnings);
+		if (this.displayWarnings != null) {
+			extraText.setShowWarnings(displayWarnings.isSelected());
+		}
+		if (this.showAllWarnings != null) {
+			boolean warningsPresent = warnings.size() > 0;
+			this.showAllWarnings.setEnabled(warningsPresent);
+			showAllWarnings.setToolTipText(warningsPresent ? trans.get("RocketPanel.btn.showAllWarnings.ttip.warnings") :
+					trans.get("RocketPanel.btn.showAllWarnings.ttip.noWarnings"));
+		}
 
 		if (length > 0) {
 			figure3d.setCG(cg);

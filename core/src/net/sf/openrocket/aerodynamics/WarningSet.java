@@ -3,6 +3,7 @@ package net.sf.openrocket.aerodynamics;
 import java.util.AbstractSet;
 import java.util.Iterator;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Monitorable;
@@ -66,6 +67,23 @@ public class WarningSet extends AbstractSet<Warning> implements Cloneable, Monit
 	public boolean add(String s) {
 		mutable.check();
 		return add(Warning.fromString(s));
+	}
+
+	/**
+	 * Add a <code>Warning</code> of the specified type with the specified warning sources.
+	 * @param w the warning
+	 * @param sources the sources of the warning (rocket components that caused the warning)
+	 *
+	 */
+	public boolean add(Warning w, RocketComponent... sources) {
+		mutable.check();
+		try {
+			w = (Warning) w.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("CloneNotSupportedException occurred, report bug!", e);
+		}
+		w.setSources(sources);
+		return add(w);
 	}
 
 	/**

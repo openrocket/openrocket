@@ -53,6 +53,8 @@ public class RocketInfo implements FigureElement {
 	private double massWithoutMotors = 0;
 	
 	private WarningSet warnings = null;
+	private static final int MAX_WARNINGS = 3;		// Maximum number of warnings to display
+	private boolean showWarnings = true;
 	
 	private boolean calculatingData = false;
 	private FlightData flightData = null;
@@ -123,7 +125,15 @@ public class RocketInfo implements FigureElement {
 	public void setWarnings(WarningSet warnings) {
 		this.warnings = warnings.clone();
 	}
-	
+
+	/**
+	 * Set whether warnings should be shown. If false, the warnings are not shown.
+	 * @param showWarnings whether to show warnings.
+	 */
+	public void setShowWarnings(boolean showWarnings) {
+		this.showWarnings = showWarnings;
+	}
+
 	public void setAOA(double aoa) {
 		this.aoa = aoa;
 	}
@@ -329,15 +339,35 @@ public class RocketInfo implements FigureElement {
 		if (warnings == null || warnings.isEmpty())
 			return;
 		
-		GlyphVector[] texts = new GlyphVector[warnings.size()+1];
+		final GlyphVector[] texts;
 		double max = 0;
-		
-		//// Warning:
-		texts[0] = createText(trans.get("RocketInfo.Warning"));
-		int i=1;
-		for (Warning w: warnings) {
-			texts[i] = createText(w.toString());
-			i++;
+
+		if (showWarnings) {
+			texts = new GlyphVector[Math.min(warnings.size()+1, MAX_WARNINGS+2)];
+
+			//// Warning:
+			texts[0] = createText(trans.get("RocketInfo.Warning"));
+
+			//// Actual warnings
+			int i = 1;
+			int j = 0;
+			for (Warning w : warnings) {
+				texts[i] = createText(w.toString());
+				i++;
+				j++;
+				if (j >= MAX_WARNINGS) {
+					break;
+				}
+			}
+
+			//// X warnings remaining
+			if (warnings.size() > MAX_WARNINGS) {
+				texts[i] = createText(String.format(trans.get("RocketInfo.lbl.warningsRemaining"), warnings.size() - MAX_WARNINGS,
+						trans.get("RocketPanel.btn.showAllWarnings")));
+			}
+		} else {		// Hide warnings
+			texts = new GlyphVector[1];
+			texts[0] = createText(String.format(trans.get("RocketInfo.lbl.warnings"), warnings.size()));
 		}
 		
 		for (GlyphVector v: texts) {
@@ -347,7 +377,7 @@ public class RocketInfo implements FigureElement {
 		}
 		
 
-		float y = y2 - line * warnings.size();
+		float y = y2 - line * (texts.length-1);
 		g2.setColor(Color.RED);
 
 		for (GlyphVector v: texts) {

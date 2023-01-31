@@ -2,14 +2,20 @@ package net.sf.openrocket.aerodynamics;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
 
-public abstract class Warning {
+import java.util.Arrays;
+
+public abstract class Warning implements Cloneable {
 	
 	/** support to multiple languages warning */
 	private static final Translator trans = Application.getTranslator();
+
+	/** The rocket component(s) that are the source of this warning **/
+	private RocketComponent[] sources = null;
 	
 	/**
 	 * @return a Warning with the specific text.
@@ -17,6 +23,21 @@ public abstract class Warning {
 	public static Warning fromString(String text) {
 		return new Warning.Other(text);
 	}
+
+	/**
+	 * Returns the warning text + warning source objects.
+	 * @return the warning text + warning source objects.
+	 */
+	@Override
+	public String toString() {
+		return Warning.addSourcesToWarningText(getWarningDescription(), getSources());
+	}
+
+	/**
+	 * Returns the warning text.  The text should be short and descriptive.
+	 * @return the warning text.
+	 */
+	public abstract String getWarningDescription();
 	
 	/**
 	 * Return <code>true</code> if the <code>other</code> warning should replace
@@ -27,8 +48,34 @@ public abstract class Warning {
 	 * @return       whether this warning should be replaced
 	 */
 	public abstract boolean replaceBy(Warning other);
-	
-	
+
+	/**
+	 * Return the rocket component(s) that are the source of this warning.
+	 * @return the rocket component(s) that are the source of this warning. Returns null if no sources are specified.
+	 */
+	public RocketComponent[] getSources() {
+		return sources;
+	}
+
+	/**
+	 * Set the rocket component(s) that are the source of this warning.
+	 * @param sources the rocket component(s) that are the source of this warning.
+	 */
+	public void setSources(RocketComponent[] sources) {
+		this.sources = sources;
+	}
+
+	private static String addSourcesToWarningText(String text, RocketComponent[] sources) {
+		if (sources != null && sources.length > 0) {
+			String[] sourceNames = new String[sources.length];
+			for (int i = 0; i < sources.length; i++) {
+				sourceNames[i] = sources[i].getName();
+			}
+			return text + ": \"" + String.join(", ", sourceNames) + "\"";
+		}
+		return text;
+	}
+
 	/**
 	 * Two <code>Warning</code>s are by default considered equal if they are of
 	 * the same class.  Therefore only one instance of a particular warning type 
@@ -37,7 +84,11 @@ public abstract class Warning {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		return o != null && (o.getClass() == this.getClass());
+		return o != null && (o.getClass() == this.getClass()) && sourcesEqual(this.sources, ((Warning) o).sources);
+	}
+
+	protected boolean sourcesEqual(RocketComponent[] a, RocketComponent[] b) {
+		return Arrays.equals(a, b);
 	}
 	
 	/**
@@ -47,8 +98,13 @@ public abstract class Warning {
 	public int hashCode() {
 		return this.getClass().hashCode();
 	}
-	
-	
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		Warning clone = (Warning) super.clone();
+		clone.sources = this.sources;
+		return clone;
+	}
 	
 	
 	/////////////  Specific warning classes  /////////////
@@ -60,7 +116,7 @@ public abstract class Warning {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class LargeAOA extends Warning {
-		private final double aoa;
+		private double aoa;
 		
 		/**
 		 * Sole constructor.  The argument is the AOA that caused this warning.
@@ -70,9 +126,9 @@ public abstract class Warning {
 		public LargeAOA(double aoa) {
 			this.aoa = aoa;
 		}
-		
+
 		@Override
-		public String toString() {
+		public String getWarningDescription() {
 			if (Double.isNaN(aoa))
 				//// Large angle of attack encountered.
 				return trans.get("Warning.LargeAOA.str1");
@@ -80,7 +136,7 @@ public abstract class Warning {
 			return (trans.get("Warning.LargeAOA.str2") +
 					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
 		}
-		
+
 		@Override
 		public boolean replaceBy(Warning other) {
 			if (!(other instanceof LargeAOA))
@@ -91,6 +147,13 @@ public abstract class Warning {
 				return true;
 			return (o.aoa > this.aoa);
 		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			LargeAOA clone = (LargeAOA) super.clone();
+			clone.aoa = this.aoa;
+			return clone;
+		}
 	}
 	
 	/**
@@ -99,7 +162,7 @@ public abstract class Warning {
 	 * @author Craig Earls <enderw88@gmail.com>
 	 */
 	public static class HighSpeedDeployment extends Warning {
-		private final double recoverySpeed;
+		private double recoverySpeed;
 		
 		/**
 		 * Sole constructor.  The argument is the speed that caused this warning.
@@ -109,18 +172,25 @@ public abstract class Warning {
 		public HighSpeedDeployment(double speed) {
 			this.recoverySpeed = speed;
 		}
-		
+
 		@Override
-		public String toString() {
+		public String getWarningDescription() {
 			if (Double.isNaN(recoverySpeed)) {
 				return trans.get("Warning.RECOVERY_HIGH_SPEED");
 			}
 			return trans.get("Warning.RECOVERY_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
 		}
-		
+
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			HighSpeedDeployment clone = (HighSpeedDeployment) super.clone();
+			clone.recoverySpeed = this.recoverySpeed;
+			return clone;
 		}
 	}
 
@@ -129,12 +199,12 @@ public abstract class Warning {
 	 *
 	 */
 	public static class EventAfterLanding extends Warning {
-		private final FlightEvent event;
+		private FlightEvent event;
 		
 		/**
 		 * Sole constructor.  The argument is an event which has occurred after landing
 		 *
-		 * @param event the event that caused this warning
+		 * @param _event the event that caused this warning
 		 */
 		public EventAfterLanding(FlightEvent _event)  {
 			this.event = _event;
@@ -149,13 +219,20 @@ public abstract class Warning {
 		
 
 		@Override
-		public String toString() {
+		public String getWarningDescription() {
 			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
 		}
 
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			EventAfterLanding clone = (EventAfterLanding) super.clone();
+			clone.event = this.event;
+			return clone;
 		}
 	}
 	
@@ -170,7 +247,7 @@ public abstract class Warning {
 		private double delay = Double.NaN;
 		
 		@Override
-		public String toString() {
+		public String getWarningDescription() {
 			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
@@ -309,9 +386,24 @@ public abstract class Warning {
 				return false;
 			if (type != other.type)
 				return false;
+			if (!sourcesEqual(other.getSources(), this.getSources())) {
+				return false;
+			}
 			return true;
 		}
-		
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			MissingMotor clone = (MissingMotor) super.clone();
+			clone.type = this.type;
+			clone.manufacturer = this.manufacturer;
+			clone.designation = this.designation;
+			clone.digest = this.digest;
+			clone.diameter = this.diameter;
+			clone.length = this.length;
+			clone.delay = this.delay;
+			return clone;
+		}
 	}
 	
 	
@@ -323,14 +415,14 @@ public abstract class Warning {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class Other extends Warning {
-		private final String description;
+		private String description;
 		
 		public Other(String description) {
 			this.description = description;
 		}
 		
 		@Override
-		public String toString() {
+		public String getWarningDescription() {
 			return description;
 		}
 		
@@ -340,7 +432,7 @@ public abstract class Warning {
 				return false;
 			
 			Other o = (Other) other;
-			return (o.description.equals(this.description));
+			return o.description.equals(this.description) && sourcesEqual(o.getSources(), this.getSources());
 		}
 		
 		@Override
@@ -351,6 +443,13 @@ public abstract class Warning {
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			Other clone = (Other) super.clone();
+			clone.description = this.description;
+			return clone;
 		}
 	}
 	
