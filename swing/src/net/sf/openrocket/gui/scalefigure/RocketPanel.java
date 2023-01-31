@@ -588,6 +588,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void openWarningsDialog() {
+		if (this.warningsDialog != null && this.warningsDialog.isVisible()) {
+			this.warningsDialog.dispose();
+		}
 		this.warningsDialog = GeometryWarningsDialog.showDialog(SwingUtilities.getWindowAncestor(this),
 				warnings, basicFrame);
 	}

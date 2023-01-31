@@ -38,16 +38,12 @@ import java.util.List;
 public class GeometryWarningsDialog extends JDialog {
     private static final Translator trans = Application.getTranslator();
 
-    private static GeometryWarningsDialog instance = null;
-    private final BasicFrame basicFrame;
     private final JTable table;
 
     private GeometryWarningsDialog(Window owner, WarningSet warnings, final BasicFrame basicFrame) {
         super(owner, trans.get("GeometryWarningsDialog.title"), ModalityType.MODELESS);
         this.setPreferredSize(new Dimension(500, 200));
         this.setLocationRelativeTo(null);
-
-        this.basicFrame = basicFrame;
 
         JPanel panel = new JPanel(new MigLayout("fill"));
         add(panel);
@@ -120,12 +116,9 @@ public class GeometryWarningsDialog extends JDialog {
         if (warnings.isEmpty()) {
             return null;
         }
-        if (instance != null) {
-            instance.dispose();
-        }
-        instance = new GeometryWarningsDialog(owner, warnings, basicFrame);
-        instance.setVisible(true);
-        return instance;
+        GeometryWarningsDialog dialog = new GeometryWarningsDialog(owner, warnings, basicFrame);
+        dialog.setVisible(true);
+        return dialog;
     }
 
     public void updateWarnings(WarningSet warnings) {
