@@ -281,8 +281,6 @@ public class BasicFrame extends JFrame {
 			if( rocket != null ) {
 				final RocketComponent topStage = rocket.getChild(0);
 				if (topStage != null) {
-					final TreePath selectionPath = new TreePath(topStage);
-					componentSelectionModel.setSelectionPath(selectionPath);
 					tree.setSelectionRow(1);
 					// Don't select children components at startup (so override the default behavior with this new selection)
 					rocketpanel.getFigure().setSelection(new RocketComponent[] { topStage });
@@ -324,6 +322,27 @@ public class BasicFrame extends JFrame {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Set which rocket components to select in the component tree.
+	 * @param components components to select
+	 */
+	public void setSelectedComponents(RocketComponent[] components) {
+		componentSelectionModel.clearSelection();
+		if (components == null) {
+			return;
+		}
+		for (RocketComponent component : components) {
+			TreePath path = new TreePath(component);
+			componentSelectionModel.addSelectionPath(path);
+			for (int row = 1; row < tree.getRowCount(); row++) {
+				if (tree.getPathForRow(row).getLastPathComponent().equals(component)) {
+					tree.addSelectionRow(row);
+					break;
+				}
+			}
+		}
 	}
 
 	public RocketPanel getRocketPanel() {

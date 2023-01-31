@@ -170,6 +170,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	// Store the basic frame to know which tab is selected (Rocket design, Motors & Configuration, Flight simulations)
 	private final BasicFrame basicFrame;
+	private GeometryWarningsDialog warningsDialog = null;
 
 
 	/**
@@ -587,7 +588,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void openWarningsDialog() {
-		GeometryWarningsDialog.showDialog(SwingUtilities.getWindowAncestor(this), warnings);
+		this.warningsDialog = GeometryWarningsDialog.showDialog(SwingUtilities.getWindowAncestor(this),
+				warnings, basicFrame);
 	}
 
 	@Override
@@ -832,6 +834,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			this.showAllWarnings.setEnabled(warningsPresent);
 			showAllWarnings.setToolTipText(warningsPresent ? trans.get("RocketPanel.btn.showAllWarnings.ttip.warnings") :
 					trans.get("RocketPanel.btn.showAllWarnings.ttip.noWarnings"));
+		}
+		if (this.warningsDialog != null) {
+			this.warningsDialog.updateWarnings(warnings);
 		}
 
 		if (length > 0) {

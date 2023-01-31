@@ -6,6 +6,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -19,6 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.Color;
@@ -35,23 +39,28 @@ public class GeometryWarningsDialog extends JDialog {
     private static final Translator trans = Application.getTranslator();
 
     private static GeometryWarningsDialog instance = null;
+    private final BasicFrame basicFrame;
+    private final JTable table;
 
-    private GeometryWarningsDialog(Window owner, WarningSet warnings) {
+    private GeometryWarningsDialog(Window owner, WarningSet warnings, final BasicFrame basicFrame) {
         super(owner, trans.get("GeometryWarningsDialog.title"), ModalityType.MODELESS);
         this.setPreferredSize(new Dimension(500, 200));
         this.setLocationRelativeTo(null);
+
+        this.basicFrame = basicFrame;
 
         JPanel panel = new JPanel(new MigLayout("fill"));
         add(panel);
 
         { //// Warnings table
             WarningsTableModel model = new WarningsTableModel(new ArrayList<>(warnings));
-            JTable table = new ColumnTable(model) {
+            this.table = new ColumnTable(model) {
                 private static final long serialVersionUID = 1627455047380596654L;
             };
             Font f = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
             table.setFont(f);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             table.setDefaultRenderer(Object.class, new WarningsTableRenderer());
             model.setColumnWidths(table.getColumnModel());
             table.setFillsViewportHeight(true);
@@ -72,6 +81,24 @@ public class GeometryWarningsDialog extends JDialog {
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setViewportView(table);
             panel.add(scrollPane, "spanx, grow, push, wrap");
+
+            table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                private final List<Warning> warningList = new ArrayList<>(warnings);
+
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting() || basicFrame == null) {
+                        return;
+                    }
+                    int row = table.getSelectedRow();
+                    if (row < 0 || row >= warningList.size()) {
+                        return;
+                    }
+                    Warning warning = warningList.get(row);
+                    RocketComponent[] sources = warning.getSources();
+                    basicFrame.setSelectedComponents(sources);
+                }
+            });
         }
 
         //// Close button
@@ -89,15 +116,22 @@ public class GeometryWarningsDialog extends JDialog {
         GUIUtil.rememberWindowPosition(this);
     }
 
-    public static void showDialog(Window owner, WarningSet warnings) {
+    public static GeometryWarningsDialog showDialog(Window owner, WarningSet warnings, BasicFrame basicFrame) {
         if (warnings.isEmpty()) {
-            return;
+            return null;
         }
         if (instance != null) {
             instance.dispose();
         }
-        instance = new GeometryWarningsDialog(owner, warnings);
+        instance = new GeometryWarningsDialog(owner, warnings, basicFrame);
         instance.setVisible(true);
+        return instance;
+    }
+
+    public void updateWarnings(WarningSet warnings) {
+        WarningsTableModel model = new WarningsTableModel(new ArrayList<>(warnings));
+        table.setModel(model);
+        model.setColumnWidths(table.getColumnModel());
     }
 
     private static class WarningsTableModel extends ColumnTableModel {
