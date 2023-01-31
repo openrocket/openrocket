@@ -20,7 +20,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 
 /**
@@ -41,7 +41,7 @@ public class DefaultAppearance {
 	 */
 	private static Appearance simple(String resource) {
 		return new Appearance(
-				new Color(1, 1, 1),
+				new ORColor(1, 1, 1),
 				0,
 				new Decal(
 						new Coordinate(0, 0),
@@ -59,7 +59,7 @@ public class DefaultAppearance {
 	 * @param resource	the file path to the image
 	 * @return	The appearance with custom color and shine.
 	 */
-	private static Appearance simpleAlpha(Color base, float shine, String resource) {
+	private static Appearance simpleAlpha(ORColor base, float shine, String resource) {
 		return new Appearance(
 				base,
 				shine,
@@ -80,16 +80,16 @@ public class DefaultAppearance {
 	private static final Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
 	
 	
-	private static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_BT = simpleAlpha(new ORColor(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_IT = simpleAlpha(new ORColor(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance WHITE_BT = simpleAlpha(new ORColor(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
 	private static final Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
 	private static final Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
 	private static final Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
-	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
+	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 	
-	private static final HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
+	private static final HashMap<ORColor, Appearance> plastics = new HashMap<ORColor, Appearance>();
 	
 	/**
 	 * gets the appearance correspondent to the plastic with the given color
@@ -97,7 +97,7 @@ public class DefaultAppearance {
 	 * @param c		the color of the plastics
 	 * @return		The plastic appearance with the given color
 	 */
-	private static Appearance getPlastic(Color c) {
+	private static Appearance getPlastic(ORColor c) {
 		if (!plastics.containsKey(c)) {
 			plastics.put(c, new Appearance(c, .3));
 		}
@@ -120,7 +120,7 @@ public class DefaultAppearance {
 		if (c instanceof LaunchLug)
 			return WHITE_BT;
 		if (c instanceof Transition)
-			return getPlastic(new Color(255, 255, 255));
+			return getPlastic(new ORColor(255, 255, 255));
 		if (c instanceof RadiusRingComponent)
 			return WOOD;
 		if (c instanceof Parachute)
@@ -130,7 +130,7 @@ public class DefaultAppearance {
 		if (c instanceof MassObject)
 			return WADDING;
 		if ( c instanceof RailButton )
-			return getPlastic(new Color(255, 255, 220));
+			return getPlastic(new ORColor(255, 255, 220));
 		return Appearance.MISSING;
 	}
 	

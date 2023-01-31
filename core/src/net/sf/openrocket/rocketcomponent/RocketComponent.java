@@ -22,7 +22,7 @@ import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.ComponentChangeAdapter;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Invalidator;
@@ -91,8 +91,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected Coordinate position = new Coordinate();
 
-	// Color of the component, null means to use the default color
-	private Color color = null;
+	// ORColor of the component, null means to use the default color
+	private ORColor color = null;
 	private LineStyle lineStyle = null;
 	
 	
@@ -511,7 +511,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Return the color of the object to use in 2D figures, or <code>null</code>
 	 * to use the default color.
 	 */
-	public final Color getColor() {
+	public final ORColor getColor() {
 		mutex.verify();
 		return color;
 	}
@@ -519,7 +519,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Set the color of the object to use in 2D figures.
 	 */
-	public final void setColor(Color c) {
+	public final void setColor(ORColor c) {
 		for (RocketComponent listener : configListeners) {
 			listener.setColor(c);
 		}

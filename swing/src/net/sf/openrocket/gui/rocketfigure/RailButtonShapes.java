@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -145,7 +145,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		RocketComponentShape[] shapesInvis = RocketComponentShape.toArray(new Shape[]{ pathInvis }, component);
 
 		for (RocketComponentShape s : shapesInvis) {
-			s.setColor(Color.INVISIBLE);
+			s.setColor(ORColor.INVISIBLE);
 		}
 
 		RocketComponentShape[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);

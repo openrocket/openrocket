@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -60,6 +59,7 @@ import net.sf.openrocket.unit.GeneralUnit;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LineStyle;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -139,7 +139,7 @@ public class AppearancePanel extends JPanel {
 		private void changeComponentColor(Color color) {
 			try {
 				final Method setMethod = o.getClass().getMethod(
-						"set" + valueName, net.sf.openrocket.util.Color.class);
+						"set" + valueName, ORColor.class);
 				if (color == null)
 					return;
 				try {
@@ -165,7 +165,7 @@ public class AppearancePanel extends JPanel {
 			try {
 				final Method getMethod = o.getClass().getMethod(
 						"get" + valueName);
-				net.sf.openrocket.util.Color c = (net.sf.openrocket.util.Color) getMethod
+				ORColor c = (ORColor) getMethod
 						.invoke(o);
 
 				Color awtColor = ColorConversion.toAwtColor(c);
@@ -260,7 +260,7 @@ public class AppearancePanel extends JPanel {
 			}
 		}
 
-		net.sf.openrocket.util.Color figureColor = c.getColor();
+		ORColor figureColor = c.getColor();
 		if (figureColor == null) {
 			figureColor = Application.getPreferences().getDefaultColor(
 					c.getClass());
@@ -276,7 +276,7 @@ public class AppearancePanel extends JPanel {
 		c.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				net.sf.openrocket.util.Color col = c.getColor();
+				ORColor col = c.getColor();
 				if (col == null) {
 					col = Application.getPreferences().getDefaultColor(
 							c.getClass());
@@ -336,7 +336,7 @@ public class AppearancePanel extends JPanel {
 			add(saveAsDefault, "span 2, align right, wrap");
 		}
 
-		{// Figure Color
+		{// Figure ORColor
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
 			fDefault.addEnableComponent(figureColorButton, false);
 			add(figureColorButton);
@@ -618,7 +618,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		// TODO: move the separate columns in two separate panels instead of adding them in a zig-zag way
-		// Color
+		// ORColor
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
 		mDefault.addEnableComponent(colorButton, false);
 		panel.add(colorButton);

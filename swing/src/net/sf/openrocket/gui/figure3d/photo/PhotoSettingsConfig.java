@@ -47,6 +47,7 @@ import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -71,7 +72,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		 */
 		private void changeComponentColor(Color color) {
 			try {
-				final Method setMethod = o.getClass().getMethod("set" + valueName, net.sf.openrocket.util.Color.class);
+				final Method setMethod = o.getClass().getMethod("set" + valueName, ORColor.class);
 				if (color == null)
 					return;
 				try {
@@ -90,7 +91,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		public void actionPerformed(ActionEvent colorClickEvent) {
 			try {
 				final Method getMethod = o.getClass().getMethod("get" + valueName);
-				net.sf.openrocket.util.Color c = (net.sf.openrocket.util.Color) getMethod.invoke(o);
+				ORColor c = (ORColor) getMethod.invoke(o);
 				Color awtColor = ColorConversion.toAwtColor(c);
 				colorChooser.setColor(awtColor);
 

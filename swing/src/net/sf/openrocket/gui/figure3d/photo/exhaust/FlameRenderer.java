@@ -123,6 +123,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +138,6 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.util.Color;
 
 public final class FlameRenderer {
 
@@ -146,11 +146,11 @@ public final class FlameRenderer {
 		
 		public boolean isFlame();
 
-		public Color getFlameColor();
+		public ORColor getFlameColor();
 
 		public boolean isSmoke();
 
-		public Color getSmokeColor();
+		public ORColor getSmokeColor();
 
 		public double getFlameAspectRatio();
 
@@ -270,7 +270,7 @@ public final class FlameRenderer {
 
 	}
 
-	private static void convertColor(Color color, float[] out) {
+	private static void convertColor(ORColor color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;
@@ -376,7 +376,7 @@ public final class FlameRenderer {
 		shaderprogram = 0;
 	}
 
-	private static void trail(GL2 gl, Func radius, Func dZ, Func alpha, float LEN, int P, Color color, float scale) {
+	private static void trail(GL2 gl, Func radius, Func dZ, Func alpha, float LEN, int P, ORColor color, float scale) {
 		float[] c = new float[4];
 		convertColor(color, c);
 

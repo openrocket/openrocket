@@ -53,7 +53,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -293,7 +293,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		}
 	}
 
-	private static void convertColor(Color color, float[] out) {
+	private static void convertColor(ORColor color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;

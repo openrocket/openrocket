@@ -268,7 +268,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		subPanel.add(new JLabel(trans.get("InnerTubeCfg.lbl.Selectclustercfg")), "spanx, wrap");
 		subPanel.add(new ClusterSelectionPanel((InnerTube) component), "spanx, wrap");
 		//		JPanel clusterSelection = new ClusterSelectionPanel((InnerTube)component);
-		//		clusterSelection.setBackground(Color.blue);
+		//		clusterSelection.setBackground(ORColor.blue);
 		//		subPanel.add(clusterSelection);
 
 		panel.add(subPanel);
@@ -440,7 +440,7 @@ class ClusterSelectionPanel extends JPanel {
 			setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 			setMaximumSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-			//			setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+			//			setBorder(BorderFactory.createLineBorder(ORColor.BLACK, 1));
 			component.addChangeListener(this);
 			addMouseListener(this);
 		}

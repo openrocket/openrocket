@@ -1,12 +1,10 @@
 package net.sf.openrocket.file.photo;
 
 import net.sf.openrocket.file.openrocket.importt.OpenRocketHandler;
-import net.sf.openrocket.gui.figure3d.TextureCache;
 import net.sf.openrocket.gui.figure3d.photo.PhotoSettings;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky;
 import net.sf.openrocket.gui.figure3d.photo.sky.builtin.*;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +92,7 @@ public class PhotoStudioGetter {
             return;
         }
         if ("sunlight".equals(element)) {
-            Color sunlight = getColor(content);
+            ORColor sunlight = getColor(content);
             p.setSunlight(sunlight);
             return;
         }
@@ -105,7 +103,7 @@ public class PhotoStudioGetter {
         }
 
         if ("skyColor".equals(element)) {
-            Color skyColor = getColor(content);
+            ORColor skyColor = getColor(content);
             p.setSkyColor(skyColor);
             return;
         }
@@ -121,7 +119,7 @@ public class PhotoStudioGetter {
             return;
         }
         if ("flameColor".equals(element)) {
-            Color flameColor = getColor(content);
+            ORColor flameColor = getColor(content);
             p.setFlameColor(flameColor);
             return;
         }
@@ -131,7 +129,7 @@ public class PhotoStudioGetter {
             return;
         }
         if ("smokeColor".equals(element)) {
-            Color smokeColor = getColor(content);
+            ORColor smokeColor = getColor(content);
             p.setSmokeColor(smokeColor);
             return;
         }
@@ -190,7 +188,7 @@ public class PhotoStudioGetter {
         }
     }
 
-    private Color getColor(String content) {
+    private ORColor getColor(String content) {
         String[] values = content.split(" ");
         if (values.length < 4) return null;
 
@@ -198,6 +196,6 @@ public class PhotoStudioGetter {
         int green = Integer.parseInt(values[1]);
         int blue = Integer.parseInt(values[2]);
         int alpha = Integer.parseInt(values[3]);
-        return new Color(red, green, blue, alpha);
+        return new ORColor(red, green, blue, alpha);
     }
 }

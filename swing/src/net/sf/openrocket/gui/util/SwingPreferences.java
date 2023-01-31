@@ -16,6 +16,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -478,12 +479,12 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	/**
-	 * this class returns a java.awt.Color object for the specified key.
-	 * you can pass (java.awt.Color) null to the second argument to
+	 * this class returns a java.awt.ORColor object for the specified key.
+	 * you can pass (java.awt.ORColor) null to the second argument to
 	 * disambiguate
 	 */
 	public Color getColor(String key, Color defaultValue) {
-		net.sf.openrocket.util.Color c = super.getColor(key, (net.sf.openrocket.util.Color) null);
+		ORColor c = super.getColor(key, (ORColor) null);
 		if (c == null) {
 			return defaultValue;
 		}
@@ -494,7 +495,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * 
 	 */
 	public void putColor(String key, Color value) {
-		net.sf.openrocket.util.Color c = ColorConversion.fromAwtColor(value);
+		ORColor c = ColorConversion.fromAwtColor(value);
 		super.putColor(key, c);
 	}
 	

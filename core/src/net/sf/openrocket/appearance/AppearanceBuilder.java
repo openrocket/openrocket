@@ -3,7 +3,7 @@ package net.sf.openrocket.appearance;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.AbstractChangeSource;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.LinkedHashMap;
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class AppearanceBuilder extends AbstractChangeSource {
 	
-	private Color paint;		//current cached color
+	private ORColor paint;		//current cached color
 	private double shine;		//current cached shine
 	private double offsetU, offsetV;//current offset to be used
 	private double centerU, centerV;//current values for the center of the appearance
@@ -62,7 +62,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	Clears the builder cache and set to build blank appearances
 	*/
 	private void resetToDefaults() {
-		paint = new Color(187, 187, 187);
+		paint = new ORColor(187, 187, 187);
 		shine = 0.3;
 		offsetU = offsetV = 0;
 		centerU = centerV = 0;
@@ -144,7 +144,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*	
 	*	return the color used in the current paint
 	*/
-	public Color getPaint() {
+	public ORColor getPaint() {
 		return paint;
 	}
 	
@@ -154,7 +154,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	*
 	*	@param paint the new color
 	*/
-	public void setPaint(Color paint) {
+	public void setPaint(ORColor paint) {
 		for (AppearanceBuilder listener : configListeners.values()) {
 			listener.setPaint(paint);
 		}
@@ -218,7 +218,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 
 		// Instead of simply setting the alpha, we need to create a new color with the new alpha value, otherwise undoing
 		// the setOpacity will not work correctly. (don't ask me why)
-		Color c = new Color(paint.getRed(), paint.getGreen(), paint.getBlue(), (int) (opacity * 255));
+		ORColor c = new ORColor(paint.getRed(), paint.getGreen(), paint.getBlue(), (int) (opacity * 255));
 		setPaint(c);
 	}
 	

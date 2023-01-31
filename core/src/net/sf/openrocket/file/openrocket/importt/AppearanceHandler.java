@@ -11,7 +11,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 import org.xml.sax.SAXException;
 
@@ -58,7 +58,7 @@ class AppearanceHandler extends AbstractElementHandler {
 				// "alpha" string was present so load the value
 				alpha = Integer.parseInt(a);
 			}
-			builder.setPaint(new Color(red, green, blue, alpha));
+			builder.setPaint(new ORColor(red, green, blue, alpha));
 			return;
 		}
 		if ("shine".equals(element)) {

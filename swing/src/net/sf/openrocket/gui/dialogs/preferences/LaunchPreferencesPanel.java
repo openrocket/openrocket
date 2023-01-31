@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
-import java.awt.Color;
 import java.awt.LayoutManager;
 
 import javax.swing.BorderFactory;
@@ -23,6 +22,7 @@ import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.util.ORColor;
 
 public class LaunchPreferencesPanel extends PreferencesPanel {
 
@@ -38,7 +38,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+		warning.setFontColor(ORColor.DARK_RED.toAWTColor());
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 

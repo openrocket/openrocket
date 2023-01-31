@@ -439,7 +439,7 @@ public class BasicFrame extends JFrame {
 /*		//	//	PENDING Future development
 		//	//	ADD RASAero to "Export as" exportSubMenu options
 		exportSubMenu.add(RASAero);
-		RASAero.setForeground(Color.lightGray);
+		RASAero.setForeground(ORColor.lightGray);
 
 		//	//	PENDING Future development
 		//	//	CREATE RASAero listener
@@ -542,15 +542,15 @@ public class BasicFrame extends JFrame {
 		//	//	CREATE File > "Encode 3D" menu line with icon
 		JMenuItem encode3dSubMenu = new JMenu(trans.get("main.menu.file.encode_3d"));
 		encode3dSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.encode_3d.desc"));
-				encode3dSubMenu.setForeground(Color.lightGray);
+				encode3dSubMenu.setForeground(ORColor.lightGray);
 				encode3dSubMenu.setIcon(Icons.ENCODE_3D);
 
 		//	//	CREATE "Encode 3D" submenu
 		//	//	ADD Encode 3D option items to submenu
 		encode3dSubMenu.add(External_Airframe);
-				External_Airframe.setForeground(Color.lightGray);
+				External_Airframe.setForeground(ORColor.lightGray);
 		encode3dSubMenu.add(Single_Component);
-				Single_Component.setForeground(Color.lightGray);
+				Single_Component.setForeground(ORColor.lightGray);
 
 		//	//	ADD Listeners
 

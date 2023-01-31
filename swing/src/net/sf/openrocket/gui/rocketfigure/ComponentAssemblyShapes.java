@@ -6,7 +6,7 @@ import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Transformation;
 
 import java.awt.Shape;
@@ -38,7 +38,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
         // Set the color of the shapes
-        Color color = getColor(component);
+        ORColor color = getColor(component);
         for (int i = 0; i < shapes.length - 1; i++) {
             shapes[i].setColor(color);
         }
@@ -63,7 +63,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
         // Set the color of the shapes
-        Color color = getColor(component);
+        ORColor color = getColor(component);
         for (int i = 0; i < shapes.length - 1; i++) {
             shapes[i].setColor(color);
         }
@@ -80,13 +80,13 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         return component.getRocket().getBoundingRadius() * 0.03;
     }
 
-    private static Color getColor(RocketComponent component) {
+    private static ORColor getColor(RocketComponent component) {
         if (component instanceof PodSet) {
-            return new Color(160,160,215);
+            return new ORColor(160,160,215);
         } else if (component instanceof ParallelStage) {
-            return new Color(198,163,184);
+            return new ORColor(198,163,184);
         } else {
-            return new Color(160, 160, 160);
+            return new ORColor(160, 160, 160);
         }
     }
 }

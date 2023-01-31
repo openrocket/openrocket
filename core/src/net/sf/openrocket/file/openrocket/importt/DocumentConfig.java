@@ -45,7 +45,7 @@ import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
 
@@ -114,7 +114,7 @@ class DocumentConfig {
 		setters.put("RocketComponent:name", new StringSetter(
 				Reflection.findMethod(RocketComponent.class, "setName", String.class)));
 		setters.put("RocketComponent:color", new ColorSetter(
-				Reflection.findMethod(RocketComponent.class, "setColor", Color.class)));
+				Reflection.findMethod(RocketComponent.class, "setColor", ORColor.class)));
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(
 				Reflection.findMethod(RocketComponent.class, "setLineStyle", LineStyle.class),
 				LineStyle.class));
