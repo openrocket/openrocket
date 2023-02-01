@@ -222,7 +222,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			rocket.setSelectedConfiguration(config.getKey());
 
 			// create simulation for configuration
-			Simulation newSim = new Simulation(rocket);
+			Simulation newSim = new Simulation(document, rocket);
 
 			newSim.setName(doc.getNextSimulationName());
 			doc.addSimulation(newSim);

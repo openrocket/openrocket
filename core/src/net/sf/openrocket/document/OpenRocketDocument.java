@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ import net.sf.openrocket.util.ArrayList;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class OpenRocketDocument implements ComponentChangeListener {
+public class OpenRocketDocument implements ComponentChangeListener, StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
 	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
@@ -86,6 +87,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
 	
 	private File file = null;
+	private int modID = -1;
 	private int savedID = -1;
 	
 	private final StorageOptions storageOptions = new StorageOptions();
@@ -224,7 +226,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * @return	if the current rocket is saved
 	 */
 	public boolean isSaved() {
-		return rocket.getModID() == savedID;
+		return rocket.getModID() + modID == savedID;
 	}
 	
 	/**
@@ -232,10 +234,10 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * @param saved	if the current rocket or none will be set to save
 	 */
 	public void setSaved(boolean saved) {
-		if (saved == false)
+		if (!saved)
 			this.savedID = -1;
 		else
-			this.savedID = rocket.getModID();
+			this.savedID = rocket.getModID() + modID;
 	}
 	
 	/**
@@ -629,6 +631,12 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		
 		fireUndoRedoChangeEvent();
+		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
+	}
+
+	@Override
+	public void stateChanged(EventObject e) {
+		modID++;
 		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
 	}
 

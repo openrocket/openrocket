@@ -128,7 +128,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		Rocket rocket = document.getRocket();
 		
 		// Simulation is used to calculate default min/max values
-		Simulation simulation = new Simulation(rocket);
+		Simulation simulation = new Simulation(document, rocket);
 		
 		for (RocketComponent c : rocket) {
 			

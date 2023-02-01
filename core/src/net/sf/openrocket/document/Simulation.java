@@ -69,7 +69,8 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	private SafetyMutex mutex = SafetyMutex.newInstance();
-	
+
+	private final OpenRocketDocument document;
 	private final Rocket rocket;
 	FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID;
 	
@@ -107,21 +108,33 @@ public class Simulation implements ChangeSource, Cloneable {
 	 *
 	 * @param rocket	the rocket associated with the simulation.
 	 */
-	public Simulation(Rocket rocket) {
+	public Simulation(OpenRocketDocument document, Rocket rocket) {
+		this.document = document;
 		this.rocket = rocket;
 		this.status = Status.NOT_SIMULATED;
-		
+
 		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 		options.copyConditionsFrom(f.getDefault());
-		
+
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		setFlightConfigurationId(fcid);
-		
+
 		options.addChangeListener(new ConditionListener());
+		addChangeListener(document);
+	}
+
+	/**
+	 * Create a new simulation for the rocket. Parent document should also be provided.
+	 * The initial motor configuration is taken from the default rocket configuration.
+	 *
+	 * @param rocket	the rocket associated with the simulation.
+	 */
+	public Simulation(Rocket rocket) {
+		this(null, rocket);
 	}
 	
 	
-	public Simulation(Rocket rocket, Status status, String name, SimulationOptions options,
+	public Simulation(OpenRocketDocument document, Rocket rocket, Status status, String name, SimulationOptions options,
 			List<SimulationExtension> extensions, FlightData data) {
 		
 		if (rocket == null)
@@ -132,7 +145,8 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new IllegalArgumentException("name cannot be null");
 		if (options == null)
 			throw new IllegalArgumentException("options cannot be null");
-		
+
+		this.document = document;
 		this.rocket = rocket;
 
 		if (status == Status.UPTODATE) {
@@ -151,6 +165,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.setFlightConfigurationId(config.getFlightConfigurationID());
 				
 		options.addChangeListener(new ConditionListener());
+		addChangeListener(document);
 		
 		if (extensions != null) {
 			this.simulationExtensions.addAll(extensions);
@@ -525,7 +540,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	public Simulation duplicateSimulation(Rocket newRocket) {
 		mutex.lock("duplicateSimulation");
 		try {
-			final Simulation newSim = new Simulation(newRocket);
+			final Simulation newSim = new Simulation(this.document, newRocket);
 			newSim.name = this.name;
 			newSim.configId = this.configId;
 			newSim.options.copyFrom(this.options);

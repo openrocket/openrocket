@@ -267,7 +267,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private void newSimulation() {
-		Simulation sim = new Simulation(document.getRocket());
+		Simulation sim = new Simulation(document, document.getRocket());
 		sim.setName(document.getNextSimulationName());
 
 		int n = document.getSimulationCount();

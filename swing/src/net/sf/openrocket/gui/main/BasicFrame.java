@@ -54,6 +54,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
+import net.sf.openrocket.document.events.DocumentChangeEvent;
+import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -243,6 +245,13 @@ public class BasicFrame extends JFrame {
 		rocket.addComponentChangeListener(new ComponentChangeListener() {
 			@Override
 			public void componentChanged(ComponentChangeEvent e) {
+				setTitle();
+			}
+		});
+
+		document.addDocumentChangeListener(new DocumentChangeListener() {
+			@Override
+			public void documentChanged(DocumentChangeEvent e) {
 				setTitle();
 			}
 		});
