@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,6 +135,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private final JPanel figureHolder;
 
 	private JLabel infoMessage;
+	private JCheckBox showWarnings;
 
 	private TreeSelectionModel selectionModel = null;
 
@@ -423,11 +426,28 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 		rotationSlider.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 
+		// Bottom row
+		JPanel bottomRow = new JPanel(new MigLayout("fill, gapy 0, ins 0"));
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
 		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
 		infoMessage.setFont(new Font("Sans Serif", Font.PLAIN, 9));
-		add(infoMessage, "skip, span, gapleft 25, wrap");
+		bottomRow.add(infoMessage);
+
+		//// Show warnings
+		this.showWarnings = new JCheckBox(trans.get("RocketPanel.check.showWarnings"));
+		showWarnings.setSelected(true);
+		showWarnings.setToolTipText(trans.get("RocketPanel.check.showWarnings.ttip"));
+		bottomRow.add(showWarnings, "pushx, right");
+		showWarnings.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateExtras();
+				updateFigures();
+			}
+		});
+
+		add(bottomRow, "skip, growx, span, gapleft 25");
 
 		addExtras();
 	}
@@ -782,6 +802,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setMassWithMotors(cg.weight);
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
 		extraText.setWarnings(warnings);
+		if (this.showWarnings != null) {
+			extraText.setShowWarnings(showWarnings.isSelected());
+		}
 
 		if (length > 0) {
 			figure3d.setCG(cg);
