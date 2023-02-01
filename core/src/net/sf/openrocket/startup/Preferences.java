@@ -76,6 +76,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
 	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
@@ -504,6 +505,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final void setAlwaysOpenLeftmostTab(boolean enabled) {
 		this.putBoolean(OPEN_LEFTMOST_DESIGN_TAB, enabled);
+	}
+
+	/**
+	 * Answer if a confirmation dialog should be shown when canceling a component config operation.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling a component config operation.
+	 */
+	public final void setShowDiscardConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_CONFIRMATION, enabled);
 	}
 
 	/**
