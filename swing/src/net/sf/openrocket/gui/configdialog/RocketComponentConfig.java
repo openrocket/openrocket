@@ -276,14 +276,16 @@ public class RocketComponentConfig extends JPanel {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				// Don't do anything on cancel if you are editing an existing component, and it is not modified
+				if (!isNewComponent && parent != null && !parent.isModified()) {
+					ComponentConfigDialog.disposeDialog();
+					return;
+				}
+				// Apply the cancel operation if set to auto discard in preferences
 				if (preferences.getBoolean(IGNORE_DISCARD_EDITING_WARNING, false)) {
 					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
 					ComponentConfigDialog.disposeDialog();
 					document.undo();
-					return;
-				}
-				if (!isNewComponent && parent != null && !parent.isModified()) {
-					ComponentConfigDialog.disposeDialog();
 					return;
 				}
 
