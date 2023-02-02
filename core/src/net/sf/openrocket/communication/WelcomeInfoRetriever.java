@@ -6,6 +6,7 @@ import net.sf.openrocket.util.BuildProperties;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,12 @@ public abstract class WelcomeInfoRetriever {
         ClassLoader cl = WelcomeInfoRetriever.class.getClassLoader();
         InputStream in = cl.getResourceAsStream("ReleaseNotes.md");
         if (in == null) {
-            throw new FileNotFoundException("ReleaseNotes.md not found");
+            // Try to load the file from the file system (only really useful when running the unit tests directly from your IDE)
+            File f = new File("../ReleaseNotes.md");
+            in = f.toURI().toURL().openStream();
+            if (in == null) {
+                throw new FileNotFoundException("ReleaseNotes.md not found");
+            }
         }
         InputSource source = new InputSource(new InputStreamReader(in));
         ReleaseNotesHandler handler = new ReleaseNotesHandler(version);
