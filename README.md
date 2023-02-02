@@ -1,9 +1,11 @@
 OpenRocket
 ==========
 ![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
-[![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/openrocketopenrocket/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Overview
+![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
+[![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
+
 --------
 
 OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
@@ -24,12 +26,8 @@ Read more about it on the [OpenRocket Wiki](http://wiki.openrocket.info).
 
 Installers
 ----------
-OpenRocket maintains an installer for installing the software and Java runtime. You can find the installer below.
-
-* [OpenRocket 15.03 Installer (Windows)](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03-installer.exe)
-* [OpenRocket 15.03 Installer (Mac OS)](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03.dmg)
-* [OpenRocket 15.03 Installer (Linux)](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03.AppImage)
-* [OpenRocket 15.03 JAR file](https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03.jar)
+OpenRocket maintains an installer for installing the software and Java runtime. You can find the installers on [our
+website](https://openrocket.info/downloads.html).
 
 Release Notes
 -------------
