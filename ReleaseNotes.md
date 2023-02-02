@@ -11,12 +11,12 @@ Always encapsulate each release with a <div> tag and the correct id.
 Release Notes
 =============
 
+</div>
+
 <div id="22.02">
 
 OpenRocket 22.02 (2023-02-XX)
 ------------------------
-
-</div>
 
 </div>
 
