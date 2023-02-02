@@ -64,9 +64,6 @@ import net.sf.openrocket.util.Invalidatable;
 public class RocketComponentConfig extends JPanel {
 	private static final long serialVersionUID = -2925484062132243982L;
 
-	// Preference key
-	private static final String IGNORE_DISCARD_EDITING_WARNING = "IgnoreDiscardEditingWarning";
-
 	private static final Translator trans = Application.getTranslator();
 	private static final Preferences preferences = Application.getPreferences();
 	
@@ -276,14 +273,16 @@ public class RocketComponentConfig extends JPanel {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (preferences.getBoolean(IGNORE_DISCARD_EDITING_WARNING, false)) {
+				// Don't do anything on cancel if you are editing an existing component, and it is not modified
+				if (!isNewComponent && parent != null && !parent.isModified()) {
+					ComponentConfigDialog.disposeDialog();
+					return;
+				}
+				// Apply the cancel operation if set to auto discard in preferences
+				if (!preferences.isShowDiscardConfirmation()) {
 					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
 					ComponentConfigDialog.disposeDialog();
 					document.undo();
-					return;
-				}
-				if (!isNewComponent && parent != null && !parent.isModified()) {
-					ComponentConfigDialog.disposeDialog();
 					return;
 				}
 
@@ -327,9 +326,9 @@ public class RocketComponentConfig extends JPanel {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					preferences.putBoolean(IGNORE_DISCARD_EDITING_WARNING, true);
+					preferences.setShowDiscardConfirmation(false);
 				}
-				// Unselected state should be impossible
+				// Unselected state should be not be possible and thus not be handled
 			}
 		});
 
