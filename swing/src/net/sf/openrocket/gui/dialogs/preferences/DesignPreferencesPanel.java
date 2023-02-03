@@ -2,6 +2,8 @@ package net.sf.openrocket.gui.dialogs.preferences;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -92,14 +94,26 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 				trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost"));
 		alwaysOpenLeftmostTab.setSelected(preferences.isAlwaysOpenLeftmostTab());
 		alwaysOpenLeftmostTab.setToolTipText(trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost.ttip"));
-		alwaysOpenLeftmostTab.addActionListener(new ActionListener() {
+		alwaysOpenLeftmostTab.addItemListener(new ItemListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setAlwaysOpenLeftmostTab(alwaysOpenLeftmostTab
-						.isSelected());
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setAlwaysOpenLeftmostTab(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		this.add(alwaysOpenLeftmostTab, "wrap, growx, spanx");
+
+		// // Show confirmation dialog for discarding component configuration changes
+		final JCheckBox showDiscardConfirmation = new JCheckBox(
+				trans.get("pref.dlg.checkbox.ShowDiscardConfirmation"));
+		showDiscardConfirmation.setSelected(preferences.isShowDiscardConfirmation());
+		showDiscardConfirmation.setToolTipText(trans.get("pref.dlg.checkbox.ShowDiscardConfirmation.ttip"));
+		showDiscardConfirmation.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setShowDiscardConfirmation(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		this.add(showDiscardConfirmation, "wrap, growx, spanx");
 
 		// // Update flight estimates in the design window
 		final JCheckBox updateEstimates = new JCheckBox(
