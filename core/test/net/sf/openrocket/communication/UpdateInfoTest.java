@@ -185,6 +185,21 @@ public class UpdateInfoTest extends BaseTestCase {
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.beta.01", "22.02.02"));
 
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.01", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.03", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.01", "22.02.beta.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.02", "22.02.beta.01"));
+
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22"));
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
