@@ -36,6 +36,7 @@ public final class ExampleDesignFileAction extends JMenu {
         null,
         // Examples demonstrating complex rocket features
         "Airstart timing",
+        "Base drag hack (short-wide)",
         "Chute release",
         "Dual parachute deployment",
         "Clustered motors",
