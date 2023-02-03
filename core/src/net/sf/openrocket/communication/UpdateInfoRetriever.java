@@ -358,7 +358,14 @@ public class UpdateInfoRetriever {
 				// If the loop is still going until this condition, you have the situation where tag1 is e.g.
 				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
 				if (i >= tag1Split.length) {
-					return ReleaseStatus.OLDER;
+					// Tag 1 is e.g. '15.03' and tag2 '15.03.01', so tag2 is the more recent version
+					if (tag2Split[i].matches("\\d+")) {
+						return ReleaseStatus.OLDER;
+					}
+					// Tag 1 is e.g. '15.03' and tag2 '15.03.beta.01', so tag1 is the more recent version (it's an official release)
+					else {
+						return ReleaseStatus.NEWER;
+					}
 				}
 
 				try {
@@ -389,6 +396,8 @@ public class UpdateInfoRetriever {
 					// a text, e.g. '20.01'
 					if (tag2Split[i].matches("\\d+")) {
 						return ReleaseStatus.OLDER;
+					} else if (tag1Split[i].matches("\\d+")) {
+						return ReleaseStatus.NEWER;
 					}
 
 					String message = String.format("Unrecognized release tag format, tag 1: %s, tag 2: %s", tag1, tag2);
@@ -410,6 +419,12 @@ public class UpdateInfoRetriever {
 			return ReleaseStatus.LATEST;
 		}
 
+		/**
+		 * Checks whether the release tag is malformed (e.g. empty, or containing invalid entries, such as negative numbers
+		 * or unknown tags)
+		 * @param tagSplit the tag split by '.' or '-'
+		 * @throws UpdateCheckerException if the tag is malformed
+		 */
 		private static void checkMalformedReleaseTag(String[] tagSplit) throws UpdateCheckerException {
 			if (tagSplit.length == 0) {
 				String message = "Zero-length tag";
