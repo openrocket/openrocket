@@ -31,7 +31,7 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Refined tube fin support, no longer experimental
   * Massive update to parachute configuration and part library
   * Dave Cook's extensive component library now built-in
-  * Coefficient of Drag Override (and more flexible override settings in general)
+  * Coefficient of Drag Override for components and assemblies (and more flexible override settings in general)
   * Lots more detailed geometry warnings which identify the components involved
 * Appearance updates
   * Settable opacity per-component
