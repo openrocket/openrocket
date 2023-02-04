@@ -44,7 +44,12 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
 
 ## UI Improvements
 * Updated icons everywhere
-* Option to display stability margin as percentage of rocket length
+* Rocket figure display updates
+  * Option to display stability margin as percentage of rocket length
+  * New "Top View" option
+  * Cleaned-up toolbar
+  * Option to hide warnings
+  * Improved click and double-click behavior on rocket
 * Component Configuration Editor
   * Extensively reorganized for clarity and consistency
   * Massively improved keyboard navigation
@@ -61,7 +66,6 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * settings remembered for each rocket
  
 ## Notable Bug Fixes
-* Eliminated many 
  
 ## Misc
 * Extensively updated and reorganized example rocket collection
