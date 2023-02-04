@@ -18,6 +18,55 @@ Release Notes
 OpenRocket 22.02 (2023-02-XX)
 ------------------------
 
+ The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
+ 
+Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
+ 
+## New Features
+* Rocket design features
+** Pods and strap-on boosters
+** Tail cones for pods
+** Freeform fins on nose cones and transitions
+** Highly configurable rail buttons
+** Refined tube fin support, no longer experimental
+** Massive update to parachute configuration and part library
+** Dave Cook's extensive component library now built-in
+** Coefficient of Drag Override (and more flexible override settings in general)
+** Lots more detailed geometry warnings which identify the components involved
+* Appearance updates
+** Settable opacity per-component
+** Separate inner/outer appearance for tubes
+** Separate left/right appearance for fins
+* App Infrastructure
+** Packaged installers for Windows, Linux, and Mac (JAR file still available)
+** Native ARM version for Apple Silicon Macs (snappy!)
+** File association for ORK files: double-click files to open in the app
+
+## UI Improvements
+* Updated icons everywhere
+* Option to display stability margin as percentage of rocket length
+* Component Configuration Editor
+** Extensively reorganized for clarity and consistency
+** Massively improved keyboard navigation
+** Config panels remember which tab you were on previously
+** Cancel button to exit config panel without saving changes
+* Contextual menus for managing the component tree
+* Simultaneous multi-component edit (great for appearance editing)
+* Completely updated operation of motor config and simulation tables
+* Improved workflow when creating motor configurations
+* Greatly improved component library browser
+* Greatly improved freeform fin editor operation
+* Photo Studio
+** sliders for settings
+** settings remembered for each rocket
+ 
+## Notable Bug Fixes
+* Eliminated many 
+ 
+## Misc
+* Extensively updated and reorganized example rocket collection
+* Much improved Rocksim import and export
+
 </div>
 
 <div id="22.02.RC.01">
