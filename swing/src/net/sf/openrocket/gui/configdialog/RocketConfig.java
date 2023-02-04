@@ -8,6 +8,7 @@ import java.awt.event.FocusListener;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -70,8 +71,26 @@ public class RocketConfig extends RocketComponentConfig {
 		
 
 		addButtons();
+		addEasterEgg();
 	}
-	
+
+	/**
+	 * Little method that adds a fun easter-egg to the rocket config dialog.
+	 * If the name of the rocket is "Apollo 13", then a popup will appear saying
+	 * "Houston, we have a problem."
+	 */
+	private void addEasterEgg() {
+		okButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (componentNameField.getText().equals("Apollo 13")) {
+					JOptionPane.showMessageDialog(RocketConfig.this,
+							"Houston, we have a problem.\n\nJust kidding, have fun building your 'Apollo 13' rocket!",
+							"Oh oh...", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+	}
 	
 
 	private class TextFieldListener implements ActionListener, FocusListener {
