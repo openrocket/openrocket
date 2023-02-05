@@ -20,7 +20,7 @@ OpenRocket 22.02 (2023-02-XX)
 
 The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
  
-Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
+Please note that version 22.02 is required for Macs running macOS 13.0 or later.
  
 ## New Features
 * Rocket design features
