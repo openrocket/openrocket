@@ -86,6 +86,8 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
 * Updated motor database
  
 _...plus about a billion bug fixes and so much more._
+ 
+Huge thanks to all the users who gave us feedback throughout the public beta period and helped us get to our first release in eight years!
 </div>
 
 <div id="22.02.RC.01">
