@@ -1,14 +1,17 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
-import java.awt.Color;
 import java.awt.LayoutManager;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -72,6 +75,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
+		addEasterEgg(spin);
 		sub.add(spin, "w 65lp!");
 
 		unit = new UnitSelector(m);
@@ -454,6 +458,25 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 			return trans.get("simedtdlg.IntensityDesc.Veryhigh");
 		// // Extreme
 		return trans.get("simedtdlg.IntensityDesc.Extreme");
+	}
+
+	/**
+	 * Shh, don't tell anyone about this easter-egg. (displays a fun quote when the text of the spinner equals 42)
+	 * @param spinner the magic spinner!
+	 */
+	private void addEasterEgg(JSpinner spinner) {
+		JTextField textField = ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField();
+		textField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String text = textField.getText() + e.getKeyChar();
+				if (text.equals("42")) {
+					JOptionPane.showMessageDialog(LaunchPreferencesPanel.this,
+							"The answer to the ultimate question of life, the universe, and everything.",
+							"42", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
 	}
 
 }

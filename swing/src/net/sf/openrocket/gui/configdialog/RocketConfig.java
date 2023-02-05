@@ -1,10 +1,15 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -76,17 +81,41 @@ public class RocketConfig extends RocketComponentConfig {
 
 	/**
 	 * Little method that adds a fun easter-egg to the rocket config dialog.
-	 * If the name of the rocket is "Apollo 13", then a popup will appear saying
-	 * "Houston, we have a problem."
 	 */
 	private void addEasterEgg() {
-		okButton.addActionListener(new ActionListener() {
+		componentNameField.addKeyListener(new KeyAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (componentNameField.getText().equals("Apollo 13")) {
-					JOptionPane.showMessageDialog(RocketConfig.this,
-							"Houston, we have a problem.\n\nJust kidding, have fun building your 'Apollo 13' rocket!",
-							"Oh oh...", JOptionPane.INFORMATION_MESSAGE);
+			public void keyTyped(KeyEvent e) {
+				String text = componentNameField.getText() + e.getKeyChar();
+				String msg = null;
+				String title = null;
+				switch (text) {
+					case "SA-508":
+						msg = "Houston, we have a problem.\n\nJust kidding, have fun building your 'Apollo 13' rocket!";
+						title = "Oh oh...";
+						break;
+					case "SA-506":
+						msg = "One small step for a rocket, one giant leap for rocketkind.";
+						title = "Or was that not the quote?";
+						break;
+					case "Vega":
+						msg = "Viva las Vega!";
+						title = "Vega, Ready for Launch and Laughs!";
+						break;
+					case "Ariane 5":
+						msg = "Non, je ne regrette rien\u2026 except for that one overflow error\u2026";
+						title = "Happens to the best of us";
+						break;
+				}
+				if (msg != null) {
+					JOptionPane optionPane = new JOptionPane(msg, JOptionPane.INFORMATION_MESSAGE);
+					JDialog dialog = optionPane.createDialog(RocketConfig.this, title);
+					// Make sure title doesn't get cut off
+					FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(dialog.getFont());
+					int width = Math.max(dialog.getPreferredSize().width, fontMetrics.stringWidth(title) + 100);
+					int height = dialog.getPreferredSize().height;
+					dialog.setSize(new Dimension(width, height));
+					dialog.setVisible(true);
 				}
 			}
 		});
