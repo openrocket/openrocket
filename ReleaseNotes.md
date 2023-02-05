@@ -18,7 +18,7 @@ Release Notes
 OpenRocket 22.02 (2023-02-XX)
 ------------------------
 
- The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
+The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
  
 Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
  
@@ -28,7 +28,6 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Tail cones for pods
   * Freeform fins on nose cones and transitions
   * Highly configurable rail buttons
-  * Refined tube fin support, no longer experimental
   * Massive update to parachute configuration and part library
   * Dave Cook's extensive component library now built-in
   * Coefficient of Drag Override for components and assemblies (and more flexible override settings in general)
@@ -39,8 +38,20 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Separate left/right appearance for fins
 * App Infrastructure
   * Packaged installers for Windows, Linux, and Mac (JAR file still available)
+  * Updated to Java11
   * Native ARM version for Apple Silicon Macs (snappy!)
   * File association for ORK files: double-click files to open in the app
+
+## Simulation and Staging Improvements
+  * Assorted CP calculation fixes
+  * Improved nose cone drag calculations
+  * Improved ground hit velocity calculations
+  * Completely reworked tube fin simulation (no longer "experimental")
+  * Improved time step selection for descent
+  * Simulations now properly account for disabled stages
+  * Update CG correctly when stages are toggled on or off
+  * Displaly stage names in stage enable buttons
+  * More reliable deployment of booster stage recovery device
 
 ## UI Improvements
 * Updated icons everywhere
@@ -48,7 +59,8 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Option to display stability margin as percentage of rocket length
   * New "Top View" option
   * Cleaned-up toolbar
-  * Option to hide warnings
+  * Option to show/hide warnings
+  * Option to show/hide CG and CP markings 
   * Improved click and double-click behavior on rocket
 * Component Configuration Editor
   * Extensively reorganized for clarity and consistency
@@ -63,14 +75,15 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
 * Greatly improved freeform fin editor operation
 * Photo Studio
   * sliders for settings
+  * keyboard input for settings
   * settings remembered for each rocket
- 
-## Notable Bug Fixes
  
 ## Misc
 * Extensively updated and reorganized example rocket collection
 * Much improved Rocksim import and export
-
+* Motor database fully updated from thrustcurve.org.
+ 
+_...plus about a billion bug fixes and so much more._
 </div>
 
 <div id="22.02.RC.01">
