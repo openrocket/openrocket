@@ -161,7 +161,6 @@ public class UpdateInfoDialog extends JDialog {
 			comboBox = new JComboBox<>(mappedAssets.keySet().toArray(new UpdatePlatform[0]));
 			comboBox.setRenderer(new CustomComboBoxRenderer());
 			UpdatePlatform platform = AssetHandler.getUpdatePlatform();
-			// TODO: check select null?
 			comboBox.setSelectedItem(platform);
 			comboBox.addActionListener(new ActionListener() {
 				@Override
@@ -178,7 +177,9 @@ public class UpdateInfoDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (mappedAssets == null) return;
-				String url = mappedAssets.get((UpdatePlatform) comboBox.getSelectedItem());
+				String url = AssetHandler.getInstallerURLForPlatform((UpdatePlatform) comboBox.getSelectedItem(),
+						release.getReleaseName());
+				if (url == null) return;
 				Desktop desktop = Desktop.getDesktop();
 				try {
 					desktop.browse(new URI(url));

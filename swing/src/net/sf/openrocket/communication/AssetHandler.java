@@ -2,6 +2,7 @@ package net.sf.openrocket.communication;
 
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BuildProperties;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +15,9 @@ import java.util.TreeMap;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class AssetHandler {
-    private static final Map<String, UpdatePlatform[]> mapExtensionToPlatform = new HashMap<>();  // Map file extensions to operating platform
-    private static final Map<UpdatePlatform, String> mapPlatformToName = new HashMap<>();       // Map operating platform to a name
+    private static final Map<String, UpdatePlatform[]> mapExtensionToPlatform = new HashMap<>(); // Map file extensions to operating platform
+    private static final Map<UpdatePlatform[], String> mapPlatformToURL= new HashMap<>();        // Map operating platform to a URL to download the release for that OS
+    private static final Map<UpdatePlatform, String> mapPlatformToName = new HashMap<>();        // Map operating platform to a name
 
     public enum UpdatePlatform {
         WINDOWS,
@@ -32,6 +34,12 @@ public class AssetHandler {
         mapExtensionToPlatform.put(".sh", new UpdatePlatform[] {UpdatePlatform.LINUX, UpdatePlatform.UNIX});
         mapExtensionToPlatform.put(".jar", new UpdatePlatform[] {UpdatePlatform.JAR});
 
+        String baseURL = "https://openrocket.info/downloads.html?vers=%s#content-";
+        mapPlatformToURL.put(new UpdatePlatform[] {UpdatePlatform.MAC_OS}, baseURL + "macOS");
+        mapPlatformToURL.put(new UpdatePlatform[] {UpdatePlatform.WINDOWS}, baseURL + "Windows");
+        mapPlatformToURL.put(new UpdatePlatform[] {UpdatePlatform.LINUX, UpdatePlatform.UNIX}, baseURL + "Linux");
+        mapPlatformToURL.put(new UpdatePlatform[] {UpdatePlatform.JAR}, baseURL + "JAR");
+
         mapPlatformToName.put(UpdatePlatform.MAC_OS, "macOS");
         mapPlatformToName.put(UpdatePlatform.WINDOWS, "Windows");
         mapPlatformToName.put(UpdatePlatform.LINUX, "Linux");
@@ -43,7 +51,7 @@ public class AssetHandler {
      * Maps a list of asset URLs to their respective operating platform name.
      * E.g. "https://github.com/openrocket/openrocket/releases/download/release-15.03/OpenRocket-15.03.dmg" is mapped a
      * map element with "macOS" as key and the url as value.
-     * @param urls list of asset URLs
+     * @param urls list of asset URLs from the GitHub release object
      * @return map with as key the operating platform name and as value the corresponding asset URL
      */
     public static Map<UpdatePlatform, String> mapURLToPlatform(List<String> urls) {
@@ -58,6 +66,23 @@ public class AssetHandler {
             }
         }
         return output;
+    }
+
+    /**
+     * Returns the URL to download the installer for the given platform.
+     * @param platform platform to get the installer URL for
+     * @param version version of the installer to download
+     * @return URL to download the installer for the given platform
+     */
+    public static String getInstallerURLForPlatform(UpdatePlatform platform, String version) {
+        for (UpdatePlatform[] platforms : mapPlatformToURL.keySet()) {
+            for (UpdatePlatform p : platforms) {
+                if (p == platform) {
+                    return String.format(mapPlatformToURL.get(platforms), version);
+                }
+            }
+        }
+        return null;
     }
 
     /**
