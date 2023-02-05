@@ -34,13 +34,13 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Lots more detailed geometry warnings which identify the components involved
 * Appearance updates
   * Settable opacity per-component
-  * Separate inner/outer appearance for tubes
-  * Separate left/right appearance for fins
+  * Separate left/right appearance for fins, and inner/outer appearance for tubes
 * App Infrastructure
-  * Packaged installers for Windows, Linux, and Mac (JAR file still available)
-  * Updated to Java11
+  * Packaged installers for Windows, Linux, and macOS (JAR file still available)
+  * Updated to Java 11
   * Native ARM version for Apple Silicon Macs (snappy!)
   * File association for ORK files: double-click files to open in the app
+  * On Mac, app stays open after last window is closed
 
 ## Simulation and Staging Improvements
   * Assorted CP calculation fixes
@@ -48,9 +48,11 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
   * Improved ground hit velocity calculations
   * Completely reworked tube fin simulation (no longer "experimental")
   * Improved time step selection for descent
+  * Improved simulation plot appearance
+  * Support for scientific notation and custom decimal places in simulation exports
   * Simulations now properly account for disabled stages
   * Update CG correctly when stages are toggled on or off
-  * Displaly stage names in stage enable buttons
+  * Display stage names in stage enable buttons
   * More reliable deployment of booster stage recovery device
 
 ## UI Improvements
@@ -80,8 +82,8 @@ Please note that version 22.02 is required for Macs running MacOS 13.0 or later.
  
 ## Misc
 * Extensively updated and reorganized example rocket collection
-* Much improved Rocksim import and export
-* Motor database fully updated from thrustcurve.org.
+* Much improved RockSim import and export
+* Updated motor database
  
 _...plus about a billion bug fixes and so much more._
 </div>
