@@ -18,6 +18,76 @@ Release Notes
 OpenRocket 22.02 (2023-02-XX)
 ------------------------
 
+The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
+ 
+Please note that version 22.02 is required for Macs running macOS 13.0 or later.
+ 
+## New Features
+* Rocket design features
+  * Pods and strap-on boosters
+  * Tail cones
+  * Freeform fins on nose cones and transitions
+  * Highly configurable rail buttons
+  * Massive update to parachute configuration and part library
+  * Dave Cook's extensive component library now built-in
+  * Coefficient of Drag Override for components and assemblies (and more flexible override settings in general)
+  * Lots more detailed geometry warnings which identify the components involved
+* Appearance updates
+  * Settable opacity per-component
+  * Separate left/right appearance for fins, and inner/outer appearance for tubes
+* App Infrastructure
+  * Packaged installers for Windows, Linux, and macOS (JAR file still available)
+  * Updated to Java 11
+  * Native ARM version for Apple Silicon Macs (snappy!)
+  * File association for ORK files: double-click files to open in the app
+  * On Mac, app stays open after last window is closed
+
+## Simulation and Staging Improvements
+  * Assorted CP calculation fixes
+  * Improved nose cone drag calculations
+  * Improved ground hit velocity calculations
+  * Completely reworked tube fin simulation (no longer "experimental")
+  * Improved time step selection for descent
+  * Improved simulation plot appearance
+  * Support for scientific notation and custom decimal places in simulation exports
+  * Simulations now properly account for disabled stages
+  * Update CG correctly when stages are toggled on or off
+  * Display stage names in stage enable buttons
+  * More reliable deployment of booster stage recovery device
+
+## UI Improvements
+* Updated icons everywhere
+* Rocket figure display updates
+  * Option to display stability margin as percentage of rocket length
+  * New "Top View" option
+  * Cleaned-up toolbar
+  * Option to show/hide warnings
+  * Option to show/hide CG and CP markings 
+  * Improved click and double-click behavior on rocket
+* Component Configuration Editor
+  * Extensively reorganized for clarity and consistency
+  * Massively improved keyboard navigation
+  * Config panels remember which tab you were on previously
+  * Cancel button to exit config panel without saving changes
+* Contextual menus for managing the component tree
+* Simultaneous multi-component edit (great for appearance editing)
+* Completely updated operation of motor config and simulation tables
+* Improved workflow when creating motor configurations
+* Greatly improved component library browser
+* Greatly improved freeform fin editor operation
+* Photo Studio
+  * sliders for settings
+  * keyboard input for settings
+  * settings remembered for each rocket
+ 
+## Misc
+* Extensively updated and reorganized example rocket collection
+* Much improved RockSim import and export
+* Updated motor database
+ 
+_...plus about a billion bug fixes and so much more._
+ 
+Huge thanks to all the users who gave us feedback throughout the public beta period and helped us get to our first release in eight years!
 </div>
 
 <div id="22.02.RC.01">
@@ -60,9 +130,9 @@ OpenRocket 22.02.RC.01 (2023-01-27)
 * Account for all recovery devices in pods when calculating descent rate (fixes #1910)
 * Eliminated many occurrences of mystery discontinuity warnings (fixes #999)
 * Rocksim import/export file updates
-** Support import and export of pods (fixes #1348)
-** Support import of trapezoidal fins on transitions (fixes #1553)
-** Support subassembly import
+  * Support import and export of pods (fixes #1348)
+  * Support import of trapezoidal fins on transitions (fixes #1553)
+  * Support subassembly import
 * Assorted extension and plug-in fixes
  
 </div>
