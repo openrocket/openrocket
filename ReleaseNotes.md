@@ -25,7 +25,7 @@ Please note that version 22.02 is required for Macs running macOS 13.0 or later.
 ## New Features
 * Rocket design features
   * Pods and strap-on boosters
-  * Tail cones for pods
+  * Tail cones
   * Freeform fins on nose cones and transitions
   * Highly configurable rail buttons
   * Massive update to parachute configuration and part library
