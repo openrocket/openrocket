@@ -15,7 +15,7 @@ Release Notes
 
 <div id="22.02">
 
-OpenRocket 22.02 (2023-02-XX)
+OpenRocket 22.02 (2023-02-08)
 ------------------------
 
 The 22.02 release includes hundreds of new features, bug fixes, and UI improvements, more than we could ever fit into one set of release notes.  These notes summarize the highlights of the entire release; for more detail consult the notes from the five previous public beta releases.
