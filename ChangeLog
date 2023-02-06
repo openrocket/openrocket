@@ -1,3 +1,18 @@
+2022-02-06 Sibo Van Gool
+
+  * Released version 22.02. See Release Notes of 22.02.beta.01, 22.02.beta.02, 22.02.beta.03, 22.02.beta.04,
+    22.02.beta.05, and 22.02.RC.01 for changes.
+  * Final changes between 22.02.RC.01 and 22.02:
+    * Minor fixes to software updater (PR #2016 & #2022)
+    * Added show/hide warnings checkbox (PR #2010)
+    * Mark document as unsaved on simulation edit (PR #2008)
+    * Include base drag example (PR #2007)
+    * Improvements to decal file chooser and edit button (PR #1993 & #1996)
+    * Decal editing fixed on Linux (PR #1995)
+    * Improved geometry warnings for gaps in airframe and zero-volume components (PR #1979 & #1985)
+    * Change pod/booster marker rendering based on its actual reference point (PR #1984)
+    * Fixed booster markers not drawing when it had no children (PR #1983)
+
 2015-03-28 Kevin Ruland
 
   * Released version 15.03  See Release Notes for changes.
