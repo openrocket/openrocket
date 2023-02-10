@@ -169,7 +169,7 @@ public class SimulationConditionsPanel extends JPanel {
 		
 		//// Temperature and pressure
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+				"[grow][75lp!][35lp!][75lp!]", ""));
 		//// Atmospheric conditions
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Atmoscond")));
 		this.add(sub, "growx, aligny 0, gapright para");
@@ -204,7 +204,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		isa.addEnableComponent(spin, false);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 		
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -231,7 +231,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		isa.addEnableComponent(spin, false);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 		
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);

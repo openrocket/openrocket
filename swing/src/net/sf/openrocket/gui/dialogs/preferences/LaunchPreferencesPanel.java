@@ -179,7 +179,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 
 		// // Temperature and pressure
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+				"[grow][75lp!][35lp!][75lp!]", ""));
 		// // Atmospheric preferences
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Atmoscond")));
@@ -222,7 +222,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		isa.addEnableComponent(spin, false);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -249,7 +249,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		isa.addEnableComponent(spin, false);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -284,7 +284,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		label = new JLabel(Chars.DEGREE + " " + trans.get("CompassRose.lbl.north"));
 		label.setToolTipText(tip);
@@ -305,7 +305,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		label = new JLabel(Chars.DEGREE + " " + trans.get("CompassRose.lbl.east"));
 		label.setToolTipText(tip);
@@ -328,7 +328,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -358,7 +358,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -393,7 +393,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -421,7 +421,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		JSpinner directionSpin = new JSpinner(m.getSpinnerModel());
 		directionSpin.setEditor(new SpinnerEditor(directionSpin));
 		directionSpin.setToolTipText(tip);
-		sub.add(directionSpin, "w 65lp!");
+		sub.add(directionSpin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
