@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Help us make OpenRocket better
-title: ''
+title: '[Bug] <insert your title>'
 labels: bug
 assignees: ''
 
