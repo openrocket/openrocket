@@ -6,7 +6,8 @@ public class StorageOptions implements Cloneable {
 	
 	public enum FileType {
 		OPENROCKET,
-		ROCKSIM
+		ROCKSIM,
+		RASAERO
 	}
 	
 	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;

@@ -156,6 +156,7 @@ public class PhotoFrame extends JFrame {
 					chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 					chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 					chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+					chooser.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 					chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);

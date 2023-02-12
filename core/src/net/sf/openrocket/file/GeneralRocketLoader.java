@@ -16,6 +16,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
+import net.sf.openrocket.file.rasaero.importt.RASAeroLoader;
 import net.sf.openrocket.file.rocksim.importt.RockSimLoader;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.TextUtil;
@@ -38,10 +39,12 @@ public class GeneralRocketLoader {
 	private static final byte[] ZIP_SIGNATURE = TextUtil.asciiBytes("PK");
 	private static final byte[] OPENROCKET_SIGNATURE = TextUtil.asciiBytes("<openrocket");
 	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.asciiBytes("<RockSimDoc");
+	private static final byte[] RASAERO_SIGNATURE = TextUtil.asciiBytes("<RASAeroDoc");
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
 	
 	private final RockSimLoader rocksimLoader = new RockSimLoader();
+	private final RASAeroLoader rasaeroLoader = new RASAeroLoader();
 	
 	private final File baseFile;
 	private final URL jarURL;
@@ -207,6 +210,13 @@ public class GeneralRocketLoader {
 		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
 			loadUsing(rocksimLoader, source, fileName);
+			return;
+		}
+
+		// Check for RASAero
+		typeIdentifier = ArrayUtils.copyOf(buffer, RASAERO_SIGNATURE.length);
+		if (Arrays.equals(RASAERO_SIGNATURE, typeIdentifier)) {
+			loadUsing(rasaeroLoader, source, fileName);
 			return;
 		}
 		throw new RocketLoadException("Unsupported or corrupt file.");

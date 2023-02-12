@@ -18,7 +18,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		nc.setLength(1.0);
 		nc.setFilled(true);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setAftRadius(1.0);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 		
@@ -49,7 +49,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		nc.setLength(1.0);
 		nc.setFilled(true);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setAftRadius(1.0);
 		nc.setAftShoulderRadius(1.0);
 		nc.setAftShoulderLength(1.0);
@@ -85,7 +85,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setLength(1.0);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 		
 		Coordinate cg = nc.getCG();
@@ -122,7 +122,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double density = 2.0;
 		
 		nc.setLength(1.0);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
 		nc.setAftShoulderRadius(1.0);
@@ -168,7 +168,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		nc.setLength(4.0);
 		nc.setFilled(true);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(1.0);
 		nc.setAftRadius(2.0);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
@@ -200,7 +200,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		nc.setLength(4.0);
 		nc.setFilled(true);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(1.0);
 		nc.setAftRadius(2.0);
 		nc.setAftShoulderLength(1.0);
@@ -241,7 +241,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double density = 2.0;
 		
 		nc.setLength(1.0);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
@@ -288,7 +288,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double density = 2.0;
 		
 		nc.setLength(1.0);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
@@ -346,7 +346,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double density = 2.0;
 		
 		nc.setLength(1.0);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.25);
@@ -394,7 +394,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double density = 2.0;
 		
 		nc.setLength(1.0);
-		nc.setType(Transition.Shape.CONICAL);
+		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.25);
