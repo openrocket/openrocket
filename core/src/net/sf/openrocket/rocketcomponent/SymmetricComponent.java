@@ -179,7 +179,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> list = new ArrayList<Coordinate>(20);
 		for (int n = 0; n <= 5; n++) {
-			double x = n * length / 5;
+			double x = n * getLength() / 5;
 			double r = getRadius(x);
 			addBound(list, x, r);
 		}
@@ -333,14 +333,14 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		cg = Coordinate.NUL;
 
 		// Check length > 0
-		if (length <= 0) {
+		if (getLength() <= 0) {
 			return;
 		}
 		
 
 		// Integrate for volume, CG, wetted area and planform area
 		
-		final double step = length / DIVISIONS;
+		final double step = getLength() / DIVISIONS;
 		final double pi3 = Math.PI / 3.0;
 		r1 = getRadius(0);
 		x = 0;
@@ -360,11 +360,11 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			 * during the last iteration (n== DIVISIONS) we recompute l to be
 			 * whatever is left.
 			 */
-			double l = (n==DIVISIONS) ? length -x : step;
+			double l = (n==DIVISIONS) ? getLength() -x : step;
 
 			// Further to prevent round off error from the previous statement,
 			// we clamp r2 to length at the last iteration.
-			r2 = getRadius((n==DIVISIONS) ? length : x + l);
+			r2 = getRadius((n==DIVISIONS) ? getLength() : x + l);
 			
 			final double hyp = MathUtil.hypot(r2 - r1, l);
 			
@@ -416,7 +416,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		
 		if (volume < 0.0000000001) { // 0.1 mm^3
 			volume = 0;
-			cg = new Coordinate(length / 2, 0, 0, 0);
+			cg = new Coordinate(getLength() / 2, 0, 0, 0);
 		} else {
 			// the mass of this shape is the material density * volume.
 			// it cannot come from super.getComponentMass() since that 
@@ -436,9 +436,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		longitudinalInertia = 0;
 		rotationalInertia = 0;
 
-		if (length <= 0) return;
+		if (getLength() <= 0) return;
 
-		final double l = length / DIVISIONS;
+		final double l = getLength() / DIVISIONS;
 		final double pil = Math.PI * l; // PI * l
 		final double pil3 = Math.PI * l / 3; // PI * l/3
 		
@@ -506,9 +506,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		longitudinalInertia = 0;
 		rotationalInertia = 0;
 
-		if (length <= 0) return;
+		if (getLength() <= 0) return;
 
-		final double l = length / DIVISIONS;
+		final double l = getLength() / DIVISIONS;
 		
 		r1 = getRadius(0);
 		x = 0;
