@@ -257,17 +257,17 @@ public class UnitGroup {
 		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI / 60, "rpm"));
 		
 		UNITS_TEMPERATURE = new UnitGroup();
-		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 1));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, DEGREE + "C"));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0 / 9.0, 459.67, DEGREE + "F"));
+		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 0.01));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, 0.01, DEGREE + "C"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0 / 9.0, 459.67, 0.01, DEGREE + "F"));
 		
 		UNITS_PRESSURE = new UnitGroup();
-		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 1, 1.0e2));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 0.01, 1.0e2));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("bar", 0.001, 1.0e5));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("atm", 0.001, 1.01325e5));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(101325.0 / 760.0, "mmHg"));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(3386.389, "inHg"));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(6894.75729, "psi"));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mmHg", 0.01, 101325.0 / 760.0));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("inHg", 0.01, 3386.389));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("psi", 0.01, 6894.75729));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(1, "Pa"));
 		
 		UNITS_RELATIVE = new UnitGroup();
