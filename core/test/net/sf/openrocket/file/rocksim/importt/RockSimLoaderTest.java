@@ -102,12 +102,12 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(" Transition 1 length does not match", 0.075, transition1.getLength(), MathUtil.EPSILON);
         Assert.assertEquals(" Transition 1 fore radius does not match", 0.0125,((Transition) transition1).getForeRadius(), MathUtil.EPSILON);
         Assert.assertEquals(" Transition 1 aft radius does not match", 0.025, ((Transition) transition1).getAftRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 1 shape does not match", Transition.Shape.CONICAL, ((Transition) transition1).getType());
+        Assert.assertEquals(" Transition 1 shape does not match", Transition.Shape.CONICAL, ((Transition) transition1).getShapeType());
 
         Assert.assertEquals(" Transition 2 length does not match", 0.075, transition2.getLength(), MathUtil.EPSILON);
         Assert.assertEquals(" Transition 2 fore radius does not match", 0.025,((Transition) transition2).getForeRadius(), MathUtil.EPSILON);
         Assert.assertEquals(" Transition 2 aft radius does not match", 0.0125, ((Transition) transition2).getAftRadius(), MathUtil.EPSILON);
-        Assert.assertEquals(" Transition 2 shape does not match", Transition.Shape.CONICAL, ((Transition) transition2).getType());
+        Assert.assertEquals(" Transition 2 shape does not match", Transition.Shape.CONICAL, ((Transition) transition2).getShapeType());
 
         RocketComponent finSet1 = transition1.getChild(0);
         RocketComponent finSet2 = transition2.getChild(0);

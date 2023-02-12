@@ -68,13 +68,13 @@ public class TransitionHandlerTest extends RockSimTestBase {
         Transition component = (Transition) getField(handler, "transition");
 
         handler.closeElement("ShapeCode", attributes, "0", warnings);
-        Assert.assertEquals(Transition.Shape.CONICAL, component.getType());
+        Assert.assertEquals(Transition.Shape.CONICAL, component.getShapeType());
         handler.closeElement("ShapeCode", attributes, "1", warnings);
-        Assert.assertEquals(Transition.Shape.OGIVE, component.getType());
+        Assert.assertEquals(Transition.Shape.OGIVE, component.getShapeType());
         handler.closeElement("ShapeCode", attributes, "17", warnings);
-        Assert.assertEquals(RockSimNoseConeCode.PARABOLIC.asOpenRocket(), component.getType());  //test of default
+        Assert.assertEquals(RockSimNoseConeCode.PARABOLIC.asOpenRocket(), component.getShapeType());  //test of default
         handler.closeElement("ShapeCode", attributes, "foo", warnings);
-        Assert.assertNotNull(component.getType());
+        Assert.assertNotNull(component.getShapeType());
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
@@ -174,7 +174,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
-        component.setType(Transition.Shape.HAACK);
+        component.setShapeType(Transition.Shape.HAACK);
         handler.closeElement("ShapeParameter", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
@@ -186,7 +186,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
 
         warnings.clear();
 
-        component.setType(Transition.Shape.CONICAL);
+        component.setShapeType(Transition.Shape.CONICAL);
         component.setShapeParameter(0d);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
         Assert.assertEquals(0d, component.getShapeParameter(), 0.001);

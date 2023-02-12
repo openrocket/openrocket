@@ -57,7 +57,7 @@ public class TransitionComponentTests extends BaseTestCase {
 		tr.loadPreset(preset);
 		
 		assertEquals(2.0, tr.getLength(), 0.0);
-		assertSame(Transition.Shape.CONICAL, tr.getType());
+		assertSame(Transition.Shape.CONICAL, tr.getShapeType());
 		assertEquals(1.0, tr.getAftRadius(), 0.0);
 		assertEquals(1.0, tr.getForeShoulderLength(), 0.0);
 		assertEquals(0.25, tr.getForeShoulderRadius(), 0.0);

@@ -44,12 +44,12 @@ public class SymmetricComponentCalcTest {
 	public void testConicalNoseParams() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
-		nose.setType( Transition.Shape.CONICAL );
+		nose.setShapeType( Transition.Shape.CONICAL );
 		
 		// to illustrate the NoseCone properties to the reader:
 		assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
 		assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.CONICAL, nose.getType());
+		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.CONICAL, nose.getShapeType());
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
@@ -80,7 +80,7 @@ public class SymmetricComponentCalcTest {
 		// to illustrate the NoseCone properties to the reader:
 		assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
 		assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getType());
+		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getShapeType());
 		
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
@@ -108,7 +108,7 @@ public class SymmetricComponentCalcTest {
 	    Rocket rocket = TestRockets.makeEstesAlphaIII();
 	    NoseCone nose = (NoseCone)rocket.getChild(0).getChild(0);
 	    // use an ellipsoidal nose cone with fineness ratio 5
-	    nose.setType(Transition.Shape.ELLIPSOID);
+	    nose.setShapeType(Transition.Shape.ELLIPSOID);
 	    nose.setLength(nose.getAftRadius() * 5.0);
 	    SymmetricComponentCalc calcObj = new SymmetricComponentCalc( nose );
 	    

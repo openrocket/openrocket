@@ -329,7 +329,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// TODO:  this event seems to get enqueue'd multiple times ... 
 					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
-					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					//log.info("     Because of "+event.getShapeType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
 					
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, (RocketComponent) mount, state ));
 				}

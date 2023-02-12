@@ -84,7 +84,7 @@ public class BarrowmanCalculatorTest {
 			NoseCone nose = (NoseCone)stage.getChild(0);
 			assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
 			assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-			assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getType());
+			assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getShapeType());
 			double cna_nose = 2;
 			double cpx_nose = 0.03235;
 			

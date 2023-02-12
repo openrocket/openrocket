@@ -28,7 +28,6 @@ import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -263,7 +262,7 @@ public class TestRockets {
 		nose.setForeRadius(rnd(0.1)); // Unset
 		nose.setLength(rnd(0.15));
 		nose.setShapeParameter(rnd(0.5));
-		nose.setType((Shape) randomEnum(Shape.class));
+		nose.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(nose);
 		
 		Transition shoulder = new Transition();
@@ -286,7 +285,7 @@ public class TestRockets {
 		shoulder.setLength(rnd(0.15));
 		shoulder.setShapeParameter(rnd(0.5));
 		shoulder.setThickness(rnd(0.003));
-		shoulder.setType((Shape) randomEnum(Shape.class));
+		shoulder.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(shoulder);
 		
 		BodyTube body = new BodyTube();
@@ -320,7 +319,7 @@ public class TestRockets {
 		boattail.setLength(rnd(0.15));
 		boattail.setShapeParameter(rnd(0.5));
 		boattail.setThickness(rnd(0.003));
-		boattail.setType((Shape) randomEnum(Shape.class));
+		boattail.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(boattail);
 		
 		MassComponent mass = new MassComponent();
