@@ -193,8 +193,8 @@ public class RASAeroCommonConstants {
         } else if (CROSS_SECTION_SUBSONIC_NACA.equals(crossSection)) {
             return FinSet.CrossSection.AIRFOIL;
         } else {
-            warnings.add("Unknown fin cross section: " + crossSection + ", defaulting to square.");
-            return FinSet.CrossSection.SQUARE;
+            warnings.add("Unknown fin cross section: " + crossSection + ", defaulting to Airfoil.");
+            return FinSet.CrossSection.AIRFOIL;
         }
     }
 
@@ -218,7 +218,7 @@ public class RASAeroCommonConstants {
         } else if (FINISH_CAST_IRON.equals(surfaceFinish)) {
             return ExternalComponent.Finish.ROUGHUNFINISHED;
         } else {
-            warnings.add("Unknown surface finish: " + surfaceFinish + ", defaulting to regular paint.");
+            warnings.add("Unknown surface finish: " + surfaceFinish + ", defaulting to Regular Paint.");
             return ExternalComponent.Finish.NORMAL;
         }
     }

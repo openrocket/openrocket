@@ -37,12 +37,16 @@ public abstract class RailGuideHandler {
         buttonFore.setAxialOffset(0.0254);     // 1 inch separation
         buttonAft.setAxialOffset(-0.0254 + buttonAft.getOuterDiameter()/2);     // 1 inch separation
 
-        // Calculate the angle offset of the launch lugs
+        // Calculate the angle offset of the rail guides
         // Don't ask me how I got this formula... I don't know what the hell RASAero is doing here.
         // Just experimentally measured the right offsets, it seems to work okay.
-        double r = diameter / 2;
+        double H = buttonFore.getTotalHeight();
+        double D = buttonFore.getOuterDiameter();
         double R = parent.getOuterRadius();
-        double rot = -Math.acos((0.6616*R - r) / (R+r));
+        double rot = -Math.acos((D - 1.3232*R)/(D - 2*H - 2*R));        // This is not an exact solution for all cases, but it is for the most common case
+        if (Double.isNaN(rot)) {        // Just to be safe :)
+            rot = 0;
+        }
         buttonFore.setAngleOffset(rot);
         buttonAft.setAngleOffset(rot);
 
