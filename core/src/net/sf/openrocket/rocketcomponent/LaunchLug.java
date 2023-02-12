@@ -274,7 +274,11 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 			}
 		}
 
+		if (MathUtil.equals(this.instanceSeparation, _separation)) {
+			return;
+		}
 		this.instanceSeparation = _separation;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override
@@ -285,9 +289,11 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 			}
 		}
 
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
+		if (newCount == this.instanceCount || newCount <= 0) {
+			return;
 		}
+		this.instanceCount = newCount;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
