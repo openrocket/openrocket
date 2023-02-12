@@ -54,7 +54,7 @@ public class RockSimLoaderTest extends BaseTestCase {
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);
             context.setMotorFinder(new DatabaseMotorFinder());
-            loader.loadFromStream(context, new BufferedInputStream(stream));
+            loader.loadFromStream(context, new BufferedInputStream(stream), null);
             Rocket rocket = doc.getRocket();
             Assert.assertNotNull(rocket);
         }
@@ -82,7 +82,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -171,7 +171,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -199,7 +199,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -295,7 +295,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -336,7 +336,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -401,7 +401,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
         context.setMotorFinder(new DatabaseMotorFinder());
-        loader.loadFromStream(context, new BufferedInputStream(stream));
+        loader.loadFromStream(context, new BufferedInputStream(stream), null);
 
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
@@ -481,7 +481,7 @@ public class RockSimLoaderTest extends BaseTestCase {
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);
             context.setMotorFinder(new DatabaseMotorFinder());
-            theLoader.loadFromStream(context, new BufferedInputStream(stream));
+            theLoader.loadFromStream(context, new BufferedInputStream(stream), null);
             return doc;
         }
     }

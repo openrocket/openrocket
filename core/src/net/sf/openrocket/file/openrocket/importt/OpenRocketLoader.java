@@ -39,7 +39,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 	
 	
 	@Override
-	public void loadFromStream(DocumentLoadingContext context, InputStream source) throws RocketLoadException,
+	public void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
 		
