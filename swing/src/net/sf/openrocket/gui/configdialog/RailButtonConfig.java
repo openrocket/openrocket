@@ -110,7 +110,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap 30lp");
 		}
-
+  
 		// -------- Instances ------
 		panel.add(new InstancesPanel(component, order), "span, grow, wrap para");
 
