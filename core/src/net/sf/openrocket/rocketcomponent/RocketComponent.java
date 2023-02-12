@@ -1273,14 +1273,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public double getAxialOffset(AxialMethod asMethod) {
 		double parentLength = 0;
-		if (null != this.parent) {
-		    parentLength = this.parent.length;
+		if (this.parent != null && !(this.parent instanceof Rocket)) {
+		    parentLength = this.parent.getLength();
 		}
 
 		if(AxialMethod.ABSOLUTE == asMethod){
 			return this.getComponentLocations()[0].x;
 		}else {
-			return asMethod.getAsOffset(this.position.x, this.length, parentLength);
+			return asMethod.getAsOffset(this.position.x, getLength(), parentLength);
 		}
 	}
 	
@@ -1368,7 +1368,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.setAfter();
 			return;
 		} else {
-			newX = requestedMethod.getAsPosition(requestedOffset, this.length, this.parent.getLength());
+			newX = requestedMethod.getAsPosition(requestedOffset, getLength(), this.parent.getLength());
 		}
 		
 		// snap to zero if less than the threshold 'EPSILON'
@@ -2704,7 +2704,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		buf.append(String.format(" >> Dumping Detailed Information from: %s\n", callingMethod));
 		buf.append(String.format("      At Component: %s, of class: %s \n", this.getName(), this.getClass().getSimpleName()));
 		buf.append(String.format("      position: %.6f    at offset: %.4f via: %s\n", this.position.x, this.axialOffset, this.axialMethod.name()));
-		buf.append(String.format("      length: %.4f\n", this.length ));
+		buf.append(String.format("      length: %.4f\n", getLength() ));
 		return buf;
 	}
 	

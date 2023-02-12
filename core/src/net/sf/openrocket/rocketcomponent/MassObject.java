@@ -232,17 +232,17 @@ public abstract class MassObject extends InternalComponent {
 	
 	@Override
 	public final Coordinate getComponentCG() {
-		return new Coordinate(length / 2, shiftY, shiftZ, getComponentMass());
+		return new Coordinate(getLength() / 2, shiftY, shiftZ, getComponentMass());
 	}
 	
 	@Override
 	public final double getLongitudinalUnitInertia() {
-		return (3 * pow2(radius) + pow2(length)) / 12;
+		return (3 * pow2(getRadius()) + pow2(getLength())) / 12;
 	}
 	
 	@Override
 	public final double getRotationalUnitInertia() {
-		return pow2(radius) / 2;
+		return pow2(getRadius()) / 2;
 	}
 	
 	@Override
