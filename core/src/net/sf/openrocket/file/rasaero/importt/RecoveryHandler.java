@@ -8,11 +8,9 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import org.xml.sax.SAXException;
 
@@ -106,29 +104,28 @@ public class RecoveryHandler extends AbstractElementHandler {
         }
     }
 
-    private void addRecoveryDevice(int recoveryDeviceNr, WarningSet warnings) {
-        if (recoveryDeviceNr > NR_OF_RECOVERY_DEVICES-1) {
-            throw new IllegalArgumentException("Invalid recovery device number " + recoveryDeviceNr);
+    /**
+     * Create a new recovery device with the parameters from RASAero, and add it to the rocket.
+     * @param deviceNr Recovery device number (0 or 1)
+     * @param warnings Warning set to add import warnings to
+     */
+    private void addRecoveryDevice(int deviceNr, WarningSet warnings) {
+        if (deviceNr > NR_OF_RECOVERY_DEVICES-1) {
+            throw new IllegalArgumentException("Invalid recovery device number " + deviceNr);
         }
 
         // Only parachute is supported by RASAero
-        if (!deviceType[recoveryDeviceNr].equals("Parachute")) {
+        if (!deviceType[deviceNr].equals("Parachute")) {
             return;
         }
 
         // Create the recovery device with the parameters from RASAero
-        Parachute recoveryDevice = new Parachute();
-        recoveryDevice.setName("Recovery Event " + (recoveryDeviceNr+1));
-        DeploymentConfiguration config = recoveryDevice.getDeploymentConfigurations().getDefault();
-        recoveryDevice.setDiameter(size[recoveryDeviceNr] / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        recoveryDevice.setCD(CD[recoveryDeviceNr]);
-        config.setDeployAltitude(altitude[recoveryDeviceNr] / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
-        config.setDeployEvent(RASAeroCommonConstants.getDeployEventFromRASAero(eventType[recoveryDeviceNr], warnings));
+        Parachute recoveryDevice = createParachute(deviceNr, size[deviceNr], CD[deviceNr], altitude[deviceNr], eventType[deviceNr], warnings);
 
         // Add the recovery device to the rocket
-        if (recoveryDeviceNr == 0) {
+        if (deviceNr == 0) {
             addRecoveryDevice1ToRocket(recoveryDevice, warnings);
-        } else if (recoveryDeviceNr == 1) {
+        } else if (deviceNr == 1) {
             // If there is no recovery device 1, add recovery device 2 to the rocket as if you would add recovery device 1
             if (!event[0]) {
                 addRecoveryDevice1ToRocket(recoveryDevice, warnings);
@@ -138,6 +135,33 @@ public class RecoveryHandler extends AbstractElementHandler {
                 addRecoveryDevice2ToRocket(recoveryDevice, warnings);
             }
         }
+    }
+
+    /**
+     * Create a parachute with the parameters from RASAero.
+     * @param recoveryDeviceNr The recovery device number (0 or 1)
+     * @param size The size of the parachute
+     * @param CD The drag coefficient of the parachute
+     * @param altitude The altitude of the parachute deployment
+     * @param eventType The event type of the parachute deployment
+     * @param warnings The warning set to add import warnings to
+     * @return The parachute with the parameters from RASAero
+     */
+    private Parachute createParachute(int recoveryDeviceNr, double size, double CD, double altitude, String eventType, WarningSet warnings) {
+        Parachute recoveryDevice = new Parachute();
+        recoveryDevice.setName("Recovery Event " + (recoveryDeviceNr+1));
+        DeploymentConfiguration config = recoveryDevice.getDeploymentConfigurations().getDefault();
+
+        recoveryDevice.setDiameter(size / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        recoveryDevice.setLineLength(recoveryDevice.getDiameter());
+        recoveryDevice.setCD(CD);
+        config.setDeployAltitude(altitude / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+        config.setDeployEvent(RASAeroCommonConstants.getDeployEventFromRASAero(eventType, warnings));
+
+        // Shroud line count = diameter / 6 inches. 6 inches = 0.1524 meters. Minimum is 6 lines.
+        recoveryDevice.setLineCount(Math.max(6, (int) Math.round(recoveryDevice.getDiameter() / 0.1524)));
+
+        return recoveryDevice;
     }
 
     /**
