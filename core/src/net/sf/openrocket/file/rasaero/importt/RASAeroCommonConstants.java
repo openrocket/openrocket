@@ -39,7 +39,7 @@ public class RASAeroCommonConstants {
     // Nose cone settings
     public static final String SHAPE = "Shape";
     public static final String POWER_LAW = "PowerLaw";
-    public static final String BLUNT_RADIUS = "BluntRadius";
+    //public static final String BLUNT_RADIUS = "BluntRadius";
     private static final Map<String, Transition.Shape> RASAeroNoseConeShapeMap = new HashMap<>();
 
     // Transition settings
@@ -106,6 +106,21 @@ public class RASAeroCommonConstants {
     public static final String DEPLOYMENT_NONE = "None";
     public static final String DEPLOYMENT_APOGEE = "Apogee";
     public static final String DEPLOYMENT_ALTITUDE = "Altitude";
+
+    // Simulation settings
+    public static final String SIMULATION_LIST = "SimulationList";
+    public static final String SIMULATION = "Simulation";
+    public static final String SUSTAINER_ENGINE = "SustainerEngine";
+    // TODO: SustainerLaunchWt, SustainerCG?
+    public static final String SUSTAINER_IGNITION_DELAY = "SustainerIgnitionDelay";
+    public static final String BOOSTER1_ENGINE = "Booster1Engine";
+    public static final String BOOSTER1_SEPARATION_DELAY = "Booster1SeparationDelay";       // Delay after booster burnout to separate
+    public static final String BOOSTER1_IGNITION_DELAY = "Booster1IgnitionDelay";
+    public static final String INCLUDE_BOOSTER1 = "IncludeBooster1";
+    public static final String BOOSTER2_ENGINE = "Booster2Engine";
+    public static final String BOOSTER2_SEPARATION_DELAY = "Booster2SeparationDelay";       // Delay after booster burnout to separate
+    public static final String BOOSTER2_IGNITION_DELAY = "Booster2IgnitionDelay";
+    public static final String INCLUDE_BOOSTER2 = "IncludeBooster2";
 
 
     /**

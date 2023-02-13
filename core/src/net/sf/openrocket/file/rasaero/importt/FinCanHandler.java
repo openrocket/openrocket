@@ -22,13 +22,12 @@ import java.util.HashMap;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class FinCanHandler extends BodyTubeHandler {
-    private final BodyTube parentBodyTube;
     private final PodSet finCan = new PodSet();
 
     private double insideDiameter;
     private double shoulderLength;
 
-    public FinCanHandler(DocumentLoadingContext context, RocketComponent parent, WarningSet warnings) {
+    public FinCanHandler(DocumentLoadingContext context, RocketComponent parent) {
         super(context);
         if (parent == null) {
             throw new IllegalArgumentException("The parent component of a body tube may not be null.");
@@ -43,8 +42,8 @@ public class FinCanHandler extends BodyTubeHandler {
         }
 
         // The fin can is a pod set child of the parent body tube.
-        this.parentBodyTube = (BodyTube) lastChild;
-        this.parentBodyTube.addChild(this.finCan);
+        BodyTube parentBodyTube = (BodyTube) lastChild;
+        parentBodyTube.addChild(this.finCan);
         this.finCan.setInstanceCount(1);
         this.finCan.setRadius(RadiusMethod.FREE, 0);
         this.finCan.addChild(this.bodyTube);

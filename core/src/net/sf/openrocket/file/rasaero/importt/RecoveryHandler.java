@@ -25,7 +25,6 @@ import java.util.Map;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class RecoveryHandler extends AbstractElementHandler {
-    private final DocumentLoadingContext context;
     private final Rocket rocket;
 
     // Recovery parameters
@@ -37,8 +36,7 @@ public class RecoveryHandler extends AbstractElementHandler {
     private final String[] eventType = new String[NR_OF_RECOVERY_DEVICES];      // When to deploy
     private final Double[] CD = new Double[NR_OF_RECOVERY_DEVICES];             // Coefficient of drag
 
-    public RecoveryHandler(DocumentLoadingContext context, Rocket rocket) {
-        this.context = context;
+    public RecoveryHandler(Rocket rocket) {
         this.rocket = rocket;
     }
     @Override

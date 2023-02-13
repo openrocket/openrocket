@@ -9,6 +9,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.SimulationOptions;
 import org.xml.sax.SAXException;
 
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class RASAeroHandler extends AbstractElementHandler {
     /**
      * A SAX handler for the RASAeroDocument element.
      */
-    private class RocketDocumentHandler extends AbstractElementHandler {
+    private static class RocketDocumentHandler extends AbstractElementHandler {
         /**
          * The DocumentLoadingContext
          */
@@ -74,6 +75,11 @@ public class RASAeroHandler extends AbstractElementHandler {
          * The top-level component, from which all child components are added.
          */
         private final Rocket rocket;
+
+        /**
+         * The RASAero launch site settings to be used for all the OpenRocket simulations.
+         */
+        private final SimulationOptions launchSiteSettings = new SimulationOptions();
 
         /**
          * The RASAero file version.
@@ -102,11 +108,15 @@ public class RASAeroHandler extends AbstractElementHandler {
             }
             // LaunchSite
             else if (RASAeroCommonConstants.LAUNCH_SITE.equals(element)) {
-                return new LaunchSiteHandler(context);
+                return new LaunchSiteHandler(launchSiteSettings);
             }
             // Recovery
             else if (RASAeroCommonConstants.RECOVERY.equals(element)) {
-                return new RecoveryHandler(context, rocket);
+                return new RecoveryHandler(rocket);
+            }
+            // SimulationList
+            else if (RASAeroCommonConstants.SIMULATION_LIST.equals(element)) {
+                return new SimulationListHandler(context, rocket, launchSiteSettings);
             }
 
             return null;
@@ -128,7 +138,7 @@ public class RASAeroHandler extends AbstractElementHandler {
     /**
      * A SAX handler for the RocketDesign element.
      */
-    private class RocketDesignHandler extends AbstractElementHandler {
+    private static class RocketDesignHandler extends AbstractElementHandler {
         /**
          * The DocumentLoadingContext
          */
@@ -161,11 +171,11 @@ public class RASAeroHandler extends AbstractElementHandler {
             }
             // Fin can
             else if (RASAeroCommonConstants.FIN_CAN.equals(element)) {
-                return new FinCanHandler(context, component, warnings);
+                return new FinCanHandler(context, component);
             }
             // Booster
             else if (RASAeroCommonConstants.BOOSTER.equals(element)) {
-                return new BoosterHandler(context, component, warnings);
+                return new BoosterHandler(context, component);
             }
             // BoatTail
             else if (RASAeroCommonConstants.BOATTAIL.equals(element)) {

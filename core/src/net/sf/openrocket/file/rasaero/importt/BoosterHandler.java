@@ -23,7 +23,7 @@ public class BoosterHandler extends BodyTubeHandler {
     private double boatTailLength;
     private double boatTailRearDiameter;
 
-    public BoosterHandler(DocumentLoadingContext context, RocketComponent parent, WarningSet warnings) {
+    public BoosterHandler(DocumentLoadingContext context, RocketComponent parent) {
         super(context);
         if (parent == null) {
             throw new IllegalArgumentException("The parent component of a body tube may not be null.");
