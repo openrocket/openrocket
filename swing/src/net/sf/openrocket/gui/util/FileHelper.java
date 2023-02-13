@@ -46,7 +46,7 @@ public final class FileHelper {
 
 	/** File filter for RASAero II designs (*.CDX1) */
 	public static final FileFilter RASAERO_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
+			new SimpleFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
 
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
