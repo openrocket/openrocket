@@ -681,10 +681,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			searchSiblingIndex = 0;
 		}
 
-		// One last thing -- I could have a child that is a PodSet that is in line
-		// with me
+		// One last thing -- I could have a child that is a ComponentAssembly that is in line with me
 		for (RocketComponent child : getChildren()) {
-			if (child instanceof PodSet) {
+			if (child instanceof ComponentAssembly) {
 				for (RocketComponent grandchild : child.getChildren()) {
 					if ((grandchild instanceof SymmetricComponent) && inline(grandchild)) {
 						return (SymmetricComponent) grandchild;
