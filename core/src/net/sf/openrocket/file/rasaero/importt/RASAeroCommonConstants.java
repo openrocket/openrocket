@@ -46,7 +46,7 @@ public class RASAeroCommonConstants {
     public static final String REAR_DIAMETER = "RearDiameter";
 
     // Fin settings
-    public static final String FIN_COUNT = "COUNT";
+    public static final String FIN_COUNT = "Count";
     public static final String FIN_CHORD = "Chord";
     public static final String FIN_SPAN = "Span";
     public static final String FIN_SWEEP_DISTANCE = "SweepDistance";
