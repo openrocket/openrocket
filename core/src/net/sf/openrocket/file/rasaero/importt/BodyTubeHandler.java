@@ -70,7 +70,8 @@ public class BodyTubeHandler extends BaseHandler<BodyTube> {
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
         this.bodyTube.setLength(length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        this.bodyTube.setOuterRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        this.bodyTube.setOuterRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);        // Not really useful, but included for completeness
+        this.bodyTube.setOuterRadiusAutomatic(true);
         this.bodyTube.setThickness(0.002);              // Arbitrary value; RASAero doesn't specify this
 
         if (launchLugDiameter > 0 && launchLugLength > 0) {

@@ -61,7 +61,8 @@ public class TransitionHandler extends BaseHandler<Transition> {
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
         this.transition.setLength(length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        this.transition.setForeRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        this.transition.setForeRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);       // Not really useful, but adding it for completeness
+        this.transition.setForeRadiusAutomatic(true);
         this.transition.setThickness(0.002);    // Arbitrary value; RASAero doesn't specify this
     }
 

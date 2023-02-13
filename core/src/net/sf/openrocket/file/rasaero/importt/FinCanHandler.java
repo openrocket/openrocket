@@ -56,11 +56,6 @@ public class FinCanHandler extends BodyTubeHandler {
     }
 
     @Override
-    public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-        return super.openElement(element, attributes, warnings);
-    }
-
-    @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         try {
@@ -77,6 +72,7 @@ public class FinCanHandler extends BodyTubeHandler {
     @Override
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
+        this.bodyTube.setOuterRadiusAutomatic(false);
 
         // Add the shoulder to the front of the fin can
         Transition shoulder = new Transition();

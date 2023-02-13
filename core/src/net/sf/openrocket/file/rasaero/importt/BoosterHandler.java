@@ -22,6 +22,7 @@ public class BoosterHandler extends BodyTubeHandler {
     final AxialStage boosterStage;
     private double boatTailLength;
     private double boatTailRearDiameter;
+    private double shoulderLength;
 
     public BoosterHandler(DocumentLoadingContext context, RocketComponent parent) {
         super(context);
@@ -39,7 +40,8 @@ public class BoosterHandler extends BodyTubeHandler {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-        if (RASAeroCommonConstants.BOAT_TAIL_LENGTH.equals(element) || RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)) {
+        if (RASAeroCommonConstants.BOAT_TAIL_LENGTH.equals(element) || RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)
+                || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
         return super.openElement(element, attributes, warnings);
@@ -52,6 +54,8 @@ public class BoosterHandler extends BodyTubeHandler {
             this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
         } else if (RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)) {
             this.boatTailRearDiameter = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+        } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
+            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
         }
     }
 
@@ -59,6 +63,20 @@ public class BoosterHandler extends BodyTubeHandler {
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
         this.bodyTube.setName(this.boosterStage.getName() + " Body Tube");
+        this.bodyTube.setOuterRadiusAutomatic(false);
+
+        // Add shoulder (transition) if it exists
+        if (shoulderLength > 0) {
+            Transition shoulder = new Transition();
+            shoulder.setName(boosterStage.getName() + " Shoulder");
+            shoulder.setColor(this.bodyTube.getColor());
+            shoulder.setShapeType(Transition.Shape.CONICAL);
+            shoulder.setLength(shoulderLength);
+            shoulder.setAftRadiusAutomatic(false);
+            shoulder.setForeRadiusAutomatic(true);
+            shoulder.setAftRadius(this.bodyTube.getOuterRadius());
+            this.boosterStage.addChild(shoulder, 0);
+        }
 
         // Add boat tail if it exists
         if (this.boatTailLength > 0 && this.boatTailRearDiameter > 0) {

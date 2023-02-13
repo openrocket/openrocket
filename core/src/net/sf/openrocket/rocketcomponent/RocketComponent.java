@@ -1296,6 +1296,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		return 0;
 	}
+
+	public double getRadiusOffset(RadiusMethod method) {
+		return method.getRadius(this.parent, this, getRadiusOffset());
+	}
 	
 	public RadiusMethod getRadiusMethod() {
 		return RadiusMethod.COAXIAL;
