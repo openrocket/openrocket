@@ -6,6 +6,7 @@ import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Transformation;
 
@@ -30,8 +31,10 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         }
 
         // Correct the radius to be at the "reference point" dictated by the component's radius offset.
-        double boundingRadius = assembly.getBoundingRadius();
-        correctedTransform = correctedTransform.applyTransformation(new Transformation(0, -boundingRadius, 0));
+        if (assembly.getRadiusMethod() == RadiusMethod.RELATIVE) {
+            double boundingRadius = assembly.getBoundingRadius();
+            correctedTransform = correctedTransform.applyTransformation(new Transformation(0, -boundingRadius, 0));
+        }
 
         double markerRadius = getDisplayRadius(component);
         Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(correctedTransform, markerRadius);
@@ -55,8 +58,11 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         ComponentAssembly assembly = (ComponentAssembly) component;
 
         // Correct the radius to be at the "reference point" dictated by the component's radius offset.
-        double boundingRadius = assembly.getBoundingRadius();
-        Transformation correctedTransform = transformation.applyTransformation(new Transformation(0, -boundingRadius, 0));
+        Transformation correctedTransform = transformation;
+        if (assembly.getRadiusMethod() == RadiusMethod.RELATIVE) {
+            double boundingRadius = assembly.getBoundingRadius();
+            correctedTransform = correctedTransform.applyTransformation(new Transformation(0, -boundingRadius, 0));
+        }
 
         double markerRadius = getDisplayRadius(component);
         Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(correctedTransform, markerRadius);
