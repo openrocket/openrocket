@@ -584,6 +584,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 	public void testCopy() throws NoSuchFieldException, IllegalAccessException {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		FlightConfiguration original = rocket.getSelectedConfiguration();
+		original.setName("[{motors}] - [{manufacturers}]");
 		original.setOnlyStage(0);
 
 		// vvvv Test Target vvvv

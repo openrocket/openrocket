@@ -13,6 +13,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -56,23 +57,19 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 		// First iterate over each stage and store the designations of each motor
 		List<List<String>> list = new ArrayList<List<String>>();
 		List<String> currentList = Collections.emptyList();
-		
-		Iterator<RocketComponent> iterator = rocket.iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
-			
+
+		FlightConfiguration config = rocket.getFlightConfiguration(fcid);
+		for (RocketComponent c : rocket) {
 			if (c instanceof AxialStage) {
-				
-				currentList = new ArrayList<String>();
+				currentList = new ArrayList<>();
 				list.add(currentList);
 				
 			} else if (c instanceof MotorMount) {
-				
 				MotorMount mount = (MotorMount) c;
 				MotorConfiguration inst = mount.getMotorConfig(fcid);
 				Motor motor = inst.getMotor();
 				
-				if (mount.isMotorMount() && motor != null) {
+				if (mount.isMotorMount() && config.isComponentActive(mount) && motor != null) {
 					String designation = motor.getDesignation(inst.getEjectionDelay());
 					
 					for (int i = 0; i < mount.getMotorCount(); i++) {
@@ -80,7 +77,6 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 						motorCount++;
 					}
 				}
-				
 			}
 		}
 		
@@ -99,11 +95,8 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			Collections.sort(stage);
 			for (String current : stage) {
 				if (current.equals(previous)) {
-					
 					count++;
-					
 				} else {
-					
 					if (previous != null) {
 						String s = "";
 						if (count > 1) {
@@ -117,10 +110,8 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 						else
 							stageName = stageName + "," + s;
 					}
-					
 					previous = current;
 					count = 1;
-					
 				}
 			}
 			if (previous != null) {
@@ -136,14 +127,13 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 				else
 					stageName = stageName + "," + s;
 			}
-			
 			stages.add(stageName);
 		}
 		
 		name = "";
 		for (int i = 0; i < stages.size(); i++) {
 			String s = stages.get(i);
-			if (s.equals(""))
+			if (s.equals("") && config.isStageActive(i))
 				s = trans.get("Rocket.motorCount.noStageMotors");
 			if (i == 0)
 				name = name + s;

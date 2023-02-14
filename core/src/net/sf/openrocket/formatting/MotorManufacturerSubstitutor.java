@@ -7,6 +7,7 @@ import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -56,6 +57,7 @@ public class MotorManufacturerSubstitutor implements RocketSubstitutor {
         List<List<String>> list = new ArrayList<>();
         List<String> currentList = Collections.emptyList();
 
+        FlightConfiguration config = rocket.getFlightConfiguration(fcid);
         for (RocketComponent c : rocket) {
             if (c instanceof AxialStage) {
                 currentList = new ArrayList<>();
@@ -66,7 +68,7 @@ public class MotorManufacturerSubstitutor implements RocketSubstitutor {
                 MotorConfiguration inst = mount.getMotorConfig(fcid);
                 Motor motor = inst.getMotor();
 
-                if (mount.isMotorMount() && motor instanceof ThrustCurveMotor) {
+                if (mount.isMotorMount() && config.isComponentActive(mount) && motor instanceof ThrustCurveMotor) {
                     String manufacturer = ((ThrustCurveMotor) motor).getManufacturer().getDisplayName();
 
                     for (int i = 0; i < mount.getMotorCount(); i++) {
@@ -131,7 +133,7 @@ public class MotorManufacturerSubstitutor implements RocketSubstitutor {
         manufacturers = "";
         for (int i = 0; i < stages.size(); i++) {
             String s = stages.get(i);
-            if (s.equals(""))
+            if (s.equals("") && config.isStageActive(i))
                 s = trans.get("Rocket.motorCount.noStageMotors");
             if (i == 0)
                 manufacturers = manufacturers + s;
