@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -68,9 +69,8 @@ public class WelcomeDialog extends JDialog {
             @Override
             public void hyperlinkUpdate(HyperlinkEvent e) {
                 if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-                    Desktop desktop = Desktop.getDesktop();
                     try {
-                        desktop.browse(e.getURL().toURI());
+                        URLUtil.openWebpage(e.getURL().toURI());
                     } catch (Exception ex) {
                         log.warn("Exception hyperlink: " + ex.getMessage());
                     }
