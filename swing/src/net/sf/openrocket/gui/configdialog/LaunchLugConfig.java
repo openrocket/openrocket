@@ -92,7 +92,10 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
 		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
+
+		// -------- Instances ------
+		panel.add(new InstancesPanel(component, order), "span, grow, wrap para");
 		
 		primary.add(panel, "grow, gapright 40lp");
 

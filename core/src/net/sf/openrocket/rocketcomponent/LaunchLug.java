@@ -33,6 +33,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		radius = 0.01 / 2;
 		thickness = 0.001;
 		length = 0.03;
+		this.setInstanceSeparation(this.length * 2);
 		super.displayOrder_side = 15;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 12;		// Order for displaying the component in the 2D back view
 	}
@@ -274,7 +275,11 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 			}
 		}
 
+		if (MathUtil.equals(this.instanceSeparation, _separation)) {
+			return;
+		}
 		this.instanceSeparation = _separation;
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override
@@ -285,9 +290,11 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 			}
 		}
 
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
+		if (newCount == this.instanceCount || newCount <= 0) {
+			return;
 		}
+		this.instanceCount = newCount;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
