@@ -581,6 +581,26 @@ public class FlightConfigurationTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testName() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration selected = rocket.getSelectedConfiguration();
+		selected.setName("[{motors}] - [{manufacturers}]");
+
+		selected.setAllStages();
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0; 4×G77-0] - [[Rocket.motorCount.noStageMotors]; AeroTech; 4×AeroTech]", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("[[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("[; M1350-0; ] - [; AeroTech; ]", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("[; M1350-0; 4×G77-0] - [; AeroTech; 4×AeroTech]", selected.getName());
+	}
+
+	@Test
 	public void testCopy() throws NoSuchFieldException, IllegalAccessException {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		FlightConfiguration original = rocket.getSelectedConfiguration();
