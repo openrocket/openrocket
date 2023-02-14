@@ -13,6 +13,7 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.simulation.SimulationOptions;
 import org.xml.sax.SAXException;
 
@@ -69,7 +70,6 @@ public class SimulationListHandler extends AbstractElementHandler {
         private Double booster1SeparationDelay;
         private Boolean includeBooster1;
         private ThrustCurveMotor booster2Engine;
-        private Double booster2IgnitionDelay;
         private Double booster2SeparationDelay;
         private Boolean includeBooster2;
 
@@ -85,8 +85,8 @@ public class SimulationListHandler extends AbstractElementHandler {
             if (RASAeroCommonConstants.SUSTAINER_ENGINE.equals(element) || RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY.equals(element)
                     || RASAeroCommonConstants.BOOSTER1_ENGINE.equals(element) || RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY.equals(element)
                     || RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY.equals(element) || RASAeroCommonConstants.INCLUDE_BOOSTER1.equals(element)
-                    || RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element) || RASAeroCommonConstants.BOOSTER2_IGNITION_DELAY.equals(element)
-                    || RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element) || RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
+                    || RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element) || RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)
+                    || RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
                 return PlainTextHandler.INSTANCE;
             }
             return null;
@@ -108,8 +108,6 @@ public class SimulationListHandler extends AbstractElementHandler {
                 includeBooster1 = Boolean.parseBoolean(content);
             } else if (RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element)) {
                 booster2Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
-            } else if (RASAeroCommonConstants.BOOSTER2_IGNITION_DELAY.equals(element)) {
-                booster2IgnitionDelay = Double.parseDouble(content);
             } else if (RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)) {
                 booster2SeparationDelay = Double.parseDouble(content);
             } else if (RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
@@ -123,14 +121,21 @@ public class SimulationListHandler extends AbstractElementHandler {
             rocket.createFlightConfiguration(id);
 
             // Add motors to the rocket
-            double separationDelay = includeBooster1 && (booster1SeparationDelay != null) ? booster1SeparationDelay : 0.0;
-            addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, separationDelay, id, warnings);
-            separationDelay = includeBooster2 && (booster2SeparationDelay != null) ? booster2SeparationDelay : 0.0;
+            addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, id, warnings);
             if (includeBooster1) {
-                addMotorToStage(1, booster1Engine, booster1IgnitionDelay, separationDelay, id, warnings);
+                addMotorToStage(1, booster1Engine, booster1IgnitionDelay, id, warnings);
             }
             if (includeBooster2) {
-                addMotorToStage(2, booster2Engine, booster2IgnitionDelay, 0.0, id, warnings);
+                addMotorToStage(2, booster2Engine, 0.0, id, warnings);
+            }
+
+            // Set separation delays
+            setSeparationDelay(0, 0.0, id);
+            if (includeBooster1) {
+                setSeparationDelay(1, booster1SeparationDelay, id);
+            }
+            if (includeBooster2) {
+                setSeparationDelay(2, booster2SeparationDelay, id);
             }
 
             // Add a new simulation
@@ -141,8 +146,11 @@ public class SimulationListHandler extends AbstractElementHandler {
             context.getOpenRocketDocument().addSimulation(sim);
         }
 
-        private void addMotorToStage(final int stageNr, final Motor motor, final double ignitionDelay, final double separationDelay,
+        private void addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
                                      final FlightConfigurationId id, final WarningSet warnings) {
+            if (motor == null) {
+                return;
+            }
             MotorMount mount = getMotorMountForStage(stageNr);
             if (mount == null) {
                 warnings.add("No motor mount found for stage " + stageNr + ".  Ignoring motor.");
@@ -150,8 +158,17 @@ public class SimulationListHandler extends AbstractElementHandler {
             }
             MotorConfiguration motorConfig = new MotorConfiguration(mount, id);
             motorConfig.setMotor(motor);
-            motorConfig.setIgnitionDelay(ignitionDelay + separationDelay);      // Just add the separation delay to the ignition delay
+            double delay = ignitionDelay != null ? ignitionDelay : 0.0;
+            motorConfig.setIgnitionDelay(delay);
             mount.setMotorConfig(motorConfig, id);
+        }
+
+        private void setSeparationDelay(final int stageNr, Double separationDelay,
+                                        final FlightConfigurationId id) {
+            StageSeparationConfiguration config = rocket.getStage(stageNr).getSeparationConfigurations().get(id);
+            if (separationDelay != null) {
+                config.setSeparationDelay(separationDelay);
+            }
         }
 
         private MotorMount getMotorMountForStage(int stage) {

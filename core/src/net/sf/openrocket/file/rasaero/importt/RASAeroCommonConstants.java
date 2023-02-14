@@ -118,8 +118,7 @@ public class RASAeroCommonConstants {
     public static final String BOOSTER1_IGNITION_DELAY = "Booster1IgnitionDelay";
     public static final String INCLUDE_BOOSTER1 = "IncludeBooster1";
     public static final String BOOSTER2_ENGINE = "Booster2Engine";
-    public static final String BOOSTER2_SEPARATION_DELAY = "Booster2SeparationDelay";       // Delay after booster burnout to separate
-    public static final String BOOSTER2_IGNITION_DELAY = "Booster2IgnitionDelay";
+    public static final String BOOSTER2_SEPARATION_DELAY = "Booster2Delay";       // Delay after booster burnout to separate
     public static final String INCLUDE_BOOSTER2 = "IncludeBooster2";
 
 
