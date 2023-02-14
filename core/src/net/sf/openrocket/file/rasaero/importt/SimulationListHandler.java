@@ -133,7 +133,7 @@ public class SimulationListHandler extends AbstractElementHandler {
                 addMotorToStage(2, booster2Engine, 0.0, id, warnings);
             }
 
-            // Set separation delays
+            // Set separation settings
             setSeparationDelay(0, 0.0, id);
             if (includeBooster1) {
                 setSeparationDelay(1, booster1SeparationDelay, id);
@@ -173,6 +173,7 @@ public class SimulationListHandler extends AbstractElementHandler {
             if (separationDelay != null) {
                 config.setSeparationDelay(separationDelay);
             }
+            config.setSeparationEvent(StageSeparationConfiguration.SeparationEvent.BURNOUT);
         }
 
         /**
