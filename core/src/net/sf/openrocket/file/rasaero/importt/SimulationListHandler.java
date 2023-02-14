@@ -119,6 +119,10 @@ public class SimulationListHandler extends AbstractElementHandler {
         public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
             FlightConfigurationId id = new FlightConfigurationId();
             rocket.createFlightConfiguration(id);
+            // Select if this is the first config
+            if (rocket.getSelectedConfiguration().getId().equals(FlightConfigurationId.DEFAULT_VALUE_FCID)) {
+                rocket.setSelectedConfiguration(id);
+            }
 
             // Add motors to the rocket
             addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, id, warnings);
@@ -171,6 +175,11 @@ public class SimulationListHandler extends AbstractElementHandler {
             }
         }
 
+        /**
+         * Returns the furthest back motor mount in the stage.
+         * @param stage stage number
+         * @return furthest back motor mount of the stage
+         */
         private MotorMount getMotorMountForStage(int stage) {
             MotorMount mount = null;
             for (RocketComponent component : rocket.getStage(stage)) {
