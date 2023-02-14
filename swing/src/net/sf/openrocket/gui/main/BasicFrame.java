@@ -84,6 +84,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -774,6 +775,19 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Guided tours selected");
 				GuidedTourSelectionDialog.showDialog(parent);
+			}
+		});
+		menu.add(item);
+
+		////	Wiki (Online Help)
+		item = new JMenuItem(trans.get("main.menu.help.wiki"));
+		item.setIcon(Icons.WIKI);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.wiki.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Wiki selected");
+				URLUtil.openWebpage(URLUtil.WIKI_URL);
 			}
 		});
 		menu.add(item);
