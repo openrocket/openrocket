@@ -320,6 +320,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
+		if (MathUtil.equals(this.instanceSeparation, _separation)) {
+			return;
+		}
 		this.instanceSeparation = _separation;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
@@ -332,9 +335,10 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
+		if (newCount == this.instanceCount || newCount <= 0) {
+			return;
 		}
+		this.instanceCount = newCount;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
