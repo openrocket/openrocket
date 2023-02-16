@@ -156,7 +156,11 @@ public class TextUtil {
 	 * 
 	 * The result is both valid XML and HTML 2.0.  The majority of characters are left unchanged.
 	 */
-	public static String escapeXML(String s) {
+	public static String escapeXML(Object obj) {
+		if (obj == null) {
+			return "";
+		}
+		String s = obj.toString();
 		StringBuilder sb = new StringBuilder(s.length());
 		
 		for (int i = 0; i < s.length(); i++) {

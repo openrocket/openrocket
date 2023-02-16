@@ -627,7 +627,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private void writeElement(String element, Object content) throws IOException {
 		if (content == null)
 			content = "";
-		writeln("<" + element + ">" + content + "</" + element + ">");
+		writeln("<" + element + ">" + TextUtil.escapeXML(content) + "</" + element + ">");
 	}
 	
 	
