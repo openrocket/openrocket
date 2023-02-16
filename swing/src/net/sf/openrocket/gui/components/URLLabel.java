@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.gui.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,12 +61,9 @@ public class URLLabel extends SelectableLabel {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					Desktop d = Desktop.getDesktop();
 					try {
-						d.browse(new URI(url));
-					} catch (URISyntaxException e1) {
-						throw new BugException("Illegal URL: " + url, e1);
-					} catch (IOException e1) {
+						URLUtil.openWebpage(url);
+					} catch (Exception e1) {
 						log.error("Unable to launch browser: " + e1.getMessage(), e1);
 					}
 				}

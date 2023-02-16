@@ -84,6 +84,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -751,6 +752,15 @@ public class BasicFrame extends JFrame {
 		}
 
 		////	Help
+		generateHelpMenu(menubar, this);
+
+		this.setJMenuBar(menubar);
+	}
+
+	public static void generateHelpMenu(JMenuBar menubar, JFrame parent) {
+		JMenu menu;
+		JMenuItem item;
+
 		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
@@ -764,7 +774,20 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Guided tours selected");
-				GuidedTourSelectionDialog.showDialog(BasicFrame.this);
+				GuidedTourSelectionDialog.showDialog(parent);
+			}
+		});
+		menu.add(item);
+
+		////	Wiki (Online Help)
+		item = new JMenuItem(trans.get("main.menu.help.wiki"));
+		item.setIcon(Icons.WIKI);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.wiki.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Wiki selected");
+				URLUtil.openWebpage(URLUtil.WIKI_URL);
 			}
 		});
 		menu.add(item);
@@ -779,7 +802,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Bug report selected");
-				BugReportDialog.showBugReportDialog(BasicFrame.this);
+				BugReportDialog.showBugReportDialog(parent);
 			}
 		});
 		menu.add(item);
@@ -793,7 +816,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Debug log selected");
-				new DebugLogDialog(BasicFrame.this).setVisible(true);
+				new DebugLogDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
@@ -808,7 +831,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "License selected");
-				new LicenseDialog(BasicFrame.this).setVisible(true);
+				new LicenseDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
@@ -821,12 +844,10 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "About selected");
-				new AboutDialog(BasicFrame.this).setVisible(true);
+				new AboutDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
-
-		this.setJMenuBar(menubar);
 	}
 
 	public RocketActions getRocketActions() {

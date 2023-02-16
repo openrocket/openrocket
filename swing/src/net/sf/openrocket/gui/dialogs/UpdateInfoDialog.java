@@ -33,6 +33,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -94,9 +95,8 @@ public class UpdateInfoDialog extends JDialog {
 				  @Override
 				  public void hyperlinkUpdate(HyperlinkEvent e) {
 					  if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-						  Desktop desktop = Desktop.getDesktop();
 						  try {
-							  desktop.browse(e.getURL().toURI());
+							  URLUtil.openWebpage(e.getURL().toURI());
 						  } catch (Exception ex) {
 							  log.warn("Exception hyperlink: " + ex.getMessage());
 						  }
@@ -180,9 +180,8 @@ public class UpdateInfoDialog extends JDialog {
 				String url = AssetHandler.getInstallerURLForPlatform((UpdatePlatform) comboBox.getSelectedItem(),
 						release.getReleaseName());
 				if (url == null) return;
-				Desktop desktop = Desktop.getDesktop();
 				try {
-					desktop.browse(new URI(url));
+					URLUtil.openWebpage(url);
 				} catch (Exception ex) {
 					log.warn("Exception install link: " + ex.getMessage());
 				}
