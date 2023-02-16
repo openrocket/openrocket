@@ -125,10 +125,17 @@ public class RocketFigure extends AbstractScaleFigure {
 		updateFigure();
         fireChangeEvent();
 	}
-	
+
+	public double getRotation(boolean applyTopViewOffset) {
+		if (applyTopViewOffset && currentViewType == RocketPanel.VIEW_TYPE.TopView) {
+			return this.rotation - Math.PI/2;
+		} else {
+			return this.rotation;
+		}
+	}
 	
 	public double getRotation() {
-		return rotation;
+		return getRotation(false);
 	}
 	
 	public void setRotation(double rot) {
@@ -142,7 +149,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 	private Transformation getFigureRotation() {
 		if (currentViewType == RocketPanel.VIEW_TYPE.TopView) {
-			return this.axialRotation.applyTransformation(Transformation.rotate_x(-Math.PI / 2));
+			return this.axialRotation.applyTransformation(Transformation.rotate_x(-Math.PI/2));
 		} else {
 			return this.axialRotation;
 		}
@@ -299,10 +306,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			Coordinate[] mountLocations = mount.getLocations();
 
 			double mountLength = mountComponent.getLength();
-//			System.err.println("Drawing Motor: "+motor.getDesignation()+" (x"+mountLocations.length+")");
 			for (Coordinate curMountLocation : mountLocations) {
 				Coordinate curMotorLocation = curMountLocation.add(mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
-//		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
 
 				// rotate by figure's axial rotation:
 				curMotorLocation = getFigureRotation().transform(curMotorLocation);

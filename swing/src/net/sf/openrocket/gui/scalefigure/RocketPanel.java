@@ -732,7 +732,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		double cgy = Double.NaN;
 		double cpx = Double.NaN;
 		double cpy = Double.NaN;
-		final double rotation = rotationModel.getValue();
+		final double rotation = figure.getRotation(true);
 
 		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
