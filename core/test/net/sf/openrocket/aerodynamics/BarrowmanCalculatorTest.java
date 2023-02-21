@@ -469,7 +469,6 @@ public class BarrowmanCalculatorTest {
 		final FlightConfiguration testConfig = testRocket.getSelectedConfiguration();
 		final FlightConditions testConditions = new FlightConditions(testConfig);
 		
-		TestRockets.dumpRocket(testRocket, "/home/joseph/rockets/openrocket/git/openrocket/work/testrocket.ork");
 		final BarrowmanCalculator testCalc = new BarrowmanCalculator();
 		double testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
 		final AerodynamicForces testForces = testCalc.getAerodynamicForces(testConfig, testConditions, warnings);
@@ -487,8 +486,15 @@ public class BarrowmanCalculatorTest {
 
 		// move the pod forward.
 		warnings.clear();
-		pod.setAxialOffset(pod.getAxialOffset() - 0.2);
-		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;		
+		pod.setAxialOffset(pod.getAxialOffset() - 0.3);
+		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
+		assertFalse("should be warning from airframe overlap", warnings.isEmpty());
+
+		// move the pod back.
+		warnings.clear();
+		pod.setAxialOffset(pod.getAxialOffset() + 0.1);
+		TestRockets.dumpRocket(testRocket, "/Users/SiboVanGool/Downloads/sfs/test.ork");
+		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
 		assertFalse("should be warning from airframe overlap", warnings.isEmpty());
 	}
 		
