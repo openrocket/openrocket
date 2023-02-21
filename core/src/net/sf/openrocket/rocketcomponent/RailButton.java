@@ -51,7 +51,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 	private double radialDistance_m=0;
 	protected static final AngleMethod angleMethod = AngleMethod.RELATIVE;
-	private double angle_rad = Math.PI;
+	private double angleOffsetRad = Math.PI;
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
@@ -210,7 +210,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	@Override
 	public double getAngleOffset(){
-		return angle_rad;
+		return angleOffsetRad;
 	}
 	
 	@Override
@@ -234,9 +234,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
 		
-		if (MathUtil.equals(this.angle_rad, clamped_rad))
+		if (MathUtil.equals(this.angleOffsetRad, clamped_rad))
 			return;
-		this.angle_rad = clamped_rad;
+		this.angleOffsetRad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
@@ -265,8 +265,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double yOffset = Math.cos(this.angle_rad) * ( this.radialDistance_m );
-		final double zOffset = Math.sin(this.angle_rad) * ( this.radialDistance_m );
+		final double yOffset = Math.cos(this.angleOffsetRad) * ( this.radialDistance_m );
+		final double zOffset = Math.sin(this.angleOffsetRad) * ( this.radialDistance_m );
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
 			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
@@ -384,13 +384,14 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
+
+		final double CMx = (instanceSeparation * (instanceCount-1)) / 2;
+		final double CMy = Math.cos(this.angleOffsetRad)*heightCM;
+		final double CMz = Math.sin(this.angleOffsetRad)*heightCM;
 		
-		final double CMy = Math.cos(this.angle_rad)*heightCM;
-		final double CMz = Math.sin(this.angle_rad)*heightCM;
-		
-		return new Coordinate( 0, CMy, CMz, getComponentMass());
+		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}
-	
+
 	@Override
 	public String getComponentName() {
 		return trans.get("RailButton.RailButton");
