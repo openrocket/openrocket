@@ -482,20 +482,19 @@ public class BarrowmanCalculatorTest {
 		// move the pod back.
 		pod.setAxialOffset(pod.getAxialOffset() + 0.1);
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
-		assertFalse("should be warning from gap in airframe", warnings.isEmpty());
+		assertEquals("should be warning from gap in airframe", 1, warnings.size());
 
 		// move the pod forward.
 		warnings.clear();
 		pod.setAxialOffset(pod.getAxialOffset() - 0.3);
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
-		assertFalse("should be warning from airframe overlap", warnings.isEmpty());
+		assertEquals("should be warning from airframe overlap", 1, warnings.size());
 
 		// move the pod back.
 		warnings.clear();
 		pod.setAxialOffset(pod.getAxialOffset() + 0.1);
-		TestRockets.dumpRocket(testRocket, "/Users/SiboVanGool/Downloads/sfs/test.ork");
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
-		assertFalse("should be warning from airframe overlap", warnings.isEmpty());
+		assertEquals("should be warning from podset airframe overlap", 1, warnings.size());
 	}
 		
 }
