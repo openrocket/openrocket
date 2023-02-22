@@ -40,6 +40,10 @@ public class TransitionHandler extends BaseHandler<Transition> {
         this.transition.setShapeType(Transition.Shape.CONICAL);      // RASAero only supports conical transitions
     }
 
+    public TransitionHandler(DocumentLoadingContext context) {
+        super(context);
+    }
+
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
         return PlainTextHandler.INSTANCE;
