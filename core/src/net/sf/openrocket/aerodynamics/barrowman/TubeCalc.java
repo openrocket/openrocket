@@ -22,11 +22,12 @@ public abstract class TubeCalc extends RocketComponentCalc {
 	protected final double innerArea;
 	private final double totalArea;
 	private final double frontalArea;
+	private final Tube tube;
 	
 	public TubeCalc(RocketComponent component) {
 		super(component);
 
-		Tube tube = (Tube)component;
+		tube = (Tube)component;
 		
 		length = tube.getLength();
 		diameter = 2 * tube.getInnerRadius();
@@ -55,32 +56,41 @@ public abstract class TubeCalc extends RocketComponentCalc {
 
 		// Need to check for tube inner area 0 in case of rockets using launch lugs with
 		// an inner radius of 0 to emulate rail buttons (or just weird rockets, of course)
+
 		double deltap;
 		if (innerArea > MathUtil.EPSILON) {
-			// Temperature
+			// Temperature and Pressure
 			final double T = conditions.getAtmosphericConditions().getTemperature();
+			final double P = conditions.getAtmosphericConditions().getPressure();
 			
 			// Volume flow rate (t)
 			final double Q = conditions.getVelocity() * innerArea;
+
+			// Air viscosity
+			final double mu = conditions.getAtmosphericConditions().getKinematicViscosity();
+
+			// Air density
+			final double rho = 1.225; // at standard temperature and pressure
 			
 			// Reynolds number (note Reynolds number for the interior of a pipe is based on diameter,
 			// not length (t))
-			final double Re = conditions.getVelocity() * diameter /
-				conditions.getAtmosphericConditions().getKinematicViscosity();
+			final double Re = (4.0 * rho * Q) / (Math.PI * diameter * mu);
 			
 			// friction coefficient (for smooth tube interior) (e)
 			final double lambda = 1/MathUtil.pow2(2 * Math.log(0.5625 * Math.pow(Re, 0.875)) - 0.8);
 			
 			// pressure drop (e)
-			final double P0 = 100; // standard pressure
+			final double P0 = 101325; // standard pressure
 			final double T0 = 273.15; // standard temperature
-			deltap = (lambda * 8 * length * rho * MathUtil.pow2(Q) * T * P0) /
-				(MathUtil.pow2(Math.PI) * Math.pow(diameter, 5) * T0 * conditions.getAtmosphericConditions().getPressure());
+			deltap = ((lambda * 8 * length * rho * MathUtil.pow2(Q)) / (MathUtil.pow2(Math.PI) * Math.pow(diameter, 5)) * (T/T0) * (P0/P));
 		} else {
 			deltap = 0.0;
 		}
 		   
 		// convert to CD and return
-		return (deltap * innerArea + 0.7 * stagnationCD * frontalArea) / conditions.getRefArea();
+		final double cdpress = 2.0 * deltap / (conditions.getAtmosphericConditions().getDensity() * MathUtil.pow2(conditions.getVelocity()));
+		final double cd =   (cdpress * innerArea + 0.43*(stagnationCD + baseCD) * frontalArea)/conditions.getRefArea();
+		
+		return cd;
 	}
 }
