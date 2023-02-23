@@ -92,12 +92,6 @@ class FlightDataHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
 
-		// If no <databranch> tag in XML, then there is no sim data
-		if (dataHandler == null) {
-			data = null;
-			return;
-		}
-
 		if (branches.size() > 0) {
 			data = new FlightData(branches.toArray(new FlightDataBranch[0]));
 		} else {
