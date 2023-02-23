@@ -2,10 +2,8 @@ package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
-import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import net.sf.openrocket.util.TestRockets;
