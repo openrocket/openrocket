@@ -146,40 +146,22 @@ public class Simulation implements ChangeSource, Cloneable {
 		if (options == null)
 			throw new IllegalArgumentException("options cannot be null");
 
-		this.document = document;
 		this.rocket = rocket;
-
-		if (status == Status.UPTODATE) {
-			this.status = Status.LOADED;
-		} else if (data == null) {
-			this.status = Status.NOT_SIMULATED;
-		} else {
-			this.status = status;
-		}
-		
 		this.name = name;
-		
+		this.status = status;
+		this.simulatedConditions = options.clone();
+		this.simulatedData = data;
+		this.document = document;
+		addChangeListener(this.document);
+			
 		this.options = options;
-
+		this.options.addChangeListener(new ConditionListener());
+		
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		this.setFlightConfigurationId(config.getFlightConfigurationID());
-				
-		options.addChangeListener(new ConditionListener());
-		addChangeListener(document);
-		
-		if (extensions != null) {
-			this.simulationExtensions.addAll(extensions);
-		}
-		
-		
-		if (data != null && this.status != Status.NOT_SIMULATED) {
-			simulatedData = data;
-			if (this.status == Status.LOADED) {
-				simulatedConditions = options.clone();
-				simulatedConfigurationID = config.getModID();
-			}
-		}
-		
+		this.simulatedConfigurationID = config.getModID();
+
+		this.simulationExtensions.addAll(extensions);
 	}
 
 	public FlightConfiguration getActiveConfiguration() {
