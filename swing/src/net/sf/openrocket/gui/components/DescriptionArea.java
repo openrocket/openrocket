@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.components;
 
+import net.sf.openrocket.gui.util.URLUtil;
+
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -143,7 +145,7 @@ public class DescriptionArea extends JScrollPane {
 						}
 						
 						try {	
-							Desktop.getDesktop().browse(uri);
+							URLUtil.openWebpage(uri);
 						}
 						catch (Exception ex) {
 							throw new RuntimeException(ex);

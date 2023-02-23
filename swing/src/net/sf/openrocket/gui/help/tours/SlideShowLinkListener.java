@@ -9,6 +9,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
+import net.sf.openrocket.gui.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +36,9 @@ public class SlideShowLinkListener implements HyperlinkListener {
 		
 		URL url = event.getURL();
 		if (url != null && (url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equals("https"))) {
-			
-			if (Desktop.isDesktopSupported()) {
-				try {
-					Desktop.getDesktop().browse(url.toURI());
-				} catch (Exception e) {
-					// Ignore
-				}
+			try {
+				URLUtil.openWebpage(url.toURI());
+			} catch (Exception ignore) {
 			}
 			
 		} else {
