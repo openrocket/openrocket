@@ -2,7 +2,6 @@ package net.sf.openrocket.file.rasaero.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -15,15 +14,15 @@ import org.xml.sax.SAXException;
 import java.util.HashMap;
 
 /**
- * A handler for the boat tail element RASAero.
- * A boat tail is just an OpenRocket transition, but because it can be recessed in next symmetric components
- * (e.g. a body tube), we will add the boat tail using an inline pod set to the previous component.
+ * A handler for the boattail element RASAero.
+ * A boattail is just an OpenRocket transition, but because it can be recessed in next symmetric components
+ * (e.g. a body tube), we will add the boattail using an inline pod set to the previous component.
  * In case the previous component is a nose cone, we will first add a phantom body tube and then add the pod to
  * that body tube. I know, not the most elegant solution, but it grants us the best cross-compatibility with RASAero.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class BoatTailHandler extends TransitionHandler {
+public class BoattailHandler extends TransitionHandler {
 
     /**
      * Constructor
@@ -33,47 +32,47 @@ public class BoatTailHandler extends TransitionHandler {
      * @param warnings warning set to add import warnings to
      * @throws IllegalArgumentException if the parent component is null
      */
-    public BoatTailHandler(DocumentLoadingContext context, RocketComponent parent, WarningSet warnings) throws IllegalArgumentException {
+    public BoattailHandler(DocumentLoadingContext context, RocketComponent parent, WarningSet warnings) throws IllegalArgumentException {
         super(context);
 
         if (parent == null) {
-            throw new IllegalArgumentException("The parent component of a boat tail may not be null.");
+            throw new IllegalArgumentException("The parent component of a boattail may not be null.");
         }
         if (parent.getChildCount() == 0) {
-            throw new IllegalArgumentException("The parent component of a boat tail must have at least one child.");
+            throw new IllegalArgumentException("The parent component of a boattail must have at least one child.");
         }
 
-        // Pod to add the boat tail to
+        // Pod to add the boattail to
         PodSet pod = new PodSet();
         pod.setInstanceCount(1);
         pod.setRadius(RadiusMethod.FREE, 0);
-        pod.setName("Boat tail pod");
-        pod.setComment("Because boat tails in RASAero can be recessed, we will add the boat tail using an inline pod set to the previous component.");
+        pod.setName("Boattail pod");
+        pod.setComment("Because boattails in RASAero can be recessed, we will add the boattail using an inline pod set to the previous component.");
 
         // Add the pod to the parent's last child, or to a phantom tube if the last child is a nose cone/transition
         RocketComponent lastChild = parent.getChild(parent.getChildCount() - 1);
         if (lastChild instanceof BodyTube) {
             lastChild.addChild(pod);
-            pod.setAxialMethod(AxialMethod.BOTTOM);
-            pod.setAxialOffset(0);
+            pod.setAxialMethod(AxialMethod.TOP);
+            pod.setAxialOffset(lastChild.getLength());
         } else if (lastChild instanceof Transition) {
             BodyTube phantomBodyTube = new BodyTube();
             phantomBodyTube.setLength(0);
             phantomBodyTube.setOuterRadiusAutomatic(true);
-            phantomBodyTube.setName("Boat tail phantom tube");
+            phantomBodyTube.setName("Boattail phantom tube");
             ColorHandler.applyRASAeroColor(phantomBodyTube, null);  // Set the color to the default RASAero color
             parent.addChild(phantomBodyTube);
             phantomBodyTube.addChild(pod);
             pod.setAxialMethod(AxialMethod.TOP);
             pod.setAxialOffset(0);
         } else {
-            throw new IllegalArgumentException("Cannot add boat tail after component of type " + parent.getClass().getName());
+            throw new IllegalArgumentException("Cannot add boattail after component of type " + parent.getClass().getName());
         }
 
         pod.addChild(this.transition);
         this.transition.setAftRadiusAutomatic(false);
-        this.transition.setShapeType(Transition.Shape.CONICAL);      // RASAero only supports conical boat tails
-        this.transition.setName("Boat tail");
+        this.transition.setShapeType(Transition.Shape.CONICAL);      // RASAero only supports conical boattails
+        this.transition.setName("Boattail");
     }
 
     @Override

@@ -179,7 +179,7 @@ public class RASAeroHandler extends AbstractElementHandler {
             }
             // BoatTail
             else if (RASAeroCommonConstants.BOATTAIL.equals(element)) {
-                return new BoatTailHandler(context, component, warnings);
+                return new BoattailHandler(context, component, warnings);
             }
 
             // Surface finish
