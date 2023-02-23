@@ -70,8 +70,9 @@ public class RenameConfigDialog extends JDialog {
 
 		// {motors} & {manufacturers} info
 		String text = "<html>" + CommonStrings.dagger + " " + trans.get("RenameConfigDialog.lbl.infoMotors")
-				+ "<br>  " + trans.get("RenameConfigDialog.lbl.infoManufacturers");
-		StyledLabel info = new StyledLabel(text, -1);
+				+ trans.get("RenameConfigDialog.lbl.infoManufacturers")
+				+ trans.get("RenameConfigDialog.lbl.infoCombination");
+		StyledLabel info = new StyledLabel(text, -2);
 		info.setFontColor(Color.DARK_GRAY);
 		panel.add(info, "spanx, growx, wrap");
 		
