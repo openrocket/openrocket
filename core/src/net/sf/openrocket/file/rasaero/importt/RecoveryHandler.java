@@ -11,6 +11,7 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import org.xml.sax.SAXException;
 
@@ -239,11 +240,18 @@ public class RecoveryHandler extends AbstractElementHandler {
         } else {
             // If there are multiple stages, add the recovery device to the first booster
             AxialStage booster1 = rocket.getStage(1);
-            if (booster1.getChildCount() < 1 || !(booster1.getChild(0) instanceof BodyTube)) {
+            BodyTube boosterTube = null;
+            for (int i = 0; i < booster1.getChildCount(); i++) {
+                if (booster1.getChild(i) instanceof BodyTube) {
+                    boosterTube = (BodyTube) booster1.getChild(i);
+                    break;
+                }
+            }
+            if (boosterTube == null) {
                 warnings.add("No booster body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
                 return;
             }
-            bodyTube = (BodyTube) booster1.getChild(0);
+            bodyTube = boosterTube;
             offset = bodyTube.getOuterRadius() * 1.125;
         }
 
