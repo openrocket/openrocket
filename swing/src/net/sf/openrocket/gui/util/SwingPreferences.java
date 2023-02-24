@@ -362,23 +362,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		// TODO: MEDIUM:  Motor fill color (settable?)
 		return new Color(0, 0, 0, 100);
 	}
-
-
-	/**
-	 * Check whether to display the common name (false), or designation (true) in the motor selection table "Name" column
-	 * @return true to display designation, false to display common name
-	 */
-	public boolean getMotorNameColumn() {
-		return getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, true);
-	}
-
-	/**
-	 * Set whether to display the common name, or designation in the motor selection table "Name" column
-	 * @param value if true, display designation, if false, display common name
-	 */
-	public void setMotorNameColumn(boolean value) {
-		putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, value);
-	}
 	
 	
 	public static int getMaxThreadCount() {

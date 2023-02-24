@@ -248,6 +248,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
+					curveSelectionBox.revalidate();
+					curveSelectionBox.repaint();
 				}
 			});
 			designation.addActionListener(new ActionListener() {
@@ -259,6 +261,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
+					curveSelectionBox.revalidate();
+					curveSelectionBox.repaint();
 				}
 			});
 
