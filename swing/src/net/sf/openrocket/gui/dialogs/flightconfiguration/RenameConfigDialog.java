@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -12,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
@@ -28,7 +31,7 @@ public class RenameConfigDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name")), "span, wrap rel");
+		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name") + " " + CommonStrings.dagger), "span, wrap rel");
 		
 		final JTextField textbox = new JTextField(rocket.getFlightConfiguration(fcid).getNameRaw());
 		panel.add(textbox, "span, w 200lp, growx, wrap para");
@@ -63,7 +66,15 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(cancel);
+		panel.add(cancel, "wrap para");
+
+		// {motors} & {manufacturers} info
+		String text = "<html>" + CommonStrings.dagger + " " + trans.get("RenameConfigDialog.lbl.infoMotors")
+				+ trans.get("RenameConfigDialog.lbl.infoManufacturers")
+				+ trans.get("RenameConfigDialog.lbl.infoCombination");
+		StyledLabel info = new StyledLabel(text, -2);
+		info.setFontColor(Color.DARK_GRAY);
+		panel.add(info, "spanx, growx, wrap");
 		
 		this.add(panel);
 		
