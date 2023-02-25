@@ -59,6 +59,7 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel burnTimeLabel;
 	private final JLabel launchMassLabel;
 	private final JLabel emptyMassLabel;
+	private final JLabel motorTypeLabel;
 	private final JLabel caseInfoLabel;
 	private final JLabel propInfoLabel;
 	private final JLabel dataPointsLabel;
@@ -116,6 +117,11 @@ class MotorInformationPanel extends JPanel {
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Emptymass")));
 			emptyMassLabel = new JLabel();
 			this.add(emptyMassLabel, "wrap");
+
+			//// Motor type
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Motortype")));
+			motorTypeLabel = new JLabel();
+			this.add(motorTypeLabel, "wrap");
 
 			//// case info:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Caseinfo")));
@@ -239,6 +245,7 @@ class MotorInformationPanel extends JPanel {
 		burnTimeLabel.setText("");
 		launchMassLabel.setText("");
 		emptyMassLabel.setText("");
+		motorTypeLabel.setText("");
 		caseInfoLabel.setText("");
 		propInfoLabel.setText("");
 		compatibleCasesLabel.setText("");
@@ -279,6 +286,7 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getLaunchMass()));
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 				selectedMotor.getBurnoutMass()));
+		motorTypeLabel.setText(selectedMotor.getMotorType().getName());
 		caseInfoLabel.setText(selectedMotor.getCaseInfo());
 		propInfoLabel.setText(selectedMotor.getPropellantInfo());
 		compatibleCasesLabel.setText("<html>" + StringUtils.join(", ",selectedMotor.getCompatibleCases()) + "<html>");
