@@ -169,6 +169,9 @@ public class SimulationListHandler extends AbstractElementHandler {
 
         private void setSeparationDelay(final int stageNr, Double separationDelay,
                                         final FlightConfigurationId id) {
+            if (rocket.getStage(stageNr) == null) {
+                return;
+            }
             StageSeparationConfiguration config = rocket.getStage(stageNr).getSeparationConfigurations().get(id);
             if (separationDelay != null) {
                 config.setSeparationDelay(separationDelay);
