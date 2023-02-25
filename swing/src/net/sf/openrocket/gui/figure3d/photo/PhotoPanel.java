@@ -1,7 +1,9 @@
 package net.sf.openrocket.gui.figure3d.photo;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
@@ -169,10 +171,12 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					Preferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
+				((GLJPanel) canvas).setOpaque(false);
 			} else {
 				log.trace("GL - Creating GLCanvas");
 				canvas = new GLCanvas(caps);
 			}
+			canvas.setBackground(new java.awt.Color(0, 0, 0, 0));
 
 			((GLAutoDrawable) canvas).addGLEventListener(this);
 			this.add(canvas, BorderLayout.CENTER);
@@ -277,7 +281,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 		if (!imageCallbacks.isEmpty()) {
 			BufferedImage i = (new AWTGLReadBufferUtil(
-					GLProfile.get(GLProfile.GL2), false))
+					GLProfile.get(GLProfile.GL2), true)) // Set the second parameter to true
 					.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
 							drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
 			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
@@ -298,10 +302,12 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			out[0] = 1;
 			out[1] = 1;
 			out[2] = 0;
+			out[3] = 1;
 		} else {
 			out[0] = (float) color.getRed() / 255f;
 			out[1] = (float) color.getGreen() / 255f;
 			out[2] = (float) color.getBlue() / 255f;
+			out[3] = (float) color.getAlpha() / 255f;
 		}
 	}
 
@@ -309,7 +315,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
-		float[] color = new float[3];
+		float[] color = new float[4];
 
 		gl.glEnable(GL.GL_MULTISAMPLE);
 
@@ -334,7 +340,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				0);
 
 		convertColor(p.getSkyColor(), color);
-		gl.glClearColor(color[0], color[1], color[2], 1);
+		gl.glClearColor(color[0], color[1], color[2], color[3]);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
