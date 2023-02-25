@@ -152,7 +152,7 @@ public class SimulationListHandler extends AbstractElementHandler {
 
         private void addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
                                      final FlightConfigurationId id, final WarningSet warnings) {
-            if (motor == null) {
+            if (motor == null || rocket.getStage(stageNr) == null) {
                 return;
             }
             MotorMount mount = getMotorMountForStage(stageNr);
