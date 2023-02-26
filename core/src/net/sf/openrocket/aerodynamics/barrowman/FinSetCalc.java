@@ -84,6 +84,8 @@ public class FinSetCalc extends RocketComponentCalc {
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		
+		warnings.addAll(geometryWarnings);
+		
 		if (span < 0.001) {
 			forces.setCm(0);
 			forces.setCN(0);
@@ -96,12 +98,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			forces.setCyaw(0);
 			return;
 		}
-
-		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
-			// Add warnings  (radius/2 == diameter/4)
-			warnings.add(Warning.THICK_FIN);
-		}
-		warnings.addAll(geometryWarnings);
 		
 		//////// Calculate CNa.  /////////
 		
@@ -241,17 +237,26 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		Coordinate[] points = component.getFinPoints();
 		
-		// Check for jagged edges
+		// Check geometry
 		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
 			if ((points[i].y > points[i - 1].y + 0.001) && down) {
-				geometryWarnings.add(Warning.JAGGED_EDGED_FIN);
+				geometryWarnings.add(Warning.JAGGED_EDGED_FIN, component.toString());
 				break;
 			}
 			if (points[i].y < points[i - 1].y - 0.001) {
 				down = true;
 			}
+		}
+
+		if (finArea < MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.ZERO_AREA_FIN, component.toString());
+		}
+
+		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
+			// Add warnings  (radius/2 == diameter/4)
+			geometryWarnings.add(Warning.THICK_FIN, component.toString());
 		}
 		
 		// Calculate the chord lead and trail positions and length
@@ -365,7 +370,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		macLead *= dy;
 		area *= dy;
 		rollSum *= dy;
-		
 		macLength /= area;
 		macSpan /= area;
 		macLead /= area;
