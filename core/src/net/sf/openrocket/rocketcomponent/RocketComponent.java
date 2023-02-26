@@ -1296,6 +1296,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		return 0;
 	}
+
+	public double getRadiusOffset(RadiusMethod method) {
+		double radius = getRadiusMethod().getRadius(parent, this, getRadiusOffset());
+		return method.getAsOffset(parent, this, radius);
+	}
 	
 	public RadiusMethod getRadiusMethod() {
 		return RadiusMethod.COAXIAL;
@@ -2059,20 +2064,37 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 	/**
-	 * Return all the component assemblies that are a child of this component
-	 * @return list of ComponentAssembly components that are a child of this component
+	 * Return all the component assemblies that are a direct/indirect child of this component
+	 * @return list of ComponentAssembly components that are a direct/indirect child of this component
 	 */
-	public final List<RocketComponent> getChildAssemblies() {
+	public final List<ComponentAssembly> getAllChildAssemblies() {
 		checkState();
 
 		Iterator<RocketComponent> children = iterator(false);
 
-		List<RocketComponent> result = new ArrayList<>();
+		List<ComponentAssembly> result = new ArrayList<>();
 
 		while (children.hasNext()) {
 			RocketComponent child = children.next();
 			if (child instanceof ComponentAssembly) {
-				result.add(child);
+				result.add((ComponentAssembly) child);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return all the component assemblies that are a direct child of this component
+	 * @return list of ComponentAssembly components that are a direct child of this component
+	 */
+	public final List<ComponentAssembly> getDirectChildAssemblies() {
+		checkState();
+
+		List<ComponentAssembly> result = new ArrayList<>();
+
+		for (RocketComponent child : this.getChildren()) {
+			if (child instanceof ComponentAssembly) {
+				result.add((ComponentAssembly) child);
 			}
 		}
 		return result;
