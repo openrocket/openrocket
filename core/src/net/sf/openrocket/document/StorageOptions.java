@@ -9,12 +9,9 @@ public class StorageOptions implements Cloneable {
 		ROCKSIM
 	}
 	
-	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;
-	public static final double SIMULATION_DATA_ALL = 0;
-	
 	private FileType fileType = FileType.OPENROCKET;
 	
-	private double simulationTimeSkip = SIMULATION_DATA_NONE;
+	private boolean saveSimulationData = false;
 
 	private boolean explicitlySet = false;
 	
@@ -26,12 +23,12 @@ public class StorageOptions implements Cloneable {
 		this.fileType = fileType;
 	}
 
-	public double getSimulationTimeSkip() {
-		return simulationTimeSkip;
+	public boolean getSaveSimulationData() {
+		return saveSimulationData;
 	}
 
-	public void setSimulationTimeSkip(double simulationTimeSkip) {
-		this.simulationTimeSkip = simulationTimeSkip;
+	public void setSaveSimulationData(boolean s) {
+		saveSimulationData = s;
 	}
 	
 	public boolean isExplicitlySet() {

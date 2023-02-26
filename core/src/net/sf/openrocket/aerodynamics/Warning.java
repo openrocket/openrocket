@@ -382,6 +382,10 @@ public abstract class Warning {
 	////Jagged-edged fin predictions may be inaccurate.
 	public static final Warning JAGGED_EDGED_FIN = new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
 	
+	/** A <code>Warning</code> that the fins have a zero area. */
+	////Fins with no area will not affect aerodynamics
+	public static final Warning ZERO_AREA_FIN = new Other(trans.get("Warning.ZERO_AREA_FIN"));
+	
 	/** A <code>Warning</code> that simulation listeners have affected the simulation */
 	////Listeners modified the flight simulation
 	public static final Warning LISTENERS_AFFECTED = new Other(trans.get("Warning.LISTENERS_AFFECTED"));
