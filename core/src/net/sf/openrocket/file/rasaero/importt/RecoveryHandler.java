@@ -196,8 +196,6 @@ public class RecoveryHandler extends AbstractElementHandler {
      *      put recovery device 2 in the second body tube (about 1.125 calibers below the top of the second body tube).
      *  3.  If the airframe has three or more body tubes:
      *      put recovery device 2 in the third body tube (about 1.125 calibers below the top of the third body tube).
-     *  4.  If the airframe has one or more boosters (regardless of the number of body tubes in the sustainer):
-     *      put recovery device 2 in the first booster tube (about 1.125 calibers below the top of the first booster tube).
      * @param recoveryDevice the recovery device to add
      * @param warnings the warning set to add import warnings to
      */
@@ -205,54 +203,36 @@ public class RecoveryHandler extends AbstractElementHandler {
         final BodyTube bodyTube;
         double offset;
 
-        if (rocket.getStageCount() == 1) {
-            AxialStage sustainer = rocket.getStage(0);
+        AxialStage sustainer = rocket.getStage(0);
 
-            // Get all body tubes
-            List<BodyTube> bodyTubes = new ArrayList<>();
-            for (int i = 0; i < sustainer.getChildCount(); i++) {
-                if (sustainer.getChild(i) instanceof BodyTube) {
-                    bodyTubes.add((BodyTube) sustainer.getChild(i));
-                }
+        // Get all body tubes
+        List<BodyTube> bodyTubes = new ArrayList<>();
+        for (int i = 0; i < sustainer.getChildCount(); i++) {
+            if (sustainer.getChild(i) instanceof BodyTube) {
+                bodyTubes.add((BodyTube) sustainer.getChild(i));
             }
+        }
 
-            switch (bodyTubes.size()) {
-                case 0:
-                    warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
-                    return;
-                case 1:
-                    // If there is only one body tube, add the recovery device to the first body tube, after recovery device 1
-                    bodyTube = bodyTubes.get(0);
-                    offset = bodyTube.getOuterRadius() * 1.125;
-                    offset += recoveryDevice.getLength() * 1.05;        // = equivalent to adding after recovery device 1
-                    break;
-                case 2:
-                    // If there are two body tubes, add the recovery device to the second body tube
-                    bodyTube = bodyTubes.get(1);
-                    offset = bodyTube.getOuterRadius() * 1.125;
-                    break;
-                default:
-                    // If there are three or more body tubes, add the recovery device to the third body tube
-                    bodyTube = bodyTubes.get(2);
-                    offset = bodyTube.getOuterRadius() * 1.125;
-                    break;
-            }
-        } else {
-            // If there are multiple stages, add the recovery device to the first booster
-            AxialStage booster1 = rocket.getStage(1);
-            BodyTube boosterTube = null;
-            for (int i = 0; i < booster1.getChildCount(); i++) {
-                if (booster1.getChild(i) instanceof BodyTube) {
-                    boosterTube = (BodyTube) booster1.getChild(i);
-                    break;
-                }
-            }
-            if (boosterTube == null) {
-                warnings.add("No booster body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
+        switch (bodyTubes.size()) {
+            case 0:
+                warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
                 return;
-            }
-            bodyTube = boosterTube;
-            offset = bodyTube.getOuterRadius() * 1.125;
+            case 1:
+                // If there is only one body tube, add the recovery device to the first body tube, after recovery device 1
+                bodyTube = bodyTubes.get(0);
+                offset = bodyTube.getOuterRadius() * 1.125;
+                offset += recoveryDevice.getLength() * 1.05;        // = equivalent to adding after recovery device 1
+                break;
+            case 2:
+                // If there are two body tubes, add the recovery device to the second body tube
+                bodyTube = bodyTubes.get(1);
+                offset = bodyTube.getOuterRadius() * 1.125;
+                break;
+            default:
+                // If there are three or more body tubes, add the recovery device to the third body tube
+                bodyTube = bodyTubes.get(2);
+                offset = bodyTube.getOuterRadius() * 1.125;
+                break;
         }
 
         // Add the recovery device to the rocket
