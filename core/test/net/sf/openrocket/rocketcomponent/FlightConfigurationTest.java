@@ -581,9 +581,113 @@ public class FlightConfigurationTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testName() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration selected = rocket.getSelectedConfiguration();
+
+		// Test only motors or only manufacturers
+		selected.setName("[{motors}] - [{manufacturers}]");
+
+		selected.setAllStages();
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0] - [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("[[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("[; M1350-0; ] - [; AeroTech; ]", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("[; M1350-0; 4\u00D7G77-0] - [; AeroTech; 4\u00D7AeroTech]", selected.getName());
+
+
+		// Test combination of motors and manufacturers
+		selected.setName("[{motors  manufacturers}] -- [{manufacturers}] - [{motors}]");
+
+		selected.setAllStages();
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech] - [[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("[[Rocket.motorCount.Nomotor]] -- [[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("[; M1350-0  AeroTech; ] -- [; AeroTech; ] - [; M1350-0; ]", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("[; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [; AeroTech; 4\u00D7AeroTech] - [; M1350-0; 4\u00D7G77-0]", selected.getName());
+
+		// Test combination of manufacturers and motors
+		selected.setName("[{manufacturers | motors}]");
+
+		selected.setAllStages();
+		assertEquals("[[Rocket.motorCount.noStageMotors]; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("[[Rocket.motorCount.Nomotor]]", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("[; AeroTech | M1350-0; ]", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("[; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]", selected.getName());
+
+		// Test empty tags
+		selected.setName("{}");
+
+		selected.setAllStages();
+		assertEquals("{}", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("{}", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("{}", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("{}", selected.getName());
+
+		// Test invalid tags (1)
+		selected.setName("{motorsm}");
+
+		selected.setAllStages();
+		assertEquals("{motorsm}", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("{motorsm}", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("{motorsm}", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("{motorsm}", selected.getName());
+
+		// Test invalid tags (2)
+		selected.setName("{motors manufacturers '}");
+
+		selected.setAllStages();
+		assertEquals("{motors manufacturers '}", selected.getName());
+
+		selected.setOnlyStage(0);
+		assertEquals("{motors manufacturers '}", selected.getName());
+
+		selected.setOnlyStage(1);
+		assertEquals("{motors manufacturers '}", selected.getName());
+
+		selected.setAllStages();
+		selected._setStageActive(0, false);
+		assertEquals("{motors manufacturers '}", selected.getName());
+	}
+
+	@Test
 	public void testCopy() throws NoSuchFieldException, IllegalAccessException {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		FlightConfiguration original = rocket.getSelectedConfiguration();
+		original.setName("[{motors}] - [{manufacturers}]");
 		original.setOnlyStage(0);
 
 		// vvvv Test Target vvvv

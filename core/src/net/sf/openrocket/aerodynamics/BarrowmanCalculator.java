@@ -380,6 +380,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 								}
 								
 							}
+						} else {
+							/*
+							It could be that the component is a child of a PodSet or ParallelStage, and it is flush with
+							the previous component.  In this case, the component is overlapping.
+							 */
+							RocketComponent prevCompParent = prevComp.getParent();
+							RocketComponent compParent = comp.getParent();
+							int prevCompPos = prevCompParent.getChildPosition(prevComp);
+							RocketComponent nextComp = prevCompPos + 1 >= prevCompParent.getChildCount() ?
+									null : prevCompParent.getChild(prevCompPos + 1);
+							if ((compParent instanceof PodSet || compParent instanceof ParallelStage) &&
+									MathUtil.equals(symXfore, prevXaft) && (compParent.getParent() == nextComp)) {
+								warnings.add(Warning.PODSET_OVERLAP, comp.getParent().toString());
+							}
 						}
 					}
 					prevComp = sym;

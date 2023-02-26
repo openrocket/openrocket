@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import net.sf.openrocket.formatting.RocketDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
     private String configurationName;
 	public static String DEFAULT_CONFIG_NAME = "[{motors}]";
+	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	protected final Rocket rocket;
 	protected final FlightConfigurationId fcid;
@@ -566,9 +568,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public String getName() {
 		if (configurationName == null) {
-			return getOneLineMotorDescription();
+			configurationName = DEFAULT_CONFIG_NAME;
 		}
-		return configurationName.replace(DEFAULT_CONFIG_NAME, getOneLineMotorDescription());
+		return descriptor.format(configurationName, rocket, fcid);
 	}
 
 	/**
@@ -581,34 +583,6 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			return DEFAULT_CONFIG_NAME;
 		}
 		return configurationName;
-	}
-	
-	private String getOneLineMotorDescription(){
-		StringBuilder buff = new StringBuilder("[");
-		boolean first = true;
-		int activeMotorCount = 0;
-		for ( RocketComponent comp : getActiveComponents() ){
-			if (( comp instanceof MotorMount )&&( ((MotorMount)comp).isMotorMount())){ 
-				MotorMount mount = (MotorMount)comp;
-				MotorConfiguration motorConfig = mount.getMotorConfig( fcid);
-				
-				if( first ){
-					first = false;
-				}else{
-					buff.append(";");
-				}
-				
-				if( ! motorConfig.isEmpty()){
-					buff.append(motorConfig.toMotorCommonName());
-					++activeMotorCount;
-				}
-			}
-		}
-		if( 0 == activeMotorCount ){
-			return trans.get("noMotors");
-		}
-		buff.append("]");
-		return buff.toString();
 	}
 
 	@Override
@@ -932,7 +906,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 	
 	public String toDebug() {
-		return this.fcid.toDebug()+" (#"+configurationInstanceId+") "+ getOneLineMotorDescription();
+		return this.fcid.toDebug()+" (#"+configurationInstanceId+") "+ getName();
 	}
 	
 	// DEBUG / DEVEL

@@ -10,7 +10,7 @@ public enum RadiusMethod implements DistanceMethod {
 	// just as a reminder:
 	// public T[] getEnumConstants()
 
-	// both components are on the same axis
+	// Same axis as the target component
 	COAXIAL ( Application.getTranslator().get("RocketComponent.Position.Method.Radius.COAXIAL") ){
 		@Override
 		public double getRadius( final RocketComponent parentComponent, final RocketComponent thisComponent, final double requestedOffset ){
@@ -22,7 +22,8 @@ public enum RadiusMethod implements DistanceMethod {
 			return 0;
 		}
 	},
-	
+
+	// Center of the parent component
 	FREE(Application.getTranslator().get("RocketComponent.Position.Method.Radius.FREE") ){
 		@Override
 		public boolean clampToZero() { return false; }
@@ -37,7 +38,8 @@ public enum RadiusMethod implements DistanceMethod {
 			return radius;
 		}
 	},
-	
+
+	// Surface of the parent component
 	RELATIVE ( Application.getTranslator().get("RocketComponent.Position.Method.Radius.RELATIVE") ){
 		@Override
 		public boolean clampToZero() { return false; }

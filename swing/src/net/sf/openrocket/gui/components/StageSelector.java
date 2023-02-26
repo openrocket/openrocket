@@ -14,6 +14,7 @@ import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -40,7 +41,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	private void updateButtons( final FlightConfiguration configuration ) {
 		buttons.clear();
 		this.removeAll();
-		List<RocketComponent> assemblies = configuration.getRocket().getChildAssemblies();
+		List<ComponentAssembly> assemblies = configuration.getRocket().getAllChildAssemblies();
 
 		for (RocketComponent stage : assemblies) {
 			if (!(stage instanceof AxialStage)) continue;
