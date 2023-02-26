@@ -137,7 +137,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
 		
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 		
 		// Save rockets, load, validate
 		for (OpenRocketDocument rocketDoc : rocketDocs) {
@@ -151,7 +151,7 @@ public class OpenRocketSaverTest {
 	public void testSaveStageActiveness() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v108_withDisabledStage();
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 
 		// Save rockets, load, validate
 		File file = saveRocket(rocketDoc, options);
@@ -258,7 +258,7 @@ public class OpenRocketSaverTest {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v104_withSimulationData();
 		
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 		
 		long estimatedSize = saver.estimateFileSize(rocketDoc, options);
 		
