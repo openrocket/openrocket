@@ -86,7 +86,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		warnings.addAll(geometryWarnings);
 		
-		if (span < 0.001) {
+		if (finArea < MathUtil.EPSILON) {
 			forces.setCm(0);
 			forces.setCN(0);
 			forces.setCNa(0);
@@ -618,6 +618,11 @@ public class FinSetCalc extends RocketComponentCalc {
 
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		// a fin with 0 area contributes no drag
+		if (finArea < MathUtil.EPSILON) {
+			return 0.0;
+		}
+		
 		double cd = componentCf * (1 + 2 * thickness / macLength) * 2 * finArea / conditions.getRefArea();
 		return cd;
 	}
@@ -626,6 +631,11 @@ public class FinSetCalc extends RocketComponentCalc {
 	public double calculatePressureCD(FlightConditions conditions,
 									  double stagnationCD, double baseCD, WarningSet warnings) {
 		
+		// a fin with 0 area contributes no drag
+		if (finArea < MathUtil.EPSILON) {
+			return 0.0;
+		}
+
 		double mach = conditions.getMach();
 		double cd = 0;
 		
