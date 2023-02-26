@@ -75,8 +75,8 @@ public class StorageOptionChooser extends JPanel {
 		allButton.addActionListener(actionUpdater);
 		this.add(allButton, "spanx, wrap rel");
 				
-		//// Only primary figures
-		noneButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Onlyprimfig"));
+		//// Only summary data
+		noneButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Onlysummarydata"));
 		//// <html>Store only the values shown in the summary table.<br>
 		//// This results in the smallest files.
 		noneButton.setToolTipText(trans.get("StorageOptChooser.lbl.longC1") +
