@@ -744,6 +744,10 @@ public class SimulationPanel extends JPanel {
 						nullCnt++;
 					}
 				}
+				
+				// current "unstable" will have a populated sim table EXCEPT for the optimum delay column on a restart
+				// after a save.  That means any row that WAS simulated will have exactly one null column in it... so we'll
+				// skip row export for the case where there are MORE than one nulls.  Either way the user should run sims.
 				if (nullCnt > 1) { // ignore rows that have null column fields 1 through 8... 
 					continue;
 				}
