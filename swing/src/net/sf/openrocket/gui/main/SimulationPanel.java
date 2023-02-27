@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -13,7 +14,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -21,6 +29,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,10 +41,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sf.openrocket.gui.widgets.IconButton;
-import net.sf.openrocket.utils.TableRowTraversalPolicy;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,16 +68,18 @@ import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
+import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
@@ -103,6 +114,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
+	private final SimulationAction dumpSimulationTableAction;
 
 	private int[] previousSelection = null;
 
@@ -119,6 +131,7 @@ public class SimulationPanel extends JPanel {
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
+		dumpSimulationTableAction = new DumpSimulationToCSVAction();
 
 		////////  The simulation action buttons ////////
 
@@ -139,7 +152,12 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
-
+		
+		//// Run then Dump simulations
+		JButton dumpButton = new IconButton();
+		RocketActions.tieActionToButton(dumpButton, dumpSimulationTableAction, trans.get("simpanel.but.runsimulations"));
+		
+		
 		//// Delete simulations button
 		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
@@ -174,6 +192,7 @@ public class SimulationPanel extends JPanel {
 		pm.addSeparator();
 		pm.add(runSimulationAction);
 		pm.add(plotSimulationAction);
+		pm.add(dumpSimulationTableAction);
 
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(simulationTable);
@@ -596,6 +615,157 @@ public class SimulationPanel extends JPanel {
 		public void updateEnabledState() {
 			setEnabled(simulationTable.getSelectedRowCount() > 0);
 		}
+	}
+
+	class DumpSimulationToCSVAction extends SimulationAction {
+		private String lastSelectedLocation = "";
+		public DumpSimulationToCSVAction() {
+			putValue(NAME, trans.get("simpanel.pop.export_to_csv"));
+			putValue(SMALL_ICON, Icons.FILE_EXPORT_AS);
+		}
+
+		/**
+		 * Dump data from sim table to file for run simulations
+		 * @param data The csv data as one string block.
+		 * @param csvFile The file to dump the data to.
+		 */
+		private void dumpDataToFile(String data, File csvFile) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				csvFile.createNewFile();
+				bufferedWriter = new BufferedWriter(new FileWriter(csvFile));
+				bufferedWriter.write(data);
+				this.lastSelectedLocation = csvFile.getParent();
+			} catch (FileNotFoundException e) {
+				String msg = e.getMessage();
+				JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
+			} catch (IOException e) {
+				String msg = e.getMessage();
+				JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
+			} finally {
+				if (bufferedWriter != null) {
+					try {
+						bufferedWriter.close();
+					} catch (IOException e) {
+						String msg = e.getMessage();
+						JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
+					}
+				}
+			}
+		}
+
+		private JFileChooser setUpFileChooser() {
+			JFileChooser fch = new JFileChooser();
+
+			// set up to filter for .csv's
+			fch.setFileFilter(new FileFilter() {
+				@Override
+				public boolean accept(File f) {
+					if (f.isDirectory()) {
+						return true;
+					} else {
+						return f.getName().toLowerCase().endsWith(".csv");
+					}
+				}
+
+				@Override
+				public String getDescription() {
+					return ".csv";
+				}
+				
+			});
+
+			// default output csv to same name as "the rocket".
+			String documentFileName = document.getRocket().getName();
+			documentFileName += ".csv";
+			fch.setSelectedFile(new File(documentFileName));
+			String csvFileLocation = System.getProperty("user.dir");
+			if (!lastSelectedLocation.equals("")) {
+				csvFileLocation = lastSelectedLocation;
+			}
+
+			fch.setCurrentDirectory(new File(csvFileLocation));
+			return fch;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			int modelColumnCount = simulationTableModel.getColumnCount();
+			int modelRowCount = simulationTableModel.getRowCount();
+
+			JFileChooser fch = this.setUpFileChooser();
+			Container tableParent = simulationTable.getParent();
+			int selectionStatus = fch.showOpenDialog(tableParent);
+			if (selectionStatus == JFileChooser.CANCEL_OPTION || selectionStatus == JFileChooser.ERROR_OPTION) {
+				return;  // cancel or error... nothing to do here
+			}
+
+			File csvFile = fch.getSelectedFile();
+
+			String csvSimResultString = "";
+			// obtain the column titles for the first row of the csv
+			ArrayList<String> rowColumnElement = new ArrayList<>();
+			for (int j=1; j<modelColumnCount ; j++) {
+				String colName = simulationTable.getColumnName(j);
+				rowColumnElement.add(colName);
+			}
+
+			// ONE difference here is that we'll place any warnings at the last cell in the csv.
+			csvSimResultString = StringUtils.join(rowColumnElement,",") + ", Simulation Warnings";
+
+			String fullOutputResult = csvSimResultString;
+			
+			// get relevant data and create the comma separated data from it.
+			for (int i1 = 0; i1 < modelRowCount; i1++) {
+				// account for sorting... resulting csv file will be in the
+				// same order as shown in the table thanks to this gem.
+				int i = simulationTable.convertRowIndexToModel(i1);
+
+				int nullCnt = 0;
+				rowColumnElement.clear();
+
+				// get the simulation's warning text if any... this bypasses 
+				WarningSet ws = document.getSimulation(i).getSimulatedWarnings();
+				String warningsText = "";
+				for (Warning w : ws) {
+					String warning = w.toString();
+					if (warning != null) {
+						warningsText += w + " "; // TODO - formatting.  inserting a \n does funny things so use " " for now
+					}
+				}
+
+				// piece together the column data for the ith row, skipping any rows with null counts > 0!
+				for (int j=1; j<modelColumnCount ; j++) { // skip first column
+					Object o = simulationTableModel.getValueAt(i, j);
+					if (o != null) {
+						rowColumnElement.add(o.toString());
+					} else {
+						rowColumnElement.add("");
+						nullCnt++;
+					}
+				}
+				if (nullCnt > 1) { // ignore rows that have null column fields 1 through 8... 
+					continue;
+				}
+				
+				// create the column data comma separated string for the ith row...
+				csvSimResultString = StringUtils.join(rowColumnElement, ",");
+
+				// piece together all rows into one big ginourmous string, adding any warnings to the item
+				fullOutputResult += "\n" + csvSimResultString + "," + warningsText;
+			}
+			
+			// dump the string to the file.
+			this.dumpDataToFile(fullOutputResult, csvFile);
+			return;
+		}
+
+		@Override
+		public void updateEnabledState() {
+			// TODO Auto-generated method stub
+			setEnabled(true);
+		}
+		
 	}
 
 	class PlotSimulationAction extends SimulationAction {
