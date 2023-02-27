@@ -113,7 +113,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setFov(double fov) {
-		this.fov = MathUtil.clamp(fov, 1, Math.PI);
+		this.fov = MathUtil.clamp(fov, 0, Math.PI);
 		fireChangeEvent();
 	}
 	
