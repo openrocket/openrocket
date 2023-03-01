@@ -185,7 +185,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 						return;
 					}
 					//// None
-					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.equalsIgnoreCase.None"))) {
+					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.None"))) {
 						selectedDelay = Motor.PLUGGED_DELAY;
 					} else {
 						try {
