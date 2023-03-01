@@ -566,6 +566,17 @@ public class BasicFrame extends JFrame {
 
 		////	END CREATE and implement File > "Encode 3D" menu and submenu
 */
+		//  export sim table...
+		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(trans.get("main.menu.file.table.export_to_csv"));
+		exportSimTableToCSVMenuItem.setIcon(Icons.FILE_EXPORT_AS);
+		menu.add(exportSimTableToCSVMenuItem);
+		exportSimTableToCSVMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportSimulationTableToCSVAction();
+			}
+		});
+		exportSimTableToCSVMenuItem.setEnabled(simulationPanel.isReadyToExportSimTableToCSV());
 		menu.addSeparator();
 
 		////	Close
@@ -1430,7 +1441,10 @@ public class BasicFrame extends JFrame {
 	}
 	//	END ROCKSIM Export Action
 
-
+	public boolean exportSimulationTableToCSVAction() {
+		simulationPanel.runExportSimTableToCSVAction();
+		return false;
+	}
 	/**
 	 * Perform the writing of the design to the given file in RockSim format.
 	 *

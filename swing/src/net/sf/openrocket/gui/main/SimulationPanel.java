@@ -17,10 +17,8 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -45,6 +43,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -724,7 +723,8 @@ public class SimulationPanel extends JPanel {
 				int nullCnt = 0;
 				rowColumnElement.clear();
 
-				// get the simulation's warning text if any... this bypasses 
+				// get the simulation's warning text if any... this bypasses the need to use
+				// the column 0 stuff which is kind of difficult to use!
 				WarningSet ws = document.getSimulation(i).getSimulatedWarnings();
 				String warningsText = "";
 				for (Warning w : ws) {
@@ -738,7 +738,8 @@ public class SimulationPanel extends JPanel {
 				for (int j=1; j<modelColumnCount ; j++) { // skip first column
 					Object o = simulationTableModel.getValueAt(i, j);
 					if (o != null) {
-						rowColumnElement.add(o.toString());
+						String value = o.toString();
+						rowColumnElement.add(StringEscapeUtils.escapeCsv(value));
 					} else {
 						rowColumnElement.add("");
 						nullCnt++;
@@ -766,7 +767,6 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void updateEnabledState() {
-			// TODO Auto-generated method stub
 			setEnabled(true);
 		}
 		
@@ -1191,5 +1191,21 @@ public class SimulationPanel extends JPanel {
 				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
+	}
+
+	public boolean isReadyToExportSimTableToCSV() {
+		// probably belt-n-suspenders to check for row/column count...
+		File documentFile = document.getFile();
+		if (documentFile != null && simulationTableModel != null) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Run the csv export action...
+	 */
+	public void runExportSimTableToCSVAction() {
+		dumpSimulationTableAction.actionPerformed(null);
 	}
 }
