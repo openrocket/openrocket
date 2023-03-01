@@ -179,8 +179,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			delayBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
 					String sel = (String) delayBox.getSelectedItem();
+					if (sel == null) {
+						log.debug("Selected charge delay is null");
+						return;
+					}
 					//// None
 					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.equalsIgnoreCase.None"))) {
 						selectedDelay = Motor.PLUGGED_DELAY;
@@ -663,47 +666,46 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 */
 	private void setDelays(boolean reset) {
 		if (selectedMotor == null) {
-
 			//// None
 			delayBox.setModel(new DefaultComboBoxModel<String>(new String[] { trans.get("TCMotorSelPan.delayBox.None") }));
 			delayBox.setSelectedIndex(0);
-
 		} else {
-
 			List<Double> delays = selectedMotorSet.getDelays();
-			String[] delayStrings = new String[delays.size()];
+			boolean containsPlugged = delays.contains(Motor.PLUGGED_DELAY);
+			int size = delays.size() + (containsPlugged ? 0 : 1);
+			String[] delayStrings = new String[size];
 			double currentDelay = selectedDelay; // Store current setting locally
 
 			for (int i = 0; i < delays.size(); i++) {
 				//// None
 				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.None"));
 			}
+			// We always want the plugged option in the combobox, even if the motor doesn't have it
+			if (!containsPlugged) {
+				delayStrings[delayStrings.length - 1] = trans.get("TCMotorSelPan.delayBox.None");
+			}
 			delayBox.setModel(new DefaultComboBoxModel<String>(delayStrings));
 
 			if (reset) {
-
 				// Find and set the closest value
 				double closest = Double.NaN;
-				for (int i = 0; i < delays.size(); i++) {
+				for (Double delay : delays) {
 					// if-condition to always become true for NaN
-					if (!(Math.abs(delays.get(i) - currentDelay) > Math.abs(closest - currentDelay))) {
-						closest = delays.get(i);
+					if (!(Math.abs(delay - currentDelay) > Math.abs(closest - currentDelay))) {
+						closest = delay;
 					}
 				}
 				if (!Double.isNaN(closest)) {
 					selectedDelay = closest;
-					//// None
 					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.None")));
 				} else {
-					delayBox.setSelectedItem("None");
+					//// None
+					delayBox.setSelectedItem(trans.get("TCMotorSelPan.delayBox.None"));
 				}
 
 			} else {
-
 				selectedDelay = currentDelay;
-				//// None
 				delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(currentDelay, trans.get("TCMotorSelPan.delayBox.None")));
-
 			}
 
 		}
