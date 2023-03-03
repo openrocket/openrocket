@@ -29,6 +29,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -83,6 +84,9 @@ import net.sf.openrocket.utils.TableRowTraversalPolicy;
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
 
+	private static final String SPACE = "SPACE";
+	private static final String TAB = "TAB";
+
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -116,6 +120,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction dumpSimulationTableAction;
 
 	private int[] previousSelection = null;
+	private JMenuItem exportSimTableToCSVMenuItem;
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
@@ -247,6 +252,7 @@ public class SimulationPanel extends JPanel {
 				if ((simulationTable.getSelectedRow() != previousSelectedRow) ||
 						(simulationTable.getSelectedRowCount() != previousSelectedRowCount)) {
 					updateButtonStates();
+					updateMenuStates();
 					previousSelectedRow = simulationTable.getSelectedRow();
 					previousSelectedRowCount = simulationTable.getSelectedRowCount();
 				}
@@ -689,11 +695,29 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			// one down side is that to change this means you have to export and save at least ONCE!
+			// there is no entry in the preferences to set this a-priori and it is default to a comma
+			String fieldSep = Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ",");
+			
+			if (fieldSep.equals(SPACE)) {
+				fieldSep = " ";
+			} else if (fieldSep.equals(TAB)) {
+				fieldSep = "\t";
+			}
+			Container tableParent = simulationTable.getParent();
 			int modelColumnCount = simulationTableModel.getColumnCount();
 			int modelRowCount = simulationTableModel.getRowCount();
+			
+			// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
+			// that this would no longer be needed because if there is no sim table yet, the context menu
+			// won't show up.   But I'm going to leave this in just in case....
+			if (modelRowCount <= 0) {
+				String msg = trans.get("simpanel.dlg.no.simulation.table.rows");
+				JOptionPane.showMessageDialog(tableParent, msg);
+				return;
+			}
 
 			JFileChooser fch = this.setUpFileChooser();
-			Container tableParent = simulationTable.getParent();
 			int selectionStatus = fch.showOpenDialog(tableParent);
 			if (selectionStatus == JFileChooser.CANCEL_OPTION || selectionStatus == JFileChooser.ERROR_OPTION) {
 				return;  // cancel or error... nothing to do here
@@ -710,7 +734,7 @@ public class SimulationPanel extends JPanel {
 			}
 
 			// ONE difference here is that we'll place any warnings at the last cell in the csv.
-			csvSimResultString = StringUtils.join(rowColumnElement,",") + ", Simulation Warnings";
+			csvSimResultString = StringUtils.join(rowColumnElement,fieldSep) + fieldSep + "Simulation Warnings";
 
 			String fullOutputResult = csvSimResultString;
 			
@@ -754,10 +778,10 @@ public class SimulationPanel extends JPanel {
 				}
 				
 				// create the column data comma separated string for the ith row...
-				csvSimResultString = StringUtils.join(rowColumnElement, ",");
+				csvSimResultString = StringUtils.join(rowColumnElement, fieldSep);
 
 				// piece together all rows into one big ginourmous string, adding any warnings to the item
-				fullOutputResult += "\n" + csvSimResultString + "," + warningsText;
+				fullOutputResult += "\n" + csvSimResultString + fieldSep + warningsText;
 			}
 			
 			// dump the string to the file.
@@ -1193,19 +1217,37 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
-	public boolean isReadyToExportSimTableToCSV() {
-		// probably belt-n-suspenders to check for row/column count...
-		File documentFile = document.getFile();
-		if (documentFile != null && simulationTableModel != null) {
+	public boolean isReadyToExportSimTableToCSV(JMenuItem exportSimTableToCSVMenuItem) {
+		// This is the cheapest, dirtiest way I could think of to allow the activation/deactivation
+		// of the export to csv action under the file menu.  With this, we can get activation of the
+		// menu based upon the exitence of the table model PLUS one or more row in the table.
+		if (this.exportSimTableToCSVMenuItem == null && exportSimTableToCSVMenuItem != null) {
+			this.exportSimTableToCSVMenuItem = exportSimTableToCSVMenuItem;
+		}
+		
+		// an example being loaded will have file == null and simulationTableModel != null... likewise a new rocket
+		// will probably be the same... so this is probably belt-and-suspenders
+		if (/*documentFile != null ||*/ (simulationTableModel != null && simulationTableModel.getRowCount() > 0)) {
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * Run the csv export action...
+	 * A menu state updater that is an analog to the button state updater.
 	 */
-	public void runExportSimTableToCSVAction() {
-		dumpSimulationTableAction.actionPerformed(null);
+	private void updateMenuStates() {
+		
+		// update the File->Export simulations table... menu entry
+		this.exportSimTableToCSVMenuItem.setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
+	}
+
+	/**
+	 * Run the csv export action...
+	 * @param e
+	 */
+	public void runExportSimTableToCSVAction(ActionEvent e) {
+
+		dumpSimulationTableAction.actionPerformed(e);
 	}
 }

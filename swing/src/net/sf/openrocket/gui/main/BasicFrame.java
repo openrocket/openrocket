@@ -573,10 +573,10 @@ public class BasicFrame extends JFrame {
 		exportSimTableToCSVMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				exportSimulationTableToCSVAction();
+				exportSimulationTableToCSVAction(e);
 			}
 		});
-		exportSimTableToCSVMenuItem.setEnabled(simulationPanel.isReadyToExportSimTableToCSV());
+		exportSimTableToCSVMenuItem.setEnabled(simulationPanel.isReadyToExportSimTableToCSV(exportSimTableToCSVMenuItem));
 		menu.addSeparator();
 
 		////	Close
@@ -1441,8 +1441,8 @@ public class BasicFrame extends JFrame {
 	}
 	//	END ROCKSIM Export Action
 
-	public boolean exportSimulationTableToCSVAction() {
-		simulationPanel.runExportSimTableToCSVAction();
+	public boolean exportSimulationTableToCSVAction(ActionEvent e) {
+		simulationPanel.runExportSimTableToCSVAction(e);
 		return false;
 	}
 	/**
