@@ -688,12 +688,13 @@ public class SimulationPanel extends JPanel {
 			String documentFileName = document.getRocket().getName();
 			documentFileName += ".csv";
 			fch.setSelectedFile(new File(documentFileName));
-			String csvFileLocation = System.getProperty("user.home") + "/Documents";
+			
+			File currentDir = null;
 			if (!lastSelectedLocation.equals("")) {
-				csvFileLocation = lastSelectedLocation;
+				currentDir = new File(lastSelectedLocation);
 			}
 
-			fch.setCurrentDirectory(new File(csvFileLocation));
+			fch.setCurrentDirectory(currentDir);
 			return fch;
 		}
 
