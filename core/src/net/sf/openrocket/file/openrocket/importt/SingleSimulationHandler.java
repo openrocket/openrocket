@@ -109,6 +109,13 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
 		
+		String s = attributes.get("status");
+		Simulation.Status status = (Status) DocumentConfig.findEnum(s, Simulation.Status.class);
+		if (status == null) {
+			warnings.add("Simulation status unknown, assuming outdated.");
+			status = Simulation.Status.OUTDATED;
+		}
+		
 		SimulationOptions options;
 		FlightConfigurationId idToSet= FlightConfigurationId.ERROR_FCID;
 		if (conditionHandler != null) {
@@ -123,20 +130,19 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			name = "Simulation";
 		
 		// If the simulation was saved with flight data (which may just be a summary)
-		// mark it as loaded from the file else as not simulated.  We're ignoring the
-		// simulation status attribute, since (1) it really isn't relevant now, and (2)
-		// sim summaries are getting marked as not simulated when they're saved
+		// mark it as loaded from the file else as not simulated.  If outdated data was saved,
+		// it'll be marked as outdated (creating a new status for "loaded but outdated" seems
+		// excessive, and the fact that it's outdated is the more important)
 		FlightData data;
 		if (dataHandler == null)
 			data = null;
 		else
 			data = dataHandler.getFlightData();
 
-		Simulation.Status status;
-		if (data != null) {
-			status = Status.LOADED;
-		} else {
+		if (data == null) {
 			status = Status.NOT_SIMULATED;
+		} else if (status != Status.OUTDATED) {
+			status = Status.LOADED;
 		}
 		
 		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
