@@ -31,6 +31,10 @@ public abstract class ValueColumn extends Column {
 		return ValueComparator.INSTANCE;
 	}
 
+	@Override
+	public UnitGroup getUnits() {
+		return this.unit;
+	}
 	/**
 	 * Returns the double value to show in the Value object
 	 * 

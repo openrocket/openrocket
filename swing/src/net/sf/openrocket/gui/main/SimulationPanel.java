@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -119,6 +120,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction deleteSimulationAction;
 	private final SimulationAction dumpSimulationTableAction;
 
+	private final HashMap<String, String> valueColumnToUnitString = new HashMap<>();
 	private int[] previousSelection = null;
 	private JMenuItem exportSimTableToCSVMenuItem;
 
@@ -624,11 +626,31 @@ public class SimulationPanel extends JPanel {
 
 	class DumpSimulationToCSVAction extends SimulationAction {
 		private String lastSelectedLocation = "";
+		private HashMap<String, String> cToUnit;
 		public DumpSimulationToCSVAction() {
 			putValue(NAME, trans.get("simpanel.pop.export_to_csv"));
 			putValue(SMALL_ICON, Icons.FILE_EXPORT_AS);
 		}
 
+		/**
+		 * Means by wich the CSV export will clean up units on the values and
+		 * describe them on the header fields instead.
+		 */
+		private void populateColumnNameToUnitsHashTable() {
+			if (null == simulationTableModel) {
+				return;
+			}
+			valueColumnToUnitString.clear(); // necessary if units changed during session
+			for (int i=0; i<simulationTableModel.getColumnCount(); i++) {
+				Column c = simulationTableModel.getColumn(i);
+				if (c instanceof ValueColumn) {
+					// only value columns seem to have units that are not zero length strings... these are
+					// the ones we actually want in our lookup table.
+					valueColumnToUnitString.put(c.toString(), c.getUnits().getDefaultUnit().getUnit());
+				}
+				
+			}
+		}
 		/**
 		 * Dump data from sim table to file for run simulations
 		 * @param data The csv data as one string block.
@@ -703,7 +725,7 @@ public class SimulationPanel extends JPanel {
 			// one down side is that to change this means you have to export and save at least ONCE!
 			// there is no entry in the preferences to set this a-priori and it is default to a comma
 			String fieldSep = Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ",");
-			
+
 			if (fieldSep.equals(SPACE)) {
 				fieldSep = " ";
 			} else if (fieldSep.equals(TAB)) {
@@ -712,7 +734,8 @@ public class SimulationPanel extends JPanel {
 			Container tableParent = simulationTable.getParent();
 			int modelColumnCount = simulationTableModel.getColumnCount();
 			int modelRowCount = simulationTableModel.getRowCount();
-			
+			populateColumnNameToUnitsHashTable();
+
 			// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
 			// that this would no longer be needed because if there is no sim table yet, the context menu
 			// won't show up.   But I'm going to leave this in just in case....
@@ -735,6 +758,10 @@ public class SimulationPanel extends JPanel {
 			ArrayList<String> rowColumnElement = new ArrayList<>();
 			for (int j=1; j<modelColumnCount ; j++) {
 				String colName = simulationTable.getColumnName(j);
+				String unitString = valueColumnToUnitString.get(colName);
+				if (unitString != null) {
+					colName += " (" + unitString + ")";
+				}
 				rowColumnElement.add(colName);
 			}
 
@@ -765,9 +792,15 @@ public class SimulationPanel extends JPanel {
 
 				// piece together the column data for the ith row, skipping any rows with null counts > 0!
 				for (int j=1; j<modelColumnCount ; j++) { // skip first column
+					String colName = simulationTable.getColumnName(j);
+					String unitString = valueColumnToUnitString.get(colName); // unit string MAY be null!
+
 					Object o = simulationTableModel.getValueAt(i, j);
 					if (o != null) {
 						String value = o.toString();
+						if (unitString != null) {
+							value = value.replace(" " + unitString, "");
+						}
 						rowColumnElement.add(StringEscapeUtils.escapeCsv(value));
 					} else {
 						rowColumnElement.add("");
