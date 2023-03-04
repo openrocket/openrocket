@@ -661,7 +661,11 @@ public class SimulationPanel extends JPanel {
 
 		private JFileChooser setUpFileChooser() {
 			JFileChooser fch = new JFileChooser();
-
+			String saveDialogTitle = trans.get("simpanel.pop.export_to_csv.save.dialog.title");
+			String saveButtonText = trans.get("simpanel.pop.export_to_csv.save.button.text");
+			fch.setApproveButtonText(saveButtonText);
+			fch.setDialogTitle(saveDialogTitle);
+			fch.setApproveButtonToolTipText(saveDialogTitle);
 			// set up to filter for .csv's
 			fch.setFileFilter(new FileFilter() {
 				@Override
@@ -675,7 +679,7 @@ public class SimulationPanel extends JPanel {
 
 				@Override
 				public String getDescription() {
-					return ".csv";
+					return trans.get("FileHelper.CSV_FILTER");
 				}
 				
 			});
@@ -684,7 +688,7 @@ public class SimulationPanel extends JPanel {
 			String documentFileName = document.getRocket().getName();
 			documentFileName += ".csv";
 			fch.setSelectedFile(new File(documentFileName));
-			String csvFileLocation = System.getProperty("user.dir");
+			String csvFileLocation = System.getProperty("user.home") + "/Documents";
 			if (!lastSelectedLocation.equals("")) {
 				csvFileLocation = lastSelectedLocation;
 			}
