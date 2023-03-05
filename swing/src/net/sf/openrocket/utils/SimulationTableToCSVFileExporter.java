@@ -28,6 +28,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Value;
+import net.sf.openrocket.util.TextUtil;
 
 public class SimulationTableToCSVFileExporter {
 	private final OpenRocketDocument document;
@@ -50,8 +51,8 @@ public class SimulationTableToCSVFileExporter {
 	}
 
 	/**
-	 * Means by which the CSV export will clean up units on the values and
-	 * describe them on the header fields instead.
+	 * To make a lookup of table header to units.  For those columns which are of type Value, the
+	 * units will be added to the header...
 	 */
 	private void populateColumnNameToUnitsHashTable() {
 		if (null == simulationTableModel) {
@@ -159,9 +160,12 @@ public class SimulationTableToCSVFileExporter {
 		ArrayList<String> rowColumnElement = new ArrayList<>();
 		for (int j=1; j<modelColumnCount ; j++) {
 			String colName = simulationTable.getColumnName(j);
-			String unitString = valueColumnToUnitString.get(colName);
-			if (unitString != null) {
-				colName += " (" + unitString + ")";
+			
+			// get the unit string and append to column that it applies to.
+			// columns w/o units will remain unchanged.
+			if (valueColumnToUnitString.containsKey(colName)) {
+				String unitString = valueColumnToUnitString.get(colName);
+				colName += " (" + unitString + ")"; 
 			}
 			rowColumnElement.add(colName);
 		}
@@ -193,20 +197,14 @@ public class SimulationTableToCSVFileExporter {
 
 			// piece together the column data for the ith row, skipping any rows with null counts > 0!
 			for (int j=1; j<modelColumnCount ; j++) { // skip first column
-				String colName = simulationTable.getColumnName(j);
-				String unitString = valueColumnToUnitString.get(colName); // unit string MAY be null!
-
 				Object o = simulationTableModel.getValueAt(i, j);
 				if (o != null) {
-					String value = null;
+					final String value;
 					if (o instanceof Value) {
 						double dvalue = ((Value) o).getValue();
-						value = String.format("%."+precision+"f", dvalue);
+						value = TextUtil.doubleToString(dvalue, precision);
 					} else {
 						value = o.toString();
-					}
-					if (unitString != null) {
-						value = value.replace(" " + unitString, "");
 					}
 					rowColumnElement.add(StringEscapeUtils.escapeCsv(value));
 				} else {
