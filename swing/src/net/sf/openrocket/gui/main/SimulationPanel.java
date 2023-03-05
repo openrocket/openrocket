@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -14,12 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,7 +22,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -41,11 +34,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,11 +70,11 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
+import net.sf.openrocket.utils.SimulationTableToCSVFileExporter;
 import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
-
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
 
@@ -625,205 +615,16 @@ public class SimulationPanel extends JPanel {
 	}
 
 	class DumpSimulationToCSVAction extends SimulationAction {
-		private String lastSelectedLocation = "";
-		private HashMap<String, String> cToUnit;
+
 		public DumpSimulationToCSVAction() {
 			putValue(NAME, trans.get("simpanel.pop.export_to_csv"));
 			putValue(SMALL_ICON, Icons.FILE_EXPORT_AS);
 		}
 
-		/**
-		 * Means by wich the CSV export will clean up units on the values and
-		 * describe them on the header fields instead.
-		 */
-		private void populateColumnNameToUnitsHashTable() {
-			if (null == simulationTableModel) {
-				return;
-			}
-			valueColumnToUnitString.clear(); // necessary if units changed during session
-			for (int i=0; i<simulationTableModel.getColumnCount(); i++) {
-				Column c = simulationTableModel.getColumn(i);
-				if (c instanceof ValueColumn) {
-					// only value columns seem to have units that are not zero length strings... these are
-					// the ones we actually want in our lookup table.
-					valueColumnToUnitString.put(c.toString(), c.getUnits().getDefaultUnit().getUnit());
-				}
-				
-			}
-		}
-		/**
-		 * Dump data from sim table to file for run simulations
-		 * @param data The csv data as one string block.
-		 * @param csvFile The file to dump the data to.
-		 */
-		private void dumpDataToFile(String data, File csvFile) {
-			BufferedWriter bufferedWriter = null;
-			try {
-				csvFile.createNewFile();
-				bufferedWriter = new BufferedWriter(new FileWriter(csvFile));
-				bufferedWriter.write(data);
-				this.lastSelectedLocation = csvFile.getParent();
-			} catch (FileNotFoundException e) {
-				String msg = e.getMessage();
-				JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
-			} catch (IOException e) {
-				String msg = e.getMessage();
-				JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
-			} finally {
-				if (bufferedWriter != null) {
-					try {
-						bufferedWriter.close();
-					} catch (IOException e) {
-						String msg = e.getMessage();
-						JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
-					}
-				}
-			}
-		}
-
-		private JFileChooser setUpFileChooser() {
-			JFileChooser fch = new JFileChooser();
-			String saveDialogTitle = trans.get("simpanel.pop.export_to_csv.save.dialog.title");
-			String saveButtonText = trans.get("simpanel.pop.export_to_csv.save.button.text");
-			fch.setApproveButtonText(saveButtonText);
-			fch.setDialogTitle(saveDialogTitle);
-			fch.setApproveButtonToolTipText(saveDialogTitle);
-			// set up to filter for .csv's
-			fch.setFileFilter(new FileFilter() {
-				@Override
-				public boolean accept(File f) {
-					if (f.isDirectory()) {
-						return true;
-					} else {
-						return f.getName().toLowerCase().endsWith(".csv");
-					}
-				}
-
-				@Override
-				public String getDescription() {
-					return trans.get("FileHelper.CSV_FILTER");
-				}
-				
-			});
-
-			// default output csv to same name as "the rocket".
-			String documentFileName = document.getRocket().getName();
-			documentFileName += ".csv";
-			fch.setSelectedFile(new File(documentFileName));
-			
-			File currentDir = null;
-			if (!lastSelectedLocation.equals("")) {
-				currentDir = new File(lastSelectedLocation);
-			}
-
-			fch.setCurrentDirectory(currentDir);
-			return fch;
-		}
-
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			// one down side is that to change this means you have to export and save at least ONCE!
-			// there is no entry in the preferences to set this a-priori and it is default to a comma
-			String fieldSep = Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ",");
-
-			if (fieldSep.equals(SPACE)) {
-				fieldSep = " ";
-			} else if (fieldSep.equals(TAB)) {
-				fieldSep = "\t";
-			}
-			Container tableParent = simulationTable.getParent();
-			int modelColumnCount = simulationTableModel.getColumnCount();
-			int modelRowCount = simulationTableModel.getRowCount();
-			populateColumnNameToUnitsHashTable();
-
-			// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
-			// that this would no longer be needed because if there is no sim table yet, the context menu
-			// won't show up.   But I'm going to leave this in just in case....
-			if (modelRowCount <= 0) {
-				String msg = trans.get("simpanel.dlg.no.simulation.table.rows");
-				JOptionPane.showMessageDialog(tableParent, msg);
-				return;
-			}
-
-			JFileChooser fch = this.setUpFileChooser();
-			int selectionStatus = fch.showOpenDialog(tableParent);
-			if (selectionStatus == JFileChooser.CANCEL_OPTION || selectionStatus == JFileChooser.ERROR_OPTION) {
-				return;  // cancel or error... nothing to do here
-			}
-
-			File csvFile = fch.getSelectedFile();
-
-			String csvSimResultString = "";
-			// obtain the column titles for the first row of the csv
-			ArrayList<String> rowColumnElement = new ArrayList<>();
-			for (int j=1; j<modelColumnCount ; j++) {
-				String colName = simulationTable.getColumnName(j);
-				String unitString = valueColumnToUnitString.get(colName);
-				if (unitString != null) {
-					colName += " (" + unitString + ")";
-				}
-				rowColumnElement.add(colName);
-			}
-
-			// ONE difference here is that we'll place any warnings at the last cell in the csv.
-			csvSimResultString = StringUtils.join(rowColumnElement,fieldSep) + fieldSep + "Simulation Warnings";
-
-			String fullOutputResult = csvSimResultString;
-			
-			// get relevant data and create the comma separated data from it.
-			for (int i1 = 0; i1 < modelRowCount; i1++) {
-				// account for sorting... resulting csv file will be in the
-				// same order as shown in the table thanks to this gem.
-				int i = simulationTable.convertRowIndexToModel(i1);
-
-				int nullCnt = 0;
-				rowColumnElement.clear();
-
-				// get the simulation's warning text if any... this bypasses the need to use
-				// the column 0 stuff which is kind of difficult to use!
-				WarningSet ws = document.getSimulation(i).getSimulatedWarnings();
-				String warningsText = "";
-				for (Warning w : ws) {
-					String warning = w.toString();
-					if (warning != null) {
-						warningsText += w + " "; // TODO - formatting.  inserting a \n does funny things so use " " for now
-					}
-				}
-
-				// piece together the column data for the ith row, skipping any rows with null counts > 0!
-				for (int j=1; j<modelColumnCount ; j++) { // skip first column
-					String colName = simulationTable.getColumnName(j);
-					String unitString = valueColumnToUnitString.get(colName); // unit string MAY be null!
-
-					Object o = simulationTableModel.getValueAt(i, j);
-					if (o != null) {
-						String value = o.toString();
-						if (unitString != null) {
-							value = value.replace(" " + unitString, "");
-						}
-						rowColumnElement.add(StringEscapeUtils.escapeCsv(value));
-					} else {
-						rowColumnElement.add("");
-						nullCnt++;
-					}
-				}
-				
-				// current "unstable" will have a populated sim table EXCEPT for the optimum delay column on a restart
-				// after a save.  That means any row that WAS simulated will have exactly one null column in it... so we'll
-				// skip row export for the case where there are MORE than one nulls.  Either way the user should run sims.
-				if (nullCnt > 1) { // ignore rows that have null column fields 1 through 8... 
-					continue;
-				}
-				
-				// create the column data comma separated string for the ith row...
-				csvSimResultString = StringUtils.join(rowColumnElement, fieldSep);
-
-				// piece together all rows into one big ginourmous string, adding any warnings to the item
-				fullOutputResult += "\n" + csvSimResultString + fieldSep + warningsText;
-			}
-			
-			// dump the string to the file.
-			this.dumpDataToFile(fullOutputResult, csvFile);
+			SimulationTableToCSVFileExporter exporter = new SimulationTableToCSVFileExporter(document, simulationTable, simulationTableModel);
+			exporter.performTableDataConversion();
 			return;
 		}
 
@@ -1265,7 +1066,7 @@ public class SimulationPanel extends JPanel {
 		
 		// an example being loaded will have file == null and simulationTableModel != null... likewise a new rocket
 		// will probably be the same... so this is probably belt-and-suspenders
-		if (/*documentFile != null ||*/ (simulationTableModel != null && simulationTableModel.getRowCount() > 0)) {
+		if (simulationTableModel != null && simulationTableModel.getRowCount() > 0) {
 			return true;
 		}
 		return false;
@@ -1275,7 +1076,6 @@ public class SimulationPanel extends JPanel {
 	 * A menu state updater that is an analog to the button state updater.
 	 */
 	private void updateMenuStates() {
-		
 		// update the File->Export simulations table... menu entry
 		this.exportSimTableToCSVMenuItem.setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
 	}
