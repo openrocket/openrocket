@@ -1,7 +1,6 @@
 package net.sf.openrocket.utils;
 
 import java.awt.Container;
-import java.awt.event.ActionEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,7 +13,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -24,12 +22,12 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.ValueColumn;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
-import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.unit.Value;
 
 public class SimulationTableToCSVFileExporter {
 	private final OpenRocketDocument document;
@@ -101,11 +99,8 @@ public class SimulationTableToCSVFileExporter {
 
 	private JFileChooser setUpFileChooser() {
 		JFileChooser fch = new JFileChooser();
-		String saveDialogTitle = trans.get("simpanel.pop.export_to_csv.save.dialog.title");
-		String saveButtonText = trans.get("simpanel.pop.export_to_csv.save.button.text");
-		fch.setApproveButtonText(saveButtonText);
+		String saveDialogTitle = trans.get("simpanel.pop.exportToCSV.save.dialog.title");
 		fch.setDialogTitle(saveDialogTitle);
-		fch.setApproveButtonToolTipText(saveDialogTitle);
 
 		fch.setFileFilter(FileHelper.CSV_FILTER);
 
@@ -148,6 +143,7 @@ public class SimulationTableToCSVFileExporter {
 		}
 
 		fieldSep = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
+		int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
 		((CsvOptionPanel) fch.getAccessory()).storePreferences();
 
 		if (fieldSep.equals(SPACE)) {
@@ -171,7 +167,7 @@ public class SimulationTableToCSVFileExporter {
 		}
 
 		// ONE difference here is that we'll place any warnings at the last cell in the csv.
-		csvSimResultString = StringUtils.join(rowColumnElement,fieldSep) + fieldSep + "Simulation Warnings";
+		csvSimResultString = StringUtils.join(fieldSep, rowColumnElement) + fieldSep + "Simulation Warnings";
 
 		String fullOutputResult = csvSimResultString;
 		
@@ -202,7 +198,13 @@ public class SimulationTableToCSVFileExporter {
 
 				Object o = simulationTableModel.getValueAt(i, j);
 				if (o != null) {
-					String value = o.toString();
+					String value = null;
+					if (o instanceof Value) {
+						double dvalue = ((Value) o).getValue();
+						value = String.format("%."+precision+"f", dvalue);
+					} else {
+						value = o.toString();
+					}
 					if (unitString != null) {
 						value = value.replace(" " + unitString, "");
 					}
@@ -221,7 +223,7 @@ public class SimulationTableToCSVFileExporter {
 			}
 			
 			// create the column data comma separated string for the ith row...
-			csvSimResultString = StringUtils.join(rowColumnElement, fieldSep);
+			csvSimResultString = StringUtils.join(fieldSep, rowColumnElement);
 
 			// piece together all rows into one big ginourmous string, adding any warnings to the item
 			fullOutputResult += "\n" + csvSimResultString + fieldSep + warningsText;

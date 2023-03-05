@@ -617,7 +617,7 @@ public class SimulationPanel extends JPanel {
 	class DumpSimulationToCSVAction extends SimulationAction {
 
 		public DumpSimulationToCSVAction() {
-			putValue(NAME, trans.get("simpanel.pop.export_to_csv"));
+			putValue(NAME, trans.get("simpanel.pop.exportToCSV"));
 			putValue(SMALL_ICON, Icons.FILE_EXPORT_AS);
 		}
 

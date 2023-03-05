@@ -567,7 +567,7 @@ public class BasicFrame extends JFrame {
 		////	END CREATE and implement File > "Encode 3D" menu and submenu
 */
 		//  export sim table...
-		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(trans.get("main.menu.file.table.export_to_csv"));
+		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(trans.get("main.menu.file.table.exportToCSV"));
 		exportSimTableToCSVMenuItem.setIcon(Icons.FILE_EXPORT_AS);
 		menu.add(exportSimTableToCSVMenuItem);
 		exportSimTableToCSVMenuItem.addActionListener(new ActionListener() {

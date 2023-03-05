@@ -1,5 +1,7 @@
 package net.sf.openrocket.utils;
 
+import java.util.List;
+
 public class StringUtils {
 
 	public static String join(String sep, Object[] values) {
@@ -15,5 +17,17 @@ public class StringUtils {
 		}
 		return value.toString();
 	}
+	
+	/**
+	 * Join starting with a list of strings rather than an array
+	 * @param sep
+	 * @param listValues
+	 * @return
+	 */
+	public static String join(String sep, List<String> listValues) {
+		String[] values = listValues.toArray(new String[listValues.size()]);
+		return join(sep, values);
+	}
+
 
 }
