@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -13,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,6 +24,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -36,6 +39,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.gui.components.CsvOptionPanel;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -623,8 +629,62 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			Container tableParent = simulationTable.getParent();
+			int rowCount = simulationTableModel.getRowCount();
+
+			// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
+			// that this would no longer be needed because if there is no sim table yet, the context menu
+			// won't show up.   But I'm going to leave this in just in case....
+			if (rowCount <= 0) {
+				log.info("No simulation table rows to export");
+				JOptionPane.showMessageDialog(tableParent, trans.get("simpanel.dlg.no.simulation.table.rows"));
+				return;
+			}
+
+			JFileChooser fch = this.setUpFileChooser();
+			int selectionStatus = fch.showSaveDialog(tableParent);
+			if (selectionStatus != JFileChooser.APPROVE_OPTION) {
+				log.info("User cancelled CSV export");
+				return;
+			}
+
+			// Fetch the info from the file chooser
+			File CSVFile = fch.getSelectedFile();
+			CSVFile = FileHelper.forceExtension(CSVFile, "csv");
+			String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
+			int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
+			((CsvOptionPanel) fch.getAccessory()).storePreferences();
+
+			// Handle some special separator options from CsvOptionPanel
+			if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
+				separator = " ";
+			} else if (separator.equals(trans.get("CsvOptionPanel.separator.tab"))) {
+				separator = "\t";
+			}
+
 			SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
-			exporter.performTableDataConversion();
+			exporter.export(CSVFile, separator, precision);
+		}
+
+		/**
+		 * Create the file chooser to save the CSV file.
+		 * @return The file chooser.
+		 */
+		private JFileChooser setUpFileChooser() {
+			JFileChooser fch = new JFileChooser();
+			fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
+			fch.setFileFilter(FileHelper.CSV_FILTER);
+			fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+
+			// Default output CSV to same name as the document's rocket name.
+			String fileName = document.getRocket().getName() + ".csv";
+			fch.setSelectedFile(new File(fileName));
+
+			// Add CSV options to FileChooser
+			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
+			fch.setAccessory(CSVOptions);
+
+			return fch;
 		}
 
 		@Override
