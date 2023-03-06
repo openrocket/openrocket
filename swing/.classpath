@@ -32,7 +32,6 @@
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-2.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-2.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/opencsv-5.7.1.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/commons-text-1.10.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-2.12.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/jmock-junit4-2.12.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/junit-4.13.2.jar"/>

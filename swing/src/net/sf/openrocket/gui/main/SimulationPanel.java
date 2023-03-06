@@ -81,9 +81,6 @@ import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
-	private static final String SPACE = "SPACE";
-	private static final String TAB = "TAB";
-
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 

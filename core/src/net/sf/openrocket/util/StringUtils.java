@@ -1,5 +1,7 @@
 package net.sf.openrocket.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StringUtils {
@@ -64,6 +66,36 @@ public class StringUtils {
 		}
 
 		return Double.parseDouble(input);
+	}
+
+	/**
+	 * Returns an escaped version of the String so that it can be safely used as a value in a CSV file.
+	 * The goal is to surround the input string in double quotes if it contains any double quotes, commas,
+	 * newlines, or carriage returns, and to escape any double quotes within the string by doubling them up.
+	 * @param input the string to escape
+	 * @return the escaped string that can be safely used in a CSV file
+	 */
+	public static String escapeCSV(String input) {
+		final List<Character> CSV_SEARCH_CHARS = new ArrayList<>(Arrays.asList(',', '"', '\r', '\n'));
+
+		StringBuilder sb = new StringBuilder();
+		boolean quoted = false;
+		for (int i = 0; i < input.length(); i++) {
+			char c = input.charAt(i);
+			if (CSV_SEARCH_CHARS.contains(c)) {
+				quoted = true;
+				sb.append('\"');
+			}
+			if (c == '\"') {
+				sb.append('\"');
+			}
+			sb.append(c);
+		}
+		if (quoted) {
+			sb.insert(0, '\"');
+			sb.append('\"');
+		}
+		return sb.toString();
 	}
 	
 }

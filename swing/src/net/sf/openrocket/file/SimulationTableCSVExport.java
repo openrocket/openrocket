@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
 import net.sf.openrocket.util.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -144,7 +143,7 @@ public class SimulationTableCSVExport {
 					} else {
 						valueString = o.toString();
 					}
-					rowColumnElement.add(StringEscapeUtils.escapeCsv(valueString));
+					rowColumnElement.add(StringUtils.escapeCSV(valueString));
 				} else {
 					rowColumnElement.add("");
 					nullCnt++;
