@@ -4,6 +4,7 @@ package net.sf.openrocket.gui.main;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -677,6 +678,7 @@ public class SimulationPanel extends JPanel {
 			fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
 			fch.setFileFilter(FileHelper.CSV_FILTER);
 			fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+			fch.setAcceptAllFileFilterUsed(false);
 
 			// Default output CSV to same name as the document's rocket name.
 			String fileName = document.getRocket().getName() + ".csv";
@@ -686,7 +688,10 @@ public class SimulationPanel extends JPanel {
 			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
 			fch.setAccessory(CSVOptions);
 
-			// TODO: update the file chooser dimensions, it's cropped because of the accessory panel
+			// TODO: update the file chooser dimensions dynamically, this is very crude...
+			Dimension currentSize = fch.getPreferredSize();
+			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+			fch.setPreferredSize(newSize);
 
 			return fch;
 		}
