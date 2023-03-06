@@ -19,8 +19,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.ValueColumn;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.TextUtil;
 import org.slf4j.Logger;
@@ -32,7 +30,6 @@ public class SimulationTableCSVExport {
 	private final ColumnTableModel simulationTableModel;
 	private final HashMap<String, String> valueColumnToUnitString = new HashMap<>();
 
-	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(SimulationTableCSVExport.class);
 
 	public SimulationTableCSVExport (OpenRocketDocument document, JTable simulationTable,
