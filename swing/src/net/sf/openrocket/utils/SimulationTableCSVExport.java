@@ -30,7 +30,7 @@ import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.TextUtil;
 
-public class SimulationTableToCSVFileExporter {
+public class SimulationTableCSVExport {
 	private final OpenRocketDocument document;
 	private final JTable simulationTable;
 	private final ColumnTableModel simulationTableModel;
@@ -40,7 +40,7 @@ public class SimulationTableToCSVFileExporter {
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
 
-	public SimulationTableToCSVFileExporter (OpenRocketDocument document,
+	public SimulationTableCSVExport (OpenRocketDocument document,
 			JTable simulationTable,
 			ColumnTableModel simulationTableModel			
 			) 
@@ -109,7 +109,7 @@ public class SimulationTableToCSVFileExporter {
 		String documentFileName = document.getRocket().getName();
 		documentFileName += ".csv";
 		fch.setSelectedFile(new File(documentFileName));
-		CsvOptionPanel csvOptions = new CsvOptionPanel(SimulationTableToCSVFileExporter.class /*,
+		CsvOptionPanel csvOptions = new CsvOptionPanel(SimulationTableCSVExport.class /*,
 				trans.get("GeneralOptimizationDialog.export.header"), trans.get("GeneralOptimizationDialog.export.header.ttip")*/);
 
 		fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());

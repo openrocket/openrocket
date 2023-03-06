@@ -70,7 +70,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
-import net.sf.openrocket.utils.SimulationTableToCSVFileExporter;
+import net.sf.openrocket.utils.SimulationTableCSVExport;
 import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")
@@ -623,9 +623,8 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			SimulationTableToCSVFileExporter exporter = new SimulationTableToCSVFileExporter(document, simulationTable, simulationTableModel);
+			SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
 			exporter.performTableDataConversion();
-			return;
 		}
 
 		@Override
