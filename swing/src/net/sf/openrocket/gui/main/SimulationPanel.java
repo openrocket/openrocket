@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -104,6 +103,7 @@ public class SimulationPanel extends JPanel {
 	private final JButton runButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
+	private final JButton simTableExportButton;
 	private final JPopupMenu pm;
 
 	private final SimulationAction editSimulationAction;
@@ -111,9 +111,8 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
-	private final SimulationAction dumpSimulationTableAction;
+	private final SimulationAction simTableExportAction;
 
-	private final HashMap<String, String> valueColumnToUnitString = new HashMap<>();
 	private int[] previousSelection = null;
 	private JMenuItem exportSimTableToCSVMenuItem;
 
@@ -130,7 +129,7 @@ public class SimulationPanel extends JPanel {
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
-		dumpSimulationTableAction = new DumpSimulationToCSVAction();
+		simTableExportAction = new ExportSimulationTableAsCSVAction();
 
 		////////  The simulation action buttons ////////
 
@@ -152,11 +151,6 @@ public class SimulationPanel extends JPanel {
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
 		
-		//// Run then Dump simulations
-		JButton dumpButton = new IconButton();
-		RocketActions.tieActionToButton(dumpButton, dumpSimulationTableAction, trans.get("simpanel.but.runsimulations"));
-		
-		
 		//// Delete simulations button
 		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
@@ -168,6 +162,9 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 
+		//// Run then Dump simulations
+		simTableExportButton = new IconButton();
+		RocketActions.tieActionToButton(simTableExportButton, simTableExportAction, trans.get("simpanel.but.runsimulations"));
 
 
 		////////  The simulation table
@@ -191,7 +188,7 @@ public class SimulationPanel extends JPanel {
 		pm.addSeparator();
 		pm.add(runSimulationAction);
 		pm.add(plotSimulationAction);
-		pm.add(dumpSimulationTableAction);
+		pm.add(simTableExportAction);
 
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(simulationTable);
@@ -247,7 +244,6 @@ public class SimulationPanel extends JPanel {
 				if ((simulationTable.getSelectedRow() != previousSelectedRow) ||
 						(simulationTable.getSelectedRowCount() != previousSelectedRowCount)) {
 					updateButtonStates();
-					updateMenuStates();
 					previousSelectedRow = simulationTable.getSelectedRow();
 					previousSelectedRowCount = simulationTable.getSelectedRowCount();
 				}
@@ -456,6 +452,14 @@ public class SimulationPanel extends JPanel {
 
 	}
 
+	/**
+	 * Return the action for exporting the simulation table data to a CSV file.
+	 * @return
+	 */
+	public AbstractAction getSimulationTableAsCSVExportAction() {
+		return simTableExportAction;
+	}
+
 	protected void doPopup(MouseEvent e) {
         pm.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -466,6 +470,7 @@ public class SimulationPanel extends JPanel {
 		runSimulationAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
 		duplicateSimulationAction.updateEnabledState();
+		simTableExportAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
@@ -617,11 +622,11 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
-	class DumpSimulationToCSVAction extends SimulationAction {
+	class ExportSimulationTableAsCSVAction extends SimulationAction {
 
-		public DumpSimulationToCSVAction() {
+		public ExportSimulationTableAsCSVAction() {
 			putValue(NAME, trans.get("simpanel.pop.exportToCSV"));
-			putValue(SMALL_ICON, Icons.FILE_EXPORT_AS);
+			putValue(SMALL_ICON, Icons.SIM_TABLE_EXPORT);
 		}
 
 		@Override
@@ -681,12 +686,14 @@ public class SimulationPanel extends JPanel {
 			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
 			fch.setAccessory(CSVOptions);
 
+			// TODO: update the file chooser dimensions, it's cropped because of the accessory panel
+
 			return fch;
 		}
 
 		@Override
 		public void updateEnabledState() {
-			setEnabled(true);
+			setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
 		}
 		
 	}
@@ -1110,38 +1117,5 @@ public class SimulationPanel extends JPanel {
 				simulationTable.addRowSelectionInterval(row, row);
 			}
 		}
-	}
-
-	public boolean isReadyToExportSimTableToCSV(JMenuItem exportSimTableToCSVMenuItem) {
-		// This is the cheapest, dirtiest way I could think of to allow the activation/deactivation
-		// of the export to csv action under the file menu.  With this, we can get activation of the
-		// menu based upon the exitence of the table model PLUS one or more row in the table.
-		if (this.exportSimTableToCSVMenuItem == null && exportSimTableToCSVMenuItem != null) {
-			this.exportSimTableToCSVMenuItem = exportSimTableToCSVMenuItem;
-		}
-		
-		// an example being loaded will have file == null and simulationTableModel != null... likewise a new rocket
-		// will probably be the same... so this is probably belt-and-suspenders
-		if (simulationTableModel != null && simulationTableModel.getRowCount() > 0) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * A menu state updater that is an analog to the button state updater.
-	 */
-	private void updateMenuStates() {
-		// update the File->Export simulations table... menu entry
-		this.exportSimTableToCSVMenuItem.setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
-	}
-
-	/**
-	 * Run the csv export action...
-	 * @param e
-	 */
-	public void runExportSimTableToCSVAction(ActionEvent e) {
-
-		dumpSimulationTableAction.actionPerformed(e);
 	}
 }
