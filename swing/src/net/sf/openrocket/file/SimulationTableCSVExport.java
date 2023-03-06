@@ -10,7 +10,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-import net.sf.openrocket.utils.StringUtils;
+import net.sf.openrocket.util.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import net.sf.openrocket.aerodynamics.Warning;

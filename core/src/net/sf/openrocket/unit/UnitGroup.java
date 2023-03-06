@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 
 /**
@@ -672,7 +672,7 @@ public class UnitGroup {
 			throw new NumberFormatException("string did not match required pattern");
 		}
 
-		double value = StringUtil.convertToDouble(matcher.group(1));
+		double value = StringUtils.convertToDouble(matcher.group(1));
 		String unit = matcher.group(2).trim();
 		
 		if (unit.equals("")) {

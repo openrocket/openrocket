@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import net.sf.openrocket.util.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,7 +34,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.utils.StringUtils;
 
 @SuppressWarnings("serial")
 class MotorInformationPanel extends JPanel {
