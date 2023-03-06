@@ -76,7 +76,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
-import net.sf.openrocket.utils.SimulationTableCSVExport;
+import net.sf.openrocket.file.SimulationTableCSVExport;
 import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")

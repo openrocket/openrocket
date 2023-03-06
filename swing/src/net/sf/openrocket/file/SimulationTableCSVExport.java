@@ -1,6 +1,5 @@
-package net.sf.openrocket.utils;
+package net.sf.openrocket.file;
 
-import java.awt.Container;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,10 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import net.sf.openrocket.utils.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -20,9 +19,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.ValueColumn;
-import net.sf.openrocket.gui.components.CsvOptionPanel;
-import net.sf.openrocket.gui.util.FileHelper;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Value;
