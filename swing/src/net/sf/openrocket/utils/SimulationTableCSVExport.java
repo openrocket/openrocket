@@ -3,7 +3,6 @@ package net.sf.openrocket.utils;
 import java.awt.Container;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,9 +25,10 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.TextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulationTableCSVExport {
 	private final OpenRocketDocument document;
@@ -36,15 +36,16 @@ public class SimulationTableCSVExport {
 	private final ColumnTableModel simulationTableModel;
 	private final HashMap<String, String> valueColumnToUnitString = new HashMap<>();
 
-	private static final Translator trans = Application.getTranslator();
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
+
+	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(SimulationTableCSVExport.class);
 
 	public SimulationTableCSVExport (OpenRocketDocument document,
 			JTable simulationTable,
 			ColumnTableModel simulationTableModel			
-			) 
-	{
+			) {
 		this.document = document;
 		this.simulationTable = simulationTable;
 		this.simulationTableModel = simulationTableModel;
@@ -55,7 +56,7 @@ public class SimulationTableCSVExport {
 	 * units will be added to the header...
 	 */
 	private void populateColumnNameToUnitsHashTable() {
-		if (null == simulationTableModel) {
+		if (simulationTableModel == null) {
 			return;
 		}
 		valueColumnToUnitString.clear(); // necessary if units changed during session
@@ -71,18 +72,15 @@ public class SimulationTableCSVExport {
 	}
 	/**
 	 * Dump data from sim table to file for run simulations
-	 * @param data The csv data as one string block.
-	 * @param csvFile The file to dump the data to.
+	 * @param data The CSV data as one string block.
+	 * @param CSVFile The file to dump the data to.
 	 */
-	private void dumpDataToFile(String data, File csvFile) {
+	private void dumpDataToFile(String data, File CSVFile) {
 		BufferedWriter bufferedWriter = null;
 		try {
-			csvFile.createNewFile();
-			bufferedWriter = new BufferedWriter(new FileWriter(csvFile));
+			CSVFile.createNewFile();
+			bufferedWriter = new BufferedWriter(new FileWriter(CSVFile));
 			bufferedWriter.write(data);
-		} catch (FileNotFoundException e) {
-			String msg = e.getMessage();
-			JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
 		} catch (IOException e) {
 			String msg = e.getMessage();
 			JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
@@ -98,31 +96,28 @@ public class SimulationTableCSVExport {
 		}
 	}
 
+	/**
+	 * Create the file chooser to save the CSV file.
+	 * @return The file chooser.
+	 */
 	private JFileChooser setUpFileChooser() {
 		JFileChooser fch = new JFileChooser();
-		String saveDialogTitle = trans.get("simpanel.pop.exportToCSV.save.dialog.title");
-		fch.setDialogTitle(saveDialogTitle);
-
+		fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
 		fch.setFileFilter(FileHelper.CSV_FILTER);
-
-		// default output csv to same name as the document's rocket name.
-		String documentFileName = document.getRocket().getName();
-		documentFileName += ".csv";
-		fch.setSelectedFile(new File(documentFileName));
-		CsvOptionPanel csvOptions = new CsvOptionPanel(SimulationTableCSVExport.class /*,
-				trans.get("GeneralOptimizationDialog.export.header"), trans.get("GeneralOptimizationDialog.export.header.ttip")*/);
-
 		fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		fch.setAccessory(csvOptions);
+
+		// Default output CSV to same name as the document's rocket name.
+		String fileName = document.getRocket().getName() + ".csv";
+		fch.setSelectedFile(new File(fileName));
+
+		// Add CSV options to FileChooser
+		CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
+		fch.setAccessory(CSVOptions);
 		
 		return fch;
 	}
 
 	public void performTableDataConversion() {
-		// one down side is that to change this means you have to export and save at least ONCE!
-		// there is no entry in the preferences to set this a-priori and it is default to a comma
-		String fieldSep = Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ",");
-
 		Container tableParent = simulationTable.getParent();
 		int modelColumnCount = simulationTableModel.getColumnCount();
 		int modelRowCount = simulationTableModel.getRowCount();
@@ -139,11 +134,12 @@ public class SimulationTableCSVExport {
 
 		JFileChooser fch = this.setUpFileChooser();
 		int selectionStatus = fch.showSaveDialog(tableParent);
-		if (selectionStatus == JFileChooser.CANCEL_OPTION || selectionStatus == JFileChooser.ERROR_OPTION) {
-			return;  // cancel or error... nothing to do here
+		if (selectionStatus != JFileChooser.APPROVE_OPTION) {
+			log.info("User cancelled CSV export");
+			return;
 		}
 
-		fieldSep = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
+		String fieldSep = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
 		int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
 		((CsvOptionPanel) fch.getAccessory()).storePreferences();
 
@@ -153,12 +149,13 @@ public class SimulationTableCSVExport {
 			fieldSep = "\t";
 		}
 
-		File csvFile = fch.getSelectedFile();
+		File CSVFile = fch.getSelectedFile();
+		CSVFile = FileHelper.forceExtension(CSVFile, "csv");
 
-		String csvSimResultString = "";
-		// obtain the column titles for the first row of the csv
+		String CSVSimResultString;
+		// obtain the column titles for the first row of the CSV
 		ArrayList<String> rowColumnElement = new ArrayList<>();
-		for (int j=1; j<modelColumnCount ; j++) {
+		for (int j = 1; j<modelColumnCount ; j++) {
 			String colName = simulationTable.getColumnName(j);
 			
 			// get the unit string and append to column that it applies to.
@@ -170,34 +167,34 @@ public class SimulationTableCSVExport {
 			rowColumnElement.add(colName);
 		}
 
-		// ONE difference here is that we'll place any warnings at the last cell in the csv.
-		csvSimResultString = StringUtils.join(fieldSep, rowColumnElement) + fieldSep + "Simulation Warnings";
+		// ONE difference here is that we'll place any warnings at the last cell in the CSV.
+		CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement) + fieldSep + "Simulation Warnings";
 
-		String fullOutputResult = csvSimResultString;
+		StringBuilder fullOutputResult = new StringBuilder(CSVSimResultString);
 		
 		// get relevant data and create the comma separated data from it.
-		for (int i1 = 0; i1 < modelRowCount; i1++) {
-			// account for sorting... resulting csv file will be in the
+		for (int i = 0; i < modelRowCount; i++) {
+			// account for sorting... resulting CSV file will be in the
 			// same order as shown in the table thanks to this gem.
-			int i = simulationTable.convertRowIndexToModel(i1);
+			int idx = simulationTable.convertRowIndexToModel(i);
 
 			int nullCnt = 0;
 			rowColumnElement.clear();
 
 			// get the simulation's warning text if any... this bypasses the need to use
 			// the column 0 stuff which is kind of difficult to use!
-			WarningSet ws = document.getSimulation(i).getSimulatedWarnings();
-			String warningsText = "";
+			WarningSet ws = document.getSimulation(idx).getSimulatedWarnings();
+			StringBuilder warningsText = new StringBuilder();
 			for (Warning w : ws) {
 				String warning = w.toString();
 				if (warning != null) {
-					warningsText += w + " "; // TODO - formatting.  inserting a \n does funny things so use " " for now
+					warningsText.append(w).append(" "); // TODO - formatting.  inserting a \n does funny things so use " " for now
 				}
 			}
 
 			// piece together the column data for the ith row, skipping any rows with null counts > 0!
-			for (int j=1; j<modelColumnCount ; j++) { // skip first column
-				Object o = simulationTableModel.getValueAt(i, j);
+			for (int j = 1; j < modelColumnCount ; j++) { // skip first column
+				Object o = simulationTableModel.getValueAt(idx, j);
 				if (o != null) {
 					final String value;
 					if (o instanceof Value) {
@@ -221,15 +218,14 @@ public class SimulationTableCSVExport {
 			}
 			
 			// create the column data comma separated string for the ith row...
-			csvSimResultString = StringUtils.join(fieldSep, rowColumnElement);
+			CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement);
 
-			// piece together all rows into one big ginourmous string, adding any warnings to the item
-			fullOutputResult += "\n" + csvSimResultString + fieldSep + warningsText;
+			// piece together all rows into one big ginormous string, adding any warnings to the item
+			fullOutputResult.append("\n").append(CSVSimResultString).append(fieldSep).append(warningsText);
 		}
 		
 		// dump the string to the file.
-		this.dumpDataToFile(fullOutputResult, csvFile);
-		return;
+		this.dumpDataToFile(fullOutputResult.toString(), CSVFile);
 	}
 
 }
