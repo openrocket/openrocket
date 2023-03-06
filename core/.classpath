@@ -27,7 +27,6 @@
 	<classpathentry kind="lib" path="lib/logback-classic-1.2.11.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.2.11.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-5.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang3-3.12.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-text-1.10.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-core-2.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/hamcrest-2.2.jar"/>
