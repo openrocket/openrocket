@@ -184,7 +184,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 						log.debug("Selected charge delay is null");
 						return;
 					}
-					//// None
+					//// Plugged (or None)
 					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.Plugged")) ||
 							sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.PluggedNone"))) {
 						selectedDelay = Motor.PLUGGED_DELAY;
@@ -198,8 +198,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 			panel.add(delayBox, "growx,wrap");
-			//// (Number of seconds or \"None\")
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "skip, wrap");
+			//// (or type in desired delay in seconds)
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "skip, wrap");
 			setDelays(false);
 		}
 
@@ -566,7 +566,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private void updateNrOfMotors() {
 		if (table != null && nrOfMotorsLabel != null) {
 			int rowCount = table.getRowCount();
-			String motorCount = "None";
+			String motorCount = trans.get("TCMotorSelPan.lbl.nrOfMotors.None");
 			if (rowCount > 0) {
 				motorCount = String.valueOf(rowCount);
 			}
@@ -578,7 +578,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private void scrollSelectionVisible() {
 		if (selectedMotorSet != null) {
 			int index = table.convertRowIndexToView(model.getIndex(selectedMotorSet));
-			//System.out.println("index=" + index);
 			table.getSelectionModel().setSelectionInterval(index, index);
 			Rectangle rect = table.getCellRect(index, 0, true);
 			rect = new Rectangle(rect.x, rect.y - 100, rect.width, rect.height + 200);
@@ -667,7 +666,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 */
 	private void setDelays(boolean reset) {
 		if (selectedMotor == null) {
-			//// None
+			//// Plugged
 			delayBox.setModel(new DefaultComboBoxModel<String>(new String[] { trans.get("TCMotorSelPan.delayBox.Plugged") }));
 			delayBox.setSelectedIndex(0);
 		} else {
@@ -678,7 +677,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			double currentDelay = selectedDelay; // Store current setting locally
 
 			for (int i = 0; i < delays.size(); i++) {
-				//// None
+				//// Plugged
 				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.Plugged"));
 			}
 			// We always want the plugged option in the combobox, even if the motor doesn't have it
@@ -700,7 +699,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					selectedDelay = closest;
 					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.Plugged")));
 				} else {
-					//// None
+					//// Plugged
 					delayBox.setSelectedItem(trans.get("TCMotorSelPan.delayBox.Plugged"));
 				}
 
