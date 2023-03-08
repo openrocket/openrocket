@@ -138,7 +138,7 @@ public class SimulationTableCSVExport {
 				if (o != null) {
 					final String valueString;
 					if (o instanceof Value) {
-						double value = ((Value) o).getValue();
+						double value = ((Value) o).getUnitValue();
 						valueString = TextUtil.doubleToString(value, precision);
 					} else {
 						valueString = o.toString();
