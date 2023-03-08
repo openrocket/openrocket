@@ -56,6 +56,7 @@ public class Icons {
 	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/print-design.specs.png", "Print specifications");
 //	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
 	public static final Icon FILE_EXPORT_AS = loadImageIcon("pix/icons/model_export.png", "Export model as");
+	public static final Icon SIM_TABLE_EXPORT = loadImageIcon("pix/icons/sim_table_export.png", "Export simulation table");
 	public static final Icon ENCODE_3D = loadImageIcon("pix/icons/model_encode3d.png", "Encode 3D");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");

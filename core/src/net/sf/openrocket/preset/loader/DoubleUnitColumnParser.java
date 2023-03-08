@@ -4,7 +4,7 @@ import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 
@@ -19,7 +19,7 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
 		try {
-			if (StringUtil.isEmpty(columnData)) {
+			if (StringUtils.isEmpty(columnData)) {
 				return;
 			}
 			double value = Double.valueOf(columnData);

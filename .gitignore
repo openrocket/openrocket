@@ -97,3 +97,6 @@ openrocket.log
 prime/*
 swing/resources/datafiles/presets/system.ser
 swing/resources/datafiles/presets
+
+# Eclipse - because some of us are stubborn
+.project
