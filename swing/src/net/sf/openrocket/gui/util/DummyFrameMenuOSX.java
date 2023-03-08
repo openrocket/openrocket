@@ -87,54 +87,8 @@ public class DummyFrameMenuOSX extends JFrame {
         });
         menu.add(item);
 
-
         ////	Help
-        menu = new JMenu(trans.get("main.menu.help"));
-        menu.setMnemonic(KeyEvent.VK_H);
-        menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
-        menubar.add(menu);
-
-        ////	Guided tours
-        item = new JMenuItem(trans.get("main.menu.help.tours"), KeyEvent.VK_L);
-        item.setIcon(Icons.HELP_TOURS);
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.tours.desc"));
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                log.info(Markers.USER_MARKER, "Guided tours selected");
-                GuidedTourSelectionDialog.showDialog(DummyFrameMenuOSX.this);
-            }
-        });
-        menu.add(item);
-
-        menu.addSeparator();
-
-        ////	License
-        item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
-        item.setIcon(Icons.HELP_LICENSE);
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.license.desc"));
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                log.info(Markers.USER_MARKER, "License selected");
-                new LicenseDialog(DummyFrameMenuOSX.this).setVisible(true);
-            }
-        });
-        menu.add(item);
-
-        ////	About
-        item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
-        item.setIcon(Icons.HELP_ABOUT);
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.about.desc"));
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                log.info(Markers.USER_MARKER, "About selected");
-                new AboutDialog(DummyFrameMenuOSX.this).setVisible(true);
-            }
-        });
-        menu.add(item);
-
+        BasicFrame.generateHelpMenu(menubar, this);
 
         this.setJMenuBar(menubar);
     }

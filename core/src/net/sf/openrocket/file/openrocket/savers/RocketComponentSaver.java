@@ -40,8 +40,9 @@ public class RocketComponentSaver {
 		ComponentPreset preset = c.getPresetComponent();
 		if (preset != null) {
 			elements.add("<preset type=\"" + preset.getType() +
-					"\" manufacturer=\"" + preset.getManufacturer().getSimpleName() +
-					"\" partno=\"" + preset.getPartNo() + "\" digest=\"" + preset.getDigest() + "\"/>");
+					"\" manufacturer=\"" + TextUtil.escapeXML(preset.getManufacturer().getSimpleName()) +
+					"\" partno=\"" + TextUtil.escapeXML(preset.getPartNo()) + "\" digest=\"" +
+					preset.getDigest() + "\"/>");
 		}
 
 		// Save outside appearance

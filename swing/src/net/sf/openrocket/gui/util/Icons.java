@@ -33,7 +33,7 @@ public class Icons {
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon("pix/spheres/gray-16x16.png", "Not simulated"));
 		map.put(Simulation.Status.CANT_RUN, loadImageIcon("pix/spheres/yellow-16x16.png", "Can't run, no motors assigned."));
 		map.put(Simulation.Status.UPTODATE, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
-		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
+		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/blue-16x16.png", "Loaded from File"));
 		map.put(Simulation.Status.OUTDATED, loadImageIcon("pix/spheres/red-16x16.png", "Out-of-date"));
 		map.put(Simulation.Status.EXTERNAL, loadImageIcon("pix/spheres/blue-16x16.png", "Imported data"));
 		SIMULATION_STATUS_ICON_MAP = Collections.unmodifiableMap(map);
@@ -56,6 +56,7 @@ public class Icons {
 	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/print-design.specs.png", "Print specifications");
 	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
 	public static final Icon FILE_EXPORT = loadImageIcon("pix/icons/model_export.png", "Export");
+	public static final Icon SIM_TABLE_EXPORT = loadImageIcon("pix/icons/sim_table_export.png", "Export simulation table");
 	public static final Icon EXPORT_3D = loadImageIcon("pix/icons/model_export3d.png", "Export 3D");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");

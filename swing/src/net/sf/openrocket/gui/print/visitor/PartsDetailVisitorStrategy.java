@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,18 +151,20 @@ public class PartsDetailVisitorStrategy {
     private void handle (RocketComponent component) {
         //This ugly if-then-else construct is not object oriented.  Originally it was an elegant, and very OO savy, design
         //using the Visitor pattern.  Unfortunately, it was misunderstood and was removed.
-        if (component instanceof AxialStage) {
+        if (component instanceof ComponentAssembly) {
             try {
                 if (grid != null) {
                     document.add(grid);
                 }
-                document.add(ITextHelper.createPhrase(component.getName()));
+                if (level > 1) {
+                    Chunk tab = new Chunk(new VerticalPositionMark(), (level - 1) * 10, false);
+                    document.add(tab);
+                }
+                document.add(ITextHelper.createPhrase(component.getComponentName() + ": " +  component.getName()));
                 grid = new PdfPTable(TABLE_COLUMNS);
                 grid.setWidthPercentage(100);
                 grid.setHorizontalAlignment(Element.ALIGN_LEFT);
-            }
-            catch (DocumentException e) {
-            }
+            } catch (DocumentException ignored) { }
 
             List<RocketComponent> rc = component.getChildren();
             goDeep(rc);

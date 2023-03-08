@@ -507,7 +507,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				throw new NullPointerException("Motor has a null mount... this should never happen: "+curMotorInstance.getID());
 			}
 
-			String str = motor.getCommonName(curMotorInstance.getEjectionDelay());
+			String str = motor.getMotorName(curMotorInstance.getEjectionDelay());
 			int count = mount.getInstanceCount();
 			if (count > 1) {
 				str = "" + count + Chars.TIMES + " " + str;

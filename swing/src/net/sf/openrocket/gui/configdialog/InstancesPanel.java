@@ -55,7 +55,7 @@ public class InstancesPanel extends JPanel {
             if (component.getParent() != null && component.getParent().getLength() > 0) {
                 maxSeparationDistance = component.getParent().getLength();
             }
-            add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
+            add(new BasicSlider(separationModel.getSliderModel(-maxSeparationDistance, maxSeparationDistance)), "w 100lp, wrap para");
         }
     }
 }

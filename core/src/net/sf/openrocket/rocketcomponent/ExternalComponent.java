@@ -102,7 +102,7 @@ public abstract class ExternalComponent extends RocketComponent {
 	 */
 	@Override
 	public double getComponentMass() {
-		return material.getDensity() * getComponentVolume();
+		return material.getDensity() * getComponentVolume() * getInstanceCount();
 	}
 	
 	/**

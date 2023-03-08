@@ -20,7 +20,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	private double radius;
 	private double thickness;
 	
-	private double angleOffsetRadians = Math.PI;
+	private double angleOffsetRad = Math.PI;
 	private double radialOffset = 0;
 	
 	private int instanceCount = 1;
@@ -33,6 +33,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		radius = 0.01 / 2;
 		thickness = 0.001;
 		length = 0.03;
+		this.setInstanceSeparation(this.length * 2);
 		super.displayOrder_side = 15;		// Order for displaying the component in the 2D side view
 		super.displayOrder_back = 12;		// Order for displaying the component in the 2D back view
 	}
@@ -96,7 +97,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public double getAngleOffset() {
-		return this.angleOffsetRadians;
+		return this.angleOffsetRad;
 	}
 	
 	@Override
@@ -108,9 +109,9 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		}
 
 		double clamped_rad = MathUtil.clamp( newAngleRadians, -Math.PI, Math.PI);
-		if (MathUtil.equals(this.angleOffsetRadians, clamped_rad))
+		if (MathUtil.equals(this.angleOffsetRad, clamped_rad))
 			return;
-		this.angleOffsetRadians = clamped_rad;
+		this.angleOffsetRad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -158,8 +159,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double yOffset = Math.cos(angleOffsetRadians) * (radialOffset);
-		final double zOffset = Math.sin(angleOffsetRadians) * (radialOffset);
+		final double yOffset = Math.cos(angleOffsetRad) * (radialOffset);
+		final double zOffset = Math.sin(angleOffsetRad) * (radialOffset);
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
 			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
@@ -227,7 +228,10 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public Coordinate getComponentCG() {
-		return new Coordinate(length / 2, 0, 0, getComponentMass());
+		final double CMx = length / 2 + (instanceSeparation * (instanceCount-1)) / 2;
+		final double CMy = Math.cos(this.angleOffsetRad)*getOuterRadius();
+		final double CMz = Math.sin(this.angleOffsetRad)*getOuterRadius();
+		return new Coordinate(CMx, CMy, CMz, getComponentMass());
 	}
 	
 	@Override

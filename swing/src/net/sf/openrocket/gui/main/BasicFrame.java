@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -85,6 +86,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -463,6 +465,13 @@ public class BasicFrame extends JFrame {
 		fileMenu.add(item);
 		fileMenu.addSeparator();
 
+		//  export sim table...
+		AbstractAction simTableExportAction = simulationPanel.getSimulationTableAsCSVExportAction();
+		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);
+		fileMenu.add(exportSimTableToCSVMenuItem);
+
+		fileMenu.addSeparator();
+
 		// ------------------------------------------------------------------------------------------
 
 		////	Close
@@ -649,10 +658,19 @@ public class BasicFrame extends JFrame {
 		}
 
 		////	Help
-		fileMenu = new JMenu(trans.get("main.menu.help"));
-		fileMenu.setMnemonic(KeyEvent.VK_H);
-		fileMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
-		menubar.add(fileMenu);
+		generateHelpMenu(menubar, this);
+
+		this.setJMenuBar(menubar);
+	}
+
+	public static void generateHelpMenu(JMenuBar menubar, JFrame parent) {
+		JMenu menu;
+		JMenuItem item;
+
+		menu = new JMenu(trans.get("main.menu.help"));
+		menu.setMnemonic(KeyEvent.VK_H);
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
+		menubar.add(menu);
 
 		////	Guided tours
 		item = new JMenuItem(trans.get("main.menu.help.tours"), KeyEvent.VK_L);
@@ -662,12 +680,25 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Guided tours selected");
-				GuidedTourSelectionDialog.showDialog(BasicFrame.this);
+				GuidedTourSelectionDialog.showDialog(parent);
 			}
 		});
-		fileMenu.add(item);
+		menu.add(item);
 
-		fileMenu.addSeparator();
+		////	Wiki (Online Help)
+		item = new JMenuItem(trans.get("main.menu.help.wiki"));
+		item.setIcon(Icons.WIKI);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.wiki.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Wiki selected");
+				URLUtil.openWebpage(URLUtil.WIKI_URL);
+			}
+		});
+		menu.add(item);
+
+		menu.addSeparator();
 
 		////	Bug report
 		item = new JMenuItem(trans.get("main.menu.help.bugReport"), KeyEvent.VK_B);
@@ -677,10 +708,10 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Bug report selected");
-				BugReportDialog.showBugReportDialog(BasicFrame.this);
+				BugReportDialog.showBugReportDialog(parent);
 			}
 		});
-		fileMenu.add(item);
+		menu.add(item);
 
 		////	Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"), KeyEvent.VK_D);
@@ -691,12 +722,12 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Debug log selected");
-				new DebugLogDialog(BasicFrame.this).setVisible(true);
+				new DebugLogDialog(parent).setVisible(true);
 			}
 		});
-		fileMenu.add(item);
+		menu.add(item);
 
-		fileMenu.addSeparator();
+		menu.addSeparator();
 
 		////	License
 		item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
@@ -706,10 +737,10 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "License selected");
-				new LicenseDialog(BasicFrame.this).setVisible(true);
+				new LicenseDialog(parent).setVisible(true);
 			}
 		});
-		fileMenu.add(item);
+		menu.add(item);
 
 		////	About
 		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
@@ -719,12 +750,10 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "About selected");
-				new AboutDialog(BasicFrame.this).setVisible(true);
+				new AboutDialog(parent).setVisible(true);
 			}
 		});
-		fileMenu.add(item);
-
-		this.setJMenuBar(menubar);
+		menu.add(item);
 	}
 
 	public static void addFileCreateAndOpenMenuItems(JMenu fileMenu, Window parent) {
@@ -1379,7 +1408,6 @@ public class BasicFrame extends JFrame {
 		return false;
 	}
 	//	END ROCKSIM Export Action
-
 
 	/**
 	 * Perform the writing of the design to the given file in RockSim format.
