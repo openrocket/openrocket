@@ -39,6 +39,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -687,11 +688,15 @@ public class SimulationPanel extends JPanel {
 			// Add CSV options to FileChooser
 			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
 			fch.setAccessory(CSVOptions);
+			fch.revalidate();
 
-			// TODO: update the file chooser dimensions dynamically, this is very crude...
-			Dimension currentSize = fch.getPreferredSize();
-			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
-			fch.setPreferredSize(newSize);
+			// TODO: update this dynamically instead of hard-coded values
+			// The macOS file chooser has an issue where it does not update its size when the accessory is added.
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+				Dimension currentSize = fch.getPreferredSize();
+				Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+				fch.setPreferredSize(newSize);
+			}
 
 			return fch;
 		}

@@ -51,6 +51,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1157,6 +1158,14 @@ public class GeneralOptimizationDialog extends JDialog {
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);
+
+		// TODO: update this dynamically instead of hard-coded values
+		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			Dimension currentSize = chooser.getPreferredSize();
+			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+			chooser.setPreferredSize(newSize);
+		}
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
