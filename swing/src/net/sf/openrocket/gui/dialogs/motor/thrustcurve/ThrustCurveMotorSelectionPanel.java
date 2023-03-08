@@ -99,6 +99,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JLabel curveSelectionLabel;
 	private final JComboBox<MotorHolder> curveSelectionBox;
 	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
+	private final JLabel ejectionChargeDelayLabel;
 	private final JComboBox<String> delayBox;
 	private final JLabel nrOfMotorsLabel;
 
@@ -172,7 +173,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Ejection charge delay:
 		{
-			panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay")));
+			ejectionChargeDelayLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay"));
+			panel.add(ejectionChargeDelayLabel);
 
 			delayBox = new JComboBox<String>();
 			delayBox.setEditable(true);
@@ -511,10 +513,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionModel.removeAllElements();
 			curveSelectionBox.setEnabled(false);
 			curveSelectionLabel.setEnabled(false);
+			ejectionChargeDelayLabel.setEnabled(false);
+			delayBox.setEnabled(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
 			return;
 		}
+
+		ejectionChargeDelayLabel.setEnabled(true);
+		delayBox.setEnabled(true);
 
 		// Check which thrust curves to display
 		List<ThrustCurveMotor> motors = getFilteredCurves();
@@ -666,9 +673,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 */
 	private void setDelays(boolean reset) {
 		if (selectedMotor == null) {
-			//// Plugged
-			delayBox.setModel(new DefaultComboBoxModel<String>(new String[] { trans.get("TCMotorSelPan.delayBox.Plugged") }));
-			delayBox.setSelectedIndex(0);
+			//// Display nothing
+			delayBox.setModel(new DefaultComboBoxModel<>(new String[] {}));
 		} else {
 			List<Double> delays = selectedMotorSet.getDelays();
 			boolean containsPlugged = delays.contains(Motor.PLUGGED_DELAY);
