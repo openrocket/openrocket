@@ -463,7 +463,6 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		fileMenu.add(item);
-		fileMenu.addSeparator();
 
 		//  export sim table...
 		AbstractAction simTableExportAction = simulationPanel.getSimulationTableAsCSVExportAction();
