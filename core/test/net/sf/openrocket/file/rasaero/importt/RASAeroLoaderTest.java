@@ -153,7 +153,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     }
 
     /**
-     * Test whether we can load a very complex rocket with practically all RASAero features.
+     * Test whether we can load a very complex, unrealistic rocket with practically all RASAero features.
      */
     @Test
     public void testShowRocket() {
@@ -168,6 +168,32 @@ public class RASAeroLoaderTest extends BaseTestCase {
             loader.loadFromStream(context, new BufferedInputStream(stream), null);
             Rocket rocket = doc.getRocket();
             assertNotNull(rocket);
+        } catch (IllegalStateException ise) {
+            fail(ise.getMessage());
+        } catch (RocketLoadException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(5, loader.getWarnings().size());
+    }
+
+    /**
+     * Test a complex two-stage rocket with practically all RASAero features.
+     */
+    @Test
+    public void testComplexTwoStageRocket() {
+        RASAeroLoader loader = new RASAeroLoader();
+        InputStream stream = this.getClass().getResourceAsStream("Complex.Two-Stage.CDX1");
+        assertNotNull("Could not open Complex.Two-Stage.CDX1", stream);
+        try {
+            OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+            DocumentLoadingContext context = new DocumentLoadingContext();
+            context.setOpenRocketDocument(doc);
+            context.setMotorFinder(new DatabaseMotorFinder());
+            loader.loadFromStream(context, new BufferedInputStream(stream), null);
+            Rocket rocket = doc.getRocket();
+            assertNotNull(rocket);
+
+            // TODO: fetch components and test their parameters
         } catch (IllegalStateException ise) {
             fail(ise.getMessage());
         } catch (RocketLoadException | IOException e) {
