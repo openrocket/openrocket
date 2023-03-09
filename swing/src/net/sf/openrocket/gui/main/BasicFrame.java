@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -566,6 +567,11 @@ public class BasicFrame extends JFrame {
 
 		////	END CREATE and implement File > "Encode 3D" menu and submenu
 */
+		//  export sim table...
+		AbstractAction simTableExportAction = simulationPanel.getSimulationTableAsCSVExportAction();
+		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);
+		menu.add(exportSimTableToCSVMenuItem);
+
 		menu.addSeparator();
 
 		////	Close
@@ -1429,7 +1435,6 @@ public class BasicFrame extends JFrame {
 		return false;
 	}
 	//	END ROCKSIM Export Action
-
 
 	/**
 	 * Perform the writing of the design to the given file in RockSim format.

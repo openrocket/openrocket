@@ -4,7 +4,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 public class LineMaterialColumnParser extends BaseColumnParser {
 	
@@ -22,7 +22,7 @@ public class LineMaterialColumnParser extends BaseColumnParser {
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
 		
-		if (StringUtil.isEmpty(columnData)) {
+		if (StringUtils.isEmpty(columnData)) {
 			return;
 		}
 		
