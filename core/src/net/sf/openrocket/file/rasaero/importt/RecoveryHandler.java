@@ -12,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import org.xml.sax.SAXException;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Handles importing the RASAero recovery settings to an OpenRocket recovery device.
@@ -97,6 +99,11 @@ public class RecoveryHandler extends AbstractElementHandler {
         if (event[0]) {
             addRecoveryDevice(0, warnings);
         }
+        // Don't add other devices if device 1 is disabled, or its event type is set to none
+        else if ("None".equals(eventType[0])) {
+            return;
+        }
+
         // Recovery device 2
         if (event[1]) {
             addRecoveryDevice(1, warnings);
@@ -105,34 +112,46 @@ public class RecoveryHandler extends AbstractElementHandler {
 
     /**
      * Create a new recovery device with the parameters from RASAero, and add it to the rocket.
+     * There are some specific rules to importing the device type:
+     *  - Event unchecked => ignore the recovery event
+     *  - Event checked and event type set to None => ignore
+     *  - Device set to None => use a parachute with size 0
+     *  - Device set to Parachute => use a parachute with the given size
      * @param deviceNr Recovery device number (0 or 1)
      * @param warnings Warning set to add import warnings to
      */
     private void addRecoveryDevice(int deviceNr, WarningSet warnings) {
-        if (deviceNr > NR_OF_RECOVERY_DEVICES-1) {
+        if (deviceNr > NR_OF_RECOVERY_DEVICES - 1) {
             throw new IllegalArgumentException("Invalid recovery device number " + deviceNr);
         }
 
-        // Only parachute is supported by RASAero
-        if (!deviceType[deviceNr].equals("Parachute")) {
+        // No event => ignore
+        if (eventType[deviceNr].equals("None")) {
             return;
         }
 
-        // Create the recovery device with the parameters from RASAero
-        Parachute recoveryDevice = createParachute(deviceNr, size[deviceNr], CD[deviceNr], altitude[deviceNr], eventType[deviceNr], warnings);
+        final RecoveryDevice recoveryDevice;
+
+        // Parachutes are explicitly supported by RASAero
+        if (deviceType[deviceNr].equals("Parachute")) {
+            recoveryDevice = createParachute(deviceNr, size[deviceNr], CD[deviceNr], altitude[deviceNr], eventType[deviceNr], warnings);
+        }
+        // This is a bit strange from RASAero, but if the device type is None, use a parachute with 0 size, but with a CD
+        // (= Ballistic/tumble decent for that device)
+        else if (deviceType[deviceNr].equals("None")) {
+            recoveryDevice = createParachute(deviceNr, 0, CD[deviceNr], altitude[deviceNr], eventType[deviceNr], warnings);
+        }
+        // Unknown device type
+        else {
+            warnings.add("Unknown recovery device type " + deviceType[deviceNr] + " for recovery device " + (deviceNr + 1) + ". Ignoring.");
+            return;
+        }
 
         // Add the recovery device to the rocket
         if (deviceNr == 0) {
             addRecoveryDevice1ToRocket(recoveryDevice, warnings);
         } else if (deviceNr == 1) {
-            // If there is no recovery device 1, add recovery device 2 to the rocket as if you would add recovery device 1
-            if (!event[0]) {
-                addRecoveryDevice1ToRocket(recoveryDevice, warnings);
-            }
-            // If there is a recovery device 1, add recovery device 2 to the rocket as normal
-            else {
-                addRecoveryDevice2ToRocket(recoveryDevice, warnings);
-            }
+            addRecoveryDevice2ToRocket(recoveryDevice, warnings);
         }
     }
 
@@ -155,6 +174,11 @@ public class RecoveryHandler extends AbstractElementHandler {
         recoveryDevice.setLineLength(recoveryDevice.getDiameter());
         recoveryDevice.setCD(CD);
         config.setDeployAltitude(altitude / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+        // There is a special RASAero rule: if event 1 AND event 2 are set to apogee, then set event 2 to altitude
+        if (recoveryDeviceNr == 1 && eventType.equals("Apogee") && this.eventType[0].equals("Apogee")) {
+            eventType = "Altitude";
+            warnings.add("Recovery device 2 is set to apogee, but recovery device 1 is also set to apogee. Setting recovery device 2 to altitude.");
+        }
         config.setDeployEvent(RASAeroCommonConstants.getDeployEventFromRASAero(eventType, warnings));
 
         // Shroud line count = diameter / 6 inches. 6 inches = 0.1524 meters. Minimum is 6 lines.
