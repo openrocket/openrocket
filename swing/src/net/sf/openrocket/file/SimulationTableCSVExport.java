@@ -118,6 +118,11 @@ public class SimulationTableCSVExport {
 			// Account for sorting... resulting CSV file will be in the same order as shown in the table thanks to this gem.
 			int idx = simulationTable.convertRowIndexToModel(i);
 
+			// Ignore empty simulation
+			if (!document.getSimulation(idx).hasSummaryData()) {
+				continue;
+			}
+
 			int nullCnt = 0;
 			rowColumnElement.clear();
 
