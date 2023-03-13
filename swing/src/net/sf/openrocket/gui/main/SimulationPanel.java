@@ -648,13 +648,18 @@ public class SimulationPanel extends JPanel {
 			JFileChooser fch = this.setUpFileChooser();
 			int selectionStatus = fch.showSaveDialog(tableParent);
 			if (selectionStatus != JFileChooser.APPROVE_OPTION) {
-				log.info("User cancelled CSV export");
+				log.debug("User cancelled CSV export");
 				return;
 			}
 
 			// Fetch the info from the file chooser
 			File CSVFile = fch.getSelectedFile();
 			CSVFile = FileHelper.forceExtension(CSVFile, "csv");
+			if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
+				log.debug("User cancelled CSV export overwrite");
+				return;
+			}
+
 			String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
 			int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
 			((CsvOptionPanel) fch.getAccessory()).storePreferences();
@@ -688,7 +693,6 @@ public class SimulationPanel extends JPanel {
 			// Add CSV options to FileChooser
 			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
 			fch.setAccessory(CSVOptions);
-			fch.revalidate();
 
 			// TODO: update this dynamically instead of hard-coded values
 			// The macOS file chooser has an issue where it does not update its size when the accessory is added.
