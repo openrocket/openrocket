@@ -6,6 +6,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -164,6 +165,11 @@ public class SimulationListHandler extends AbstractElementHandler {
             motorConfig.setMotor(motor);
             double delay = ignitionDelay != null ? ignitionDelay : 0.0;
             motorConfig.setIgnitionDelay(delay);
+            if (stageNr < rocket.getStageCount() - 1) {       // Use burnout non-last if multi-staged rocket
+                motorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
+            } else {
+                motorConfig.setIgnitionEvent(IgnitionEvent.AUTOMATIC);
+            }
             mount.setMotorConfig(motorConfig, id);
         }
 
