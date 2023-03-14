@@ -99,13 +99,9 @@ public class RecoveryHandler extends AbstractElementHandler {
         if (event[0]) {
             addRecoveryDevice(0, warnings);
         }
-        // Don't add other devices if device 1 is disabled, or its event type is set to none
-        else if ("None".equals(eventType[0])) {
-            return;
-        }
 
-        // Recovery device 2
-        if (event[1]) {
+        // Recovery device 2 (Don't add if device 1 is disabled, or its event type is set to none)
+        if (event[1] && event[0] && !"None".equals(eventType[0])) {
             addRecoveryDevice(1, warnings);
         }
     }
