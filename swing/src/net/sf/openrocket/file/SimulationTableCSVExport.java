@@ -87,10 +87,11 @@ public class SimulationTableCSVExport {
 	 * Generate the CSV data from the simulation table
 	 * @param fieldSep The field separator to use in the CSV file.
 	 * @param precision The number of decimal places to use in the CSV file.
+	 * @param isExponentialNotation If true, use exponential notation for numbers.
 	 * @param onlySelected If true, only export the selected rows in the table.
 	 * @return The CSV data as one string block.
 	 */
-	public String generateCSVDate(String fieldSep, int precision, boolean onlySelected) {
+	public String generateCSVDate(String fieldSep, int precision, boolean isExponentialNotation, boolean onlySelected) {
 		int modelColumnCount = simulationTableModel.getColumnCount();
 		int modelRowCount = simulationTableModel.getRowCount();
 		populateColumnNameToUnitsHashTable();
@@ -154,7 +155,7 @@ public class SimulationTableCSVExport {
 					final String valueString;
 					if (o instanceof Value) {
 						double value = ((Value) o).getUnitValue();
-						valueString = TextUtil.doubleToString(value, precision);
+						valueString = TextUtil.doubleToString(value, precision, isExponentialNotation);
 					} else {
 						valueString = o.toString();
 					}
@@ -188,15 +189,16 @@ public class SimulationTableCSVExport {
 	 * @param file the file to save the results to
 	 * @param fieldSep the CSV separator to use
 	 * @param precision the decimal precision to use in the CSV file
+	 * @param isExponentialNotation if true, use exponential notation for numbers
 	 * @param onlySelected if true, only export the selected rows in the table
 	 */
-	public void export(File file, String fieldSep, int precision, boolean onlySelected) {
+	public void export(File file, String fieldSep, int precision, boolean isExponentialNotation, boolean onlySelected) {
 		if (file == null) {
 			log.warn("No file selected for export");
 			return;
 		}
 
-		String CSVData = generateCSVDate(fieldSep, precision, onlySelected);
+		String CSVData = generateCSVDate(fieldSep, precision, isExponentialNotation, onlySelected);
 		this.dumpDataToFile(CSVData, file);
 		log.info("Simulation table data exported to " + file.getAbsolutePath());
 	}

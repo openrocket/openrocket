@@ -420,6 +420,7 @@ public class SimulationPanel extends JPanel {
 
 		String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
 		int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
+		boolean isExponentialNotation = ((CsvOptionPanel) fch.getAccessory()).isExponentialNotation();
 		((CsvOptionPanel) fch.getAccessory()).storePreferences();
 
 		// Handle some special separator options from CsvOptionPanel
@@ -430,7 +431,7 @@ public class SimulationPanel extends JPanel {
 		}
 
 		SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
-		exporter.export(CSVFile, separator, precision, onlySelected);
+		exporter.export(CSVFile, separator, precision, isExponentialNotation, onlySelected);
 	}
 
 	/**
