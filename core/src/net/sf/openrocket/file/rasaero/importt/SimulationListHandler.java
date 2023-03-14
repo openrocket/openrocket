@@ -163,6 +163,13 @@ public class SimulationListHandler extends AbstractElementHandler {
             }
             MotorConfiguration motorConfig = new MotorConfiguration(mount, id);
             motorConfig.setMotor(motor);
+
+            // RASAero requires apogee deployment, so the sustainer motor should always be plugged
+            if (stageNr == 0) {
+                motorConfig.setEjectionDelay(Motor.PLUGGED_DELAY);
+            }
+
+
             double delay = ignitionDelay != null ? ignitionDelay : 0.0;
             motorConfig.setIgnitionDelay(delay);
             if (stageNr < rocket.getStageCount() - 1) {       // Use burnout non-last if multi-staged rocket
