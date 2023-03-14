@@ -114,6 +114,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
 	private final SimulationAction simTableExportAction;
+	private final SimulationAction selectedSimsExportAction;
 
 	private int[] previousSelection = null;
 	private JMenuItem exportSimTableToCSVMenuItem;
@@ -132,6 +133,7 @@ public class SimulationPanel extends JPanel {
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
 		simTableExportAction = new ExportSimulationTableAsCSVAction();
+		selectedSimsExportAction = new ExportSelectedSimulationsAsCSVAction();
 
 		////////  The simulation action buttons ////////
 
@@ -190,7 +192,7 @@ public class SimulationPanel extends JPanel {
 		pm.addSeparator();
 		pm.add(runSimulationAction);
 		pm.add(plotSimulationAction);
-		pm.add(simTableExportAction);
+		pm.add(selectedSimsExportAction);
 
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(simulationTable);
@@ -388,6 +390,79 @@ public class SimulationPanel extends JPanel {
 		openDialog(false, sims);
 	}
 
+	private void exportSimulationsToCSV(boolean onlySelected) {
+		Container tableParent = simulationTable.getParent();
+		int rowCount = simulationTableModel.getRowCount();
+
+		// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
+		// that this would no longer be needed because if there is no sim table yet, the context menu
+		// won't show up.   But I'm going to leave this in just in case....
+		if (rowCount <= 0) {
+			log.info("No simulation table rows to export");
+			JOptionPane.showMessageDialog(tableParent, trans.get("simpanel.dlg.no.simulation.table.rows"));
+			return;
+		}
+
+		JFileChooser fch = setUpSimExportCSVFileChooser();
+		int selectionStatus = fch.showSaveDialog(tableParent);
+		if (selectionStatus != JFileChooser.APPROVE_OPTION) {
+			log.debug("User cancelled CSV export");
+			return;
+		}
+
+		// Fetch the info from the file chooser
+		File CSVFile = fch.getSelectedFile();
+		CSVFile = FileHelper.forceExtension(CSVFile, "csv");
+		if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
+			log.debug("User cancelled CSV export overwrite");
+			return;
+		}
+
+		String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
+		int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
+		((CsvOptionPanel) fch.getAccessory()).storePreferences();
+
+		// Handle some special separator options from CsvOptionPanel
+		if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
+			separator = " ";
+		} else if (separator.equals(trans.get("CsvOptionPanel.separator.tab"))) {
+			separator = "\t";
+		}
+
+		SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
+		exporter.export(CSVFile, separator, precision, onlySelected);
+	}
+
+	/**
+	 * Create the file chooser to save the CSV file.
+	 * @return The file chooser.
+	 */
+	private JFileChooser setUpSimExportCSVFileChooser() {
+		JFileChooser fch = new JFileChooser();
+		fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
+		fch.setFileFilter(FileHelper.CSV_FILTER);
+		fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+		fch.setAcceptAllFileFilterUsed(false);
+
+		// Default output CSV to same name as the document's rocket name.
+		String fileName = document.getRocket().getName() + ".csv";
+		fch.setSelectedFile(new File(fileName));
+
+		// Add CSV options to FileChooser
+		CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
+		fch.setAccessory(CSVOptions);
+
+		// TODO: update this dynamically instead of hard-coded values
+		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			Dimension currentSize = fch.getPreferredSize();
+			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+			fch.setPreferredSize(newSize);
+		}
+
+		return fch;
+	}
+
 	private Simulation[] getSelectedSimulations() {
 		int[] selection = simulationTable.getSelectedRows();
 		if (selection.length == 0) {
@@ -456,9 +531,9 @@ public class SimulationPanel extends JPanel {
 
 	/**
 	 * Return the action for exporting the simulation table data to a CSV file.
-	 * @return
+	 * @return the action for exporting the simulation table data to a CSV file.
 	 */
-	public AbstractAction getSimulationTableAsCSVExportAction() {
+	public AbstractAction getExportSimulationTableAsCSVAction() {
 		return simTableExportAction;
 	}
 
@@ -473,6 +548,7 @@ public class SimulationPanel extends JPanel {
 		plotSimulationAction.updateEnabledState();
 		duplicateSimulationAction.updateEnabledState();
 		simTableExportAction.updateEnabledState();
+		selectedSimsExportAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
@@ -624,85 +700,19 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Export the entire simulation table as a CSV file.
+	 */
 	class ExportSimulationTableAsCSVAction extends SimulationAction {
 
 		public ExportSimulationTableAsCSVAction() {
-			putValue(NAME, trans.get("simpanel.pop.exportToCSV"));
+			putValue(NAME, trans.get("simpanel.pop.exportSimTableToCSV"));
 			putValue(SMALL_ICON, Icons.SIM_TABLE_EXPORT);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			Container tableParent = simulationTable.getParent();
-			int rowCount = simulationTableModel.getRowCount();
-
-			// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
-			// that this would no longer be needed because if there is no sim table yet, the context menu
-			// won't show up.   But I'm going to leave this in just in case....
-			if (rowCount <= 0) {
-				log.info("No simulation table rows to export");
-				JOptionPane.showMessageDialog(tableParent, trans.get("simpanel.dlg.no.simulation.table.rows"));
-				return;
-			}
-
-			JFileChooser fch = this.setUpFileChooser();
-			int selectionStatus = fch.showSaveDialog(tableParent);
-			if (selectionStatus != JFileChooser.APPROVE_OPTION) {
-				log.debug("User cancelled CSV export");
-				return;
-			}
-
-			// Fetch the info from the file chooser
-			File CSVFile = fch.getSelectedFile();
-			CSVFile = FileHelper.forceExtension(CSVFile, "csv");
-			if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
-				log.debug("User cancelled CSV export overwrite");
-				return;
-			}
-
-			String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
-			int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
-			((CsvOptionPanel) fch.getAccessory()).storePreferences();
-
-			// Handle some special separator options from CsvOptionPanel
-			if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
-				separator = " ";
-			} else if (separator.equals(trans.get("CsvOptionPanel.separator.tab"))) {
-				separator = "\t";
-			}
-
-			SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
-			exporter.export(CSVFile, separator, precision);
-		}
-
-		/**
-		 * Create the file chooser to save the CSV file.
-		 * @return The file chooser.
-		 */
-		private JFileChooser setUpFileChooser() {
-			JFileChooser fch = new JFileChooser();
-			fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
-			fch.setFileFilter(FileHelper.CSV_FILTER);
-			fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-			fch.setAcceptAllFileFilterUsed(false);
-
-			// Default output CSV to same name as the document's rocket name.
-			String fileName = document.getRocket().getName() + ".csv";
-			fch.setSelectedFile(new File(fileName));
-
-			// Add CSV options to FileChooser
-			CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
-			fch.setAccessory(CSVOptions);
-
-			// TODO: update this dynamically instead of hard-coded values
-			// The macOS file chooser has an issue where it does not update its size when the accessory is added.
-			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
-				Dimension currentSize = fch.getPreferredSize();
-				Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
-				fch.setPreferredSize(newSize);
-			}
-
-			return fch;
+			exportSimulationsToCSV(false);
 		}
 
 		@Override
@@ -710,6 +720,29 @@ public class SimulationPanel extends JPanel {
 			setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
 		}
 		
+	}
+
+	/**
+	 * Export only the selected simulations as a CSV file.
+	 */
+	class ExportSelectedSimulationsAsCSVAction extends SimulationAction {
+
+		public ExportSelectedSimulationsAsCSVAction() {
+			putValue(NAME, trans.get("simpanel.pop.exportSelectedSimsToCSV"));
+			putValue(SMALL_ICON, Icons.SIM_TABLE_EXPORT);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			exportSimulationsToCSV(true);
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0 &&
+					simulationTable.getSelectedRowCount() > 0);
+		}
+
 	}
 
 	class PlotSimulationAction extends SimulationAction {

@@ -88,7 +88,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -568,7 +567,7 @@ public class BasicFrame extends JFrame {
 		////	END CREATE and implement File > "Encode 3D" menu and submenu
 */
 		//  export sim table...
-		AbstractAction simTableExportAction = simulationPanel.getSimulationTableAsCSVExportAction();
+		AbstractAction simTableExportAction = simulationPanel.getExportSimulationTableAsCSVAction();
 		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);
 		menu.add(exportSimTableToCSVMenuItem);
 

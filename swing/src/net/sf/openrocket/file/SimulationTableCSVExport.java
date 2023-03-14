@@ -87,9 +87,10 @@ public class SimulationTableCSVExport {
 	 * Generate the CSV data from the simulation table
 	 * @param fieldSep The field separator to use in the CSV file.
 	 * @param precision The number of decimal places to use in the CSV file.
-	 * @return
+	 * @param onlySelected If true, only export the selected rows in the table.
+	 * @return The CSV data as one string block.
 	 */
-	public String generateCSVDate(String fieldSep, int precision) {
+	public String generateCSVDate(String fieldSep, int precision, boolean onlySelected) {
 		int modelColumnCount = simulationTableModel.getColumnCount();
 		int modelRowCount = simulationTableModel.getRowCount();
 		populateColumnNameToUnitsHashTable();
@@ -97,7 +98,7 @@ public class SimulationTableCSVExport {
 		String CSVSimResultString;
 		// Obtain the column titles for the first row of the CSV
 		ArrayList<String> rowColumnElement = new ArrayList<>();
-		for (int j = 1; j<modelColumnCount ; j++) {
+		for (int j = 1; j < modelColumnCount ; j++) {
 			String colName = simulationTable.getColumnName(j);
 
 			// Get the unit string and append to column that it applies to. Columns w/o units will remain unchanged.
@@ -114,7 +115,16 @@ public class SimulationTableCSVExport {
 		StringBuilder fullOutputResult = new StringBuilder(CSVSimResultString);
 
 		// Get relevant data and create the comma separated data from it.
-		for (int i = 0; i < modelRowCount; i++) {
+		int[] iterator;
+		if (onlySelected) {
+			iterator = simulationTable.getSelectedRows();
+		} else {
+			iterator = new int[modelRowCount];
+			for (int i = 0; i < modelRowCount; i++) {
+				iterator[i] = i;
+			}
+		}
+		for (int i : iterator) {
 			// Account for sorting... resulting CSV file will be in the same order as shown in the table thanks to this gem.
 			int idx = simulationTable.convertRowIndexToModel(i);
 
@@ -173,13 +183,20 @@ public class SimulationTableCSVExport {
 		return fullOutputResult.toString();
 	}
 
-	public void export(File file, String fieldSep, int precision) {
+	/**
+	 * Export the simulation table data to a CSV file
+	 * @param file the file to save the results to
+	 * @param fieldSep the CSV separator to use
+	 * @param precision the decimal precision to use in the CSV file
+	 * @param onlySelected if true, only export the selected rows in the table
+	 */
+	public void export(File file, String fieldSep, int precision, boolean onlySelected) {
 		if (file == null) {
 			log.warn("No file selected for export");
 			return;
 		}
 
-		String CSVData = generateCSVDate(fieldSep, precision);
+		String CSVData = generateCSVDate(fieldSep, precision, onlySelected);
 		this.dumpDataToFile(CSVData, file);
 		log.info("Simulation table data exported to " + file.getAbsolutePath());
 	}
