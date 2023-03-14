@@ -96,6 +96,10 @@ public class RailButtonCalc extends RocketComponentCalc {
 			// add to CDmul
 			CDmul += cd;
 		}
+
+		// since we'll be multiplying by the instance count up in BarrowmanCalculator,
+		// we want to return the mean CD instead of the total
+		CDmul /= button.getInstanceCount();
 		
 		return CDmul * stagnationCD * refArea / conditions.getRefArea();
 	}
