@@ -48,7 +48,7 @@ public class RASAeroHandler extends AbstractElementHandler {
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
         // Check for unknown elements
         if (!RASAeroCommonConstants.RASAERO_DOCUMENT.equals(element)) {
-            warnings.add("Unknown element " + element + ", ignoring.");
+            warnings.add("Unknown element " + element + " in RASAeroDocument, ignoring.");
             return null;
         }
 
@@ -192,6 +192,7 @@ public class RASAeroHandler extends AbstractElementHandler {
                 return PlainTextHandler.INSTANCE;
             }
 
+            //warnings.add("Unknown element " + element + " in RocketDesign, ignoring.");
             return null;
         }
 

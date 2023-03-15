@@ -44,7 +44,13 @@ public class BodyTubeHandler extends BaseHandler<BodyTube> {
         if (RASAeroCommonConstants.FIN.equals(element)) {
             return new FinHandler(this.bodyTube, warnings);
         }
-        return PlainTextHandler.INSTANCE;
+        if (RASAeroCommonConstants.LENGTH.equals(element) || RASAeroCommonConstants.DIAMETER.equals(element) ||
+                RASAeroCommonConstants.LAUNCH_LUG_DIAMETER.equals(element) || RASAeroCommonConstants.LAUNCH_LUG_LENGTH.equals(element) ||
+                RASAeroCommonConstants.RAIL_GUIDE_DIAMETER.equals(element) || RASAeroCommonConstants.RAIL_GUIDE_HEIGHT.equals(element) ||
+                RASAeroCommonConstants.LOCATION.equals(element) || RASAeroCommonConstants.COLOR.equals(element)) {
+            return PlainTextHandler.INSTANCE;
+        }
+        return null;
     }
 
     @Override

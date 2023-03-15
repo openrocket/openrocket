@@ -28,7 +28,7 @@ public class LaunchSiteHandler extends AbstractElementHandler {
                 || RASAeroCommonConstants.LAUNCH_TEMPERATURE.equals(element) || RASAeroCommonConstants.LAUNCH_WIND_SPEED.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
-        warnings.add("Unknown element " + element + ", ignoring.");
+        warnings.add("Unknown element " + element + " for launch site, ignoring.");
         return null;
     }
 

@@ -201,6 +201,6 @@ public class RASAeroLoaderTest extends BaseTestCase {
         }
         // TODO: this also includes all motor warnings, so change motor db in setUp() to include OR motors so the total
         //  warning size decreases
-        assertEquals(10, loader.getWarnings().size());
+        assertEquals(4, loader.getWarnings().size());
     }
 }

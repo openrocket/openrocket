@@ -20,6 +20,7 @@ public class RASAeroCommonConstants {
     public static final String FILE_VERSION = "FileVersion";
     public static final String ROCKET_DESIGN = "RocketDesign";
 
+    public static final String PART_TYPE = "PartType";
     public static final String LENGTH = "Length";
     public static final String DIAMETER = "Diameter";
     public static final String LOCATION = "Location";

@@ -42,6 +42,7 @@ public class RecoveryHandler extends AbstractElementHandler {
     public RecoveryHandler(Rocket rocket) {
         this.rocket = rocket;
     }
+
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
         String[] elements = new String[] {RASAeroCommonConstants.RECOVERY_ALTITUDE, RASAeroCommonConstants.RECOVERY_DEVICE_TYPE,
