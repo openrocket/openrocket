@@ -770,11 +770,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			int instanceCount = entry.getValue().size();
-			
-			if (c.isCDOverridden() ||
-				c.isCDOverriddenByAncestor()) {
-				continue;
-			}
 				
 			// if aft radius of previous component is greater than my forward radius, set
 			// its aft CD
@@ -792,7 +787,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					forceMap.get(prevComponent).setBaseCD(cd);
 				}
 			}
-				
+			
+			if (c.isCDOverridden() ||
+				c.isCDOverriddenByAncestor()) {
+				continue;
+			}
+			
 			// if I'm the last component, set my base CD
 			// note:  the iterator *should* serve up the next component.... buuuut ....
 			//        this code is tested, and there's no compelling reason to change.
