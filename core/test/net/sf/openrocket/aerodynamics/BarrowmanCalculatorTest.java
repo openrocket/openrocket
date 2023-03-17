@@ -496,5 +496,75 @@ public class BarrowmanCalculatorTest {
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
 		assertEquals("should be warning from podset airframe overlap", 1, warnings.size());
 	}
+
+	@Test
+	public void testBaseDragWithOverride() {
+		final WarningSet warnings = new WarningSet();
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
 		
+		// get base drag of minimal rocket consisting of just a tube.
+		final Rocket tubeRocket = new Rocket();
+		final AxialStage tubeStage = new AxialStage();
+		tubeRocket.addChild(tubeStage);
+		
+		final BodyTube tubeBodyTube = new BodyTube();
+		tubeStage.addChild(tubeBodyTube);
+
+		final FlightConfiguration tubeConfig = new FlightConfiguration(tubeRocket);
+		final FlightConditions tubeConditions = new FlightConditions(tubeConfig);
+		final AerodynamicForces tubeForces = calc.getAerodynamicForces(tubeConfig, tubeConditions, warnings);
+		final double tubeBaseCD = tubeForces.getBaseCD();
+
+		// get base CD of minimal rocket consisting of just a cone
+		final Rocket coneRocket = new Rocket();
+		final AxialStage coneStage = new AxialStage();
+		coneRocket.addChild(coneStage);
+
+		NoseCone coneCone = new NoseCone();
+		coneCone.setAftRadius(tubeBodyTube.getOuterRadius());
+		coneStage.addChild(coneCone);
+
+		final FlightConfiguration coneConfig = new FlightConfiguration(coneRocket);
+		final FlightConditions coneConditions = new FlightConditions(coneConfig);
+		final AerodynamicForces coneForces = calc.getAerodynamicForces(coneConfig, coneConditions, warnings);
+		final double coneBaseCD = coneForces.getBaseCD();
+
+		// now our test rocket, with a tube and a cone
+		final Rocket testRocket = new Rocket();
+		final AxialStage testStage = new AxialStage();
+		testRocket.addChild(testStage);
+
+		final BodyTube testTube = new BodyTube();
+		testTube.setOuterRadius(tubeBodyTube.getOuterRadius());
+		testStage.addChild(testTube);
+
+		final NoseCone testCone = new NoseCone();
+		testCone.setAftRadius(coneCone.getAftRadius());
+		testStage.addChild(testCone);
+
+		FlightConfiguration testConfig = new FlightConfiguration(testRocket);
+		FlightConditions testConditions = new FlightConditions(testConfig);
+
+		// no overrides
+		AerodynamicForces testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of tube plus base CD of cone", tubeBaseCD + coneBaseCD, testForces.getBaseCD(), EPSILON);
+
+		// override tube CD
+		testTube.setCDOverridden(true);
+		testTube.setOverrideCD(0);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of cone", coneBaseCD, testForces.getBaseCD(), EPSILON);
+
+		// override cone CD
+		testCone.setCDOverridden(true);
+		testCone.setOverrideCD(0);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be 0", 0.0, testForces.getBaseCD(), EPSILON);
+
+
+		// and turn off tube override
+		testTube.setCDOverridden(false);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of tube", tubeBaseCD, testForces.getBaseCD(), EPSILON);
+	}
 }
