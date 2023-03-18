@@ -26,6 +26,7 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 
 public class BarrowmanCalculatorTest {
@@ -499,7 +500,8 @@ public class BarrowmanCalculatorTest {
 	}
 
 	/**
-	 * Tests railbutton drag.  Really is testing instancing more than actual drag calculations
+	 * Tests railbutton drag.  Really is testing instancing more than actual drag calculations, and making
+	 * sure we don't divide by 0 when not moving
 	 */
 	@Test
 	public void testRailButtonDrag() {
@@ -519,6 +521,8 @@ public class BarrowmanCalculatorTest {
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		final FlightConditions conditions = new FlightConditions(config);
 		final BarrowmanCalculator calc = new BarrowmanCalculator();
+
+		// part 1:  instancing
 		
 		// Put two individual railbuttons and get their CD
 		final RailButton button1 = new RailButton();
@@ -548,7 +552,16 @@ public class BarrowmanCalculatorTest {
 		final double pairCD = pairForces.getCD();
 
 		assertEquals("two individual railbuttons should have same CD as a pair", individualCD, pairCD, EPSILON);
+
+		// part 2: test at Mach 0
+		conditions.setMach(MathUtil.EPSILON);
+		final AerodynamicForces epsForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double epsCD = epsForces.getCD();
+
+		conditions.setMach(0);
+		final AerodynamicForces zeroForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double zeroCD = zeroForces.getCD();
+		assertEquals("drag at mach 0 should equal drag at mach MathUtil.EPSILON", epsCD, zeroCD, EPSILON);
 	}
-		
 }
 	
