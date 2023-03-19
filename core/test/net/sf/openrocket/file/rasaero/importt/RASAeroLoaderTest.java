@@ -43,7 +43,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(doc);
             context.setMotorFinder(new DatabaseMotorFinder());
-            loader.loadFromStream(context, new BufferedInputStream(stream), null);
+            loader.loadFromStream(context, new BufferedInputStream(stream), "Three-stage rocket");
             Rocket rocket = doc.getRocket();
             assertNotNull(rocket);
 
