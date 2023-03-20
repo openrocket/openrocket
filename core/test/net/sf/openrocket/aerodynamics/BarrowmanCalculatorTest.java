@@ -20,11 +20,13 @@ import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 
 public class BarrowmanCalculatorTest {
@@ -496,5 +498,70 @@ public class BarrowmanCalculatorTest {
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
 		assertEquals("should be warning from podset airframe overlap", 1, warnings.size());
 	}
+
+	/**
+	 * Tests railbutton drag.  Really is testing instancing more than actual drag calculations, and making
+	 * sure we don't divide by 0 when not moving
+	 */
+	@Test
+	public void testRailButtonDrag() {
+		// minimal rocket with nothing on it but two railbuttons
+		final Rocket rocket = new Rocket();
 		
+		final AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		// phantom tubes have no drag to confuse things
+		final BodyTube phantom = new BodyTube();
+		phantom.setOuterRadius(0);
+		stage.addChild(phantom);
+
+		// set up test environment
+		WarningSet warnings = new WarningSet();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+
+		// part 1:  instancing
+		
+		// Put two individual railbuttons and get their CD
+		final RailButton button1 = new RailButton();
+		button1.setInstanceCount(1);
+		button1.setAxialOffset(1.0);
+		phantom.addChild(button1);
+
+		final RailButton button2 = new RailButton();
+		button2.setInstanceCount(1);
+		button2.setAxialOffset(2.0);
+		phantom.addChild(button2);
+
+		final AerodynamicForces individualForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double individualCD = individualForces.getCD();
+
+		// get rid of individual buttons and put in a railbutton set with two instances at same locations as original
+		// railbuttons
+		phantom.removeChild(button1);
+		phantom.removeChild(button2);
+
+		final RailButton buttons = new RailButton();
+		buttons.setInstanceCount(2);
+		buttons.setAxialOffset(1.0);
+		buttons.setInstanceSeparation(1.0);
+		
+		final AerodynamicForces pairForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double pairCD = pairForces.getCD();
+
+		assertEquals("two individual railbuttons should have same CD as a pair", individualCD, pairCD, EPSILON);
+
+		// part 2: test at Mach 0
+		conditions.setMach(MathUtil.EPSILON);
+		final AerodynamicForces epsForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double epsCD = epsForces.getCD();
+
+		conditions.setMach(0);
+		final AerodynamicForces zeroForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double zeroCD = zeroForces.getCD();
+		assertEquals("drag at mach 0 should equal drag at mach MathUtil.EPSILON", epsCD, zeroCD, EPSILON);
+	}
 }
+	
