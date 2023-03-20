@@ -188,8 +188,14 @@ public class RecoveryHandler extends AbstractElementHandler {
     /**
      * RASAero does not specify where recovery devices are located.
      * We will use the following (arbitrary, but logical) rule to add the recovery device to the rocket:
-     *      put recovery device 1 in the first sustainer body tube just below the nosecone (about 1.125 calibers below
-     *      the top of the body tube).
+     *  1.  If the sustainer consists of two body tubes then Recovery Device 2 (deployment as set altitude) is positioned
+     *      near the top (about 1.125 calibers) of the upper body tube with Recovery Device 1 (deployment at apogee)
+     *      positioned near the top (about 1.125 calibers) of the second body tube down.
+     *  2.  If the sustainer consists of three or more body tubes then Recovery Device 2 (deployment as set altitude) is
+     *      positioned near the top (about 1.125 calibers) of the upper body tube with Recovery Device 1 (deployment at apogee)
+     *      positioned near the top (about 1.125 calibers) of the third body tube down.
+     *  3.  In all other cases: put recovery device 1 in the first sustainer body tube just below the nosecone
+     *      (about 1.125 calibers below the top of the body tube).
      * @param recoveryDevice the recovery device to add
      * @param warnings the warning set to add import warnings to
      */
@@ -199,11 +205,39 @@ public class RecoveryHandler extends AbstractElementHandler {
             warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
             return;
         }
-        BodyTube bodyTube = (BodyTube) sustainer.getChild(1);
-        bodyTube.addChild(recoveryDevice);
+
+        final BodyTube parentBodyTube;
+
+        // If there is a recovery device 2, then we will use special rules
+        if (event[1] && !"None".equals(eventType[1])) {
+            List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
+            int nrOfTubes = bodyTubes.size();
+
+            // Rule 1: Two body tubes => add to second tube
+            if (nrOfTubes == 2) {
+                parentBodyTube = bodyTubes.get(1);
+                parentBodyTube.addChild(recoveryDevice);
+            }
+            // Rule 2: Three or more body tubes => add to third tube
+            else if (nrOfTubes >= 3) {
+                parentBodyTube = bodyTubes.get(2);
+                parentBodyTube.addChild(recoveryDevice);
+            }
+            // Rule 3: Less than two body tubes => add to first tube
+            else {
+                parentBodyTube = (BodyTube) sustainer.getChild(1);
+                parentBodyTube.addChild(recoveryDevice);
+            }
+        }
+        // Rule 3: Add to the first tube
+        else {
+            parentBodyTube = (BodyTube) sustainer.getChild(1);
+            parentBodyTube.addChild(recoveryDevice);
+        }
+
         recoveryDevice.setAxialMethod(AxialMethod.TOP);
-        double offset = bodyTube.getOuterRadius() * 1.125;
-        if (offset + recoveryDevice.getLength() > bodyTube.getLength()) {
+        double offset = parentBodyTube.getOuterRadius() * 1.125;
+        if (offset + recoveryDevice.getLength() > parentBodyTube.getLength()) {
             offset = 0;
         }
         recoveryDevice.setAxialOffset(offset);
@@ -215,9 +249,9 @@ public class RecoveryHandler extends AbstractElementHandler {
      *  1.  If the airframe has only 1 body tube:
      *      put recovery device 2 in the first body tube just below recovery device 1.
      *  2.  If the airframe has two body tubes:
-     *      put recovery device 2 in the second body tube (about 1.125 calibers below the top of the second body tube).
+     *      put recovery device 2 in the first body tube (about 1.125 calibers below the top of the first body tube).
      *  3.  If the airframe has three or more body tubes:
-     *      put recovery device 2 in the third body tube (about 1.125 calibers below the top of the third body tube).
+     *      put recovery device 2 in the first body tube (about 1.125 calibers below the top of the first body tube).
      * @param recoveryDevice the recovery device to add
      * @param warnings the warning set to add import warnings to
      */
@@ -226,33 +260,21 @@ public class RecoveryHandler extends AbstractElementHandler {
         double offset;
 
         AxialStage sustainer = rocket.getStage(0);
-
-        // Get all body tubes
-        List<BodyTube> bodyTubes = new ArrayList<>();
-        for (int i = 0; i < sustainer.getChildCount(); i++) {
-            if (sustainer.getChild(i) instanceof BodyTube) {
-                bodyTubes.add((BodyTube) sustainer.getChild(i));
-            }
-        }
+        List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
 
         switch (bodyTubes.size()) {
             case 0:
                 warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
                 return;
             case 1:
-                // If there is only one body tube, add the recovery device to the first body tube, after recovery device 1
+                // Rule 1: If there is only one body tube, add the recovery device to the first body tube, after recovery device 1
                 bodyTube = bodyTubes.get(0);
                 offset = bodyTube.getOuterRadius() * 1.125;
                 offset += recoveryDevice.getLength() * 1.05;        // = equivalent to adding after recovery device 1
                 break;
-            case 2:
-                // If there are two body tubes, add the recovery device to the second body tube
-                bodyTube = bodyTubes.get(1);
-                offset = bodyTube.getOuterRadius() * 1.125;
-                break;
             default:
-                // If there are three or more body tubes, add the recovery device to the third body tube
-                bodyTube = bodyTubes.get(2);
+                // Rule 2 & 3: If there are two, three or more body tubes, add the recovery device to the first body tube
+                bodyTube = bodyTubes.get(0);
                 offset = bodyTube.getOuterRadius() * 1.125;
                 break;
         }
@@ -264,5 +286,17 @@ public class RecoveryHandler extends AbstractElementHandler {
             offset = 0;
         }
         recoveryDevice.setAxialOffset(offset);
+    }
+
+    private List<BodyTube> getBodyTubesInStage(AxialStage stage) {
+        // Get all body tubes
+        List<BodyTube> bodyTubes = new ArrayList<>();
+        for (int i = 0; i < stage.getChildCount(); i++) {
+            if (stage.getChild(i) instanceof BodyTube) {
+                bodyTubes.add((BodyTube) stage.getChild(i));
+            }
+        }
+
+        return bodyTubes;
     }
 }
