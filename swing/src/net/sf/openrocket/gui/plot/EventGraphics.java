@@ -57,6 +57,7 @@ public class EventGraphics {
 				"pix/eventicons/event-recovery-device-deployment.png");
 		loadImage(FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
 		loadImage(FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
+		loadImage(FlightEvent.Type.EXCEPTION, "pix/eventicons/event-exception.png");
 	}
 
 	private static void loadImage(FlightEvent.Type type, String file) {

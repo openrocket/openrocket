@@ -61,7 +61,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 		}
 		
 		// If we saved data for a simulation before, we'll use that as our default option this time
-		boolean saveData = false;
+		// Also, updaet all the sims' modIDs to agree with flight config
 		for (Simulation s : doc.getSimulations()) {
 			s.syncModID();		// The config's modID can be out of sync with the simulation's after the whole loading process
 			if (s.getStatus() == Simulation.Status.EXTERNAL ||
@@ -79,8 +79,6 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 				continue;
 
 			doc.getDefaultStorageOptions().setSaveSimulationData(true);
-			break;
-
 		}
 
 		doc.getDefaultStorageOptions().setExplicitlySet(false);

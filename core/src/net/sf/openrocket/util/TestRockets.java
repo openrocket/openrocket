@@ -1103,6 +1103,26 @@ public class TestRockets {
 		return rocket;
 	}
 
+	// Several simulations need the Falcon9Heavy, but with fins added to the
+	// core stage (without them, there is a simulation exception at stage separation
+	// This method is intended to add those fins to the F9H, but will in fact
+	// add them to the second stage of a rocket
+	public static void addCoreFins(Rocket rocket) {
+		final int bodyFinCount = 4;
+		final double bodyFinRootChord = 0.05;
+		final double bodyFinTipChord = bodyFinRootChord;
+		final double bodyFinHeight = 0.025;
+		final double bodyFinSweep = 0.0;
+		final AxialMethod bodyFinAxialMethod = AxialMethod.BOTTOM;
+		final double bodyFinAxialOffset = 0.0;
+		
+		final TrapezoidFinSet finSet = new TrapezoidFinSet(bodyFinCount, bodyFinRootChord, bodyFinTipChord, bodyFinSweep, bodyFinHeight);
+		finSet.setName("Body Tube FinSet");
+		finSet.setAxialMethod(bodyFinAxialMethod);
+		
+		rocket.getChild(1).getChild(0).addChild(finSet);
+	}
+		
 	// This is a simple four-fin rocket with large endplates on the
 	// fins, for testing CG and CP calculations with fins on pods.
 	// not a complete rocket (no motor mount nor recovery system)

@@ -466,7 +466,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	/**
 	 * Return true if this simulation contains plottable flight data.
 	 * 
-	 * @return
+	 * @return true if this simulation contains plottable flight data.
 	 */
 	public boolean hasSimulationData() {
 		FlightData data = getSimulatedData();
@@ -477,6 +477,15 @@ public class Simulation implements ChangeSource, Cloneable {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Return true if this simulation contains summary flight data.
+	 * @return true if this simulation contains summary flight data.
+	 */
+	public boolean hasSummaryData() {
+		FlightData data = getSimulatedData();
+		return data != null;
 	}
 	
 	/**

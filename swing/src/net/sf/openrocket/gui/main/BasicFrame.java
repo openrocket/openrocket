@@ -465,7 +465,7 @@ public class BasicFrame extends JFrame {
 		fileMenu.add(item);
 
 		//  export sim table...
-		AbstractAction simTableExportAction = simulationPanel.getSimulationTableAsCSVExportAction();
+		AbstractAction simTableExportAction = simulationPanel.getExportSimulationTableAsCSVAction();
 		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);
 		fileMenu.add(exportSimTableToCSVMenuItem);
 

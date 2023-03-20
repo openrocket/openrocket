@@ -58,44 +58,56 @@ public class RailButtonCalc extends RocketComponentCalc {
 		final double notchArea = (button.getOuterDiameter() - button.getInnerDiameter()) * button.getInnerHeight();
 		final double refArea = outerArea - notchArea;
 
-		// accumulate Cd contribution from each rail button
+		// accumulate Cd contribution from each rail button.  If velocity is 0 just set CDmul to a value previously
+		// competed for velocity MathUtil.EPSILON and skip the loop to avoid division by 0
 		double CDmul = 0.0;
-		for (int i = 0; i < button.getInstanceCount(); i++) {
-			
-			// compute boundary layer height at button location.  I can't find a good reference for the
-			// formula, e.g. https://aerospaceengineeringblog.com/boundary-layers/ simply says it's the
-			// "scientific consensus".
-			double x = (button.toAbsolute(instanceOffsets[i]))[0].x;   // location of button
-			double rex = calculateReynoldsNumber(x, conditions);       // Reynolds number of button location
-			double del = 0.37 * x / Math.pow(rex, 0.2);                // Boundary layer thickness
-
-			// compute mean airspeed over button
-			// this assumes airspeed changes linearly through boundary layer
-			// and that all parts of the railbutton contribute equally to Cd,
-			// neither of which is true but both are plenty close enough for our purposes
-
-			double mach;
-			if (buttonHt > del) {
-				// Case 1:  button extends beyond boundary layer
-				// Mean velocity is 1/2 rocket velocity up to limit of boundary layer,
-				// full velocity after that
-				mach = (buttonHt - 0.5*del) * conditions.getMach()/buttonHt;
-			} else {
-				// Case 2:  button is entirely within boundary layer
-				mach = MathUtil.map(buttonHt/2.0, 0, del, 0, conditions.getMach());
+		if (conditions.getMach() > MathUtil.EPSILON) {
+			for (int i = 0; i < button.getInstanceCount(); i++) {
+				
+				// compute boundary layer height at button location.  I can't find a good reference for the
+				// formula, e.g. https://aerospaceengineeringblog.com/boundary-layers/ simply says it's the
+				// "scientific consensus".
+				double x = (button.toAbsolute(instanceOffsets[i]))[0].x;   // location of button
+				double rex = calculateReynoldsNumber(x, conditions);       // Reynolds number of button location
+				double del = 0.37 * x / Math.pow(rex, 0.2);                // Boundary layer thickness
+				
+				// compute mean airspeed over button
+				// this assumes airspeed changes linearly through boundary layer
+				// and that all parts of the railbutton contribute equally to Cd,
+				// neither of which is true but both are plenty close enough for our purposes
+				
+				double mach;
+				if (buttonHt > del) {
+					// Case 1:  button extends beyond boundary layer
+					// Mean velocity is 1/2 rocket velocity up to limit of boundary layer,
+					// full velocity after that
+					mach = (buttonHt - 0.5*del) * conditions.getMach()/buttonHt;
+				} else {
+					// Case 2:  button is entirely within boundary layer
+					mach = MathUtil.map(buttonHt/2.0, 0, del, 0, conditions.getMach());
+				}
+				
+				// look up Cd as function of speed.  It's pretty constant as a function of Reynolds
+				// number when slow, so we can just use a function of Mach number
+				double cd = MathUtil.interpolate(cdDomain, cdRange, mach);
+				
+				// Since later drag force calculations don't consider boundary layer, compute "effective Cd"
+				// based on rocket velocity
+				cd = cd * MathUtil.pow2(mach)/MathUtil.pow2(conditions.getMach());
+				
+				// add to CDmul
+				CDmul += cd;
+				
 			}
 
-			// look up Cd as function of speed.  It's pretty constant as a function of Reynolds
-			// number when slow, so we can just use a function of Mach number
-			double cd = MathUtil.interpolate(cdDomain, cdRange, mach);
-
-			// Since later drag force calculations don't consider boundary layer, compute "effective Cd"
-			// based on rocket velocity
-			cd = cd * MathUtil.pow2(mach)/MathUtil.pow2(conditions.getMach());
+			// since we'll be multiplying by the instance count up in BarrowmanCalculator,
+			// we want to return the mean CD instead of the total
+			CDmul /= button.getInstanceCount();
 			
-			// add to CDmul
-			CDmul += cd;
-		}
+			} else {
+			// value at velocity of MathUtil.EPSILON
+				CDmul = 8.786395072609939E-4;
+			}
 		
 		return CDmul * stagnationCD * refArea / conditions.getRefArea();
 	}
