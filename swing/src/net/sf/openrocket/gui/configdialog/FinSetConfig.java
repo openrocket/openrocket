@@ -109,23 +109,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						RocketComponent parent = component.getParent();
-						int index = parent.getChildPosition(component);
-						int count = ((FinSet) component).getFinCount();
-						double base = ((FinSet) component).getBaseRotation();
-						if (count <= 1)
-							return;
-						
 						document.addUndoPosition("Split fin set");
-						parent.removeChild(index);
-						for (int i = 0; i < count; i++) {
-							FinSet copy = (FinSet) component.copy();
-							copy.setFinCount(1);
-							copy.setBaseRotation(base + i * 2 * Math.PI / count);
-							copy.setName(copy.getName() + " #" + (i + 1));
-							copy.setOverrideMass(((FinSet) component).getOverrideMass()/((FinSet) component).getFinCount());
-							parent.addChild(copy, index + i);
-						}
+						((FinSet) component).splitFins();
 					}
 				});
 				
