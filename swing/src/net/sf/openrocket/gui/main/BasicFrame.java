@@ -236,6 +236,12 @@ public class BasicFrame extends JFrame {
 			popupMenu.add(actions.getPasteAction());
 			popupMenu.add(actions.getDuplicateAction());
 			popupMenu.add(actions.getDeleteAction());
+
+			popupMenu.addSeparator();
+			JMenu selectMenu = new JMenu(trans.get("RocketActions.Select"));
+			selectMenu.add(actions.getSelectSameColorAction());
+			popupMenu.add(selectMenu);
+
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
 		}
@@ -653,6 +659,13 @@ public class BasicFrame extends JFrame {
 
 		item = new JMenuItem(actions.getDeleteAction());
 		menu.add(item);
+
+		menu.addSeparator();
+
+		JMenu subMenu = new JMenu(trans.get("RocketActions.Select"));
+		item = new JMenuItem(actions.getSelectSameColorAction());
+		subMenu.add(item);
+		menu.add(subMenu);
 
 		menu.addSeparator();
 
