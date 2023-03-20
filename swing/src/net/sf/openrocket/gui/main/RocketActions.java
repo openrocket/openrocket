@@ -76,6 +76,7 @@ public class RocketActions {
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
 	private final RocketAction selectSameColorAction;
+	private final RocketAction selectNoneAction;
 	private final RocketAction scaleAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
@@ -100,7 +101,8 @@ public class RocketActions {
 		this.pasteAction = new PasteAction();
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
-		this.selectSameColorAction = new SelectSameColor();
+		this.selectSameColorAction = new SelectSameColorAction();
+		this.selectNoneAction = new SelectNoneAction();
 		this.scaleAction = new ScaleAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -135,6 +137,7 @@ public class RocketActions {
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
 		selectSameColorAction.clipboardChanged();
+		selectNoneAction.clipboardChanged();
 		scaleAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -177,6 +180,10 @@ public class RocketActions {
 
 	public Action getSelectSameColorAction() {
 		return selectSameColorAction;
+	}
+
+	public Action getSelectNoneAction() {
+		return selectNoneAction;
 	}
 
 	public Action getScaleAction() {
@@ -1014,13 +1021,14 @@ public class RocketActions {
 		}
 	}
 
+
 	/**
 	 * Action to select all components with the same color as the currently selected component.
 	 */
-	private class SelectSameColor extends RocketAction {
+	private class SelectSameColorAction extends RocketAction {
 		private static final long serialVersionUID = 1L;
 
-		public SelectSameColor() {
+		public SelectSameColorAction() {
 			//// Select same color
 			this.putValue(NAME, trans.get("RocketActions.Select.SelectSameColorAct"));
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.SelectSameColorAct.ttip"));
@@ -1095,6 +1103,30 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to select all components with the same color as the currently selected component.
+	 */
+	private class SelectNoneAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public SelectNoneAction() {
+			//// Select none
+			this.putValue(NAME, trans.get("RocketActions.Select.SelectNoneAct"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.SelectNoneAct.ttip"));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectionModel.clearComponentSelection();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled(components.size() > 0);
+		}
+	}
 
 
 

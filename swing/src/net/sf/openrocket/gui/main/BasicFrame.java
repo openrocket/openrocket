@@ -240,6 +240,7 @@ public class BasicFrame extends JFrame {
 			popupMenu.addSeparator();
 			JMenu selectMenu = new JMenu(trans.get("RocketActions.Select"));
 			selectMenu.add(actions.getSelectSameColorAction());
+			selectMenu.add(actions.getSelectNoneAction());
 			popupMenu.add(selectMenu);
 
 			popupMenu.addSeparator();
@@ -663,9 +664,11 @@ public class BasicFrame extends JFrame {
 		menu.addSeparator();
 
 		JMenu subMenu = new JMenu(trans.get("RocketActions.Select"));
+		menu.add(subMenu);
 		item = new JMenuItem(actions.getSelectSameColorAction());
 		subMenu.add(item);
-		menu.add(subMenu);
+		item = new JMenuItem(actions.getSelectNoneAction());
+		subMenu.add(item);
 
 		menu.addSeparator();
 
