@@ -104,7 +104,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Splitting " + component.getComponentName() + " into separate fins, fin count=" +
 						((FinSet) component).getFinCount());
-				
+
+				ComponentConfigDialog.disposeDialog();
+
 				// Do change in future for overall safety
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
@@ -113,8 +115,6 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						((FinSet) component).splitFins();
 					}
 				});
-				
-				ComponentConfigDialog.disposeDialog();
 			}
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);
