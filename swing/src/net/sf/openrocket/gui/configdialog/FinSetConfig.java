@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -105,6 +106,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				log.info(Markers.USER_MARKER, "Splitting " + component.getComponentName() + " into separate fins, fin count=" +
 						((FinSet) component).getFinCount());
 
+				// This is a bit awkward, we need to store the listeners before closing the dialog, because closing it
+				// will remove them. We then add them back before the split and remove them afterwards.
+				List<RocketComponent> listeners = new ArrayList<>(component.getConfigListeners());
+
 				ComponentConfigDialog.disposeDialog();
 
 				// Do change in future for overall safety
@@ -112,7 +117,11 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 					@Override
 					public void run() {
 						document.addUndoPosition("Split fin set");
+						for (RocketComponent listener : listeners) {
+							component.addConfigListener(listener);
+						}
 						((FinSet) component).splitFins();
+						component.clearConfigListeners();
 					}
 				});
 			}

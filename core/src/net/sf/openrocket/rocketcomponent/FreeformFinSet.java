@@ -97,8 +97,8 @@ public class FreeformFinSet extends FinSet {
 			for (RocketComponent listener : finset.configListeners) {
 				if (listener instanceof FinSet) {
 					FreeformFinSet listenerSet = FreeformFinSet.convertFinSet((FinSet) listener, false);
-					freeform.addConfigListener(listenerSet);
 					finset.removeConfigListener(listener);
+					freeform.addConfigListener(listenerSet);
 				}
 			}
 			
