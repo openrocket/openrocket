@@ -44,6 +44,7 @@ public class MaterialDTO {
 		density = theDensity;
 		type = theType;
 		uom = theUom;
+		type.getORMaterialType().getUnitGroup().setDefaultUnit(getUom());
 	}
 
 	public String getName() {
@@ -68,6 +69,7 @@ public class MaterialDTO {
 
 	public void setType(final MaterialTypeDTO theType) {
 		type = theType;
+		type.getORMaterialType().getUnitGroup().setDefaultUnit(getUom());
 	}
 
 	public String getUom() {
@@ -76,6 +78,7 @@ public class MaterialDTO {
 
 	public void setUom(final String theUom) {
 		uom = theUom;
+		type.getORMaterialType().getUnitGroup().setDefaultUnit(theUom);
 	}
 
 	Material asMaterial() {
