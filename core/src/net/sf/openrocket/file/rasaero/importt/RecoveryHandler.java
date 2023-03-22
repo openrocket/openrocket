@@ -189,9 +189,9 @@ public class RecoveryHandler extends AbstractElementHandler {
      * RASAero does not specify where recovery devices are located.
      * We will use the following (arbitrary, but logical) rule to add the recovery device to the rocket:
      *  If only Recovery Device 1 (deployment at apogee) is active, but Recovery Device 2 (deployment at altitude) is not:
-     *  1.  If the sustainer has 1, 2 or 3 body tubes (with no vent band - a body tube with length ≤ .8 calibers),
+     *  1.  If the sustainer has 1, 2 or 3 body tubes (with no vent band - a body tube with length <= .8 calibers),
      *      Recovery Device 1 (deployment at apogee) is positioned near the top (1.125 calibers) of the first body tube.
-     *  2.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers),
+     *  2.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers),
      *      position Recovery Device 1 in the body tube above the vent band, near the top (1.125 calibers).
      *  3.  If the sustainer has 4 or more body tubes (including any vent bands), position Recovery Device 1 in the
      *      second body tube, near the top (1.125 calibers).
@@ -199,7 +199,7 @@ public class RecoveryHandler extends AbstractElementHandler {
      *  4.  If the sustainer has 1 body tube, position Recovery Device 1 near the top (1.125 calibers) of the first body tube.
      *  5.  If the sustainer has 2 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
      *  6.  If the sustainer has 3 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
-     *  7.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers), position
+     *  7.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers), position
      *      Recovery Device 1 near the top (1.125 calibers) of the tube below the vent band.
      *  8.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the third body tube.
      * @param recoveryDevice the recovery device to add
@@ -319,7 +319,7 @@ public class RecoveryHandler extends AbstractElementHandler {
      * Recovery Device 1, with deployment at apogee) to the rocket:
      *  1.  If the sustainer has 1 body tube, position Recovery Device 2 in the first body tube, just below Recovery Device 1.
      *  2.  If the sustainer has 2 or 3 body tubes, position Recovery Device 2 near the top (1.125 calibers) of the first body tube.
-     *  3.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers), position
+     *  3.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers), position
      *      Recovery Device 2 near the top (1.125 calibers) of the tube above the vent band.
      *  4.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
      * @param recoveryDevice the recovery device to add
