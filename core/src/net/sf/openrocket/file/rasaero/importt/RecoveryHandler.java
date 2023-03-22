@@ -191,15 +191,15 @@ public class RecoveryHandler extends AbstractElementHandler {
      *  If only Recovery Device 1 (deployment at apogee) is active, but Recovery Device 2 (deployment at altitude) is not:
      *  1.  If the sustainer has 1, 2 or 3 body tubes (with no vent band - a body tube with length <= .8 calibers),
      *      Recovery Device 1 (deployment at apogee) is positioned near the top (1.125 calibers) of the first body tube.
-     *  2.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers),
+     *  2.  If the sustainer has 3 or more body tubes and one vent band (a body tube with length <= .8 calibers),
      *      position Recovery Device 1 in the body tube above the vent band, near the top (1.125 calibers).
-     *  3.  If the sustainer has 4 or more body tubes (including any vent bands), position Recovery Device 1 in the
+     *  3.  If the sustainer has 4 or more body tubes (with no vent bands), position Recovery Device 1 in the
      *      second body tube, near the top (1.125 calibers).
      *  If there is a Recovery Device 2:
      *  4.  If the sustainer has 1 body tube, position Recovery Device 1 near the top (1.125 calibers) of the first body tube.
      *  5.  If the sustainer has 2 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
      *  6.  If the sustainer has 3 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
-     *  7.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers), position
+     *  7.  If the sustainer has 3 or more body tubes and one vent band (a body tube with length <= .8 calibers), position
      *      Recovery Device 1 near the top (1.125 calibers) of the tube below the vent band.
      *  8.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the third body tube.
      * @param recoveryDevice the recovery device to add
@@ -224,11 +224,10 @@ public class RecoveryHandler extends AbstractElementHandler {
                     return;
                 case 1:
                 case 2:
-                case 3:
                     // Rule 1: Add to the first tube, 1.125 calibers from the top
                     parentBodyTube = bodyTubes.get(0);
                     break;
-                case 4:
+                default:
                     // Check if there is a vent band
                     BodyTube ventBand = null;
                     for (BodyTube tube : bodyTubes) {
@@ -243,15 +242,14 @@ public class RecoveryHandler extends AbstractElementHandler {
                         int index = bodyTubes.indexOf(ventBand);
                         int parentIndex = Math.max(index - 1, 0);
                         parentBodyTube = bodyTubes.get(parentIndex);
+                    } else if (nrOfTubes == 3) {
+                        // Rule 1: Add to the first tube, 1.125 calibers from the top
+                        parentBodyTube = bodyTubes.get(0);
                     } else {
                         // Rule 3: Add to the third tube, 1.125 calibers from the top
                         parentBodyTube = bodyTubes.get(2);
                     }
 
-                    break;
-                default:
-                    // Rule 3: Add to the third tube, 1.125 calibers from the top
-                    parentBodyTube = bodyTubes.get(2);
                     break;
             }
         }
@@ -269,11 +267,7 @@ public class RecoveryHandler extends AbstractElementHandler {
                     // Rule 5: Add to the second tube, 1.125 calibers from the top
                     parentBodyTube = bodyTubes.get(1);
                     break;
-                case 3:
-                    // Rule 6: Add to the second tube, 1.125 calibers from the top
-                    parentBodyTube = bodyTubes.get(1);
-                    break;
-                case 4:
+                default:
                     // Check if there is a vent band
                     BodyTube ventBand = null;
                     for (BodyTube tube : bodyTubes) {
@@ -288,15 +282,14 @@ public class RecoveryHandler extends AbstractElementHandler {
                         int index = bodyTubes.indexOf(ventBand);
                         int parentIndex = Math.min(index + 1, bodyTubes.size() - 1);
                         parentBodyTube = bodyTubes.get(parentIndex);
+                    } else if (nrOfTubes == 3) {
+                        // Rule 6: Add to the second tube, 1.125 calibers from the top
+                        parentBodyTube = bodyTubes.get(1);
                     } else {
                         // Rule 8: Add to the third tube, 1.125 calibers from the top
                         parentBodyTube = bodyTubes.get(2);
                     }
 
-                    break;
-                default:
-                    // Rule 8: Add to the third tube, 1.125 calibers from the top
-                    parentBodyTube = bodyTubes.get(2);
                     break;
             }
         }
@@ -319,7 +312,7 @@ public class RecoveryHandler extends AbstractElementHandler {
      * Recovery Device 1, with deployment at apogee) to the rocket:
      *  1.  If the sustainer has 1 body tube, position Recovery Device 2 in the first body tube, just below Recovery Device 1.
      *  2.  If the sustainer has 2 or 3 body tubes, position Recovery Device 2 near the top (1.125 calibers) of the first body tube.
-     *  3.  If the sustainer has 3 body tubes and one vent band (a body tube with length <= .8 calibers), position
+     *  3.  If the sustainer has 3 or more body tubes and one vent band (a body tube with length <= .8 calibers), position
      *      Recovery Device 2 near the top (1.125 calibers) of the tube above the vent band.
      *  4.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
      * @param recoveryDevice the recovery device to add
@@ -341,11 +334,10 @@ public class RecoveryHandler extends AbstractElementHandler {
                 offset += recoveryDevice.getLength() * 1.05;            // = equivalent to adding after recovery device 1
                 break;
             case 2:
-            case 3:
                 // Rule 2: Add to first body tube, 1.125 calibers from the top
                 parentBodyTube = bodyTubes.get(0);
                 break;
-            case 4:
+            default:
                 // Check if there is a vent band
                 BodyTube ventBand = null;
                 for (BodyTube tube : bodyTubes) {
@@ -360,15 +352,14 @@ public class RecoveryHandler extends AbstractElementHandler {
                     int index = bodyTubes.indexOf(ventBand);
                     int parentIndex = Math.max(index - 1, 0);
                     parentBodyTube = bodyTubes.get(parentIndex);
+                } else if (bodyTubes.size() == 3) {
+                    // Rule 2: Add to first body tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(0);
                 } else {
                     // Rule 4: Add to the second tube, 1.125 calibers from the top
                     parentBodyTube = bodyTubes.get(1);
                 }
 
-                break;
-            default:
-                // Rule 4: Add to the second tube, 1.125 calibers from the top
-                parentBodyTube = bodyTubes.get(1);
                 break;
         }
 
