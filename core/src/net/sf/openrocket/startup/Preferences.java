@@ -349,6 +349,13 @@ public abstract class Preferences implements ChangeSource {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
 			return;
 		this.putDouble(LAUNCH_ALTITUDE, altitude);
+
+		// Update the launch temperature and pressure if using ISA
+		if (getISAAtmosphere()) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -443,6 +450,13 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		}
 		this.putBoolean(LAUNCH_USE_ISA, isa);
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	

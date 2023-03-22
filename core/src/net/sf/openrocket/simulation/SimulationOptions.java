@@ -213,6 +213,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchAltitude, altitude))
 			return;
 		this.launchAltitude = altitude;
+
+		// Update the launch temperature and pressure if using ISA
+		if (useISA) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -265,6 +272,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (isa == useISA)
 			return;
 		useISA = isa;
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
