@@ -216,8 +216,8 @@ public class RecoveryHandler extends AbstractElementHandler {
         List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
         int nrOfTubes = bodyTubes.size();
 
-        // If there is a Recovery Device 2
-        if (event[1] && !"None".equals(eventType[1])) {
+        // If there is no Recovery Device 2
+        if (!event[1] || "None".equals(eventType[1])) {
             switch (nrOfTubes) {
                 case 0:
                     warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
@@ -255,7 +255,7 @@ public class RecoveryHandler extends AbstractElementHandler {
                     break;
             }
         }
-        // No Recovery Device 2
+        // If there is a Recovery Device 2
         else {
             switch (nrOfTubes) {
                 case 0:
