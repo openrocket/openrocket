@@ -188,14 +188,20 @@ public class RecoveryHandler extends AbstractElementHandler {
     /**
      * RASAero does not specify where recovery devices are located.
      * We will use the following (arbitrary, but logical) rule to add the recovery device to the rocket:
-     *  1.  If the sustainer consists of two body tubes then Recovery Device 2 (deployment as set altitude) is positioned
-     *      near the top (about 1.125 calibers) of the upper body tube with Recovery Device 1 (deployment at apogee)
-     *      positioned near the top (about 1.125 calibers) of the second body tube down.
-     *  2.  If the sustainer consists of three or more body tubes then Recovery Device 2 (deployment as set altitude) is
-     *      positioned near the top (about 1.125 calibers) of the upper body tube with Recovery Device 1 (deployment at apogee)
-     *      positioned near the top (about 1.125 calibers) of the third body tube down.
-     *  3.  In all other cases: put recovery device 1 in the first sustainer body tube just below the nosecone
-     *      (about 1.125 calibers below the top of the body tube).
+     *  If only Recovery Device 1 (deployment at apogee) is active, but Recovery Device 2 (deployment at altitude) is not:
+     *  1.  If the sustainer has 1, 2 or 3 body tubes (with no vent band - a body tube with length ≤ .8 calibers),
+     *      Recovery Device 1 (deployment at apogee) is positioned near the top (1.125 calibers) of the first body tube.
+     *  2.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers),
+     *      position Recovery Device 1 in the body tube above the vent band, near the top (1.125 calibers).
+     *  3.  If the sustainer has 4 or more body tubes (including any vent bands), position Recovery Device 1 in the
+     *      second body tube, near the top (1.125 calibers).
+     *  If there is a Recovery Device 2:
+     *  4.  If the sustainer has 1 body tube, position Recovery Device 1 near the top (1.125 calibers) of the first body tube.
+     *  5.  If the sustainer has 2 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
+     *  6.  If the sustainer has 3 body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
+     *  7.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers), position
+     *      Recovery Device 1 near the top (1.125 calibers) of the tube below the vent band.
+     *  8.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the third body tube.
      * @param recoveryDevice the recovery device to add
      * @param warnings the warning set to add import warnings to
      */
@@ -207,36 +213,100 @@ public class RecoveryHandler extends AbstractElementHandler {
         }
 
         final BodyTube parentBodyTube;
+        List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
+        int nrOfTubes = bodyTubes.size();
 
-        // If there is a recovery device 2, then we will use special rules
+        // If there is a Recovery Device 2
         if (event[1] && !"None".equals(eventType[1])) {
-            List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
-            int nrOfTubes = bodyTubes.size();
+            switch (nrOfTubes) {
+                case 0:
+                    warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
+                    return;
+                case 1:
+                case 2:
+                case 3:
+                    // Rule 1: Add to the first tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(0);
+                    break;
+                case 4:
+                    // Check if there is a vent band
+                    BodyTube ventBand = null;
+                    for (BodyTube tube : bodyTubes) {
+                        if (tube.getLength() <= 1.6 * tube.getOuterRadius()) {      // 0.8 calibers
+                            ventBand = tube;
+                            break;
+                        }
+                    }
 
-            // Rule 1: Two body tubes => add to second tube
-            if (nrOfTubes == 2) {
-                parentBodyTube = bodyTubes.get(1);
-                parentBodyTube.addChild(recoveryDevice);
-            }
-            // Rule 2: Three or more body tubes => add to third tube
-            else if (nrOfTubes >= 3) {
-                parentBodyTube = bodyTubes.get(2);
-                parentBodyTube.addChild(recoveryDevice);
-            }
-            // Rule 3: Less than two body tubes => add to first tube
-            else {
-                parentBodyTube = (BodyTube) sustainer.getChild(1);
-                parentBodyTube.addChild(recoveryDevice);
+                    if (ventBand != null) {
+                        // Rule 2: Add to the tube above the vent band, 1.125 calibers from the top
+                        int index = bodyTubes.indexOf(ventBand);
+                        int parentIndex = Math.max(index - 1, 0);
+                        parentBodyTube = bodyTubes.get(parentIndex);
+                    } else {
+                        // Rule 3: Add to the third tube, 1.125 calibers from the top
+                        parentBodyTube = bodyTubes.get(2);
+                    }
+
+                    break;
+                default:
+                    // Rule 3: Add to the third tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(2);
+                    break;
             }
         }
-        // Rule 3: Add to the first tube
+        // No Recovery Device 2
         else {
-            parentBodyTube = (BodyTube) sustainer.getChild(1);
-            parentBodyTube.addChild(recoveryDevice);
+            switch (nrOfTubes) {
+                case 0:
+                    warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
+                    return;
+                case 1:
+                    // Rule 4: Add to the first tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(0);
+                    break;
+                case 2:
+                    // Rule 5: Add to the second tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(1);
+                    break;
+                case 3:
+                    // Rule 6: Add to the second tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(1);
+                    break;
+                case 4:
+                    // Check if there is a vent band
+                    BodyTube ventBand = null;
+                    for (BodyTube tube : bodyTubes) {
+                        if (tube.getLength() <= 1.6 * tube.getOuterRadius()) {      // 0.8 calibers
+                            ventBand = tube;
+                            break;
+                        }
+                    }
+
+                    if (ventBand != null) {
+                        // Rule 7: Add to the tube below the vent band, 1.125 calibers from the top
+                        int index = bodyTubes.indexOf(ventBand);
+                        int parentIndex = Math.min(index + 1, bodyTubes.size() - 1);
+                        parentBodyTube = bodyTubes.get(parentIndex);
+                    } else {
+                        // Rule 8: Add to the third tube, 1.125 calibers from the top
+                        parentBodyTube = bodyTubes.get(2);
+                    }
+
+                    break;
+                default:
+                    // Rule 8: Add to the third tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(2);
+                    break;
+            }
         }
 
+        // Add the recovery device to the rocket
+        parentBodyTube.addChild(recoveryDevice);
+
+        // Position the recovery device
         recoveryDevice.setAxialMethod(AxialMethod.TOP);
-        double offset = parentBodyTube.getOuterRadius() * 1.125;
+        double offset = parentBodyTube.getOuterRadius() * 2.25;     // 1.125 calibers
         if (offset + recoveryDevice.getLength() > parentBodyTube.getLength()) {
             offset = 0;
         }
@@ -245,20 +315,19 @@ public class RecoveryHandler extends AbstractElementHandler {
 
     /**
      * RASAero does not specify where recovery devices are located.
-     * We will use the following (arbitrary, but logical) rules to add the recovery device to the rocket:
-     *  1.  If the airframe has only 1 body tube:
-     *      put recovery device 2 in the first body tube just below recovery device 1.
-     *  2.  If the airframe has two body tubes:
-     *      put recovery device 2 in the first body tube (about 1.125 calibers below the top of the first body tube).
-     *  3.  If the airframe has three or more body tubes:
-     *      put recovery device 2 in the first body tube (about 1.125 calibers below the top of the first body tube).
+     * We will use the following (arbitrary, but logical) rules to add Recovery Device 2 (deployment at altitude <->
+     * Recovery Device 1, with deployment at apogee) to the rocket:
+     *  1.  If the sustainer has 1 body tube, position Recovery Device 2 in the first body tube, just below Recovery Device 1.
+     *  2.  If the sustainer has 2 or 3 body tubes, position Recovery Device 2 near the top (1.125 calibers) of the first body tube.
+     *  3.  If the sustainer has 3 body tubes and one vent band (a body tube with length ≤ .8 calibers), position
+     *      Recovery Device 2 near the top (1.125 calibers) of the tube above the vent band.
+     *  4.  If the sustainer has 4 or more body tubes, position Recovery Device 1 near the top (1.125 calibers) of the second body tube.
      * @param recoveryDevice the recovery device to add
      * @param warnings the warning set to add import warnings to
      */
     private void addRecoveryDevice2ToRocket(RecoveryDevice recoveryDevice, WarningSet warnings) {
-        final BodyTube bodyTube;
-        double offset;
-
+        double offset = 0;
+        final BodyTube parentBodyTube;
         AxialStage sustainer = rocket.getStage(0);
         List<BodyTube> bodyTubes = getBodyTubesInStage(sustainer);
 
@@ -267,22 +336,49 @@ public class RecoveryHandler extends AbstractElementHandler {
                 warnings.add("No sustainer body tube found." + recoveryDevice.getName() + " will not be added to the rocket.");
                 return;
             case 1:
-                // Rule 1: If there is only one body tube, add the recovery device to the first body tube, after recovery device 1
-                bodyTube = bodyTubes.get(0);
-                offset = bodyTube.getOuterRadius() * 1.125;
-                offset += recoveryDevice.getLength() * 1.05;        // = equivalent to adding after recovery device 1
+                // Rule 1: Add to the first tube, just below Recovery Device 1
+                parentBodyTube = bodyTubes.get(0);
+                offset += recoveryDevice.getLength() * 1.05;            // = equivalent to adding after recovery device 1
+                break;
+            case 2:
+            case 3:
+                // Rule 2: Add to first body tube, 1.125 calibers from the top
+                parentBodyTube = bodyTubes.get(0);
+                break;
+            case 4:
+                // Check if there is a vent band
+                BodyTube ventBand = null;
+                for (BodyTube tube : bodyTubes) {
+                    if (tube.getLength() <= 1.6 * tube.getOuterRadius()) {      // 0.8 calibers
+                        ventBand = tube;
+                        break;
+                    }
+                }
+
+                if (ventBand != null) {
+                    // Rule 3: Add to the tube above the vent band, 1.125 calibers from the top
+                    int index = bodyTubes.indexOf(ventBand);
+                    int parentIndex = Math.max(index - 1, 0);
+                    parentBodyTube = bodyTubes.get(parentIndex);
+                } else {
+                    // Rule 4: Add to the second tube, 1.125 calibers from the top
+                    parentBodyTube = bodyTubes.get(1);
+                }
+
                 break;
             default:
-                // Rule 2 & 3: If there are two, three or more body tubes, add the recovery device to the first body tube
-                bodyTube = bodyTubes.get(0);
-                offset = bodyTube.getOuterRadius() * 1.125;
+                // Rule 4: Add to the second tube, 1.125 calibers from the top
+                parentBodyTube = bodyTubes.get(1);
                 break;
         }
 
         // Add the recovery device to the rocket
-        bodyTube.addChild(recoveryDevice);
+        parentBodyTube.addChild(recoveryDevice);
+
+        // Position the recovery device
+        offset += parentBodyTube.getOuterRadius() * 2.25;        // 1.125 calibers
         recoveryDevice.setAxialMethod(AxialMethod.TOP);
-        if (offset + recoveryDevice.getLength() > bodyTube.getLength()) {
+        if (offset + recoveryDevice.getLength() > parentBodyTube.getLength()) {
             offset = 0;
         }
         recoveryDevice.setAxialOffset(offset);
