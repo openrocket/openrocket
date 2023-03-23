@@ -56,7 +56,7 @@ public class RockSimHandler extends AbstractElementHandler {
 			WarningSet warnings) {
 		
 		// Check for unknown elements
-		if (!element.equals("RockSimDocument")) {
+		if (!RockSimCommonConstants.ROCK_SIM_DOCUMENT.equals(element)) {
 			warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
 			return null;
 		}

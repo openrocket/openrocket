@@ -322,19 +322,19 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 	////////  Type & shape  /////////
 
-	public Shape getType() {
+	public Shape getShapeType() {
 		return type;
 	}
 
-	public void setType(Shape type) {
+	public void setShapeType(Shape type) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
-				((Transition) listener).setType(type);
+				((Transition) listener).setShapeType(type);
 			}
 		}
 
 		if (type == null) {
-			throw new IllegalArgumentException("setType called with null argument");
+			throw new IllegalArgumentException("setShapeType called with null argument");
 		}
 
 		if (this.type == type)
@@ -766,7 +766,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		if ( preset.has(ComponentPreset.SHAPE) ) {
 			Shape s = preset.get(ComponentPreset.SHAPE);
-			this.setType(s);
+			this.setShapeType(s);
 			this.setClipped(s.canClip);
 			this.setShapeParameter(s.defaultParameter());
 		}

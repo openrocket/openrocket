@@ -66,11 +66,11 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
     protected AbstractTransitionDTO(Transition nc) {
         super(nc);
         setConstructionType(nc.isFilled() ? 0 : 1);
-        setShapeCode(RockSimNoseConeCode.toCode(nc.getType()));
+        setShapeCode(RockSimNoseConeCode.toCode(nc.getShapeType()));
 
-        if (Transition.Shape.POWER.equals(nc.getType()) ||
-                Transition.Shape.HAACK.equals(nc.getType()) ||
-                Transition.Shape.PARABOLIC.equals(nc.getType())) {
+        if (Transition.Shape.POWER.equals(nc.getShapeType()) ||
+                Transition.Shape.HAACK.equals(nc.getShapeType()) ||
+                Transition.Shape.PARABOLIC.equals(nc.getShapeType())) {
             setShapeParameter(nc.getShapeParameter());
         }
 
