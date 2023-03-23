@@ -1,7 +1,6 @@
 package net.sf.openrocket.file.rasaero.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -11,16 +10,13 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Handles importing the RASAero recovery settings to an OpenRocket recovery device.
@@ -377,7 +373,7 @@ public class RecoveryHandler extends AbstractElementHandler {
 
     private List<BodyTube> getBodyTubesInStage(AxialStage stage) {
         // Get all body tubes
-        List<BodyTube> bodyTubes = new ArrayList<>();
+        List<BodyTube> bodyTubes = new LinkedList<>();
         for (int i = 0; i < stage.getChildCount(); i++) {
             if (stage.getChild(i) instanceof BodyTube) {
                 bodyTubes.add((BodyTube) stage.getChild(i));
