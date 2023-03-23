@@ -242,8 +242,8 @@ public class RecoveryHandler extends AbstractElementHandler {
                         // Rule 1: Add to the first tube, 1.125 calibers from the top
                         parentBodyTube = bodyTubes.get(0);
                     } else {
-                        // Rule 3: Add to the third tube, 1.125 calibers from the top
-                        parentBodyTube = bodyTubes.get(2);
+                        // Rule 3: Add to the second tube, 1.125 calibers from the top
+                        parentBodyTube = bodyTubes.get(1);
                     }
 
                     break;
