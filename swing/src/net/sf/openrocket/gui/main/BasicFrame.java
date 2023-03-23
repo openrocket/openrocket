@@ -1512,11 +1512,6 @@ public class BasicFrame extends JFrame {
 
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
-		// If the user entered an illegal filename, show the dialog again
-		while (option == SaveFileChooser.ILLEGAL_FILENAME_ERROR) {
-			option = chooser.showSaveDialog(BasicFrame.this);
-		}
-
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return false;

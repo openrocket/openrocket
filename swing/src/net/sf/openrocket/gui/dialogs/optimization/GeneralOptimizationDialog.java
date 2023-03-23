@@ -52,6 +52,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1154,7 +1155,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				trans.get("export.header"), trans.get("export.header.ttip"));
 		
 		
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);

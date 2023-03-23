@@ -37,6 +37,7 @@ import net.sf.openrocket.gui.preset.PresetResultListener;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -404,7 +405,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	private boolean saveAsORC() throws JAXBException, IOException {
 		File file = null;
 		
-		final JFileChooser chooser = new JFileChooser();
+		final JFileChooser chooser = new SaveFileChooser();
 		chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 		
 		chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);

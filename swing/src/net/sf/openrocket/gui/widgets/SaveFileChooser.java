@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.widgets;
 
+import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
@@ -36,7 +37,15 @@ public class SaveFileChooser extends JFileChooser {
                         String.format(trans.get("SaveAsFileChooser.illegalFilename.message"), filename, c),
                         trans.get("SaveAsFileChooser.illegalFilename.title"),
                         JOptionPane.WARNING_MESSAGE);
-                return ILLEGAL_FILENAME_ERROR;
+
+                option = ILLEGAL_FILENAME_ERROR;
+
+                // If the user entered an illegal filename, show the dialog again
+                while (option == SaveFileChooser.ILLEGAL_FILENAME_ERROR) {
+                    option = showSaveDialog(parent);
+                }
+
+                return option;
             }
         }
 
