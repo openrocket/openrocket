@@ -17,7 +17,7 @@ public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
     public TransitionShapeModel(RocketComponent component) {
         this.component = component;
         if (component instanceof Transition) {
-            previousType = ((Transition) component).getType();
+            previousType = ((Transition) component).getShapeType();
             setSelectedItem(previousType);
             component.addComponentChangeListener(this);
         }
@@ -29,13 +29,13 @@ public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
             return;
         }
 
-        ((Transition) component).setType((Transition.Shape) item);
+        ((Transition) component).setShapeType((Transition.Shape) item);
     }
 
     @Override
     public Object getSelectedItem() {
         if (component instanceof Transition) {
-            return ((Transition) component).getType();
+            return ((Transition) component).getShapeType();
         }
         return null;
     }
@@ -56,8 +56,8 @@ public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
             return;
         }
 
-        if (previousType != ((Transition) component).getType()) {
-            previousType = ((Transition) component).getType();
+        if (previousType != ((Transition) component).getShapeType()) {
+            previousType = ((Transition) component).getShapeType();
             fireContentsChanged(this, 0, 0);
         }
     }

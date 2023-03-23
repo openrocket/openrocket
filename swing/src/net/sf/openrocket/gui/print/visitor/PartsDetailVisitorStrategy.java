@@ -184,7 +184,7 @@ public class PartsDetailVisitorStrategy {
             grid.addCell(iconToImage(component));
             grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(nc.getMaterial()));
-            grid.addCell(ITextHelper.createCell(nc.getType().getName(), PdfPCell.BOTTOM));
+            grid.addCell(ITextHelper.createCell(nc.getShapeType().getName(), PdfPCell.BOTTOM));
             grid.addCell(createLengthCell(component.getLength()));
             grid.addCell(createMassCell(component.getMass()));
             List<RocketComponent> rc = component.getChildren();

@@ -37,22 +37,29 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 		File defaultFilename = document.getFileNoExtension();
 		
 		switch( type ) {
-		default:
-		case OPENROCKET:
-			defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
-			this.setDialogTitle(trans.get("saveAs.openrocket.title"));
-			storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
-			this.setAccessory(storageChooser);
-			this.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-			this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-			break;
-		case ROCKSIM:
-			defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
-			this.setDialogTitle(trans.get("saveAs.rocksim.title"));
-			storageChooser = null;
-			this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-			this.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-			break;
+			default:
+			case OPENROCKET:
+				defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
+				this.setDialogTitle(trans.get("saveAs.openrocket.title"));
+				storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
+				this.setAccessory(storageChooser);
+				this.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+				this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+				break;
+			case ROCKSIM:
+				defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
+				this.setDialogTitle(trans.get("saveAs.rocksim.title"));
+				storageChooser = null;
+				this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+				this.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+				break;
+			/*case RASAERO:
+				defaultFilename = FileHelper.forceExtension(defaultFilename,"CDX1");
+				this.setDialogTitle(trans.get("saveAs.rasaero.title"));
+				storageChooser = null;
+				this.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
+				this.setFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
+				break;*/
 		}
 		
 		final RememberFilenamePropertyListener listener = new RememberFilenamePropertyListener();

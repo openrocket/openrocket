@@ -120,7 +120,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setOpenRocketDocument(importedDocument);
 		context.setMotorFinder(new DatabaseMotorFinder());
-		loader.loadFromStream(context, new BufferedInputStream(stream));
+		loader.loadFromStream(context, new BufferedInputStream(stream), null);
 		Rocket importedRocket = importedDocument.getRocket();
 
 		// Test children counts
@@ -187,7 +187,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setOpenRocketDocument(importedDocument);
 		context.setMotorFinder(new DatabaseMotorFinder());
-		loader.loadFromStream(context, new BufferedInputStream(stream));
+		loader.loadFromStream(context, new BufferedInputStream(stream), null);
 		Rocket importedRocket = importedDocument.getRocket();
 
 		// Test children counts

@@ -207,7 +207,14 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.configId = fcid;
 		fireChangeEvent();
 	}
-	
+
+	/**
+	 * Applies the simulation options to the simulation.
+	 * @param options the simulation options to apply.
+	 */
+	public void copySimulationOptionsFrom(SimulationOptions options) {
+		this.options.copyConditionsFrom(options);
+	}
 	
 //	/**
 //	 * Return a newly created Configuration for this simulation.  The configuration

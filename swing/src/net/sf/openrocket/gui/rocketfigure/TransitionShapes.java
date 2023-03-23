@@ -29,7 +29,7 @@ public class TransitionShapes extends RocketComponentShape {
 		RocketComponentShape[] mainShapes;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
-		if (transition.getType() == Transition.Shape.CONICAL) {
+		if (transition.getShapeType() == Transition.Shape.CONICAL) {
 		    final Coordinate frontCenter = instanceAbsoluteLocation;
 	        
 			double length = transition.getLength();

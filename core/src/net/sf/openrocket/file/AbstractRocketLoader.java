@@ -14,11 +14,11 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * Loads a rocket from the specified InputStream.
 	 */
 	@Override
-	public final void load(DocumentLoadingContext context, InputStream source) throws RocketLoadException {
+	public final void load(DocumentLoadingContext context, InputStream source, String fileName) throws RocketLoadException {
 		warnings.clear();
 		
 		try {
-			loadFromStream(context, source);
+			loadFromStream(context, source, fileName);
 		} catch (RocketLoadException e) {
 			throw e;
 		} catch (IOException e) {
@@ -34,7 +34,7 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * 
 	 * @throws RocketLoadException	if an error occurs during loading.
 	 */
-	protected abstract void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException;
+	protected abstract void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws IOException, RocketLoadException;
 	
 	
 	

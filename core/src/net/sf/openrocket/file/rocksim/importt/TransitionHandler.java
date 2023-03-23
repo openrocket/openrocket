@@ -64,7 +64,7 @@ class TransitionHandler extends BaseHandler<Transition> {
 		
 		try {
 			if ("ShapeCode".equals(element)) {
-				transition.setType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				transition.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
 			}
 			if ("Len".equals(element)) {
 				transition.setLength(Math.max(0, Double.parseDouble(
@@ -98,9 +98,9 @@ class TransitionHandler extends BaseHandler<Transition> {
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("ShapeParameter".equals(element)) {
-				if (Transition.Shape.POWER.equals(transition.getType()) ||
-						Transition.Shape.HAACK.equals(transition.getType()) ||
-						Transition.Shape.PARABOLIC.equals(transition.getType())) {
+				if (Transition.Shape.POWER.equals(transition.getShapeType()) ||
+						Transition.Shape.HAACK.equals(transition.getShapeType()) ||
+						Transition.Shape.PARABOLIC.equals(transition.getShapeType())) {
 					transition.setShapeParameter(Double.parseDouble(content));
 				}
 			}

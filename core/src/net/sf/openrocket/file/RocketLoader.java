@@ -6,7 +6,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 
 public interface RocketLoader {
 	
-	public void load(DocumentLoadingContext context, InputStream source) throws RocketLoadException;
+	public void load(DocumentLoadingContext context, InputStream source, String fileName) throws RocketLoadException;
 	
 	public WarningSet getWarnings();
 	

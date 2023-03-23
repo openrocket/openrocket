@@ -970,7 +970,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		
 	public boolean isRootStraight( ){
         if( getParent() instanceof Transition){
-			return ((Transition) getParent()).getType() == Shape.CONICAL;
+			return ((Transition) getParent()).getShapeType() == Shape.CONICAL;
         }
         
         // by default, assume a flat base
@@ -1078,7 +1078,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		final double intervalLength = xEnd - xStart;
 
 		// for anything more complicated, increase the count:
-		if ((body instanceof Transition) && (((Transition)body).getType() != Shape.CONICAL)) {
+		if ((body instanceof Transition) && (((Transition)body).getShapeType() != Shape.CONICAL)) {
 			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
 			final double xWidth = 0.0025; // width (in meters) of each individual iteration
 			divisionCount = (int) Math.ceil(intervalLength / xWidth);

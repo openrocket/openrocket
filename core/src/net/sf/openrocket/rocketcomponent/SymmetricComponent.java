@@ -707,12 +707,14 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// It could be that there is a child component assembly that is flush with the end of the parent or larger
 			// Recursively check assembly's children
 			previousComponent = getPreviousSymmetricComponentFromComponentAssembly(lastSymmetricChild, previousComponent, flushDeviation);
-			maxRadius = previousComponent != null ? previousComponent.getAftRadius() : maxRadius;
+			if (previousComponent != null && !previousComponent.isAftRadiusAutomatic()) {
+				maxRadius = previousComponent.getAftRadius();
+			}
 		}
 
 		return previousComponent;
 	}
-	
+
 	/**
 	 * Return the next symmetric component, or null if none exists.
 	 * 
@@ -826,7 +828,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// It could be that there is a child component assembly that is flush with the front of the parent or larger
 			// Recursively check assembly's children
 			nextComponent = getNextSymmetricComponentFromComponentAssembly(firstSymmetricChild, nextComponent, flushDeviation);
-			maxRadius = nextComponent != null ? nextComponent.getForeRadius() : maxRadius;
+			if (nextComponent != null && !nextComponent.isForeRadiusAutomatic()) {
+				maxRadius = nextComponent.getForeRadius();
+			}
 		}
 
 		return nextComponent;

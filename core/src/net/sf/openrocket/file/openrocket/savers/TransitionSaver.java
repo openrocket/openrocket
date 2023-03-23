@@ -31,7 +31,7 @@ public class TransitionSaver extends SymmetricComponentSaver {
 		super.addParams(c, elements);
 		net.sf.openrocket.rocketcomponent.Transition trans = (net.sf.openrocket.rocketcomponent.Transition) c;
 		
-		Transition.Shape shape = trans.getType();
+		Transition.Shape shape = trans.getShapeType();
 		elements.add("<shape>" + shape.name().toLowerCase(Locale.ENGLISH) + "</shape>");
 		if (shape.isClippable()) {
 			elements.add("<shapeclipped>" + trans.isClipped() + "</shapeclipped>");
