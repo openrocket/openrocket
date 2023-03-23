@@ -1099,7 +1099,7 @@ public class RocketActions {
 		@Override
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			this.setEnabled(components.size() == 1);
+			this.setEnabled(components.size() == 1 && components.get(0).isMassive());
 		}
 	}
 
