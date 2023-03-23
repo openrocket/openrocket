@@ -76,7 +76,7 @@ public class RocketActions {
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
 	private final RocketAction selectSameColorAction;
-	private final RocketAction selectNoneAction;
+	private final RocketAction deselectAllAction;
 	private final RocketAction scaleAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
@@ -102,7 +102,7 @@ public class RocketActions {
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
 		this.selectSameColorAction = new SelectSameColorAction();
-		this.selectNoneAction = new SelectNoneAction();
+		this.deselectAllAction = new DeselectAllAction();
 		this.scaleAction = new ScaleAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -137,7 +137,7 @@ public class RocketActions {
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
 		selectSameColorAction.clipboardChanged();
-		selectNoneAction.clipboardChanged();
+		deselectAllAction.clipboardChanged();
 		scaleAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -182,8 +182,8 @@ public class RocketActions {
 		return selectSameColorAction;
 	}
 
-	public Action getSelectNoneAction() {
-		return selectNoneAction;
+	public Action getDeselectAllAction() {
+		return deselectAllAction;
 	}
 
 	public Action getScaleAction() {
@@ -1104,15 +1104,15 @@ public class RocketActions {
 	}
 
 	/**
-	 * Action to select all components with the same color as the currently selected component.
+	 * Action to deselect all currently selected components.
 	 */
-	private class SelectNoneAction extends RocketAction {
+	private class DeselectAllAction extends RocketAction {
 		private static final long serialVersionUID = 1L;
 
-		public SelectNoneAction() {
-			//// Select none
-			this.putValue(NAME, trans.get("RocketActions.Select.SelectNoneAct"));
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.SelectNoneAct.ttip"));
+		public DeselectAllAction() {
+			//// Deselect all
+			this.putValue(NAME, trans.get("RocketActions.Select.DeselectAllAct"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.DeselectAllAct.ttip"));
 			clipboardChanged();
 		}
 
