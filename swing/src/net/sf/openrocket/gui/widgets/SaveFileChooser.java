@@ -1,54 +1,74 @@
 package net.sf.openrocket.gui.widgets;
 
-import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import java.awt.Component;
-import java.awt.HeadlessException;
 import java.io.File;
 
 public class SaveFileChooser extends JFileChooser {
     private static final Translator trans = Application.getTranslator();
 
     private static final char[] ILLEGAL_CHARS = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
-    public static final int ILLEGAL_FILENAME_ERROR = 23111998;
+
+    private File cwd = null;
+    private File currentFile = null;
+    private String fileName = null;
 
 
     @Override
-    public int showSaveDialog(Component parent) throws HeadlessException {
-        int option = super.showSaveDialog(parent);
-        if (option != JFileChooser.APPROVE_OPTION) {
-            return option;
+    public void setSelectedFile(File file) {
+        currentFile = file;
+        if (file != null) {
+            if (file.getParentFile() != getCurrentDirectory()) {
+                cwd = getCurrentDirectory();
+                fileName = getFilenameInput(file);
+                return;
+            } else {
+                fileName = file.getName();
+            }
         }
+        super.setSelectedFile(file);
+    }
 
-        // Check for invalid characters
-        File file = getSelectedFile();
-        if (file == null) {
-            return ERROR_OPTION;
+    @Override
+    public void approveSelection() {
+        if (!containsIllegalChars(fileName)) {
+            super.setSelectedFile(currentFile);
+            setCurrentDirectory(cwd);
+            super.approveSelection();
         }
-        String filename = file.getName();
+    }
+
+    private boolean containsIllegalChars(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return false;
+        }
         for (char c : ILLEGAL_CHARS) {
             if (filename.indexOf(c) >= 0) {
                 // Illegal character found
-                JOptionPane.showMessageDialog(parent,
+                JOptionPane.showMessageDialog(getParent(),
                         String.format(trans.get("SaveAsFileChooser.illegalFilename.message"), filename, c),
                         trans.get("SaveAsFileChooser.illegalFilename.title"),
                         JOptionPane.WARNING_MESSAGE);
-
-                option = ILLEGAL_FILENAME_ERROR;
-
-                // If the user entered an illegal filename, show the dialog again
-                while (option == SaveFileChooser.ILLEGAL_FILENAME_ERROR) {
-                    option = showSaveDialog(parent);
-                }
-
-                return option;
+                return true;
             }
         }
+        return false;
+    }
 
-        return option;
+    private String getFilenameInput(File file) {
+        if (file == null) {
+            return null;
+        }
+
+        String fullPath = file.getAbsolutePath();
+        String cwdPath = cwd.getAbsolutePath();
+
+        String relativePath = fullPath.replaceFirst("^" + cwdPath, "").trim();
+        relativePath = relativePath.replaceFirst("^" + File.separator, "");
+
+        return relativePath;
     }
 }
