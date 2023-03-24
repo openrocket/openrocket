@@ -1421,6 +1421,67 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
+	/**
+	 * Split the fin set into individual fins.
+	 * @return  A list of the new fin sets.
+	 */
+	public List<FinSet> splitFins(boolean freezeRocket) {
+		final RocketComponent root = getRoot();
+		RocketComponent parent = getParent();
+		int index = parent.getChildPosition(this);
+		int count = getFinCount();
+		double base = getBaseRotation();
+
+		List<FinSet> splitFins = null;		// List of all the split fins
+
+		try {
+			// Freeze rocket
+			if (freezeRocket && root instanceof Rocket) {
+				((Rocket) root).freeze();
+			}
+
+			// Split the fins
+			if (count > 1) {
+				parent.removeChild(index);
+				splitFins = new ArrayList<>();
+				for (int i = 0; i < count; i++) {
+					FinSet copy = (FinSet) this.copy();
+					copy.setFinCount(1);
+					copy.setBaseRotation(base + i * 2 * Math.PI / count);
+					copy.setName(copy.getName() + " #" + (i + 1));
+					copy.setOverrideMass(getOverrideMass() / getFinCount());
+					parent.addChild(copy, index + i);
+
+					splitFins.add(copy);
+				}
+			}
+
+			// Split fins for children
+			for (RocketComponent listener : configListeners) {
+				if (listener instanceof FinSet) {
+					((FinSet) listener).splitFins(false);
+					this.removeConfigListener(listener);
+				}
+			}
+		} finally {
+			// Unfreeze rocket
+			if (freezeRocket && root instanceof Rocket) {
+				((Rocket) root).thaw();
+			}
+		}
+
+		return splitFins;
+	}
+
+	/**
+	 * Split the fin set into individual fins.
+	 * @return A list of the new fin sets.
+	 */
+	public List<FinSet> splitFins() {
+		return splitFins(true);
+	}
+
+
 	// for debugging.  You can safely delete this method
 	public static String getPointDescr( final Coordinate[] points, final String name, final String indent){
 		return getPointDescr(Arrays.asList(points), name, indent);
