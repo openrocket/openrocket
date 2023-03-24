@@ -123,7 +123,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in"));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 0.1));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		
