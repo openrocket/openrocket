@@ -22,8 +22,8 @@ public abstract class RailGuideHandler {
      * @param height total height of the rail guide, plus the screw height
      */
     public static void addRailGuide(BodyTube parent, double diameter, double height) {
-        diameter = diameter / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
-        height = height / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+        diameter = diameter / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
+        height = height / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
 
         RailButton button = generateRailButtonFromRASAeroRailGuide(diameter, height, parent.getLength());
         parent.addChild(button);

@@ -51,11 +51,11 @@ public class BoosterHandler extends BodyTubeHandler {
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         if (RASAeroCommonConstants.BOAT_TAIL_LENGTH.equals(element)) {
-            this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
         } else if (RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)) {
-            this.boatTailRearDiameter = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            this.boatTailRearDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
         } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
         }
     }
 

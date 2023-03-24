@@ -63,8 +63,8 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
     @Override
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
-        this.noseCone.setLength(length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        this.noseCone.setBaseRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        this.noseCone.setLength(length / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
+        this.noseCone.setBaseRadius(diameter/2  / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
         this.noseCone.setThickness(0.002);          // Arbitrary value; RASAero doesn't specify this
     }
 

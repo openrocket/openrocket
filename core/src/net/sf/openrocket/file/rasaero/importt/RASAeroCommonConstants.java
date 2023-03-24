@@ -124,27 +124,27 @@ public class RASAeroCommonConstants {
 
 
     /**
-     * Length conversion.  RASAero is in inches, OpenRocket in meters.
+     * Length conversion from OpenRocket units to RASAero units.  RASAero is in inches, OpenRocket in meters.
      */
-    public static final double RASAERO_TO_OPENROCKET_LENGTH = 39.37;
+    public static final double OPENROCKET_TO_RASAERO_TO_LENGTH = 39.37;
     /**
-     * Altitude conversion.  RASAero is in feet, OpenRocket in meters.
+     * Altitude conversion from OpenRocket units to RASAero units.  RASAero is in feet, OpenRocket in meters.
      */
-    public static final double RASAERO_TO_OPENROCKET_ALTITUDE = 3.28084;
+    public static final double OPENROCKET_TO_RASAERO_ALTITUDE = 3.28084;
     /**
-     * Speed conversion.  RASAero is in mph, OpenRocket in m/s.
+     * Speed conversion from OpenRocket units to RASAero units.  RASAero is in mph, OpenRocket in m/s.
      */
-    public static final double RASAERO_TO_OPENROCKET_SPEED = 2.23694;
+    public static final double OPENROCKET_TO_RASAERO_SPEED = 2.23694;
     /**
-     * Pressure conversion.  RASAero is in in-hg, OpenRocket in Pa.
+     * Pressure conversion from OpenRocket units to RASAero units.  RASAero is in in-hg, OpenRocket in Pa.
      */
-    public static final double RASAERO_TO_OPENROCKET_PRESSURE = 0.000295301;
+    public static final double OPENROCKET_TO_RASAERO_PRESSURE = 0.000295301;
     /**
-     * Angle conversion.  RASAero is in degrees, OpenRocket in rad.
+     * Angle conversion from OpenRocket units to RASAero units.  RASAero is in degrees, OpenRocket in rad.
      */
-    public static final double RASAERO_TO_OPENROCKET_ANGLE = 180 / Math.PI;
+    public static final double OPENROCKET_TO_RASAERO_ANGLE = 180 / Math.PI;
     /**
-     * Temperature conversion.  RASAero is in Fahrenheit, OpenRocket in Kelvin.
+     * Temperature conversion from OpenRocket units to RASAero units.  RASAero is in Fahrenheit, OpenRocket in Kelvin.
      */
     public static final double RASAERO_TO_OPENROCKET_TEMPERATURE(Double input) {
         return (input + 459.67) * 5.0 / 9.0;

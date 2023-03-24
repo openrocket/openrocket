@@ -54,7 +54,7 @@ public class TransitionHandler extends BaseHandler<Transition> {
         super.closeElement(element, attributes, content, warnings);
         try {
             if (RASAeroCommonConstants.REAR_DIAMETER.equals(element)) {
-                this.transition.setAftRadius(Double.parseDouble(content) / 2 / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                this.transition.setAftRadius(Double.parseDouble(content) / 2 / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
@@ -64,8 +64,8 @@ public class TransitionHandler extends BaseHandler<Transition> {
     @Override
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
-        this.transition.setLength(length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        this.transition.setForeRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);       // Not really useful, but adding it for completeness
+        this.transition.setLength(length / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
+        this.transition.setForeRadius(diameter/2  / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);       // Not really useful, but adding it for completeness
         this.transition.setForeRadiusAutomatic(true);
         this.transition.setThickness(0.002);    // Arbitrary value; RASAero doesn't specify this
     }

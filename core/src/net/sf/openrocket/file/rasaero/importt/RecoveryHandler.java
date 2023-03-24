@@ -163,10 +163,10 @@ public class RecoveryHandler extends AbstractElementHandler {
         recoveryDevice.setName("Recovery Event " + (recoveryDeviceNr+1));
         DeploymentConfiguration config = recoveryDevice.getDeploymentConfigurations().getDefault();
 
-        recoveryDevice.setDiameter(size / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        recoveryDevice.setDiameter(size / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
         recoveryDevice.setLineLength(recoveryDevice.getDiameter());
         recoveryDevice.setCD(CD);
-        config.setDeployAltitude(altitude / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+        config.setDeployAltitude(altitude / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
 
         // There is a special RASAero rule: if event 1 AND event 2 are set to apogee, then set event 2 to altitude
         if (recoveryDeviceNr == 1 && eventType.equals("Apogee") && this.eventType[0].equals("Apogee")) {

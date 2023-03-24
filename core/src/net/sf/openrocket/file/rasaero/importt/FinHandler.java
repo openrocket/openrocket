@@ -46,21 +46,21 @@ public class FinHandler extends AbstractElementHandler {
             if (RASAeroCommonConstants.FIN_COUNT.equals(element)) {
                 finSet.setFinCount(Integer.parseInt(content));
             } else if (RASAeroCommonConstants.FIN_CHORD.equals(element)) {
-                finSet.setRootChord(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                finSet.setRootChord(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             } else if (RASAeroCommonConstants.FIN_SPAN.equals(element)) {
-                finSet.setHeight(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                finSet.setHeight(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             } else if (RASAeroCommonConstants.FIN_SWEEP_DISTANCE.equals(element)) {
-                finSet.setSweep(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                finSet.setSweep(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             } else if (RASAeroCommonConstants.FIN_TIP_CHORD.equals(element)) {
-                finSet.setTipChord(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                finSet.setTipChord(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             } else if (RASAeroCommonConstants.FIN_THICKNESS.equals(element)) {
-                finSet.setThickness(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+                finSet.setThickness(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH);
             } else if (RASAeroCommonConstants.AIRFOIL_SECTION.equals(element)) {
                 finSet.setCrossSection(RASAeroCommonConstants.getFinCrossSectionFromRASAero(content, warnings));
             } else if (RASAeroCommonConstants.LOCATION.equals(element)) {
                 // Location is the location of the front of the fin relative to the bottom of the body tube
                 finSet.setAxialMethod(AxialMethod.BOTTOM);
-                double location = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+                double location = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
                 location = -location + finSet.getLength();
                 finSet.setAxialOffset(location);
             }
