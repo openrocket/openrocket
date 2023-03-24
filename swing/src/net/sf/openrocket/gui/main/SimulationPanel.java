@@ -43,6 +43,7 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -403,25 +404,25 @@ public class SimulationPanel extends JPanel {
 			return;
 		}
 
-		JFileChooser fch = setUpSimExportCSVFileChooser();
-		int selectionStatus = fch.showSaveDialog(tableParent);
+		JFileChooser chooser = setUpSimExportCSVFileChooser();
+		int selectionStatus = chooser.showSaveDialog(tableParent);
 		if (selectionStatus != JFileChooser.APPROVE_OPTION) {
 			log.debug("User cancelled CSV export");
 			return;
 		}
 
 		// Fetch the info from the file chooser
-		File CSVFile = fch.getSelectedFile();
+		File CSVFile = chooser.getSelectedFile();
 		CSVFile = FileHelper.forceExtension(CSVFile, "csv");
 		if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
 			log.debug("User cancelled CSV export overwrite");
 			return;
 		}
 
-		String separator = ((CsvOptionPanel) fch.getAccessory()).getFieldSeparator();
-		int precision = ((CsvOptionPanel) fch.getAccessory()).getDecimalPlaces();
-		boolean isExponentialNotation = ((CsvOptionPanel) fch.getAccessory()).isExponentialNotation();
-		((CsvOptionPanel) fch.getAccessory()).storePreferences();
+		String separator = ((CsvOptionPanel) chooser.getAccessory()).getFieldSeparator();
+		int precision = ((CsvOptionPanel) chooser.getAccessory()).getDecimalPlaces();
+		boolean isExponentialNotation = ((CsvOptionPanel) chooser.getAccessory()).isExponentialNotation();
+		((CsvOptionPanel) chooser.getAccessory()).storePreferences();
 
 		// Handle some special separator options from CsvOptionPanel
 		if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
@@ -439,29 +440,29 @@ public class SimulationPanel extends JPanel {
 	 * @return The file chooser.
 	 */
 	private JFileChooser setUpSimExportCSVFileChooser() {
-		JFileChooser fch = new JFileChooser();
-		fch.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
-		fch.setFileFilter(FileHelper.CSV_FILTER);
-		fch.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		fch.setAcceptAllFileFilterUsed(false);
+		JFileChooser chooser = new SaveFileChooser();
+		chooser.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+		chooser.setAcceptAllFileFilterUsed(false);
 
 		// Default output CSV to same name as the document's rocket name.
 		String fileName = document.getRocket().getName() + ".csv";
-		fch.setSelectedFile(new File(fileName));
+		chooser.setSelectedFile(new File(fileName));
 
 		// Add CSV options to FileChooser
 		CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
-		fch.setAccessory(CSVOptions);
+		chooser.setAccessory(CSVOptions);
 
 		// TODO: update this dynamically instead of hard-coded values
 		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
 		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
-			Dimension currentSize = fch.getPreferredSize();
+			Dimension currentSize = chooser.getPreferredSize();
 			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
-			fch.setPreferredSize(newSize);
+			chooser.setPreferredSize(newSize);
 		}
 
-		return fch;
+		return chooser;
 	}
 
 	private Simulation[] getSelectedSimulations() {

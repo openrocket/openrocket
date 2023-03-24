@@ -87,6 +87,7 @@ import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.URLUtil;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -1383,7 +1384,7 @@ public class BasicFrame extends JFrame {
 	public boolean exportRockSimAction() {
 		File file;
 
-		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.ROCKSIM);
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, FileType.ROCKSIM);
 
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
@@ -1480,7 +1481,7 @@ public class BasicFrame extends JFrame {
 	private boolean saveAsAction() {
 		File file = null;
 
-		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.OPENROCKET);
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, FileType.OPENROCKET);
 
 		int option = chooser.showSaveDialog(BasicFrame.this);
 

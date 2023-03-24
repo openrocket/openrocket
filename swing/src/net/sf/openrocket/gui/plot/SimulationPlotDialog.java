@@ -26,6 +26,7 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -173,7 +174,7 @@ public class SimulationPlotDialog extends JDialog {
 	}
 
 	private boolean doPngExport(ChartPanel chartPanel, JFreeChart chart){
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new SaveFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setFileFilter(FileHelper.PNG_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
