@@ -72,8 +72,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
-	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
-	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
+	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);	// In Kelvin
+	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);		// In Pascal
 	
 	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;

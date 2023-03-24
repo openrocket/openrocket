@@ -45,6 +45,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         for (int i = 0; i < shapes.length - 1; i++) {
             shapes[i].setColor(color);
         }
+        shapes[shapes.length - 1].setColor(Color.INVISIBLE);
 
         return shapes;
     }

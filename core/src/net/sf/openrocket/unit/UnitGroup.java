@@ -283,7 +283,7 @@ public class UnitGroup {
 		
 		
 		UNITS_COEFFICIENT = new UnitGroup();
-		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01)); // zero-width space
+		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.001)); // zero-width space
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:

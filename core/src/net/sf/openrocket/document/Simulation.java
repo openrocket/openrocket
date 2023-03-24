@@ -207,7 +207,14 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.configId = fcid;
 		fireChangeEvent();
 	}
-	
+
+	/**
+	 * Applies the simulation options to the simulation.
+	 * @param options the simulation options to apply.
+	 */
+	public void copySimulationOptionsFrom(SimulationOptions options) {
+		this.options.copyConditionsFrom(options);
+	}
 	
 //	/**
 //	 * Return a newly created Configuration for this simulation.  The configuration
@@ -459,7 +466,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	/**
 	 * Return true if this simulation contains plottable flight data.
 	 * 
-	 * @return
+	 * @return true if this simulation contains plottable flight data.
 	 */
 	public boolean hasSimulationData() {
 		FlightData data = getSimulatedData();
@@ -470,6 +477,15 @@ public class Simulation implements ChangeSource, Cloneable {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Return true if this simulation contains summary flight data.
+	 * @return true if this simulation contains summary flight data.
+	 */
+	public boolean hasSummaryData() {
+		FlightData data = getSimulatedData();
+		return data != null;
 	}
 	
 	/**

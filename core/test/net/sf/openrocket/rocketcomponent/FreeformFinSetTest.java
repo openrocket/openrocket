@@ -77,7 +77,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		nose.setForeRadius(0.0);
 		nose.setLength(1.0);
 		nose.setAftRadius(1.0);
-		nose.setType( Shape.ELLIPSOID );
+		nose.setShapeType( Shape.ELLIPSOID );
 		nose.setShapeParameter(0.5);
 		nose.setName("Nose Fairing");
 		stage.addChild(nose);
@@ -87,7 +87,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		stage.addChild(body);
 
 		Transition tail = new Transition();
-		tail.setType(Shape.CONICAL);
+		tail.setShapeType(Shape.CONICAL);
 		tail.setForeRadius(1.0);
 		tail.setLength(1.0);
 		tail.setAftRadius(0.5);
@@ -327,7 +327,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final FinSet fins = createFinOnEllipsoidNose(nose);
 
 		{  // assert preconditions::Mount
-				assertEquals(Shape.ELLIPSOID, nose.getType());
+				assertEquals(Shape.ELLIPSOID, nose.getShapeType());
 				assertEquals(1.0, nose.getLength(), EPSILON);
 
 		}{ // Assert fin shape

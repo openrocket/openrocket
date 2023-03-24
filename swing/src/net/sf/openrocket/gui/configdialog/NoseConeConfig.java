@@ -169,7 +169,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 		JPanel panel2 = new JPanel(new MigLayout("ins 0"));
 		
 		description = new DescriptionArea(5);
-		description.setText(PREDESC + ((NoseCone) component).getType().getNoseConeDescription());
+		description.setText(PREDESC + ((NoseCone) component).getShapeType().getNoseConeDescription());
 		panel2.add(description, "wmin 250lp, spanx, growx, wrap para");
 		
 
@@ -197,7 +197,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 	
 	
 	private void updateEnabled() {
-		boolean e = ((NoseCone) component).getType().usesParameter();
+		boolean e = ((NoseCone) component).getShapeType().usesParameter();
 		shapeLabel.setEnabled(e);
 		shapeSpinner.setEnabled(e);
 		shapeSlider.setEnabled(e);

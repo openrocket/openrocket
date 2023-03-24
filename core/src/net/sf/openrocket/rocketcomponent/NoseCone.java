@@ -29,7 +29,7 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	public NoseCone(Transition.Shape type, double length, double radius) {
 		super();
 		this.isFlipped = false;
-		super.setType(type);
+		super.setShapeType(type);
 		super.setThickness(0.002);
 		super.setLength(length);
 		super.setClipped(false);
