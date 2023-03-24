@@ -1557,4 +1557,49 @@ public class FreeformFinSetTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Test that fins on transitions don't get NaN MAClength
+	 */
+	@Test
+	public void testFinsOnTransitions() {
+		// Rocket consisting of just a transition and a freeform fin set
+		final Rocket rocket = new Rocket();
+        
+		final AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+        
+		Transition trans = new Transition();
+		stage.addChild(trans);
+		
+		FreeformFinSet fins = new FreeformFinSet();
+		trans.addChild(fins);
+		
+		// set the finset at the beginning of the transition
+		fins.setAxialMethod(AxialMethod.TOP);
+		fins.setAxialOffset(0.0);
+		
+		// Test 1:  transition getting smaller
+		trans.setForeRadius(trans.getForeRadius()*2.0);
+		fins.setPoints(new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(trans.getLength(), 0),
+				new Coordinate(trans.getLength(), trans.getAftRadius() - trans.getForeRadius())
+			});
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		assertEquals(0.075, calc.getMACLength(), EPSILON);
+
+		// Test 2: transition getting larger
+		trans.setForeRadius(trans.getAftRadius());
+		trans.setAftRadius(trans.getAftRadius()*2.0);
+		fins.setPoints(new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(0, trans.getAftRadius() - trans.getForeRadius()),
+				new Coordinate(trans.getLength(), trans.getAftRadius() - trans.getForeRadius())
+			});
+		calc = new FinSetCalc(fins);
+
+		assertEquals(0.05053191489361704, calc.getMACLength(), EPSILON);
+	}
+
 }
