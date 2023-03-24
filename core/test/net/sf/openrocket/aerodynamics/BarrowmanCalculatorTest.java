@@ -568,6 +568,7 @@ public class BarrowmanCalculatorTest {
 		testTube.setCDOverridden(false);
 		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
 		assertEquals("base CD should be base CD of tube", tubeBaseCD, testForces.getBaseCD(), EPSILON);
+	}
 
 	/**
 	 * Tests railbutton drag.  Really is testing instancing more than actual drag calculations, and making
