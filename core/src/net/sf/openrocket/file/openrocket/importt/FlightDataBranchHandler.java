@@ -38,7 +38,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			String typeName = split[i];
 			FlightDataType matching = findFlightDataType(typeName);
 			types[i] = matching;
-			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
+			//types[i] = FlightDataType.getShapeType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
 		
 		// TODO: LOW: May throw an IllegalArgumentException

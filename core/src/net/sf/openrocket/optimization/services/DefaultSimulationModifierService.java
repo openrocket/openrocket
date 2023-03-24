@@ -295,7 +295,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			// Conditional shape parameter of Transition
 			if (c instanceof Transition) {
 				Transition transition = (Transition) c;
-				Transition.Shape shape = transition.getType();
+				Transition.Shape shape = transition.getShapeType();
 				if (shape.usesParameter()) {
 					SimulationModifier mod = new GenericComponentModifier(
 							trans.get("optimization.modifier." + c.getClass().getSimpleName().toLowerCase(Locale.ENGLISH) + ".shapeparameter"),

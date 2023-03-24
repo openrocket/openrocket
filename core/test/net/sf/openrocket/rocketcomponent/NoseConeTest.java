@@ -19,7 +19,7 @@ public class NoseConeTest extends BaseTestCase {
         NoseCone noseCone = new NoseCone();
 
         // First set the parameters using the normal transition setters (i.e. using AftRadius and AftShoulder instead of Base and Shoulder)
-        noseCone.setType(Transition.Shape.OGIVE);
+        noseCone.setShapeType(Transition.Shape.OGIVE);
         noseCone.setLength(0.06);
         noseCone.setAftRadius(0.1);
         noseCone.setAftShoulderLength(0.01);
@@ -27,7 +27,7 @@ public class NoseConeTest extends BaseTestCase {
         noseCone.setAftShoulderCapped(false);
         noseCone.setAftShoulderThickness(0.001);
 
-        assertEquals(Transition.Shape.OGIVE, noseCone.getType());
+        assertEquals(Transition.Shape.OGIVE, noseCone.getShapeType());
         assertEquals(0.06, noseCone.getLength(), EPSILON);
         assertEquals(0.1, noseCone.getAftRadius(), EPSILON);
         assertEquals(0.1, noseCone.getBaseRadius(), EPSILON);
@@ -86,7 +86,7 @@ public class NoseConeTest extends BaseTestCase {
         NoseCone noseCone = new NoseCone();
 
         // First set the parameters using the normal transition setters (i.e. using AftRadius and AftShoulder instead of Base and Shoulder)
-        noseCone.setType(Transition.Shape.OGIVE);
+        noseCone.setShapeType(Transition.Shape.OGIVE);
         noseCone.setLength(0.06);
         noseCone.setAftRadius(0.1);
         noseCone.setAftShoulderLength(0.01);
@@ -95,7 +95,7 @@ public class NoseConeTest extends BaseTestCase {
         noseCone.setAftShoulderThickness(0.001);
         noseCone.setFlipped(true);
 
-        assertEquals(Transition.Shape.OGIVE, noseCone.getType());
+        assertEquals(Transition.Shape.OGIVE, noseCone.getShapeType());
         assertEquals(0.06, noseCone.getLength(), EPSILON);
         assertEquals(0.1, noseCone.getForeRadius(), EPSILON);
         assertEquals(0.1, noseCone.getBaseRadius(), EPSILON);

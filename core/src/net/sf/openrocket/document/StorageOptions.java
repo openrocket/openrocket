@@ -6,7 +6,8 @@ public class StorageOptions implements Cloneable {
 	
 	public enum FileType {
 		OPENROCKET,
-		ROCKSIM
+		ROCKSIM,
+		RASAERO
 	}
 	
 	private FileType fileType = FileType.OPENROCKET;

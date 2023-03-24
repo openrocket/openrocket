@@ -358,7 +358,7 @@ public class IntegrationTest {
 		
 		OpenRocketDocument rocketDoc = null;
 		try {
-			rocketDoc = loader.load(is);
+			rocketDoc = loader.load(is, fileName);
 		} catch (RocketLoadException e) {
 			fail("RocketLoadException while loading file " + fileName + " : " + e.getMessage());
 		}
