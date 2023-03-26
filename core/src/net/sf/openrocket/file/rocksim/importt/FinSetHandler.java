@@ -11,7 +11,7 @@ import java.util.List;
 import net.sf.openrocket.rocketcomponent.Transition;
 import org.xml.sax.SAXException;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.rocksim.RockSimFinishCode;

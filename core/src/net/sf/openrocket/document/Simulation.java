@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;

@@ -1,6 +1,6 @@
 package net.sf.openrocket.file;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Motor;
 
 /**

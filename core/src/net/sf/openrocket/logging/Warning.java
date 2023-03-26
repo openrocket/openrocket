@@ -1,4 +1,4 @@
-package net.sf.openrocket.aerodynamics;
+package net.sf.openrocket.logging;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;

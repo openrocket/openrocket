@@ -11,7 +11,7 @@ import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;

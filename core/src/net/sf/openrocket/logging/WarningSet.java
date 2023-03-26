@@ -1,4 +1,4 @@
-package net.sf.openrocket.aerodynamics;
+package net.sf.openrocket.logging;
 
 import java.util.AbstractSet;
 import java.util.Iterator;

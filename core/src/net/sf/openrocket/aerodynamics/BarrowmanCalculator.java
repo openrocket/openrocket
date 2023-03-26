@@ -1,10 +1,11 @@
 package net.sf.openrocket.aerodynamics;
 
-import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
 
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

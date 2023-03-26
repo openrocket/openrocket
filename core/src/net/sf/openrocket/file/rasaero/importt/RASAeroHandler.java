@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
