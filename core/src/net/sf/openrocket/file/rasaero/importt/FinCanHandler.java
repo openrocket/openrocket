@@ -2,6 +2,7 @@ package net.sf.openrocket.file.rasaero.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -59,9 +60,9 @@ public class FinCanHandler extends BodyTubeHandler {
         super.closeElement(element, attributes, content, warnings);
         try {
             if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)) {
-                insideDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
+                insideDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-                shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TO_LENGTH;
+                shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");

@@ -19,6 +19,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.file.rasaero.export.RASAeroSaver;
 import net.sf.openrocket.file.rocksim.export.RockSimSaver;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -142,8 +143,10 @@ public class GeneralRocketSaver {
 	 * @return			the estimated number of bytes the storage would take.
 	 */
 	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
-		if (options.getFileType() == StorageOptions.FileType.ROCKSIM) {
+		if (options.getFileType() == FileType.ROCKSIM) {
 			return new RockSimSaver().estimateFileSize(doc, options);
+		} else if (options.getFileType() == FileType.RASAERO) {
+			return new RASAeroSaver().estimateFileSize(doc, options);
 		} else {
 			return new OpenRocketSaver().estimateFileSize(doc, options);
 		}
@@ -151,10 +154,10 @@ public class GeneralRocketSaver {
 	
 	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException, DecalNotFoundException {
 		
-		// For now, we don't save decal information in ROCKSIM files, so don't do anything
+		// For now, we don't save decal information in ROCKSIM/RASAero files, so don't do anything
 		// which follows.
 		// TODO - add support for decals in ROCKSIM files?
-		if (options.getFileType() == FileType.ROCKSIM) {
+		if (options.getFileType() == FileType.ROCKSIM || options.getFileType() == FileType.RASAERO) {
 			saveInternal(output, document, options);
 			output.close();
 			return;
@@ -232,8 +235,10 @@ public class GeneralRocketSaver {
 	private void saveInternal(OutputStream output, OpenRocketDocument document, StorageOptions options)
 			throws IOException {
 		
-		if (options.getFileType() == StorageOptions.FileType.ROCKSIM) {
+		if (options.getFileType() == FileType.ROCKSIM) {
 			new RockSimSaver().save(output, document, options);
+		} else if (options.getFileType() == FileType.RASAERO) {
+			new RASAeroSaver().save(output, document, options);
 		} else {
 			new OpenRocketSaver().save(output, document, options);
 		}

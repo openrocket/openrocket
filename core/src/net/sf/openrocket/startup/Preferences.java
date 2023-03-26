@@ -79,6 +79,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
 	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
+	private static final String SHOW_RASAERO_FORMAT_WARNING = "SHOW_RASAERO_FORMAT_WARNING";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
 	
 	//Preferences related to 3D graphics
@@ -222,6 +223,14 @@ public abstract class Preferences implements ChangeSource {
 	
 	public final void setLaunchIntoWind(boolean check) {
 		this.putBoolean(LAUNCH_INTO_WIND, check);
+	}
+
+	public final boolean getShowRASAeroFormatWarning() {
+		return this.getBoolean(SHOW_RASAERO_FORMAT_WARNING, true);
+	}
+
+	public final void setShowRASAeroFormatWarning(boolean check) {
+		this.putBoolean(SHOW_RASAERO_FORMAT_WARNING, check);
 	}
 	
 	public final boolean getShowRockSimFormatWarning() {

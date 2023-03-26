@@ -53,13 +53,13 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 				this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				break;
-			/*case RASAERO:
+			case RASAERO:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"CDX1");
 				this.setDialogTitle(trans.get("saveAs.rasaero.title"));
 				storageChooser = null;
 				this.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
-				break;*/
+				break;
 		}
 		
 		final RememberFilenamePropertyListener listener = new RememberFilenamePropertyListener();

@@ -65,5 +65,16 @@ public class Color {
 	public java.awt.Color toAWTColor() {
 		return new java.awt.Color(red, green, blue, alpha);
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (super.equals(obj)) {
+			return true;
+		}
+		if (!(obj instanceof Color)) {
+			return false;
+		}
+		Color c = (Color) obj;
+		return c.getRed() == getRed() && c.getGreen() == getGreen() && c.getBlue() == getBlue() && c.getAlpha() == getAlpha();
+	}
 }

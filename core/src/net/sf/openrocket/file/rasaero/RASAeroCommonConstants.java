@@ -1,13 +1,17 @@
-package net.sf.openrocket.file.rasaero.importt;
+package net.sf.openrocket.file.rasaero;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.MathUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
 /**
  * List of constants used in RASAero files + helper functions to read parameters from it.
@@ -15,11 +19,18 @@ import java.util.Map;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class RASAeroCommonConstants {
+    // File settings
+    public static final String FILE_EXTENSION = "CDX1";
+
     // General settings
     public static final String RASAERO_DOCUMENT = "RASAeroDocument";
     public static final String FILE_VERSION = "FileVersion";
     public static final String ROCKET_DESIGN = "RocketDesign";
 
+    // RASAeroDocument settings
+    public static final String MACH_ALT = "MachAlt";
+
+    // Base part settings
     public static final String PART_TYPE = "PartType";
     public static final String LENGTH = "Length";
     public static final String DIAMETER = "Diameter";
@@ -37,11 +48,23 @@ public class RASAeroCommonConstants {
     public static final String FIN_CAN = "FinCan";
     public static final String BOATTAIL = "BoatTail";
 
+    // Body tube settings
+    public static final String OVERHANG = "Overhang";
+
     // Nose cone settings
     public static final String SHAPE = "Shape";
     public static final String POWER_LAW = "PowerLaw";
-    //public static final String BLUNT_RADIUS = "BluntRadius";
+    public static final String BLUNT_RADIUS = "BluntRadius";
     private static final Map<String, Transition.Shape> RASAeroNoseConeShapeMap = new HashMap<>();
+
+    //// Nose cone shapes
+    private static final String SHAPE_CONICAL = "Conical";
+    private static final String SHAPE_TANGENT_OGIVE = "Tangent Ogive";
+    private static final String SHAPE_VON_KARMAN_OGIVE = "Von Karman Ogive";
+    private static final String SHAPE_POWER_LAW = "Power Law";
+    private static final String SHAPE_LVHAACK = "LV-Haack";
+    private static final String SHAPE_PARABOLIC = "Parabolic";
+    private static final String SHAPE_ELLIPTICAL = "Elliptical";
 
     // Transition settings
     public static final String REAR_DIAMETER = "RearDiameter";
@@ -53,6 +76,10 @@ public class RASAeroCommonConstants {
     public static final String FIN_SWEEP_DISTANCE = "SweepDistance";
     public static final String FIN_TIP_CHORD = "TipChord";
     public static final String FIN_THICKNESS = "Thickness";
+    public static final String FIN_LE_RADIUS = "LERadius";
+    public static final String FIN_AIRFOIL_SECTION = "AirfoilSection";
+    public static final String FIN_FX1 = "FX1";
+    public static final String FIN_FX3 = "FX3";
     public static final String AIRFOIL_SECTION = "AirfoilSection";
     //// LERadius, FX1 and FX3 not used
     public static final String CROSS_SECTION_SQUARE = "Square";
@@ -66,6 +93,9 @@ public class RASAeroCommonConstants {
     // Rail guide settings
     public static final String RAIL_GUIDE_DIAMETER = "RailGuideDiameter";
     public static final String RAIL_GUIDE_HEIGHT = "RailGuideHeight";
+
+    // Launch shoe settings
+    public static final String LAUNCH_SHOE_AREA = "LaunchShoeArea";
 
     // Fin can settings
     public static final String INSIDE_DIAMETER = "InsideDiameter";
@@ -82,8 +112,20 @@ public class RASAeroCommonConstants {
     public static final String FINISH_CAST_IRON = "Cast Iron (Very Rough)";
 
     // Booster settings
-    public static final String BOAT_TAIL_LENGTH = "BoattailLength";
-    public static final String BOAT_TAIL_REAR_DIAMETER = "BoattailRearDiameter";
+    public static final String BOATTAIL_LENGTH = "BoattailLength";
+    public static final String BOATTAIL_REAR_DIAMETER = "BoattailRearDiameter";
+    public static final String BOATTAIL_OFFSET = "BoattailOffset";
+    public static final String NOZZLE_EXIT_DIAMETER = "NozzleExitDiameter";
+
+    // RocketDesign settings
+    public static final String CD = "CD";
+    public static final String MODIFIED_BARROWMAN = "ModifiedBarrowman";
+    public static final String TURBULENCE = "Turbulence";
+    public static final String SUSTAINER_NOZZLE = "SustainerNozzle";
+    public static final String BOOSTER1_NOZZLE = "Booster1Nozzle";
+    public static final String BOOSTER2_NOZZLE = "Booster2Nozzle";
+    public static final String USE_BOOSTER1 = "UseBooster1";
+    public static final String USE_BOOSTER2 = "UseBooster2";
 
     // Launch site settings
     public static final String LAUNCH_SITE = "LaunchSite";
@@ -126,7 +168,7 @@ public class RASAeroCommonConstants {
     /**
      * Length conversion from OpenRocket units to RASAero units.  RASAero is in inches, OpenRocket in meters.
      */
-    public static final double OPENROCKET_TO_RASAERO_TO_LENGTH = 39.37;
+    public static final double OPENROCKET_TO_RASAERO_LENGTH = 39.37;
     /**
      * Altitude conversion from OpenRocket units to RASAero units.  RASAero is in feet, OpenRocket in meters.
      */
@@ -154,13 +196,13 @@ public class RASAeroCommonConstants {
     }
 
     static {
-        RASAeroNoseConeShapeMap.put("Conical", Transition.Shape.CONICAL);
-        RASAeroNoseConeShapeMap.put("Tangent Ogive", Transition.Shape.OGIVE);       // = Ogive with shape parameter = 1
-        RASAeroNoseConeShapeMap.put("Von Karman Ogive", Transition.Shape.HAACK);    // = Haack series with shape parameter = 0
-        RASAeroNoseConeShapeMap.put("Power Law", Transition.Shape.POWER);
-        RASAeroNoseConeShapeMap.put("LV-Haack", Transition.Shape.HAACK);            // = Haack series with shape parameter = 1/3
-        RASAeroNoseConeShapeMap.put("Parabolic", Transition.Shape.POWER);           // = Power law with shape parameter = 1/2
-        RASAeroNoseConeShapeMap.put("Elliptical", Transition.Shape.ELLIPSOID);
+        RASAeroNoseConeShapeMap.put(SHAPE_CONICAL, Transition.Shape.CONICAL);
+        RASAeroNoseConeShapeMap.put(SHAPE_TANGENT_OGIVE, Transition.Shape.OGIVE);       // = Ogive with shape parameter = 1
+        RASAeroNoseConeShapeMap.put(SHAPE_VON_KARMAN_OGIVE, Transition.Shape.HAACK);    // = Haack series with shape parameter = 0
+        RASAeroNoseConeShapeMap.put(SHAPE_POWER_LAW, Transition.Shape.POWER);
+        RASAeroNoseConeShapeMap.put(SHAPE_LVHAACK, Transition.Shape.HAACK);            // = Haack series with shape parameter = 1/3
+        RASAeroNoseConeShapeMap.put(SHAPE_PARABOLIC, Transition.Shape.POWER);           // = Power law with shape parameter = 1/2
+        RASAeroNoseConeShapeMap.put(SHAPE_ELLIPTICAL, Transition.Shape.ELLIPSOID);
     }
 
     /**
@@ -168,8 +210,46 @@ public class RASAeroCommonConstants {
      * @param shape The RASAero shape string.
      * @return The OpenRocket nose cone shape.
      */
-    public static Transition.Shape getNoseConeShapeFromRASAero(String shape) {
+    public static Transition.Shape RASAERO_TO_OPENROCKET_SHAPE(String shape) {
         return RASAeroNoseConeShapeMap.get(shape);
+    }
+
+    /**
+     * Returns the OpenRocket nose cone shape from the RASAero shape string.
+     * @param shape The RASAero shape string.
+     * @return The OpenRocket nose cone shape object.
+     */
+    public static NoseConeShapeSettings OPENROCKET_TO_RASAERO_SHAPE(Transition.Shape shape, double shapeParameter)
+            throws RASAeroExportException {
+        if (shape.equals(Transition.Shape.CONICAL)) {
+            return new NoseConeShapeSettings(SHAPE_CONICAL);
+        } else if (shape.equals(Transition.Shape.OGIVE) && MathUtil.equals(shapeParameter, 1)) {
+            return new NoseConeShapeSettings(SHAPE_TANGENT_OGIVE);
+        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 0)) {
+            return new NoseConeShapeSettings(SHAPE_VON_KARMAN_OGIVE);
+        } else if (shape.equals(Transition.Shape.POWER) && MathUtil.equals(shapeParameter, 0.5, 0.01)) {
+            return new NoseConeShapeSettings(SHAPE_PARABOLIC);
+        } else if (shape.equals(Transition.Shape.POWER)) {
+            return new NoseConeShapeSettings(SHAPE_POWER_LAW, shapeParameter);
+        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 0.33, 0.01)) {
+            return new NoseConeShapeSettings(SHAPE_LVHAACK);
+        } else if (shape.equals(Transition.Shape.ELLIPSOID)) {
+            return new NoseConeShapeSettings(SHAPE_ELLIPTICAL);
+        }
+
+        // Special cases
+        else if (shape.equals(Transition.Shape.OGIVE)) {
+            throw new RASAeroExportException(
+                    String.format("RASAero only supports Ogive nose cones with shape parameter 1, not %.2f", shapeParameter));
+        } else if (shape.equals(Transition.Shape.HAACK)) {
+            throw new RASAeroExportException(
+                    String.format("RASAero only supports Haack nose cones with shape parameter 0 or 0.33, not %.2f", shapeParameter));
+        } else if (shape.equals(Transition.Shape.PARABOLIC)) {
+            throw new RASAeroExportException("RASAero does not support Parabolic nose cones");
+        }
+
+        throw new RASAeroExportException(
+                String.format("Invalid shape and shape parameter combination: %s, %.2f", shape.getName(), shapeParameter));
     }
 
     /**
@@ -180,27 +260,27 @@ public class RASAeroCommonConstants {
      * @param shape The RASAero shape string.
      * @return The shape parameter for the OpenRocket nose cone.
      */
-    public static double getNoseConeShapeParameterFromRASAeroShape(String shape) {
-        if ("Conical".equals(shape)) {
+    public static double RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(String shape) {
+        if (SHAPE_CONICAL.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit
-        } else if ("Tangent Ogive".equals(shape)) {
+        } else if (SHAPE_TANGENT_OGIVE.equals(shape)) {
             return 1.0;
-        } else if ("Von Karman Ogive".equals(shape)) {
+        } else if (SHAPE_VON_KARMAN_OGIVE.equals(shape)) {
             return 0.0;
-        } else if ("Power Law".equals(shape)) {
+        } else if (SHAPE_POWER_LAW.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit (will be overwritten later)
-        } else if ("LV-Haack".equals(shape)) {
+        } else if (SHAPE_LVHAACK.equals(shape)) {
             return 0.33;
-        } else if ("Parabolic".equals(shape)) {
+        } else if (SHAPE_PARABOLIC.equals(shape)) {
             return 0.5;
-        } else if ("Elliptical".equals(shape)) {
+        } else if (SHAPE_ELLIPTICAL.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit
         } else {
             return 0.0;
         }
     }
 
-    public static FinSet.CrossSection getFinCrossSectionFromRASAero(String crossSection, WarningSet warnings) {
+    public static FinSet.CrossSection RASAERO_TO_OPENROCKET_FIN_CROSSSECTION(String crossSection, WarningSet warnings) {
         if (CROSS_SECTION_SQUARE.equals(crossSection)) {
             return FinSet.CrossSection.SQUARE;
         } else if (CROSS_SECTION_ROUNDED.equals(crossSection)) {
@@ -213,7 +293,20 @@ public class RASAeroCommonConstants {
         }
     }
 
-    public static ExternalComponent.Finish getSurfaceFinishFromRASAero(String surfaceFinish, WarningSet warnings) {
+    public static String OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(FinSet.CrossSection crossSection) {
+        if (FinSet.CrossSection.SQUARE.equals(crossSection)) {
+            return CROSS_SECTION_SQUARE;
+        } else if (FinSet.CrossSection.ROUNDED.equals(crossSection)) {
+            return CROSS_SECTION_ROUNDED;
+        } else if (FinSet.CrossSection.AIRFOIL.equals(crossSection)) {
+            return CROSS_SECTION_SUBSONIC_NACA;
+        } else {
+            //TODO: warnings.add("Unknown fin cross section: " + crossSection + ".");
+            return null;
+        }
+    }
+
+    public static ExternalComponent.Finish RASAERO_TO_OPENROCKET_SURFACE(String surfaceFinish, WarningSet warnings) {
         // NOTE: the RASAero surface finishes are not really the same as the OpenRocket surface finishes. There are some
         // approximations here.
         if (FINISH_SMOOTH.equals(surfaceFinish)) {
@@ -238,7 +331,29 @@ public class RASAeroCommonConstants {
         }
     }
 
-    public static DeploymentConfiguration.DeployEvent getDeployEventFromRASAero(String deployEvent, WarningSet warnings) {
+    public static String OPENROCKET_TO_RASAERO_SURFACE(ExternalComponent.Finish finish) {
+        if (finish.equals(ExternalComponent.Finish.MIRROR)) {
+            return FINISH_SMOOTH;
+        } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)) {
+            return FINISH_POLISHED;
+        } else if (finish.equals(ExternalComponent.Finish.OPTIMUM)) {
+            return FINISH_SHEET_METAL;
+        } else if (finish.equals(ExternalComponent.Finish.SMOOTH)) {
+            return FINISH_CAMOUFLAGE;
+        } else if (finish.equals(ExternalComponent.Finish.NORMAL)) {
+            return FINISH_ROUGH_CAMOUFLAGE;
+        } else if (finish.equals(ExternalComponent.Finish.UNFINISHED)) {
+            return FINISH_GALVANIZED;
+        } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)) {
+            return FINISH_CAST_IRON;
+        } else {
+            // TODO
+            //warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
+            return FINISH_SMOOTH;
+        }
+    }
+
+    public static DeploymentConfiguration.DeployEvent RASAERO_TO_OPENROCKET_DEPLOY_EVENT(String deployEvent, WarningSet warnings) {
         if (DEPLOYMENT_NONE.equals(deployEvent)) {
             return DeploymentConfiguration.DeployEvent.NEVER;
         } else if (DEPLOYMENT_APOGEE.equals(deployEvent)) {
@@ -248,5 +363,40 @@ public class RASAeroCommonConstants {
         }
         warnings.add("Unknown deployment event: " + deployEvent + ", defaulting to apogee.");
         return DeploymentConfiguration.DeployEvent.APOGEE;
+    }
+
+    public static String OPENROCKET_TO_RASAERO_COLOR(Color color) {
+        if (color != null) {
+            if (color.equals(Color.BLACK)) {
+                return "Black";     // Currently the only officially supported color by RASAero
+            }
+        }
+        return "Blue";          // But we can also apply our own color hehe
+    }
+
+    /**
+     * Class containing the RASAero nose cone shape and shape parameter settings
+     */
+    public static class NoseConeShapeSettings {
+        private final String shape;
+        private final Double shapeParameter;
+
+        public NoseConeShapeSettings(String shape, double shapeParameter) {
+            this.shape = shape;
+            this.shapeParameter = shapeParameter;
+        }
+
+        public NoseConeShapeSettings(String shape) {
+            this.shape = shape;
+            this.shapeParameter = null;
+        }
+
+        public String getShape() {
+            return shape;
+        }
+
+        public Double getShapeParameter() {
+            return shapeParameter;
+        }
     }
 }

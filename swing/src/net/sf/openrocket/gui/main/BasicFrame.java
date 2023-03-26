@@ -60,6 +60,7 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
@@ -87,7 +88,6 @@ import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.URLUtil;
-import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -407,18 +407,16 @@ public class BasicFrame extends JFrame {
 		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.desc"));
 		exportSubMenu.setIcon(Icons.FILE_EXPORT);
 
-		/* 	Pending Future Development
 		////// 		Export RASAero
-		JMenuItem exportRASAero = new JMenuItem(trans.get("main.fileMenu.file.exportAs.RASAero"));
-		exportRASAero.setIcon(Icons.RASAERO
-		exportRASAero.getAccessibleContext().setAccessibleDescription(trans.get("main.fileMenu.file.exportAs.RASAero.desc"));
+		JMenuItem exportRASAero = new JMenuItem(trans.get("main.menu.file.exportAs.RASAero"));
+		exportRASAero.setIcon(Icons.RASAERO);
+		exportRASAero.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.RASAero.desc"));
 		exportRASAero.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				exportRASAeroAction();}
 		});
 		exportSubMenu.add(exportRASAero);
-		*/
 
 		////// 		Export RockSim
 		JMenuItem exportRockSim = new JMenuItem(trans.get("main.menu.file.exportAs.RockSim"));
@@ -1374,48 +1372,127 @@ public class BasicFrame extends JFrame {
 		return saveAsOpenRocket(file);
 	}
 
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType) {
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
 
-	////	BEGIN RASAERO Export Action							*** UNDER CONSTRUCTION -- CURRENTLY FOR TESTING ONLY ***
+		int option = chooser.showSaveDialog(BasicFrame.this);
+
+		if (option != JFileChooser.APPROVE_OPTION) {
+			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
+			return null;
+		}
+
+		File file = chooser.getSelectedFile();
+		if (file == null) {
+			log.info(Markers.USER_MARKER, "User did not select a file");
+			return null;
+		}
+
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+
+		return file;
+	}
+
+
+	////	BEGIN RASAero Save/Export Action
 	 /**
 	 * MODEL "Export as" RASAero file format
 	 *
 	 *	@return true if the file was saved, false otherwise
 	 */
 
-	 /*
+
 	public boolean exportRASAeroAction() {
-		Object exportRASAeroAction = ExportFileTranslator_RASAero.exportRASAeroAction;
+		File file = openFileSaveAsDialog(FileType.RASAERO);
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
+		if (FileHelper.confirmWrite(file, this) ) {
+			return saveAsRASAero(file);
+		}
 		return false;
 	}
-	*/
-	////	END RASAERO Export Action
+
+	/**
+	 * Perform the writing of the design to the given file in RASAero format.
+	 * @param file  the chosen file
+	 * @return true if the file was written
+	 */
+	private boolean saveAsRASAero(File file) {
+		if (prefs.getShowRASAeroFormatWarning())  {
+			// Show RASAero format warning
+			JPanel panel = new JPanel(new MigLayout());
+			panel.add(new StyledLabel(trans.get("SaveRASAeroWarningDialog.txt1")), "wrap");
+			final JCheckBox check = new JCheckBox(trans.get("SaveRASAeroWarningDialog.donotshow"));
+			check.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					prefs.setShowRASAeroFormatWarning(!check.isSelected());
+				}
+			});
+			panel.add(check);
+			int sel = JOptionPane.showOptionDialog(null,
+					panel,
+					"", // title
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE,
+					null, // icon
+					null, // options
+					null // default option
+			);
+			if (sel == 1) {
+				return false;
+			}
+		}
+
+		StorageOptions options = new StorageOptions();
+		options.setFileType(FileType.RASAERO);
+		return saveRASAeroFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the RASAero file
+	 * @param file file to be stored
+	 * @param options storage options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveRASAeroFile(File file, StorageOptions options) {
+		try {
+			ROCKET_SAVER.save(file, document, options);
+			// Do not update the save state of the document.
+			return true;
+		} catch (IOException e) {
+			return false;
+		} catch (DecalNotFoundException decex) {
+			DecalImage decal = decex.getDecal();
+			// Check if the user replaced the source file, if not, just ignore the faulty decal on the next save
+			if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
+				decal.setIgnored(true);
+			}
+			return saveRASAeroFile(file, options);	// Re-save
+		}
+	}
+	////	END RASAero Save/Export Action
 
 
-	////	BEGIN ROCKSIM Export Action
+	////	BEGIN ROCKSIM Save/Export Action
 	/**
 	* MODEL "Export as" RASAero file format
 	*
 	* @return true if the file was saved, false otherwise
 	*/
 	public boolean exportRockSimAction() {
-		File file;
-
-		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, FileType.ROCKSIM);
-
-		int option = chooser.showSaveDialog(BasicFrame.this);
-
-		if (option != JFileChooser.APPROVE_OPTION) {
-			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-			return false;
-		}
-
-		file = chooser.getSelectedFile();
+		File file = openFileSaveAsDialog(FileType.ROCKSIM);
 		if (file == null) {
-			log.info(Markers.USER_MARKER, "User did not select a file");
 			return false;
 		}
-
-		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		file = FileHelper.forceExtension(file, "rkt");
 		if (FileHelper.confirmWrite(file, this) ) {
@@ -1423,7 +1500,6 @@ public class BasicFrame extends JFrame {
 		}
 		return false;
 	}
-	//	END ROCKSIM Export Action
 
 	/**
 	 * Perform the writing of the design to the given file in RockSim format.
@@ -1487,6 +1563,8 @@ public class BasicFrame extends JFrame {
 			return saveRockSimFile(file, options);	// Re-save
 		}
 	}
+
+	////	END ROCKSIM Save/Export Action
 
 
 	/**
