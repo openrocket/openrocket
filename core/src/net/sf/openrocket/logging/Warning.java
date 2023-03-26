@@ -6,50 +6,22 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
 
-public abstract class Warning {
+/**
+ * A warning message wrapper.
+ */
+public abstract class Warning extends Message {
 	
 	/** support to multiple languages warning */
 	private static final Translator trans = Application.getTranslator();
-	
+
 	/**
 	 * @return a Warning with the specific text.
 	 */
 	public static Warning fromString(String text) {
 		return new Warning.Other(text);
 	}
-	
-	/**
-	 * Return <code>true</code> if the <code>other</code> warning should replace
-	 * this warning.  The method should return <code>true</code> if the other
-	 * warning indicates a "worse" condition than the current warning.
-	 * 
-	 * @param other  the warning to compare to
-	 * @return       whether this warning should be replaced
-	 */
-	public abstract boolean replaceBy(Warning other);
-	
-	
-	/**
-	 * Two <code>Warning</code>s are by default considered equal if they are of
-	 * the same class.  Therefore only one instance of a particular warning type 
-	 * is stored in a {@link WarningSet}.  Subclasses may override this method for
-	 * more specific functionality.
-	 */
-	@Override
-	public boolean equals(Object o) {
-		return o != null && (o.getClass() == this.getClass());
-	}
-	
-	/**
-	 * A <code>hashCode</code> method compatible with the <code>equals</code> method.
-	 */
-	@Override
-	public int hashCode() {
-		return this.getClass().hashCode();
-	}
-	
-	
-	
+
+
 	
 	/////////////  Specific warning classes  /////////////
 	
@@ -80,9 +52,9 @@ public abstract class Warning {
 			return (trans.get("Warning.LargeAOA.str2") +
 					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
 		}
-		
+
 		@Override
-		public boolean replaceBy(Warning other) {
+		public boolean replaceBy(Message other) {
 			if (!(other instanceof LargeAOA))
 				return false;
 			
@@ -119,7 +91,7 @@ public abstract class Warning {
 		}
 		
 		@Override
-		public boolean replaceBy(Warning other) {
+		public boolean replaceBy(Message other) {
 			return false;
 		}
 	}
@@ -134,7 +106,7 @@ public abstract class Warning {
 		/**
 		 * Sole constructor.  The argument is an event which has occurred after landing
 		 *
-		 * @param event the event that caused this warning
+		 * @param _event the event that caused this warning
 		 */
 		public EventAfterLanding(FlightEvent _event)  {
 			this.event = _event;
@@ -154,7 +126,7 @@ public abstract class Warning {
 		}
 
 		@Override
-		public boolean replaceBy(Warning other) {
+		public boolean replaceBy(Message other) {
 			return false;
 		}
 	}
@@ -249,7 +221,7 @@ public abstract class Warning {
 		
 		
 		@Override
-		public boolean replaceBy(Warning other) {
+		public boolean replaceBy(Message other) {
 			return false;
 		}
 		
@@ -349,7 +321,7 @@ public abstract class Warning {
 		}
 		
 		@Override
-		public boolean replaceBy(Warning other) {
+		public boolean replaceBy(Message other) {
 			return false;
 		}
 	}
