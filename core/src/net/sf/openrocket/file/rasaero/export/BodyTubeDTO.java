@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -49,14 +52,25 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
     @XmlElementRef(name = RASAeroCommonConstants.FIN, type = FinDTO.class)
     private FinDTO fin;
 
+
+    @XmlTransient
+    private final WarningSet warnings;
+    @XmlTransient
+    private final ErrorSet errors;
+
     /**
      * We need a default no-args constructor.
      */
-    public BodyTubeDTO() { }
+    public BodyTubeDTO() {
+        this.warnings = null;
+        this.errors = null;
+    }
 
-    public BodyTubeDTO(BodyTube bodyTube) throws RASAeroExportException {
-        super(bodyTube);
-        applyBodyTubeSettings(bodyTube);
+    public BodyTubeDTO(BodyTube bodyTube, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+        super(bodyTube, warnings, errors);
+        this.warnings = warnings;
+        this.errors = errors;
+        applyBodyTubeSettings(bodyTube, warnings, errors);
     }
 
     public Double getLaunchLugDiameter() {

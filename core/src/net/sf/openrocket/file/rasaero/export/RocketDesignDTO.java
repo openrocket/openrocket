@@ -3,6 +3,8 @@ package net.sf.openrocket.file.rasaero.export;
 import net.sf.openrocket.file.rasaero.CustomBooleanAdapter;
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -65,10 +67,10 @@ public class RocketDesignDTO {
     @XmlElement(name = RASAeroCommonConstants.COMMENTS)
     private String comments = "";
 
-    public RocketDesignDTO(Rocket rocket) throws RASAeroExportException {
+    public RocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         setComments(rocket.getComment());
         if (rocket.getChildCount() > 3) {
-            throw new RASAeroExportException("Rocket should have no more then 3 stages (excl. boosters) in total");
+            warnings.add("Rocket should have no more then 3 stages (excl. boosters) in total.\nIgnoring other stages.");
         }
         setUseBooster1(rocket.getStageCount() >= 2);
         setUseBooster2(rocket.getStageCount() == 3);
@@ -77,30 +79,40 @@ public class RocketDesignDTO {
 
         // Export components from sustainer
         for (int i = 0; i < sustainer.getChildCount(); i++) {
-            RocketComponent component = sustainer.getChild(i);
-            if (i == 0 && !(component instanceof NoseCone)) {
-                throw new RASAeroExportException("First component of the sustainer must be a nose cone");
-            } else if (i == 1 && !(component instanceof BodyTube)) {
-                throw new RASAeroExportException("Second component of the sustainer must be a body tube");
-            }
-            if (component instanceof BodyTube) {
-                addExternalPart(new BodyTubeDTO((BodyTube) component));
-            } else if (component instanceof NoseCone) {
-                if (i != 0) {
-                    throw new RASAeroExportException("A nose cone can only be the first component of the rocket");
+            try {
+                RocketComponent component = sustainer.getChild(i);
+                if (i == 0 && !(component instanceof NoseCone)) {
+                    errors.add("First component of the sustainer must be a nose cone");
+                    return;
+                } else if (i == 1 && !(component instanceof BodyTube)) {
+                    errors.add("Second component of the sustainer must be a body tube");
+                    return;
                 }
-                addExternalPart(new NoseConeDTO((NoseCone) component));
-                // Set the global surface finish to that of the first nose cone
-                setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish()));
-            }
-            else if (component instanceof Transition) {
-                addExternalPart(new TransitionDTO((Transition) component));
+                if (component instanceof BodyTube) {
+                    addExternalPart(new BodyTubeDTO((BodyTube) component, warnings, errors));
+                } else if (component instanceof NoseCone) {
+                    if (i != 0) {
+                        errors.add("A nose cone can only be the first component of the rocket");
+                        return;
+                    }
+                    addExternalPart(new NoseConeDTO((NoseCone) component, warnings, errors));
+                    // Set the global surface finish to that of the first nose cone
+                    setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish()));
+                } else if (component instanceof Transition) {
+                    addExternalPart(new TransitionDTO((Transition) component, warnings, errors));
+                }
+            } catch (RASAeroExportException e) {
+                errors.add(e.getMessage());
             }
         }
 
         // Export components from other stages
-        for (int i = 1; i < rocket.getChildCount(); i++) {
-            addBooster(new BoosterDTO(rocket, (AxialStage) rocket.getChild(i)));
+        for (int i = 1; i < Math.min(rocket.getChildCount(), 3); i++) {
+            try {
+                addBooster(new BoosterDTO(rocket, (AxialStage) rocket.getChild(i), warnings, errors));
+            } catch (RASAeroExportException e) {
+                errors.add(e.getMessage());
+            }
         }
     }
 

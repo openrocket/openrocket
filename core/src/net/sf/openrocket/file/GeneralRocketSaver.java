@@ -21,12 +21,16 @@ import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver;
 import net.sf.openrocket.file.rocksim.export.RockSimSaver;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.DecalNotFoundException;
 import net.sf.openrocket.util.MathUtil;
 
 public class GeneralRocketSaver {
+	protected final WarningSet warnings = new WarningSet();
+	protected final ErrorSet errors = new ErrorSet();
 	
 	/**
 	 * Interface which can be implemented by the caller to receive progress information.
@@ -234,16 +238,34 @@ public class GeneralRocketSaver {
 	
 	private void saveInternal(OutputStream output, OpenRocketDocument document, StorageOptions options)
 			throws IOException {
-		
+		warnings.clear();
+		errors.clear();
+
 		if (options.getFileType() == FileType.ROCKSIM) {
-			new RockSimSaver().save(output, document, options);
+			new RockSimSaver().save(output, document, options, warnings, errors);
 		} else if (options.getFileType() == FileType.RASAERO) {
-			new RASAeroSaver().save(output, document, options);
+			new RASAeroSaver().save(output, document, options, warnings, errors);
 		} else {
-			new OpenRocketSaver().save(output, document, options);
+			new OpenRocketSaver().save(output, document, options, warnings, errors);
 		}
 	}
-	
+
+	/**
+	 * Return a list of warnings generated during the saving process.
+	 * @return a list of warnings generated during the saving process
+	 */
+	public WarningSet getWarnings() {
+		return warnings;
+	}
+
+	/**
+	 * Return a list of errors generated during the saving process.
+	 * @return a list of errors generated during the saving process
+	 */
+	public ErrorSet getErrors() {
+		return errors;
+	}
+
 	private static class ProgressOutputStream extends FilterOutputStream {
 		
 		private final long estimatedSize;

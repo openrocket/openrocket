@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,8 +33,8 @@ public class NoseConeDTO extends BasePartDTO {
     public NoseConeDTO() {
     }
 
-    public NoseConeDTO(NoseCone noseCone) throws RASAeroExportException {
-        super(noseCone);
+    public NoseConeDTO(NoseCone noseCone, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+        super(noseCone, warnings, errors);
 
         NoseConeShapeSettings shapeSettings =
                 RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SHAPE(noseCone.getShapeType(), noseCone.getShapeParameter());

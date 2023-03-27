@@ -11,6 +11,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
@@ -1830,7 +1832,7 @@ public class TestRockets {
 		OpenRocketSaver saver = new OpenRocketSaver();
 		try {
 			FileOutputStream str = new FileOutputStream(filename);
-			saver.save(str, doc, null);
+			saver.save(str, doc, null, new WarningSet(), new ErrorSet());
 		}
 		catch (Exception e) {
 			System.err.println("exception " + e);

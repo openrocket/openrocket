@@ -11,7 +11,7 @@ import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 
 @SuppressWarnings("serial")
-public class WarningDialog extends JDialog {
+public abstract class WarningDialog {
 
 	public static void showWarnings(Component parent, Object message, String title, WarningSet warnings) {
 		

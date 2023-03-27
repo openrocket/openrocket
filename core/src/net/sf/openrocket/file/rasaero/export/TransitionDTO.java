@@ -2,7 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,8 +32,8 @@ public class TransitionDTO extends BasePartDTO {
     public TransitionDTO() {
     }
 
-    public TransitionDTO(Transition transition) throws RASAeroExportException {
-        super(transition);
+    public TransitionDTO(Transition transition, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+        super(transition, warnings, errors);
 
         if (!transition.getShapeType().equals(Transition.Shape.CONICAL)) {
             throw new RASAeroExportException("RASAero only supports conical transitions");

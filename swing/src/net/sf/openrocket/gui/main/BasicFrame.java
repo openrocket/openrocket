@@ -49,6 +49,8 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
+import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.arch.SystemInfo;
@@ -1466,8 +1468,33 @@ public class BasicFrame extends JFrame {
 	private boolean saveRASAeroFile(File file, StorageOptions options) {
 		try {
 			ROCKET_SAVER.save(file, document, options);
+
+			WarningSet warnings = ROCKET_SAVER.getWarnings();
+			ErrorSet errors = ROCKET_SAVER.getErrors();
+
+			if (errors.isEmpty()) {
+				WarningDialog.showWarnings(this,
+						new Object[]{
+								//	//	The following problems were encountered while saving
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								//	//	Some design features may not have been exported correctly.
+								trans.get("BasicFrame.WarningDialog.saving.txt2")
+						},
+						//	//	Warnings while opening file
+						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
+			} else {
+				ErrorWarningDialog.showErrorsAndWarnings(this,
+						new Object[]{
+								//	//	The following problems were encountered while saving
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								//	//	Please correct the errors.
+								trans.get("BasicFrame.ErrorWarningDialog.txt1")
+						},
+						//	//	Errors/Warnings while saving file
+						trans.get("BasicFrame.ErrorWarningDialog.saving.title"), errors, warnings);
+			}
 			// Do not update the save state of the document.
-			return true;
+			return errors.isEmpty();
 		} catch (IOException e) {
 			return false;
 		} catch (DecalNotFoundException decex) {

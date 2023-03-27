@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -13,6 +15,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -74,12 +77,28 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     private FinDTO fin;
 
 
+    @XmlTransient
+    private final RocketComponent component;
+    @XmlTransient
+    private final WarningSet warnings;
+    @XmlTransient
+    private final ErrorSet errors;
+
+
     /**
      * We need a default, no-args constructor.
      */
-    public BoosterDTO() { }
+    public BoosterDTO() {
+        this.component = null;
+        this.warnings = null;
+        this.errors = null;
+    }
 
-    protected BoosterDTO(Rocket rocket, AxialStage stage) throws RASAeroExportException {
+    protected BoosterDTO(Rocket rocket, AxialStage stage, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+        this.component = stage;
+        this.warnings = warnings;
+        this.errors = errors;
+
         int stageNr = rocket.getChildPosition(stage);       // Use this instead of stage.getStageNumber() in case there are parallel stages in the design
         if (stageNr != 1 && stageNr != 2) {
             throw new RASAeroExportException(String.format("Invalid stage number '%d' for booster stage '%s'", stageNr, stage.getName()));
@@ -129,7 +148,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             firstTube = (BodyTube) stage.getChild(0);
         }
 
-        applyBodyTubeSettings(firstTube);
+        applyBodyTubeSettings(firstTube, warnings, errors);
 
         TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
         if (finSet == null) {
@@ -144,6 +163,8 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         setDiameter(firstTube.getOuterRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setLocation(firstChild.getAxialOffset(AxialMethod.ABSOLUTE) * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setColor(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_COLOR(firstTube.getColor()));
+
+        // TODO: parse children for body tubes , transtitions etc.
     }
 
     private TrapezoidFinSet getFinSetFromBodyTube(BodyTube bodyTube) {
@@ -168,6 +189,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     }
 
     public void setLength(Double length) {
+        if (MathUtil.equals(length, 0)) {
+            errors.add(String.format("Length of '%s' must be greater than 0", component.getName()));
+            return;
+        }
         this.length = length;
     }
 
@@ -175,7 +200,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         return diameter;
     }
 
-    public void setDiameter(Double diameter) {
+    public void setDiameter(Double diameter) throws RASAeroExportException {
+        if (MathUtil.equals(diameter, 0)) {
+            throw new RASAeroExportException(String.format("Diameter of '%s' must be greater than 0", component.getName()));
+        }
         this.diameter = diameter;
     }
 
@@ -183,7 +211,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         return insideDiameter;
     }
 
-    public void setInsideDiameter(Double insideDiameter) {
+    public void setInsideDiameter(Double insideDiameter) throws RASAeroExportException {
+        if (MathUtil.equals(insideDiameter, 0)) {
+            throw new RASAeroExportException(String.format("Inside diameter of '%s' must be greater than 0", component.getName()));
+        }
         this.insideDiameter = insideDiameter;
     }
 

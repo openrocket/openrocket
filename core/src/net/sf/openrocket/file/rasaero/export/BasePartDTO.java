@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -43,16 +45,24 @@ public class BasePartDTO {
 
     @XmlTransient
     private final RocketComponent component;
+    @XmlTransient
+    private final WarningSet warnings;
+    @XmlTransient
+    private final ErrorSet errors;
 
     /**
      * We need a default no-args constructor.
      */
     public BasePartDTO() {
         this.component = null;
+        this.warnings = null;
+        this.errors = null;
     }
 
-    protected BasePartDTO(RocketComponent component) throws RASAeroExportException {
+    protected BasePartDTO(RocketComponent component, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         this.component = component;
+        this.warnings = warnings;
+        this.errors = errors;
 
         if (component instanceof BodyTube) {
             setPartType(RASAeroCommonConstants.BODY_TUBE);

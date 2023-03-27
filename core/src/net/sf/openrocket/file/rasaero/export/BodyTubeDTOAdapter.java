@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RailButton;
@@ -10,17 +12,17 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
 public interface BodyTubeDTOAdapter {
-    default void applyBodyTubeSettings(BodyTube bodyTube) throws RASAeroExportException {
+    default void applyBodyTubeSettings(BodyTube bodyTube, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         for (RocketComponent child : bodyTube.getChildren()) {
             if (child instanceof TrapezoidFinSet) {
                 setFin(new FinDTO((TrapezoidFinSet) child));
             } else if (child instanceof LaunchLug) {
                 if (!MathUtil.equals(getRailGuideDiameter(), 0) || !MathUtil.equals(getRailGuideHeight(), 0)) {     // only one check on diameter or length should be sufficient, but just to be safe
-                    //TODO: warning.add(String.format("Already added a rail button, ignoring launch lug '%s'", child.getName());
+                    warnings.add(String.format("Already added a rail button, ignoring launch lug '%s'", child.getName()));
                     continue;
                 }
                 if (!MathUtil.equals(getLaunchShoeArea(), 0)) {
-                    //TODO: warning.add(String.format("Already added a launch shoe, ignoring launch lug '%s'", child.getName());
+                    warnings.add(String.format("Already added a launch shoe, ignoring launch lug '%s'", child.getName()));
                     continue;
                 }
 
@@ -29,17 +31,18 @@ public interface BodyTubeDTOAdapter {
                 if (lug.getInstanceCount() == 2) {
                     setLaunchLugLength(lug.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
                 } else {
-                    //TODO:warnings.add(String.format("Instance count of '%s' not set to 2, defaulting to 2 and adjusting
-                    // launch lug length accordingly.", lug.getName()")
+                    warnings.add(String.format(
+                            "Instance count of '%s' not set to 2, defaulting to 2 and adjusting launch lug length accordingly.",
+                            lug.getName()));
                     setLaunchLugLength(lug.getLength() * lug.getInstanceCount() / 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
                 }
             } else if (child instanceof RailButton) {
                 if (!MathUtil.equals(getLaunchLugDiameter(), 0) || !MathUtil.equals(getLaunchLugLength(), 0)) {     // only one check on diameter or length should be sufficient, but just to be safe
-                    // TODO: warning.add(String.format("Already added a launch lug, ignoring rail button '%s'", child.getName()));
+                    warnings.add(String.format("Already added a launch lug, ignoring rail button '%s'", child.getName()));
                     continue;
                 }
                 if (!MathUtil.equals(getLaunchShoeArea(), 0)) {
-                    // TODO: warning.add(String.format("Already added a launch shoe, ignoring rail button '%s'", child.getName()));
+                    warnings.add(String.format("Already added a launch shoe, ignoring rail button '%s'", child.getName()));
                     continue;
                 }
 
@@ -48,10 +51,11 @@ public interface BodyTubeDTOAdapter {
                 setRailGuideHeight(button.getTotalHeight() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
                 if (button.getInstanceCount() != 2) {
-                    //TODO: warnings.add(String.format("Instance count of '%s' equals %d, defaulting to 2", button.getName(), button.getInstanceCount()));
+                    warnings.add(String.format("Instance count of '%s' equals %d, defaulting to 2",
+                            button.getName(), button.getInstanceCount()));
                 }
             } else {
-                // TODO: warnings.add(String.format("Unsupported component '%s', ignoring.", child.getComponentName()));
+                warnings.add(String.format("Unsupported component '%s', ignoring.", child.getComponentName()));
             }
         }
     }
