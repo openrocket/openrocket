@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -23,7 +24,10 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
+
+import java.util.List;
 
 @XmlRootElement(name = RASAeroCommonConstants.BOOSTER)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -144,8 +148,17 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             setShoulderLength(firstChild.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             setDiameter(firstTube.getOuterRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             setInsideDiameter(transition.getForeRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+
+            if (stage.getChildCount() > 2) {
+                warnings.add(String.format("Stage '%s' can only contain a body tube and transition shoulder, ignoring other %d components",
+                        stage.getName(), stage.getChildCount() - 2));
+            }
         } else {
             firstTube = (BodyTube) stage.getChild(0);
+            if (stage.getChildCount() > 1) {
+                warnings.add(String.format("Stage '%s' can only contain a body tube, ignoring other %d components",
+                        stage.getName(), stage.getChildCount() - 1));
+            }
         }
 
         applyBodyTubeSettings(firstTube, warnings, errors);
@@ -163,8 +176,6 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         setDiameter(firstTube.getOuterRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setLocation(firstChild.getAxialOffset(AxialMethod.ABSOLUTE) * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setColor(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_COLOR(firstTube.getColor()));
-
-        // TODO: parse children for body tubes , transtitions etc.
     }
 
     private TrapezoidFinSet getFinSetFromBodyTube(BodyTube bodyTube) {
