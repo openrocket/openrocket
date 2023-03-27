@@ -57,7 +57,7 @@ public class FinDTO {
         int finCount = fin.getFinCount();
         if (finCount < 3 || finCount > 8) {
             throw new RASAeroExportException(
-                    String.format("Fin set '%s' must have a fin count between 3 and 8", fin.getName()));
+                    String.format("Fin set '%s' must have a fin count between 3 and 8.", fin.getName()));
         }
 
         setCount(fin.getFinCount());

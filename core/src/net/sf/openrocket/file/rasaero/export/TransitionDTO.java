@@ -36,16 +36,16 @@ public class TransitionDTO extends BasePartDTO {
         super(transition, warnings, errors);
 
         if (!transition.getShapeType().equals(Transition.Shape.CONICAL)) {
-            throw new RASAeroExportException("RASAero only supports conical transitions");
+            throw new RASAeroExportException("RASAero only supports conical transitions.");
         }
 
         SymmetricComponent previousComp = transition.getPreviousSymmetricComponent();
         if (previousComp == null) {
-            throw new RASAeroExportException(String.format("Transition '%s' has no previous component", transition.getName()));
+            throw new RASAeroExportException(String.format("Transition '%s' has no previous component.", transition.getName()));
         }
         if (!MathUtil.equals(transition.getForeRadius(), previousComp.getAftRadius())) {
             throw new RASAeroExportException(
-                    String.format("Transition '%s' should have the same fore radius as the aft radius (%f) of its previous component, not (%f)",
+                    String.format("Transition '%s' should have the same fore radius as the aft radius (%f) of its previous component, not %f.",
                             transition.getName(), previousComp.getAftRadius(), transition.getForeRadius()));
         }
 

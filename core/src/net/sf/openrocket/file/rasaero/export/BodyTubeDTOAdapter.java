@@ -18,11 +18,11 @@ public interface BodyTubeDTOAdapter {
                 setFin(new FinDTO((TrapezoidFinSet) child));
             } else if (child instanceof LaunchLug) {
                 if (!MathUtil.equals(getRailGuideDiameter(), 0) || !MathUtil.equals(getRailGuideHeight(), 0)) {     // only one check on diameter or length should be sufficient, but just to be safe
-                    warnings.add(String.format("Already added a rail button, ignoring launch lug '%s'", child.getName()));
+                    warnings.add(String.format("Already added a rail button, ignoring launch lug '%s'.", child.getName()));
                     continue;
                 }
                 if (!MathUtil.equals(getLaunchShoeArea(), 0)) {
-                    warnings.add(String.format("Already added a launch shoe, ignoring launch lug '%s'", child.getName()));
+                    warnings.add(String.format("Already added a launch shoe, ignoring launch lug '%s'.", child.getName()));
                     continue;
                 }
 
@@ -38,11 +38,11 @@ public interface BodyTubeDTOAdapter {
                 }
             } else if (child instanceof RailButton) {
                 if (!MathUtil.equals(getLaunchLugDiameter(), 0) || !MathUtil.equals(getLaunchLugLength(), 0)) {     // only one check on diameter or length should be sufficient, but just to be safe
-                    warnings.add(String.format("Already added a launch lug, ignoring rail button '%s'", child.getName()));
+                    warnings.add(String.format("Already added a launch lug, ignoring rail button '%s'.", child.getName()));
                     continue;
                 }
                 if (!MathUtil.equals(getLaunchShoeArea(), 0)) {
-                    warnings.add(String.format("Already added a launch shoe, ignoring rail button '%s'", child.getName()));
+                    warnings.add(String.format("Already added a launch shoe, ignoring rail button '%s'.", child.getName()));
                     continue;
                 }
 
@@ -51,7 +51,7 @@ public interface BodyTubeDTOAdapter {
                 setRailGuideHeight(button.getTotalHeight() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
                 if (button.getInstanceCount() != 2) {
-                    warnings.add(String.format("Instance count of '%s' equals %d, defaulting to 2",
+                    warnings.add(String.format("Instance count of '%s' equals %d, defaulting to 2.",
                             button.getName(), button.getInstanceCount()));
                 }
             } else {

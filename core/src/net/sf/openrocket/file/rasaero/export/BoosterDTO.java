@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -24,10 +23,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
-
-import java.util.List;
 
 @XmlRootElement(name = RASAeroCommonConstants.BOOSTER)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -105,43 +101,43 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
         int stageNr = rocket.getChildPosition(stage);       // Use this instead of stage.getStageNumber() in case there are parallel stages in the design
         if (stageNr != 1 && stageNr != 2) {
-            throw new RASAeroExportException(String.format("Invalid stage number '%d' for booster stage '%s'", stageNr, stage.getName()));
+            throw new RASAeroExportException(String.format("Invalid stage number '%d' for booster stage '%s'.", stageNr, stage.getName()));
         }
 
         if (stage.getChildCount() == 0) {
-            throw new RASAeroExportException(String.format("Stage '%s' can not be empty", stage.getName()));
+            throw new RASAeroExportException(String.format("Stage '%s' may not be empty.", stage.getName()));
         }
 
         RocketComponent firstChild = stage.getChild(0);
         if (!(firstChild instanceof BodyTube) &&
                 !(firstChild instanceof Transition && !(firstChild instanceof NoseCone))) {
-            throw new RASAeroExportException(String.format("First component of stage '%s' must be a body tube or transition", stage.getName()));
+            throw new RASAeroExportException(String.format("First component of stage '%s' must be a body tube or transition.", stage.getName()));
         }
         final BodyTube firstTube;
         if (firstChild instanceof Transition) {
             if (stage.getChildCount() == 1 || !(stage.getChild(1) instanceof BodyTube)) {
                 throw new RASAeroExportException(
-                        String.format("When the first component of stage '%s' is a transition, the second one must be a body tube",
+                        String.format("When the first component of stage '%s' is a transition, the second one must be a body tube.",
                                 stage.getName()));
             }
 
             Transition transition = (Transition) firstChild;
             SymmetricComponent previousComponent = transition.getPreviousSymmetricComponent();
             if (previousComponent == null) {
-                throw new RASAeroExportException(String.format("No previous component for '%s' in stage '%s'",
+                throw new RASAeroExportException(String.format("No previous component for '%s' in stage '%s'.",
                         firstChild.getName(), stage.getName()));
             }
 
             if (!MathUtil.equals(transition.getForeRadius(), previousComponent.getAftRadius())) {
                 throw new RASAeroExportException(
-                        String.format("Transition '%s' in stage '%s' must have the same fore radius as the aft radius of its previous component '%s'",
+                        String.format("Transition '%s' in stage '%s' must have the same fore radius as the aft radius of its previous component '%s'.",
                                 transition.getName(), stage.getName(), previousComponent.getName()));
             }
 
             firstTube = (BodyTube) stage.getChild(1);
             if (!MathUtil.equals(firstTube.getOuterRadius(), transition.getAftRadius())) {
                 throw new RASAeroExportException(
-                        String.format("Radius of '%s' in stage '%s' must be the same as the aft radius of '%s",
+                        String.format("Radius of '%s' in stage '%s' must be the same as the aft radius of '%s'.",
                                 firstTube.getName(), stage.getName(), transition.getName()));
             }
 
@@ -150,13 +146,13 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             setInsideDiameter(transition.getForeRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
             if (stage.getChildCount() > 2) {
-                warnings.add(String.format("Stage '%s' can only contain a body tube and transition shoulder, ignoring other %d components",
+                warnings.add(String.format("Stage '%s' can only contain a body tube and transition shoulder, ignoring other %d components.",
                         stage.getName(), stage.getChildCount() - 2));
             }
         } else {
             firstTube = (BodyTube) stage.getChild(0);
             if (stage.getChildCount() > 1) {
-                warnings.add(String.format("Stage '%s' can only contain a body tube, ignoring other %d components",
+                warnings.add(String.format("Stage '%s' can only contain a body tube, ignoring other %d components.",
                         stage.getName(), stage.getChildCount() - 1));
             }
         }
@@ -166,7 +162,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
         if (finSet == null) {
             throw new RASAeroExportException(
-                    String.format("Body tube '%s' in stage '%s' must have a TrapezoidFinSet",
+                    String.format("Body tube '%s' in stage '%s' must have a TrapezoidFinSet.",
                             firstTube.getName(), stage.getName()));
         }
         setFin(new FinDTO(finSet));
@@ -201,7 +197,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
     public void setLength(Double length) {
         if (MathUtil.equals(length, 0)) {
-            errors.add(String.format("Length of '%s' must be greater than 0", component.getName()));
+            errors.add(String.format("Length of '%s' must be greater than 0.", component.getName()));
             return;
         }
         this.length = length;
@@ -213,7 +209,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
     public void setDiameter(Double diameter) throws RASAeroExportException {
         if (MathUtil.equals(diameter, 0)) {
-            throw new RASAeroExportException(String.format("Diameter of '%s' must be greater than 0", component.getName()));
+            throw new RASAeroExportException(String.format("Diameter of '%s' must be greater than 0.", component.getName()));
         }
         this.diameter = diameter;
     }
@@ -224,7 +220,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
     public void setInsideDiameter(Double insideDiameter) throws RASAeroExportException {
         if (MathUtil.equals(insideDiameter, 0)) {
-            throw new RASAeroExportException(String.format("Inside diameter of '%s' must be greater than 0", component.getName()));
+            throw new RASAeroExportException(String.format("Inside diameter of '%s' must be greater than 0.", component.getName()));
         }
         this.insideDiameter = insideDiameter;
     }

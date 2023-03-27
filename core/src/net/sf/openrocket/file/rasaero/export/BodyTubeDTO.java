@@ -79,7 +79,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchLugDiameter(Double launchLugDiameter) throws RASAeroExportException {
         if (MathUtil.equals(launchLugDiameter, 0)) {
-            throw new RASAeroExportException("Launch lug diameter can not be 0");
+            throw new RASAeroExportException("Launch lug diameter can not be 0.");
         }
         this.launchLugDiameter = launchLugDiameter;
     }
@@ -90,7 +90,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchLugLength(Double launchLugLength) throws RASAeroExportException {
         if (MathUtil.equals(launchLugLength, 0)) {
-            throw new RASAeroExportException("Launch lug length can not be 0");
+            throw new RASAeroExportException("Launch lug length can not be 0.");
         }
         this.launchLugLength = launchLugLength;
     }
@@ -101,7 +101,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setRailGuideDiameter(Double railGuideDiameter) throws RASAeroExportException {
         if (MathUtil.equals(railGuideDiameter, 0)) {
-            throw new RASAeroExportException("Rail button diameter can not be 0");
+            throw new RASAeroExportException("Rail button diameter can not be 0.");
         }
         this.railGuideDiameter = railGuideDiameter;
     }
@@ -112,7 +112,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setRailGuideHeight(Double railGuideHeight) throws RASAeroExportException {
         if (MathUtil.equals(railGuideHeight, 0)) {
-            throw new RASAeroExportException("Rail button height can not be 0");
+            throw new RASAeroExportException("Rail button height can not be 0.");
         }
         this.railGuideHeight = railGuideHeight;
     }
@@ -123,7 +123,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchShoeArea(Double launchShoeArea) throws RASAeroExportException {
         if (MathUtil.equals(launchShoeArea, 0)) {
-            throw new RASAeroExportException("Launch shoe area can not be 0");
+            throw new RASAeroExportException("Launch shoe area can not be 0.");
         }
         this.launchShoeArea = launchShoeArea;
     }

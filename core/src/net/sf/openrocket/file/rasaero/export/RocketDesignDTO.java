@@ -82,17 +82,17 @@ public class RocketDesignDTO {
             try {
                 RocketComponent component = sustainer.getChild(i);
                 if (i == 0 && !(component instanceof NoseCone)) {
-                    errors.add("First component of the sustainer must be a nose cone");
+                    errors.add("First component of the sustainer must be a nose cone.");
                     return;
                 } else if (i == 1 && !(component instanceof BodyTube)) {
-                    errors.add("Second component of the sustainer must be a body tube");
+                    errors.add("Second component of the sustainer must be a body tube.");
                     return;
                 }
                 if (component instanceof BodyTube) {
                     addExternalPart(new BodyTubeDTO((BodyTube) component, warnings, errors));
                 } else if (component instanceof NoseCone) {
                     if (i != 0) {
-                        errors.add("A nose cone can only be the first component of the rocket");
+                        errors.add("A nose cone can only be the first component of the rocket.");
                         return;
                     }
                     addExternalPart(new NoseConeDTO((NoseCone) component, warnings, errors));
