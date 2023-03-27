@@ -409,7 +409,7 @@ public class RocketActions {
 	
 	private boolean isSimulationSelected() {
 		Simulation[] selection = selectionModel.getSelectedSimulations();
-		return (selection != null  &&  selection.length > 0);
+		return (selection != null  &&  selection.length == 1);
 	}
 	
 	
@@ -1008,7 +1008,7 @@ public class RocketActions {
 					}
 				}
 				ComponentConfigDialog.showDialog(parentFrame, document, component);
-			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
+			} else if (sims != null && sims.length == 1 && (simulationPanel != null)) {
 				simulationPanel.editSimulation();
 			}
 		}
