@@ -107,7 +107,7 @@ public final class ExampleDesignFileAction extends JMenu {
     /**
      * When a user clicks on one of the recently used design files, open it.
      *
-     * @param file the design file name (absolute path)
+     * @param example the design file name (absolute path)
      *
      * @return the action to open a design file
      */

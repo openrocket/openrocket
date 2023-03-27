@@ -1284,34 +1284,24 @@ public class BasicFrame extends JFrame {
 		////	Handle the document
 		OpenRocketDocument doc = null;
 		try {
-
 			doc = worker.get();
-
 		} catch (ExecutionException e) {
-
 			Throwable cause = e.getCause();
-
 			if (cause instanceof FileNotFoundException) {
-
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else if (cause instanceof RocketLoadException) {
-
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
 						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else {
-
 				throw new BugException("Unknown error when opening file", e);
-
 			}
 
 		} catch (InterruptedException e) {
@@ -1321,7 +1311,6 @@ public class BasicFrame extends JFrame {
 		if (doc == null) {
 			throw new BugException("Document loader returned null");
 		}
-
 
 		////	Show warnings
 		WarningSet warnings = worker.getRocketLoader().getWarnings();
