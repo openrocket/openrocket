@@ -367,6 +367,10 @@ public class RecoveryHandler extends AbstractElementHandler {
         offset += parentBodyTube.getOuterRadius() * 2.25;        // 1.125 calibers
         recoveryDevice.setAxialMethod(AxialMethod.TOP);
         if (offset + recoveryDevice.getLength() > parentBodyTube.getLength()) {
+            // For rule 1, device 2 should be below device 1, so just in case, put this at the bottom instead of at the top
+            if (bodyTubes.size() == 1) {
+                recoveryDevice.setAxialMethod(AxialMethod.BOTTOM);
+            }
             offset = 0;
         }
         recoveryDevice.setAxialOffset(offset);
