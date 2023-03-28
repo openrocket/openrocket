@@ -6,10 +6,12 @@ import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -133,19 +135,35 @@ public class SimulationDTO {
             StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
             int stageNr = rocket.getChildPosition(stage);
 
+            FlightConfiguration CGCalcConfig = new FlightConfiguration(rocket);
             switch (stageNr) {
                 // Sustainer
                 case 0:
                     setSustainerEngine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
                     setSustainerLaunchWt(stage.getSectionMass());
-                    setSustainerCG(stage.getCG().x);        // TODO: use aggregate CG...
+
+                    // Calculate CG of sustainer
+                    CGCalcConfig.setOnlyStage(0);
+                    double sustainerCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
+                    setSustainerCG(sustainerCG);
+
                     setSustainerIgnitionDelay(motorConfig.getIgnitionDelay());
                     break;
                 // Booster 1
                 case 1:
                     setBooster1Engine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
-                    setBooster1LaunchWt(stage.getSectionMass());
-                    setBooster1CG(stage.getCG().x);     // TODO: use aggregate CG...
+
+                    // Aggregate mass of sustainer and booster 1
+                    setBooster1LaunchWt(rocket.getChild(0).getSectionMass() + stage.getSectionMass());
+
+                    // Aggregate CG of sustainer and booster 1
+                    CGCalcConfig.setOnlyStage(0);
+                    for (int i = 1; i <= stage.getStageNumber(); i++) {
+                        CGCalcConfig._setStageActive(i, true);
+                    }
+                    double totalCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
+                    setBooster1CG(totalCG);
+
                     setBooster1IgnitionDelay(motorConfig.getIgnitionDelay());
                     setBooster1SeparationDelay(separationConfig.getSeparationDelay());      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
                     setIncludeBooster1(mount.isMotorMount());
@@ -153,8 +171,19 @@ public class SimulationDTO {
                 // Booster 2
                 case 2:
                     setBooster2Engine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
-                    setBooster2LaunchWt(stage.getSectionMass());
-                    setBooster2CG(stage.getCG().x);         // TODO: use aggregate CG...
+
+                    // Aggregate mass of sustainer, booster 1 and booster 2
+                    setBooster2LaunchWt(rocket.getChild(0).getSectionMass() + rocket.getChild(1).getSectionMass() +
+                            stage.getSectionMass());
+
+                    // Calculate the aggregated CG of the sustainer, booster and booster 2
+                    CGCalcConfig.setOnlyStage(0);
+                    for (int i = 1; i <= stage.getStageNumber(); i++) {
+                        CGCalcConfig._setStageActive(i, true);
+                    }
+                    totalCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
+                    setBooster2CG(totalCG);
+
                     setBooster2Delay(separationConfig.getSeparationDelay());      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
                     setIncludeBooster2(mount.isMotorMount());
                     break;
