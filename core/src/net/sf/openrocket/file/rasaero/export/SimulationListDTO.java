@@ -45,9 +45,26 @@ public class SimulationListDTO {
                 continue;
             }
             for (RocketComponent stageChild : stage.getChildren()) {
-                // We can only really use body tubes as motor mounts, since other stuff (e.g. inner tube) is not supported in RASAero
-                if (stageChild instanceof BodyTube && ((BodyTube) stageChild).hasMotor()) {
-                    mounts.put(stage, (BodyTube) stageChild);
+                if (stageChild instanceof BodyTube) {
+                    // First check if the body tube itself has a motor
+                    if (((BodyTube) stageChild).hasMotor()) {
+                        mounts.put(stage, (BodyTube) stageChild);
+                        break;
+                    }
+                    // Then check if it has an inner tube with a motor
+                    else {
+                        boolean addedMount = false;
+                        for (RocketComponent tubeChild : stageChild.getChildren()) {
+                            if (tubeChild instanceof MotorMount && ((MotorMount) tubeChild).hasMotor()) {
+                                mounts.put(stage, (MotorMount) tubeChild);
+                                addedMount = true;
+                                break;
+                            }
+                        }
+                        if (addedMount) {
+                            break;
+                        }
+                    }
                 }
             }
         }
