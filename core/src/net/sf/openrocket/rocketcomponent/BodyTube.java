@@ -451,9 +451,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	@Override
 	public boolean hasMotor() {
-		// the default MotorInstance is the EMPTY_INSTANCE.  
-		// If the class contains more instances, at least one will have motors.
-		return ( 1 < this.motors.size());
+		return this.motors.size() > 0;
 	}
 		
 	@Override
