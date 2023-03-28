@@ -66,16 +66,16 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
 	 */
 	
-	private double launchAltitude = preferences.getDouble(Preferences.LAUNCH_ALTITUDE, 0);
-	private double launchLatitude = preferences.getDouble(Preferences.LAUNCH_LATITUDE, 28.61);
-	private double launchLongitude = preferences.getDouble(Preferences.LAUNCH_LONGITUDE, -80.60);
+	private double launchAltitude = preferences.getLaunchAltitude();
+	private double launchLatitude = preferences.getLaunchLatitude();
+	private double launchLongitude = preferences.getLaunchLongitude();
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
-	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);	// In Kelvin
-	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);		// In Pascal
+	private boolean useISA = preferences.getISAAtmosphere();
+	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
+	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
 	
-	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+	private double timeStep = preferences.getTimeStep();
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
