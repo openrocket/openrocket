@@ -127,13 +127,9 @@ public class SimulationListHandler extends AbstractElementHandler {
             }
 
             // Add motors to the rocket
-            addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, id, warnings);
-            if (includeBooster1) {
-                addMotorToStage(1, booster1Engine, booster1IgnitionDelay, id, warnings);
-            }
-            if (includeBooster2) {
-                addMotorToStage(2, booster2Engine, 0.0, id, warnings);
-            }
+            addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, id, true, warnings);
+            addMotorToStage(1, booster1Engine, booster1IgnitionDelay, id, includeBooster1, warnings);
+            addMotorToStage(2, booster2Engine, 0.0, id, includeBooster2, warnings);
 
             // Set separation settings
             setSeparationDelay(0, 0.0, id);
@@ -152,8 +148,18 @@ public class SimulationListHandler extends AbstractElementHandler {
             context.getOpenRocketDocument().addSimulation(sim);
         }
 
+        /**
+         * Add a new motor to a stage
+         * @param stageNr number of the stage to add the motor to
+         * @param motor motor to add
+         * @param ignitionDelay ignition delay of the motor
+         * @param id flight config id to alter
+         * @param enableMotorMount whether the motor mount should be enabled or disabled
+         * @param warnings
+         */
         private void addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
-                                     final FlightConfigurationId id, final WarningSet warnings) {
+                                     final FlightConfigurationId id, boolean enableMotorMount,
+                                     final WarningSet warnings) {
             if (motor == null || rocket.getStage(stageNr) == null) {
                 return;
             }
@@ -179,6 +185,7 @@ public class SimulationListHandler extends AbstractElementHandler {
                 motorConfig.setIgnitionEvent(IgnitionEvent.AUTOMATIC);
             }
             mount.setMotorConfig(motorConfig, id);
+            mount.setMotorMount(enableMotorMount);
         }
 
         private void setSeparationDelay(final int stageNr, Double separationDelay,
@@ -204,9 +211,6 @@ public class SimulationListHandler extends AbstractElementHandler {
                 if (component instanceof MotorMount) {
                     mount = (MotorMount) component;
                 }
-            }
-            if (mount != null) {
-                mount.setMotorMount(true);
             }
             return mount;
         }
