@@ -662,7 +662,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void updateEnabledState() {
-			setEnabled(simulationTable.getSelectedRowCount() == 1);
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
 		}
 	}
 
