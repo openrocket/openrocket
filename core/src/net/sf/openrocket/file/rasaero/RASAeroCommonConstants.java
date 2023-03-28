@@ -201,6 +201,10 @@ public class RASAeroCommonConstants {
      */
     public static final double OPENROCKET_TO_RASAERO_ANGLE = 180 / Math.PI;
     /**
+     * Weight conversion from OpenRocket units to RASAero units.  RASAero is in pounds (lb), OpenRocket in kilograms (kg).
+     */
+    public static final double OPENROCKET_TO_RASAERO_WEIGHT = 2.20462262;
+    /**
      * Temperature conversion from OpenRocket units to RASAero units.  RASAero is in Fahrenheit, OpenRocket in Kelvin.
      */
     public static final double RASAERO_TO_OPENROCKET_TEMPERATURE(Double input) {
