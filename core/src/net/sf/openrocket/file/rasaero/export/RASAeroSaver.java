@@ -81,7 +81,9 @@ public class RASAeroSaver extends RocketSaver {
     private RASAeroDocumentDTO toRASAeroDocumentDTO(OpenRocketDocument doc, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         RASAeroDocumentDTO rad = new RASAeroDocumentDTO();
         rad.setDesign(toRocketDesignDTO(doc.getRocket(), warnings, errors));
+        rad.setLaunchSite(toLaunchSiteDTO(doc, warnings, errors));
         rad.setSimulationList(toSimulationListDTO(doc, warnings, errors));
+
         return rad;
     }
 
@@ -92,6 +94,17 @@ public class RASAeroSaver extends RocketSaver {
      */
     private RocketDesignDTO toRocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         return new RocketDesignDTO(rocket, warnings, errors);
+    }
+
+    /**
+     * Create RASAero launch site settings.
+     * @param document document that contains simulations to take the launch site settings from
+     * @param warnings list to add export warnings to
+     * @param errors list to add export errors to
+     * @return the RASAero launch site settings
+     */
+    private LaunchSiteDTO toLaunchSiteDTO(OpenRocketDocument document, WarningSet warnings, ErrorSet errors) {
+        return new LaunchSiteDTO(document, warnings, errors);
     }
 
     /**
