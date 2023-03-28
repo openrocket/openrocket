@@ -5,6 +5,7 @@ import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
@@ -54,6 +55,8 @@ public interface BodyTubeDTOAdapter {
                     warnings.add(String.format("Instance count of '%s' equals %d, defaulting to 2.",
                             button.getName(), button.getInstanceCount()));
                 }
+            } else if (child instanceof Parachute) {
+                // Do nothing, is handled by RecoveryDTO
             } else {
                 warnings.add(String.format("Unsupported component '%s', ignoring.", child.getComponentName()));
             }
