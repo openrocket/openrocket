@@ -29,10 +29,6 @@ public class RASAeroDocumentDTO {
     @XmlElement(name = RASAeroCommonConstants.MACH_ALT)
     private String machAlt = "";    // Currently not implemented
 
-    /*
-    @XmlElementWrapper(name=RASAeroCommonConstants.SIMULATION_LIST)
-    @XmlElement(name=RASAeroCommonConstants.SIMULATION)
-     */
     @XmlElement(name = RASAeroCommonConstants.SIMULATION_LIST)
     private SimulationListDTO simulationList = null;
 

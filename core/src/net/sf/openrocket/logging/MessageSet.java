@@ -74,7 +74,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     @Override
     public Iterator<E> iterator() {
         final Iterator<E> iterator = messages.iterator();
-        return new Iterator<>() {
+        return new Iterator<E>() {
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();

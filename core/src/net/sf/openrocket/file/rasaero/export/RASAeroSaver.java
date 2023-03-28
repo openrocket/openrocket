@@ -50,9 +50,10 @@ public class RASAeroSaver extends RocketSaver {
             errors.add(e.getMessage());
         } catch (Exception e) {
             log.error("Could not marshall a design to RASAero format. " + e.getMessage());
+            throw new RuntimeException("Could not marshall a design to RASAero format. " + e.getMessage());
         }
 
-        return null;
+        throw new RuntimeException("Could not marshall a design to RASAero format.");
     }
 
     @Override
@@ -80,7 +81,7 @@ public class RASAeroSaver extends RocketSaver {
     private RASAeroDocumentDTO toRASAeroDocumentDTO(OpenRocketDocument doc, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         RASAeroDocumentDTO rad = new RASAeroDocumentDTO();
         rad.setDesign(toRocketDesignDTO(doc.getRocket(), warnings, errors));
-
+        rad.setSimulationList(toSimulationListDTO(doc, warnings, errors));
         return rad;
     }
 
@@ -91,5 +92,16 @@ public class RASAeroSaver extends RocketSaver {
      */
     private RocketDesignDTO toRocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         return new RocketDesignDTO(rocket, warnings, errors);
+    }
+
+    /**
+     * Create a list of simulations.
+     * @param document document that contains simulations
+     * @param warnings list to add export warnings to
+     * @param errors list to add export errors to
+     * @return the RASAero simulation list
+     */
+    private SimulationListDTO toSimulationListDTO(OpenRocketDocument document, WarningSet warnings, ErrorSet errors) {
+        return new SimulationListDTO(document, warnings, errors);
     }
 }

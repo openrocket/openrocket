@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.rasaero;
 
 import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -154,15 +155,29 @@ public class RASAeroCommonConstants {
     public static final String SIMULATION_LIST = "SimulationList";
     public static final String SIMULATION = "Simulation";
     public static final String SUSTAINER_ENGINE = "SustainerEngine";
-    // TODO: SustainerLaunchWt, SustainerCG?
+    public static final String SUSTAINER_LAUNCH_WT = "SustainerLaunchWt";
+    public static final String SUSTAINER_NOZZLE_DIAMETER = "SustainerNozzleDiameter";
+    public static final String SUSTAINER_CG = "SustainerCG";
     public static final String SUSTAINER_IGNITION_DELAY = "SustainerIgnitionDelay";
     public static final String BOOSTER1_ENGINE = "Booster1Engine";
     public static final String BOOSTER1_SEPARATION_DELAY = "Booster1SeparationDelay";       // Delay after booster burnout to separate
     public static final String BOOSTER1_IGNITION_DELAY = "Booster1IgnitionDelay";
+    public static final String BOOSTER1_LAUNCH_WT = "Booster1LaunchWt";
+    public static final String BOOSTER1_NOZZLE_DIAMETER = "Booster1NozzleDiameter";
+    public static final String BOOSTER1_CG = "Booster1CG";
     public static final String INCLUDE_BOOSTER1 = "IncludeBooster1";
     public static final String BOOSTER2_ENGINE = "Booster2Engine";
     public static final String BOOSTER2_SEPARATION_DELAY = "Booster2Delay";       // Delay after booster burnout to separate
+    public static final String BOOSTER2_LAUNCH_WT = "Booster2LaunchWt";
+    public static final String BOOSTER2_NOZZLE_DIAMETER = "Booster2NozzleDiameter";
+    public static final String BOOSTER2_CG = "Booster2CG";
     public static final String INCLUDE_BOOSTER2 = "IncludeBooster2";
+    public static final String FLIGHT_TIME = "FlightTime";
+    public static final String TIME_TO_APOGEE = "TimetoApogee";
+    public static final String MAX_ALTITUDE = "MaxAltitude";
+    public static final String MAX_VELOCITY = "MaxVelocity";
+    public static final String OPTIMUM_WT = "OptimumWt";
+    public static final String OPTIMUM_MAX_ALT = "OptimumMaxAlt";
 
 
     /**
@@ -351,6 +366,57 @@ public class RASAeroCommonConstants {
             //warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
             return FINISH_SMOOTH;
         }
+    }
+
+    public static String OPENROCKET_TO_RASAERO_MANUFACTURER(Manufacturer manufacturer) {
+        if (manufacturer.matches("AeroTech")) {
+            return "AT";
+        } else if (manufacturer.matches("Estes")) {
+            return "ES";
+        } else if (manufacturer.matches("Apogee")) {
+            return "AP";
+        } else if (manufacturer.matches("Quest")) {
+            return "QU";
+        } else if (manufacturer.matches("Cesaroni")) {
+            return "CTI";
+        } else if (manufacturer.matches("NoThrust")) {
+            return "NoThrust";
+        } else if (manufacturer.matches("Ellis Mountain")) {
+            return "EM";
+        } else if (manufacturer.matches("Contrail")) {
+            return "Contrail";
+        } else if (manufacturer.matches("Rocketvision")) {
+            return "RV";
+        } else if (manufacturer.matches("Roadrunner Rocketry")) {
+            return "RR";
+        } else if (manufacturer.matches("Sky Ripper Systems")) {
+            return "SRS";
+        } else if (manufacturer.matches("Loki Research")) {
+            return "LR";
+        } else if (manufacturer.matches("Public Missiles, Ltd.")) {
+            return "PML";
+        } else if (manufacturer.matches("Kosdon by AeroTech")) {
+            return "KBA";
+        } else if (manufacturer.matches("Gorilla Rocket Motors")) {
+            return "GM";
+        } else if (manufacturer.matches("RATT Works")) {
+            return "RTW";
+        } else if (manufacturer.matches("HyperTEK")) {
+            return "HT";
+        } else if (manufacturer.matches("Animal Motor Works")) {
+            return "AMW";
+        } else if (manufacturer.matches("Loki")) {
+            return "CT";
+        } else if (manufacturer.matches("AMW ProX")) {
+            return "AMW/ProX";
+        } else if (manufacturer.matches("Loki Research EX")) {
+            return "LR-EX";
+        } else if (manufacturer.matches("Derek Deville DEAP EX")) {
+            return "DEAP-EX";
+        } else if (manufacturer.matches("Historical")) {
+            return "Hist";
+        }
+        return manufacturer.getSimpleName();
     }
 
     public static DeploymentConfiguration.DeployEvent RASAERO_TO_OPENROCKET_DEPLOY_EVENT(String deployEvent, WarningSet warnings) {
