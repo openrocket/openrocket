@@ -1416,8 +1416,12 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
-		if (FileHelper.confirmWrite(file, this) ) {
-			return saveAsRASAero(file);
+		if (FileHelper.confirmWrite(file, this)) {
+			boolean result = saveAsRASAero(file);
+			if (!result) {
+				file.delete();
+			}
+			return result;
 		}
 		return false;
 	}
