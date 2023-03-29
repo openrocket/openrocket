@@ -5,14 +5,18 @@ import java.awt.CardLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.EventObject;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -33,6 +37,8 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 public class SimulationEditDialog extends JDialog {
@@ -41,19 +47,34 @@ public class SimulationEditDialog extends JDialog {
 	private final Simulation[] simulationList;
 	private final OpenRocketDocument document;
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences preferences = Application.getPreferences();
 	
 	JPanel cards;
 	private final static String EDITMODE = "EDIT";
 	private final static String PLOTMODE = "PLOT";
 
-	private WindowListener applyChangesToSimsListener;
+	private final WindowListener applyChangesToSimsListener;
+	private final Simulation initialSim;
+	private boolean isModified = false;
+	private final boolean isNewSimulation;
 	
-	public SimulationEditDialog(Window parent, final OpenRocketDocument document, Simulation... sims) {
+	public SimulationEditDialog(Window parent, final OpenRocketDocument document, boolean isNewSimulation, Simulation... sims) {
 		//// Edit simulation
 		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
 		this.document = document;
 		this.parentWindow = parent;
 		this.simulationList = sims;
+		this.initialSim = simulationList[0].clone();
+		this.isNewSimulation = isNewSimulation;
+
+		simulationList[0].addChangeListener(new StateChangeListener() {
+			@Override
+			public void stateChanged(EventObject e) {
+				isModified = true;
+				setTitle("* " + getTitle());			// Add component changed indicator to the title
+				simulationList[0].removeChangeListener(this);
+			}
+		});
 		
 		this.cards = new JPanel(new CardLayout());
 		this.add(cards);
@@ -85,6 +106,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	public void setEditMode() {
+		setTitle((isModified ? "* " : "") + trans.get("simedtdlg.title.Editsim"));
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, EDITMODE);
 		cards.validate();
@@ -96,7 +118,7 @@ public class SimulationEditDialog extends JDialog {
 			return;
 		}
 		this.removeWindowListener(applyChangesToSimsListener);
-		setTitle(trans.get("simplotpanel.title.Plotsim"));
+		setTitle((isModified ? "* " : "") + trans.get("simplotpanel.title.Plotsim"));
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, PLOTMODE);
 		cards.validate();
@@ -150,7 +172,6 @@ public class SimulationEditDialog extends JDialog {
 					String name = field.getText();
 					if (name == null || name.equals(""))
 						return;
-					//System.out.println("Setting name:" + name);
 					simulationList[0].setName(name);
 					
 				}
@@ -208,7 +229,7 @@ public class SimulationEditDialog extends JDialog {
 			}
 			
 		});
-		simEditPanel.add(button, "spanx, split 3, align left");
+		simEditPanel.add(button, "spanx, split 4, align left");
 		if (allowsPlotMode()) {
 			button.setVisible(true);
 		} else {
@@ -231,17 +252,49 @@ public class SimulationEditDialog extends JDialog {
 				}
 			}
 		});
-		simEditPanel.add(button, " align right, tag ok");
-		
-		//// Close button 
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
-		close.addActionListener(new ActionListener() {
+		simEditPanel.add(button, " align right, gapright 10lp, tag ok");
+
+		//// Cancel button
+		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		cancelButton.setToolTipText(trans.get("SimulationEditDialog.btn.Cancel.ttip"));
+		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Don't do anything on cancel if you are editing an existing simulation, and it is not modified
+				if (!isNewSimulation && !isModified) {
+					SimulationEditDialog.this.removeWindowListener(applyChangesToSimsListener);
+					SimulationEditDialog.this.dispose();
+					return;
+				}
+
+				// Apply the cancel operation if set to auto discard in preferences
+				if (!preferences.isShowDiscardSimulationConfirmation()) {
+					discardChanges();
+					return;
+				}
+
+				// Yes/No dialog: Are you sure you want to discard your changes?
+				JPanel msg = createCancelOperationContent();
+				int resultYesNo = JOptionPane.showConfirmDialog(SimulationEditDialog.this, msg,
+						trans.get("SimulationEditDialog.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (resultYesNo == JOptionPane.YES_OPTION) {
+					discardChanges();
+				}
+			}
+		});
+		simEditPanel.add(cancelButton, "tag ok");
+
+		//// Ok button
+		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		okButton.setToolTipText(trans.get("SimulationEditDialog.btn.OK.ttip"));
+		okButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 			}
 		});
-		simEditPanel.add(close, "tag ok");
+		simEditPanel.add(okButton, "tag ok");
 		
 		cards.add(simEditPanel, EDITMODE);
 	}
@@ -335,5 +388,46 @@ public class SimulationEditDialog extends JDialog {
 			cards.add(plotExportPanel, PLOTMODE);
 			
 		}
+	}
+
+	private JPanel createCancelOperationContent() {
+		JPanel panel = new JPanel(new MigLayout());
+		String msg = isNewSimulation ? trans.get("SimulationEditDialog.CancelOperation.msg.undoAdd") :
+				trans.get("SimulationEditDialog.CancelOperation.msg.discardChanges");
+		JLabel msgLabel = new JLabel(msg);
+		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationEditDialog.CancelOperation.checkbox.dontAskAgain"));
+		dontAskAgain.setSelected(false);
+		dontAskAgain.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					preferences.setShowDiscardSimulationConfirmation(false);
+				}
+				// Unselected state should be not be possible and thus not be handled
+			}
+		});
+
+		panel.add(msgLabel, "left, wrap");
+		panel.add(dontAskAgain, "left, gaptop para");
+
+		return panel;
+	}
+
+	private void discardChanges() {
+		if (isNewSimulation) {
+			document.removeSimulation(simulationList[0]);
+		} else {
+			undoSimulationChanges();
+		}
+
+		SimulationEditDialog.this.removeWindowListener(applyChangesToSimsListener);
+		SimulationEditDialog.this.dispose();
+	}
+
+	private void undoSimulationChanges() {
+		if (simulationList == null || simulationList.length == 0) {
+			return;
+		}
+		simulationList[0].loadFrom(initialSim);
 	}
 }
