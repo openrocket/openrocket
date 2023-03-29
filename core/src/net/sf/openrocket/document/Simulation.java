@@ -589,12 +589,6 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			copyExtensionsFrom(simulation.getSimulationExtensions());
 			this.status = simulation.status;
-			// Status change, so reset the change listeners to be sure
-			for (EventListener listener : this.options.getChangeListeners()) {
-				if (listener instanceof ConditionListener) {
-					((ConditionListener) listener).reset();
-				}
-			}
 			this.simulatedData = simulation.simulatedData;
 			this.simulationStepperClass = simulation.simulationStepperClass;
 			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;
@@ -664,19 +658,9 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	private class ConditionListener implements StateChangeListener {
-		private boolean resetState = false;
-		private Status oldStatus = null;
-		
 		@Override
 		public void stateChanged(EventObject e) {
-			if (resetState || getStatus() != oldStatus) {
-				oldStatus = getStatus();
-				fireChangeEvent();
-			}
-		}
-
-		public void reset() {
-			resetState = true;
+			fireChangeEvent();
 		}
 	}
 	
