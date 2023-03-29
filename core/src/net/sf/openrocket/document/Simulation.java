@@ -268,6 +268,18 @@ public class Simulation implements ChangeSource, Cloneable {
 		mutex.verify();
 		return simulationExtensions;
 	}
+
+	/**
+	 * Applies the simulation extensions to the simulation.
+	 * @param extensions the simulation extensions to apply.
+	 */
+	public void copyExtensionsFrom(List<SimulationExtension> extensions) {
+		if (extensions == null) {
+			return;
+		}
+		this.simulationExtensions.clear();
+		this.simulationExtensions.addAll(extensions);
+	}
 	
 	
 	/**
@@ -552,6 +564,31 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new BugException("Clone not supported, BUG", e);
 		} finally {
 			mutex.unlock("clone");
+		}
+	}
+
+	/**
+	 * Load the data from the specified simulation into this simulation.
+	 * @param simulation the simulation to load from.
+	 */
+	public void loadFrom(Simulation simulation) {
+		mutex.lock("loadFrom");
+		try {
+			this.name = simulation.name;
+			this.configId = simulation.configId;
+			this.options.copyFrom(simulation.options);
+			this.simulatedConfigurationDescription = simulation.simulatedConfigurationDescription;
+			this.simulatedConfigurationID = simulation.simulatedConfigurationID;
+			if (simulation.simulatedConditions == null) {
+				this.simulatedConditions = null;
+			} else {
+				this.simulatedConditions = simulation.simulatedConditions.clone();
+			}
+			this.simulatedData = simulation.simulatedData;
+			this.status = simulation.status;
+			copyExtensionsFrom(simulation.getSimulationExtensions());
+		} finally {
+			mutex.unlock("loadFrom");
 		}
 	}
 	
