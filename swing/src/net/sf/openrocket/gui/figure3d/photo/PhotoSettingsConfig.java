@@ -256,10 +256,10 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Light altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAlt")));
-				DoubleModel lightAltModle = new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE, -Math.PI / 2, Math.PI / 2);
-				add(new EditableSpinner(lightAltModle.getSpinnerModel()), "growx, split 2");
-				add(new UnitSelector(lightAltModle));
-				add(new BasicSlider(lightAltModle.getSliderModel(-Math.PI / 2, Math.PI / 2)), "wrap");
+				DoubleModel lightAltModel = new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE, -Math.PI / 2, Math.PI / 2);
+				add(new EditableSpinner(lightAltModel.getSpinnerModel()), "growx, split 2");
+				add(new UnitSelector(lightAltModel));
+				add(new BasicSlider(lightAltModel.getSliderModel(-Math.PI / 2, Math.PI / 2)), "wrap");
 
 				// Sky
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.sky"), Style.BOLD), "split, span, gapright para");
@@ -268,6 +268,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				/// Sky color
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
 				add(skyColorButton, "wrap");
+
+				/// Sky color opacity
+				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColorOpacity")));
+				DoubleModel skyColorOpacityModel = new DoubleModel(p, "SkyColorOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
+				add(new EditableSpinner(skyColorOpacityModel.getSpinnerModel()), "growx, split 2");
+				add(new UnitSelector(skyColorOpacityModel));
+				add(new BasicSlider(skyColorOpacityModel.getSliderModel()), "wrap");
+				p.addChangeListener(skyColorOpacityModel);
 
 				/// Sky image
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
