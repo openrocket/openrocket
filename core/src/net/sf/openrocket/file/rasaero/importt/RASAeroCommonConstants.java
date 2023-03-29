@@ -112,15 +112,29 @@ public class RASAeroCommonConstants {
     public static final String SIMULATION_LIST = "SimulationList";
     public static final String SIMULATION = "Simulation";
     public static final String SUSTAINER_ENGINE = "SustainerEngine";
-    // TODO: SustainerLaunchWt, SustainerCG?
+    public static final String SUSTAINER_LAUNCH_WT = "SustainerLaunchWt";
+    public static final String SUSTAINER_NOZZLE_DIAMETER = "SustainerNozzleDiameter";
+    public static final String SUSTAINER_CG = "SustainerCG";
     public static final String SUSTAINER_IGNITION_DELAY = "SustainerIgnitionDelay";
     public static final String BOOSTER1_ENGINE = "Booster1Engine";
     public static final String BOOSTER1_SEPARATION_DELAY = "Booster1SeparationDelay";       // Delay after booster burnout to separate
     public static final String BOOSTER1_IGNITION_DELAY = "Booster1IgnitionDelay";
+    public static final String BOOSTER1_LAUNCH_WT = "Booster1LaunchWt";
+    public static final String BOOSTER1_NOZZLE_DIAMETER = "Booster1NozzleDiameter";
+    public static final String BOOSTER1_CG = "Booster1CG";
     public static final String INCLUDE_BOOSTER1 = "IncludeBooster1";
     public static final String BOOSTER2_ENGINE = "Booster2Engine";
     public static final String BOOSTER2_SEPARATION_DELAY = "Booster2Delay";       // Delay after booster burnout to separate
+    public static final String BOOSTER2_LAUNCH_WT = "Booster2LaunchWt";
+    public static final String BOOSTER2_NOZZLE_DIAMETER = "Booster2NozzleDiameter";
+    public static final String BOOSTER2_CG = "Booster2CG";
     public static final String INCLUDE_BOOSTER2 = "IncludeBooster2";
+    public static final String FLIGHT_TIME = "FlightTime";
+    public static final String TIME_TO_APOGEE = "TimetoApogee";
+    public static final String MAX_ALTITUDE = "MaxAltitude";
+    public static final String MAX_VELOCITY = "MaxVelocity";
+    public static final String OPTIMUM_WT = "OptimumWt";
+    public static final String OPTIMUM_MAX_ALT = "OptimumMaxAlt";
 
 
     /**
@@ -143,6 +157,10 @@ public class RASAeroCommonConstants {
      * Angle conversion.  RASAero is in degrees, OpenRocket in rad.
      */
     public static final double RASAERO_TO_OPENROCKET_ANGLE = 180 / Math.PI;
+    /**
+     * Weight conversion from OpenRocket units to RASAero units.  RASAero is in pounds (lb), OpenRocket in kilograms (kg).
+     */
+    public static final double OPENROCKET_TO_RASAERO_WEIGHT = 2.20462262;
     /**
      * Temperature conversion.  RASAero is in Fahrenheit, OpenRocket in Kelvin.
      */
