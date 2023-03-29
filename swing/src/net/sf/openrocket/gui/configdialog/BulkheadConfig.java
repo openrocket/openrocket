@@ -21,8 +21,7 @@ public class BulkheadConfig extends RingComponentConfig {
 		
 		JPanel tab;
 		
-		tab = generalTab(trans.get("BulkheadCfg.tab.Diameter"), null, null,
-				trans.get("BulkheadCfg.tab.Thickness"));
+		tab = generalTab(trans.get("BulkheadCfg.tab.Thickness"), trans.get("BulkheadCfg.tab.Diameter"), null, null);
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BulkheadCfg.tab.General"), null, tab,
 				trans.get("BulkheadCfg.tab.Generalproperties"), 0);
