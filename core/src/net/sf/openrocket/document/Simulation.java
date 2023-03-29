@@ -523,6 +523,37 @@ public class Simulation implements ChangeSource, Cloneable {
 			mutex.unlock("copy");
 		}
 	}
+
+	public Simulation clone() {
+		mutex.lock("clone");
+		try {
+			Simulation clone = (Simulation) super.clone();
+
+			clone.mutex = SafetyMutex.newInstance();
+			clone.status = status;
+			clone.options = this.options.clone();
+			clone.simulationExtensions = new ArrayList<>();
+			for (SimulationExtension c : this.simulationExtensions) {
+				clone.simulationExtensions.add(c.clone());
+			}
+			clone.listeners = new ArrayList<>();
+			if (simulatedConditions != null) {
+				clone.simulatedConditions = simulatedConditions.clone();
+			} else {
+				clone.simulatedConditions = null;
+			}
+			clone.simulatedConfigurationDescription = simulatedConfigurationDescription;
+			clone.simulatedData = simulatedData.clone();
+			clone.simulatedConfigurationID = simulatedConfigurationID;
+
+			return clone;
+
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("Clone not supported, BUG", e);
+		} finally {
+			mutex.unlock("clone");
+		}
+	}
 	
 	
 	/**
