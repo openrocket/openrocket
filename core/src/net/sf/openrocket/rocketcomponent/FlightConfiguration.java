@@ -33,7 +33,6 @@ import net.sf.openrocket.util.Transformation;
  */
 public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
-	private static final Translator trans = Application.getTranslator();
 
     private String configurationName;
 	public static String DEFAULT_CONFIG_NAME = "[{motors}]";

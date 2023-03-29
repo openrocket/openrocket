@@ -38,6 +38,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
@@ -433,12 +434,20 @@ public class SimulationRunDialog extends JDialog {
 						null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 
 			} else if (t instanceof SimulationException) {
+				String title = simulation.getName();
+				FlightDataBranch dataBranch = ((SimulationException) t).getFlightDataBranch();
 
+				String message;
+				if (dataBranch != null) {
+					message = trans.get("SimuRunDlg.msg.branchErrorOccurred") + "\"" + dataBranch.getBranchName() + "\"";
+				} else {
+					message = trans.get("SimuRunDlg.msg.errorOccurred");
+				}
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
 								//// A error occurred during the simulation:
-								trans.get("SimuRunDlg.msg.errorOccurred"), t.getMessage() },
-						null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
+								message, t.getMessage() },
+													   null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 
 			} else {
 

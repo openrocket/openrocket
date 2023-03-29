@@ -77,7 +77,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			frontalArea = 0;
 			sinphi = 0;
 		} else if (component instanceof Transition) {
-			shape = ((Transition) component).getType();
+			shape = ((Transition) component).getShapeType();
 			param = ((Transition) component).getShapeParameter();
 			frontalArea = Math.abs(Math.PI * (foreRadius * foreRadius - aftRadius * aftRadius));
 			

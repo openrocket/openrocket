@@ -84,7 +84,9 @@ public class FinSetCalc extends RocketComponentCalc {
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 		
-		if (span < 0.001) {
+		warnings.addAll(geometryWarnings);
+		
+		if (finArea < MathUtil.EPSILON) {
 			forces.setCm(0);
 			forces.setCN(0);
 			forces.setCNa(0);
@@ -96,12 +98,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			forces.setCyaw(0);
 			return;
 		}
-
-		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
-			// Add warnings  (radius/2 == diameter/4)
-			warnings.add(Warning.THICK_FIN);
-		}
-		warnings.addAll(geometryWarnings);
 		
 		//////// Calculate CNa.  /////////
 		
@@ -239,23 +235,33 @@ public class FinSetCalc extends RocketComponentCalc {
 		finArea = component.getPlanformArea();
 		ar = 2 * pow2(span) / finArea;
 		
+		// Check geometry; don't consider points along fin root for this
+		// (doing so will cause spurious jagged fin warnings)
 		Coordinate[] points = component.getFinPoints();
-		
-		// Check for jagged edges
 		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
 			if ((points[i].y > points[i - 1].y + 0.001) && down) {
-				geometryWarnings.add(Warning.JAGGED_EDGED_FIN);
+				geometryWarnings.add(Warning.JAGGED_EDGED_FIN, component.toString());
 				break;
 			}
 			if (points[i].y < points[i - 1].y - 0.001) {
 				down = true;
 			}
 		}
+
+		if (finArea < MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.ZERO_AREA_FIN, component.toString());
+		}
+
+		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
+			// Add warnings  (radius/2 == diameter/4)
+			geometryWarnings.add(Warning.THICK_FIN, component.toString());
+		}
 		
-		// Calculate the chord lead and trail positions and length
-		
+		// Calculate the chord lead and trail positions and length.  We do need the points
+		// along the root for this
+		points = component.getFinPointsWithRoot();
 		Arrays.fill(chordLead, Double.POSITIVE_INFINITY);
 		Arrays.fill(chordTrail, Double.NEGATIVE_INFINITY);
 		Arrays.fill(chordLength, 0);
@@ -365,7 +371,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		macLead *= dy;
 		area *= dy;
 		rollSum *= dy;
-		
 		macLength /= area;
 		macSpan /= area;
 		macLead /= area;
@@ -614,6 +619,11 @@ public class FinSetCalc extends RocketComponentCalc {
 
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		// a fin with 0 area contributes no drag
+		if (finArea < MathUtil.EPSILON) {
+			return 0.0;
+		}
+		
 		double cd = componentCf * (1 + 2 * thickness / macLength) * 2 * finArea / conditions.getRefArea();
 		return cd;
 	}
@@ -622,6 +632,11 @@ public class FinSetCalc extends RocketComponentCalc {
 	public double calculatePressureCD(FlightConditions conditions,
 									  double stagnationCD, double baseCD, WarningSet warnings) {
 		
+		// a fin with 0 area contributes no drag
+		if (finArea < MathUtil.EPSILON) {
+			return 0.0;
+		}
+
 		double mach = conditions.getMach();
 		double cd = 0;
 		

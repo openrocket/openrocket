@@ -16,6 +16,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
+import net.sf.openrocket.file.rasaero.importt.RASAeroLoader;
 import net.sf.openrocket.file.rocksim.importt.RockSimLoader;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.TextUtil;
@@ -38,10 +39,12 @@ public class GeneralRocketLoader {
 	private static final byte[] ZIP_SIGNATURE = TextUtil.asciiBytes("PK");
 	private static final byte[] OPENROCKET_SIGNATURE = TextUtil.asciiBytes("<openrocket");
 	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.asciiBytes("<RockSimDoc");
+	private static final byte[] RASAERO_SIGNATURE = TextUtil.asciiBytes("<RASAeroDoc");
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
 	
 	private final RockSimLoader rocksimLoader = new RockSimLoader();
+	private final RASAeroLoader rasaeroLoader = new RASAeroLoader();
 	
 	private final File baseFile;
 	private final URL jarURL;
@@ -71,9 +74,9 @@ public class GeneralRocketLoader {
 		InputStream stream = null;
 		
 		try {
-			
+			String fileName = baseFile != null && baseFile.getName() != null ? baseFile.getName().replaceFirst("[.][^.]+$", "") : null;
 			stream = new BufferedInputStream(new FileInputStream(baseFile));
-			load(stream);
+			load(stream, fileName);
 			return doc;
 			
 		} catch (Exception e) {
@@ -89,9 +92,9 @@ public class GeneralRocketLoader {
 		}
 	}
 	
-	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
+	public final OpenRocketDocument load(InputStream source, String fileName) throws RocketLoadException {
 		try {
-			loadStep1(source);
+			loadStep1(source, fileName);
 			doc.getRocket().enableEvents();
 			return doc;
 		} catch (Exception e) {
@@ -116,7 +119,7 @@ public class GeneralRocketLoader {
 	 * @throws IOException
 	 * @throws RocketLoadException
 	 */
-	private void loadStep1(InputStream source) throws IOException, RocketLoadException {
+	private void loadStep1(InputStream source, String fileName) throws IOException, RocketLoadException {
 		
 		// Check for mark() support
 		if (!source.markSupported()) {
@@ -141,7 +144,7 @@ public class GeneralRocketLoader {
 		if (buffer[0] == GZIP_SIGNATURE[0] && buffer[1] == GZIP_SIGNATURE[1]) {
 			isContainer = false;
 			setAttachmentFactory();
-			loadRocket(new GZIPInputStream(source));
+			loadRocket(new GZIPInputStream(source), fileName);
 			return;
 		}
 		
@@ -151,30 +154,27 @@ public class GeneralRocketLoader {
 			setAttachmentFactory();
 			// Search for entry with name *.ork
 			ZipInputStream in = new ZipInputStream(source);
-			while (true) {
-				ZipEntry entry = in.getNextEntry();
-				if (entry == null) {
-					throw new RocketLoadException("Unsupported or corrupt file.");
-				}
-				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
-					loadRocket(in);
-				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
-					loadRocket(in);
-				}
-				in.close();
-				return;
+			ZipEntry entry = in.getNextEntry();
+			if (entry == null) {
+				throw new RocketLoadException("Unsupported or corrupt file.");
 			}
-			
+			if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
+				loadRocket(in, fileName);
+			} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
+				loadRocket(in, fileName);
+			} else if (entry.getName().matches(".*\\.[cC][dD][xX]1$")) {
+				loadRocket(in, fileName);
+			}
+			in.close();
+			return;
 		}
 		
 		isContainer = false;
 		setAttachmentFactory();
-		loadRocket(source);
-		return;
-		
+		loadRocket(source, fileName);
 	}
 	
-	private void loadRocket(InputStream source) throws IOException, RocketLoadException {
+	private void loadRocket(InputStream source, String fileName) throws IOException, RocketLoadException {
 		
 		// Check for mark() support
 		if (!source.markSupported()) {
@@ -198,17 +198,25 @@ public class GeneralRocketLoader {
 			if (buffer[i] == OPENROCKET_SIGNATURE[match]) {
 				match++;
 				if (match == OPENROCKET_SIGNATURE.length) {
-					loadUsing(openRocketLoader, source);
+					loadUsing(openRocketLoader, source, fileName);
 					return;
 				}
 			} else {
 				match = 0;
 			}
 		}
-		
+
+		// Check for RockSim
 		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
-			loadUsing(rocksimLoader, source);
+			loadUsing(rocksimLoader, source, fileName);
+			return;
+		}
+
+		// Check for RASAero
+		typeIdentifier = ArrayUtils.copyOf(buffer, RASAERO_SIGNATURE.length);
+		if (Arrays.equals(RASAERO_SIGNATURE, typeIdentifier)) {
+			loadUsing(rasaeroLoader, source, fileName);
 			return;
 		}
 		throw new RocketLoadException("Unsupported or corrupt file.");
@@ -231,13 +239,13 @@ public class GeneralRocketLoader {
 		}
 	}
 	
-	private void loadUsing(RocketLoader loader, InputStream source) throws RocketLoadException {
+	private void loadUsing(RocketLoader loader, InputStream source, String fileName) throws RocketLoadException {
 		warnings.clear();
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setOpenRocketDocument(doc);
 		context.setMotorFinder(motorFinder);
 		context.setAttachmentFactory(attachmentFactory);
-		loader.load(context, source);
+		loader.load(context, source, fileName);
 		warnings.addAll(loader.getWarnings());
 	}
 }

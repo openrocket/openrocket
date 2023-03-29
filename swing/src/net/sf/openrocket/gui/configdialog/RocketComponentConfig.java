@@ -465,7 +465,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private JPanel overrideTab() {
 		JPanel panel = new JPanel(new MigLayout("align 0% 20%, gap rel unrel",
-				"[][65lp::80lp][::20lp][]", ""));
+				"[][70lp::100lp][::20lp][150lp]", ""));
 		//// Override the mass, center of gravity, or drag coeficient of the component
 
 		JCheckBox check;
@@ -523,7 +523,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(0, 0.03, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "w 150lp, wrap");
+		panel.add(bs, "wrap");
 
 		if (component.getMassOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -616,7 +616,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(new DoubleModel(0), length));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "w 150lp, wrap");
+		panel.add(bs, "wrap");
 
 		if (component.getCGOverriddenBy() != null) {
 			check.setEnabled(false);
@@ -677,7 +677,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		bs = new BasicSlider(m.getSliderModel(-1.0, 1.0));
 		bm.addEnableComponent(bs);
-		panel.add(bs, "top, skip, w 150lp, wrap");
+		panel.add(bs, "top, skip, wrap");
 
 		if (component.getCDOverriddenBy() != null) {
 			check.setEnabled(false);

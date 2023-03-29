@@ -223,10 +223,10 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// FoV
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.fov")));
-				DoubleModel fovModel = new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE, Math.PI * 57.3/180, Math.PI * 160/180);
+				DoubleModel fovModel = new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE, Math.PI * 10/180, Math.PI * 160/180);
 				add(new EditableSpinner(fovModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(fovModel), "growx");
-				add(new BasicSlider(fovModel.getSliderModel(Math.PI * 57.3/180, Math.PI * 160/180)), "wrap");
+				add(new BasicSlider(fovModel.getSliderModel()), "wrap");
 			}
 		});
 

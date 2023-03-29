@@ -77,7 +77,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		nose.setForeRadius(0.0);
 		nose.setLength(1.0);
 		nose.setAftRadius(1.0);
-		nose.setType( Shape.ELLIPSOID );
+		nose.setShapeType( Shape.ELLIPSOID );
 		nose.setShapeParameter(0.5);
 		nose.setName("Nose Fairing");
 		stage.addChild(nose);
@@ -87,7 +87,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		stage.addChild(body);
 
 		Transition tail = new Transition();
-		tail.setType(Shape.CONICAL);
+		tail.setShapeType(Shape.CONICAL);
 		tail.setForeRadius(1.0);
 		tail.setLength(1.0);
 		tail.setAftRadius(0.5);
@@ -327,7 +327,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final FinSet fins = createFinOnEllipsoidNose(nose);
 
 		{  // assert preconditions::Mount
-				assertEquals(Shape.ELLIPSOID, nose.getType());
+				assertEquals(Shape.ELLIPSOID, nose.getShapeType());
 				assertEquals(1.0, nose.getLength(), EPSILON);
 
 		}{ // Assert fin shape
@@ -1555,6 +1555,51 @@ public class FreeformFinSetTest extends BaseTestCase {
 			assertEquals(0., finPoints[36].y, EPSILON);
 
 		}
+	}
+
+	/**
+	 * Test that fins on transitions don't get NaN MAClength
+	 */
+	@Test
+	public void testFinsOnTransitions() {
+		// Rocket consisting of just a transition and a freeform fin set
+		final Rocket rocket = new Rocket();
+        
+		final AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+        
+		Transition trans = new Transition();
+		stage.addChild(trans);
+		
+		FreeformFinSet fins = new FreeformFinSet();
+		trans.addChild(fins);
+		
+		// set the finset at the beginning of the transition
+		fins.setAxialMethod(AxialMethod.TOP);
+		fins.setAxialOffset(0.0);
+		
+		// Test 1:  transition getting smaller
+		trans.setForeRadius(trans.getForeRadius()*2.0);
+		fins.setPoints(new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(trans.getLength(), 0),
+				new Coordinate(trans.getLength(), trans.getAftRadius() - trans.getForeRadius())
+			});
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		assertEquals(0.075, calc.getMACLength(), EPSILON);
+
+		// Test 2: transition getting larger
+		trans.setForeRadius(trans.getAftRadius());
+		trans.setAftRadius(trans.getAftRadius()*2.0);
+		fins.setPoints(new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(0, trans.getAftRadius() - trans.getForeRadius()),
+				new Coordinate(trans.getLength(), trans.getAftRadius() - trans.getForeRadius())
+			});
+		calc = new FinSetCalc(fins);
+
+		assertEquals(0.05053191489361704, calc.getMACLength(), EPSILON);
 	}
 
 }

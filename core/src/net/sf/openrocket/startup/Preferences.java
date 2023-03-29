@@ -349,6 +349,13 @@ public abstract class Preferences implements ChangeSource {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
 			return;
 		this.putDouble(LAUNCH_ALTITUDE, altitude);
+
+		// Update the launch temperature and pressure if using ISA
+		if (getISAAtmosphere()) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -443,6 +450,13 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		}
 		this.putBoolean(LAUNCH_USE_ISA, isa);
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -587,6 +601,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final boolean isMatchAftDiameter() {
 		return this.getBoolean(MATCH_AFT_DIAMETER, true);
+	}
+
+	/**
+	 * Check whether to display the common name (false), or designation (true) in the motor selection table "Name" column
+	 * @return true to display designation, false to display common name
+	 */
+	public boolean getMotorNameColumn() {
+		return getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, true);
+	}
+
+	/**
+	 * Set whether to display the common name, or designation in the motor selection table "Name" column
+	 * @param value if true, display designation, if false, display common name
+	 */
+	public void setMotorNameColumn(boolean value) {
+		putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, value);
 	}
 
 	/**

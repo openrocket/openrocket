@@ -86,13 +86,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
 
-		// Can't calculate stability
-		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
-			.getCP(currentStatus.getConfiguration(),
-				   new FlightConditions(currentStatus.getConfiguration()),
-				   new WarningSet()).weight < MathUtil.EPSILON)
-			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
-
 		// Problems that let us simulate, but result is likely bad
 			
 		// No recovery device
@@ -157,6 +150,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		Coordinate originVelocity = currentStatus.getRocketVelocity();
 		
 		try {
+
+			checkGeometry(currentStatus);
 			
 			// Start the simulation
 			while (handleEvents()) {
@@ -284,6 +279,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
 
 			e.setFlightData(flightData);
+			e.setFlightDataBranch(currentStatus.getFlightData());
 			
 			throw e;
 		}
@@ -329,7 +325,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// TODO:  this event seems to get enqueue'd multiple times ... 
 					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
-					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					//log.info("     Because of "+event.getShapeType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
 					
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, (RocketComponent) mount, state ));
 				}
@@ -495,7 +491,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
 					// Prepare the new simulation branch
-					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
+					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), currentStatus.getFlightData()));
+					boosterStatus.getFlightData().addEvent(event);
 
 					// Mark the current status as having dropped the current stage and all stages below it
 					currentStatus.getConfiguration().clearStagesBelow( stageNumber);
@@ -504,6 +501,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					boosterStatus.getConfiguration().clearStagesAbove(stageNumber);
 					
 					toSimulate.push(boosterStatus);
+
+					// Make sure upper stages can still be simulated
+					checkGeometry(currentStatus);
+					
 					log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
 										   currentStatus.getSimulationTime(), 
 										   currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
@@ -665,8 +666,24 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			return null;
 		}
 	}
-	
-	
+
+	// we need to check geometry to make sure we can simulation the active
+	// stages in a simulation branch when the branch starts executing, and
+	// whenever a stage separation occurs
+	private void checkGeometry(SimulationStatus currentStatus) throws SimulationException {
+		
+		// Active stages have total length of 0.
+		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.activeLengthZero"));
+		}
+		
+		// Can't calculate stability
+		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
+			.getCP(currentStatus.getConfiguration(),
+				   new FlightConditions(currentStatus.getConfiguration()),
+				   new WarningSet()).weight < MathUtil.EPSILON)
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
+	}
 	
 	private void checkNaN() throws SimulationException {
 		double d = 0;

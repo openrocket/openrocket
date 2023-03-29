@@ -28,7 +28,6 @@ import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -263,7 +262,7 @@ public class TestRockets {
 		nose.setForeRadius(rnd(0.1)); // Unset
 		nose.setLength(rnd(0.15));
 		nose.setShapeParameter(rnd(0.5));
-		nose.setType((Shape) randomEnum(Shape.class));
+		nose.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(nose);
 		
 		Transition shoulder = new Transition();
@@ -286,7 +285,7 @@ public class TestRockets {
 		shoulder.setLength(rnd(0.15));
 		shoulder.setShapeParameter(rnd(0.5));
 		shoulder.setThickness(rnd(0.003));
-		shoulder.setType((Shape) randomEnum(Shape.class));
+		shoulder.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(shoulder);
 		
 		BodyTube body = new BodyTube();
@@ -320,7 +319,7 @@ public class TestRockets {
 		boattail.setLength(rnd(0.15));
 		boattail.setShapeParameter(rnd(0.5));
 		boattail.setThickness(rnd(0.003));
-		boattail.setType((Shape) randomEnum(Shape.class));
+		boattail.setShapeType((Shape) randomEnum(Shape.class));
 		stage.addChild(boattail);
 		
 		MassComponent mass = new MassComponent();
@@ -1104,6 +1103,26 @@ public class TestRockets {
 		return rocket;
 	}
 
+	// Several simulations need the Falcon9Heavy, but with fins added to the
+	// core stage (without them, there is a simulation exception at stage separation
+	// This method is intended to add those fins to the F9H, but will in fact
+	// add them to the second stage of a rocket
+	public static void addCoreFins(Rocket rocket) {
+		final int bodyFinCount = 4;
+		final double bodyFinRootChord = 0.05;
+		final double bodyFinTipChord = bodyFinRootChord;
+		final double bodyFinHeight = 0.025;
+		final double bodyFinSweep = 0.0;
+		final AxialMethod bodyFinAxialMethod = AxialMethod.BOTTOM;
+		final double bodyFinAxialOffset = 0.0;
+		
+		final TrapezoidFinSet finSet = new TrapezoidFinSet(bodyFinCount, bodyFinRootChord, bodyFinTipChord, bodyFinSweep, bodyFinHeight);
+		finSet.setName("Body Tube FinSet");
+		finSet.setAxialMethod(bodyFinAxialMethod);
+		
+		rocket.getChild(1).getChild(0).addChild(finSet);
+	}
+		
 	// This is a simple four-fin rocket with large endplates on the
 	// fins, for testing CG and CP calculations with fins on pods.
 	// not a complete rocket (no motor mount nor recovery system)

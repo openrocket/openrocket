@@ -32,6 +32,7 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SaveCSVWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -219,7 +220,7 @@ public class SimulationExportPanel extends JPanel {
 	}
 	
 	public boolean doExport() {
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		

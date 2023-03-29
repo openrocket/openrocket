@@ -646,7 +646,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 

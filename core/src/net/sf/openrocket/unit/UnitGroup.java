@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 
 /**
@@ -123,7 +123,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in"));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 0.1));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		
@@ -283,7 +283,7 @@ public class UnitGroup {
 		
 		
 		UNITS_COEFFICIENT = new UnitGroup();
-		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01)); // zero-width space
+		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.001)); // zero-width space
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:
@@ -672,7 +672,7 @@ public class UnitGroup {
 			throw new NumberFormatException("string did not match required pattern");
 		}
 
-		double value = StringUtil.convertToDouble(matcher.group(1));
+		double value = StringUtils.convertToDouble(matcher.group(1));
 		String unit = matcher.group(2).trim();
 		
 		if (unit.equals("")) {
