@@ -272,9 +272,12 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				/// Sky color opacity
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColorOpacity")));
 				DoubleModel skyColorOpacityModel = new DoubleModel(p, "SkyColorOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
-				add(new EditableSpinner(skyColorOpacityModel.getSpinnerModel()), "growx, split 2");
-				add(new UnitSelector(skyColorOpacityModel));
-				add(new BasicSlider(skyColorOpacityModel.getSliderModel()), "wrap");
+				EditableSpinner skyColorOpacitySpinner = new EditableSpinner(skyColorOpacityModel.getSpinnerModel());
+				add(skyColorOpacitySpinner, "growx, split 2");
+				UnitSelector skyColorOpacityUnitSelector = new UnitSelector(skyColorOpacityModel);
+				add(skyColorOpacityUnitSelector);
+				BasicSlider skyColorOpacitySlider = new BasicSlider(skyColorOpacityModel.getSliderModel());
+				add(skyColorOpacitySlider, "wrap");
 				p.addChangeListener(skyColorOpacityModel);
 
 				/// Sky image
@@ -301,9 +304,15 @@ public class PhotoSettingsConfig extends JTabbedPane {
 								if (s instanceof Sky && s != noSky) {
 									p.setSky((Sky) s);
 									skyColorButton.setEnabled(false);
+									skyColorOpacitySpinner.setEnabled(false);
+									skyColorOpacityUnitSelector.setEnabled(false);
+									skyColorOpacitySlider.setEnabled(false);
 								} else if (s == noSky) {
 									p.setSky(null);
 									skyColorButton.setEnabled(true);
+									skyColorOpacitySpinner.setEnabled(true);
+									skyColorOpacityUnitSelector.setEnabled(true);
+									skyColorOpacitySlider.setEnabled(true);
 								}
 							}
 						});
