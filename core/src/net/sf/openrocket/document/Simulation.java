@@ -542,24 +542,27 @@ public class Simulation implements ChangeSource, Cloneable {
 			Simulation clone = (Simulation) super.clone();
 
 			clone.mutex = SafetyMutex.newInstance();
-			clone.status = status;
+			clone.name = this.name;
+			clone.configId = this.configId;
+			clone.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
+			clone.simulatedConfigurationID = this.simulatedConfigurationID;
 			clone.options = this.options.clone();
+			clone.listeners = new ArrayList<>();
+			if (this.simulatedConditions != null) {
+				clone.simulatedConditions = this.simulatedConditions.clone();
+			} else {
+				clone.simulatedConditions = null;
+			}
 			clone.simulationExtensions = new ArrayList<>();
 			for (SimulationExtension c : this.simulationExtensions) {
 				clone.simulationExtensions.add(c.clone());
 			}
-			clone.listeners = new ArrayList<>();
-			if (simulatedConditions != null) {
-				clone.simulatedConditions = simulatedConditions.clone();
-			} else {
-				clone.simulatedConditions = null;
-			}
-			clone.simulatedConfigurationDescription = simulatedConfigurationDescription;
-			clone.simulatedData = simulatedData.clone();
-			clone.simulatedConfigurationID = simulatedConfigurationID;
+			clone.status = this.status;
+			clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			clone.simulationStepperClass = this.simulationStepperClass;
+			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 
 			return clone;
-
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("Clone not supported, BUG", e);
 		} finally {
@@ -576,17 +579,25 @@ public class Simulation implements ChangeSource, Cloneable {
 		try {
 			this.name = simulation.name;
 			this.configId = simulation.configId;
-			this.options.copyFrom(simulation.options);
 			this.simulatedConfigurationDescription = simulation.simulatedConfigurationDescription;
 			this.simulatedConfigurationID = simulation.simulatedConfigurationID;
+			this.options.copyConditionsFrom(simulation.options);
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
 			} else {
-				this.simulatedConditions = simulation.simulatedConditions.clone();
+				this.simulatedConditions.copyConditionsFrom(simulation.simulatedConditions);
+			}
+			copyExtensionsFrom(simulation.getSimulationExtensions());
+			this.status = simulation.status;
+			// Status change, so reset the change listeners to be sure
+			for (EventListener listener : this.options.getChangeListeners()) {
+				if (listener instanceof ConditionListener) {
+					((ConditionListener) listener).reset();
+				}
 			}
 			this.simulatedData = simulation.simulatedData;
-			this.status = simulation.status;
-			copyExtensionsFrom(simulation.getSimulationExtensions());
+			this.simulationStepperClass = simulation.simulationStepperClass;
+			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;
 		} finally {
 			mutex.unlock("loadFrom");
 		}
@@ -610,7 +621,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			final Simulation newSim = new Simulation(this.document, newRocket);
 			newSim.name = this.name;
 			newSim.configId = this.configId;
-			newSim.options.copyFrom(this.options);
+			newSim.options.copyConditionsFrom(this.options);
 			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
 				newSim.simulationExtensions.add(c.clone());
@@ -653,15 +664,19 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	private class ConditionListener implements StateChangeListener {
-		
+		private boolean resetState = false;
 		private Status oldStatus = null;
 		
 		@Override
 		public void stateChanged(EventObject e) {
-			if (getStatus() != oldStatus) {
+			if (resetState || getStatus() != oldStatus) {
 				oldStatus = getStatus();
 				fireChangeEvent();
 			}
+		}
+
+		public void reset() {
+			resetState = true;
 		}
 	}
 	
