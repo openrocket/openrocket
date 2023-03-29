@@ -349,6 +349,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public void syncModID() {
 		this.simulatedConfigurationID = getActiveConfiguration().getModID();
+		fireChangeEvent();
 	}
 	
 	
