@@ -24,7 +24,7 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 	private final Rocket rocket;
 	
 	/**
-	 * @param motorConfigurationPanel
+	 * @param rocket the rocket to select motor mounts from
 	 */
 	MotorMountTableModel( Rocket rocket) {
 		this.rocket = rocket;
