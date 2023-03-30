@@ -1,9 +1,7 @@
 package net.sf.openrocket.gui.figure3d.photo;
 
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
@@ -158,6 +156,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			final GLProfile glp = GLProfile.get(GLProfile.GL2);
 
 			final GLCapabilities caps = new GLCapabilities(glp);
+			caps.setBackgroundOpaque(false);
 
 			if (Application.getPreferences().getBoolean(
 					Preferences.OPENGL_ENABLE_AA, true)) {
@@ -311,6 +310,27 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		}
 	}
 
+	/**
+	 * Blend two colors
+	 * @param color1 first color to blend
+	 * @param color2 second color to blend
+	 * @param ratio blend ratio. 0 = full color 1, 0.5 = mid-blend, 1 = full color 2
+	 * @return blended color
+	 */
+	private static Color blendColors(Color color1, Color color2, double ratio) {
+		if (ratio < 0 || ratio > 1) {
+			throw new IllegalArgumentException("Blend ratio must be between 0 and 1");
+		}
+
+		double inverseRatio = 1 - ratio;
+
+		int r = (int) ((color1.getRed() * inverseRatio) + (color2.getRed() * ratio));
+		int g = (int) ((color1.getGreen() * inverseRatio) + (color2.getGreen() * ratio));
+		int b = (int) ((color1.getBlue() * inverseRatio) + (color2.getBlue() * ratio));
+
+		return new Color(r, g, b);
+	}
+
 	private void draw(final GLAutoDrawable drawable, float dx) {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
@@ -339,7 +359,15 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				new float[] { spc * color[0], spc * color[1], spc * color[2], 1 },
 				0);
 
-		convertColor(p.getSkyColor(), color);
+		// Machines that don't use off-screen rendering can't render transparent background, so we create it
+		// artificially by blending the sky color with white (= color that is rendered as transparent background)
+		if (!Application.getPreferences().getBoolean(
+				Preferences.OPENGL_USE_FBO, false)) {
+			convertColor(blendColors(p.getSkyColor(), new Color(255, 255, 255), 1-p.getSkyColorOpacity()),
+					color);
+		} else {
+			convertColor(p.getSkyColor(), color);
+		}
 		gl.glClearColor(color[0], color[1], color[2], color[3]);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
