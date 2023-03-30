@@ -4,9 +4,9 @@ title: '[Bug] <insert your title>'
 labels: bug
 assignees: ''
 body:
- - type: markdown
-   attributes:
-     value: Thanks for taking the time to fill out this bug report!
+- type: markdown
+  attributes:
+    value: "Thanks for taking the time to fill out this bug report!"
  - type: textarea
   id: description
   attributes:
@@ -25,7 +25,7 @@ body:
   id: repro
   attributes:
     label: To Reproduce
-    description: Steps to reproduce the behavior:
+    description: "Steps to reproduce the behavior:"
     value: |
       1.
       2.
