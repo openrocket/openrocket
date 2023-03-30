@@ -28,6 +28,7 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -54,9 +55,10 @@ public class SimulationEditDialog extends JDialog {
 	private final static String PLOTMODE = "PLOT";
 
 	private final WindowListener applyChangesToSimsListener;
-	private final Simulation initialSim;
-	private boolean isModified = false;
-	private final boolean isNewSimulation;
+	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
+	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
+	private boolean isModified = false;			// Whether the simulation has been modified
+	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
 	
 	public SimulationEditDialog(Window parent, final OpenRocketDocument document, boolean isNewSimulation, Simulation... sims) {
 		//// Edit simulation
@@ -65,6 +67,7 @@ public class SimulationEditDialog extends JDialog {
 		this.parentWindow = parent;
 		this.simulationList = sims;
 		this.initialSim = simulationList[0].clone();
+		this.initialIsSaved = document.isSaved();
 		this.isNewSimulation = isNewSimulation;
 
 		simulationList[0].addChangeListener(new StateChangeListener() {
@@ -419,6 +422,8 @@ public class SimulationEditDialog extends JDialog {
 		} else {
 			undoSimulationChanges();
 		}
+		document.setSaved(this.initialIsSaved);			// Restore the saved state of the document
+		document.fireDocumentChangeEvent(new DocumentChangeEvent(this));
 
 		SimulationEditDialog.this.removeWindowListener(applyChangesToSimsListener);
 		SimulationEditDialog.this.dispose();
