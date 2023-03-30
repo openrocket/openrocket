@@ -12,12 +12,6 @@ body:
     label: Describe the bug
     description: What happened? Also tell us what you've expect to happen.
     placeholder: Describe your bug in detail.
-    value: |
-      1.
-      2.
-      3.
-      ...
-    render: bash
   validations:
     required: true
 - type: textarea
