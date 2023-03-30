@@ -5,6 +5,9 @@ import java.awt.CardLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -42,6 +45,8 @@ public class SimulationEditDialog extends JDialog {
 	JPanel cards;
 	private final static String EDITMODE = "EDIT";
 	private final static String PLOTMODE = "PLOT";
+
+	private WindowListener applyChangesToSimsListener;
 	
 	public SimulationEditDialog(Window parent, final OpenRocketDocument document, Simulation... sims) {
 		//// Edit simulation
@@ -59,6 +64,14 @@ public class SimulationEditDialog extends JDialog {
 		this.pack();
 		
 		this.setLocationByPlatform(true);
+
+		this.applyChangesToSimsListener = new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				copyChangesToAllSims();
+			}
+		};
+		this.addWindowListener(applyChangesToSimsListener);
 		
 		GUIUtil.setDisposableDialogOptions(this, null);
 	}
@@ -75,12 +88,14 @@ public class SimulationEditDialog extends JDialog {
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, EDITMODE);
 		cards.validate();
+		this.addWindowListener(applyChangesToSimsListener);
 	}
 	
 	public void setPlotMode() {
 		if (!allowsPlotMode()) {
 			return;
 		}
+		this.removeWindowListener(applyChangesToSimsListener);
 		setTitle(trans.get("simplotpanel.title.Plotsim"));
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, PLOTMODE);
@@ -223,7 +238,6 @@ public class SimulationEditDialog extends JDialog {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 			}
 		});

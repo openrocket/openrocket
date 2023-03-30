@@ -442,10 +442,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.launchLongitude = src.launchLongitude;
 		}
-		if (this.launchPressure != src.launchPressure) {
-			isChanged = true;
-			this.launchPressure = src.launchPressure;
-		}
 		if (this.launchRodAngle != src.launchRodAngle) {
 			isChanged = true;
 			this.launchRodAngle = src.launchRodAngle;
@@ -458,18 +454,25 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.launchRodLength = src.launchRodLength;
 		}
+		if (this.launchIntoWind != src.launchIntoWind) {
+			isChanged = true;
+			this.launchIntoWind = src.launchIntoWind;
+		}
+		if (this.useISA != src.useISA) {
+			isChanged = true;
+			this.useISA = src.useISA;
+		}
 		if (this.launchTemperature != src.launchTemperature) {
 			isChanged = true;
 			this.launchTemperature = src.launchTemperature;
 		}
+		if (this.launchPressure != src.launchPressure) {
+			isChanged = true;
+			this.launchPressure = src.launchPressure;
+		}
 		if (this.maximumAngle != src.maximumAngle) {
 			isChanged = true;
 			this.maximumAngle = src.maximumAngle;
-		}
-		this.maximumAngle = src.maximumAngle;
-		if (this.timeStep != src.timeStep) {
-			isChanged = true;
-			this.timeStep = src.timeStep;
 		}
 		if (this.windAverage != src.windAverage) {
 			isChanged = true;
@@ -486,6 +489,14 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (this.calculateExtras != src.calculateExtras) {
 			isChanged = true;
 			this.calculateExtras = src.calculateExtras;
+		}
+		if (this.timeStep != src.timeStep) {
+			isChanged = true;
+			this.timeStep = src.timeStep;
+		}
+		if (this.geodeticComputation != src.geodeticComputation) {
+			isChanged = true;
+			this.geodeticComputation = src.geodeticComputation;
 		}
 		
 		if (isChanged) {
