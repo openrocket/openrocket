@@ -1381,8 +1381,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private File openFileSaveAsDialog(FileType fileType) {
 		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
-
-		int option = chooser.showSaveDialog(BasicFrame.this);
+		int option = chooser.showSaveDialog(this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
@@ -1476,7 +1475,7 @@ public class BasicFrame extends JFrame {
 			WarningSet warnings = ROCKET_SAVER.getWarnings();
 			ErrorSet errors = ROCKET_SAVER.getErrors();
 
-			if (errors.isEmpty()) {
+			if (!warnings.isEmpty() && errors.isEmpty()) {
 				WarningDialog.showWarnings(this,
 						new Object[]{
 								//	//	The following problems were encountered while saving
@@ -1486,7 +1485,7 @@ public class BasicFrame extends JFrame {
 						},
 						//	//	Warnings while opening file
 						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
-			} else {
+			} else if (!errors.isEmpty()) {
 				ErrorWarningDialog.showErrorsAndWarnings(this,
 						new Object[]{
 								//	//	The following problems were encountered while saving
@@ -1604,25 +1603,10 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAsAction() {
-		File file = null;
-
-		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, FileType.OPENROCKET);
-
-		int option = chooser.showSaveDialog(BasicFrame.this);
-
-		if (option != JFileChooser.APPROVE_OPTION) {
-			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-			return false;
-		}
-
-		file = chooser.getSelectedFile();
+		File file = openFileSaveAsDialog(FileType.OPENROCKET);
 		if (file == null) {
-			log.info(Markers.USER_MARKER, "User did not select a file");
 			return false;
 		}
-
-		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
-		chooser.storeOptions(document.getDefaultStorageOptions());
 
 		file = FileHelper.forceExtension(file, "ork");
 		boolean result = FileHelper.confirmWrite(file, this) && saveAsOpenRocket(file);
