@@ -24,7 +24,6 @@ body:
       2.
       3.
       ...
-    render: bash
   validations:
     required: true
 - type: textarea
@@ -33,11 +32,14 @@ body:
     label: Screenshots / .ork file
     description: Provide screenshots for clarification and/or the .ork file that caused the issue.
     value: |
-      Screenshot(s):
-      (drag-and-drop the screenshot(s) here)
+      ## Screenshot(s):
+      *(drag-and-drop the screenshot(s) here)*
+      
 
-      .ork file:
-      (drag-and-drop the file here as a .zip file)
+      ## .ork file:
+      *(drag-and-drop the file here as a .zip file)*
+      
+      
   validations:
     required: false
 - type: input
@@ -58,7 +60,7 @@ body:
       - Linux
   validations:
     required: true
-- type: input
+- type: textarea
   id: context
   attributes:
     label: Additional context
