@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.simulation;
 
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +31,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -62,7 +64,8 @@ public class SimulationEditDialog extends JDialog {
 	
 	public SimulationEditDialog(Window parent, final OpenRocketDocument document, boolean isNewSimulation, Simulation... sims) {
 		//// Edit simulation
-		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
+		super(parent, sims.length == 1 ? trans.get("simedtdlg.title.Editsim") : trans.get("simedtdlg.title.MultiSimEdit"),
+				JDialog.ModalityType.DOCUMENT_MODAL);
 		this.document = document;
 		this.parentWindow = parent;
 		this.simulationList = sims;
@@ -109,7 +112,9 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	public void setEditMode() {
-		setTitle((isModified ? "* " : "") + trans.get("simedtdlg.title.Editsim"));
+		String baseTitle = simulationList.length == 1 ?
+				trans.get("simedtdlg.title.Editsim") : trans.get("simedtdlg.title.MultiSimEdit");
+		setTitle((isModified ? "* " : "") + baseTitle);
 		CardLayout cl = (CardLayout) (cards.getLayout());
 		cl.show(cards, EDITMODE);
 		cards.validate();
@@ -147,7 +152,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	private void buildEditCard() {
-		JPanel simEditPanel = new JPanel(new MigLayout("fill"));
+		JPanel simEditPanel = new JPanel(new MigLayout("fill, hidemode 1"));
 		
 		if (isSingleEdit()) {
 			JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
@@ -232,11 +237,28 @@ public class SimulationEditDialog extends JDialog {
 			}
 			
 		});
-		simEditPanel.add(button, "spanx, split 4, align left");
+		simEditPanel.add(button, "spanx, split 5, align left");
 		if (allowsPlotMode()) {
 			button.setVisible(true);
 		} else {
 			button.setVisible(false);
+		}
+
+		//// Multi-simulation edit
+		if (simulationList.length > 1) {
+			StyledLabel multiSimEditLabel = new StyledLabel("", -1, StyledLabel.Style.BOLD);
+			multiSimEditLabel.setFontColor(new Color(170, 0, 100));
+			multiSimEditLabel.setText(trans.get("simedtdlg.title.MultiSimEdit"));
+			StringBuilder components = new StringBuilder(trans.get("simedtdlg.title.MultiSimEdit.ttip"));
+			for (int i = 0; i < simulationList.length; i++) {
+				if (i < simulationList.length - 1) {
+					components.append(simulationList[i].getName()).append(", ");
+				} else {
+					components.append(simulationList[i].getName());
+				}
+			}
+			multiSimEditLabel.setToolTipText(components.toString());
+			simEditPanel.add(multiSimEditLabel, "align left");
 		}
 		
 		//// Run simulation button
@@ -255,7 +277,7 @@ public class SimulationEditDialog extends JDialog {
 				}
 			}
 		});
-		simEditPanel.add(button, " align right, gapright 10lp, tag ok");
+		simEditPanel.add(button, "align right, gapright 10lp, tag ok");
 
 		//// Cancel button
 		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
