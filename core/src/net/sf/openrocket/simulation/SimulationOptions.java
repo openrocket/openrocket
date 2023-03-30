@@ -96,6 +96,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
+		fireChangeEvent();
 	}
 	
 	
@@ -104,7 +105,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	public void setLaunchIntoWind(boolean i) {
+		if (launchIntoWind == i)
+			return;
 		launchIntoWind = i;
+		fireChangeEvent();
 	}
 	
 	public double getLaunchRodAngle() {
