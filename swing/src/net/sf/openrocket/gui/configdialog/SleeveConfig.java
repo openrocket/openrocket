@@ -23,8 +23,8 @@ public class SleeveConfig extends RingComponentConfig {
 		//// Inner diameter:
 		//// Wall thickness:
 		//// Length:
-		tab = generalTab(trans.get("SleeveCfg.tab.Outerdiam"), trans.get("SleeveCfg.tab.Innerdiam"),
-				trans.get("SleeveCfg.tab.Wallthickness"), trans.get("SleeveCfg.tab.Length"));
+		tab = generalTab(trans.get("SleeveCfg.tab.Length"), trans.get("SleeveCfg.tab.Outerdiam"),
+				trans.get("SleeveCfg.tab.Innerdiam"), trans.get("SleeveCfg.tab.Wallthickness"));
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("SleeveCfg.tab.General"), null, tab,
 				trans.get("SleeveCfg.tab.Generalproperties"), 0);

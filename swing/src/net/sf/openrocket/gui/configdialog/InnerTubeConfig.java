@@ -71,6 +71,19 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		//// ---------------------------- Attributes ----------------------------
 
+		////  Length
+		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Length")));
+		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		focusElement = spin;
+		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+
 		//// Outer diameter
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Outerdiam")));
 
@@ -127,22 +140,6 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
-
-
-		////  Inner tube length
-		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Length")));
-
-		//// Length
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		focusElement = spin;
-		panel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 
 		mainPanel.add(panel, "aligny 0, gapright 40lp");
 
