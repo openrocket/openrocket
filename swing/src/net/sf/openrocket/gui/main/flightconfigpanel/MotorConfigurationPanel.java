@@ -76,7 +76,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 					BorderFactory.createEtchedBorder(),
 					"<html><b>" + trans.get("lbl.motorMounts") + "</b></html>"));
 
-			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(this, rocket);
+			MotorMountConfigurationPanel mountConfigPanel = new MotorMountConfigurationPanel(subpanel, rocket);
 			subpanel.add(mountConfigPanel, "grow, pushy");
 			this.add(subpanel, "split, growy, pushy");
 		}
