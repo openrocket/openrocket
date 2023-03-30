@@ -21,7 +21,6 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 
 	private final FileType type;
 	private final OpenRocketDocument document;
-	private final StorageOptionChooser storageChooser;
 
 	private static final Translator trans = Application.getTranslator();
 
@@ -42,7 +41,7 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case OPENROCKET:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
 				this.setDialogTitle(trans.get("saveAs.openrocket.title"));
-				storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
+				StorageOptionChooser storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
 				this.setAccessory(storageChooser);
 				this.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
@@ -50,14 +49,12 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case ROCKSIM:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
 				this.setDialogTitle(trans.get("saveAs.rocksim.title"));
-				storageChooser = null;
 				this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				break;
 			case RASAERO:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"CDX1");
 				this.setDialogTitle(trans.get("saveAs.rasaero.title"));
-				storageChooser = null;
 				this.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 				break;
@@ -74,13 +71,6 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			this.setSelectedFile(defaultFilename);
 		}
 	}
-	
-	public void storeOptions(StorageOptions opts) {
-		if ( storageChooser != null ) {
-			storageChooser.storeOptions(opts);
-		}
-	}
-	
 }
 
 class RememberFilenamePropertyListener implements PropertyChangeListener {
