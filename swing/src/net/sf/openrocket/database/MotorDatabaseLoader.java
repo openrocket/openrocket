@@ -27,6 +27,7 @@ import net.sf.openrocket.util.Pair;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  * An asynchronous database loader that loads the internal thrust curves
@@ -140,21 +141,26 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	private void loadFile(GeneralMotorLoader loader, Pair<File, InputStream> f) {
 		try {
-			List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU().getName());
 			try {
+				List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU().getName());
 				addMotorsFromBuilders(motors);
 			}
-			catch (IllegalArgumentException e) {
+			catch (IllegalArgumentException | IOException e) {
 				Translator trans = Application.getTranslator();
 				String fullPath = f.getU().getPath();
 				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
 						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), fullPath) +
 						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
-				JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-				JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
-				dialog.setModalityType(Dialog.ModalityType.MODELESS);
-				dialog.setAlwaysOnTop(true);
-				dialog.setVisible(true);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
+						JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
+						dialog.setModalityType(Dialog.ModalityType.MODELESS);
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					}
+				});
 			}
 			f.getV().close();
 		} catch (Exception e) {
