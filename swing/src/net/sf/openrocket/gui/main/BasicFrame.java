@@ -1381,7 +1381,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private File openFileSaveAsDialog(FileType fileType) {
 		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
-		int option = chooser.showSaveDialog(this);
+		int option = chooser.showSaveDialog(BasicFrame.this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
@@ -1415,7 +1415,7 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
-		if (FileHelper.confirmWrite(file, this)) {
+		if (FileHelper.confirmWrite(file, BasicFrame.this)) {
 			boolean result = saveAsRASAero(file);
 			if (!result) {
 				file.delete();
@@ -1443,7 +1443,7 @@ public class BasicFrame extends JFrame {
 				}
 			});
 			panel.add(check);
-			int sel = JOptionPane.showOptionDialog(null,
+			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
 					panel,
 					"", // title
 					JOptionPane.OK_CANCEL_OPTION,
@@ -1476,7 +1476,7 @@ public class BasicFrame extends JFrame {
 			ErrorSet errors = ROCKET_SAVER.getErrors();
 
 			if (!warnings.isEmpty() && errors.isEmpty()) {
-				WarningDialog.showWarnings(this,
+				WarningDialog.showWarnings(BasicFrame.this,
 						new Object[]{
 								//	//	The following problems were encountered while saving
 								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
@@ -1486,7 +1486,7 @@ public class BasicFrame extends JFrame {
 						//	//	Warnings while opening file
 						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
 			} else if (!errors.isEmpty()) {
-				ErrorWarningDialog.showErrorsAndWarnings(this,
+				ErrorWarningDialog.showErrorsAndWarnings(BasicFrame.this,
 						new Object[]{
 								//	//	The following problems were encountered while saving
 								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
@@ -1525,7 +1525,7 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, "rkt");
-		if (FileHelper.confirmWrite(file, this) ) {
+		if (FileHelper.confirmWrite(file, BasicFrame.this) ) {
 			return saveAsRockSim(file);
 		}
 		return false;
@@ -1551,7 +1551,7 @@ public class BasicFrame extends JFrame {
 				}
 			});
 			panel.add(check);
-			int sel = JOptionPane.showOptionDialog(null,
+			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
 					panel,
 					"", // title
 					JOptionPane.OK_CANCEL_OPTION,
@@ -1609,7 +1609,7 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, "ork");
-		boolean result = FileHelper.confirmWrite(file, this) && saveAsOpenRocket(file);
+		boolean result = FileHelper.confirmWrite(file, BasicFrame.this) && saveAsOpenRocket(file);
 		if (result) {
 			MRUDesignFile opts = MRUDesignFile.getInstance();
 			opts.addFile(file.getAbsolutePath());
@@ -1629,7 +1629,7 @@ public class BasicFrame extends JFrame {
 		file = FileHelper.forceExtension(file, "ork");
 		log.info("Saving document as " + file);
 
-		if (!StorageOptionChooser.verifyStorageOptions(document, this)) {
+		if (!StorageOptionChooser.verifyStorageOptions(document, BasicFrame.this)) {
 			// User cancelled the dialog
 			log.info(Markers.USER_MARKER, "User cancelled saving in storage options dialog");
 			return false;
@@ -1638,7 +1638,7 @@ public class BasicFrame extends JFrame {
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
 
-		if (!SwingWorkerDialog.runWorker(this, "Saving file",
+		if (!SwingWorkerDialog.runWorker(BasicFrame.this, "Saving file",
 				"Writing " + file.getName() + "...", worker)) {
 
 			// User cancelled the save
@@ -1659,7 +1659,7 @@ public class BasicFrame extends JFrame {
 
 			if (cause instanceof IOException) {
 				log.warn("An I/O error occurred while saving " + file, cause);
-				JOptionPane.showMessageDialog(this, new String[] {
+				JOptionPane.showMessageDialog(BasicFrame.this, new String[] {
 						"An I/O error occurred while saving:",
 						e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 				return false;
@@ -1689,7 +1689,7 @@ public class BasicFrame extends JFrame {
 		if (!document.isSaved()) {
 			log.info("Confirming whether to save the design");
 			ComponentConfigDialog.disposeDialog();
-			int result = JOptionPane.showConfirmDialog(this,
+			int result = JOptionPane.showConfirmDialog(BasicFrame.this,
 					trans.get("BasicFrame.dlg.lbl1") + rocket.getName() +
 					trans.get("BasicFrame.dlg.lbl2") + "  " +
 					trans.get("BasicFrame.dlg.lbl3"),
@@ -1714,12 +1714,12 @@ public class BasicFrame extends JFrame {
 
 		// Rocket has been saved or discarded
 		log.debug("Disposing window");
-		this.dispose();
+		BasicFrame.this.dispose();
 
 		ComponentConfigDialog.disposeDialog();
 		ComponentAnalysisDialog.hideDialog();
 
-		frames.remove(this);
+		frames.remove(BasicFrame.this);
 		if (frames.isEmpty()) {
 			// Don't quit the application on macOS, but keep the application open
 			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
@@ -1733,13 +1733,13 @@ public class BasicFrame extends JFrame {
 	}
 
 	public void exportDecalAction() {
-		new ExportDecalDialog(this, document).setVisible(true);
+		new ExportDecalDialog(BasicFrame.this, document).setVisible(true);
 	}
 
 
 	public void printAction() {
 		double rotation = rocketpanel.getFigure().getRotation();
-		new PrintDialog(this, document, rotation).setVisible(true);
+		new PrintDialog(BasicFrame.this, document, rotation).setVisible(true);
 	}
 
 	/**
