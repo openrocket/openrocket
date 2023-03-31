@@ -20,9 +20,9 @@ body:
     label: To Reproduce
     description: "Steps to reproduce the behavior:"
     value: |
-      1.
-      2.
-      3.
+      1. 
+      2. 
+      3. 
       ...
   validations:
     required: true
@@ -32,11 +32,11 @@ body:
     label: Screenshots / .ork file
     description: Provide screenshots for clarification and/or the .ork file that caused the issue.
     value: |
-      ## Screenshot(s):
+      #### Screenshot(s):
       *(drag-and-drop the screenshot(s) here)*
       
 
-      ## .ork file:
+      #### .ork file:
       *(drag-and-drop the file here as a .zip file)*
       
       
