@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -35,6 +36,8 @@ import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.PreferencesExporter;
+import net.sf.openrocket.gui.util.PreferencesImporter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Preferences;
@@ -46,7 +49,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
 
-	public GeneralPreferencesPanel(JDialog parent) {
+	public GeneralPreferencesPanel(PreferencesDialog parent) {
 		super(parent, new MigLayout("fillx, ins 30lp n n n"));
 		
 		
@@ -240,10 +243,41 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(rocksimWarningDialogBox,"spanx, wrap");
 
-		//// Clear cached preferences
-		final JButton clearCachedPreferences = new SelectColorButton(trans.get("pref.dlg.but.clearCachedPreferences"));
-		clearCachedPreferences.setToolTipText(trans.get("pref.dlg.but.clearCachedPreferences.ttip"));
-		clearCachedPreferences.addActionListener(new ActionListener() {
+		// Preference buttons
+		JPanel buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
+
+		//// Export preferences
+		final JButton exportPreferences = new SelectColorButton(trans.get("pref.dlg.but.exportPreferences"));
+		exportPreferences.setToolTipText(trans.get("pref.dlg.but.exportPreferences.ttip"));
+		exportPreferences.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PreferencesExporter.exportPreferences(parent, preferences.getPreferences());
+			}
+		});
+		buttonPanel.add(exportPreferences);
+
+		//// Import preferences
+		final JButton importPreferences = new SelectColorButton(trans.get("pref.dlg.but.importPreferences"));
+		importPreferences.setToolTipText(trans.get("pref.dlg.but.importPreferences.ttip"));
+		importPreferences.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PreferencesImporter.importPreferences(parent);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						PreferencesDialog.showPreferences(parent.getParentFrame());		// Refresh the preferences dialog
+					}
+				});
+			}
+		});
+		buttonPanel.add(importPreferences);
+
+		//// Reset all preferences
+		final JButton resetAllPreferences = new SelectColorButton(trans.get("pref.dlg.but.resetAllPreferences"));
+		resetAllPreferences.setToolTipText(trans.get("pref.dlg.but.resetAllPreferences.ttip"));
+		resetAllPreferences.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int resultYesNo = JOptionPane.showConfirmDialog(parent, trans.get("pref.dlg.clearCachedPreferences.message"),
@@ -253,8 +287,9 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				}
 			}
 		});
-		this.add(clearCachedPreferences, "spanx, pushy, bottom, wrap");
+		buttonPanel.add(resetAllPreferences, "pushx, right, wrap");
 
+		this.add(buttonPanel, "spanx, growx, pushy, bottom, wrap");
 	}
 
 
