@@ -12,6 +12,7 @@ import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -203,17 +204,18 @@ public class SimulationListHandler extends AbstractElementHandler {
 
         /**
          * Returns the furthest back motor mount in the stage.
-         * @param stage stage number
+         * @param stageNr stage number
          * @return furthest back motor mount of the stage
          */
-        private MotorMount getMotorMountForStage(int stage) {
-            MotorMount mount = null;
-            for (RocketComponent component : rocket.getStage(stage)) {
+        private MotorMount getMotorMountForStage(int stageNr) {
+            AxialStage stage = (AxialStage) rocket.getChild(stageNr);
+            for (int i = stage.getChildCount() - 1; i > 0; i--) {
+                RocketComponent component = stage.getChild(i);
                 if (component instanceof MotorMount) {
-                    mount = (MotorMount) component;
+                    return (MotorMount) component;
                 }
             }
-            return mount;
+            return null;
         }
     }
 }
