@@ -7,6 +7,7 @@ import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -124,6 +125,17 @@ public class SimulationDTO {
             return;
         }
 
+        if (mounts.isEmpty()) {
+            warnings.add(String.format("No motors found in simulation '%s', ignoring.", simulation.getName()));
+            return;
+        }
+
+        // Get sustainer motor mass
+        MotorMount sustainerMount = mounts.get((AxialStage) rocket.getChild(0));
+        MotorConfiguration sustainerConfig = sustainerMount.getMotorConfig(fcid);
+        Motor sustainerMotor = sustainerConfig.getMotor();
+        double sustainerMotorMass = sustainerMotor != null ? sustainerMotor.getLaunchMass() : 0;
+
         for (Map.Entry<AxialStage, MotorMount> mountSet : mounts.entrySet()) {
             AxialStage stage = mountSet.getKey();
             MotorMount mount = mountSet.getValue();
@@ -131,7 +143,10 @@ public class SimulationDTO {
                 continue;
             }
 
+            // Get the motor info for this stage
             MotorConfiguration motorConfig = mount.getMotorConfig(fcid);
+            Motor motor = motorConfig.getMotor();
+            double motorMass = motor != null ? motor.getLaunchMass() : 0;
             StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
             int stageNr = rocket.getChildPosition(stage);
 
@@ -139,8 +154,9 @@ public class SimulationDTO {
             switch (stageNr) {
                 // Sustainer
                 case 0:
-                    setSustainerEngine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), motorConfig, warnings));
-                    setSustainerLaunchWt(stage.getSectionMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
+                    setSustainerEngine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
+                    double sustainerMass = stage.getSectionMass() + motorMass;
+                    setSustainerLaunchWt(sustainerMass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // Calculate CG of sustainer
                     CGCalcConfig.setOnlyStage(0);
@@ -151,18 +167,21 @@ public class SimulationDTO {
                     break;
                 // Booster 1
                 case 1:
-                    setBooster1Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), motorConfig, warnings));
-
-                    // Aggregate mass of sustainer and booster 1
-                    setBooster1LaunchWt(rocket.getChild(0).getSectionMass() + stage.getSectionMass()
-                            * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
+                    setBooster1Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
 
                     // Aggregate CG of sustainer and booster 1
                     CGCalcConfig.setOnlyStage(0);
                     for (int i = 1; i <= stage.getStageNumber(); i++) {
                         CGCalcConfig._setStageActive(i, true);
                     }
-                    double totalCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
+                    RigidBody calc = MassCalculator.calculateStructure(CGCalcConfig);
+
+                    // Aggregate mass of sustainer and booster 1
+                    double booster1Mass = calc.getMass() + motorMass + sustainerMotorMass;
+                    setBooster1LaunchWt(booster1Mass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
+
+                    // CG
+                    double totalCG = calc.getCM().x;
                     setBooster1CG(totalCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
                     setBooster1IgnitionDelay(motorConfig.getIgnitionDelay());
@@ -171,18 +190,27 @@ public class SimulationDTO {
                     break;
                 // Booster 2
                 case 2:
-                    setBooster2Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), motorConfig, warnings));
-
-                    // Aggregate mass of sustainer, booster 1 and booster 2
-                    setBooster2LaunchWt(rocket.getChild(0).getSectionMass() + rocket.getChild(1).getSectionMass() +
-                            stage.getSectionMass()  * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
+                    setBooster2Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
 
                     // Calculate the aggregated CG of the sustainer, booster and booster 2
                     CGCalcConfig.setOnlyStage(0);
                     for (int i = 1; i <= stage.getStageNumber(); i++) {
                         CGCalcConfig._setStageActive(i, true);
                     }
-                    totalCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
+                    calc = MassCalculator.calculateStructure(CGCalcConfig);
+
+                    // Get booster1 motor mass
+                    MotorMount booster1Mount = mounts.get((AxialStage) rocket.getChild(1));
+                    MotorConfiguration booster1Config = booster1Mount.getMotorConfig(fcid);
+                    Motor booster1Motor = booster1Config.getMotor();
+                    double booster1MotorMass = booster1Motor != null ? booster1Motor.getLaunchMass() : 0;
+
+                    // Aggregate mass of sustainer, booster 1 and booster 2
+                    double booster2Mass = calc.getMass() + motorMass + sustainerMotorMass + booster1MotorMass;
+                    setBooster2LaunchWt(booster2Mass  * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
+
+                    // CG
+                    totalCG = calc.getCM().x;
                     setBooster2CG(totalCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
                     setBooster2Delay(separationConfig.getSeparationDelay());      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
