@@ -73,18 +73,18 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
 	
 	// Node names
-	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
-	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "PreferredThrustCurveMotors";
+	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
+	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
-	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
-	private static final String SHOW_MARKERS = "SHOW_MARKERS";
-	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
+	private static final String SHOW_MARKERS = "ShowMarkers";
+	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRocksimFormatWarning";
 	
 	//Preferences related to 3D graphics
-	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
-	public static final String OPENGL_ENABLE_AA = "OpenGL_Antialiasing_Is_Enabled";
-	public static final String OPENGL_USE_FBO = "OpenGL_Use_FBO";
+	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
+	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 	
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
 	
