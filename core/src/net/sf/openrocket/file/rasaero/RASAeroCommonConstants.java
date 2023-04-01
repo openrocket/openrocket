@@ -384,7 +384,7 @@ public class RASAeroCommonConstants {
      */
     public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, MotorConfiguration motorConfig,
                                                      WarningSet warnings) {
-        if (!(ORMotor instanceof ThrustCurveMotor)) {
+        if (!(ORMotor instanceof ThrustCurveMotor) || motorConfig == null) {
             return null;
         }
 

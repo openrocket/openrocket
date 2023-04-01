@@ -67,6 +67,12 @@ public class SimulationListDTO {
                     }
                 }
             }
+
+            // If at this point, we still don't have a mount, there is probably a mount without a motor.
+            // In that case, add a null mount, so that mass/CG export happens.
+            if (!mounts.containsKey(stage)) {
+                mounts.put(stage, null);
+            }
         }
 
         // Load all RASAero motors

@@ -113,6 +113,7 @@ public class SimulationDTO {
      * @param rocket the rocket
      * @param simulation the simulation to convert
      * @param mounts a map of stages and their corresponding motor mount (only 1 mount per stage allowed)
+     *               if a motor mount is null, it means that stage does not have any motors, but mass/CG export should still take place
      * @param motors a list of RASAero motors
      * @param warnings a list to add export warnings to
      * @param errors a list to add export errors to
@@ -132,25 +133,36 @@ public class SimulationDTO {
 
         // Get sustainer motor mass
         MotorMount sustainerMount = mounts.get((AxialStage) rocket.getChild(0));
-        MotorConfiguration sustainerConfig = sustainerMount.getMotorConfig(fcid);
-        Motor sustainerMotor = sustainerConfig.getMotor();
-        double sustainerMotorMass = sustainerMotor != null ? sustainerMotor.getLaunchMass() : 0;
+        double sustainerMotorMass = 0;
+        if (sustainerMount != null) {
+            MotorConfiguration sustainerConfig = sustainerMount.getMotorConfig(fcid);
+            Motor sustainerMotor = sustainerConfig.getMotor();
+            sustainerMotorMass = sustainerMotor != null ? sustainerMotor.getLaunchMass() : 0;
+        }
 
         for (Map.Entry<AxialStage, MotorMount> mountSet : mounts.entrySet()) {
             AxialStage stage = mountSet.getKey();
             MotorMount mount = mountSet.getValue();
-            if (mount == null || stage == null) {
+            if (stage == null) {
                 continue;
             }
 
             // Get the motor info for this stage
-            MotorConfiguration motorConfig = mount.getMotorConfig(fcid);
-            Motor motor = motorConfig.getMotor();
-            double motorMass = motor != null ? motor.getLaunchMass() : 0;
-            StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(fcid);
+            MotorConfiguration motorConfig = mount != null ? mount.getMotorConfig(fcid) : null;
+            Motor motor = null;
+            StageSeparationConfiguration separationConfig = null;
+            double motorMass = 0;
+            if (motorConfig != null) {
+                motor = motorConfig.getMotor();
+                motorMass = motor != null ? motor.getLaunchMass() : 0;
+                separationConfig = stage.getSeparationConfigurations().get(fcid);
+            }
             int stageNr = rocket.getChildPosition(stage);
 
             FlightConfiguration CGCalcConfig = new FlightConfiguration(rocket);
+            RigidBody calc;
+            double ignitionDelay, totalCG, separationDelay;
+
             switch (stageNr) {
                 // Sustainer
                 case 0:
@@ -163,7 +175,9 @@ public class SimulationDTO {
                     double sustainerCG = MassCalculator.calculateStructure(CGCalcConfig).getCM().x;
                     setSustainerCG(sustainerCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
-                    setSustainerIgnitionDelay(motorConfig.getIgnitionDelay());
+                    // Ignition delay
+                    ignitionDelay = motorConfig != null ? motorConfig.getIgnitionDelay() : 0;
+                    setSustainerIgnitionDelay(ignitionDelay);
                     break;
                 // Booster 1
                 case 1:
@@ -174,19 +188,25 @@ public class SimulationDTO {
                     for (int i = 1; i <= stage.getStageNumber(); i++) {
                         CGCalcConfig._setStageActive(i, true);
                     }
-                    RigidBody calc = MassCalculator.calculateStructure(CGCalcConfig);
+                    calc = MassCalculator.calculateStructure(CGCalcConfig);
 
                     // Aggregate mass of sustainer and booster 1
                     double booster1Mass = calc.getMass() + motorMass + sustainerMotorMass;
                     setBooster1LaunchWt(booster1Mass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // CG
-                    double totalCG = calc.getCM().x;
+                    totalCG = calc.getCM().x;
                     setBooster1CG(totalCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
-                    setBooster1IgnitionDelay(motorConfig.getIgnitionDelay());
-                    setBooster1SeparationDelay(separationConfig.getSeparationDelay());      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
-                    setIncludeBooster1(mount.isMotorMount());
+                    // Ignition delay
+                    ignitionDelay = motorConfig != null ? motorConfig.getIgnitionDelay() : 0;
+                    setBooster1IgnitionDelay(ignitionDelay);
+
+                    // Separation delay
+                    separationDelay = separationConfig != null ? separationConfig.getSeparationDelay() : 0;
+                    setBooster1SeparationDelay(separationDelay);      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
+
+                    setIncludeBooster1(mount != null && mount.isMotorMount());
                     break;
                 // Booster 2
                 case 2:
@@ -213,8 +233,11 @@ public class SimulationDTO {
                     totalCG = calc.getCM().x;
                     setBooster2CG(totalCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
-                    setBooster2Delay(separationConfig.getSeparationDelay());      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
-                    setIncludeBooster2(mount.isMotorMount());
+                    // Separation delay
+                    separationDelay = separationConfig != null ? separationConfig.getSeparationDelay() : 0;
+                    setBooster2Delay(separationDelay);      // TODO: this could be handled a bit better (look at separation delay, upper stage ignition event etc.)
+
+                    setIncludeBooster2(mount != null && mount.isMotorMount());
                     break;
                 // Invalid
                 default:
