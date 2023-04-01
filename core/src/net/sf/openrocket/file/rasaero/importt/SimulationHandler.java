@@ -384,15 +384,16 @@ public class SimulationHandler extends AbstractElementHandler {
         AxialStage booster = rocket.getStage(1);
 
         // Do a back-transform of the combined CG of the sustainer and booster1 to get the CG of booster1
-        Double CG = getCGFromCombinedCG(booster1CG, sustainerCG, sustainerLaunchWt, booster1LaunchWt - sustainerLaunchWt);
-        // ! this CG is relative to the front of the sustainer, we need it referenced to the front of the booster
-        CG = CG - booster.getPosition().x;
+        Double CG = getCGFromCombinedCG(sustainerLaunchWt, booster1LaunchWt - sustainerLaunchWt, sustainerCG, booster1CG);
 
         /*
             the above CG is the combined CG of booster1 and its motor (if present),
             so we need to calculate the CG of booster1 without the motor CG
          */
         CG = getStageCGWithoutMotorCG(booster, CG, booster1Mount, booster1Engine, fcid);
+
+        // ! this CG is relative to the front of the sustainer, we need it referenced to the front of the booster
+        CG = CG - booster.getPosition().x;
 
         booster.setCGOverridden(true);
         booster.setSubcomponentsOverriddenCG(true);
@@ -419,15 +420,16 @@ public class SimulationHandler extends AbstractElementHandler {
         AxialStage booster = rocket.getStage(2);
 
         // Do a back-transform of the combined CG of the sustainer, booster1, and booster2 to get the CG of booster2
-        Double CG = getCGFromCombinedCG(booster2CG, booster1CG, booster1LaunchWt, booster2LaunchWt - booster1LaunchWt);
-        // ! this CG is relative to the front of the sustainer, we need it referenced to the front of the booster
-        CG = CG - booster.getPosition().x;
+        Double CG = getCGFromCombinedCG(booster1LaunchWt, booster2LaunchWt - booster1LaunchWt, booster1CG, booster2CG);
 
         /*
             the above CG is the combined CG of booster2 and its motor (if present),
             so we need to calculate the CG of booster2 without the motor CG
          */
         CG = getStageCGWithoutMotorCG(booster, CG, booster2Mount, booster2Engine, fcid);
+
+        // ! this CG is relative to the front of the sustainer, we need it referenced to the front of the booster
+        CG = CG - booster.getPosition().x;
 
         booster.setCGOverridden(true);
         booster.setSubcomponentsOverriddenCG(true);
@@ -438,13 +440,13 @@ public class SimulationHandler extends AbstractElementHandler {
 
     /**
      * Return the CG of object B from the CG of object A, the combined CG of A and B, and the masses of A and B.
-     * @param combinedCG the combined CG of A and B
+     * @param objAMass the mass of object A (known CG)
+     * @param objBMass the mass of object B (unknown CG)
      * @param objACG the CG of object A
-     * @param objAMass the mass of object A
-     * @param objBMass the mass of object B
+     * @param combinedCG the combined CG of A and B
      * @return the CG of object B
      */
-    private Double getCGFromCombinedCG(Double combinedCG, Double objACG, Double objAMass, Double objBMass) {
+    private Double getCGFromCombinedCG(Double objAMass, Double objBMass, Double objACG, Double combinedCG) {
         if (combinedCG == null || objACG == null || objAMass == null || objBMass == null) {
             return combinedCG;
         }
@@ -470,15 +472,14 @@ public class SimulationHandler extends AbstractElementHandler {
 
         Coordinate[] CGPoints = motor.getCGPoints();
         if (CGPoints != null && CGPoints.length > 1) {
-            double mountLocationX = mount.getLocations()[0].x + mount.getLength();      // Bottom location of the mount
-            double motorLength = motor.getLength();
+            double motorPositionXRel = mount.getMotorPosition(fcid).x;     // Motor position relative to the mount
+            double mountLocationX = mount.getLocations()[0].x;
+            double motorLocationX = mountLocationX + motorPositionXRel;     // Front location of the motor
+            double motorCG = motorLocationX + CGPoints[0].x;
 
-            // RASAero assumes motor CG to be at half the motor length from the bottom of the parent
-            double motorCG = mountLocationX - motorLength / 2;
-
-            return combinedCG * (1 + motorMass / stageMass)
-                    - motorCG * (motorMass / stageMass);
+            return getCGFromCombinedCG(motorMass, stageMass, motorCG, combinedCG);
         }
-        return null;
+
+        return combinedCG;
     }
 }
