@@ -143,7 +143,7 @@ public class SimulationHandler extends AbstractElementHandler {
         context.getOpenRocketDocument().addSimulation(sim);
 
         // Set the weight and CG overrides
-        applyMassOverrides();
+        applyMassOverrides(warnings);
         applyCGOverrides(sustainerMount, booster1Mount, booster2Mount, fcid);
     }
 
@@ -217,15 +217,15 @@ public class SimulationHandler extends AbstractElementHandler {
         return mount;
     }
 
-    private void applyMassOverrides() {
+    private void applyMassOverrides(WarningSet warnings) {
         // Don't do anything if the mass has already been overridden by a previous simulation
         if (rocket.getStage(0).isMassOverridden()) {
             return;
         }
 
-        double sustainerMass = applySustainerMassOverride();
-        double booster1Mass = applyBooster1MassOverride(sustainerMass);
-        applyBooster2MassOverride(sustainerMass, booster1Mass);
+        applySustainerMassOverride();
+        applyBooster1MassOverride(warnings);
+        applyBooster2MassOverride(warnings);
     }
 
     /**
@@ -256,21 +256,29 @@ public class SimulationHandler extends AbstractElementHandler {
     /**
      * Applies the mass from the RASAero simulation to booster1 as an override, and returns the final booster1 mass.
      * Note: the sustainer mass and booster1 motor mass is subtracted from the RASAero mass to get the final mass.
-     * @param sustainerMass the sustainer mass
+     * @param warnings list to add import warnings to
      * @return the final booster1 mass
      */
-    private double applyBooster1MassOverride(double sustainerMass) {
-        if (!includeBooster1 || booster1LaunchWt == null || booster1LaunchWt == 0) {
+    private double applyBooster1MassOverride(WarningSet warnings) {
+        if (!includeBooster1 || booster1LaunchWt == null || booster1LaunchWt == 0 || sustainerLaunchWt == null) {
             return 0;
         }
 
-        // Get the booster motor weight
-        double boosterMotorWt = 0;
-        if (booster1Engine != null) {
-            boosterMotorWt = booster1Engine.getLaunchMass();
+        // Calculate the final booster mass
+        final double boosterWt;
+        if (sustainerLaunchWt > booster1LaunchWt) {
+            warnings.add("Sustainer wt is greater than total loaded wt of booster 1. Setting mass to 0.");
+            boosterWt = 0;
+        } else {
+            // Get the booster motor weight
+            double boosterMotorWt = 0;
+            if (booster1Engine != null) {
+                boosterMotorWt = booster1Engine.getLaunchMass();
+            }
+
+            boosterWt = booster1LaunchWt - boosterMotorWt - sustainerLaunchWt;
         }
 
-        double boosterWt = booster1LaunchWt - boosterMotorWt - sustainerMass;
         AxialStage booster = rocket.getStage(1);
         booster.setMassOverridden(true);
         booster.setSubcomponentsOverriddenMass(true);
@@ -282,22 +290,29 @@ public class SimulationHandler extends AbstractElementHandler {
     /**
      * Applies the mass from the RASAero simulation to booster2 as an override, and returns the final booster2 mass.
      * Note: the sustainer mass, booster1 mass, and booster2 motor mass is subtracted from the RASAero mass to get the final mass.
-     * @param sustainerMass the sustainer mass
-     * @param booster1Mass the booster1 mass
+     * @param warnings list to add import warnings to
      * @return the final booster2 mass
      */
-    private double applyBooster2MassOverride(double sustainerMass, double booster1Mass) {
-        if (!includeBooster2 || booster2LaunchWt == null || booster2LaunchWt == 0) {
+    private double applyBooster2MassOverride(WarningSet warnings) {
+        if (!includeBooster2 || booster2LaunchWt == null || booster2LaunchWt == 0 || booster1LaunchWt == null) {
             return 0;
         }
 
-        // Get the booster motor weight
-        double boosterMotorWt = 0;
-        if (booster2Engine != null) {
-            boosterMotorWt = booster2Engine.getLaunchMass();
+        // Calculate the final booster mass
+        final double boosterWt;
+        if (booster1LaunchWt > booster2LaunchWt) {
+            warnings.add("Booster1 wt is greater than total loaded wt of booster 2. Setting mass to 0.");
+            boosterWt = 0;
+        } else {
+            // Get the booster motor weight
+            double boosterMotorWt = 0;
+            if (booster2Engine != null) {
+                boosterMotorWt = booster2Engine.getLaunchMass();
+            }
+
+            boosterWt = booster2LaunchWt - boosterMotorWt - booster1LaunchWt;
         }
 
-        double boosterWt = booster2LaunchWt - boosterMotorWt - sustainerMass - booster1Mass;
         AxialStage booster = rocket.getStage(2);
         booster.setMassOverridden(true);
         booster.setSubcomponentsOverriddenMass(true);
@@ -459,6 +474,7 @@ public class SimulationHandler extends AbstractElementHandler {
             double mountLocationX = mount.getLocations()[0].x;
             double motorLocationX = mountLocationX + motorPositionXRel;
             double motorCG = motor.getCGPoints()[0].x + motorLocationX;
+            // TODO: RASAero assumes motor CG to be at half the motor length from the bottom of the parent
             return combinedCG * (1 + motorMass / stageMass)
                     - motorCG * (motorMass / stageMass);
         }
