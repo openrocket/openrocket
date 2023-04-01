@@ -470,11 +470,12 @@ public class SimulationHandler extends AbstractElementHandler {
 
         Coordinate[] CGPoints = motor.getCGPoints();
         if (CGPoints != null && CGPoints.length > 1) {
-            double motorPositionXRel = mount.getMotorPosition(fcid).x;     // Motor position relative to the mount
-            double mountLocationX = mount.getLocations()[0].x;
-            double motorLocationX = mountLocationX + motorPositionXRel;
-            double motorCG = motor.getCGPoints()[0].x + motorLocationX;
-            // TODO: RASAero assumes motor CG to be at half the motor length from the bottom of the parent
+            double mountLocationX = mount.getLocations()[0].x + mount.getLength();      // Bottom location of the mount
+            double motorLength = motor.getLength();
+
+            // RASAero assumes motor CG to be at half the motor length from the bottom of the parent
+            double motorCG = mountLocationX - motorLength / 2;
+
             return combinedCG * (1 + motorMass / stageMass)
                     - motorCG * (motorMass / stageMass);
         }
