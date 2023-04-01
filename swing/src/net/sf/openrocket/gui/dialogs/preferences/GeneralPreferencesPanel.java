@@ -40,6 +40,7 @@ import net.sf.openrocket.gui.util.PreferencesExporter;
 import net.sf.openrocket.gui.util.PreferencesImporter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
