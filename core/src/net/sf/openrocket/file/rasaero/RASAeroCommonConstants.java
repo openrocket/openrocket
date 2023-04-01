@@ -3,6 +3,7 @@ package net.sf.openrocket.file.rasaero;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -378,9 +379,11 @@ public class RASAeroCommonConstants {
      * Format an OpenRocket motor as a RASAero motor.
      * @param motors list of available RASAero motors
      * @param ORMotor OpenRocket motor
+     * @param motorConfig motor configuration of the selected motor
      * @return a RASAero String representation of a motor
      */
-    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, WarningSet warnings) {
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, MotorConfiguration motorConfig,
+                                                     WarningSet warnings) {
         if (!(ORMotor instanceof ThrustCurveMotor)) {
             return null;
         }
@@ -388,8 +391,11 @@ public class RASAeroCommonConstants {
         for (ThrustCurveMotor motor : motors) {
             if (ORMotor.getDesignation().equals(motor.getDesignation()) &&
                     ((ThrustCurveMotor) ORMotor).getManufacturer().matches(motor.getManufacturer().getDisplayName())) {
-                return motor.getDesignation() +
-                        "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
+                String motorName = motor.getDesignation();
+                if (motorConfig.getEjectionDelay() == 0) {
+                    motorName += "-0";
+                }
+                return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
             }
         }
 
