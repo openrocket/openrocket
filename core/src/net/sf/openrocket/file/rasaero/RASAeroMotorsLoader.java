@@ -1,4 +1,4 @@
-package net.sf.openrocket.file.rasaero.importt;
+package net.sf.openrocket.file.rasaero;
 
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.logging.WarningSet;

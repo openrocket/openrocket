@@ -3,7 +3,7 @@ package net.sf.openrocket.file.rasaero.export;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
-import net.sf.openrocket.file.rasaero.importt.RASAeroMotorsLoader;
+import net.sf.openrocket.file.rasaero.RASAeroMotorsLoader;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.ThrustCurveMotor;

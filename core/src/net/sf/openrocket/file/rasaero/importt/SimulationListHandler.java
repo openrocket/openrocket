@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.rasaero.importt;
 
+import net.sf.openrocket.file.rasaero.RASAeroMotorsLoader;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.DocumentLoadingContext;
