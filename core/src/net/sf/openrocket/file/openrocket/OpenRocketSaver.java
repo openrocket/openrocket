@@ -488,7 +488,6 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int i = 0; i < types.length; i++) {
 			data.add(branch.get(types[i]));
 		}
-		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
 		
 		// Build the <databranch> tag
 		StringBuilder sb = new StringBuilder();

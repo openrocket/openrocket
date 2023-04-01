@@ -297,7 +297,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.addRowSelectionInterval(n, n);
 		updatePreviousSelection();
 
-		openDialog(false, sim);
+		openDialog(false, true, sim);
 	}
 
 	private void plotSimulation() {
@@ -595,14 +595,18 @@ public class SimulationPanel extends JPanel {
 		return simulationTable.getSelectionModel();
 	}
 
-	private void openDialog(boolean plotMode, final Simulation... sims) {
-		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims);
+	private void openDialog(boolean plotMode, boolean isNewSimulation, final Simulation... sims) {
+		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, isNewSimulation, sims);
 		if (plotMode) {
 			d.setPlotMode();
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
 		takeTheSpotlight();
+	}
+
+	private void openDialog(boolean plotMode, final Simulation... sims) {
+		openDialog(plotMode, false, sims);
 	}
 
 	private void openDialog(final Simulation sim) {

@@ -96,6 +96,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
+		fireChangeEvent();
 	}
 	
 	
@@ -104,7 +105,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	public void setLaunchIntoWind(boolean i) {
+		if (launchIntoWind == i)
+			return;
 		launchIntoWind = i;
+		fireChangeEvent();
 	}
 	
 	public double getLaunchRodAngle() {
@@ -404,28 +408,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		}
 	}
 	
-	
-	public void copyFrom(SimulationOptions src) {
-		
-		this.launchAltitude = src.launchAltitude;
-		this.launchLatitude = src.launchLatitude;
-		this.launchLongitude = src.launchLongitude;
-		this.launchPressure = src.launchPressure;
-		this.launchRodAngle = src.launchRodAngle;
-		this.launchRodDirection = src.launchRodDirection;
-		this.launchRodLength = src.launchRodLength;
-		this.launchTemperature = src.launchTemperature;
-		this.maximumAngle = src.maximumAngle;
-		this.timeStep = src.timeStep;
-		this.windAverage = src.windAverage;
-		this.windTurbulence = src.windTurbulence;
-		this.windDirection = src.windDirection;
-		this.calculateExtras = src.calculateExtras;
-		this.randomSeed = src.randomSeed;
-		
-		fireChangeEvent();
-	}
-	
 	public void copyConditionsFrom(SimulationOptions src) {
 		// Be a little smart about triggering the change event.
 		// only do it if one of the "important" (user specified) parameters has really changed.
@@ -549,6 +531,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
+	}
+
+	public List<EventListener> getChangeListeners() {
+		return listeners;
 	}
 	
 	private final EventObject event = new EventObject(this);

@@ -273,7 +273,23 @@ public class FlightData {
 		return mutable.isMutable();
 	}
 	
-	
+	public FlightData clone() {
+		FlightData clone = new FlightData();
+		clone.warnings.addAll(warnings);
+		for (FlightDataBranch b : branches) {
+			clone.branches.add(b.clone());
+		}
+		clone.maxAltitude = maxAltitude;
+		clone.maxVelocity = maxVelocity;
+		clone.maxAcceleration = maxAcceleration;
+		clone.maxMachNumber = maxMachNumber;
+		clone.timeToApogee = timeToApogee;
+		clone.flightTime = flightTime;
+		clone.groundHitVelocity = groundHitVelocity;
+		clone.launchRodVelocity = launchRodVelocity;
+		clone.deploymentVelocity = deploymentVelocity;
+		return clone;
+	}
 
 	/**
 	 * Find the maximum acceleration before apogee.

@@ -268,6 +268,18 @@ public class Simulation implements ChangeSource, Cloneable {
 		mutex.verify();
 		return simulationExtensions;
 	}
+
+	/**
+	 * Applies the simulation extensions to the simulation.
+	 * @param extensions the simulation extensions to apply.
+	 */
+	public void copyExtensionsFrom(List<SimulationExtension> extensions) {
+		if (extensions == null) {
+			return;
+		}
+		this.simulationExtensions.clear();
+		this.simulationExtensions.addAll(extensions);
+	}
 	
 	
 	/**
@@ -349,6 +361,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public void syncModID() {
 		this.simulatedConfigurationID = getActiveConfiguration().getModID();
+		fireChangeEvent();
 	}
 	
 	
@@ -522,6 +535,67 @@ public class Simulation implements ChangeSource, Cloneable {
 			mutex.unlock("copy");
 		}
 	}
+
+	public Simulation clone() {
+		mutex.lock("clone");
+		try {
+			Simulation clone = (Simulation) super.clone();
+
+			clone.mutex = SafetyMutex.newInstance();
+			clone.name = this.name;
+			clone.configId = this.configId;
+			clone.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
+			clone.simulatedConfigurationID = this.simulatedConfigurationID;
+			clone.options = this.options.clone();
+			clone.listeners = new ArrayList<>();
+			if (this.simulatedConditions != null) {
+				clone.simulatedConditions = this.simulatedConditions.clone();
+			} else {
+				clone.simulatedConditions = null;
+			}
+			clone.simulationExtensions = new ArrayList<>();
+			for (SimulationExtension c : this.simulationExtensions) {
+				clone.simulationExtensions.add(c.clone());
+			}
+			clone.status = this.status;
+			clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			clone.simulationStepperClass = this.simulationStepperClass;
+			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("Clone not supported, BUG", e);
+		} finally {
+			mutex.unlock("clone");
+		}
+	}
+
+	/**
+	 * Load the data from the specified simulation into this simulation.
+	 * @param simulation the simulation to load from.
+	 */
+	public void loadFrom(Simulation simulation) {
+		mutex.lock("loadFrom");
+		try {
+			this.name = simulation.name;
+			this.configId = simulation.configId;
+			this.simulatedConfigurationDescription = simulation.simulatedConfigurationDescription;
+			this.simulatedConfigurationID = simulation.simulatedConfigurationID;
+			this.options.copyConditionsFrom(simulation.options);
+			if (simulation.simulatedConditions == null) {
+				this.simulatedConditions = null;
+			} else {
+				this.simulatedConditions.copyConditionsFrom(simulation.simulatedConditions);
+			}
+			copyExtensionsFrom(simulation.getSimulationExtensions());
+			this.status = simulation.status;
+			this.simulatedData = simulation.simulatedData;
+			this.simulationStepperClass = simulation.simulationStepperClass;
+			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;
+		} finally {
+			mutex.unlock("loadFrom");
+		}
+	}
 	
 	
 	/**
@@ -541,7 +615,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			final Simulation newSim = new Simulation(this.document, newRocket);
 			newSim.name = this.name;
 			newSim.configId = this.configId;
-			newSim.options.copyFrom(this.options);
+			newSim.options.copyConditionsFrom(this.options);
 			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
 				newSim.simulationExtensions.add(c.clone());
@@ -584,15 +658,9 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	private class ConditionListener implements StateChangeListener {
-		
-		private Status oldStatus = null;
-		
 		@Override
 		public void stateChanged(EventObject e) {
-			if (getStatus() != oldStatus) {
-				oldStatus = getStatus();
-				fireChangeEvent();
-			}
+			fireChangeEvent();
 		}
 	}
 	
