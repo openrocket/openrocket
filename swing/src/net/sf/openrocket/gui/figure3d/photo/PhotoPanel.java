@@ -156,6 +156,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			final GLProfile glp = GLProfile.get(GLProfile.GL2);
 
 			final GLCapabilities caps = new GLCapabilities(glp);
+			caps.setBackgroundOpaque(false);
 
 			if (Application.getPreferences().getBoolean(
 					Preferences.OPENGL_ENABLE_AA, true)) {
@@ -169,10 +170,12 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					Preferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
+				((GLJPanel) canvas).setOpaque(false);
 			} else {
 				log.trace("GL - Creating GLCanvas");
 				canvas = new GLCanvas(caps);
 			}
+			canvas.setBackground(new java.awt.Color(0, 0, 0, 0));
 
 			((GLAutoDrawable) canvas).addGLEventListener(this);
 			this.add(canvas, BorderLayout.CENTER);
@@ -277,7 +280,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 		if (!imageCallbacks.isEmpty()) {
 			BufferedImage i = (new AWTGLReadBufferUtil(
-					GLProfile.get(GLProfile.GL2), false))
+					GLProfile.get(GLProfile.GL2), true)) // Set the second parameter to true
 					.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
 							drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
 			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
@@ -298,18 +301,41 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			out[0] = 1;
 			out[1] = 1;
 			out[2] = 0;
+			out[3] = 1;
 		} else {
 			out[0] = (float) color.getRed() / 255f;
 			out[1] = (float) color.getGreen() / 255f;
 			out[2] = (float) color.getBlue() / 255f;
+			out[3] = (float) color.getAlpha() / 255f;
 		}
+	}
+
+	/**
+	 * Blend two colors
+	 * @param color1 first color to blend
+	 * @param color2 second color to blend
+	 * @param ratio blend ratio. 0 = full color 1, 0.5 = mid-blend, 1 = full color 2
+	 * @return blended color
+	 */
+	private static Color blendColors(Color color1, Color color2, double ratio) {
+		if (ratio < 0 || ratio > 1) {
+			throw new IllegalArgumentException("Blend ratio must be between 0 and 1");
+		}
+
+		double inverseRatio = 1 - ratio;
+
+		int r = (int) ((color1.getRed() * inverseRatio) + (color2.getRed() * ratio));
+		int g = (int) ((color1.getGreen() * inverseRatio) + (color2.getGreen() * ratio));
+		int b = (int) ((color1.getBlue() * inverseRatio) + (color2.getBlue() * ratio));
+
+		return new Color(r, g, b);
 	}
 
 	private void draw(final GLAutoDrawable drawable, float dx) {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
-		float[] color = new float[3];
+		float[] color = new float[4];
 
 		gl.glEnable(GL.GL_MULTISAMPLE);
 
@@ -333,8 +359,16 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				new float[] { spc * color[0], spc * color[1], spc * color[2], 1 },
 				0);
 
-		convertColor(p.getSkyColor(), color);
-		gl.glClearColor(color[0], color[1], color[2], 1);
+		// Machines that don't use off-screen rendering can't render transparent background, so we create it
+		// artificially by blending the sky color with white (= color that is rendered as transparent background)
+		if (!Application.getPreferences().getBoolean(
+				Preferences.OPENGL_USE_FBO, false)) {
+			convertColor(blendColors(p.getSkyColor(), new Color(255, 255, 255), 1-p.getSkyColorOpacity()),
+					color);
+		} else {
+			convertColor(p.getSkyColor(), color);
+		}
+		gl.glClearColor(color[0], color[1], color[2], color[3]);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
