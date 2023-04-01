@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * List of constants used in RASAero files + helper functions to read parameters from it.
@@ -228,6 +230,8 @@ public class RASAeroCommonConstants {
         RASAeroNoseConeShapeMap.put(SHAPE_ELLIPTICAL, Transition.Shape.ELLIPSOID);
     }
 
+    private static final Logger log = LoggerFactory.getLogger(RASAeroCommonConstants.class);
+
     /**
      * Returns the OpenRocket nose cone shape from the RASAero shape string.
      * @param shape The RASAero shape string.
@@ -311,7 +315,9 @@ public class RASAeroCommonConstants {
         } else if (CROSS_SECTION_SUBSONIC_NACA.equals(crossSection)) {
             return FinSet.CrossSection.AIRFOIL;
         } else {
-            warnings.add("Unknown fin cross section: " + crossSection + ", defaulting to Airfoil.");
+            String msg = "Unknown fin cross section: " + crossSection + ", defaulting to Airfoil.";
+            warnings.add(msg);
+            log.debug(msg);
             return FinSet.CrossSection.AIRFOIL;
         }
     }
@@ -324,7 +330,9 @@ public class RASAeroCommonConstants {
         } else if (FinSet.CrossSection.AIRFOIL.equals(crossSection)) {
             return CROSS_SECTION_SUBSONIC_NACA;
         } else {
-            warnings.add("Unknown fin cross section: " + crossSection + ".");
+            String msg = "Unknown fin cross section: " + crossSection + ".";
+            warnings.add(msg);
+            log.warn(msg);
             return null;
         }
     }
@@ -349,7 +357,9 @@ public class RASAeroCommonConstants {
         } else if (FINISH_CAST_IRON.equals(surfaceFinish)) {
             return ExternalComponent.Finish.ROUGHUNFINISHED;
         } else {
-            warnings.add("Unknown surface finish: " + surfaceFinish + ", defaulting to Regular Paint.");
+            String msg = "Unknown surface finish: " + surfaceFinish + ", defaulting to Regular Paint.";
+            warnings.add(msg);
+            log.debug(msg);
             return ExternalComponent.Finish.NORMAL;
         }
     }
@@ -370,7 +380,9 @@ public class RASAeroCommonConstants {
         } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)) {
             return FINISH_CAST_IRON;
         } else {
-            warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
+            String msg = "Unknown surface finish: " + finish + ", defaulting to Smooth.";
+            warnings.add(msg);
+            log.debug(msg);
             return FINISH_SMOOTH;
         }
     }
@@ -385,6 +397,7 @@ public class RASAeroCommonConstants {
     public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, MotorConfiguration motorConfig,
                                                      WarningSet warnings) {
         if (!(ORMotor instanceof ThrustCurveMotor) || motorConfig == null) {
+            log.debug("RASAero motor not found: not a thrust curve motor");
             return null;
         }
 
@@ -395,11 +408,14 @@ public class RASAeroCommonConstants {
                 if (motorConfig.getEjectionDelay() == 0) {
                     motorName += "-0";
                 }
+                log.debug(String.format("RASAero motor found: %s", motorName));
                 return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
             }
         }
 
-        warnings.add(String.format("Could not find RASAero motor for '%s'", ORMotor.getDesignation()));
+        String msg = String.format("Could not find RASAero motor for '%s'", ORMotor.getDesignation());
+        warnings.add(msg);
+        log.debug(msg);
         return null;
     }
 
