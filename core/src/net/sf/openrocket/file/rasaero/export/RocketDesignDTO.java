@@ -97,7 +97,8 @@ public class RocketDesignDTO {
                     }
                     addExternalPart(new NoseConeDTO((NoseCone) component, warnings, errors));
                     // Set the global surface finish to that of the first nose cone
-                    setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish()));
+                    setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish(),
+                            warnings));
                 } else if (component instanceof Transition) {
                     addExternalPart(new TransitionDTO((Transition) component, warnings, errors));
                 }

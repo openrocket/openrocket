@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -53,7 +55,7 @@ public class FinDTO {
     public FinDTO() {
     }
 
-    public FinDTO(TrapezoidFinSet fin) throws RASAeroExportException {
+    public FinDTO(TrapezoidFinSet fin, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         int finCount = fin.getFinCount();
         if (finCount < 3 || finCount > 8) {
             throw new RASAeroExportException(
@@ -66,7 +68,7 @@ public class FinDTO {
         setSpan(fin.getSpan() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setSweepDistance(fin.getSweep() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setThickness(fin.getThickness() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
-        setAirfoilSection(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(fin.getCrossSection()));
+        setAirfoilSection(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(fin.getCrossSection(), warnings));
         setLocation((-fin.getAxialOffset(AxialMethod.BOTTOM) + fin.getLength()) * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
     }
 

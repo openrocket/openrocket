@@ -16,7 +16,7 @@ public interface BodyTubeDTOAdapter {
     default void applyBodyTubeSettings(BodyTube bodyTube, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         for (RocketComponent child : bodyTube.getChildren()) {
             if (child instanceof TrapezoidFinSet) {
-                setFin(new FinDTO((TrapezoidFinSet) child));
+                setFin(new FinDTO((TrapezoidFinSet) child, warnings, errors));
             } else if (child instanceof LaunchLug) {
                 if (!MathUtil.equals(getRailGuideDiameter(), 0) || !MathUtil.equals(getRailGuideHeight(), 0)) {     // only one check on diameter or length should be sufficient, but just to be safe
                     warnings.add(String.format("Already added a rail button, ignoring launch lug '%s'.", child.getName()));

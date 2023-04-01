@@ -312,7 +312,7 @@ public class RASAeroCommonConstants {
         }
     }
 
-    public static String OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(FinSet.CrossSection crossSection) {
+    public static String OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(FinSet.CrossSection crossSection, WarningSet warnings) {
         if (FinSet.CrossSection.SQUARE.equals(crossSection)) {
             return CROSS_SECTION_SQUARE;
         } else if (FinSet.CrossSection.ROUNDED.equals(crossSection)) {
@@ -320,7 +320,7 @@ public class RASAeroCommonConstants {
         } else if (FinSet.CrossSection.AIRFOIL.equals(crossSection)) {
             return CROSS_SECTION_SUBSONIC_NACA;
         } else {
-            //TODO: warnings.add("Unknown fin cross section: " + crossSection + ".");
+            warnings.add("Unknown fin cross section: " + crossSection + ".");
             return null;
         }
     }
@@ -350,7 +350,7 @@ public class RASAeroCommonConstants {
         }
     }
 
-    public static String OPENROCKET_TO_RASAERO_SURFACE(ExternalComponent.Finish finish) {
+    public static String OPENROCKET_TO_RASAERO_SURFACE(ExternalComponent.Finish finish, WarningSet warnings) {
         if (finish.equals(ExternalComponent.Finish.MIRROR)) {
             return FINISH_SMOOTH;
         } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)) {
@@ -366,8 +366,7 @@ public class RASAeroCommonConstants {
         } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)) {
             return FINISH_CAST_IRON;
         } else {
-            // TODO
-            //warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
+            warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
             return FINISH_SMOOTH;
         }
     }

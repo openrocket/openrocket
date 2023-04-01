@@ -165,7 +165,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                     String.format("Body tube '%s' in stage '%s' must have a TrapezoidFinSet.",
                             firstTube.getName(), stage.getName()));
         }
-        setFin(new FinDTO(finSet));
+        setFin(new FinDTO(finSet, warnings, errors));
 
         setPartType(RASAeroCommonConstants.BOOSTER);
         setLength(firstTube.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
