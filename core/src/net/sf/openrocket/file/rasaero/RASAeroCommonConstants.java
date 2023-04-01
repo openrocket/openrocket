@@ -2,6 +2,8 @@ package net.sf.openrocket.file.rasaero;
 
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -10,6 +12,7 @@ import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.MathUtil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -369,6 +372,29 @@ public class RASAeroCommonConstants {
             warnings.add("Unknown surface finish: " + finish + ", defaulting to Smooth.");
             return FINISH_SMOOTH;
         }
+    }
+
+    /**
+     * Format an OpenRocket motor as a RASAero motor.
+     * @param motors list of available RASAero motors
+     * @param ORMotor OpenRocket motor
+     * @return a RASAero String representation of a motor
+     */
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, WarningSet warnings) {
+        if (!(ORMotor instanceof ThrustCurveMotor)) {
+            return null;
+        }
+
+        for (ThrustCurveMotor motor : motors) {
+            if (ORMotor.getDesignation().equals(motor.getDesignation()) &&
+                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(motor.getManufacturer().getDisplayName())) {
+                return motor.getDesignation() +
+                        "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
+            }
+        }
+
+        warnings.add(String.format("Could not find RASAero motor for '%s'", ORMotor.getDesignation()));
+        return null;
     }
 
     public static String OPENROCKET_TO_RASAERO_MANUFACTURER(Manufacturer manufacturer) {

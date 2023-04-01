@@ -139,7 +139,7 @@ public class SimulationDTO {
             switch (stageNr) {
                 // Sustainer
                 case 0:
-                    setSustainerEngine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
+                    setSustainerEngine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), warnings));
                     setSustainerLaunchWt(stage.getSectionMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // Calculate CG of sustainer
@@ -151,7 +151,7 @@ public class SimulationDTO {
                     break;
                 // Booster 1
                 case 1:
-                    setBooster1Engine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
+                    setBooster1Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), warnings));
 
                     // Aggregate mass of sustainer and booster 1
                     setBooster1LaunchWt(rocket.getChild(0).getSectionMass() + stage.getSectionMass()
@@ -171,7 +171,7 @@ public class SimulationDTO {
                     break;
                 // Booster 2
                 case 2:
-                    setBooster2Engine(getRASAeroMotor(motors, motorConfig.getMotor(), warnings));
+                    setBooster2Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motorConfig.getMotor(), warnings));
 
                     // Aggregate mass of sustainer, booster 1 and booster 2
                     setBooster2LaunchWt(rocket.getChild(0).getSectionMass() + rocket.getChild(1).getSectionMass() +
@@ -194,29 +194,6 @@ public class SimulationDTO {
                             stageNr, simulation.getName()));
             }
         }
-    }
-
-    /**
-     * Format an OpenRocket motor as a RASAero motor.
-     * @param motors list of available RASAero motors
-     * @param ORMotor OpenRocket motor
-     * @return a RASAero String representation of a motor
-     */
-    private String getRASAeroMotor(List<ThrustCurveMotor> motors, Motor ORMotor, WarningSet warnings) {
-        if (!(ORMotor instanceof ThrustCurveMotor)) {
-            return null;
-        }
-
-        for (ThrustCurveMotor motor : motors) {
-            if (ORMotor.getDesignation().equals(motor.getDesignation()) &&
-                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(motor.getManufacturer().getDisplayName())) {
-                return motor.getDesignation() +
-                        "  (" + RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
-            }
-        }
-
-        warnings.add(String.format("Could not find RASAero motor for '%s'", ORMotor.getDesignation()));
-        return null;
     }
 
 
