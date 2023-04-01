@@ -78,8 +78,14 @@ public class SimulationListDTO {
         // Load all RASAero motors
         List<ThrustCurveMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(warnings);
 
+        // Add all the simulations
         for (Simulation simulation : document.getSimulations()) {
             addSimulation(new SimulationDTO(rocket, simulation, mounts, motors, warnings, errors));
+        }
+
+        // If there are no simulations, add a default simulation (to have the mass/CG export)
+        if (document.getSimulations().size() == 0) {
+            addSimulation(new SimulationDTO(rocket, null, mounts, motors, warnings, errors));
         }
 
         motors.clear();

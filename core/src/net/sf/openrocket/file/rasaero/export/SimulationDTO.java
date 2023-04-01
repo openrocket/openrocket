@@ -120,14 +120,16 @@ public class SimulationDTO {
      */
     public SimulationDTO(Rocket rocket, Simulation simulation, Map<AxialStage, MotorMount> mounts, List<ThrustCurveMotor> motors,
                          WarningSet warnings, ErrorSet errors) {
-        FlightConfigurationId fcid = simulation.getFlightConfigurationId();
-        if (fcid == null) {
-            warnings.add(String.format("Empty simulation '%s', ignoring.", simulation.getName()));
+        String simulationName = simulation != null ? simulation.getName() : "DEFAULT";
+        FlightConfigurationId fcid = simulation != null ? simulation.getFlightConfigurationId() : null;
+
+        if (simulation != null && fcid == null) {
+            warnings.add(String.format("Empty simulation '%s', ignoring.", simulationName));
             return;
         }
 
         if (mounts.isEmpty()) {
-            warnings.add(String.format("No motors found in simulation '%s', ignoring.", simulation.getName()));
+            warnings.add(String.format("No motors found in simulation '%s', ignoring.", simulationName));
             return;
         }
 
@@ -242,7 +244,7 @@ public class SimulationDTO {
                 // Invalid
                 default:
                     errors.add(String.format("Invalid stage number '%d' for simulation '%s'",
-                            stageNr, simulation.getName()));
+                            stageNr, simulationName));
             }
         }
     }
