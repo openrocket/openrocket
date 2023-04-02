@@ -88,7 +88,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE = root.node(NODENAME);
 	}
 	
-	
+	public String getNodename() {
+		return NODENAME;
+	}
 	
 	
 	//////////////////////
@@ -232,7 +234,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public File getDefaultDirectory() {
-		String file = getString("defaultDirectory", null);
+		String file = getString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, null);
 		if (file == null)
 			return null;
 		return new File(file);
@@ -245,7 +247,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		putString("defaultDirectory", d);
+		putString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, d);
 		storeVersion();
 	}
 	

@@ -53,6 +53,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
+	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
 	
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 
@@ -80,6 +81,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
 	private static final String SHOW_MARKERS = "ShowMarkers";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRocksimFormatWarning";
+	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
 	
 	//Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
@@ -231,7 +233,15 @@ public abstract class Preferences implements ChangeSource {
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
 	}
-	
+
+	public final boolean getExportUserDirectories() {
+		return this.getBoolean(EXPORT_USER_DIRECTORIES, false);
+	}
+
+	public final void setExportUserDirectories(boolean check) {
+		this.putBoolean(EXPORT_USER_DIRECTORIES, check);
+	}
+
 	public final double getDefaultMach() {
 		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}

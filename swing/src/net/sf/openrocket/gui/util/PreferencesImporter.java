@@ -34,9 +34,6 @@ public abstract class PreferencesImporter {
 
         File importFile = chooser.getSelectedFile();
         try (FileInputStream fis = new FileInputStream(importFile)) {
-
-            // TODO: don't import user directories?
-
             Preferences.importPreferences(fis);
             log.info("Preferences imported successfully.");
         } catch (IOException | InvalidPreferencesFormatException e) {
