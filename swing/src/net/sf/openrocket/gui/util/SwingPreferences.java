@@ -41,6 +41,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 
 
 	public static final String NODE_WINDOWS = "windows";
+	public static final String NODE_TABLES = "tables";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -441,7 +442,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {
-		String pref = PREFNODE.node("tables").get(
+		String pref = PREFNODE.node(NODE_TABLES).get(
 				"cw." + keyName + "." + columnIdx, null);
 		if (pref == null)
 			return null;
@@ -459,7 +460,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	public void setTableColumnWidth(String keyName, int columnIdx, Integer width) {
-		PREFNODE.node("tables").put(
+		PREFNODE.node(NODE_TABLES).put(
 				"cw." + keyName + "." + columnIdx, width.toString());
 		storeVersion();
 	}

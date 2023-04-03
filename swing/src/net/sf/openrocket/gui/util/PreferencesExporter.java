@@ -32,7 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiPredicate;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -54,6 +53,7 @@ public abstract class PreferencesExporter {
 
         if (!prefs.getExportWindowInformation()) {
             nodesToIgnore.add(SwingPreferences.NODE_WINDOWS);
+            nodesToIgnore.add(SwingPreferences.NODE_TABLES);
         }
     }
 
