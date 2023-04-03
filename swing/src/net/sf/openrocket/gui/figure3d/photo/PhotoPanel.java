@@ -333,6 +333,13 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		// Attach the texture to the FBO
 		gl.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, textureId[0], 0);
 
+		// Create a renderbuffer for depth and attach it to the FBO
+		int[] depthRenderbuffer = new int[1];
+		gl.glGenRenderbuffers(1, depthRenderbuffer, 0);
+		gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
+		gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL2.GL_DEPTH_COMPONENT, width, height);
+		gl.glFramebufferRenderbuffer(GL2.GL_FRAMEBUFFER, GL2.GL_DEPTH_ATTACHMENT, GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
+
 		// Check if the FBO is complete
 		int status = gl.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER);
 		if (status != GL2.GL_FRAMEBUFFER_COMPLETE) {
@@ -350,6 +357,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
 		gl.glDeleteFramebuffers(1, fboId, 0);
 		gl.glDeleteTextures(1, textureId, 0);
+		gl.glDeleteRenderbuffers(1, depthRenderbuffer, 0);
 
 		// Convert the ByteBuffer to a BufferedImage
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
