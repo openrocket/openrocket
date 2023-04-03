@@ -2,23 +2,21 @@ package net.sf.openrocket.gui.dialogs;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.util.BetterListCellRenderer;
 import net.sf.openrocket.logging.Error;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -58,7 +56,7 @@ public abstract class ErrorWarningDialog {
 
         Warning[] w = warnings.toArray(new Warning[0]);
         final JList<Warning> warningList = new JList<>(w);
-        warningList.setCellRenderer(new WarningListCellRenderer());
+        warningList.setCellRenderer(new BetterListCellRenderer());
         JScrollPane warningPane = new JScrollPane(warningList);
         content.add(warningPane, "wrap, growx");
 
@@ -78,50 +76,19 @@ public abstract class ErrorWarningDialog {
 
     }
 
-    private static class ErrorListCellRenderer extends DefaultListCellRenderer {
+    private static class ErrorListCellRenderer extends BetterListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-            // Alternating row colors
-            if (!isSelected) {
-                if (index % 2 == 0) {
-                    label.setBackground(Color.WHITE);
-                } else {
-                    label.setBackground(new Color(245, 245, 245));
-                }
-            }
             // Text color
             if (isSelected) {
                 label.setForeground(Color.WHITE);
             } else {
                 label.setForeground(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
             }
-            return label;
-        }
-    }
 
-    private static class WarningListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-            // Alternating row colors
-            if (!isSelected) {
-                if (index % 2 == 0) {
-                    label.setBackground(Color.WHITE);
-                } else {
-                    label.setBackground(new Color(245, 245, 245));
-                }
-            }
-            // Text color
-            if (isSelected) {
-                label.setForeground(Color.WHITE);
-            } else {
-                label.setForeground(Color.BLACK);
-            }
             return label;
         }
     }
