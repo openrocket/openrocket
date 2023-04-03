@@ -54,7 +54,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
 	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
-	
+
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
@@ -78,6 +78,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
+	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
 	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
 	private static final String SHOW_MARKERS = "ShowMarkers";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRocksimFormatWarning";

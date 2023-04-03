@@ -101,6 +101,7 @@ public class PreferencesDialog extends JDialog {
 				if (parent != null) {
 					parent.getRocketPanel().updateExtras();
 					parent.getRocketPanel().updateFigures();
+					parent.getRocketPanel().updateRulers();
 				}
 			}
 		});
