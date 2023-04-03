@@ -42,6 +42,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
+	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -271,13 +272,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return compdir;
 	}
 
+	/**
+	 * Set the operating system that the software updater will use to redirect you to an installer download link.
+	 * @param platform the operating system to use
+	 */
 	public void setUpdatePlatform(UpdatePlatform platform) {
 		if (platform == null) return;
-		putString("UpdatePlatform", platform.name());
+		putString(UPDATE_PLATFORM, platform.name());
 	}
 
+	/**
+	 * Get the operating system that will be selected when asking for a software update.
+	 * E.g. "Windows" will cause the software updater to default to letting you download a Windows installer.
+	 * @return the operating system that is used
+	 */
 	public UpdatePlatform getUpdatePlatform() {
-		String p = getString("UpdatePlatform", SystemInfo.getPlatform().name());
+		String p = getString(UPDATE_PLATFORM, SystemInfo.getPlatform().name());
 		if (p == null) return null;
 		return UpdatePlatform.valueOf(p);
 	}

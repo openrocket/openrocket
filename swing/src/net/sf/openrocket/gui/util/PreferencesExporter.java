@@ -55,6 +55,8 @@ public abstract class PreferencesExporter {
             nodesToIgnore.add(SwingPreferences.NODE_WINDOWS);
             nodesToIgnore.add(SwingPreferences.NODE_TABLES);
         }
+
+        keysToIgnore.add(SwingPreferences.UPDATE_PLATFORM);     // Don't export platform-specific settings
     }
 
 
