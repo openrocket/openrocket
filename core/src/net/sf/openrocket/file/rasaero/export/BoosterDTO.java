@@ -113,6 +113,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                 !(firstChild instanceof Transition && !(firstChild instanceof NoseCone))) {
             throw new RASAeroExportException(String.format("First component of stage '%s' must be a body tube or transition.", stage.getName()));
         }
+
         final BodyTube firstTube;
         if (firstChild instanceof Transition) {
             if (stage.getChildCount() == 1 || !(stage.getChild(1) instanceof BodyTube)) {
@@ -144,22 +145,41 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             setShoulderLength(firstChild.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             setDiameter(firstTube.getOuterRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             setInsideDiameter(transition.getForeRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
-
-            if (stage.getChildCount() > 2) {
-                warnings.add(String.format("Stage '%s' can only contain a body tube and transition shoulder, ignoring other %d components.",
-                        stage.getName(), stage.getChildCount() - 2));
-            }
         } else {
             firstTube = (BodyTube) stage.getChild(0);
-            if (stage.getChildCount() > 1) {
-                warnings.add(String.format("Stage '%s' can only contain a body tube, ignoring other %d components.",
-                        stage.getName(), stage.getChildCount() - 1));
+        }
+
+        TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
+
+        double tubeLength = firstTube.getLength();
+        // Aggregate same-sized body tubes
+        for (int i = stage.getChildPosition(firstTube) + 1; i < stage.getChildCount(); i++) {
+            RocketComponent comp = stage.getChild(i);
+            if (comp instanceof BodyTube &&
+                    MathUtil.equals(((BodyTube) comp).getOuterRadius(), firstTube.getOuterRadius())) {
+                // Aggregate the tubes by combining the lengths
+                tubeLength += comp.getLength();
+
+                // If no fin set in firstTube, add fin from new tube
+                if (finSet == null) {
+                    finSet = getFinSetFromBodyTube((BodyTube) comp);
+                }
+            } else {
+                // Case: normal body tube
+                if (stage.getChildPosition(firstTube) == 0) {
+                    warnings.add(String.format("Stage '%s' can only contain a body tube, ignoring other %d components.",
+                            stage.getName(), stage.getChildCount() - i - 1));
+                }
+                // Case: body tube with transition shoulder
+                else {
+                    warnings.add(String.format("Stage '%s' can only contain a body tube and transition shoulder, ignoring other %d components.",
+                            stage.getName(), stage.getChildCount() - i - 1));
+                }
             }
         }
 
         applyBodyTubeSettings(firstTube, warnings, errors);
 
-        TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
         if (finSet == null) {
             throw new RASAeroExportException(
                     String.format("Body tube '%s' in stage '%s' must have a TrapezoidFinSet.",
@@ -168,7 +188,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         setFin(new FinDTO(finSet, warnings, errors));
 
         setPartType(RASAeroCommonConstants.BOOSTER);
-        setLength(firstTube.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        setLength(tubeLength * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setDiameter(firstTube.getOuterRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setLocation(firstChild.getAxialOffset(AxialMethod.ABSOLUTE) * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setColor(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_COLOR(firstTube.getColor()));
