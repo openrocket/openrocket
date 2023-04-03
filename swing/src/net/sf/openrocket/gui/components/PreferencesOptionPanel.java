@@ -24,6 +24,7 @@ public class PreferencesOptionPanel extends JPanel {
         JPanel panel = new JPanel(new MigLayout("fill, ins 4lp"));
         panel.setBorder(BorderFactory.createTitledBorder(trans.get("PreferencesOptionPanel.title")));
 
+        // Export user directories
         JCheckBox exportUserDirectories = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.userDirectories"));
         exportUserDirectories.setToolTipText(trans.get("PreferencesOptionPanel.checkbox.userDirectories.ttip"));
         exportUserDirectories.setSelected(prefs.getExportUserDirectories());
@@ -33,7 +34,20 @@ public class PreferencesOptionPanel extends JPanel {
                 prefs.setExportUserDirectories(e.getStateChange() == ItemEvent.SELECTED);
             }
         });
-        panel.add(exportUserDirectories, "wrap 10lp");
+        panel.add(exportUserDirectories, "wrap");
+
+        // Export window information (position, size...)
+        JCheckBox exportWindowInfo = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.windowInfo"));
+        exportWindowInfo.setToolTipText(trans.get("PreferencesOptionPanel.checkbox.windowInfo.ttip"));
+        exportWindowInfo.setSelected(prefs.getExportWindowInformation());
+        exportWindowInfo.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                prefs.setExportWindowInformation(e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        panel.add(exportWindowInfo, "wrap 10lp");
+
 
         this.add(panel, "growx, north");
     }

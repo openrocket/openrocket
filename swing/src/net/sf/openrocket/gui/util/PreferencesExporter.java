@@ -30,6 +30,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -38,17 +41,20 @@ public abstract class PreferencesExporter {
     private static final Logger log = LoggerFactory.getLogger(PreferencesExporter.class);
     private static final net.sf.openrocket.startup.Preferences prefs = Application.getPreferences();
 
-    private static final String[] userDirectoriesKeysToIgnore;      // Preference keys to ignore when exporting user directories (= keys that export user directories)
-    private static final String[] prefixKeysToIgnore;              // Preference keys to ignore when exporting user directories (= keys that start with these prefixes)
+    private static final List<String> keysToIgnore = new ArrayList<>();         // Preference keys to ignore when exporting user directories (= keys that export user directories)
+    private static final List<String> prefixKeysToIgnore = new ArrayList<>();   // Preference keys to ignore when exporting user directories (= keys that start with these prefixes), e.g.
+    private static final List<String> nodesToIgnore = new ArrayList<>();        // Preferences nodes that should not be exported
 
     static {
-        userDirectoriesKeysToIgnore = new String[] {
-                net.sf.openrocket.startup.Preferences.USER_THRUST_CURVES_KEY,
-                net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY
-        };
-        prefixKeysToIgnore = new String[] {
-                MRUDesignFile.MRU_FILE_LIST_PROPERTY
-        };
+        if (!prefs.getExportUserDirectories()) {
+            keysToIgnore.add(net.sf.openrocket.startup.Preferences.USER_THRUST_CURVES_KEY);
+            keysToIgnore.add(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY);
+            prefixKeysToIgnore.add(MRUDesignFile.MRU_FILE_LIST_PROPERTY);
+        }
+
+        if (!prefs.getExportWindowInformation()) {
+            nodesToIgnore.add(SwingPreferences.NODE_WINDOWS);
+        }
     }
 
 
@@ -64,7 +70,7 @@ public abstract class PreferencesExporter {
         // The macOS file chooser has an issue where it does not update its size when the accessory is added.
         if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
             Dimension currentSize = chooser.getPreferredSize();
-            Dimension newSize = new Dimension((int) (1.25 * currentSize.width), (int) (1.2 * currentSize.height));
+            Dimension newSize = new Dimension((int) (1.35 * currentSize.width), (int) (1.2 * currentSize.height));
             chooser.setPreferredSize(newSize);
         }
 
@@ -89,7 +95,7 @@ public abstract class PreferencesExporter {
         }
 
         try (FileOutputStream fos = new FileOutputStream(newFile)) {
-            if (prefs.getExportUserDirectories()) {
+            if (keysToIgnore.isEmpty() && nodesToIgnore.isEmpty() && prefixKeysToIgnore.isEmpty()) {
                 // Export all preferences
                 preferences.exportSubtree(fos);
             } else {
@@ -115,7 +121,7 @@ public abstract class PreferencesExporter {
         Preferences tempPrefs = root.node(nodeName);
 
         // Fill in all parameters to the temporary preferences, except for user directories
-        copyFilteredPreferences(preferences, tempPrefs, userDirectoriesKeysToIgnore, prefixKeysToIgnore);
+        copyFilteredPreferences(preferences, tempPrefs, nodesToIgnore, keysToIgnore, prefixKeysToIgnore);
 
         // Export the filtered preferences
         try {
@@ -163,32 +169,23 @@ public abstract class PreferencesExporter {
         }
     }
 
-    private static void copyFilteredPreferences(Preferences src, Preferences dest, String[] keysToIgnore, String[] prefixKeysToIgnore) throws BackingStoreException {
+    private static void copyFilteredPreferences(Preferences src, Preferences dest,
+                List<String> nodesToIgnore, List<String> keysToIgnore, List<String> prefixKeysToIgnore) throws BackingStoreException {
         for (String key : src.keys()) {
-            boolean ignoreKey = false;
-            for (String keyToIgnore : keysToIgnore) {
-                if (key.equals(keyToIgnore)) {
-                    ignoreKey = true;
-                    break;
-                }
+            if (keysToIgnore.contains(key)
+                    || prefixKeysToIgnore.stream().anyMatch(key::startsWith)) {
+                continue;
             }
-            if (!ignoreKey) {
-                for (String prefixKeyToIgnore : prefixKeysToIgnore) {
-                    if (key.startsWith(prefixKeyToIgnore)) {
-                        ignoreKey = true;
-                        break;
-                    }
-                }
-            }
-            if (!ignoreKey) {
-                dest.put(key, src.get(key, null));
-            }
+            dest.put(key, src.get(key, null));
         }
 
         for (String childNodeName : src.childrenNames()) {
+            if (nodesToIgnore.contains(childNodeName)) {
+                continue;
+            }
             Preferences srcChild = src.node(childNodeName);
             Preferences destChild = dest.node(childNodeName);
-            copyFilteredPreferences(srcChild, destChild, keysToIgnore, prefixKeysToIgnore);
+            copyFilteredPreferences(srcChild, destChild, nodesToIgnore, keysToIgnore, prefixKeysToIgnore);
         }
     }
 }

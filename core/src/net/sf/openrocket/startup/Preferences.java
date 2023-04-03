@@ -82,6 +82,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String SHOW_MARKERS = "ShowMarkers";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRocksimFormatWarning";
 	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
+	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 	
 	//Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
@@ -240,6 +241,14 @@ public abstract class Preferences implements ChangeSource {
 
 	public final void setExportUserDirectories(boolean check) {
 		this.putBoolean(EXPORT_USER_DIRECTORIES, check);
+	}
+
+	public final boolean getExportWindowInformation() {
+		return this.getBoolean(EXPORT_WINDOW_INFORMATION, false);
+	}
+
+	public final void setExportWindowInformation(boolean check) {
+		this.putBoolean(EXPORT_WINDOW_INFORMATION, check);
 	}
 
 	public final double getDefaultMach() {

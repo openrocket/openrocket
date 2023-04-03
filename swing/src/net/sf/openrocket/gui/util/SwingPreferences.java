@@ -38,7 +38,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 	
 	private static final String SPLIT_CHARACTER = "|";
-	
+
+
+	public static final String NODE_WINDOWS = "windows";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -378,7 +380,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Point getWindowPosition(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("position." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -396,7 +398,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		PREFNODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
+		PREFNODE.node(NODE_WINDOWS).put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
 	
@@ -405,7 +407,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -424,17 +426,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	public boolean isWindowMaximized(Class<?> c) {
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
 		return "max".equals(pref);
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
+		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 
