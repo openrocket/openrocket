@@ -162,10 +162,17 @@ public class SimulationDTO {
             }
             int stageNr = rocket.getChildPosition(stage);
 
+            // Add friendly reminder to user
+            if (motor == null) {
+                warnings.add(String.format("<html>Stage %s has no motor.<br>" +
+                                "&nbsp --> When adding a motor in RASAero, don't forget to update the stage mass and CG.</html>",
+                        stage.getName()));
+            }
+
+            // Add the simulation info for each stage
             FlightConfiguration CGCalcConfig = new FlightConfiguration(rocket);
             RigidBody calc;
             double ignitionDelay, totalCG, separationDelay;
-
             switch (stageNr) {
                 // Sustainer
                 case 0:
