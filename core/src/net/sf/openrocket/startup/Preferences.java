@@ -558,6 +558,22 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
+	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardSimulationConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling a simulation config operation.
+	 */
+	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
+	}
+
+	/**
 	 * Answer if the always open leftmost tab is enabled.
 	 *
 	 * @return true if the application should always open the leftmost tab in the component design panel.
