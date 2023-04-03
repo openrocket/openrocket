@@ -19,14 +19,14 @@ public class ThicknessRingComponentConfig extends RingComponentConfig {
 		super(d, c, parent);
 		
 		JPanel tab;
-		
+
+		//// Length:
 		//// Outer diameter:
 		//// Inner diameter:
 		//// Wall thickness:
-		//// Length:
-		tab = generalTab(trans.get("ThicknessRingCompCfg.tab.Outerdiam"),
+		tab = generalTab(trans.get("ThicknessRingCompCfg.tab.Length"), trans.get("ThicknessRingCompCfg.tab.Outerdiam"),
 				trans.get("ThicknessRingCompCfg.tab.Innerdiam"),
-				trans.get("ThicknessRingCompCfg.tab.Wallthickness"), trans.get("ThicknessRingCompCfg.tab.Length"));
+				trans.get("ThicknessRingCompCfg.tab.Wallthickness"));
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("ThicknessRingCompCfg.tab.General"), null, tab,
 				trans.get("ThicknessRingCompCfg.tab.Generalprop"), 0);

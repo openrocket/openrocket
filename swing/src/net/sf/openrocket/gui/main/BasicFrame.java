@@ -515,12 +515,12 @@ public class BasicFrame extends JFrame {
 		fileMenu.add(item);
 
 		////	Edit
-		fileMenu = new JMenu(trans.get("main.menu.edit"));
-		fileMenu.setMnemonic(KeyEvent.VK_E);
+		JMenu editMenu = new JMenu(trans.get("main.menu.edit"));
+		editMenu.setMnemonic(KeyEvent.VK_E);
 
 		////	Rocket editing
-		fileMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
-		menubar.add(fileMenu);
+		editMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
+		menubar.add(editMenu);
 
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = new JMenuItem(action);
@@ -530,7 +530,7 @@ public class BasicFrame extends JFrame {
 		////	Undo the previous operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		action = UndoRedoAction.newRedoAction(document);
 		item = new JMenuItem(action);
@@ -539,42 +539,42 @@ public class BasicFrame extends JFrame {
 
 		////	Redo the previously undone operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.redo.desc"));
-		fileMenu.add(item);
+		editMenu.add(item);
 
-		fileMenu.addSeparator();
+		editMenu.addSeparator();
 
 
 		item = new JMenuItem(actions.getEditAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getCutAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getCopyAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getPasteAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getDuplicateAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getDeleteAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
-		fileMenu.addSeparator();
+		editMenu.addSeparator();
 
 		JMenu subMenu = new JMenu(trans.get("RocketActions.Select"));
-		fileMenu.add(subMenu);
+		editMenu.add(subMenu);
 		item = new JMenuItem(actions.getSelectSameColorAction());
 		subMenu.add(item);
 		item = new JMenuItem(actions.getDeselectAllAction());
 		subMenu.add(item);
 
-		fileMenu.addSeparator();
+		editMenu.addSeparator();
 
 		item = new JMenuItem(actions.getScaleAction());
-		fileMenu.add(item);
+		editMenu.add(item);
 
 
 		////	Preferences
@@ -590,7 +590,7 @@ public class BasicFrame extends JFrame {
 				PreferencesDialog.showPreferences(BasicFrame.this);
 			}
 		});
-		fileMenu.add(item);
+		editMenu.add(item);
 
 		////	Edit Component Preset File
 		if (System.getProperty("openrocket.preseteditor.fileMenu") != null) {
@@ -605,13 +605,13 @@ public class BasicFrame extends JFrame {
 					dialog.setVisible(true);
 				}
 			});
-			fileMenu.add(item);
+			editMenu.add(item);
 		}
 
 
 		//	Tools
-		fileMenu = new JMenu(trans.get("main.menu.tools"));
-		menubar.add(fileMenu);
+		JMenu toolsMenu = new JMenu(trans.get("main.menu.tools"));
+		menubar.add(toolsMenu);
 
 		////	Component analysis
 		item = new JMenuItem(trans.get("main.menu.tools.componentAnalysis"), KeyEvent.VK_C);
@@ -625,7 +625,7 @@ public class BasicFrame extends JFrame {
 				ComponentAnalysisDialog.showDialog(rocketpanel);
 			}
 		});
-		fileMenu.add(item);
+		toolsMenu.add(item);
 
 		////	Optimize
 		item = new JMenuItem(trans.get("main.menu.tools.optimization"), KeyEvent.VK_O);
@@ -641,7 +641,7 @@ public class BasicFrame extends JFrame {
 				}
 			}
 		});
-		fileMenu.add(item);
+		toolsMenu.add(item);
 
 		////	Custom expressions
 		item = new JMenuItem(trans.get("main.menu.tools.customExpressions"), KeyEvent.VK_E);
@@ -653,7 +653,7 @@ public class BasicFrame extends JFrame {
 				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
 			}
 		});
-		fileMenu.add(item);
+		toolsMenu.add(item);
 
 		item = new JMenuItem(trans.get("PhotoFrame.title"), KeyEvent.VK_P);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.desc"));
@@ -665,7 +665,7 @@ public class BasicFrame extends JFrame {
 				pa.setVisible(true);
 			}
 		});
-		fileMenu.add(item);
+		toolsMenu.add(item);
 
 		////	Debug
 		//	//	(shown if openrocket.debug.fileMenu is defined)
@@ -1284,34 +1284,24 @@ public class BasicFrame extends JFrame {
 		////	Handle the document
 		OpenRocketDocument doc = null;
 		try {
-
 			doc = worker.get();
-
 		} catch (ExecutionException e) {
-
 			Throwable cause = e.getCause();
-
 			if (cause instanceof FileNotFoundException) {
-
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else if (cause instanceof RocketLoadException) {
-
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
 						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else {
-
 				throw new BugException("Unknown error when opening file", e);
-
 			}
 
 		} catch (InterruptedException e) {
@@ -1321,7 +1311,6 @@ public class BasicFrame extends JFrame {
 		if (doc == null) {
 			throw new BugException("Document loader returned null");
 		}
-
 
 		////	Show warnings
 		WarningSet warnings = worker.getRocketLoader().getWarnings();

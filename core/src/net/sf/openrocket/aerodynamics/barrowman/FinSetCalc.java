@@ -234,9 +234,9 @@ public class FinSetCalc extends RocketComponentCalc {
 		finArea = component.getPlanformArea();
 		ar = 2 * pow2(span) / finArea;
 		
+		// Check geometry; don't consider points along fin root for this
+		// (doing so will cause spurious jagged fin warnings)
 		Coordinate[] points = component.getFinPoints();
-		
-		// Check geometry
 		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
@@ -258,8 +258,9 @@ public class FinSetCalc extends RocketComponentCalc {
 			geometryWarnings.add(Warning.THICK_FIN, component.toString());
 		}
 		
-		// Calculate the chord lead and trail positions and length
-		
+		// Calculate the chord lead and trail positions and length.  We do need the points
+		// along the root for this
+		points = component.getFinPointsWithRoot();
 		Arrays.fill(chordLead, Double.POSITIVE_INFINITY);
 		Arrays.fill(chordTrail, Double.NEGATIVE_INFINITY);
 		Arrays.fill(chordLength, 0);

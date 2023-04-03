@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -56,6 +57,7 @@ public class ScaleScrollPane extends JScrollPane
 	private final AbstractScaleFigure figure;
 	
 	private DoubleModel rulerUnit;
+	private UnitSelector unitSelector;
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
 
@@ -83,7 +85,7 @@ public class ScaleScrollPane extends JScrollPane
 		
 		this.component = component;
 		this.figure = (AbstractScaleFigure) component;
-		
+
 		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
 			@Override
@@ -95,10 +97,10 @@ public class ScaleScrollPane extends JScrollPane
 		verticalRuler = new Ruler(Ruler.VERTICAL);
 		this.setColumnHeaderView(horizontalRuler);
 		this.setRowHeaderView(verticalRuler);
-		
-		UnitSelector selector = new UnitSelector(rulerUnit);
-		selector.setFont(new Font("SansSerif", Font.PLAIN, 8));
-		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, selector);
+
+		unitSelector = new UnitSelector(rulerUnit);
+		unitSelector.setFont(new Font("SansSerif", Font.PLAIN, 8));
+		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, unitSelector);
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
@@ -175,6 +177,14 @@ public class ScaleScrollPane extends JScrollPane
 	
 	public Unit getCurrentUnit() {
 		return rulerUnit.getCurrentUnit();
+	}
+
+	/**
+	 * Updates the units of the ruler to the default units of the current unit group.
+	 */
+	public void updateRulerUnit() {
+		rulerUnit.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+		unitSelector.stateChanged(new EventObject(this));
 	}
     	
 	public String toViewportString(){

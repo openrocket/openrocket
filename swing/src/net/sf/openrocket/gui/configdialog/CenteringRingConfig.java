@@ -22,9 +22,8 @@ public class CenteringRingConfig extends RingComponentConfig {
 		JPanel tab;
 		
 		//// Outer diameter: and Inner diameter: and Thickness:
-		tab = generalTab(trans.get("CenteringRingCfg.tab.Outerdiam"),
-				trans.get("CenteringRingCfg.tab.Innerdiam"), null,
-				trans.get("CenteringRingCfg.tab.Thickness"));
+		tab = generalTab(trans.get("CenteringRingCfg.tab.Thickness"), trans.get("CenteringRingCfg.tab.Outerdiam"),
+				trans.get("CenteringRingCfg.tab.Innerdiam"), null);
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("CenteringRingCfg.tab.General"), null, tab,
 				trans.get("CenteringRingCfg.tab.Generalproperties"), 0);

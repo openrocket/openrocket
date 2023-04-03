@@ -1,0 +1,70 @@
+name: Bug report
+description: Help us make OpenRocket better
+title: '[Bug] <insert your title>'
+labels: bug
+body:
+- type: markdown
+  attributes:
+    value: "Thanks for taking the time to fill out this bug report!"
+- type: textarea
+  id: description
+  attributes:
+    label: Describe the bug
+    description: What happened? Also tell us what you've expect to happen.
+    placeholder: Describe your bug in detail.
+  validations:
+    required: true
+- type: textarea
+  id: repro
+  attributes:
+    label: To Reproduce
+    description: "Steps to reproduce the behavior:"
+    value: |
+      1. 
+      2. 
+      3. 
+      ...
+  validations:
+    required: true
+- type: textarea
+  id: files
+  attributes:
+    label: Screenshots / .ork file
+    description: Provide screenshots for clarification and/or the .ork file that caused the issue.
+    value: |
+      #### Screenshot(s):
+      *(drag-and-drop the screenshot(s) here)*
+      
+
+      #### .ork file:
+      *(drag-and-drop the file here as a .zip file)*
+      
+      
+  validations:
+    required: false
+- type: input
+  id: version-openrocket
+  attributes:
+    label: OpenRocket version
+    description: In what version(s) of OpenRocket does this bug happen?
+    placeholder: 22.02, unstable...
+  validations:
+    required: true
+- type: dropdown
+  id: platform
+  attributes:
+    label: What platform are you running on?
+    options:
+      - Windows
+      - macOS
+      - Linux
+  validations:
+    required: true
+- type: textarea
+  id: context
+  attributes:
+    label: Additional context
+    description: Add any other context about the problem here.
+    placeholder:
+  validations:
+    required: false

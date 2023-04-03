@@ -363,5 +363,20 @@ public class FlightDataBranch implements Monitorable {
 	public int getModID() {
 		return modID;
 	}
+
+	public FlightDataBranch clone() {
+		FlightDataType[] types = getTypes();
+		FlightDataBranch clone = new FlightDataBranch(branchName, types);
+		for (FlightDataType type : values.keySet()) {
+			clone.values.put(type, values.get(type).clone());
+		}
+		clone.minValues.putAll(minValues);
+		clone.maxValues.putAll(maxValues);
+		clone.events.addAll(events);
+		clone.timeToOptimumAltitude = timeToOptimumAltitude;
+		clone.optimumAltitude = optimumAltitude;
+		clone.modID = modID;
+		return clone;
+	}
 	
 }
