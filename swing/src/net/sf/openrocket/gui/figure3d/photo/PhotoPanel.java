@@ -7,6 +7,7 @@ import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashSet;
@@ -259,7 +260,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			rr.updateFigure(drawable);
 		needUpdate = false;
 
-		draw(drawable, 0);
+		draw(drawable, 0, true);
 
 		if (p.isMotionBlurred()) {
 			Bounds b = calculateBounds();
@@ -271,7 +272,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			gl.glAccum(GL2.GL_LOAD, m);
 
 			for (int i = 1; i <= c; i++) {
-				draw(drawable, d / c * i);
+				draw(drawable, d / c * i, true);
 				gl.glAccum(GL2.GL_ACCUM, (1.0f - m) / c);
 			}
 
@@ -279,10 +280,19 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		}
 
 		if (!imageCallbacks.isEmpty()) {
-			BufferedImage i = (new AWTGLReadBufferUtil(
-					GLProfile.get(GLProfile.GL2), true)) // Set the second parameter to true
-					.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
-							drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
+			final BufferedImage i;
+			// If off-screen rendering is disabled, and the sky color is transparent, we need to redraw the scene
+			// in an off-screen framebuffer object (FBO), otherwise the fake transparency rendering will cause the
+			// exported image to have a fully white background.
+			if (!Application.getPreferences().getBoolean(
+					Preferences.OPENGL_USE_FBO, false) && p.getSkyColorOpacity() < 100) {
+				i = drawToBufferedImage(drawable);
+			} else {
+				i = (new AWTGLReadBufferUtil(
+						GLProfile.get(GLProfile.GL2), true)) // Set the second parameter to true
+						.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
+								drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
+			}
 			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
 					imageCallbacks);
 			imageCallbacks.clear();
@@ -294,6 +304,74 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Draws the scene with fake transparency rendering disabled to an off-screen framebuffer object (FBO) and
+	 * returns the result as a BufferedImage.
+	 * @param drawable The GLAutoDrawable to draw to
+	 * @return The rendered image
+	 */
+	private BufferedImage drawToBufferedImage(final GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();
+		int width = drawable.getSurfaceWidth();
+		int height = drawable.getSurfaceHeight();
+
+		// Create a new framebuffer object (FBO)
+		int[] fboId = new int[1];
+		gl.glGenFramebuffers(1, fboId, 0);
+		gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, fboId[0]);
+
+		// Create a texture to store the rendered image
+		int[] textureId = new int[1];
+		gl.glGenTextures(1, textureId, 0);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, textureId[0]);
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
+
+		// Attach the texture to the FBO
+		gl.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, textureId[0], 0);
+
+		// Create a renderbuffer for depth and attach it to the FBO
+		int[] depthRenderbuffer = new int[1];
+		gl.glGenRenderbuffers(1, depthRenderbuffer, 0);
+		gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
+		gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL2.GL_DEPTH_COMPONENT, width, height);
+		gl.glFramebufferRenderbuffer(GL2.GL_FRAMEBUFFER, GL2.GL_DEPTH_ATTACHMENT, GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
+
+		// Check if the FBO is complete
+		int status = gl.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER);
+		if (status != GL2.GL_FRAMEBUFFER_COMPLETE) {
+			throw new RuntimeException("Framebuffer not complete");
+		}
+
+		// Draw the scene with useFakeTransparencyRendering set to false
+		draw(drawable, 0, false);
+
+		// Read the pixels from the FBO
+		ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+		gl.glReadPixels(0, 0, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, buffer);
+
+		// Unbind the FBO and delete resources
+		gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+		gl.glDeleteFramebuffers(1, fboId, 0);
+		gl.glDeleteTextures(1, textureId, 0);
+		gl.glDeleteRenderbuffers(1, depthRenderbuffer, 0);
+
+		// Convert the ByteBuffer to a BufferedImage
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int i = (y * width + x) * 4;
+				int r = buffer.get(i) & 0xFF;
+				int g = buffer.get(i + 1) & 0xFF;
+				int b = buffer.get(i + 2) & 0xFF;
+				int a = buffer.get(i + 3) & 0xFF;
+				image.setRGB(x, height - y - 1, (a << 24) | (r << 16) | (g << 8) | b);
+			}
+		}
+		return image;
 	}
 
 	private static void convertColor(Color color, float[] out) {
@@ -327,11 +405,12 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		int r = (int) ((color1.getRed() * inverseRatio) + (color2.getRed() * ratio));
 		int g = (int) ((color1.getGreen() * inverseRatio) + (color2.getGreen() * ratio));
 		int b = (int) ((color1.getBlue() * inverseRatio) + (color2.getBlue() * ratio));
+		int a = (int) ((color1.getAlpha() * inverseRatio) + (color2.getAlpha() * ratio));
 
-		return new Color(r, g, b);
+		return new Color(r, g, b, a);
 	}
 
-	private void draw(final GLAutoDrawable drawable, float dx) {
+	private void draw(final GLAutoDrawable drawable, float dx, boolean useFakeTransparencyRendering) {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
@@ -361,9 +440,9 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 		// Machines that don't use off-screen rendering can't render transparent background, so we create it
 		// artificially by blending the sky color with white (= color that is rendered as transparent background)
-		if (!Application.getPreferences().getBoolean(
+		if (useFakeTransparencyRendering && !Application.getPreferences().getBoolean(
 				Preferences.OPENGL_USE_FBO, false)) {
-			convertColor(blendColors(p.getSkyColor(), new Color(255, 255, 255), 1-p.getSkyColorOpacity()),
+			convertColor(blendColors(p.getSkyColor(), new Color(255, 255, 255, 0), 1-p.getSkyColorOpacity()),
 					color);
 		} else {
 			convertColor(p.getSkyColor(), color);
