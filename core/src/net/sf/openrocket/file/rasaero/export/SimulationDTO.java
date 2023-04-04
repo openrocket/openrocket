@@ -240,10 +240,14 @@ public class SimulationDTO {
                     calc = MassCalculator.calculateStructure(CGCalcConfig);
 
                     // Get booster1 motor mass
+                    double booster1MotorMass = 0;
                     MotorMount booster1Mount = mounts.get((AxialStage) rocket.getChild(1));
-                    MotorConfiguration booster1Config = booster1Mount.getMotorConfig(fcid);
-                    Motor booster1Motor = booster1Config.getMotor();
-                    double booster1MotorMass = booster1Motor != null ? booster1Motor.getLaunchMass() : 0;
+                    Motor booster1Motor = null;
+                    if (booster1Mount != null) {
+                        MotorConfiguration booster1Config = booster1Mount.getMotorConfig(fcid);
+                        booster1Motor = booster1Config.getMotor();
+                        booster1MotorMass = booster1Motor != null ? booster1Motor.getLaunchMass() : 0;
+                    }
 
                     // Set mass
                     double booster2Mass = calc.getMass() + motorMass + sustainerMotorMass + booster1MotorMass;
