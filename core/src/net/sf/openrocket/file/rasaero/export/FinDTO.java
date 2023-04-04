@@ -2,16 +2,19 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
+import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement(name = RASAeroCommonConstants.FIN)
@@ -49,6 +52,9 @@ public class FinDTO {
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double FX3 = 0d;
 
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
+
     /**
      * We need a default no-args constructor.
      */
@@ -59,7 +65,7 @@ public class FinDTO {
         int finCount = fin.getFinCount();
         if (finCount < 3 || finCount > 8) {
             throw new RASAeroExportException(
-                    String.format("Fin set '%s' must have a fin count between 3 and 8.", fin.getName()));
+                    String.format(trans.get("RASAeroExport.error20"), fin.getName()));
         }
 
         setCount(fin.getFinCount());

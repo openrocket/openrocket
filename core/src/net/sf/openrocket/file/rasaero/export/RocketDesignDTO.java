@@ -3,6 +3,7 @@ package net.sf.openrocket.file.rasaero.export;
 import net.sf.openrocket.file.rasaero.CustomBooleanAdapter;
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -11,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,6 +20,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
@@ -67,10 +70,13 @@ public class RocketDesignDTO {
     @XmlElement(name = RASAeroCommonConstants.COMMENTS)
     private String comments = "";
 
-    public RocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
+
+    public RocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {
         setComments(rocket.getComment());
         if (rocket.getChildCount() > 3) {
-            warnings.add("Rocket should have no more then 3 stages (excl. boosters) in total.\nIgnoring other stages.");
+            warnings.add(trans.get("RASAeroExport.warning12"));
         }
         setUseBooster1(rocket.getStageCount() >= 2);
         setUseBooster2(rocket.getStageCount() == 3);
@@ -82,17 +88,17 @@ public class RocketDesignDTO {
             try {
                 RocketComponent component = sustainer.getChild(i);
                 if (i == 0 && !(component instanceof NoseCone)) {
-                    errors.add("First component of the sustainer must be a nose cone.");
+                    errors.add(trans.get("RASAeroExport.error22"));
                     return;
                 } else if (i == 1 && !(component instanceof BodyTube)) {
-                    errors.add("Second component of the sustainer must be a body tube.");
+                    errors.add(trans.get("RASAeroExport.error23"));
                     return;
                 }
                 if (component instanceof BodyTube) {
                     addExternalPart(new BodyTubeDTO((BodyTube) component, warnings, errors));
                 } else if (component instanceof NoseCone) {
                     if (i != 0) {
-                        errors.add("A nose cone can only be the first component of the rocket.");
+                        errors.add(trans.get("RASAeroExport.error24"));
                         return;
                     }
                     addExternalPart(new NoseConeDTO((NoseCone) component, warnings, errors));

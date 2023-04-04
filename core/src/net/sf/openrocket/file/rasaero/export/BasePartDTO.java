@@ -2,6 +2,7 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -20,6 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 /**
@@ -49,6 +51,8 @@ public class BasePartDTO {
     private final WarningSet warnings;
     @XmlTransient
     private final ErrorSet errors;
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
 
     /**
      * We need a default no-args constructor.
@@ -71,7 +75,7 @@ public class BasePartDTO {
             setPartType(RASAeroCommonConstants.NOSE_CONE);
             NoseCone noseCone = (NoseCone) component;
             if (noseCone.isFlipped()) {
-                throw new RASAeroExportException("Nose cone may not be flipped.");
+                throw new RASAeroExportException(trans.get("RASAeroExport.warning1"));
             }
             setDiameter(((NoseCone) component).getAftRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         } else if (component instanceof Transition) {
@@ -83,11 +87,11 @@ public class BasePartDTO {
             setPartType(RASAeroCommonConstants.BOOSTER);
             AxialStage stage = (AxialStage) component;
             if (stage.getChildCount() == 0 || !(stage.getChild(0) instanceof BodyTube)) {
-                throw new RASAeroExportException("First component of booster must be body tube.");
+                throw new RASAeroExportException(trans.get("RASAeroExport.warning2"));
             }
             setDiameter(stage.getBoundingRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         } else {
-            throw new RASAeroExportException("Unsupported component: ." + component.getComponentName());
+            throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error1"), component.getComponentName()));
         }
 
         setLength(component.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
@@ -109,7 +113,7 @@ public class BasePartDTO {
 
     public void setLength(Double length) throws RASAeroExportException {
         if (MathUtil.equals(length, 0)) {
-            throw new RASAeroExportException(String.format("Length of '%s' must be greater than 0.", component.getName()));
+            throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error2"), component.getName()));
         }
         this.length = length;
     }
@@ -120,7 +124,7 @@ public class BasePartDTO {
 
     public void setDiameter(Double diameter) throws RASAeroExportException {
         if (MathUtil.equals(diameter, 0)) {
-            throw new RASAeroExportException(String.format("Diameter of '%s' must be greater than 0.", component.getName()));
+            throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error3"), component.getName()));
         }
         this.diameter = diameter;
     }

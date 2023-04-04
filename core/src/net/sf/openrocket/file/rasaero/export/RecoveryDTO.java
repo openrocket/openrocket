@@ -3,6 +3,7 @@ package net.sf.openrocket.file.rasaero.export;
 import net.sf.openrocket.file.rasaero.CustomBooleanAdapter;
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -11,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,8 @@ public class RecoveryDTO {
 
     @XmlTransient
     private static final Logger log = LoggerFactory.getLogger(RecoveryDTO.class);
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
 
     /**
      * We need a default, no-args constructor.
@@ -119,7 +123,7 @@ public class RecoveryDTO {
         } else if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.ALTITUDE) {
             setEventType1(RASAeroCommonConstants.RECOVERY_ALTITUDE);
         } else {
-            errors.add(String.format("RASAero only supports apogee and altitude deployment events for parachute '%s', not '%s'",
+            errors.add(String.format(trans.get("RASAeroExport.error21"),
                     device1.getName(), deployConfig.getDeployEvent().toString()));
         }
         setEvent1(true);
@@ -136,7 +140,7 @@ public class RecoveryDTO {
         } else if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.ALTITUDE) {
             setEventType2(RASAeroCommonConstants.RECOVERY_ALTITUDE);
         } else {
-            errors.add(String.format("RASAero only supports apogee and altitude deployment events for parachute '%s', not '%s'",
+            errors.add(String.format(trans.get("RASAeroExport.error21"),
                     device2.getName(), deployConfig.getDeployEvent().toString()));
         }
         setEvent2(true);

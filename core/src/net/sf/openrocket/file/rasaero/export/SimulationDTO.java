@@ -4,6 +4,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.rasaero.CustomBooleanAdapter;
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -17,11 +18,13 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +105,9 @@ public class SimulationDTO {
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double optimumMaxAlt = 0d;
 
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
+
     /**
      * We need a default, no-args constructor.
      */
@@ -124,12 +130,12 @@ public class SimulationDTO {
         FlightConfigurationId fcid = simulation != null ? simulation.getFlightConfigurationId() : null;
 
         if (simulation != null && fcid == null) {
-            warnings.add(String.format("Empty simulation '%s', ignoring.", simulationName));
+            warnings.add(String.format(trans.get("RASAeroExport.warning13"), simulationName));
             return;
         }
 
         if (mounts.isEmpty()) {
-            warnings.add(String.format("No motors found in simulation '%s', ignoring.", simulationName));
+            warnings.add(String.format(trans.get("RASAeroExport.warning14"), simulationName));
             return;
         }
 
@@ -164,9 +170,7 @@ public class SimulationDTO {
 
             // Add friendly reminder to user
             if (motor == null) {
-                warnings.add(String.format("<html>Stage %s has no motor.<br>" +
-                                "&nbsp --> When adding a motor in RASAero, don't forget to update the stage mass and CG.</html>",
-                        stage.getName()));
+                warnings.add(String.format(trans.get("RASAeroExport.warning15"), stage.getName()));
             }
 
             // Add the simulation info for each stage
@@ -269,8 +273,7 @@ public class SimulationDTO {
                     break;
                 // Invalid
                 default:
-                    errors.add(String.format("Invalid stage number '%d' for simulation '%s'",
-                            stageNr, simulationName));
+                    errors.add(String.format(trans.get("RASAeroExport.error25"), stageNr, simulationName));
             }
         }
     }

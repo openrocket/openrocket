@@ -2,6 +2,7 @@ package net.sf.openrocket.file.rasaero.export;
 
 import net.sf.openrocket.file.rasaero.CustomDoubleAdapter;
 import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 @XmlRootElement(name = RASAeroCommonConstants.BODY_TUBE)
@@ -57,6 +59,8 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
     private final WarningSet warnings;
     @XmlTransient
     private final ErrorSet errors;
+    @XmlTransient
+    private static final Translator trans = Application.getTranslator();
 
     /**
      * We need a default no-args constructor.
@@ -79,7 +83,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchLugDiameter(Double launchLugDiameter) throws RASAeroExportException {
         if (MathUtil.equals(launchLugDiameter, 0)) {
-            throw new RASAeroExportException("Launch lug diameter can not be 0.");
+            throw new RASAeroExportException(trans.get("RASAeroExport.error4"));
         }
         this.launchLugDiameter = launchLugDiameter;
     }
@@ -90,7 +94,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchLugLength(Double launchLugLength) throws RASAeroExportException {
         if (MathUtil.equals(launchLugLength, 0)) {
-            throw new RASAeroExportException("Launch lug length can not be 0.");
+            throw new RASAeroExportException(trans.get("RASAeroExport.error5"));
         }
         this.launchLugLength = launchLugLength;
     }
@@ -101,7 +105,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setRailGuideDiameter(Double railGuideDiameter) throws RASAeroExportException {
         if (MathUtil.equals(railGuideDiameter, 0)) {
-            throw new RASAeroExportException("Rail button diameter can not be 0.");
+            throw new RASAeroExportException(trans.get("RASAeroExport.error6"));
         }
         this.railGuideDiameter = railGuideDiameter;
     }
@@ -112,7 +116,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setRailGuideHeight(Double railGuideHeight) throws RASAeroExportException {
         if (MathUtil.equals(railGuideHeight, 0)) {
-            throw new RASAeroExportException("Rail button height can not be 0.");
+            throw new RASAeroExportException(trans.get("RASAeroExport.error7"));
         }
         this.railGuideHeight = railGuideHeight;
     }
@@ -123,7 +127,7 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
     public void setLaunchShoeArea(Double launchShoeArea) throws RASAeroExportException {
         if (MathUtil.equals(launchShoeArea, 0)) {
-            throw new RASAeroExportException("Launch shoe area can not be 0.");
+            throw new RASAeroExportException(trans.get("RASAeroExport.error8"));
         }
         this.launchShoeArea = launchShoeArea;
     }
