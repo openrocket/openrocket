@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.rasaero;
 
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.RASPMotorLoader;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.file.motor.AbstractMotorLoader;
@@ -69,23 +70,23 @@ public abstract class RASAeroMotorsLoader {
      public static List<ThrustCurveMotor> loadAllRASAeroMotors(WarningSet warnings) throws RuntimeException {
          List<ThrustCurveMotor> RASAeroMotors = new ArrayList<>();
 
-        GeneralMotorLoader loader = new GeneralMotorLoader();
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        String fileName = "RASAero_Motors.eng";
-        InputStream is = classloader.getResourceAsStream("datafiles/thrustcurves/RASAero/" + fileName);
-        if (is == null) {
-            throw new RuntimeException("Could not find " + fileName);
-        }
-        try {
-            List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
-            for (ThrustCurveMotor.Builder builder : motors) {
-                RASAeroMotors.add(builder.build());
-            }
-        } catch (IOException e) {
-            warnings.add("Error during motor loading: " + e.getMessage());
-        }
+         RASPMotorLoader loader = new RASPMotorLoader();
+         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+         String fileName = "RASAero_Motors.eng";
+         InputStream is = classloader.getResourceAsStream("datafiles/thrustcurves/RASAero/" + fileName);
+         if (is == null) {
+             throw new RuntimeException("Could not find " + fileName);
+         }
+         try {
+             List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName, false);
+             for (ThrustCurveMotor.Builder builder : motors) {
+                 RASAeroMotors.add(builder.build());
+             }
+         } catch (IOException e) {
+             warnings.add("Error during motor loading: " + e.getMessage());
+         }
 
-        return RASAeroMotors;
+         return RASAeroMotors;
     }
 
     /**

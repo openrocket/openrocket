@@ -180,7 +180,7 @@ public class SimulationDTO {
             switch (stageNr) {
                 // Sustainer
                 case 0:
-                    setSustainerEngine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
+                    setSustainerEngine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, warnings));
 
                     // Calculate mass & CG of sustainer
                     CGCalcConfig.setOnlyStage(0);
@@ -202,7 +202,7 @@ public class SimulationDTO {
                     break;
                 // Booster 1
                 case 1:
-                    setBooster1Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
+                    setBooster1Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, warnings));
 
                     // Calculate mass & CG of sustainer + booster 1 combined
                     CGCalcConfig.setOnlyStage(0);
@@ -234,7 +234,7 @@ public class SimulationDTO {
                     break;
                 // Booster 2
                 case 2:
-                    setBooster2Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, motorConfig, warnings));
+                    setBooster2Engine(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, warnings));
 
                     // Calculate mass & CG of sustainer + booster 1 + booster 2 combined
                     CGCalcConfig.setOnlyStage(0);

@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.rasaero;
 
+import net.sf.openrocket.file.motor.AbstractMotorLoader;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
@@ -389,27 +390,24 @@ public class RASAeroCommonConstants {
 
     /**
      * Format an OpenRocket motor as a RASAero motor.
-     * @param motors list of available RASAero motors
+     * @param RASAeroMotors list of available RASAero motors
      * @param ORMotor OpenRocket motor
-     * @param motorConfig motor configuration of the selected motor
      * @return a RASAero String representation of a motor
      */
-    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> motors, Motor ORMotor, MotorConfiguration motorConfig,
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> RASAeroMotors, Motor ORMotor,
                                                      WarningSet warnings) {
-        if (!(ORMotor instanceof ThrustCurveMotor) || motorConfig == null) {
+        if (!(ORMotor instanceof ThrustCurveMotor)) {
             log.debug("RASAero motor not found: not a thrust curve motor");
             return null;
         }
 
-        for (ThrustCurveMotor motor : motors) {
-            if (ORMotor.getDesignation().equals(motor.getDesignation()) &&
-                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(motor.getManufacturer().getDisplayName())) {
-                String motorName = motor.getDesignation();
-                if (motorConfig.getEjectionDelay() == 0) {
-                    motorName += "-0";
-                }
-                log.debug(String.format("RASAero motor found: %s", motorName));
-                return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(motor.getManufacturer()) + ")";
+        for (ThrustCurveMotor RASAeroMotor : RASAeroMotors) {
+            String RASAeroDesignation = AbstractMotorLoader.removeDelay(RASAeroMotor.getDesignation());
+            if (ORMotor.getDesignation().equals(RASAeroDesignation) &&
+                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(RASAeroMotor.getManufacturer().getDisplayName())) {
+                String motorName = RASAeroMotor.getDesignation();
+                log.debug(String.format("RASAero RASAeroMotor found: %s", motorName));
+                return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(RASAeroMotor.getManufacturer()) + ")";
             }
         }
 
