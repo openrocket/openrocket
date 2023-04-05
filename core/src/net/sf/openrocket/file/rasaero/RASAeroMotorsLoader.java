@@ -3,6 +3,7 @@ package net.sf.openrocket.file.rasaero;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
+import net.sf.openrocket.file.motor.AbstractMotorLoader;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 
@@ -34,7 +35,7 @@ public abstract class RASAeroMotorsLoader {
         if (split.length != 2) {
             return null;
         }
-        String motorName = split[0];
+        String motorName = AbstractMotorLoader.removeDelay(split[0]);
         String manufacturer = split[1].replaceAll("^\\(|\\)$", "");     // Remove beginning and ending parenthesis
         for (ThrustCurveMotor motor : allMotors) {
             if (motorName.equals(motor.getDesignation()) && motor.getManufacturer().matches(manufacturer)) {
