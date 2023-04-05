@@ -171,12 +171,12 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                 // Case: normal body tube
                 if (stage.getChildPosition(firstTube) == 0) {
                     warnings.add(String.format(trans.get("RASAeroExport.warning10"),
-                            stage.getName(), stage.getChildCount() - i - 1));
+                            stage.getName(), stage.getChildCount() - i));
                 }
                 // Case: body tube with transition shoulder
                 else {
                     warnings.add(String.format(trans.get("RASAeroExport.warning11"),
-                            stage.getName(), stage.getChildCount() - i - 1));
+                            stage.getName(), stage.getChildCount() - i));
                 }
             }
         }
