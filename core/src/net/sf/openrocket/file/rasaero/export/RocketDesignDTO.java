@@ -90,7 +90,8 @@ public class RocketDesignDTO {
                 if (i == 0 && !(component instanceof NoseCone)) {
                     errors.add(trans.get("RASAeroExport.error22"));
                     return;
-                } else if (i == 1 && !(component instanceof BodyTube)) {
+                } else if (i == 1 && !(component instanceof BodyTube ||
+                        (component instanceof Transition && !(component instanceof NoseCone) && (i == sustainer.getChildCount() - 1)))) {
                     errors.add(trans.get("RASAeroExport.error23"));
                     return;
                 }
