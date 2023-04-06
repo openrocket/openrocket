@@ -44,29 +44,14 @@ public abstract class PreferencesExporter {
     private static final List<String> prefixKeysToIgnore = new ArrayList<>();   // Preference keys to ignore when exporting user directories (= keys that start with these prefixes), e.g.
     private static final List<String> nodesToIgnore = new ArrayList<>();        // Preferences nodes that should not be exported
 
-    static {
-        if (!prefs.getExportUserDirectories()) {
-            keysToIgnore.add(net.sf.openrocket.startup.Preferences.USER_THRUST_CURVES_KEY);
-            keysToIgnore.add(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY);
-            prefixKeysToIgnore.add(MRUDesignFile.MRU_FILE_LIST_PROPERTY);
-        }
-
-        if (!prefs.getExportWindowInformation()) {
-            nodesToIgnore.add(SwingPreferences.NODE_WINDOWS);
-            nodesToIgnore.add(SwingPreferences.NODE_TABLES);
-        }
-
-        keysToIgnore.add(SwingPreferences.UPDATE_PLATFORM);     // Don't export platform-specific settings
-    }
-
-
     public static boolean exportPreferences(Window parent, Preferences preferences) {
         JFileChooser chooser = new SaveFileChooser();
         chooser.setDialogTitle(trans.get("PreferencesExporter.chooser.title"));
         chooser.setAcceptAllFileFilterUsed(false);
         chooser.setFileFilter(FileHelper.XML_FILTER);
         chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-        chooser.setAccessory(new PreferencesOptionPanel());
+        PreferencesOptionPanel options = new PreferencesOptionPanel();
+        chooser.setAccessory(options);
 
         // TODO: update this dynamically instead of hard-coded values
         // The macOS file chooser has an issue where it does not update its size when the accessory is added.
@@ -96,6 +81,11 @@ public abstract class PreferencesExporter {
             return false;
         }
 
+        // Decide which keys/nodes to ignore
+        boolean ignoreUserDirectories = options.isIgnoreUserDirectories();
+        boolean ignoreWindowInformation = options.isIgnoreWindowInformation();
+        fillIgnoreKeys(ignoreUserDirectories, ignoreWindowInformation);
+
         try (FileOutputStream fos = new FileOutputStream(newFile)) {
             if (keysToIgnore.isEmpty() && nodesToIgnore.isEmpty() && prefixKeysToIgnore.isEmpty()) {
                 // Export all preferences
@@ -110,6 +100,25 @@ public abstract class PreferencesExporter {
         }
 
         return true;
+    }
+
+    private static void fillIgnoreKeys(boolean ignoreUserDirectories, boolean ignoreWindowInformation) {
+        keysToIgnore.clear();
+        prefixKeysToIgnore.clear();
+        nodesToIgnore.clear();
+
+        if (ignoreUserDirectories) {
+            keysToIgnore.add(net.sf.openrocket.startup.Preferences.USER_THRUST_CURVES_KEY);
+            keysToIgnore.add(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY);
+            prefixKeysToIgnore.add(MRUDesignFile.MRU_FILE_LIST_PROPERTY);
+        }
+
+        if (ignoreWindowInformation) {
+            nodesToIgnore.add(SwingPreferences.NODE_WINDOWS);
+            nodesToIgnore.add(SwingPreferences.NODE_TABLES);
+        }
+
+        keysToIgnore.add(SwingPreferences.UPDATE_PLATFORM);     // Don't export platform-specific settings
     }
 
     private static void exportFilteredPreferences(Preferences preferences, FileOutputStream fos) throws BackingStoreException, IOException {

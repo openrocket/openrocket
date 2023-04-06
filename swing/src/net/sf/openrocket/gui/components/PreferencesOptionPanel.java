@@ -18,6 +18,9 @@ public class PreferencesOptionPanel extends JPanel {
     private static final Translator trans = Application.getTranslator();
     private static final Preferences prefs = Application.getPreferences();
 
+    private final JCheckBox exportUserDirectories;
+    private final JCheckBox exportWindowInfo;
+
     public PreferencesOptionPanel() {
         super(new MigLayout("fill, ins 0"));
 
@@ -25,7 +28,7 @@ public class PreferencesOptionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder(trans.get("PreferencesOptionPanel.title")));
 
         // Export user directories
-        JCheckBox exportUserDirectories = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.userDirectories"));
+        exportUserDirectories = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.userDirectories"));
         exportUserDirectories.setToolTipText(trans.get("PreferencesOptionPanel.checkbox.userDirectories.ttip"));
         exportUserDirectories.setSelected(prefs.getExportUserDirectories());
         exportUserDirectories.addItemListener(new ItemListener() {
@@ -37,7 +40,7 @@ public class PreferencesOptionPanel extends JPanel {
         panel.add(exportUserDirectories, "wrap");
 
         // Export window information (position, size...)
-        JCheckBox exportWindowInfo = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.windowInfo"));
+        exportWindowInfo = new JCheckBox(trans.get("PreferencesOptionPanel.checkbox.windowInfo"));
         exportWindowInfo.setToolTipText(trans.get("PreferencesOptionPanel.checkbox.windowInfo.ttip"));
         exportWindowInfo.setSelected(prefs.getExportWindowInformation());
         exportWindowInfo.addItemListener(new ItemListener() {
@@ -50,5 +53,13 @@ public class PreferencesOptionPanel extends JPanel {
 
 
         this.add(panel, "growx, north");
+    }
+
+    public boolean isIgnoreUserDirectories() {
+        return !exportUserDirectories.isSelected();
+    }
+
+    public boolean isIgnoreWindowInformation() {
+        return !exportWindowInfo.isSelected();
     }
 }
