@@ -124,7 +124,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
 	}
-	
+
+	/**
+	 * Checks if a certain key exists in the node
+	 * @param node node to check the keys of.
+	 * @param key key to check
+	 * @return true if the key is stored in the preferences, false otherwise
+	 */
+	private boolean keyExists(Preferences node, String key) {
+		try {
+			return Arrays.asList(node.keys()).contains(key);
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	/**
 	 * Return a string preference.
 	 * 
@@ -134,12 +149,28 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public String getString(String key, String def) {
+		if (!keyExists(PREFNODE, key) && key != null && def != null) {
+			PREFNODE.put(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.get(key, def);
 	}
 	
 	@Override
 	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
+		if (!keyExists(p, key) && key != null && defaultValue != null) {
+			p.put(key, defaultValue);
+			try {
+				p.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return p.get(key, defaultValue);
 	}
 	
@@ -179,6 +210,16 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public boolean getBoolean(String key, boolean def) {
+		// Check if the key exists
+		if (!keyExists(PREFNODE, key) && key != null) {
+			// Save the default value
+			PREFNODE.putBoolean(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getBoolean(key, def);
 	}
 	
@@ -193,9 +234,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public int getInt(String key, int defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putInt(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getInt(key, defaultValue);
 	}
 	
@@ -204,9 +253,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putInt(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public double getDouble(String key, double defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putDouble(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getDouble(key, defaultValue);
 	}
 	
