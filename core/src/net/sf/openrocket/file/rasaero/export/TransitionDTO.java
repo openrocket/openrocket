@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -22,6 +23,14 @@ import net.sf.openrocket.util.MathUtil;
 
 @XmlRootElement(name = RASAeroCommonConstants.TRANSITION)
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {
+        "partType",
+        "length",
+        "diameter",
+        "rearDiameter",
+        "location",
+        "color"
+})
 @XmlSeeAlso({BoattailDTO.class})
 public class TransitionDTO extends BasePartDTO {
 

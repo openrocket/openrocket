@@ -67,7 +67,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     private Double shoulderLength;
     @XmlElement(name = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double nozzleExitDiameter;
+    private Double nozzleExitDiameter = 0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double boattailLength;

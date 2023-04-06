@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import net.sf.openrocket.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -21,6 +22,23 @@ import net.sf.openrocket.util.MathUtil;
 
 @XmlRootElement(name = RASAeroCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {
+        "partType",
+        "length",
+        "diameter",
+        "launchLugDiameter",
+        "launchLugLength",
+        "railGuideDiameter",
+        "railGuideHeight",
+        "launchShoeArea",
+        "location",
+        "color",
+        "boattailLength",
+        "boattailRearDiameter",
+        "boattailOffset",
+        "overhang",
+        "fin"
+})
 public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)

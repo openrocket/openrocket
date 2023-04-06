@@ -30,6 +30,7 @@ import net.sf.openrocket.util.MathUtil;
 @XmlRootElement
 @XmlType(name="RASAeroBasePartDTO")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlTransient
 public class BasePartDTO {
     @XmlElement(name = RASAeroCommonConstants.PART_TYPE)
     private String partType;
