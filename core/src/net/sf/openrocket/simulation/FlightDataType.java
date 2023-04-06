@@ -70,9 +70,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION, 35);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE, 36);
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_LATITUDE, 36);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 37);
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_LONGITUDE, 37);
 	
 	//// Gravity
 	public static final FlightDataType TYPE_GRAVITY = newType(trans.get("FlightDataType.TYPE_GRAVITY"), "g", UnitGroup.UNITS_ACCELERATION, 38);
