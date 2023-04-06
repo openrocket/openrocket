@@ -78,8 +78,8 @@ public class RocketDesignDTO {
         if (rocket.getChildCount() > 3) {
             warnings.add(trans.get("RASAeroExport.warning12"));
         }
-        setUseBooster1(rocket.getStageCount() >= 2);
-        setUseBooster2(rocket.getStageCount() == 3);
+        setUseBooster1(rocket.getChildCount() >= 2);
+        setUseBooster2(rocket.getChildCount() == 3);
 
         AxialStage sustainer = rocket.getStage(0);
 
@@ -106,7 +106,12 @@ public class RocketDesignDTO {
                     setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish(),
                             warnings));
                 } else if (component instanceof Transition) {
-                    addExternalPart(new TransitionDTO((Transition) component, warnings, errors));
+                    // If there is only a sustainer & this is the last child of the sustainer, it's a boattail
+                    if (rocket.getChildCount() == 1 && (i == sustainer.getChildCount() - 1)) {
+                        addExternalPart(new BoattailDTO((Transition) component, warnings, errors));
+                    } else {
+                        addExternalPart(new TransitionDTO((Transition) component, warnings, errors));
+                    }
                 }
             } catch (RASAeroExportException e) {
                 errors.add(e.getMessage());

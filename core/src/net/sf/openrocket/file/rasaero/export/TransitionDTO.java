@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -19,10 +20,9 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
-import java.util.Objects;
-
 @XmlRootElement(name = RASAeroCommonConstants.TRANSITION)
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({BoattailDTO.class})
 public class TransitionDTO extends BasePartDTO {
 
     @XmlElement(name = RASAeroCommonConstants.REAR_DIAMETER)
@@ -31,6 +31,8 @@ public class TransitionDTO extends BasePartDTO {
 
     @XmlTransient
     private static final Translator trans = Application.getTranslator();
+    @XmlTransient
+    private static Transition component = null;
 
     /**
      * We need a default no-args constructor.
@@ -40,6 +42,8 @@ public class TransitionDTO extends BasePartDTO {
 
     public TransitionDTO(Transition transition, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         super(transition, warnings, errors);
+
+        component = transition;
 
         if (!transition.getShapeType().equals(Transition.Shape.CONICAL)) {
             throw new RASAeroExportException(trans.get("RASAeroExport.error26"));
@@ -62,7 +66,10 @@ public class TransitionDTO extends BasePartDTO {
         return rearDiameter;
     }
 
-    public void setRearDiameter(Double rearDiameter) {
+    public void setRearDiameter(Double rearDiameter) throws RASAeroExportException {
+        if (rearDiameter < 0.0001) {
+            throw new RASAeroExportException(String.format("'%s' rear diameter must be greater than 0.0001 inch", component));
+        }
         this.rearDiameter = rearDiameter;
     }
 }

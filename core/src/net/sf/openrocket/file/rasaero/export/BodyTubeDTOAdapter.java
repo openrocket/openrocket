@@ -89,11 +89,11 @@ public interface BodyTubeDTOAdapter {
 
     Double getBoattailLength();
 
-    void setBoattailLength(Double boattailLength);
+    void setBoattailLength(Double boattailLength) throws RASAeroExportException;
 
     Double getBoattailRearDiameter();
 
-    void setBoattailRearDiameter(Double boattailRearDiameter);
+    void setBoattailRearDiameter(Double boattailRearDiameter) throws RASAeroExportException;
 
     FinDTO getFin();
 

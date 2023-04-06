@@ -168,6 +168,14 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                     finSet = getFinSetFromBodyTube((BodyTube) comp);
                 }
             } else {
+                // If this booster is the last stage, and the last component is a transition, it could be a boattail
+                if (stageNr == rocket.getChildCount() - 1 && (comp instanceof Transition && !(comp instanceof NoseCone)) &&
+                        i == stage.getChildCount() - 1) {
+                    Transition transition = (Transition) comp;
+                    setBoattailLength(transition.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                    setBoattailRearDiameter(transition.getAftRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                }
+
                 // Case: normal body tube
                 if (stage.getChildPosition(firstTube) == 0) {
                     warnings.add(String.format(trans.get("RASAeroExport.warning10"),
@@ -324,7 +332,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         return boattailLength;
     }
 
-    public void setBoattailLength(Double boattailLength) {
+    public void setBoattailLength(Double boattailLength) throws RASAeroExportException {
+        if (boattailLength == 0) {
+            throw new RASAeroExportException(trans.get("RASAeroExport.error29"));
+        }
         this.boattailLength = boattailLength;
     }
 
@@ -332,7 +343,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         return boattailRearDiameter;
     }
 
-    public void setBoattailRearDiameter(Double boattailRearDiameter) {
+    public void setBoattailRearDiameter(Double boattailRearDiameter) throws RASAeroExportException {
+        if (boattailRearDiameter == 0) {
+            throw new RASAeroExportException(trans.get("RASAeroExport.error30"));
+        }
         this.boattailRearDiameter = boattailRearDiameter;
     }
 
