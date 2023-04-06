@@ -273,17 +273,17 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "LaunchLatitude", UnitGroup.UNITS_NONE, -90, 90);
+		m = new DoubleModel(conditions, "LaunchLatitude", UnitGroup.UNITS_LATITUDE, -90, 90);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		sub.add(spin, "w 65lp!");
-		
-		label = new JLabel(Chars.DEGREE + " N");
-		label.setToolTipText(tip);
-		sub.add(label, "growx");
-		slider = new BasicSlider(m.getSliderModel(-90, 90));
+
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		sub.add(unit, "growx");
+		slider = new BasicSlider(m.getSliderModel());
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
@@ -294,17 +294,17 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "LaunchLongitude", UnitGroup.UNITS_NONE, -180, 180);
+		m = new DoubleModel(conditions, "LaunchLongitude", UnitGroup.UNITS_LONGITUDE, -180, 180);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		sub.add(spin, "w 65lp!");
-		
-		label = new JLabel(Chars.DEGREE + " E");
-		label.setToolTipText(tip);
-		sub.add(label, "growx");
-		slider = new BasicSlider(m.getSliderModel(-180, 180));
+
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		sub.add(unit, "growx");
+		slider = new BasicSlider(m.getSliderModel());
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
