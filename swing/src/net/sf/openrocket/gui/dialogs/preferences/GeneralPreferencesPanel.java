@@ -264,13 +264,19 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		importPreferences.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PreferencesImporter.importPreferences(parent);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						PreferencesDialog.showPreferences(parent.getParentFrame());		// Refresh the preferences dialog
-					}
-				});
+				boolean imported = PreferencesImporter.importPreferences(parent);
+				if (imported) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							JOptionPane.showMessageDialog(parent,
+									trans.get("generalprefs.ImportWarning.msg"),
+									trans.get("generalprefs.ImportWarning.title"),
+									JOptionPane.WARNING_MESSAGE);
+							PreferencesDialog.showPreferences(parent.getParentFrame());        // Refresh the preferences dialog
+						}
+					});
+				}
 			}
 		});
 		buttonPanel.add(importPreferences);
