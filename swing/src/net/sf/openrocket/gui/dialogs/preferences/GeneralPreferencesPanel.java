@@ -294,6 +294,10 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
+							JOptionPane.showMessageDialog(parent,
+									trans.get("generalprefs.ImportWarning.msg"),
+									trans.get("generalprefs.ImportWarning.title"),
+									JOptionPane.WARNING_MESSAGE);
 							PreferencesDialog.showPreferences(parent.getParentFrame());        // Refresh the preferences dialog
 						}
 					});
