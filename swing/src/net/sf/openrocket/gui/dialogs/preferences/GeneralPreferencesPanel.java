@@ -291,6 +291,12 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						trans.get("pref.dlg.clearCachedPreferences.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (resultYesNo == JOptionPane.YES_OPTION) {
 					preferences.clearPreferences();
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							PreferencesDialog.showPreferences(parent.getParentFrame());        // Refresh the preferences dialog
+						}
+					});
 				}
 			}
 		});
