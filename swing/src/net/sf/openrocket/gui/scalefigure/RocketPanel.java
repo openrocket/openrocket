@@ -271,6 +271,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.updateFigure();
 	}
 
+	/**
+	 * Updates the rulers of the rocket panel to the currently selected default unit.
+	 */
+	public void updateRulers() {
+		scrollPane.updateRulerUnit();
+		scrollPane.revalidate();
+		scrollPane.repaint();
+	}
+
 	private void go3D() {
 		if (is3d)
 			return;
@@ -646,7 +655,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 

@@ -55,7 +55,7 @@ public class NoseConeComponentTests extends BaseTestCase {
 		nc.loadPreset(preset);
 		
 		assertEquals(2.0, nc.getLength(), 0.0);
-		assertSame(Transition.Shape.CONICAL, nc.getType());
+		assertSame(Transition.Shape.CONICAL, nc.getShapeType());
 		assertEquals(1.0, nc.getAftRadius(), 0.0);
 		assertEquals(0.0, nc.getForeShoulderLength(), 0.0);
 		assertEquals(0.0, nc.getForeShoulderRadius(), 0.0);

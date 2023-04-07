@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -13,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,7 +24,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -34,8 +39,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sf.openrocket.gui.widgets.IconButton;
-import net.sf.openrocket.utils.TableRowTraversalPolicy;
+import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.gui.components.CsvOptionPanel;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,20 +67,22 @@ import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.AlphanumComparator;
+import net.sf.openrocket.file.SimulationTableCSVExport;
+import net.sf.openrocket.utils.TableRowTraversalPolicy;
 
 @SuppressWarnings("serial")
 public class SimulationPanel extends JPanel {
-
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
@@ -96,6 +106,7 @@ public class SimulationPanel extends JPanel {
 	private final JButton runButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
+	private final JButton simTableExportButton;
 	private final JPopupMenu pm;
 
 	private final SimulationAction editSimulationAction;
@@ -103,8 +114,11 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
+	private final SimulationAction simTableExportAction;
+	private final SimulationAction selectedSimsExportAction;
 
 	private int[] previousSelection = null;
+	private JMenuItem exportSimTableToCSVMenuItem;
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
@@ -119,6 +133,8 @@ public class SimulationPanel extends JPanel {
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
+		simTableExportAction = new ExportSimulationTableAsCSVAction();
+		selectedSimsExportAction = new ExportSelectedSimulationsAsCSVAction();
 
 		////////  The simulation action buttons ////////
 
@@ -139,7 +155,7 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
-
+		
 		//// Delete simulations button
 		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
@@ -151,6 +167,9 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
 
+		//// Run then Dump simulations
+		simTableExportButton = new IconButton();
+		RocketActions.tieActionToButton(simTableExportButton, simTableExportAction, trans.get("simpanel.but.runsimulations"));
 
 
 		////////  The simulation table
@@ -174,6 +193,7 @@ public class SimulationPanel extends JPanel {
 		pm.addSeparator();
 		pm.add(runSimulationAction);
 		pm.add(plotSimulationAction);
+		pm.add(selectedSimsExportAction);
 
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(simulationTable);
@@ -277,7 +297,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.addRowSelectionInterval(n, n);
 		updatePreviousSelection();
 
-		openDialog(false, sim);
+		openDialog(false, true, sim);
 	}
 
 	private void plotSimulation() {
@@ -371,6 +391,80 @@ public class SimulationPanel extends JPanel {
 		openDialog(false, sims);
 	}
 
+	private void exportSimulationsToCSV(boolean onlySelected) {
+		Container tableParent = simulationTable.getParent();
+		int rowCount = simulationTableModel.getRowCount();
+
+		// I'm pretty sure with the enablement/disablement of the menu item under the File dropdown,
+		// that this would no longer be needed because if there is no sim table yet, the context menu
+		// won't show up.   But I'm going to leave this in just in case....
+		if (rowCount <= 0) {
+			log.info("No simulation table rows to export");
+			JOptionPane.showMessageDialog(tableParent, trans.get("simpanel.dlg.no.simulation.table.rows"));
+			return;
+		}
+
+		JFileChooser chooser = setUpSimExportCSVFileChooser();
+		int selectionStatus = chooser.showSaveDialog(tableParent);
+		if (selectionStatus != JFileChooser.APPROVE_OPTION) {
+			log.debug("User cancelled CSV export");
+			return;
+		}
+
+		// Fetch the info from the file chooser
+		File CSVFile = chooser.getSelectedFile();
+		CSVFile = FileHelper.forceExtension(CSVFile, "csv");
+		if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
+			log.debug("User cancelled CSV export overwrite");
+			return;
+		}
+
+		String separator = ((CsvOptionPanel) chooser.getAccessory()).getFieldSeparator();
+		int precision = ((CsvOptionPanel) chooser.getAccessory()).getDecimalPlaces();
+		boolean isExponentialNotation = ((CsvOptionPanel) chooser.getAccessory()).isExponentialNotation();
+		((CsvOptionPanel) chooser.getAccessory()).storePreferences();
+
+		// Handle some special separator options from CsvOptionPanel
+		if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
+			separator = " ";
+		} else if (separator.equals(trans.get("CsvOptionPanel.separator.tab"))) {
+			separator = "\t";
+		}
+
+		SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
+		exporter.export(CSVFile, separator, precision, isExponentialNotation, onlySelected);
+	}
+
+	/**
+	 * Create the file chooser to save the CSV file.
+	 * @return The file chooser.
+	 */
+	private JFileChooser setUpSimExportCSVFileChooser() {
+		JFileChooser chooser = new SaveFileChooser();
+		chooser.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+		chooser.setAcceptAllFileFilterUsed(false);
+
+		// Default output CSV to same name as the document's rocket name.
+		String fileName = document.getRocket().getName() + ".csv";
+		chooser.setSelectedFile(new File(fileName));
+
+		// Add CSV options to FileChooser
+		CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
+		chooser.setAccessory(CSVOptions);
+
+		// TODO: update this dynamically instead of hard-coded values
+		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			Dimension currentSize = chooser.getPreferredSize();
+			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+			chooser.setPreferredSize(newSize);
+		}
+
+		return chooser;
+	}
+
 	private Simulation[] getSelectedSimulations() {
 		int[] selection = simulationTable.getSelectedRows();
 		if (selection.length == 0) {
@@ -437,6 +531,14 @@ public class SimulationPanel extends JPanel {
 
 	}
 
+	/**
+	 * Return the action for exporting the simulation table data to a CSV file.
+	 * @return the action for exporting the simulation table data to a CSV file.
+	 */
+	public AbstractAction getExportSimulationTableAsCSVAction() {
+		return simTableExportAction;
+	}
+
 	protected void doPopup(MouseEvent e) {
         pm.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -447,6 +549,8 @@ public class SimulationPanel extends JPanel {
 		runSimulationAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
 		duplicateSimulationAction.updateEnabledState();
+		simTableExportAction.updateEnabledState();
+		selectedSimsExportAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
@@ -491,14 +595,18 @@ public class SimulationPanel extends JPanel {
 		return simulationTable.getSelectionModel();
 	}
 
-	private void openDialog(boolean plotMode, final Simulation... sims) {
-		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims);
+	private void openDialog(boolean plotMode, boolean isNewSimulation, final Simulation... sims) {
+		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, isNewSimulation, sims);
 		if (plotMode) {
 			d.setPlotMode();
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
 		takeTheSpotlight();
+	}
+
+	private void openDialog(boolean plotMode, final Simulation... sims) {
+		openDialog(plotMode, false, sims);
 	}
 
 	private void openDialog(final Simulation sim) {
@@ -558,7 +666,7 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void updateEnabledState() {
-			setEnabled(simulationTable.getSelectedRowCount() == 1);
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
 		}
 	}
 
@@ -596,6 +704,51 @@ public class SimulationPanel extends JPanel {
 		public void updateEnabledState() {
 			setEnabled(simulationTable.getSelectedRowCount() > 0);
 		}
+	}
+
+	/**
+	 * Export the entire simulation table as a CSV file.
+	 */
+	class ExportSimulationTableAsCSVAction extends SimulationAction {
+
+		public ExportSimulationTableAsCSVAction() {
+			putValue(NAME, trans.get("simpanel.pop.exportSimTableToCSV"));
+			putValue(SMALL_ICON, Icons.SIM_TABLE_EXPORT);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			exportSimulationsToCSV(false);
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0);
+		}
+		
+	}
+
+	/**
+	 * Export only the selected simulations as a CSV file.
+	 */
+	class ExportSelectedSimulationsAsCSVAction extends SimulationAction {
+
+		public ExportSelectedSimulationsAsCSVAction() {
+			putValue(NAME, trans.get("simpanel.pop.exportSelectedSimsToCSV"));
+			putValue(SMALL_ICON, Icons.SIM_TABLE_EXPORT);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			exportSimulationsToCSV(true);
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTableModel != null && simulationTableModel.getRowCount() > 0 &&
+					simulationTable.getSelectedRowCount() > 0);
+		}
+
 	}
 
 	class PlotSimulationAction extends SimulationAction {
@@ -710,6 +863,8 @@ public class SimulationPanel extends JPanel {
 				tip += trans.get("simpanel.ttip.noData")+"<br>";
 				break;
 			case LOADED:
+				tip += trans.get("simpanel.ttip.loaded") + "<br>";
+				break;
 			case UPTODATE:
 				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
 				break;

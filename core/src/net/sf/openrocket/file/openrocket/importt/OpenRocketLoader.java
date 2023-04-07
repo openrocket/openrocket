@@ -39,7 +39,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 	
 	
 	@Override
-	public void loadFromStream(DocumentLoadingContext context, InputStream source) throws RocketLoadException,
+	public void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
 		
@@ -60,8 +60,8 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			config.applyPreloadedStageActiveness();
 		}
 		
-		// Deduce suitable time skip
-		double timeSkip = StorageOptions.SIMULATION_DATA_NONE;
+		// If we saved data for a simulation before, we'll use that as our default option this time
+		// Also, updaet all the sims' modIDs to agree with flight config
 		for (Simulation s : doc.getSimulations()) {
 			s.syncModID();		// The config's modID can be out of sync with the simulation's after the whole loading process
 			if (s.getStatus() == Simulation.Status.EXTERNAL ||
@@ -77,16 +77,10 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			List<Double> list = branch.get(FlightDataType.TYPE_TIME);
 			if (list == null)
 				continue;
-				
-			double previousTime = Double.NaN;
-			for (double time : list) {
-				if (time - previousTime < timeSkip)
-					timeSkip = time - previousTime;
-				previousTime = time;
-			}
+
+			doc.getDefaultStorageOptions().setSaveSimulationData(true);
 		}
-		timeSkip = Math.rint(timeSkip * 100) / 100;
-		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
+
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
 		doc.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		

@@ -75,6 +75,26 @@ public class FlightDataBranch implements Monitorable {
 			maxValues.put(t, Double.NaN);
 		}
 	}
+
+	/**
+	 * Make a flight data branch with one data point copied from its parent.  Intended for use
+	 * when creating a new branch upon stage separation, so the data at separation is present
+	 * in both branches (and if the new branch has an immediate exception, it can be plotted)
+	 */
+	public FlightDataBranch(String branchName, FlightDataBranch parent) {
+		this.branchName = branchName;
+
+		// need to have at least one type to set up values
+		values.put(FlightDataType.TYPE_TIME, new ArrayList<Double>());
+		minValues.put(FlightDataType.TYPE_TIME, Double.NaN);
+		maxValues.put(FlightDataType.TYPE_TIME, Double.NaN);
+
+		// copy all values into new FlightDataBranch
+		this.addPoint();
+		for (FlightDataType t : parent.getTypes()) {
+			this.setValue(t, parent.getLast(t));
+		}
+	}
 	
 	/**
 	 * Makes an 'empty' flight data branch which has no data but all built in data types are defined.
@@ -342,6 +362,21 @@ public class FlightDataBranch implements Monitorable {
 	@Override
 	public int getModID() {
 		return modID;
+	}
+
+	public FlightDataBranch clone() {
+		FlightDataType[] types = getTypes();
+		FlightDataBranch clone = new FlightDataBranch(branchName, types);
+		for (FlightDataType type : values.keySet()) {
+			clone.values.put(type, values.get(type).clone());
+		}
+		clone.minValues.putAll(minValues);
+		clone.maxValues.putAll(maxValues);
+		clone.events.addAll(events);
+		clone.timeToOptimumAltitude = timeToOptimumAltitude;
+		clone.optimumAltitude = optimumAltitude;
+		clone.modID = modID;
+		return clone;
 	}
 	
 }

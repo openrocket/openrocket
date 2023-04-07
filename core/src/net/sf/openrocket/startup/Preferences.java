@@ -77,6 +77,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
+	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
 	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
@@ -349,6 +350,13 @@ public abstract class Preferences implements ChangeSource {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
 			return;
 		this.putDouble(LAUNCH_ALTITUDE, altitude);
+
+		// Update the launch temperature and pressure if using ISA
+		if (getISAAtmosphere()) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -443,6 +451,13 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		}
 		this.putBoolean(LAUNCH_USE_ISA, isa);
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -524,6 +539,22 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
+	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardSimulationConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling a simulation config operation.
+	 */
+	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
+	}
+
+	/**
 	 * Answer if the always open leftmost tab is enabled.
 	 *
 	 * @return true if the application should always open the leftmost tab in the component design panel.
@@ -587,6 +618,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final boolean isMatchAftDiameter() {
 		return this.getBoolean(MATCH_AFT_DIAMETER, true);
+	}
+
+	/**
+	 * Check whether to display the common name (false), or designation (true) in the motor selection table "Name" column
+	 * @return true to display designation, false to display common name
+	 */
+	public boolean getMotorNameColumn() {
+		return getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, true);
+	}
+
+	/**
+	 * Set whether to display the common name, or designation in the motor selection table "Name" column
+	 * @param value if true, display designation, if false, display common name
+	 */
+	public void setMotorNameColumn(boolean value) {
+		putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, value);
 	}
 
 	/**

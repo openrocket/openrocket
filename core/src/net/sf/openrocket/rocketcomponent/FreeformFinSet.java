@@ -45,15 +45,16 @@ public class FreeformFinSet extends FinSet {
 	 * The specified fin set should not be used after the call!
 	 *
 	 * @param finset	the fin set to convert.
+	 * @param freezeRocket	whether to freeze the rocket before conversion.
 	 * @return			the new freeform fin set.
 	 */
-	public static FreeformFinSet convertFinSet(FinSet finset) {
+	public static FreeformFinSet convertFinSet(FinSet finset, boolean freezeRocket) {
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
 		List<RocketComponent> toInvalidate = new ArrayList<>();
 
 		try {
-			if (root instanceof Rocket) {
+			if (freezeRocket && root instanceof Rocket) {
 				((Rocket) root).freeze();
 			}
 			
@@ -91,9 +92,18 @@ public class FreeformFinSet extends FinSet {
 			if (parent != null) {
 				parent.addChild(freeform, position);
 			}
+
+			// Convert config listeners
+			for (RocketComponent listener : finset.configListeners) {
+				if (listener instanceof FinSet) {
+					FreeformFinSet listenerSet = FreeformFinSet.convertFinSet((FinSet) listener, false);
+					finset.removeConfigListener(listener);
+					freeform.addConfigListener(listenerSet);
+				}
+			}
 			
 		} finally {
-			if (root instanceof Rocket) {
+			if (freezeRocket && root instanceof Rocket) {
 				((Rocket) root).thaw();
 			}
 			// Invalidate components after events have been fired
@@ -101,7 +111,22 @@ public class FreeformFinSet extends FinSet {
 				c.invalidate();
 			}
 		}
+
 		return freeform;
+	}
+
+	/**
+	 * Convert an existing fin set into a freeform fin set.  The specified
+	 * fin set is taken out of the rocket tree (if any) and the new component
+	 * inserted in its stead.
+	 * <p>
+	 * The specified fin set should not be used after the call!
+	 *
+	 * @param finset	the fin set to convert.
+	 * @return			the new freeform fin set.
+	 */
+	public static FreeformFinSet convertFinSet(FinSet finset) {
+		return convertFinSet(finset, true);
 	}
 
 	/**

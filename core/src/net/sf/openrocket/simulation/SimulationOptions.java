@@ -72,8 +72,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
-	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
-	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
+	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);	// In Kelvin
+	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);		// In Pascal
 	
 	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
@@ -96,6 +96,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchRodLength, launchRodLength))
 			return;
 		this.launchRodLength = launchRodLength;
+		fireChangeEvent();
 	}
 	
 	
@@ -104,7 +105,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	public void setLaunchIntoWind(boolean i) {
+		if (launchIntoWind == i)
+			return;
 		launchIntoWind = i;
+		fireChangeEvent();
 	}
 	
 	public double getLaunchRodAngle() {
@@ -213,6 +217,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchAltitude, altitude))
 			return;
 		this.launchAltitude = altitude;
+
+		// Update the launch temperature and pressure if using ISA
+		if (useISA) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -265,6 +276,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (isa == useISA)
 			return;
 		useISA = isa;
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -390,28 +408,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		}
 	}
 	
-	
-	public void copyFrom(SimulationOptions src) {
-		
-		this.launchAltitude = src.launchAltitude;
-		this.launchLatitude = src.launchLatitude;
-		this.launchLongitude = src.launchLongitude;
-		this.launchPressure = src.launchPressure;
-		this.launchRodAngle = src.launchRodAngle;
-		this.launchRodDirection = src.launchRodDirection;
-		this.launchRodLength = src.launchRodLength;
-		this.launchTemperature = src.launchTemperature;
-		this.maximumAngle = src.maximumAngle;
-		this.timeStep = src.timeStep;
-		this.windAverage = src.windAverage;
-		this.windTurbulence = src.windTurbulence;
-		this.windDirection = src.windDirection;
-		this.calculateExtras = src.calculateExtras;
-		this.randomSeed = src.randomSeed;
-		
-		fireChangeEvent();
-	}
-	
 	public void copyConditionsFrom(SimulationOptions src) {
 		// Be a little smart about triggering the change event.
 		// only do it if one of the "important" (user specified) parameters has really changed.
@@ -428,10 +424,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.launchLongitude = src.launchLongitude;
 		}
-		if (this.launchPressure != src.launchPressure) {
-			isChanged = true;
-			this.launchPressure = src.launchPressure;
-		}
 		if (this.launchRodAngle != src.launchRodAngle) {
 			isChanged = true;
 			this.launchRodAngle = src.launchRodAngle;
@@ -444,18 +436,25 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.launchRodLength = src.launchRodLength;
 		}
+		if (this.launchIntoWind != src.launchIntoWind) {
+			isChanged = true;
+			this.launchIntoWind = src.launchIntoWind;
+		}
+		if (this.useISA != src.useISA) {
+			isChanged = true;
+			this.useISA = src.useISA;
+		}
 		if (this.launchTemperature != src.launchTemperature) {
 			isChanged = true;
 			this.launchTemperature = src.launchTemperature;
 		}
+		if (this.launchPressure != src.launchPressure) {
+			isChanged = true;
+			this.launchPressure = src.launchPressure;
+		}
 		if (this.maximumAngle != src.maximumAngle) {
 			isChanged = true;
 			this.maximumAngle = src.maximumAngle;
-		}
-		this.maximumAngle = src.maximumAngle;
-		if (this.timeStep != src.timeStep) {
-			isChanged = true;
-			this.timeStep = src.timeStep;
 		}
 		if (this.windAverage != src.windAverage) {
 			isChanged = true;
@@ -472,6 +471,14 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (this.calculateExtras != src.calculateExtras) {
 			isChanged = true;
 			this.calculateExtras = src.calculateExtras;
+		}
+		if (this.timeStep != src.timeStep) {
+			isChanged = true;
+			this.timeStep = src.timeStep;
+		}
+		if (this.geodeticComputation != src.geodeticComputation) {
+			isChanged = true;
+			this.geodeticComputation = src.geodeticComputation;
 		}
 		
 		if (isChanged) {
@@ -524,6 +531,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
+	}
+
+	public List<EventListener> getChangeListeners() {
+		return listeners;
 	}
 	
 	private final EventObject event = new EventObject(this);

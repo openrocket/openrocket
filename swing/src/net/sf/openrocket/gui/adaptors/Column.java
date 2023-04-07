@@ -4,6 +4,8 @@ import java.util.Comparator;
 
 import javax.swing.table.TableColumnModel;
 
+import net.sf.openrocket.unit.UnitGroup;
+
 public abstract class Column {
 	private final String name;
 	private final String toolTip;
@@ -59,7 +61,9 @@ public abstract class Column {
 		return 0;
 	}
 	
-	
+	public UnitGroup getUnits() {
+		return UnitGroup.UNITS_NONE;
+	}
 	/**
 	 * Return the column type class.  This is necessary for example for numerical
 	 * sorting of Value objects, showing booleans as checkboxes etc.

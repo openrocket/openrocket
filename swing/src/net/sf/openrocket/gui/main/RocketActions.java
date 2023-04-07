@@ -35,6 +35,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,8 @@ public class RocketActions {
 	private final RocketAction pasteAction;
 	private final RocketAction duplicateAction;
 	private final RocketAction editAction;
+	private final RocketAction selectSameColorAction;
+	private final RocketAction deselectAllAction;
 	private final RocketAction scaleAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
@@ -98,6 +101,8 @@ public class RocketActions {
 		this.pasteAction = new PasteAction();
 		this.duplicateAction = new DuplicateAction();
 		this.editAction = new EditAction();
+		this.selectSameColorAction = new SelectSameColorAction();
+		this.deselectAllAction = new DeselectAllAction();
 		this.scaleAction = new ScaleAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
@@ -131,6 +136,8 @@ public class RocketActions {
 		pasteAction.clipboardChanged();
 		duplicateAction.clipboardChanged();
 		editAction.clipboardChanged();
+		selectSameColorAction.clipboardChanged();
+		deselectAllAction.clipboardChanged();
 		scaleAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
@@ -169,6 +176,14 @@ public class RocketActions {
 	
 	public Action getEditAction() {
 		return editAction;
+	}
+
+	public Action getSelectSameColorAction() {
+		return selectSameColorAction;
+	}
+
+	public Action getDeselectAllAction() {
+		return deselectAllAction;
 	}
 
 	public Action getScaleAction() {
@@ -1005,6 +1020,115 @@ public class RocketActions {
 			this.setEnabled(components.size() > 0 || isSimulationSelected());
 		}
 	}
+
+
+	/**
+	 * Action to select all components with the same color as the currently selected component.
+	 */
+	private class SelectSameColorAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public SelectSameColorAction() {
+			//// Select same color
+			this.putValue(NAME, trans.get("RocketActions.Select.SelectSameColorAct"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.SelectSameColorAct.ttip"));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components.size() == 0) {
+				return;
+			}
+
+			RocketComponent component = components.get(0);
+			List<RocketComponent> sameColorComponents;
+
+			// Case 1: component has a default appearance (null)
+			if (component.getAppearance() == null) {
+				sameColorComponents = getComponentsDefaultColor(component);
+			}
+			// Case 2: component has a custom appearance
+			else {
+				sameColorComponents = getComponentsCustomColor(component);
+			}
+
+			selectionModel.setSelectedComponents(sameColorComponents);
+		}
+
+		private List<RocketComponent> getComponentsCustomColor(RocketComponent component) {
+			Color targetColor = component.getAppearance().getPaint();
+			List<RocketComponent> components = new ArrayList<>();
+			components.add(component);
+
+			for (RocketComponent c : rocket) {
+				if (c == component || c.getAppearance() == null || c.getAppearance().getPaint() == null) {
+					continue;
+				}
+				Color color = c.getAppearance().getPaint();
+				// Add components with the same RGB values (ignore alpha)
+				if (color.getRed() == targetColor.getRed() &&
+						color.getGreen() == targetColor.getGreen() &&
+						color.getBlue() == targetColor.getBlue()) {
+					components.add(c);
+				}
+			}
+
+			return components;
+		}
+
+		private List<RocketComponent> getComponentsDefaultColor(RocketComponent component) {
+			List<RocketComponent> components = new ArrayList<>();
+			components.add(component);
+
+			for (RocketComponent c : rocket) {
+				if (c == component) {
+					continue;
+				}
+
+				// Only add same components & components that also have the default color
+				if (c.getClass().equals(component.getClass()) && c.getAppearance() == null) {
+					components.add(c);
+				}
+			}
+
+			return components;
+		}
+
+		@Override
+		public void clipboardChanged() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled(components.size() == 1 && components.get(0).isMassive());
+		}
+	}
+
+	/**
+	 * Action to deselect all currently selected components.
+	 */
+	private class DeselectAllAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public DeselectAllAction() {
+			//// Deselect all
+			this.putValue(NAME, trans.get("RocketActions.Select.DeselectAllAct"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.Select.DeselectAllAct.ttip"));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			selectionModel.clearComponentSelection();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled(components.size() > 0);
+		}
+	}
+
+
 
 	/**
 	 * Action to scale the currently selected component.

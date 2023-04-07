@@ -209,7 +209,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			deploymentPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 
 			DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfigurations().getDefault();
-			// this issues a warning because EnumModel ipmlements ComboBoxModel without a parameter...
+			// this issues a warning because EnumModel implements ComboBoxModel without a parameter...
 			ComboBoxModel<DeploymentConfiguration.DeployEvent> deployOptionsModel =
 					new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent");
 			JComboBox<DeploymentConfiguration.DeployEvent> eventCombo =

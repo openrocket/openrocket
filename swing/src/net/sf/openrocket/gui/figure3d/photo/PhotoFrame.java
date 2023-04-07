@@ -42,6 +42,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.logging.Markers;
@@ -156,6 +157,7 @@ public class PhotoFrame extends JFrame {
 					chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 					chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 					chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+					chooser.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 					chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 
 					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -200,7 +202,7 @@ public class PhotoFrame extends JFrame {
 								final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"),
 										".png");
 
-								final JFileChooser chooser = new JFileChooser();
+								final JFileChooser chooser = new SaveFileChooser();
 
 								chooser.addChoosableFileFilter(png);
 								chooser.setFileFilter(png);

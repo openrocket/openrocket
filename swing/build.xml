@@ -117,7 +117,6 @@
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
 			<zipfileset src="${core.dir}/lib/opencsv-5.7.1.jar"/>
-			<zipfileset src="${core.dir}/lib/commons-lang3-3.12.0.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.11.jar"/>

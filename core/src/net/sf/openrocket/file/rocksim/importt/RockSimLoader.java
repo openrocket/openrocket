@@ -39,7 +39,7 @@ public class RockSimLoader extends AbstractRocketLoader {
 	 *          if an error occurs during loading.
 	 */
 	@Override
-	public void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException {
+	public void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws IOException, RocketLoadException {
 		
 		InputSource xmlSource = new InputSource(source);
 		

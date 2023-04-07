@@ -29,7 +29,7 @@
 
     <!-- JAR -->
 	
-	<target name="jar" depends="jar-core,jar-swing">
+	<target name="jar" depends="clean,jar-core,jar-swing">
 	</target>
 	
 	<target name="jar-core" depends="build-core">

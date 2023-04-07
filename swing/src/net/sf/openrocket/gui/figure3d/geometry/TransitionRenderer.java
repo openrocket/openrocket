@@ -161,7 +161,7 @@ final class TransitionRenderer {
 				}
 				
 				if (r == 0) {
-					switch (tr.getType()) {
+					switch (tr.getShapeType()) {
 					case CONICAL:
 					case OGIVE:
 					case PARABOLIC:
