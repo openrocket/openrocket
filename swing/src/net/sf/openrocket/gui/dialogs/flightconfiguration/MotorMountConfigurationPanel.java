@@ -25,7 +25,7 @@ public class MotorMountConfigurationPanel extends JPanel {
 		table.setShowVerticalLines(false);
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		table.setAutoCreateColumnsFromModel(false);
 		
 		TableColumnModel columnModel = table.getColumnModel();
