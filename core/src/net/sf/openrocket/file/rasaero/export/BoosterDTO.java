@@ -186,6 +186,8 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                     warnings.add(String.format(trans.get("RASAeroExport.warning11"),
                             stage.getName(), stage.getChildCount() - i));
                 }
+
+                break;
             }
         }
 
