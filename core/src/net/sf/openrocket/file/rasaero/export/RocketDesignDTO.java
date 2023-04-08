@@ -76,7 +76,7 @@ public class RocketDesignDTO {
     public RocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {
         setComments(rocket.getComment());
         if (rocket.getChildCount() > 3) {
-            warnings.add(trans.get("RASAeroExport.warning12"));
+            warnings.add(trans.get("RASAeroExport.warning10"));
         }
         setUseBooster1(rocket.getChildCount() >= 2);
         setUseBooster2(rocket.getChildCount() == 3);

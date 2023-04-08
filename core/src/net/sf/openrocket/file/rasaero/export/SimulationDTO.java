@@ -130,12 +130,12 @@ public class SimulationDTO {
         FlightConfigurationId fcid = simulation != null ? simulation.getFlightConfigurationId() : null;
 
         if (simulation != null && fcid == null) {
-            warnings.add(String.format(trans.get("RASAeroExport.warning13"), simulationName));
+            warnings.add(String.format(trans.get("RASAeroExport.warning11"), simulationName));
             return;
         }
 
         if (mounts.isEmpty()) {
-            warnings.add(String.format(trans.get("RASAeroExport.warning14"), simulationName));
+            warnings.add(String.format(trans.get("RASAeroExport.warning12"), simulationName));
             return;
         }
 
@@ -170,7 +170,7 @@ public class SimulationDTO {
 
             // Add friendly reminder to user
             if (motor == null) {
-                warnings.add(String.format(trans.get("RASAeroExport.warning15"), stage.getName()));
+                warnings.add(String.format(trans.get("RASAeroExport.warning13"), stage.getName()));
             }
 
             // Add the simulation info for each stage

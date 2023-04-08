@@ -160,7 +160,7 @@ public class SimulationHandler extends AbstractElementHandler {
         }
         MotorMount mount = getMotorMountForStage(stageNr);
         if (mount == null) {
-            warnings.add("No motor mount found for stage " + stageNr + ".  Ignoring motor.");
+            warnings.add("No motor mount found for stage " + stageNr + ". Ignoring motor.");
             return null;
         }
         MotorConfiguration motorConfig = new MotorConfiguration(mount, id);

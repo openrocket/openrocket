@@ -169,23 +169,20 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                 }
             } else {
                 // If this booster is the last stage, and the last component is a transition, it could be a boattail
-                if (stageNr == rocket.getChildCount() - 1 && (comp instanceof Transition && !(comp instanceof NoseCone)) &&
-                        i == stage.getChildCount() - 1) {
+                boolean isBoattail = (comp instanceof Transition && !(comp instanceof NoseCone)) && i == stage.getChildCount() - 1;
+                if (stageNr == rocket.getChildCount() - 1 && isBoattail) {
                     Transition transition = (Transition) comp;
                     setBoattailLength(transition.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
                     setBoattailRearDiameter(transition.getAftRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
                 }
 
-                // Case: normal body tube
-                if (stage.getChildPosition(firstTube) == 0) {
-                    warnings.add(String.format(trans.get("RASAeroExport.warning10"),
-                            stage.getName(), stage.getChildCount() - i));
+                String msg = String.format(trans.get("RASAeroExport.error31"), stage.getName(), stage.getChildCount() - i);
+
+                if (isBoattail) {
+                    msg = "<html>" + msg + "<br>&nbsp;" + trans.get("RASAeroExport.error32") + "</html>";
                 }
-                // Case: body tube with transition shoulder
-                else {
-                    warnings.add(String.format(trans.get("RASAeroExport.warning11"),
-                            stage.getName(), stage.getChildCount() - i));
-                }
+
+                errors.add(msg);
 
                 break;
             }
