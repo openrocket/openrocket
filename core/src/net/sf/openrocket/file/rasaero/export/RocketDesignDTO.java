@@ -113,6 +113,8 @@ public class RocketDesignDTO {
                     } else {
                         addExternalPart(new TransitionDTO((Transition) component, warnings, errors));
                     }
+                } else {
+                    throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error33"), component.getComponentName()));
                 }
             } catch (RASAeroExportException e) {
                 errors.add(e.getMessage());
