@@ -174,6 +174,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                     Transition transition = (Transition) comp;
                     setBoattailLength(transition.getLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
                     setBoattailRearDiameter(transition.getAftRadius() * 2 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                    break;
                 }
 
                 String msg = String.format(trans.get("RASAeroExport.error31"), stage.getName());
