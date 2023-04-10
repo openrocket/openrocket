@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.Chars;
 
 /**
@@ -98,6 +99,13 @@ public class MaterialDTO {
 		if (uom != null) {
 			uom = uom.replace('2', Chars.SQUARED);
 			uom = uom.replace('3', Chars.CUBED);
+			if (type != null) {
+				// The density value is stored in the XML file in the units of measure, but OR expects the density to be
+				// in SI units, so we need to convert it to SI units
+				Unit uomUnit = type.getORMaterialType().getUnitGroup().getUnit(getUom());
+				density = uomUnit.fromUnit(density);
+				//type.getORMaterialType().getUnitGroup().setDefaultUnit(uomUnit);
+			}
 		}
 	}
 
