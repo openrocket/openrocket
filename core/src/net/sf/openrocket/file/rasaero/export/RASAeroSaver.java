@@ -18,6 +18,12 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This class is responsible for marshalling an OpenRocketDocument (OR design) to RASAero-compliant XML.
+ * Big thanks to hcraigmiller for testing and providing feedback.
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class RASAeroSaver extends RocketSaver {
     /**
      * The logger.
