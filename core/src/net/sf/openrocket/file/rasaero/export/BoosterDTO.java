@@ -155,6 +155,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
 
         double tubeLength = firstTube.getLength();
+        double finLocationOffset = 0;
         // Aggregate same-sized body tubes
         for (int i = stage.getChildPosition(firstTube) + 1; i < stage.getChildCount(); i++) {
             RocketComponent comp = stage.getChild(i);
@@ -166,6 +167,11 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                 // If no fin set in firstTube, add fin from new tube
                 if (finSet == null) {
                     finSet = getFinSetFromBodyTube((BodyTube) comp);
+                }
+                // We need an offset to the fin location, since the fin axial offset is referenced to its parent tube,
+                // which can be different from the bottom of the aggregate tubes
+                else {
+                    finLocationOffset += comp.getLength();
                 }
             } else {
                 // If this booster is the last stage, and the last component is a transition, it could be a boattail
@@ -196,7 +202,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
                     String.format(trans.get("RASAeroExport.error16"),
                             firstTube.getName(), stage.getName()));
         }
-        setFin(new FinDTO(finSet, warnings, errors));
+        FinDTO finDTO = new FinDTO(finSet, warnings, errors);
+        double finLocation = finDTO.getLocation();
+        finDTO.setLocation(finLocation + finLocationOffset * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        setFin(finDTO);
 
         setPartType(RASAeroCommonConstants.BOOSTER);
         setLength(tubeLength * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
