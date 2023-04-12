@@ -1338,8 +1338,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if( 0 == thisIndex ) {
 			this.position = this.position.setX(0.);
 		}else if( 0 < thisIndex ) {
-			RocketComponent referenceComponent = parent.getChild( thisIndex - 1 );
-		
+			int idx = thisIndex - 1;
+			RocketComponent referenceComponent = parent.getChild(idx);
+			while (!getRocket().getSelectedConfiguration().isComponentActive(referenceComponent) && idx > 0) {
+				idx--;
+				referenceComponent = parent.getChild(idx);
+			}
+
+			// If previous components are inactive, set this as the new reference point
+			if (!getRocket().getSelectedConfiguration().isComponentActive(referenceComponent)) {
+				this.position = this.position.setX(0.);
+				return;
+			}
+
 			double refLength = referenceComponent.getLength();
 			double refRelX = referenceComponent.getPosition().x;
 
