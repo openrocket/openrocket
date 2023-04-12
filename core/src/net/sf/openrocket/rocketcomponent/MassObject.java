@@ -23,6 +23,7 @@ public abstract class MassObject extends InternalComponent {
 	
 	protected double radius;
 	private boolean autoRadius = false;
+	private double volume;		// (Packed) volume of the object
 	
 	private double radialPosition;
 	private double radialDirection;
@@ -40,6 +41,7 @@ public abstract class MassObject extends InternalComponent {
 		
 		this.length = length;
 		this.radius = radius;
+		updateVolume(radius);
 		
 		this.setAxialMethod( AxialMethod.TOP);
 		this.setAxialOffset(0.0);
@@ -50,38 +52,16 @@ public abstract class MassObject extends InternalComponent {
 		return false;
 	}
 
+	private void updateVolume(double radius) {
+		volume = Math.pow(radius, 2) * length;		// Math.PI left out, not needed
+	}
+
 	@Override
 	public double getLength() {
-		if (this.autoRadius) {
-			// Calculate the volume using the non auto radius and the non auto length, and transform that back
-			// to the auto radius situation to get the auto radius length (the volume in both situations is the same).
-			double volume = Math.pow(this.radius, 2) * this.length;	// Math.PI left out, not needed
-			return volume / Math.pow(getRadius(), 2);
+		if (autoRadius) {
+			length = getAutoLength();
 		}
 		return length;
-	}
-
-	public double getLengthNoAuto() {
-		return length;
-	}
-
-	/**
-	 * Set the length, ignoring the auto radius setting.
-	 * @param length new length
-	 */
-	public void setLengthNoAuto(double length) {
-		for (RocketComponent listener : configListeners) {
-			if (listener instanceof MassObject) {
-				((MassObject) listener).setLengthNoAuto(length);
-			}
-		}
-
-		length = Math.max(length, 0);
-		if (MathUtil.equals(this.length, length)) {
-			return;
-		}
-		this.length = length;
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	public void setLength(double length) {
@@ -92,45 +72,54 @@ public abstract class MassObject extends InternalComponent {
 		}
 
 		length = Math.max(length, 0);
-		if (this.autoRadius) {
-			// Calculate the volume using the auto radius and the new "auto" length, and transform that back
-			// to the non auto radius situation to set this.length (the volume in both situations is the same).
-			double volume = Math.pow(getRadius(), 2) * length;		// Math.PI left out, not needed
-			double newLength = volume / Math.pow(this.radius, 2);
-			if (MathUtil.equals(this.length, newLength))
-				return;
-			this.length = newLength;
-		} else {
-			if (MathUtil.equals(this.length, length)) {
-				return;
-			}
-			this.length = length;
+
+		if (MathUtil.equals(this.length, length)) {
+			return;
 		}
+		this.length = length;
+		updateVolume(autoRadius ? getAutoRadius() : radius);
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	/**
+	 * Calculate the length from the current volume.
+	 */
+	private double getAutoLength() {
+		// Calculate the volume using the auto radius and the new "auto" length, and transform that back
+		// to the non auto radius situation to set this.length (the volume in both situations is the same).
+		return volume / Math.pow(radius, 2);
 	}
 	
 	
 	public double getRadius() {
 		if (autoRadius) {
-			if (parent == null) {
-				return radius;
-			}
-			if (parent instanceof NoseCone) {
-				return ((NoseCone) parent).getAftRadius();
-			} else if (parent instanceof Transition) {
-				double foreRadius = ((Transition) parent).getForeRadius();
-				double aftRadius = ((Transition) parent).getAftRadius();
-				return (Math.max(foreRadius, aftRadius));
-			} else if (parent instanceof BodyComponent) {
-				return ((BodyComponent) parent).getInnerRadius();
-			} else if (parent instanceof RingComponent) {
-				return ((RingComponent) parent).getInnerRadius();
-			}
+			radius = getAutoRadius();
+			length = getAutoLength();
 		}
 		return radius;
 	}
 
-	public double getRadiusNoAuto() {
+	/**
+	 * Return the radius determined by its parent component.
+	 * @return the radius determined by its parent component
+	 */
+	public double getAutoRadius() {
+		if (parent == null) {
+			return radius;
+		}
+		if (parent instanceof NoseCone) {
+			return ((NoseCone) parent).getAftRadius();
+		} else if (parent instanceof Transition) {
+			double foreRadius = ((Transition) parent).getForeRadius();
+			double aftRadius = ((Transition) parent).getAftRadius();
+			return (Math.max(foreRadius, aftRadius));
+		} else if (parent instanceof BodyComponent) {
+			return ((BodyComponent) parent).getInnerRadius();
+		} else if (parent instanceof RingComponent) {
+			return ((RingComponent) parent).getInnerRadius();
+		}
+
 		return radius;
 	}
 	
@@ -148,6 +137,7 @@ public abstract class MassObject extends InternalComponent {
 
 		this.autoRadius = false;
 		this.radius = radius;
+		updateVolume(radius);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
@@ -166,10 +156,6 @@ public abstract class MassObject extends InternalComponent {
 			return;
 
 		autoRadius = auto;
-
-		// Set the length
-		double volume = (Math.PI * Math.pow(getRadius(), 2) * length);
-		length = volume / (Math.PI * Math.pow(getRadius(), 2));
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}

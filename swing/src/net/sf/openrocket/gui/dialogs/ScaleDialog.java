@@ -136,10 +136,8 @@ public class ScaleDialog extends JDialog {
 		SCALERS_NO_OFFSET.put(FreeformFinSet.class, list);
 		
 		// MassObject
-		list = new ArrayList<>(1);
-		list.add(new MassObjectScaler());
-		SCALERS_NO_OFFSET.put(MassObject.class, list);
 		addScaler(MassObject.class, "Radius", "isRadiusAutomatic", SCALERS_NO_OFFSET);
+		addScaler(MassObject.class, "Length", SCALERS_NO_OFFSET);
 		addScaler(MassObject.class, "RadialPosition", SCALERS_OFFSET);
 		
 		// MassComponent
@@ -719,25 +717,6 @@ public class ScaleDialog extends JDialog {
 			}
 		}
 		
-	}
-
-	private static class MassObjectScaler implements Scaler {
-		@Override
-		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
-			if (scaleMass) {
-				MassObject c = (MassObject) component;
-				if (c.isRadiusAutomatic()) {
-					double volume = Math.PI * Math.pow(c.getRadiusNoAuto(), 2) * c.getLengthNoAuto();
-					double scaledVolume = volume * MathUtil.pow3(multiplier);
-					c.setRadius(c.getRadiusNoAuto() * multiplier);
-					c.setLengthNoAuto(scaledVolume / (Math.PI * Math.pow(c.getRadiusNoAuto(), 2)));
-					c.setRadiusAutomatic(true);
-				} else {
-					c.setLength(c.getLength() * multiplier);
-				}
-			}
-		}
-
 	}
 	
 	private static class FreeformFinSetScaler implements Scaler {

@@ -389,7 +389,7 @@ class DocumentConfig {
 		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
-				Reflection.findMethod(MassObject.class, "setLengthNoAuto", double.class)));
+				Reflection.findMethod(MassObject.class, "setLength", double.class)));
 		setters.put("MassObject:packedradius", new DoubleSetter(
 				Reflection.findMethod(MassObject.class, "setRadius", double.class),
 				"auto", " ",
