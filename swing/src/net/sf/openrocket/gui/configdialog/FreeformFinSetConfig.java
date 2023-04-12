@@ -303,6 +303,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 					}
 
 				    FreeformFinSetConfig.writeCSVFile(table, selectedFile);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 				}
 			}
 		});
@@ -400,6 +401,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 						trans.get("CustomFinImport.error.title"), JOptionPane.ERROR_MESSAGE);
 			} finally {
 				document.stopUndo();
+				((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 			}
 		}	
 	}

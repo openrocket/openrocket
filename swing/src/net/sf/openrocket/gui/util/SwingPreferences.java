@@ -38,7 +38,11 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 	
 	private static final String SPLIT_CHARACTER = "|";
-	
+
+
+	public static final String NODE_WINDOWS = "windows";
+	public static final String NODE_TABLES = "tables";
+	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -88,10 +92,16 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE = root.node(NODENAME);
 	}
 	
-	
+	public String getNodename() {
+		return NODENAME;
+	}
 	
 	
 	//////////////////////
+
+	public Preferences getPreferences() {
+		return PREFNODE;
+	}
 	
 	public void clearPreferences() {
 		try {
@@ -114,7 +124,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
 	}
-	
+
+	/**
+	 * Checks if a certain key exists in the node
+	 * @param node node to check the keys of.
+	 * @param key key to check
+	 * @return true if the key is stored in the preferences, false otherwise
+	 */
+	private boolean keyExists(Preferences node, String key) {
+		try {
+			return Arrays.asList(node.keys()).contains(key);
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	/**
 	 * Return a string preference.
 	 * 
@@ -124,12 +149,28 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public String getString(String key, String def) {
+		if (!keyExists(PREFNODE, key) && key != null && def != null) {
+			PREFNODE.put(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.get(key, def);
 	}
 	
 	@Override
 	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
+		if (!keyExists(p, key) && key != null && defaultValue != null) {
+			p.put(key, defaultValue);
+			try {
+				p.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return p.get(key, defaultValue);
 	}
 	
@@ -169,6 +210,16 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public boolean getBoolean(String key, boolean def) {
+		// Check if the key exists
+		if (!keyExists(PREFNODE, key) && key != null) {
+			// Save the default value
+			PREFNODE.putBoolean(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getBoolean(key, def);
 	}
 	
@@ -183,9 +234,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public int getInt(String key, int defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putInt(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getInt(key, defaultValue);
 	}
 	
@@ -194,9 +253,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putInt(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public double getDouble(String key, double defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putDouble(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getDouble(key, defaultValue);
 	}
 	
@@ -228,7 +295,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public File getDefaultDirectory() {
-		String file = getString("defaultDirectory", null);
+		String file = getString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, null);
 		if (file == null)
 			return null;
 		return new File(file);
@@ -241,7 +308,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		putString("defaultDirectory", d);
+		putString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, d);
 		storeVersion();
 	}
 	
@@ -262,13 +329,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return compdir;
 	}
 
+	/**
+	 * Set the operating system that the software updater will use to redirect you to an installer download link.
+	 * @param platform the operating system to use
+	 */
 	public void setUpdatePlatform(UpdatePlatform platform) {
 		if (platform == null) return;
-		putString("UpdatePlatform", platform.name());
+		putString(UPDATE_PLATFORM, platform.name());
 	}
 
+	/**
+	 * Get the operating system that will be selected when asking for a software update.
+	 * E.g. "Windows" will cause the software updater to default to letting you download a Windows installer.
+	 * @return the operating system that is used
+	 */
 	public UpdatePlatform getUpdatePlatform() {
-		String p = getString("UpdatePlatform", SystemInfo.getPlatform().name());
+		String p = getString(UPDATE_PLATFORM, SystemInfo.getPlatform().name());
 		if (p == null) return null;
 		return UpdatePlatform.valueOf(p);
 	}
@@ -372,7 +448,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Point getWindowPosition(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("position." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -390,7 +466,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		PREFNODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
+		PREFNODE.node(NODE_WINDOWS).put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
 	
@@ -399,7 +475,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -418,22 +494,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	public boolean isWindowMaximized(Class<?> c) {
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
 		return "max".equals(pref);
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
+		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {
-		String pref = PREFNODE.node("tables").get(
+		String pref = PREFNODE.node(NODE_TABLES).get(
 				"cw." + keyName + "." + columnIdx, null);
 		if (pref == null)
 			return null;
@@ -451,7 +527,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	public void setTableColumnWidth(String keyName, int columnIdx, Integer width) {
-		PREFNODE.node("tables").put(
+		PREFNODE.node(NODE_TABLES).put(
 				"cw." + keyName + "." + columnIdx, width.toString());
 		storeVersion();
 	}
