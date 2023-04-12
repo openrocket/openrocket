@@ -2,7 +2,11 @@ package net.sf.openrocket.gui.util;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -462,15 +466,41 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		return new Point(x, y);
+
+		// If position was on a screen that is not available anymore
+		Point p = new Point(x, y);
+		if (!isPointOnScreen(p)) {
+			return null;
+		}
+
+		return p;
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
 		PREFNODE.node(NODE_WINDOWS).put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
-	
-	
+
+	/**
+	 * Checks whether the point is present on any of the current monitor screens.
+	 * Can return false if point was e.g. referenced on a secondary monitor that doesn't exist anymore.
+	 * @param p point to check
+	 * @return true if point is present on any of the current screens, false otherwise
+	 */
+	private boolean isPointOnScreen(Point p) {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] screens = ge.getScreenDevices();
+
+		for (GraphicsDevice screen : screens) {
+			GraphicsConfiguration gc = screen.getDefaultConfiguration();
+			Rectangle bounds = gc.getBounds();
+			if (bounds.contains(p)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	
 	
 	public Dimension getWindowSize(Class<?> c) {
