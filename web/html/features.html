@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>OpenRocket &mdash; Features and screenshots</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="keywords" content="OpenRocket, model rocket, simulator, simulation, rocketry" />
+  <link rel="stylesheet" type="text/css" href="layout.css" />
+<meta name="Generator" content="htp 1.18" />
+</head>
+<body class="page_features">
+  <!--[if lte IE 6]>
+  <div id="iewarn">
+    You are using a browser that is <strong>8 years old!</strong>
+    &nbsp;&nbsp;&nbsp;
+    In Internet-years that is <em>prehistoric!</em><br/>
+    For the sanity of all webmasterkind,
+    <em>please <a href="http://www.mozilla.com/">upgrade</a></em>.  It's easy!
+  </div>
+  <![endif]-->
+  <div class="menucontainer">
+    <div class="menu">
+      <div class="icon"><a href="index.html"></a></div>
+      <ul>
+        <li><a href="index.html">OpenRocket</a></li>
+        <li><a href="features.html">Features and screenshots</a></li>
+        <li><a href="download.html">Download</a></li>
+        <li><a href="documentation.html">Documentation</a></li>
+        <li><a href="http://wiki.openrocket.info/">Wiki pages</a></li>
+        <li><a href="http://openrocket.trans.free.fr/">Translations</a></li>
+        <li><a href="getinvolved.html">Get involved!</a></li>
+        <li><a href="contact.html">
+          Mailing lists<br/>
+          Support forums<br/>
+	  Contact info</a></li>
+<!--
+        <li><a href="report.html">
+          Report a bug<br/>
+	  Request a feature</a></li>
+-->
+        <li><a href="license.html">License</a></li>
+      </ul>
+      <div class="logo">
+        <a href="http://sourceforge.net/projects/openrocket"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=260357&amp;type=12" width="120" height="30" alt="Get OpenRocket at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+      </div>
+    </div>
+  </div>
+    <h1>Features of OpenRocket</h1>
+  <div class="content">
+    <h2>Current features</h2>
+    <div class="screenshots">
+      <div class="smallshotconst"><a href="shots/main.png">
+	  <img src="shots-small/main.jpg" alt="Main window" /><br/>
+	  The main rocket design window is used to design the rocket
+	  and it also provides information about a flight simulation
+	  in real-time.
+      </a></div>
+      <div class="smallshotconst"><a href="shots/dart.png">
+	  <img src="shots-small/dart.jpg" alt="Realistic 3D Rendering" /><br/>
+	  Paint and decals can be added and rendered in 3D.
+      </a></div>
+      <div class="smallshotconst"><a href="shots/dialog-edit.png">
+	  <img src="shots-small/dialog-edit.jpg" alt="Component edit
+	  dialog" /><br/>
+	  The component shape and properties are defined in their own
+	  dialog.
+      </a></div>
+      <div class="smallshotconst"><a href="shots/dialog-analysis.png">
+	  <img src="shots-small/dialog-analysis.jpg" alt="Analysis
+	  dialog" /><br/>
+	  You can analyze the effect of individual components on the
+	  stability, drag and roll characteristics of the rocket.
+      </a></div>
+      <div class="smallshotconst"><a href="shots/dialog-plot-options.png">
+	  <img src="shots-small/dialog-plot-options.jpg"
+               alt="Simulation plot options" /><br/>
+	  The simulation results can be plotted in a multitude
+	  of ways.  You can either use the predefined plot
+	  configurations or define your own.<br/>
+      </a></div>
+      <div class="smallshotconst"><a href="shots/dialog-plot.png">
+	  <img src="shots-small/dialog-plot.jpg" alt="Simulation plot" /><br/>
+	  The simulations are plotted using the
+	  <em>JFreeChart</em> plotting library.
+      </a></div>
+    </div>
+    <h3>General</h3>
+    <ul>
+      <li><strong>Fully cross-platform</strong>, written in Java</li>
+      <li><strong>Fully documented</strong> <a href="documentation.html">simulation
+	  methods</a></li>
+      <li><strong>Open Source</strong>, source code available under the
+        <a href="license.html">GNU GPL</a></li>
+    </ul>
+    <h3>User interface</h3>
+    <ul>
+      <li><strong>Easy-to-use user interface</strong> for
+        rocket design</li>
+      <li><strong>Real-time view of CG and CP</strong> position</li>
+      <li><strong>Real-time flight altitude, velocity and
+          acceleration</strong> information from a continuous simulation
+	performed in the background</li>
+      <li>Zoomable schematic view of rocket from the side or rear,
+	with rotation around the center axis</li>
+    </ul>
+    <h3>Design</h3>
+    <ul>
+      <li>A multitude of available components to
+	choose from</li>
+      <li><strong>Trapezoidal</strong>, <strong>elliptical</strong>
+	and <strong>free-form fins</strong> supported</li>
+      <li>Support for <strong>canted fins</strong> (roll
+	stabilization)</li>
+      <li><strong>Staging</strong> and <strong>clustering</strong> support</li>
+      <li>Automatic calculation of component mass and CG based on
+        shape and density</li>
+      <li>Ability to <strong>override mass and CG</strong> of
+        components or stages separately</li>
+    </ul>
+    <h3>Simulation and analysis</h3>
+    <ul>
+      <li>Full <strong>six degree of freedom</strong> simulation</li>
+      <li>Rocket stability computed using <strong>extended Barrowman
+          method</strong></li>
+      <li><strong>Automatic design optimization</strong> &mdash; you
+        can optimize any number of rocket parameters for flight
+        altitude, maximum velocity or a number of other values</li>
+      <li>Realistic wind modeling</li>
+      <li>Analysis of the <strong>effect of separate
+	  components</strong> on the stability, drag and roll
+	characteristics of the rocket</li>
+      <li><strong>Fully configurable plotting</strong>, with
+	various preset configurations</li>
+      <li>Simulation data can be <strong>exported to
+	  <acronym title="Comma Separated Values">CSV</acronym>
+	  files</strong> for further analysis</li>
+      <li><strong>Simulation listeners</strong> allowing custom-made
+	code to interact with the rocket during flight simulation</li>
+    </ul>
+    <h2 id="future">Planned future features</h2>
+    <p>OpenRocket is under constant work in the free time of the
+      developers.  You can have a sneak preview on what has been
+      planned by checking the
+      <a href="https://raw.github.com/openrocket/openrocket/master/core/TODO">TODO-file</a>
+      on github.</p>
+    <p>Below are a few major features that are under consideration:</p>
+    <ul>
+      <li>Aerodynamic computation using
+	<acronym title="Computational Fluid Dynamics">CFD</acronym>
+	<a href="getinvolved.html" class="help">(help needed!)</a></li>
+      <li>Better support for supersonic simulation
+	<a href="getinvolved.html" class="help">(help needed!)</a></li>
+      <li>Customized support for hybrid rocket motors and water
+	rockets</li>
+      <li>Importing and plotting actual flight data from altimeters</li>
+      <li>Rocket flight animation</li>
+      <li>A "wizard" for creating new rocket designs</li>
+      <li class="spacer">More ideas are listed in the
+	<a href="https://raw.github.com/openrocket/openrocket/master/core/TODO">TODO-file</a>!</li>
+    </ul>
+    <p>If you want to help make OpenRocket the best rocket simulator,
+      don't hesitate to <a href="getinvolved.html">Get involved!</a></p>
+    <div class="clear"></div>
+  </div>
+  <div class="valid">
+    <p><a href="http://validator.w3.org/check/referer"><img src="valid-xhtml10.png" alt="Valid XHTML 1.0!" /></a>
+    </p>
+  </div>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/openrocket/" : "http://apps.sourceforge.net/piwik/openrocket/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<noscript><p><img src="http://apps.sourceforge.net/piwik/openrocket/piwik.php?idsite=1" alt="" /></p></noscript>
+<!-- End Piwik Tag -->
+</body>
+</html>

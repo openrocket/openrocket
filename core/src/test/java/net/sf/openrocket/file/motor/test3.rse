@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Water" code="W90psi" Type="single-use" dia="18.001" len="200."
+initWt="800." propWt="800." delays="1000" auto-calc-mass="1" auto-calc-cg="0"
+avgThrust="280.059" peakThrust="428.329" throatDia="0." exitDia="0."
+Itot="21.284" burn-time="0.08" massFrac="99.88" Isp="2.71" tDiv="10" tStep="-1."
+tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Water Rocket, 90 psi, 800g</comments>
+    <data>
+      <eng-data  t="0." f="0." m="800." cg="81.6327"/>
+      <eng-data  t="0.001" f="428.329" m="791.95" cg="89.1566"/>
+      <eng-data  t="0.005" f="405.382" m="729.279" cg="107.229"/>
+      <eng-data  t="0.008" f="383.711" m="684.79" cg="115.663"/>
+      <eng-data  t="0.016" f="346.742" m="574.971" cg="132.53"/>
+      <eng-data  t="0.023" f="319.972" m="487.264" cg="142.169"/>
+      <eng-data  t="0.031" f="294.476" m="394.885" cg="154.217"/>
+      <eng-data  t="0.041" f="267.705" m="289.234" cg="163.855"/>
+      <eng-data  t="0.051" f="244.759" m="192.927" cg="172.289"/>
+      <eng-data  t="0.059" f="229.462" m="121.63" cg="178.313"/>
+      <eng-data  t="0.067" f="215.439" m="54.742" cg="186.747"/>
+      <eng-data  t="0.072" f="203.966" m="15.3326" cg="189.157"/>
+      <eng-data  t="0.076" f="0." m="0." cg="192.857"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

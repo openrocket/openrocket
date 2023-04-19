@@ -1,0 +1,64 @@
+//// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+plugins {
+    id "com.github.johnrengelman.shadow"
+    id "java"
+}
+
+Properties props = new Properties()
+try {
+    props.load(file('./core/src/main/resources/build.properties').newDataInputStream())
+} catch (Exception ex) {
+    throw new Exception("Missing build.properties. file: " + ex.getMessage())
+}
+
+allprojects {
+    group 'net.sf.openrocket'
+    version = props['build.version']
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':swing')
+}
+
+//tasks.register('serializeEngines') {
+//    dependsOn ':core:serializeEngines'
+//}
+
+jar {
+    archiveBaseName.set('openrocket')
+
+    manifest {
+        attributes (
+            'Main-Class': 'net.sf.openrocket.startup.OpenRocket',
+            'SplashScreen-Image': 'pix/splashscreen.png'
+        )
+    }
+}
+
+shadowJar {
+    archiveBaseName.set('openrocket')
+    archiveClassifier.set(null)
+}
+
+//shadowJar.dependsOn([':core:serializeEngines'])
+
+tasks.register('deploy') {
+    group = 'openrocket'
+    dependsOn 'shadowJar'
+    doLast {
+        println "Completed the deployable jar in './build/libs"
+    }
+}
+tasks.register('deployFull') {
+    group = 'openrocket'
+    dependsOn ':core:serializeEngines', 'shadowJar'
+    doLast {
+        println "Completed the full build and deployable jar in './build/libs"
+    }
+}

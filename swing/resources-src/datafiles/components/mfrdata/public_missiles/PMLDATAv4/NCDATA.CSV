@@ -1,0 +1,16 @@
+Mfg.,Part No.,Desc.,Units,Length,Outer Dia,L/D Ratio,Insert Length,Insert OD,Thickness,Shape,Config,Material,CG Loc,Mass Units,Mass
+Public Missiles,PML UNC-1.145,Urethane nose cone,in.,6,1.27,4.7,1.5,1.145,0,cone,solid,Urethane,6.5,oz.,2
+Public Missiles,PML UNC-1.525,Urethane nose cone,in.,8,1.6,5,1.5,1.475,0,cone,solid,Urethane,6.5,oz.,4
+Public Missiles,PML UNC-OG-1.5,Stratus nose cone,in,4.375,1.649,0,0.875,1.505,0,ogive,solid,Urethane,0,oz.,0
+Public Missiles,PML PNC-2.15,Plastic nose cone,in.,9.5,2.3,4.2,1.75,2.175,0.125,ogive,hollow,Polystyrene PS,7.5,oz.,3.5
+Public Missiles,PML PNC-2.56,Plastic nose cone,in.,11.25,2.7,4.2,2,2.575,0.125,ogive,hollow,Polystyrene PS,9,oz.,5.4
+Public Missiles,PML PNC-3.00,Plastic nose cone,in.,13.25,3.1,4.2,2.5,2.975,0.125,ogive,hollow,Polystyrene PS,9,oz.,5.6
+Public Missiles,PML PNC-3.90,Plastic nose cone,in.,16.75,4,4.2,3,3.875,0.125,ogive,hollow,Polystyrene PS,9,oz.,10
+Public Missiles,PML FNC-6.00,Fiberglass nose cone,in.,24,6.1,4.2,5.5,5.975,0.125,ogive,hollow,Fiberglass,14.5,oz.,28
+Public Missiles,PML FNC-7.51,Fiberglass nose cone,in.,29,7.7,4.2,6,7.575,0.125,ogive,hollow,Fiberglass,18,oz.,44
+Public Missiles,PML FNC-11.41,Fiberglass nose cone,in.,42,11.7,4.2,6,11.575,0.125,ogive,hollow,Fiberglass,24,oz.,80
+Public Missiles,PML FNC-11.4HRPN,Fiberglass nose cone,in,21.94,11.66,0,6,11.39,0.0875,cone,hollow,Fiberglass,0,oz.,0
+Public Missiles,PML IC-2.1-1.1,Intellicone,in.,9.5,2.3,4.2,3,2.175,0.125,ogive,hollow,Polystyrene PS,,oz.,4.7
+Public Missiles,PML IC-2.6-1.5,Intellicone,in.,11.25,2.7,4.2,2,2.575,0.125,ogive,hollow,Polystyrene PS,,oz.,7.2
+Public Missiles,PML IC-3.0-2.1,Intellicone,in.,13.25,3.1,4.2,2.5,2.975,0.125,ogive,hollow,Polystyrene PS,,oz.,8.7
+Public Missiles,PML IC-3.9-2.1,Intellicone,in.,16.75,4,4.2,3,3.875,0.125,ogive,hollow,Polystyrene PS,,oz.,14.4

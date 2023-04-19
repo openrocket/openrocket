@@ -1,0 +1,22 @@
+{
+    "estes_BT-20_tan":
+    {
+        "mfr": "Estes",
+        "size": "BT-20",
+        "material": "kraft_glassine_estes_avg",
+        "color": "tan",
+        "length": "18.0 in",
+        "pn": ["BT-20", "30316"],
+        "rmk": "original Estes BT-20"
+    },
+    "estes_BT-20_white":
+    {
+        "mfr": "Estes",
+        "size": "BT-20",
+        "material": "kraft_glassine_estes_avg",
+        "color": "white",
+        "length": "18.0 in",
+        "pn": ["BT-20", "30316"],
+        "rmk": "later Estes BT-20 in white"
+    }
+}

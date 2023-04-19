@@ -1,0 +1,308 @@
+Body Tube Data Tables
+=====================
+
+Copyright 2016-2018 by Dave Cook NAR 21953 caveduck17@gmail.org
+
+See the file LICENSE in this distribution for license information.
+
+
+Estes-Compatible Series
+-----------------------
+All of these listed by Semroc that match Estes designations have identical sizes.
+Ones that don't have known Estes counterparts are marked with * in the comments.
+SEMROC never listed a BT-56 - it was essentially identical to Centuri #13 though.
+
+SERIES    ID        OD         RingID    RingOD
+                               OD+.002   ID-.002
+------    -----     -----      ------    ------
+BT-1+     0.220     0.246      0.248     0.218    * Quest MMX motor mount tube
+BT-2      0.255     0.281      0.283     0.253    * slips over MMX motor mount T-1+
+BT-2+     0.297     0.310      0.312     0.295    * slips over BT-2
+BT-3      0.349     0.375      0.377     0.347
+BT-4      0.422     0.448      0.450     0.420    *
+BT-4+     0.452     0.478      0.480     0.450    * slips over BT-4
+BT-5      0.515     0.543      0.545     0.513
+BT-5+     0.559     0.585      0.587     0.557    * slips over BT-5
+BT-19     0.674     0.700      0.702     0.672    * what is this?  Semroc BNC-19MC is a merc capsule
+BT-20     0.710     0.736      0.738     0.708
+BT-20+    0.744     0.770      0.772     0.742    * slips over BT-20
+BT-30     0.725     0.767      0.769     0.723
+BT-40     0.765     0.825      0.827     0.763
+BT-50     0.950     0.976      0.978     0.948
+BTH-50    0.950     0.992      0.994     0.948    * foil lined 24mm MMT
+BT-50+    0.984     1.010      1.012     0.982    * but only .001 different from BT-51
+BT-51     0.985     1.011      1.013     0.983
+BT-52     0.988     1.014      1.016     0.986
+BTH-52    1.140     1.220      1.222     1.138    * exactly same as LT-115
+BT-55     1.283     1.325      1.327     1.281
+BT-56est  1.304     1.346      1.348     1.302    not carried by Semroc; equivalent to Centuri ST-13
+BT-56sem  1.346     1.367      1.369     1.344    * believed to be erroneously derived from Estes sizing
+BT-58     1.498     1.540      1.542     1.496
+BT-60     1.595     1.637      1.639     1.593
+BT-70     2.175     2.217      2.219     2.173
+BTH-70    2.175     2.247      2.249     2.173    *
+BT-80     2.558     2.600      2.602     2.556
+BTH-80    2.558     2.640      2.642     2.556    * eRocket tube size chart disagrees with old SEMROC chart
+BT-99     3.668     3.700      3.702     3.666    aka RT-99, only avail in very short ring
+BT-100    3.702     3.744      3.746     3.700    
+BT-101    3.896     3.938      3.940     3.894
+
+
+Centuri-Compatible Series
+-------------------------
+
+SERIES    ID        OD         RingID    RingOD
+                               OD+.002   ID-.002
+------    -----     -----      ------    ------
+#2        0.234     0.260      0.262     0.232
+#5        0.515     0.543      0.545     0.513     Identical to Estes BT-5
+#6        0.610     0.650      0.652     0.608
+#7        0.715     0.759      0.761     0.713
+#8        0.865     0.908      0.910     0.863
+#8F       0.885     0.921      0.923     0.883     Semroc only: Same OD as FSI HRT-8 but thicker .018 wall
+#9        0.950     0.998      1.000     0.948     24mm MMT, same ID as BT-50 but .024 wall
+#10       1.000     1.040      1.042     0.998
+#11       1.130     1.170      1.172     1.128
+#13       1.300     1.340      1.342     1.298
+#16       1.600     1.640      1.642     1.598
+#18       1.800     1.840      1.842     1.798
+#20       2.000     2.040      2.042     1.998
+#27       2.674     2.700      2.702     2.672
+#36       3.600     3.690      3.692     3.598
+
+
+Large Tube Series (compatible with old Centuri heavy wall tubes)
+----------------------------------------------------------------
+These are now listed on the eRocket/SEMROC site as LT-xxx
+These are not the same as the newer Estes PSII 2.0, 2.5, 3.0, 4.0 tubes which are .034 wall
+
+SERIES    ID        OD         RingID    RingOD
+                               OD+.002   ID-.002
+------    -----     -----      ------    ------
+#085      0.865     0.945      0.947     0.863
+#115      1.140     1.220      1.222     1.138
+#125      1.250     1.340      1.342     1.248
+#150      1.500     1.590      1.592     1.498
+#175      1.750     1.840      1.842     1.748
+#200      2.000     2.080      2.082     1.198     why is wall 0.040 when others above #115 are 0.045 ?
+#225      2.250     2.340      2.342     2.248
+#275      2.750     2.840      2.842     2.748
+
+Clear Tube Series - CPT are Centuri sizes, PST are Estes sizes
+--------------------------------------------------------------
+
+CPT #7    0.715     0.759      0.761     0.713
+CPT #8    0.865     0.908      0.910     0.863
+CPT #10   1.039     1.060      1.062     1.037   note .020 larger vs ST-10 paper tube
+SOURCE ERROR: conclusively wrong data on SEMROC legacy page (repeats CPT-8 dimensions)
+SOURCE ERROR: inconsistent data on new 2017 eRockets/Semroc page: ID 1.039, OD 1.060, wall .021
+CPT #13   1.300     1.340      1.342     1.298   eRockets/Semroc gives slightly incorrect wall .022
+
+PST-50    0.950     0.976      0.978     0.948
+PST-55    1.283     1.325      1.327     1.281
+PST-65    1.750     1.774      1.776     1.748
+
+Metric tubes (MRI/MPC/Quest) - dimensions in mm
+-----------------------------------------------
+T5        4.00      5.00       5.10      3.90    MPC only
+T7        6.50      7.00       7.10      6.40    Micromaxx motor tube
+T10       9.40     10.00      10.10      9.30    Quest calls this Micromaxx Tube 2
+T14      13.00     14.00      14.10     12.90    MPC only, MMT for 13mm motors
+T15      14.00     15.00      15.10     13.90    Standard 15mm body tube, Quest specs as ID 0.550", OD 0.590"
+T19      18.08     18.75      18.85     17.98    Quest 18mm motor mount tube, gives ID 0.712", OD 0.738"
+T20      19.10     20.00      20.10     19.00    Standard 20mm body tube
+T21      20.20     21.20      21.30     20.10    Quest 21 mm motor mount tube for their former 20mm D motors, gives ID 0.795", OD 0.835"
+T24      23.25     23.90      24.00     23.15    24mm motor mount tube
+T25      24.00     25.00      25.10     23.90    Standard 25mm body tube
+T29 MMT  29.00     30.90      31.00     28.90    Quest 29mm MMT, same ID but heavier wall than 30mm standard tube
+T30      29.00     30.00      30.10     28.90    Standard 30mm body tube
+T31      28.96     30.86      30.96     28.86    Quest calls this "29mm motor mount tube", gives ID 1.14", OD 1.215"
+T35      34.00     35.00      35.10     33.90    Standard 35mm body tube, Quest specs ID 1.340", OD 1.380" == 34.0/35.0 mm
+T40      39.00     40.00      40.10     38.90    Standard 40mm body tube (also for FAI events)
+T50      48.80     50.00      50.10     48.70    Standard 50mm body tube, Quest specs ID 1.92", OD 1.97"
+
+Aerotech tubes
+--------------
+See http://www.rocketryforum.com/showthread.php?70990-aerotech-tube-dimensions
+
+AER-1.9   1.800     1.880      1.882     1.798    dimensions from Rocketarium.  AT gave 1.87 OD
+AER-2.6   2.56      2.64       2.642     2.558    dimensions from Aerotech posted in TRF 16 Nov 2014
+AER-4.0   3.90      3.987                         from TRF post 16 Nov 2014, AT quotes .005 tolerance
+
+Blue Tube
+---------
+New size values from alwaysreadyrocketry.com in the store on the 'size' dropdown items
+Masses are computed from my derived-from-measurements avg density of 1153.5 kg/m3 +/- 17.3
+Many mass values from Apogee are inaccurate unless there is wild variation, but my densisty stddev
+definitely does not support the notion of highly variable mass.
+It has been reported that blue tube sizes have not been consistent across the years and batches though.
+
+SERIES    ID        OD         MaxLen    Mass      RingID    RingOD
+                                         48 in     OD+.003   ID-.003
+------    -----     -----      ------    ------    --------  -------
+Blu-29mm   1.150     1.274      48.0     214.2 g
+Blu-38mm   1.520     1.644      48.0     279.6 g                         measured mass: 284 g
+Blu-54mm   2.150     2.274      48.0     392.4 g                         measured masses: 389.0, 388.0 (2 samples)
+Blu-2.6    2.560     2.684      48.0     463.4 g                         measured mass: 454, 468 g (2 samples)
+Blu-75mm   3.000     3.124      48.0     542.6 g                         measured mass: 553 g
+Blu-98mm   3.900     4.024      48.0     700.2 g                         mass reported by Coker: 696 g
+Blu-5.5    5.500     5.654      48/72    1224  g
+Blu-6.0    6.000     6.148      48/72    1281  g
+Blu-7.5    7.500     7.660      48/72    1728  g
+
+Estes PSII Tubes - .034 wall (my measurement)
+---------------------------------------------
+
+SERIES    ID        OD         RingID    RingOD
+                               OD+.05    ID-.05
+------    -----     -----      ------    ------
+29mm MMT   1.140     1.208     1.213     1.135
+2.0        1.932     2.000     2.005     1.927
+2.5        2.432     2.500     2.505     2.427
+3.0        2.932     3.000     3.005     2.927
+4.0        3.900     4.000     4.005     3.895     same as LOC tube, Mega Der Red Max
+
+FSI tube data from 1977 and 1993 catalogs
+-----------------------------------------
+
+SERIES    ID        OD      Len      Wt      RingID    RingOD   Lengths
+------    -----     -----   -----    -----   ------    ------   --------------------------
+RT-6      0.715***  0.755   18.0     0.425   0.757     0.713    18" PN 6006  (1993)
+RT-8+     0.881**   0.921   18.0     0.425   0.923     0.879    18" PN 6008  (1993)
+HRT-8+    0.881**   0.921   16.0     0.425   0.923     0.879    HRT-816, HRT-808, HRT-804
+HRT-10+   1.13      1.17    18.0     0.725   1.172     1.128    HRT-1018, HRT-1009, HRT-1004
+RT-12     1.30      1.34    18.0     0.738   1.342     1.298    RT-1218, RT-1209, RT-1204
+RT-15     1.60      1.64    18.0     0.936   1.642     1.598    RT-1518, RT-1512, RT-1506
+RT-17     1.80      1.84    18.0     0.950   1.842     1.798    18" PN 6017  (1993)
+RT-19     2.00      2.04    18.0     1.184   2.042     1.998    RT-1918, RT-1912, RT-1906
+RT-22     2.25      2.34    22.0     3.0     2.342     2.248    22" PN 6022  (1993)
+
++ HRT-8 and HRT-10 designations changed to RT-8 and RT-10 by the 1993 catalog.
+
+*** ID, wall and mass of RT-6 have messed up data...the 1993 catalog had an obvious typo of .175" for the ID.
+Likewise the 0.425 oz weight quoted for the RT-6 is an obvious duplication of the much older value
+for the HRT-8.
+
+For the RT-6 we can solve the case by knowing that a) this is MMT for 18mm motors and the ID is going to be
+in the .710 to .715 range; b) FSI leaned toward Centuri dimensions as RT-15/17/19/22 are
+exact duplicates of Centuri sizes; c) the typo value of .175 is an anagram of a likely correct
+value of 0.715"; and d) all of the other wall thicknesses down through RT-19 are .020".
+Here I conclude with high confidence that the ID is 0.715".
+
+** I am flagging the catalog value .903" ID of HRT-8 / RT-8 as a certain error.  The HRT-8 was
+described in the FSI 1977 catalog as "Heavy Duty tubes for engine mounts", yet with the given ID it would
+have only a .009" wall, which is not reasonable.  FSI also specified the motor diameter as 21 mm, which
+would be 0.827", a LOT smaller than the quoted tube diameter.  I do personally recall that the FSI 21mm
+motors were a pretty loose fit in the motor tubes, but a .08" difference is huge.
+
+The 0.903 ID remained all the way to the 1993 catalog where the "H" prefix had been
+dropped and the length changed from 16" to 18".  The quoted weight did not change here, confirming
+they were not careful about recalculating data when parts were modified.
+
+It must be mentioned that the .903" dimension also appears on nose cone HNC-81, transition HTS-810,
+and coupler BB-8 size data, but the egregious typo of .175" for the RT-6 also propagated to its mating parts,
+so I don't think the multiple occurrences of that value add to the evidence.
+
+A volumetric calculation (using OpenRocket) with known Kraft paper density gives about half the quoted
+weight of .425 oz for a 16" RT-8 with ID = 0.903".  If, however, we assume a wall of .020" like most of
+the other tubes, the weight comes to 0.47 oz, which seems very reasonable.
+
+For what it's worth, the Semroc version of this tube (Semroc PN ST-8Fxx) has an ID of 0.885", implying a
+wall of 0.018", and Carl McLawhorn was rarely far off.  The CMR 21mm motor tube (RB-90) had ID 0.864" and
+OD 0.890" with .013 wall, and I recall it was a better fit for the motors.
+
+Thus I am adopting an ID of 0.881" for the RT-8 and HRT-8.
+
+LOC tube data from 2018 website
+-------------------------------
+Note: weights are quoted on the site in lbs in the "additional information" tab and look to be mostly inaccurate.
+The diameters and weights given for motor tubes and couplers in the same tab are totally inaccurate.
+The tables below contain only the LOC-provided specs from the website.  See the body_tube_data.xlsx
+spreadsheet for improved data from actual measurements.
+
+Airframes
+---------
+
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     -------------
+BT-1.0/LBT-50  0.95      1.00    12.0     0.1 lb    1.003     0.947    12                Same as 24mm MMT
+BT-1.52        1.52      1.625   34.0     0.25 lb   1.628     1.517    34                Same as 38mm MMT
+BT-2.14        2.14      2.26    34.0     0.24 lb   2.263     2.137    34                Same as 54mm MMT
+BT-2.56        2.56      2.63    30.0     0.4 lb    2.633     2.557    30                Heavy wall BT-80 ID compatible
+BT-3.00        3.00      3.10    34.0     0.5 lb    3.103     2.997    34                NOT same as 75mm MMT
+BT-3.90        3.90      4.00    34.0     0.5 lb    4.003     3.897    34                NOT same as 98mm MMT
+BT-5.38        5.38      5.54    42.0     1.2 lb    5.543     5.377    42
+BT-7.51        7.51      7.675   30.0     3.43 lb*  7.678     7.507    30                Sold as 2x30" with a coupler
+
+* weight of 7.51 airframe tube is quoted for 2x30" pieces of tube with a coupler of unspecified length.
+
+Phenolic Tubes
+--------------
+These tubes appeared on the website in fall 2018.  Only the FT-1.52 and FT-5.38 have listed lengths.
+Dimensions are stated to be the same as the regular cardboard tubes.  No mass data is given.
+
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     -------------
+FT-1.52        1.52      1.625   34.0               1.628     1.517    34                Same as 38mm MMT
+FT-2.14        2.14      2.26                       2.263     2.137                      Same as 54mm MMT
+FT-2.56        2.56      2.63                       2.633     2.557                      Heavy wall BT-80 ID compatible
+FT-3.00        3.00      3.10                       3.103     2.997                      NOT same as 75mm MMT
+FT-3.90        3.90      4.00                       4.003     3.897                      NOT same as 98mm MMT
+FT-5.38        5.38      5.54    42.0               5.543     5.377    42
+FT-7.51        7.51      7.675                      7.678     7.507                      
+
+Motor Mount Tubes
+-----------------
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     -------------
+MMT-0.95                         12.0     0.06875 lb (12")             6, 12             See LBT-50
+MMT-1.14                         12.0     0.125 lb (12")               8, 12         
+MMT-1.58                         20.0     0.68 lb (20"), .375 lb (14") 11, 14, 20        See series 1.52 airframe
+MMT-2.14                         17.0     0.275 lb (17")               10, 14, 17        See series 2.14 airframe tube
+MMTHD-300                        34.0     0.875 lb                     34     
+MMTHD-390                        34.0     1.1875 lb                    34
+
+Couplers
+--------
+Actual dimensions not given except for length.  Weights given are considered inaccurate.
+
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     -------------
+CT-1.0                           2.0      0.1 lb
+TC-1.14                          2.0      0.1 lb
+TC-1.52                          4.0      0.1 lb
+TC-2.14*       2.022     2.126   6.0      27.2 gm                                        Wall .052, 2017 sample
+TC-2.56                          6.0      0.12 lb
+TC-3.00                          8.0      0.19 lb
+TC-3.90L                         8.0      0.2 lb
+TC-5.38                         11.0      1 lb
+TC-7.51                         15.0      1 lb
+
+* Dimensions and weight measured by D. Cook from actual example
+
+Coupler Stiffeners
+------------------
+Note wildly inconsistent use of decimal point in SKUs here.  These SKUs are held over from long ago but still in
+use as of late 2018.  Actual dimensions not given.
+
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     -------------
+STC-214                          5.0     0.0987 lb
+STC-256                          6.0     0.15625 lb
+STC-3.00                         6.0     0.1875 lb
+STC-390L                         7.75    0.25 lb
+STC-5.38                        11.0     0.625 lb
+STC-751                         15.0     1.625 lb
+
+CMR - Competition Model Rockets (from 1972 catalog)
+---------------------------------------------------
+
+SERIES         ID        OD      Len      Wt        RingID    RingOD   Lengths           Notes
+------         -----     -----   -----    -----     ------    ------   -------------     ------------------------
+RB-50          0.538     0.558   12.0               0.561     0.535    12                MMT for 13mm motors
+RB-52          0.564     0.584   12.0               0.587     0.561    12                slip fit over RB-50
+RB-74          0.710     0.736   12.0               0.739     0.707    12                MMT for 18mm motors
+RB-77          0.740     0.766   12.0               0.769     0.737    12                slip fit over RB-74
+RB-90          0.864     0.890   16.0               0.893     0.861    16                MMT for FSI 21mm motors
+RB-92          0.894     0.920   16.0               0.923     0.891    16                slip fit over RB-90
+RB-120         1.120     1.170   18.0               1.173     1.117    18                MMT for FSI 27mm motors

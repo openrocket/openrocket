@@ -1,0 +1,42 @@
+
+Copyright of the icons:
+-----------------------
+
+
+From the "Nuvola" package by David Vignoni:
+http://www.icon-king.com/projects/nuvola/
+
+application-exit.png
+document-close.png
+document-new.png
+document-open.png
+document-open-example.png (modified)
+document-print.png
+document-save-as.png
+document-save.png
+edit-copy.png
+edit-cut.png
+edit-delete.png
+edit-paste.png
+edit-redo.png
+edit-undo.png
+down.png
+pencil.png
+up.png
+edit-scale.png (modified from edit-copy.png)
+
+
+From the "Crystal" project:
+http://www.everaldo.com/crystal/
+
+delete.png
+preferences.png
+zoom-in.png
+zoom-out.png
+help-license.png
+help-log.png
+help-about.png
+help-bug.png
+help-tours.png
+star_silver.png
+star_gold.png (modified from star_silver.png)

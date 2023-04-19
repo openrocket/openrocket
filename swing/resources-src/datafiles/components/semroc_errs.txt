@@ -1,0 +1,266 @@
+SOURCE ERROR: ST-7400 Semroc has aberrant PN ST-7400 for ST-7 4" length, should be ST-740 
+
+SOURCE ERROR: INVESTIGATE Modern eRockets/SEMROC site has separate BT-60 and ST-16 listings
+but gives ST-16 dimensions for everything.  Legacy Semroc site has Centuri ST-16 dimensions of
+ID = 1.600, OD = 1.640 and Estes compatible BT-60 dimensions of ID = 1.595, OD = 1.637  ***
+Using Estes compatible dimensions for BT-60, i.e. assuming legacy site is correct. 
+
+SOURCE ERROR: T-3.0 inconsistent sizes for T-3.0 said to be "same as the Aerotech and LOC 3" tubes"
+but lists ID=2.950, OD=3.000, wall 0.050, which are internally inconsistent
+LOC tubes are in fact ID 3.000, OD 3.100, wall=0.050, so I use that.
+SOURCE ERROR: T-3.0  incorrect mfr attribution for T-3.0: Aerotech has never offered a 3" tube
+or kit; in early 2017 I personally confirmed this with Charlie Savoie, GM of Aerotech.
+
+
+SOURCE ERROR: PST-65 dimension discrepancies ***
+Semroc clear tube PST-65 (also called "BT-65 Clear" on the legacy site) and the corresponding BNC-65xx nose
+cone dimensions show significant discrepancies.  Here is a table (all dimensions in inches)
+
+SOURCE                        OD           ID         WALL    REMARKS
+
+Estes 1974 CPC                1.641        1.595      (.023)  This is known to be an error in the CPC
+Estes 1974 cat, PST-65R       1.796        1.750      (.023)  Same values appeared in all 1970s print catalogs
+Semroc 2017 site, PST-65      (1.799)      1.737      .031    Specifies "diameter" (presumed ID) and wall only
+Semroc 2017 site, BNC-65xx    NA           NA         NA      Modern site does not give nose cone diameters
+Semroc legacy site, PST-65    1.774        1.750      (.012)  Likely to be an error
+Semroc legacy site, BNC-65xx  1.796        1.750      (.023)
+
+DISCUSSION
+
+The Estes 1974 Custom Parts Catalog values are completely wrong and can be ignored.
+
+The Semroc legacy site values for the BNC-65xx nose cones BNC-65L and BNC-65AF agree exactly with the
+Estes values.
+
+The modern Semroc site has PST-65 values that work out to a compatible OD but a discrepant ID.
+
+The legacy Semroc site gives an OD in the tube listings that is likely to be discrepant as it implies a very
+thin wall.  it is worth noting that the digits "96" are exactly offset 2 keyboard positions from the
+"74" seen in the questionable 1.774 value.
+
+At NARAM-58 I had a conversation with Randy Boadway (proprietor of eRockets and modern Semroc) about the
+plastic tube sizes.  He mentioned that the sizing of the clear tubes was inconsistent from one lot to the next.
+This could possibly account for the smaller ID value given on the 2017 site.
+
+For now I am adopting the Estes print catalog values as the most likely to be correct, and so that the PST-65
+related parts definitions in this database will all interchange correctly.
+
+
+SOURCE ERROR: CPT-720 legacy semroc site lists 1.87" length.  Should be 2.0"; has been corrected on 2017 site  
+
+SOURCE ERROR:  CPT-10 ALL Semroc legacy site erroneously replicates the CPT-8 dimensions for the CPT-10.
+Semroc/eRockets dimensions from the 2017 site are inconsistent with ID 1.039", OD 1.060", wall .021" ***
+Here I have set the dimensions to match up with actual ST-10 (ID of 1.00) and use the likely correct
+.021 wall to give an OD of 1.042  
+
+SOURCE ERROR:  on the legacy Semroc site, PST-55 and PST-55-6 are both listed with 12" length and identical weight *** 
+
+SOURCE ERROR: Semroc legacy site gives length of PST-65L as 5.0", same as PST-65R.  Should be 12". *** 
+
+SOURCE ERROR: Semroc quotes CPL-5-34 OD as 0.516 which is greater than BT-5 ID of .515" 
+
+SOURCE ERROR: Semroc site has PN SEM-CPL-5-1.5 but other text giving CPL-5-1.75 and
+description says 1.75" so I went with 1.75" 
+
+SOURCE ERROR: Semroc lists a CPL-ST10-3" but dimensions are for an ST-20 tube 
+
+SOURCE ERROR: eRockets Semroc 2017 listings for CPL-52H-34 give OD=1.140, ID=0.980.  The OD is
+exactly the same as the ID of the BTH-52 tube, which is virtually impossible. I
+offset the ID and OD down by .002 to be more realistic.
+
+
+SOURCE ERROR: CPL-55-34 here again the quoted OD of the coupler is exactly the ID of the tube. 
+
+SOURCE ERROR: HTC-13 1975 Centuri catalog has  HTC-13 length = 1.5", legacy Semroc
+site erroneously gives 1.75".  It's correct again in eRockets/Semroc 2017 site 
+
+SOURCE ERROR: legacy Semroc site has JTC-60C length = 1.75", new eRockets/Semroc site has 1.5"
+Estes 1980 catalog gives 1.5".
+
+
+SOURCE ERROR: AER-11804 eRockets/Semroc 2017 web listing for AER-11804 gives internally inconsistent
+values of OD 1.804", ID 1.610", wall 0.083".  The OD is too big as the primary
+tube ID is only 1.80", and the ID doesn't agree with the given wall thickness.  I
+set the OD to a plausible 1.795", took the wall thickness at face value, and set
+the ID to 1.629 accordingly. 
+
+SOURCE ERROR: CPL-ST20-4 eRockets/Semroc 2017 listing for CPL-ST20-4 gives internallly inconsistent values
+of ID 1.952, OD 1.981, .036 wall.  I took the wall thickness as likely to be
+correct and used an OD with offset of .005 from the ID of an ST-20.
+
+
+SOURCE ERROR: (?) CPL-3.0=34 OD quoted of 2.92" is a very sloppy fit if the
+intended mating tube is LOC 3.0" tube with its 3.00" ID. LOC couplers are OD
+2.99, ID 2.88, wall 0.055; I adopted that for now *** Investigate *** 
+
+SOURCE ERROR: CPL-3.0"-6" inconsistent length.  PN given as CPL-3.0"-6", but in description
+it is CPL-3.0"-4" and describes 4" length.  I adopted 6" *** investigate *** 
+
+SOURCE ERROR: CPL-100-6 dimensions on eRocokets/Semroc 2017 site are completely wrong, with
+OD 2.920", ID 2.900", wall .034".  The OD would be appropriate for the
+CPL-3.0". I adopted a correct OD to mate with BT-100, and took the wall thickness
+as correct 
+
+SOURCE ERROR: CPL-101-6 Data missing for BT-101 couplers.  I adopted proper mating OD for
+BT-101 and took wall .034 as used in other Semroc couplers *** investigate *** 
+
+SOURCE ERROR: The 2018 Semroc/e-rockets site does not list masses for any BR-xxx balsa reducers.
+Many have masses given on the Semroc legacy site, but the new ones do not.  
+
+SOURCE ERROR: BR-5-T20 price listed at $9.99 on new site though all others of similar size are $3 to $3.50.
+No drawing shown. 
+
+SOURCE ERROR: BR-5-T20A price listed at $9.99 on new site though all others of similar size are $3 to $3.50.
+No drawing shown. 
+
+SOURCE ERROR: BR-813 correct overall exposed length is unclear.
+Semroc legacy site:         1.70"  Disagrees significantly with drawing
+Scaled drawing (legacy):    1.99"  (cyl section 0.34" plus 1.65" conical taper - pixel scale 224/in)
+Semroc/e-rockets new site:  1.75"  (1 3/8" plus 3/8" straight section)
+Scaled drawing (new):       1.87"  (cyl section 0.32" plus 1.56" conical taper - different pixel scale 324/in)
+The stated length disagrees with the drawing on both the legacy and new sites.  There was obviously an attempt
+to improve the description on the new site, and the drawing was changed, but they still don't agree.
+I'm breaking the tie by using the new drawing value of 1.87 
+
+SOURCE ERROR:  BR-1118 Legacy Semroc table gives 1.50" length, but drawing scales to 2.0"
+New site does not list length, and has same drawing.  Adopting the drawing value. 
+
+SOURCE ERROR: BR-1320 Legacy Semroc site gives length as 0.75".  Drawing scales to 2.0".
+Mass listed is 0.28 oz which seems low for a 2" long adapter; it's the same as for the
+1.0" long BR-1316M.  The drawing also shows a cylinder section.  Overall I think the drawing is
+more likely to be wrong, so using the spec value of length 0.75", and the usual #13 shoulder of 0.69"  
+
+SOURCE ERROR:  BR-1620 Semroc legacy site gives 1.5" exposed length, but the drawing scales to 1.75".
+Adopted the spec length because this drawing again looks like a special one with cylindrical section
+at the larger end 
+
+SOURCE ERROR: BR-1820 and BR-1820L are seemingly conflated on the new Semroc/e-rockets site.
+For the unit on this page: http://www.erockets.biz/semroc-balsa-reducer-18-to-20-1-7-8-long-sem-br-1820/
+Title:              SEMROC BALSA REDUCER #18 TO #20, 1 7/8" LONG SEM-BR-1820
+Description text:   BR-1820L
+Drawing caption:    BR-1820
+Length, specified:  1 7/8"
+Length, scaled dwg: 1.78"
+The L suffix usually means "long", and this is confirmed by the URL.
+The drawing says "BR-1820", but the photo of the product shows a long reducer that generally
+matches the drawing.
+For the unit on this page: http://www.erockets.biz/semroc-balsa-reducer-18-to-20-sem-br-1820l/
+Title:              SEMROC BALSA REDUCER #18 TO #20 SEM-BR-1820L
+Description text:   Semroc Balsa Reducer #18 to #20   SEM-BR-1820L
+Drawing caption:    BR-1820L
+Length, specified:  - not given -
+Length, scaled dwg: 0.42"
+Here the nomenclature is consistent, but the drawing shows a very short exposed length inconsistent
+with the L designation.
+
+
+SOURCE ERROR: BR-085-175 length not specified on new Semroc/e-rockets site 
+
+SOURCE ERROR: BR-085-225 length not specified on new Semroc/e-rockets site 
+
+SOURCE ERROR: BRS-84-115 (only found on 2018 Semroc/e-rockets site) has no length given. 
+
+SOURCE ERROR: BRS-115-16 drawing is captioned "BRS-116-16" on new site 
+
+SOURCE ERROR: BR-115-168 "special" has no given dimensions. Description on 2018 site says only
+"Semroc Balsa Reducer #115 to #168   SEM-BR-115-168  Special".  All dims scaled from drawing:
+both shoulders 1.0", len 1.19", ID of rear tube 1.68", OD of rear tube 1.75"
+BR-115-168 description doesn't say what a #168 tube is.  I have
+no record or memory of a "#168" tube anywhere and a Google search turns up nothing useful. 
+
+SOURCE ERROR: BR-115-225 no exposed length given on 2018 Semroc/e-rockets site. 
+
+SOURCE ERROR: BR-125-175 has no exposed length given, no drawing, and only a very oblique photo.  
+
+SOURCE ERROR: BR-125-175L has no exposed length given.  
+
+SOURCE ERROR: BR-125-225 has no exposed length given on new site.  
+
+SOURCE ERROR: TA-520 drawing on legacy site has incorrect length, scales to 0.6" (should be 0.75").
+Drawing on new e-rockets site is correct. 
+
+SOURCE ERROR: TA-2058 legacy site scaled drawing gives length 1.8", whereas
+specified length is 2.0" 
+
+SOURCE ERROR: TA-7080 has length 1.5" in table on legacy site, but View page gives length 2.25".
+Scaled drawing gives 2.25", so the table is wrong. 
+
+SOURCE ERROR: TA-7080H has length 1.5" in table on legacy site, but View page gives length 1.0".
+Scaled drawing also gives 1.0", so legacy site table is wrong.  
+
+SOURCE ERROR: EB-5 OD on 2017 eRocket site of .516 is wrong, must be less than 0.515 
+
+SOURCE ERROR: FB-20 has an erroneous duplicate listing as NB-20P 
+
+SOURCE ERROR: BTC-6 Semroc legacy site gives 0.615 for OD of BTC-6.  It can't be that
+big; they list ID of ST-6 tube as 0.610  
+
+SOURCE ERROR: BTC-115 Semroc legacy site gives OD of BTC-115 as 1.15".  ID of Series 115
+tube is given as 1.14" by multiple sources 
+
+SOURCE ERROR: (?) BC-933 description is identical to BC-932, they both say BNC-50X for ST-9 
+
+SOURCE ERROR: BC-943 and BC-944  Semroc legacy and new sites both show length of 4.3" for BC-943 and
+4.4" for BC-944.  They are supposed to be modeled after the Estes PNC-50Y and
+BNC-50Y, respectively.  However the official Estes specs for those items have
+identical lengths of 4.375".
+
+
+SOURCE ERROR: BNC-50G3 Semroc legacy and new sites both describe BNC-50G3 as a #9 cone 
+
+SOURCE ERROR: BNC-50G4 Semroc legacy and new sites both describe BNC-50G4 as a #9 cone 
+
+SOURCE ERROR: BC-1023 given length on legacy site is 2.3", but scaled dwg is 2.25".
+Looks like part number length rounding propagated into the description.  
+
+SOURCE ERROR: BC-1023C given length on legacy site is 2.3", but scaled dwg is 2.25".
+Looks like part number length rounding propagated into the description.  
+
+SOURCE ERROR: BC-1028 length on legacy site is 2.8", but scaled dwg is 2.75".
+Looks like part number length rounding propagated into the description.  
+
+SOURCE ERROR:  BC-1038 given length on legacy site is 3.8", but scaled drawing gives 4.13". 
+
+SOURCE ERROR: BC-1043 length given on legacy site as 4.3", but drawing scales to 4.46" 
+
+SOURCE ERROR:  BC-1048 length given on legacy site as 4.8", but drawing scales to 4.98" 
+
+SOURCE ERROR: BC-1121 len is given as 2.1" but drawing scales to 2.15" 
+
+SOURCE ERROR: BC-1135 len is given as 3.5" but drawing scales to 3.55" 
+
+SOURCE ERROR: BC-1159 len is given as 5.9" but drawing scales to 5.81" 
+
+SOURCE ERROR: BC-1350 appears in the legacy site table http://www.semroc.com/Store/Products/NoseCones.asp
+but does not appear in the All > nose cones > balsa parts product query 
+
+SOURCE ERROR: BC-1648 length is supposed to be 4.8" but legacy drawing scales to 4.6" and superposition
+shows it to be exactly the same drawing as for BC-1646 but with the label changed to BC-1648. This error
+has propagated to the new eRockets site.  Are manufactured BC-1648's actually only 4.6" long? 
+
+SOURCE ERROR: BNC-70 and BHC-70Hxx are not separated on new Semroc site, but BNC-80 and BNC-80Hxx are 
+
+SOURCE ERROR: BC-T2032C legacy site gives length 3.2", but scaled drawing is 3.25".  Looks to be a
+roundoff error where Carl changed a 3.25" length to a "32" part number suffix.  
+
+SOURCE ERROR: BC-T3033 legacy site gives length 3.3" but scaled drawing is 3.35".
+Apparently another part number length roundoff.  
+
+SOURCE ERROR: BC-T3541B legacy site gives length 4.1" but scaled drawing is 4.05".
+Apparently another part number length roundoff.  
+
+SOURCE ERROR: Semroc legacy site lists inconsistent thicknesses for the various sizes of
+parachutes...I doubt that these are all correct.  Here is the list:
+
+12"   1 mil
+14"   1.5 mil
+16"   1.5 mil
+20"   1.1 mil
+24"   1.1 mil
+32"   1.5 mil
+36"   no thickness given
+
+For now I have used the stock 1 mil HDPE Estes type material for all of the Semroc
+sizes until we get better information.
+
+

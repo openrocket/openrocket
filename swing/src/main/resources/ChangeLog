@@ -1,0 +1,730 @@
+2015-03-28 Kevin Ruland
+        * Released version 15.03  See Release Notes for changes.
+2014-11-02 Kevin Ruland
+        * Released version 14.11  See Release Notes for changes.
+
+2014-06-26 Kevin Ruland
+        * Released version 14.06  See Release Notes for changes.
+
+2014-05-21 Kevin Ruland
+        * Released version 14.05  See Release Notes for changes.
+
+2013-11-07 Kevin Ruland
+        * Released version 13.11
+
+2013-10-05 Kevin Ruland
+
+	* Released version 13.09.1
+
+2013-09-08 Sampo Niskanen
+
+	* Released version 13.09
+
+2013-08-18 Bill Kuker
+    * Upgraded JOGL to version 2.0.2
+
+2013-05-04 Sampo Niskanen
+
+	* Released version 13.05
+
+2013-04-17 Bill Kuker and Kevin Ruland
+    * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
+      apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
+      file for writes to update the rocket view.
+
+2013-04-17 Kevin Ruland
+    * Added simulation of tumble recovery based on experimentation done by Sampo Niskane.  This is particularly useful
+      for low power staged flights.
+
+2013-04-17 Kevin Ruland
+    * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
+      allows the user to override stage separation, recovery deployment, and motor ignition per flight configuration.
+      These configurations are stored in the ork file with each component.  If no override is specified then the user specified
+      default is used (set in the component edit dialog).  The flight configuration dialog was reworked to make it more
+      usable.  The user selects the configuration in a drop down with buttons for "add", "delete" and "rename".  After selecting
+      the configuration, the tabbed area below allows the user to change the configuration for this simulation.
+
+2013-04-17 Kevin Ruland
+    * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
+      and booster by tricking OpenRocket using a dummy motor with trivial thrust curve.  Now the user does not need to do this.
+      There is an example of this provided in TARC Payloader.ork and Boosted Dart.ork
+
+2013-04-17 Kevin Ruland
+    * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
+      separation.  The data for the boosters begins at t=separation.  The simulation plot allows the user to select
+      which stage's data to show (or all).
+
+2013-04-17 Kevin Ruland
+    * Modified the zoom and pan controls in the simulation plot.  Added zoom in, out, and reset buttons.  Added
+      scroll with mouse wheel.  If the alt key is used with either of these, only the domain is zoomed.  Richard
+      contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
+
+2012-09-28 Sampo Niskane
+	* Released version 12.09.1
+
+2012-09-25 Doug Pedrick
+
+   * Added preference to open last edited design file upon startup.
+
+   * [BUG] Fixed printing of transitions bug where the transition is deeply parented.
+
+   * Cleaned up Swing listeners of Configuration (memory leak).
+
+2012-09-16 Sampo Niskanen
+	* Released version 12.09
+
+2012-08-28 Bill Kuker
+
+   * Removed late GL initialization, was causing issues with Java 7.
+
+   * Added -Dopenrocket.3d.disable option for anyone experiencing crashes as a result of OpenGL.
+
+2012-08-01 Kevin Ruland
+
+   * Changed the loader to pull *.rkt files from zip containers.
+
+   * Modified the BasicFrame so it doesn't automatically open the Rocket configuration dialog when opening a new rocket.
+
+   * Unified the behavior for replacing (automatically closing) the base frame when opening a file, loading an example,
+   or picking from the Most-recently-used list.
+
+2012-06-24  Bill Kuker
+
+    * OSX UI Elements: Screen menu bar, Application name, Dock Icon, Quit, About & Preference
+    handlers. Stubs for the "Apple Java Extensions" to allow other platforms to compile provided
+    by https://github.com/ymasory/OrangeExtensions.
+
+2012-06-11  Bill Kuker
+
+    * Added a 3D view of the rocket to the figure panel.
+
+2012-06-05  Doug Pedrick
+
+    * Most recently used design files added to File menu.
+
+2012-05-23  Doug Pedrick
+
+    * Centering ring templates can now be chosen for printing.
+    * Calibration ruler added to printed templates.
+
+2012-05-09  Kevin Ruland
+
+    * Add ComponentPreset functionality.  These are commercial components which can be used in rocket designs.
+    System currently support Body Tube, Nose Cone, Transition, Tube Coupler, Centering Ring, Engine Block, Bulk Head,
+    Launch Lug, Streamer and Parachutes.  Received permission from Always Ready Rocketry, Balsa Machining Service, Giant
+    Leap Rocketry, Public Missiles, Semroc and Fliskits to include their parts catalogs in OR.
+
+2012-05-09  Kevin Ruland
+
+    * Add fractional inch unit 'in/64' to Length unit group.
+
+2012-05-09  Jason Blood
+
+	* Add PageFitPrintStrategy and related files to print multiple fins, transitions, and nosecones onto the same page(s)
+
+2012-04-19  Sampo Niskanen
+
+	* Allow opening recovery device on stage separation
+
+2012-04-11  Doug Pedrick
+
+	* [BUG] Printed simulation did not honor launch conditions
+
+2012-04-09  Sampo Niskanen
+
+	* [BUG] Cancelling simulation causes later simulations to fail
+	* Add debugging for NPE in GeneralOptimizationDialog
+
+2012-03-27  Sampo Niskanen
+
+	* [BUG] Inputting negative rotation angle values of components
+
+2012-03-25  Sampo Niskanen
+
+	* [BUG] Removed locale-specific toLowerCase/toUpperCase
+
+2012-03-25  Doug Pedrick
+
+	* Printed rocket figure in design report now honors rotation angle of main figure; fixed bug in layout where the
+      figure was clipped in the page margin.
+
+2012-03-18  Jason Blood
+
+	* Updated importing images to freeform fin sets to work with color images with improved description
+
+2012-03-17  Sampo Niskanen
+
+	* Released version 12.03
+
+2012-03-14  Jason Blood
+
+	* Importing images to freeform fin sets
+
+2012-03-13  Sampo Niskanne
+
+	* [BUG] Threads piled up when running simulations
+
+2012-03-11  Sampo Niskanen
+
+	* Update copyright statements
+
+2012-02-19  Sampo Niskanen
+
+	* Display computed motor class
+
+2012-02-16  Sampo Niskanen
+
+	* [BUG] Freeze when dropping component on child component
+
+2012-02-10  Sampo Niskanen
+
+	* Configurable stage separation events
+
+2012-00-00  Doug Pedrick
+
+	* RKT saving support
+
+2011-11-24  Sampo Niskanen
+
+	* Released version 1.1.9
+
+2011-11-18  Doug Pedrick
+
+	* Printable Fin Marking Guides, Transitions, and Nose Cones
+
+2011-10-20  Sampo Niskanen
+
+	* [BUG] NPE if plot data type is not present
+
+2011-10-11  Sampo Niskanen
+
+	* [BUG] Translators fetched before initialization
+
+2011-10-05  Doug Pedrick
+
+	* Fin tab autocalculation
+
+2011-09-26  Sampo Niskanen
+
+	* [BUG] Thrust was computed from dropped stages
+
+2011-09-18  Sampo Niskanen
+
+	* Remember window/dialog sizes and/or positions
+
+2011-09-13  Sampo Niskanen
+
+	* Added icons to help menu
+
+2011-08-28  Richard Graham
+
+	* Patch for geodetic computations + coriolis effect
+	* Patch for enhanced gravity model
+
+2011-08-25  Sampo Niskanen
+
+	* Released version 1.1.8
+	* [BUG] Ignore synthetic methods in logging traces
+	* [BUG] Ignore JRE bug #6826104
+
+2011-08-24  Sampo Niskanen
+
+	* [BUG] NPE in SimulationOptions.equals
+	* [BUG] Exception in plotting optimization path
+	* [BUG] Exception in saving optimization path
+
+2011-08-17  Justin Seitz
+
+	* Added Blue tube to materials database.
+
+2011-08-13  Sampo Niskanen
+
+	* [BUG] JDK7 returns null font for TitledBorder
+
+2011-08-12  Sampo Niskanen
+
+	* Released version 1.1.7
+
+2011-08-08  Sampo Niskanen
+
+	* Enhanced one-dimensional optimization algorithm
+	* [BUG] l10n/ directory not included in source distribution
+
+2011-08-07  Sampo Niskanen
+
+	* Optimization implementation
+
+2011-07-29  Sampo Niskanen
+
+	* [BUG] NaN in transition radius calculation
+
+2011-07-22  Sampo Niskanen
+
+	* Released version 1.1.6.
+
+2011-07-21  Sampo Niskanen
+
+	* [BUG] Converting triangular fin to freeform
+	* [BUG] Unit conversions in printout
+	* [BUG] Mass computations in printout
+	* [BUG] "Not a drop" exception in ComponentTreeTransferHandler
+	* [BUG] Plot annotation positioned wrong
+	* [BUG] Exception when writing PDF failed
+	* Language selector in preferences
+
+2011-07-18  Sampo Niskanen
+
+	* Select motor type based on known manufacturers
+	* Updated motor thrust curves from thrustcurve.org
+
+2011-07-17  Sampo Niskanen
+
+	* Component scaling support
+
+2011-07-14  Sampo Niskanen
+
+	* [BUG] Body tube auto-radius not enabled
+	* Optimization implementation
+
+2011-06-26  Sampo Niskanen
+
+	* [BUG] Original rocket was modified when sim.listener modified rocket
+
+2011-06-18  Sampo Niskanen
+
+	* Merged l10n branch into trunk, initial l10n support
+
+2011-06-10  Sampo Niskanen
+
+	* Released version 1.1.5
+
+2011-05-16  Sampo Niskanen
+
+	* Updated about dialog
+
+2011-04-15  Sampo Niskanen
+
+	* Removed native printing support
+
+2011-03-05  Sampo Niskanen
+
+	* Released version 1.1.4
+
+2011-01-20  Sampo Niskanen
+
+	* Initial i18n support
+
+2011-01-18  Sampo Niskanen
+
+	* [BUG] Simulation warnings were not being stored
+	* [BUG] Exclamation mark did not fit in simulation table
+	* Added instructions for zooming in plot dialog
+
+2010-12-01  Doug Pedrick
+
+	* Merging printing support
+
+2010-10-30  Sampo Niskanen
+
+	* [BUG] Invalid refereces to components used in caches
+
+2010-10-25  Doug Pedrick
+
+	* [BUG] Take launch lug radial angle into account when loading rkt file
+
+2010-10-24  Sampo Niskanen
+
+	* Added SafetyMutex and took into use in Simulation
+
+2010-10-18  Sampo Niskanen
+
+	* Ignore Sun JRE bug in D3D
+
+2010-10-09  Sampo Niskanen
+
+	* [BUG] Fixed conversion to freeform fin set
+	* Enhanced logging
+
+2010-10-08  Sampo Niskanen
+
+	* New components no longer look expandable in the component tree
+
+2010-10-06  Sampo Niskanen
+
+	* Released version 1.1.3
+
+2010-10-05  Sampo Niskanen
+
+	* Display comment as tooltip in component tree
+	* Limited allowed component attachments to those of the component
+	  add buttons
+
+2010-10-03  Sampo Niskanen
+
+	* Added VBOSE logging level
+
+2010-10-02  Sampo Niskanen
+
+	* [BUG] Exception when undoing changes
+
+2010-09-27  Sampo Niskanen
+
+	* Implemented DnD for component tree
+	* Documented undo/redo functionality
+
+2010-09-07  Sampo Niskanen
+
+	* Released version 1.1.2
+
+2010-09-05  Sampo Niskanen
+
+	* [BUG] Fixed bug that prevents adding stages to a rocket
+
+2010-09-04  Sampo Niskanen
+
+	* Added launch rod velocity to FlightData
+	* [BUG] Total velocity was measured from airspeed
+
+2010-09-03  Sampo Niskanen
+
+	* Released version 1.1.1
+
+2010-09-01  Sampo Niskanen
+
+	* [BUG] Fixed rocket config dialog being too large
+
+2010-08-31  Sampo Niskanen
+
+	* Updated all thrust curves from thrustcurve.org
+
+2010-08-30  Sampo Niskanen
+
+	* Implemented user-defined thrust curve loading
+
+2010-07-30  Sampo Niskanen
+
+	* [BUG] Fixed motor statistic computation
+	* Finalized enhanced motor selection dialog
+
+2010-07-22  Doug Pedrick
+
+	* [BUG] Fixed RockSim fin loading
+
+2010-07-21  Sampo Niskanen
+
+	* Implemented enhanced motor selection dialog
+	* Background motor loading & startup time optimization
+
+2010-07-20  Doug Pedrick
+
+	* [BUG] Exception when loading Rocksim files
+
+2010-07-19  Sampo Niskanen
+
+	* [BUG] Various small bug fixes
+
+2010-07-18  Sampo Niskanen
+
+	* Major refactoring of simulation code
+
+2010-03-21  Sampo Niskanen
+
+	* Released version 1.1.0
+
+2010-03-20  Doug Pedrick
+
+	* [BUG] Fixed RockSim design material loading
+
+2010-03-20  Sampo Niskanen
+
+	* Minor enhancements to the logging system
+	* Updated unit tests of Rocksim file loading
+
+2010-03-13  Doug Pedrick / Sampo Niskanen
+
+	* Initial RockSim design loading support
+
+2010-03-10  Sampo Niskanen
+
+	* Released version 1.0.0
+	* [BUG] Removing point of freeform fin could create intersecting shape
+
+2010-03-09  Sampo Niskanen
+
+	* Updated thrustcurves with newest curves from thrustcurve.org
+	* Updated splash screen
+
+2010-03-05  Sampo Niskanen
+
+	* [BUG] Fixed exception for fins with small root chord
+
+2010-02-26  Sampo Niskanen
+
+	* Simulation panel max.acceleration now from flight stage only
+
+2010-02-17  Sampo Niskanen
+
+	* Released version 0.9.6
+
+2010-01-11  Sampo Niskanen
+
+	* Detect out of memory condition even if masked by another exception
+	* Updated copyright year
+
+2009-12-31  Sampo Niskanen
+
+	* [BUG] Exception when removing component listeners
+	* [BUG] OutOfMemoryError was masked when saving file
+
+2009-12-30  Sampo Niskanen
+
+	* [BUG] "Reset" button did nothing for simulation time step
+
+2009-12-29  Sampo Niskanen
+
+	* Update fin calculation methods for 1 and 2 fin sets
+	* Rotate rocket to worst roll angle before simulations
+
+2009-12-23  Sampo Niskanen
+
+	* Updated time step selection methods
+
+2009-12-16  Sampo Niskanen
+
+	* [BUG] Fixed NullPointerException in ComponentConfigDialog
+
+2009-12-15  Sampo Niskanen
+
+	* [BUG] Illegal mapping in SimulationRunDialog
+	* [BUG] Fixed assertions in Quaternion class
+
+2009-12-14  Sampo Niskanen
+
+	* Implemented central logging system (not taken into use yet)
+
+2009-12-05  Sampo Niskanen
+
+	* [BUG] Fixed assertions in Quaternion class
+
+2009-12-03  Sampo Niskanen
+
+	* [BUG] Fixed fin computation of two-fin set
+
+2009-12-02  Sampo Niskanen
+
+	* Take into account all fins in fin-fin interference
+	* Removed 15%/6% fin dependence on lateral wind direction
+
+2009-11-28  Sampo Niskanen
+
+	* Released version 0.9.5
+	* [BUG] NPE when clearing combo box selections
+	* Minor fixes to update checking
+	* Added a few guidance texts
+
+2009-11-27  Sampo Niskanen
+
+	* [BUG] Fixed computing inner radius of centering ring
+	* Removed RuntimeException instantiation from all classes
+
+2009-11-24  Sampo Niskanen
+
+	* Released version 0.9.4
+
+2009-11-24  Sampo Niskanen
+
+	* Close original window when opening example design
+
+2009-11-10  Sampo Niskanen
+
+	* [BUG] Fixed transition volume/mass computation
+	* [BUG] Simulations etc. using removed motor configuration IDs
+
+2009-10-11  Sampo Niskanen
+
+	* [BUG] Sorting motor selection dialog with ',' decimal separator
+
+2009-10-10  Sampo Niskanen
+
+	* Removed non-ASCII characters from source code files
+	* Created Chars class for non-ASCII characters
+	* Added styrofoam materials
+
+2009-10-04  Sampo Niskanen
+
+	* [BUG] Fixed too high configuration dialogs
+
+2009-10-03  Sampo Niskanen
+
+	* Added debug information to ant build file compilation
+	* Implemented update information fetching (client side)
+
+2009-09-26  Sampo Niskanen
+
+	* Implemented custom material editing
+
+2009-09-20  Sampo Niskanen
+
+	* Implemented more unit tests, fixed bugs
+
+2009-09-19  Sampo Niskanen
+
+	* [BUG] Ignore Sun JRE bug 6828938 in ExceptionHandler
+	* Implemented non-exception throwing bug handling
+	* [BUG] Fixed unnecessary cropping for component tree names
+
+2009-09-10  Sampo Niskanen
+
+	* [BUG] Freeform fin set shape undo not working
+	* [BUG] Conversion to freeform fin set not working
+
+2009-09-08  Sampo Niskanen
+
+	* Allow components to be attached to tube coupler
+
+2009-09-07  Sampo Niskanen
+
+	* Implemented fin tab save/load
+
+2009-09-04  Sampo Niskanen
+
+	* Implemented through-the-wall fin tabs (excluding save/load)
+
+2009-09-01  Sampo Niskanen
+
+	* Released version 0.9.3
+
+2009-08-29  Sampo Niskanen
+
+	* Extracted motor manufacturer into separate class
+	* Started writing unit tests
+
+2009-08-28  Sampo Niskanen
+
+	* Added icon and source info to About dialog
+	* Finalized flight event plot icons
+
+2009-08-27  Sampo Niskanen
+
+	* Allow clicking on label to toggle checkbox in two tables
+
+2009-08-21  Sampo Niskanen
+
+	* Showing events in non-time-domain-plots
+
+2009-08-20  Sampo Niskanen
+
+	* Showing events in time-domain plots
+
+2009-08-15  Sampo Niskanen
+
+	* Possibility to save user-defined materials
+
+2009-08-14  Sampo Niskanen
+
+	* Plots ignore trailing NaN values
+
+2009-08-13  Sampo Niskanen
+
+	* [BUG] Added fin cant for elliptical fins
+
+2009-08-12  Sampo Niskanen
+
+	* Warning dialog when loading files
+	* [BUG] Unnecessary warnings when loading files
+
+2009-08-09  Sampo Niskanen
+
+	* [BUG] Fixed various bugs in motor loading (e.g. mass calculation,
+	  more rigorous input checking etc)
+
+2009-08-08  Sampo Niskanen
+
+	* Refactored motor loading and "Simple XML" loading classes
+	* Implemented RockSim motor definition file loading
+
+2009-08-07  Sampo Niskanen
+
+	* Created window icons and took into use
+	* Changed motor burn time and avg. thrust calculations to be
+	  NFPA 1125 compliant
+
+2009-08-03  Sampo Niskanen
+
+	* Automatic bug reporting when uncaught exceptions occur
+
+2009-07-29  Sampo Niskanen
+
+	* Clustered inner tube splitting
+	* [BUG] Copy-pasted inner tubes shared motors
+
+2009-07-28  Sampo Niskanen
+
+	* Opening of example rocket designs
+
+2009-07-27  Sampo Niskanen
+
+	* [BUG] Launch lug radial position not correctly loaded
+
+2009-07-26  Sampo Niskanen
+
+	* [BUG] Fixed unit name of ft/s^2
+	* Implemented flight data exporting
+	* [BUG] Fixed "unknown error" when opening file of zero size
+	* [BUG] Fixed exception in motor configuration name editing
+
+2009-07-13  Sampo Niskanen
+
+	* Released version 0.9.2
+
+2009-07-12  Sampo Niskanen
+
+	* [BUG] Better DescriptionArea based on JEditorPane
+
+2009-07-09  Sampo Niskanen
+
+	* [BUG] Fixed imperial unit conversions
+	* [BUG] Fixed engine block icon transparency
+
+2009-06-26  Sampo Niskanen
+
+	* Progress dialogs for file open/save
+	* File size estimate in save dialog
+
+2009-06-20  Sampo Niskanen
+
+	* New edit motor configurations dialog
+	* Changed FreeformFinSet to throw checked exceptions
+
+2009-06-11  Sampo Niskanen
+
+	* Added search field to motor chooser dialog
+
+2009-06-09  Sampo Niskanen
+
+	* Released version 0.9.1
+
+2009-06-08  Sampo Niskanen
+
+	* Fixed loading of icons from JAR
+
+2009-06-06  Sampo Niskanen
+
+	* Cut/Copy/Paste of simulations
+	* Improved build scripts
+
+2009-05-28  Sampo Niskanen
+
+	* Added startup check for Java 1.6 and OpenJDK
+
+2009-05-28  Sampo Niskanen
+
+	* Fixed FixedPrecisionUnit formatting
+	* Fixed saving of transitions
+	* Fixed file dialog directory browsing
+	* Initial shift-click selects second component from figure
+	* Allow adding body components without selecting stage
+
+2009-05-24  Sampo Niskanen  <sampo.niskanen@iki.fi>
+
+	* Initial release 0.9.0
