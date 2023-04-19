@@ -1,6 +1,7 @@
 plugins {
     id "com.github.johnrengelman.shadow"
     id 'java'
+    id 'com.adarshr.test-logger' version '3.2.0'
 }
 
 group 'net.sf.openrocket'
@@ -16,6 +17,12 @@ version = props['build.version']
 repositories {
     mavenCentral()
 }
+
+//test {
+//    testLogging {
+//        events "PASSED", "SKIPPED", "FAILED"
+//    }
+//}
 
 configurations {
     testArtifactsClasspath {
@@ -123,8 +130,8 @@ tasks.register('externalComponentsValidate') {
 }
 tasks.register('externalComponentsUpdate') {
     group = 'openrocket'
-    dependsOn 'externalComponentsInit'
     doLast {
+        dependsOn 'externalComponentsInit'
         exec {
             workingDir "../"
             executable 'git'
@@ -135,4 +142,5 @@ tasks.register('externalComponentsUpdate') {
 }
 
 clean.dependsOn([externalComponentsDelete])
-compileJava.dependsOn([externalComponentsCopy])
+//compileJava.dependsOn([externalComponentsCopy])
+processResources.dependsOn([externalComponentsCopy])
