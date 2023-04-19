@@ -44,6 +44,7 @@
 /swing/build
 /swing/tmp
 /swing/src/main/resources/datafiles/components
+/swing/resources-src/datafiles/components-dbcook
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
