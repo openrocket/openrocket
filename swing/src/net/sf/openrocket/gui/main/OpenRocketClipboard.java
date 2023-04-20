@@ -101,7 +101,7 @@ public final class OpenRocketClipboard {
 		if (someChildrenSelected) {
 			for (RocketComponent child : component.getChildren()) {
 				if (!clipboardComponents.contains(child)) {
-					component.removeChild(child);
+					component.removeChild(child, false);
 				} else {
 					clipboardComponents.remove(child);
 					filterClipboardComponents(child.getChildren());

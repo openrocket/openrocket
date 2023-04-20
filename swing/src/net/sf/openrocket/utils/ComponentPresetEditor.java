@@ -342,6 +342,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			log.info(Markers.USER_MARKER, "User decided not to open, option=" + option);
 			return false;
 		}
+
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		
 		File file = chooser.getSelectedFile();
 		try {

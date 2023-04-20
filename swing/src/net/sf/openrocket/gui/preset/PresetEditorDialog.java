@@ -44,6 +44,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -389,6 +390,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 						File file = imageChooser.getSelectedFile();
 						ncImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						ncImageBtn.setIcon(ncImage);
+						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(imageChooser.getCurrentDirectory());
 					}
 				}
 			});
@@ -1318,6 +1320,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	 */
 	private JFileChooser createImageChooser() {
 		final JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		ImagePreviewPanel preview = new ImagePreviewPanel();
 		chooser.setAccessory(preview);
 		chooser.addPropertyChangeListener(preview);

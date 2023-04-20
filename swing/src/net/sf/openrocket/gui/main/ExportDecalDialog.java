@@ -90,6 +90,7 @@ public class ExportDecalDialog extends JDialog {
 						export(selectedDecal, selectedFile);
 						// If the user doesn't confirm over write, then leave this dialog open.
 						ExportDecalDialog.this.dispose();
+						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 					}
 				}
 			}

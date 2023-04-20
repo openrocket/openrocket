@@ -75,35 +75,35 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public double getOuterRadius() {
 		if (autoRadius) {
-			// Return auto radius from front or rear
-			double r = -1;
-			SymmetricComponent c = this.getPreviousSymmetricComponent();
-			// Don't use the radius of a component who already has its auto diameter enabled
-			if (c != null && !c.usesNextCompAutomatic()) {
-				r = c.getFrontAutoRadius();
-				refComp = c;
-			}
-			if (r < 0) {
-				c = this.getNextSymmetricComponent();
-				// Don't use the radius of a component who already has its auto diameter enabled
-				if (c != null && !c.usesPreviousCompAutomatic()) {
-					r = c.getRearAutoRadius();
-					refComp = c;
-				}
-			}
-			if (r < 0)
-				r = DEFAULT_RADIUS;
-			return r;
+			outerRadius = getAutoOuterRadius();
 		}
 		return outerRadius;
 	}
 
 	/**
-	 * Return the outer radius that was manually entered, so not the value that the component received from automatic
-	 * outer radius.
+	 * Returns the automatic outer radius, taken from the previous/next component. Returns the default radius if there
+	 * is no previous/next component.
 	 */
-	public double getOuterRadiusNoAutomatic() {
-		return outerRadius;
+	private double getAutoOuterRadius() {
+		// Return auto radius from front or rear
+		double r = -1;
+		SymmetricComponent c = this.getPreviousSymmetricComponent();
+		// Don't use the radius of a component who already has its auto diameter enabled
+		if (c != null && !c.usesNextCompAutomatic()) {
+			r = c.getFrontAutoRadius();
+			refComp = c;
+		}
+		if (r < 0) {
+			c = this.getNextSymmetricComponent();
+			// Don't use the radius of a component who already has its auto diameter enabled
+			if (c != null && !c.usesPreviousCompAutomatic()) {
+				r = c.getRearAutoRadius();
+				refComp = c;
+			}
+		}
+		if (r < 0)
+			r = DEFAULT_RADIUS;
+		return r;
 	}
 	
 	/**

@@ -46,12 +46,12 @@ public class TransitionSaver extends SymmetricComponentSaver {
 		}
 
 		if (trans.isForeRadiusAutomatic())
-			elements.add("<foreradius>auto " + trans.getForeRadiusNoAutomatic() + "</foreradius>");
+			elements.add("<foreradius>auto " + trans.getForeRadius() + "</foreradius>");
 		else
 			elements.add("<foreradius>" + trans.getForeRadius() + "</foreradius>");
 		
 		if (trans.isAftRadiusAutomatic())
-			elements.add("<aftradius>auto " + trans.getAftRadiusNoAutomatic() + "</aftradius>");
+			elements.add("<aftradius>auto " + trans.getAftRadius() + "</aftradius>");
 		else
 			elements.add("<aftradius>" + trans.getAftRadius() + "</aftradius>");
 		
