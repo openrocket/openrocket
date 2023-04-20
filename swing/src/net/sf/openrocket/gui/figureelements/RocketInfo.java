@@ -11,8 +11,8 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.simulation.FlightData;

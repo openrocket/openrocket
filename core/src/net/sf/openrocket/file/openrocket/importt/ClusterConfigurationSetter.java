@@ -2,7 +2,7 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.RocketComponent;

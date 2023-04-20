@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorConfigurationId;

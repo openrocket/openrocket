@@ -232,6 +232,17 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(openRecentOnStartupBox,"spanx, wrap");
+
+		//// Save RASAero Format warning dialog
+		final JCheckBox rasaeroWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RASAeroWarning"));
+		rasaeroWarningDialogBox.setSelected(preferences.getShowRASAeroFormatWarning());
+		rasaeroWarningDialogBox.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setShowRASAeroFormatWarning(rasaeroWarningDialogBox.isSelected());
+			}
+		});
+		this.add(rasaeroWarningDialogBox,"spanx, wrap");
 		
 		//// Save RockSim Format warning dialog
 		final JCheckBox rocksimWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RockSimWarning"));

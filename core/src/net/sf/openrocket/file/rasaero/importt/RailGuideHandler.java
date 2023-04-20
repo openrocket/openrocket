@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.rasaero.importt;
 
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -22,8 +23,8 @@ public abstract class RailGuideHandler {
      * @param height total height of the rail guide, plus the screw height
      */
     public static void addRailGuide(BodyTube parent, double diameter, double height) {
-        diameter = diameter / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
-        height = height / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+        diameter = diameter / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        height = height / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
 
         RailButton button = generateRailButtonFromRASAeroRailGuide(diameter, height, parent.getLength());
         parent.addChild(button);

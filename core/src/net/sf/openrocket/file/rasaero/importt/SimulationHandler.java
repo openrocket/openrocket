@@ -1,11 +1,13 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.DocumentLoadingContext;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
+import net.sf.openrocket.file.rasaero.RASAeroMotorsLoader;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
@@ -80,7 +82,7 @@ public class SimulationHandler extends AbstractElementHandler {
         } else if (RASAeroCommonConstants.SUSTAINER_LAUNCH_WT.equals(element)) {
             sustainerLaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.SUSTAINER_CG.equals(element)) {
-            sustainerCG = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            sustainerCG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER1_ENGINE.equals(element)) {
             booster1Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY.equals(element)) {
@@ -90,7 +92,7 @@ public class SimulationHandler extends AbstractElementHandler {
         } else if (RASAeroCommonConstants.BOOSTER1_LAUNCH_WT.equals(element)) {
             booster1LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER1_CG.equals(element)) {
-            booster1CG = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            booster1CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER1.equals(element)) {
             includeBooster1 = Boolean.parseBoolean(content);
         } else if (RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element)) {
@@ -100,7 +102,7 @@ public class SimulationHandler extends AbstractElementHandler {
         } else if (RASAeroCommonConstants.BOOSTER2_LAUNCH_WT.equals(element)) {
             booster2LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER2_CG.equals(element)) {
-            booster2CG = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            booster2CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
             includeBooster2 = Boolean.parseBoolean(content);
         }
@@ -116,15 +118,9 @@ public class SimulationHandler extends AbstractElementHandler {
         }
 
         // Add motors to the rocket
-        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, fcid, warnings);
-        MotorMount booster1Mount = null;
-        if (includeBooster1) {
-            booster1Mount = addMotorToStage(1, booster1Engine, booster1IgnitionDelay, fcid, warnings);
-        }
-        MotorMount booster2Mount = null;
-        if (includeBooster2) {
-            booster2Mount = addMotorToStage(2, booster2Engine, 0.0, fcid, warnings);
-        }
+        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, fcid, true, warnings);
+        MotorMount booster1Mount = addMotorToStage(1, booster1Engine, booster1IgnitionDelay, fcid, includeBooster1, warnings);
+        MotorMount booster2Mount = addMotorToStage(2, booster2Engine, 0.0, fcid, includeBooster2, warnings);
 
         // Set separation settings
         setSeparationDelay(0, 0.0, fcid);
@@ -148,22 +144,23 @@ public class SimulationHandler extends AbstractElementHandler {
     }
 
     /**
-     * Adds a motor to the specified stage.
-     * @param stageNr The stage number
-     * @param motor The motor to add
-     * @param ignitionDelay The ignition delay
-     * @param id The flight configuration id
+     * Add a new motor to a stage
+     * @param stageNr number of the stage to add the motor to
+     * @param motor motor to add
+     * @param ignitionDelay ignition delay of the motor
+     * @param id flight config id to alter
+     * @param enableMotorMount whether the motor mount should be enabled or disabled
      * @param warnings The warning set
-     * @return The motor mount in which the motor is added, or null if no motor was added
      */
     private MotorMount addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
-                                 final FlightConfigurationId id, final WarningSet warnings) {
+                                 final FlightConfigurationId id, boolean enableMotorMount,
+                                       final WarningSet warnings) {
         if (motor == null || rocket.getStage(stageNr) == null) {
             return null;
         }
         MotorMount mount = getMotorMountForStage(stageNr);
         if (mount == null) {
-            warnings.add("No motor mount found for stage " + stageNr + ".  Ignoring motor.");
+            warnings.add("No motor mount found for stage " + stageNr + ". Ignoring motor.");
             return null;
         }
         MotorConfiguration motorConfig = new MotorConfiguration(mount, id);
@@ -183,6 +180,7 @@ public class SimulationHandler extends AbstractElementHandler {
             motorConfig.setIgnitionEvent(IgnitionEvent.AUTOMATIC);
         }
         mount.setMotorConfig(motorConfig, id);
+        mount.setMotorMount(enableMotorMount);
 
         return mount;
     }
@@ -201,20 +199,18 @@ public class SimulationHandler extends AbstractElementHandler {
 
     /**
      * Returns the furthest back motor mount in the stage.
-     * @param stage stage number
+     * @param stageNr stage number
      * @return furthest back motor mount of the stage
      */
-    private MotorMount getMotorMountForStage(int stage) {
-        MotorMount mount = null;
-        for (RocketComponent component : rocket.getStage(stage)) {
+    private MotorMount getMotorMountForStage(int stageNr) {
+        AxialStage stage = (AxialStage) rocket.getChild(stageNr);
+        for (int i = stage.getChildCount() - 1; i > 0; i--) {
+            RocketComponent component = stage.getChild(i);
             if (component instanceof MotorMount) {
-                mount = (MotorMount) component;
+                return (MotorMount) component;
             }
         }
-        if (mount != null) {
-            mount.setMotorMount(true);
-        }
-        return mount;
+        return null;
     }
 
     private void applyMassOverrides(WarningSet warnings) {

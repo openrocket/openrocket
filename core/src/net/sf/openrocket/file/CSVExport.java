@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;

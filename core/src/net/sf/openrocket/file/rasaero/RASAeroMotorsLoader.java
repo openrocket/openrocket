@@ -1,11 +1,15 @@
-package net.sf.openrocket.file.rasaero.importt;
+package net.sf.openrocket.file.rasaero;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.RASPMotorLoader;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.file.motor.AbstractMotorLoader;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +27,7 @@ public abstract class RASAeroMotorsLoader {
             return null;
         }
         if (allMotors == null) {
-            loadAllMotors();
+            loadAllMotors(warnings);
         }
         /*
             RASAero file motor strings are formatted as "<motorName>  (<manufacturer>)"
@@ -53,44 +57,48 @@ public abstract class RASAeroMotorsLoader {
         }
     }
 
-    // Not currently used, because it causes some compatibility issues when e.g. wanting to open the RASAero motor
+    // Not currently used for importing, because it causes some compatibility issues when e.g. wanting to open the RASAero motor
     // in the motor selection table (because it is not present there).
     // It's probably also better to load OR-native motors.
     // But I'll leave this in, in case it's needed in the future.
-    /*
+    /**
      * Loads all original RASAero motors.
      * @param warnings The warning set to add import warnings to.
+     * @return the loaded motors
      * @throws RuntimeException If the RASAero motors file could not be found.
-     *
-     private static void loadAllRASAeroMotors(WarningSet warnings) throws RuntimeException {
-        allMotors = new ArrayList<>();
+     */
+     public static List<ThrustCurveMotor> loadAllRASAeroMotors(WarningSet warnings) throws RuntimeException {
+         List<ThrustCurveMotor> RASAeroMotors = new ArrayList<>();
 
-        GeneralMotorLoader loader = new GeneralMotorLoader();
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        String fileName = "RASAero_Motors.eng";
-        InputStream is = classloader.getResourceAsStream("datafiles/thrustcurves/RASAero/" + fileName);
-        if (is == null) {
-            throw new RuntimeException("Could not find " + fileName);
-        }
-        try {
-            List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
-            for (ThrustCurveMotor.Builder builder : motors) {
-                allMotors.add(builder.build());
-            }
-        } catch (IOException e) {
-            warnings.add("Error during motor loading: " + e.getMessage());
-        }
-    }*/
+         RASPMotorLoader loader = new RASPMotorLoader();
+         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+         String fileName = "RASAero_Motors.eng";
+         InputStream is = classloader.getResourceAsStream("datafiles/thrustcurves/RASAero/" + fileName);
+         if (is == null) {
+             throw new RuntimeException("Could not find " + fileName);
+         }
+         try {
+             List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName, false);
+             for (ThrustCurveMotor.Builder builder : motors) {
+                 RASAeroMotors.add(builder.build());
+             }
+         } catch (IOException e) {
+             warnings.add("Error during motor loading: " + e.getMessage());
+         }
+
+         return RASAeroMotors;
+    }
 
     /**
      * Loads the OpenRocket motors database.
      */
-    private static void loadAllMotors() {
+    private static void loadAllMotors(WarningSet warnings) {
         allMotors = new ArrayList<>();
         List<ThrustCurveMotorSet> database = Application.getThrustCurveMotorSetDatabase().getMotorSets();
         for (ThrustCurveMotorSet set : database) {
             allMotors.addAll(set.getMotors());
         }
+        //allMotors.addAll(loadAllRASAeroMotors(warnings));
     }
 
 }

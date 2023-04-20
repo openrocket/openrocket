@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
@@ -20,7 +21,6 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 
 	private final FileType type;
 	private final OpenRocketDocument document;
-	private final StorageOptionChooser storageChooser;
 
 	private static final Translator trans = Application.getTranslator();
 
@@ -41,7 +41,7 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case OPENROCKET:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
 				this.setDialogTitle(trans.get("saveAs.openrocket.title"));
-				storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
+				StorageOptionChooser storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
 				this.setAccessory(storageChooser);
 				this.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
@@ -49,17 +49,15 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case ROCKSIM:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"rkt");
 				this.setDialogTitle(trans.get("saveAs.rocksim.title"));
-				storageChooser = null;
 				this.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 				break;
-			/*case RASAERO:
+			case RASAERO:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"CDX1");
 				this.setDialogTitle(trans.get("saveAs.rasaero.title"));
-				storageChooser = null;
 				this.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
-				break;*/
+				break;
 		}
 		
 		final RememberFilenamePropertyListener listener = new RememberFilenamePropertyListener();
@@ -73,50 +71,56 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			this.setSelectedFile(defaultFilename);
 		}
 	}
-	
-	public void storeOptions(StorageOptions opts) {
-		if ( storageChooser != null ) {
-			storageChooser.storeOptions(opts);
-		}
-	}
-	
 }
 
 class RememberFilenamePropertyListener implements PropertyChangeListener {
-	private String oldFileName=null;
+	private String oldFileName = null;
 
 	@Override
-	public void propertyChange(PropertyChangeEvent event){
-		if( JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(event.getPropertyName())){
-			if(null != event.getOldValue()){
-				this.oldFileName = ((File)event.getOldValue()).getName();
+	public void propertyChange(PropertyChangeEvent event) {
+		String propertyName = event.getPropertyName();
+
+		if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(propertyName)) {
+			handleSelectedFileChanged(event);
+		} else if (JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(propertyName)) {
+			handleFileFilterChanged(event);
+		}
+	}
+
+	private void handleSelectedFileChanged(PropertyChangeEvent event) {
+		if (event.getOldValue() != null) {
+			oldFileName = ((File) event.getOldValue()).getName();
+		}
+	}
+
+	private void handleFileFilterChanged(PropertyChangeEvent event) {
+		JFileChooser chooser = (JFileChooser) event.getSource();
+		FileFilter currentFilter = chooser.getFileFilter();
+
+		if (currentFilter instanceof SimpleFileFilter) {
+			SimpleFileFilter filter = (SimpleFileFilter) currentFilter;
+			String desiredExtension = filter.getExtensions()[0];
+
+			if (oldFileName == null) {
+				return;
 			}
-		}else if(JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(event.getPropertyName())) {
-			JFileChooser chooser = (JFileChooser)event.getSource();
-			if( chooser.getFileFilter() instanceof SimpleFileFilter) {
-				SimpleFileFilter filter = (SimpleFileFilter) (chooser.getFileFilter());
-				String desiredExtension = filter.getExtensions()[0];
-				
-				if (null == this.oldFileName) {
-					return;
-				}
-				String thisFileName = this.oldFileName;
-				
-				if (filter.accept(new File(thisFileName))) {
-					// nop
-					return;
-				} else {
-					String[] splitResults = thisFileName.split("\\.");
-					if (0 < splitResults.length) {
-						thisFileName = splitResults[0];
-					}
-					chooser.setSelectedFile(new File(thisFileName + desiredExtension));
-					return;
-				}
+
+			String currentFileName = oldFileName;
+
+			if (!filter.accept(new File(currentFileName))) {
+				currentFileName = removeExtension(currentFileName);
+				chooser.setSelectedFile(new File(currentFileName + desiredExtension));
 			}
 		}
 	}
 
+	private String removeExtension(String fileName) {
+		String[] splitResults = fileName.split("\\.");
+		if (splitResults.length > 0) {
+			return splitResults[0];
+		}
+		return fileName;
+	}
 }
 
 

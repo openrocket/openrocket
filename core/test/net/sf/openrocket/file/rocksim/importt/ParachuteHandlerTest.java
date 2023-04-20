@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import org.junit.Assert;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;

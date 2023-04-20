@@ -3,7 +3,7 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.rocksim.RockSimNoseConeCode;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;

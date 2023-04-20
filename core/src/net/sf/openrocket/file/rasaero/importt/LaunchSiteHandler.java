@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -36,18 +37,18 @@ public class LaunchSiteHandler extends AbstractElementHandler {
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         try {
             if (RASAeroCommonConstants.LAUNCH_ALTITUDE.equals(element)) {
-                launchSiteSettings.setLaunchAltitude(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+                launchSiteSettings.setLaunchAltitude(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
             } else if (RASAeroCommonConstants.LAUNCH_PRESSURE.equals(element)) {
-                launchSiteSettings.setLaunchPressure(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_PRESSURE);
+                launchSiteSettings.setLaunchPressure(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_PRESSURE);
             } else if (RASAeroCommonConstants.LAUNCH_ROD_ANGLE.equals(element)) {
-                launchSiteSettings.setLaunchRodAngle(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ANGLE);
+                launchSiteSettings.setLaunchRodAngle(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ANGLE);
             } else if (RASAeroCommonConstants.LAUNCH_ROD_LENGTH.equals(element)) {
-                launchSiteSettings.setLaunchRodLength(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+                launchSiteSettings.setLaunchRodLength(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
             } else if (RASAeroCommonConstants.LAUNCH_TEMPERATURE.equals(element)) {
                 launchSiteSettings.setLaunchTemperature(
                         RASAeroCommonConstants.RASAERO_TO_OPENROCKET_TEMPERATURE(Double.parseDouble(content)));
             } else if (RASAeroCommonConstants.LAUNCH_WIND_SPEED.equals(element)) {
-                launchSiteSettings.setWindSpeedAverage(Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SPEED);
+                launchSiteSettings.setWindSpeedAverage(Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
             }
         } catch (NumberFormatException e) {
             warnings.add("Invalid number format for element " + element + ", ignoring.");

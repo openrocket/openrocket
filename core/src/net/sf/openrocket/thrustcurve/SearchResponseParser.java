@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 

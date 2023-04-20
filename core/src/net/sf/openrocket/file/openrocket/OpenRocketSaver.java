@@ -8,10 +8,12 @@ import java.io.Writer;
 import java.util.*;
 
 import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
@@ -60,7 +62,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private Writer dest;
 	
 	@Override
-	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException {
+	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException {
 		
 		log.info("Saving .ork file");
 		
