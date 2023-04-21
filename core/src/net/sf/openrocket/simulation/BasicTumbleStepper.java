@@ -1,5 +1,16 @@
 package net.sf.openrocket.simulation;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -12,13 +23,65 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
+	// Magic constants from techdoc.pdf
+	private final static double cDFin = 1.42;
+	private final static double cDBt = 0.56;
+	// Fin efficiency.  Index is number of fins.  The 0th entry is arbitrary and used to
+	// offset the indexes so finEff[1] is the coefficient for one fin from the table in techdoc.pdf
+	private final static double[] finEff = { 0.0, 0.5, 1.0, 1.41, 1.81, 1.73, 1.90, 1.85 };
+	
+	private double cd;
+	
 	@Override
-	public SimulationStatus initialize(SimulationStatus original) {
-		BasicTumbleStatus status = new BasicTumbleStatus(original);
-		status.setWarnings(original.getWarnings());
-
+	public SimulationStatus initialize(SimulationStatus status) {
+		this.cd = computeTumbleCD(status);
 		return status;
 	}
+	
+	private double getCD() {
+		return cd;
+	}
+	
+	private double computeTumbleCD(SimulationStatus status) {
+		
+		// Computed based on Sampo's experimentation as documented in the pdf.
+		
+		// compute the fin and body tube projected areas
+		double aFins = 0.0;
+		double aBt = 0.0;
+		final InstanceMap imap = status.getConfiguration().getActiveInstances();
+	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
+			final RocketComponent component = entry.getKey();
+			
+			if (!component.isAerodynamic()) {
+				continue;
+			}
+			
+			// iterate across component instances
+			final ArrayList<InstanceContext> contextList = entry.getValue();
+			for(InstanceContext context: contextList ) {
+				
+				if (component instanceof FinSet) {
+					final FinSet finComponent = ((FinSet) component);
+					final double finArea = finComponent.getPlanformArea();
+					int finCount = finComponent.getFinCount();
+					
+					// check bounds on finCount.
+					if (finCount >= finEff.length) {
+						finCount = finEff.length - 1;
+					}
+					
+					aFins += finArea * finEff[finCount] / finComponent.getFinCount();
+					
+				} else if (component instanceof SymmetricComponent) {
+					aBt += ((SymmetricComponent) component).getComponentPlanformArea();
+				}
+			}
+		}
+		
+		return (cDFin * aFins + cDBt * aBt)/status.getConfiguration().getReferenceArea();
+	}
+
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
@@ -33,7 +96,7 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		// Get total CD
 		double mach = airSpeed.length() / atmosphere.getMachSpeed();
 
-		double tumbleCD = ((BasicTumbleStatus)status).getCD();
+		double tumbleCD = getCD();
 				
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
