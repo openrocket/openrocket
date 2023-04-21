@@ -21,29 +21,29 @@ public class BasicTumbleStatus extends SimulationStatus {
 	// offset the indexes so finEff[1] is the coefficient for one fin from the table in techdoc.pdf
 	private final static double[] finEff = { 0.0, 0.5, 1.0, 1.41, 1.81, 1.73, 1.90, 1.85 };
 	
-	private final double drag;
+	private final double cd;
 	
 	public BasicTumbleStatus(FlightConfiguration configuration,
 			SimulationConditions simulationConditions) {
 		super(configuration, simulationConditions);
-		this.drag = computeTumbleDrag();
+		this.cd = computeTumbleCD();
 	}
 	
 	public BasicTumbleStatus(SimulationStatus orig) {
 		super(orig);
 		if (orig instanceof BasicTumbleStatus) {
-			this.drag = ((BasicTumbleStatus) orig).drag;
+			this.cd = ((BasicTumbleStatus) orig).cd;
 		} else {
-			this.drag = computeTumbleDrag();
+			this.cd = computeTumbleCD();
 		}
 	}
 	
-	public double getTumbleDrag() {
-		return drag;
+	public double getCD() {
+		return cd;
 	}
 	
 	
-	private double computeTumbleDrag() {
+	private double computeTumbleCD() {
 		
 		// Computed based on Sampo's experimentation as documented in the pdf.
 		
@@ -80,6 +80,6 @@ public class BasicTumbleStatus extends SimulationStatus {
 			}
 		}
 		
-		return (cDFin * aFins + cDBt * aBt);
+		return (cDFin * aFins + cDBt * aBt)/getConfiguration().getReferenceArea();
 	}
 }

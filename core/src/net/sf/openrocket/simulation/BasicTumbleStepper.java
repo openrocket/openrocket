@@ -33,11 +33,11 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		// Get total CD
 		double mach = airSpeed.length() / atmosphere.getMachSpeed();
 
-		double tumbleDrag = ((BasicTumbleStatus)status).getTumbleDrag();
+		double tumbleCD = ((BasicTumbleStatus)status).getCD();
 				
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		double dragForce = tumbleDrag * dynP;
+		double dragForce = status.getConfiguration().getReferenceArea() * tumbleCD * dynP;
 		
 		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
 		double rocketMass = calculateStructureMass(status).getMass();
