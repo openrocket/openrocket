@@ -163,17 +163,18 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 			newPosition = newPosition.setZ(0);
 		}
 
+		status.setSimulationTime(status.getSimulationTime() + timeStep);
+		status.setPreviousTimeStep(timeStep);
+		
 		status.setRocketPosition(status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
 				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2)));
 		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
-		status.setSimulationTime(status.getSimulationTime() + timeStep);
-		
+		status.setRocketAcceleration(linearAcceleration);
 
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
-		
 
 		// Store data
 		FlightDataBranch data = status.getFlightData();
@@ -184,6 +185,8 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
+		
+		airSpeed = status.getRocketVelocity().add(windSpeed);
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
