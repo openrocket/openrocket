@@ -1,5 +1,8 @@
 package net.sf.openrocket.simulation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -8,9 +11,6 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.WorldCoordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BasicLandingStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(BasicLandingStepper.class);
@@ -77,8 +77,6 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
-		
-
 
 		// Select tentative time step
 		double timeStep = RECOVERY_TIME_STEP;
@@ -88,6 +86,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		if (jerk > MathUtil.EPSILON) {
 			timeStep = Math.min(timeStep, 1.0/jerk);
 		}
+
 		// but don't let it get *too* small
 		timeStep = Math.max(timeStep, MIN_TIME_STEP);
 		log.trace("timeStep is " + timeStep);

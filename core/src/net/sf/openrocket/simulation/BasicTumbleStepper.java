@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
@@ -20,6 +23,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.WorldCoordinate;
 
 public class BasicTumbleStepper extends AbstractSimulationStepper {
+	private static final Logger log = LoggerFactory.getLogger(BasicTumbleStepper.class);
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
@@ -124,8 +128,18 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		
 
 
-		// Select time step
+		// Select tentative time step
 		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
+
+		// adjust based on change in acceleration (ie jerk)
+		final double jerk = Math.abs(linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length());
+		if (jerk > MathUtil.EPSILON) {
+			timeStep = Math.min(timeStep, 1.0/jerk);
+		}
+		
+		// but don't let it get *too* small
+		timeStep = Math.max(timeStep, MIN_TIME_STEP);
+		log.trace("timeStep is " + timeStep);
 		
 		// Perform Euler integration
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
