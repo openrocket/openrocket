@@ -16,16 +16,31 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(BasicLandingStepper.class);
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
+
+	private double cd;
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
+		this.cd = computeCD(status);
 		return status;
+	}
+
+	private double getCD() {
+		return cd;
+	}
+
+	private double computeCD(SimulationStatus status) {
+		// Accumulate CD for all recovery devices
+		cd = 0;
+		final InstanceMap imap = status.getConfiguration().getActiveInstances();
+		for (RecoveryDevice c : status.getDeployedRecoveryDevices()) {
+			cd += imap.count(c) * c.getCD() * c.getArea() / status.getConfiguration().getReferenceArea();
+		}
+		return cd;
 	}
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
-		double totalCD = 0;
-		double refArea = status.getConfiguration().getReferenceArea();
 		
 		// Get the atmospheric conditions
 		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
@@ -34,19 +49,12 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		Coordinate windSpeed = modelWindVelocity(status);
 		Coordinate airSpeed = status.getRocketVelocity().add(windSpeed);
 		
-		// Get total CD
-		double mach = airSpeed.length() / atmosphere.getMachSpeed();
-		
-		final InstanceMap imap = status.getConfiguration().getActiveInstances();
-		for (RecoveryDevice c : status.getDeployedRecoveryDevices()) {
-			totalCD += imap.count(c) * c.getCD(mach) * c.getArea() / refArea;
-		}
-		
 		// Compute drag force
+		double mach = airSpeed.length() / atmosphere.getMachSpeed();
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		double dragForce = totalCD * dynP * refArea;
+		double dragForce = getCD() * dynP * status.getConfiguration().getReferenceArea();
 
-		// Calculate mass data
+		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
 		double rocketMass = calculateStructureMass(status).getMass();
 		double motorMass = calculateMotorMass(status).getMass();
 		

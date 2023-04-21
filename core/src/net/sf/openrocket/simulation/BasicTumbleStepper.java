@@ -34,7 +34,7 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
-		this.cd = computeTumbleCD(status);
+		this.cd = computeCD(status);
 		return status;
 	}
 	
@@ -42,7 +42,7 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		return cd;
 	}
 	
-	private double computeTumbleCD(SimulationStatus status) {
+	private double computeCD(SimulationStatus status) {
 		
 		// Computed based on Sampo's experimentation as documented in the pdf.
 		
@@ -93,14 +93,10 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		Coordinate windSpeed = modelWindVelocity(status);
 		Coordinate airSpeed = status.getRocketVelocity().add(windSpeed);
 		
-		// Get total CD
-		double mach = airSpeed.length() / atmosphere.getMachSpeed();
-
-		double tumbleCD = getCD();
-				
 		// Compute drag force
+		double mach = airSpeed.length() / atmosphere.getMachSpeed();
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		double dragForce = status.getConfiguration().getReferenceArea() * tumbleCD * dynP;
+		double dragForce = status.getConfiguration().getReferenceArea() * getCD() * dynP;
 		
 		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
 		double rocketMass = calculateStructureMass(status).getMass();
