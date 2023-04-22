@@ -1296,7 +1296,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		return 0;
 	}
-	
+
+	public double getRadiusOffset(RadiusMethod method) {
+		double radius = getRadiusMethod().getRadius(parent, this, getRadiusOffset());
+		return method.getAsOffset(parent, this, radius);
+	}
+
 	public RadiusMethod getRadiusMethod() {
 		return RadiusMethod.COAXIAL;
 	}
@@ -1333,8 +1338,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if( 0 == thisIndex ) {
 			this.position = this.position.setX(0.);
 		}else if( 0 < thisIndex ) {
-			RocketComponent referenceComponent = parent.getChild( thisIndex - 1 );
-		
+			int idx = thisIndex - 1;
+			RocketComponent referenceComponent = parent.getChild(idx);
+			while (!getRocket().getSelectedConfiguration().isComponentActive(referenceComponent) && idx > 0) {
+				idx--;
+				referenceComponent = parent.getChild(idx);
+			}
+
+			// If previous components are inactive, set this as the new reference point
+			if (!getRocket().getSelectedConfiguration().isComponentActive(referenceComponent)) {
+				this.position = this.position.setX(0.);
+				return;
+			}
+
 			double refLength = referenceComponent.getLength();
 			double refRelX = referenceComponent.getPosition().x;
 
@@ -1669,15 +1685,30 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * {@link #addChild(RocketComponent,int)}.
 	 *
 	 * @param component  The component to add.
+	 * @param trackStage If component is a stage, this check will decide whether the rocket should track that stage (add it to the stageList etc.)
+	 * @throws IllegalArgumentException  if the component is already part of some
+	 * 									 component tree.
+	 * @see #addChild(RocketComponent,int)
+	 */
+	public final void addChild(RocketComponent component, boolean trackStage) {
+		checkState();
+		addChild(component, children.size(), trackStage);
+	}
+
+	/**
+	 * Adds a child to the rocket component tree.  The component is added to the end
+	 * of the component's child list.  This is a helper method that calls
+	 * {@link #addChild(RocketComponent,int)}.
+	 *
+	 * @param component  The component to add.
 	 * @throws IllegalArgumentException  if the component is already part of some
 	 * 									 component tree.
 	 * @see #addChild(RocketComponent,int)
 	 */
 	public final void addChild(RocketComponent component) {
-		checkState();
-		addChild(component, children.size());
+		addChild(component, true);
 	}
-	
+
 	/**
 	 * Adds a child to the rocket component tree.  The component is added to
 	 * the given position of the component's child list.
@@ -1687,28 +1718,29 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @param component	The component to add.
 	 * @param index		Position to add component to.
+	 * @param trackStage If component is a stage, this check will decide whether the rocket should track that stage (add it to the stageList etc.)
 	 * @throws IllegalArgumentException  If the component is already part of
 	 * 									 some component tree.
 	 */
-	public void addChild(RocketComponent component, int index) {
+	public void addChild(RocketComponent component, int index, boolean trackStage) {
 		checkState();
-		
+
 		if (component.parent != null) {
 			throw new IllegalArgumentException("component " + component.getComponentName() +
 					" is already in a tree");
 		}
-		
+
 		// Ensure that the no loops are created in component tree [A -> X -> Y -> B, B.addChild(A)]
 		if (this.getRoot().equals(component)) {
 			throw new IllegalStateException("Component " + component.getComponentName() +
 					" is a parent of " + this.getComponentName() + ", attempting to create cycle in tree.");
 		}
-		
+
 		if (!isCompatible(component)) {
 			throw new IllegalStateException("Component: " + component.getComponentName() +
 					" not currently compatible with component: " + getComponentName());
 		}
-		
+
 		children.add(index, component);
 		component.parent = this;
 		if (this.massOverridden && this.overrideSubcomponentsMass) {
@@ -1741,16 +1773,46 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				child.CDOverriddenBy = component.CDOverriddenBy;
 			}
 		}
-		
-		if (component instanceof AxialStage) {
+
+		if (trackStage && (component instanceof AxialStage)) {
 			AxialStage nStage = (AxialStage) component;
 			this.getRocket().trackStage(nStage);
 		}
-		
+
 		this.checkComponentStructure();
 		component.checkComponentStructure();
-		
+
 		fireAddRemoveEvent(component);
+	}
+	
+	/**
+	 * Adds a child to the rocket component tree.  The component is added to
+	 * the given position of the component's child list.
+	 * <p>
+	 * This method may be overridden to enforce more strict component addition rules.
+	 * The tests should be performed first and then this method called.
+	 *
+	 * @param component	The component to add.
+	 * @param index		Position to add component to.
+	 * @throws IllegalArgumentException  If the component is already part of
+	 * 									 some component tree.
+	 */
+	public void addChild(RocketComponent component, int index) {
+		addChild(component, index, true);
+	}
+
+	/**
+	 * Removes a child from the rocket component tree.
+	 * (redirect to the removed-by-component
+	 *
+	 * @param n  remove the n'th child.
+	 * @param trackStage If component is a stage, this check will decide whether the rocket should track that stage (remove it to the stageList etc.)
+	 * @throws IndexOutOfBoundsException  if n is out of bounds
+	 */
+	public final void removeChild(int n, boolean trackStage) {
+		checkState();
+		RocketComponent component = this.getChild(n);
+		this.removeChild(component, trackStage);
 	}
 	
 	/**
@@ -1761,9 +1823,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @throws IndexOutOfBoundsException  if n is out of bounds
 	 */
 	public final void removeChild(int n) {
-		checkState();
-		RocketComponent component = this.getChild(n);
-		this.removeChild(component);
+		removeChild(n, true);
 	}
 	
 	/**
@@ -1771,9 +1831,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * is not present as a child.
 	 *
 	 * @param component		the component to remove
+	 * @param trackStage If component is a stage, this check will decide whether the rocket should track that stage (remove it to the stageList etc.)
 	 * @return				whether the component was a child
 	 */
-	public final boolean removeChild(RocketComponent component) {
+	public final boolean removeChild(RocketComponent component, boolean trackStage) {
 		checkState();
 		
 		component.checkComponentStructure();
@@ -1795,15 +1856,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 					c.CDOverriddenBy = null;
 				}
 			}
-			
-			if (component instanceof AxialStage) {
-				AxialStage stage = (AxialStage) component;
-				this.getRocket().forgetStage(stage);
-			}
 
-			// Remove sub-stages of the removed component
-			for (AxialStage stage : component.getSubStages()) {
-				this.getRocket().forgetStage(stage);
+			if (trackStage) {
+				if (component instanceof AxialStage) {
+					AxialStage stage = (AxialStage) component;
+					this.getRocket().forgetStage(stage);
+				}
+
+				// Remove sub-stages of the removed component
+				for (AxialStage stage : component.getSubStages()) {
+					this.getRocket().forgetStage(stage);
+				}
 			}
 			
 			this.checkComponentStructure();
@@ -1815,6 +1878,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Removes a child from the rocket component tree.  Does nothing if the component
+	 * is not present as a child.
+	 *
+	 * @param component		the component to remove
+	 * @return				whether the component was a child
+	 */
+	public final boolean removeChild(RocketComponent component) {
+		return removeChild(component, true);
 	}
 	
 	
@@ -2059,20 +2133,37 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 	/**
-	 * Return all the component assemblies that are a child of this component
-	 * @return list of ComponentAssembly components that are a child of this component
+	 * Return all the component assemblies that are a direct/indirect child of this component
+	 * @return list of ComponentAssembly components that are a direct/indirect child of this component
 	 */
-	public final List<RocketComponent> getChildAssemblies() {
+	public final List<ComponentAssembly> getAllChildAssemblies() {
 		checkState();
 
 		Iterator<RocketComponent> children = iterator(false);
 
-		List<RocketComponent> result = new ArrayList<>();
+		List<ComponentAssembly> result = new ArrayList<>();
 
 		while (children.hasNext()) {
 			RocketComponent child = children.next();
 			if (child instanceof ComponentAssembly) {
-				result.add(child);
+				result.add((ComponentAssembly) child);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return all the component assemblies that are a direct child of this component
+	 * @return list of ComponentAssembly components that are a direct child of this component
+	 */
+	public final List<ComponentAssembly> getDirectChildAssemblies() {
+		checkState();
+
+		List<ComponentAssembly> result = new ArrayList<>();
+
+		for (RocketComponent child : this.getChildren()) {
+			if (child instanceof ComponentAssembly) {
+				result.add((ComponentAssembly) child);
 			}
 		}
 		return result;

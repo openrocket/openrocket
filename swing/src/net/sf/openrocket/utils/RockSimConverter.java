@@ -55,7 +55,7 @@ public class RockSimConverter {
 			try {
 				StorageOptions opts = new StorageOptions();
 				opts.setFileType(StorageOptions.FileType.OPENROCKET);
-				opts.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_NONE);
+				opts.setSaveSimulationData(false);
 				opts.setExplicitlySet(true);
 				
 				GeneralRocketLoader loader = new GeneralRocketLoader(input);

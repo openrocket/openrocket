@@ -1,23 +1,16 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
-import static java.lang.Math.pow;
 import static net.sf.openrocket.util.MathUtil.pow2;
-
-import java.util.Arrays;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.Warning.Other;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.PolyInterpolator;
 import net.sf.openrocket.util.Transformation;
 
 import org.slf4j.Logger;

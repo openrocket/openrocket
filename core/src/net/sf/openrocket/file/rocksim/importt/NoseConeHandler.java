@@ -5,7 +5,7 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.rocksim.RockSimFinishCode;
@@ -69,7 +69,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 		
 		try {
 			if (RockSimCommonConstants.SHAPE_CODE.equals(element)) {
-				noseCone.setType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				noseCone.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
 			}
 			if (RockSimCommonConstants.LEN.equals(element)) {
 				noseCone.setLength(Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
@@ -92,9 +92,9 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 				//The Rocksim ShapeParameter only applies to certain shapes, although it is included
 				//in the design file for all nose cones.  Applying it when it should not be causes oddities so 
 				//a check is made for the allowable shapes.
-				if (Transition.Shape.POWER.equals(noseCone.getType()) ||
-						Transition.Shape.HAACK.equals(noseCone.getType()) ||
-						Transition.Shape.PARABOLIC.equals(noseCone.getType())) {
+				if (Transition.Shape.POWER.equals(noseCone.getShapeType()) ||
+						Transition.Shape.HAACK.equals(noseCone.getShapeType()) ||
+						Transition.Shape.PARABOLIC.equals(noseCone.getShapeType())) {
 					noseCone.setShapeParameter(Double.parseDouble(content));
 				}
 			}

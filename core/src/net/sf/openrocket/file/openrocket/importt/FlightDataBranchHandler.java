@@ -2,7 +2,7 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -38,7 +38,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			String typeName = split[i];
 			FlightDataType matching = findFlightDataType(typeName);
 			types[i] = matching;
-			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
+			//types[i] = FlightDataType.getShapeType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
 		
 		// TODO: LOW: May throw an IllegalArgumentException

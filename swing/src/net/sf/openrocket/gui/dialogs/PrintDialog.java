@@ -27,6 +27,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -363,7 +364,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 */
 	private boolean onSavePDF() {
 		
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.PDF_FILTER);
 		
 		// Select initial directory

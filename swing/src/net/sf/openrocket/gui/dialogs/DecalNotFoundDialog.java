@@ -43,6 +43,7 @@ public abstract class DecalNotFoundDialog {
             if (resultFileChooser == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
                 decex.getDecal().setDecalFile(file);
+                ((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
             }
         }
         return (resultYesNo == JOptionPane.YES_OPTION) && (resultFileChooser == JFileChooser.APPROVE_OPTION);

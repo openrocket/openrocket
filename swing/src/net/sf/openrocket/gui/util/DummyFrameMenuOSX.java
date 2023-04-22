@@ -1,11 +1,6 @@
 package net.sf.openrocket.gui.util;
 
-import net.sf.openrocket.gui.dialogs.AboutDialog;
-import net.sf.openrocket.gui.dialogs.LicenseDialog;
-import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.ExampleDesignFileAction;
-import net.sf.openrocket.gui.main.MRUDesignFileAction;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
@@ -65,54 +60,10 @@ public class DummyFrameMenuOSX extends JFrame {
         ////  File
         menu = new JMenu(trans.get("main.menu.file"));
         menu.setMnemonic(KeyEvent.VK_F);
-        //// File-handling related tasks
         menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
         menubar.add(menu);
 
-        //// New
-        item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, BasicFrame.SHORTCUT_KEY));
-        item.setMnemonic(KeyEvent.VK_N);
-        //// Create a new rocket design
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
-        item.setIcon(Icons.FILE_NEW);
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DummyFrameMenuOSX.removeDummyDialog();
-                log.info(Markers.USER_MARKER, "New... selected");
-                BasicFrame.newAction();
-            }
-        });
-        menu.add(item);
-
-        //// Open...
-        item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, BasicFrame.SHORTCUT_KEY));
-        //// Open a rocket design
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
-        item.setIcon(Icons.FILE_OPEN);
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DummyFrameMenuOSX.removeDummyDialog();
-                log.info(Markers.USER_MARKER, "Open... selected");
-                BasicFrame.openAction(DummyFrameMenuOSX.this);
-            }
-        });
-        menu.add(item);
-
-        //// Open Recent...
-        item = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), this);
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openRecent.desc"));
-        item.setIcon(Icons.FILE_OPEN);
-        menu.add(item);
-
-        //// Open example...
-        item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), null);
-        item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openExample.desc"));
-        item.setIcon(Icons.FILE_OPEN_EXAMPLE);
-        menu.add(item);
+        BasicFrame.addFileCreateAndOpenMenuItems(menu, DummyFrameMenuOSX.this);
 
         menu.addSeparator();
 

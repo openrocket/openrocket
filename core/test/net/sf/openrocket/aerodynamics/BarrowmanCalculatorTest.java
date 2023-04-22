@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import net.sf.openrocket.logging.WarningSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,11 +21,13 @@ import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 
 public class BarrowmanCalculatorTest {
@@ -84,7 +87,7 @@ public class BarrowmanCalculatorTest {
 			NoseCone nose = (NoseCone)stage.getChild(0);
 			assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
 			assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-			assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getType());
+			assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getShapeType());
 			double cna_nose = 2;
 			double cpx_nose = 0.03235;
 			
@@ -469,7 +472,6 @@ public class BarrowmanCalculatorTest {
 		final FlightConfiguration testConfig = testRocket.getSelectedConfiguration();
 		final FlightConditions testConditions = new FlightConditions(testConfig);
 		
-		TestRockets.dumpRocket(testRocket, "/home/joseph/rockets/openrocket/git/openrocket/work/testrocket.ork");
 		final BarrowmanCalculator testCalc = new BarrowmanCalculator();
 		double testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
 		final AerodynamicForces testForces = testCalc.getAerodynamicForces(testConfig, testConditions, warnings);
@@ -483,13 +485,155 @@ public class BarrowmanCalculatorTest {
 		// move the pod back.
 		pod.setAxialOffset(pod.getAxialOffset() + 0.1);
 		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
-		assertFalse("should be warning from gap in airframe", warnings.isEmpty());
+		assertEquals("should be warning from gap in airframe", 1, warnings.size());
 
 		// move the pod forward.
 		warnings.clear();
-		pod.setAxialOffset(pod.getAxialOffset() - 0.2);
-		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;		
-		assertFalse("should be warning from airframe overlap", warnings.isEmpty());
+		pod.setAxialOffset(pod.getAxialOffset() - 0.3);
+		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
+		assertEquals("should be warning from airframe overlap", 1, warnings.size());
+
+		// move the pod back.
+		warnings.clear();
+		pod.setAxialOffset(pod.getAxialOffset() + 0.1);
+		testCP = testCalc.getCP(testConfig, testConditions, warnings).x;
+		assertEquals("should be warning from podset airframe overlap", 1, warnings.size());
 	}
+
+	@Test
+	public void testBaseDragWithOverride() {
+		final WarningSet warnings = new WarningSet();
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
 		
+		// get base drag of minimal rocket consisting of just a tube.
+		final Rocket tubeRocket = new Rocket();
+		final AxialStage tubeStage = new AxialStage();
+		tubeRocket.addChild(tubeStage);
+		
+		final BodyTube tubeBodyTube = new BodyTube();
+		tubeStage.addChild(tubeBodyTube);
+
+		final FlightConfiguration tubeConfig = new FlightConfiguration(tubeRocket);
+		final FlightConditions tubeConditions = new FlightConditions(tubeConfig);
+		final AerodynamicForces tubeForces = calc.getAerodynamicForces(tubeConfig, tubeConditions, warnings);
+		final double tubeBaseCD = tubeForces.getBaseCD();
+
+		// get base CD of minimal rocket consisting of just a cone
+		final Rocket coneRocket = new Rocket();
+		final AxialStage coneStage = new AxialStage();
+		coneRocket.addChild(coneStage);
+
+		NoseCone coneCone = new NoseCone();
+		coneCone.setAftRadius(tubeBodyTube.getOuterRadius());
+		coneStage.addChild(coneCone);
+
+		final FlightConfiguration coneConfig = new FlightConfiguration(coneRocket);
+		final FlightConditions coneConditions = new FlightConditions(coneConfig);
+		final AerodynamicForces coneForces = calc.getAerodynamicForces(coneConfig, coneConditions, warnings);
+		final double coneBaseCD = coneForces.getBaseCD();
+
+		// now our test rocket, with a tube and a cone
+		final Rocket testRocket = new Rocket();
+		final AxialStage testStage = new AxialStage();
+		testRocket.addChild(testStage);
+
+		final BodyTube testTube = new BodyTube();
+		testTube.setOuterRadius(tubeBodyTube.getOuterRadius());
+		testStage.addChild(testTube);
+
+		final NoseCone testCone = new NoseCone();
+		testCone.setAftRadius(coneCone.getAftRadius());
+		testStage.addChild(testCone);
+
+		FlightConfiguration testConfig = new FlightConfiguration(testRocket);
+		FlightConditions testConditions = new FlightConditions(testConfig);
+
+		// no overrides
+		AerodynamicForces testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of tube plus base CD of cone", tubeBaseCD + coneBaseCD, testForces.getBaseCD(), EPSILON);
+
+		// override tube CD
+		testTube.setCDOverridden(true);
+		testTube.setOverrideCD(0);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of cone", coneBaseCD, testForces.getBaseCD(), EPSILON);
+
+		// override cone CD
+		testCone.setCDOverridden(true);
+		testCone.setOverrideCD(0);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be 0", 0.0, testForces.getBaseCD(), EPSILON);
+
+
+		// and turn off tube override
+		testTube.setCDOverridden(false);
+		testForces = calc.getAerodynamicForces(testConfig, testConditions, warnings);
+		assertEquals("base CD should be base CD of tube", tubeBaseCD, testForces.getBaseCD(), EPSILON);
+	}
+
+	/**
+	 * Tests railbutton drag.  Really is testing instancing more than actual drag calculations, and making
+	 * sure we don't divide by 0 when not moving
+	 */
+	@Test
+	public void testRailButtonDrag() {
+		// minimal rocket with nothing on it but two railbuttons
+		final Rocket rocket = new Rocket();
+		
+		final AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		// phantom tubes have no drag to confuse things
+		final BodyTube phantom = new BodyTube();
+		phantom.setOuterRadius(0);
+		stage.addChild(phantom);
+
+		// set up test environment
+		WarningSet warnings = new WarningSet();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		final FlightConditions conditions = new FlightConditions(config);
+		final BarrowmanCalculator calc = new BarrowmanCalculator();
+
+		// part 1:  instancing
+		
+		// Put two individual railbuttons and get their CD
+		final RailButton button1 = new RailButton();
+		button1.setInstanceCount(1);
+		button1.setAxialOffset(1.0);
+		phantom.addChild(button1);
+
+		final RailButton button2 = new RailButton();
+		button2.setInstanceCount(1);
+		button2.setAxialOffset(2.0);
+		phantom.addChild(button2);
+
+		final AerodynamicForces individualForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double individualCD = individualForces.getCD();
+
+		// get rid of individual buttons and put in a railbutton set with two instances at same locations as original
+		// railbuttons
+		phantom.removeChild(button1);
+		phantom.removeChild(button2);
+
+		final RailButton buttons = new RailButton();
+		buttons.setInstanceCount(2);
+		buttons.setAxialOffset(1.0);
+		buttons.setInstanceSeparation(1.0);
+		
+		final AerodynamicForces pairForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double pairCD = pairForces.getCD();
+
+		assertEquals("two individual railbuttons should have same CD as a pair", individualCD, pairCD, EPSILON);
+
+		// part 2: test at Mach 0
+		conditions.setMach(MathUtil.EPSILON);
+		final AerodynamicForces epsForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double epsCD = epsForces.getCD();
+
+		conditions.setMach(0);
+		final AerodynamicForces zeroForces = calc.getAerodynamicForces(config, conditions, warnings);
+		final double zeroCD = zeroForces.getCD();
+		assertEquals("drag at mach 0 should equal drag at mach MathUtil.EPSILON", epsCD, zeroCD, EPSILON);
+	}
 }
+	

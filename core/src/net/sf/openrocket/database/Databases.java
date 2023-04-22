@@ -222,7 +222,7 @@ public class Databases {
 	 * the provided name if unable to do so.
 	 * 
 	 * @param type			the material type.
-	 * @param baseName			the base name of the material.
+	 * @param baseName		the base name of the material.
 	 * @param density		the density of the material.
 	 * @return				the material object from the database or a new material.
 	 */

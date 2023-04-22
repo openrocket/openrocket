@@ -24,6 +24,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private double ambiance = .3f;
 	
 	private Color skyColor = new Color(55, 95, 155);
+	private double skyColorOpacity = 1.0;
 	
 	
 	private boolean motionBlurred = false;
@@ -113,7 +114,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setFov(double fov) {
-		this.fov = MathUtil.clamp(fov, 1, Math.PI);
+		this.fov = MathUtil.clamp(fov, 0, Math.PI);
 		fireChangeEvent();
 	}
 	
@@ -186,9 +187,20 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	public void setSkyColor(Color skyColor) {
 		this.skyColor = skyColor;
+		this.skyColorOpacity = skyColor.getAlpha() / 255f;
 		fireChangeEvent();
 	}
-	
+
+	public double getSkyColorOpacity() {
+		return skyColorOpacity;
+	}
+
+	public void setSkyColorOpacity(double skyColorOpacity) {
+		this.skyColorOpacity = skyColorOpacity;
+		skyColor.setAlpha((int) (skyColorOpacity * 255));
+		fireChangeEvent();
+	}
+
 	public Color getFlameColor() {
 		return flameColor;
 	}

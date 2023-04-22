@@ -31,10 +31,10 @@ public final class FileHelper {
 
 	
 
-	/** File filter for any rocket designs (*.ork, *.rkt) */
+	/** File filter for any rocket designs (*.ork, *.rkt, *.CDX1) */
 	public static final FileFilter ALL_DESIGNS_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
-					".ork", ".ork.gz", ".rkt", ".rkt.gz");
+					".ork", ".ork.gz", ".rkt", ".rkt.gz", ".CDX1", ".CDX1.gz");
 
 	/** File filter for OpenRocket designs (*.ork) */
 	public static final FileFilter OPENROCKET_DESIGN_FILTER =
@@ -43,6 +43,10 @@ public final class FileHelper {
 	/** File filter for RockSim designs (*.rkt) */
 	public static final FileFilter ROCKSIM_DESIGN_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".rkt", ".rkt.gz");
+
+	/** File filter for RASAero II designs (*.CDX1) */
+	public static final FileFilter RASAERO_DESIGN_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
 
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
@@ -59,6 +63,10 @@ public final class FileHelper {
 	/** File filter for PNG files (*.png) */
 	public static final FileFilter PNG_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
+
+	/** File filter for XML files (*.xml) */
+	public static final FileFilter XML_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.XML_FILTER"), ".xml");
 
 
 

@@ -1,5 +1,7 @@
 package net.sf.openrocket.motor;
 
+import net.sf.openrocket.startup.Application;
+
 public interface Motor {
 	
 	/**
@@ -110,6 +112,24 @@ public interface Motor {
 	 * @return		 designation with delay.
 	 */
 	public String getDesignation(double delay);
+
+	/**
+	 * Returns the motor name, based on whether the preference is to use the designation or common name.
+	 * @return the motor designation, if the preference is to use the designation, otherwise the common name.
+	 */
+	public default String getMotorName() {
+		boolean useDesignation = Application.getPreferences().getMotorNameColumn();
+		return useDesignation ? getDesignation() : getCommonName();
+	}
+
+	/**
+	 * Returns the motor name, including a delay, based on whether the preference is to use the designation or common name.
+	 * @return the motor designation, including a delay, if the preference is to use the designation, otherwise the common name.
+	 */
+	public default String getMotorName(double delay) {
+		boolean useDesignation = Application.getPreferences().getMotorNameColumn();
+		return useDesignation ? getDesignation(delay) : getCommonName(delay);
+	}
 	
 	
 	/**

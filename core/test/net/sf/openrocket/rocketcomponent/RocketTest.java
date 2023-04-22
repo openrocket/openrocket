@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 
@@ -26,6 +27,7 @@ public class RocketTest extends BaseTestCase {
 	public void testCopyIndependence() {
 		Rocket rkt1 = TestRockets.makeEstesAlphaIII();
 		FlightConfiguration config1 = new FlightConfiguration(rkt1, null);
+		config1.setName("Test config 1");
 		rkt1.setFlightConfiguration( config1.getId(), config1);
 		rkt1.setSelectedConfiguration( config1.getId());
 		FlightConfiguration config2 = new FlightConfiguration(rkt1, null);
@@ -38,13 +40,17 @@ public class RocketTest extends BaseTestCase {
 		FlightConfiguration config4 = rkt2.getSelectedConfiguration();
 		FlightConfigurationId fcid4 = config4.getId();
 		
-		assertThat("fcids should match: ", config1.getId().key, equalTo(fcid4.key));
-		assertThat("Configurations should be different: "+config1.toDebug()+"=?="+config4.toDebug(), config1.configurationInstanceId, not( config4.configurationInstanceId));
+		assertEquals("fcids should match: ", config1.getId().key, fcid4.key);
+		assertEquals("names should match: ", config1.getName(), config4.getName());
+		assertEquals("name not right: ", "Test config 1", config4.getName());
+		assertNotEquals("Configurations should be different: "+config1.toDebug()+"=?="+config4.toDebug(),
+				config1.configurationInstanceId, config4.configurationInstanceId);
 	
 		FlightConfiguration config5 = rkt2.getFlightConfiguration(config2.getId());
 		FlightConfigurationId fcid5 = config5.getId();
-		assertThat("fcids should match: ", config2.getId(), equalTo(fcid5));
-		assertThat("Configurations should bef different match: "+config2.toDebug()+"=?="+config5.toDebug(), config2.configurationInstanceId, not( config5.configurationInstanceId));
+		assertEquals("fcids should match: ", config2.getId(), fcid5);
+		assertNotEquals("Configurations should bef different match: "+config2.toDebug()+"=?="+config5.toDebug(),
+				config2.configurationInstanceId, config5.configurationInstanceId);
 	}
 	
 	

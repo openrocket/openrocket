@@ -42,7 +42,7 @@ public class DisableStageTest extends BaseTestCase {
             }
         }
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeEstesAlphaIII();
 
         Simulation simOriginal = new Simulation(rocketOriginal);
@@ -81,7 +81,7 @@ public class DisableStageTest extends BaseTestCase {
 
         compareSims(simRemoved, simDisabled, delta);
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeBeta();
         Simulation simOriginal = new Simulation(rocketOriginal);
         simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
@@ -148,9 +148,13 @@ public class DisableStageTest extends BaseTestCase {
     @Test
     public void testBooster1() {
         //// Test disabling the stage
-        Rocket rocketRemoved = TestRockets.makeFalcon9Heavy();      // Rocket with the last stage removed
-        Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();     // Rocket with the last stage disabled
 
+        Rocket rocketRemoved = TestRockets.makeFalcon9Heavy();      // Rocket with the last stage removed
+		TestRockets.addCoreFins(rocketRemoved);
+		
+        Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();     // Rocket with the last stage disabled
+		TestRockets.addCoreFins(rocketDisabled);
+		
         FlightConfigurationId fcid =  new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
         int stageNr = 2;    // Stage 2 is the Parallel Booster Stage
         rocketRemoved.getChild(1).getChild(0).removeChild(0);   // Remove the Parallel Booster Stage
@@ -169,8 +173,10 @@ public class DisableStageTest extends BaseTestCase {
 
         compareSims(simRemoved, simDisabled, delta);
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
+		TestRockets.addCoreFins(rocketOriginal);
+		
         Simulation simOriginal = new Simulation(rocketOriginal);
         simOriginal.setFlightConfigurationId(fcid);
         simOriginal.getOptions().setISAAtmosphere(true);
@@ -188,7 +194,10 @@ public class DisableStageTest extends BaseTestCase {
     public void testBooster2() {
         //// Test disabling the stage
         Rocket rocketRemoved = TestRockets.makeFalcon9Heavy();      // Rocket with the last stage removed
+		TestRockets.addCoreFins(rocketRemoved);
+		
         Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();     // Rocket with the last stage disabled
+		TestRockets.addCoreFins(rocketDisabled);
 
         FlightConfigurationId fid =  new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
         int stageNr = 1;    // Stage 1 is the Parallel Booster Stage's parent stage
@@ -223,8 +232,10 @@ public class DisableStageTest extends BaseTestCase {
             }
         }
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
+		TestRockets.addCoreFins(rocketOriginal);
+		
         Simulation simOriginal = new Simulation(rocketOriginal);
         simOriginal.setFlightConfigurationId(fid);
         simOriginal.getOptions().setISAAtmosphere(true);

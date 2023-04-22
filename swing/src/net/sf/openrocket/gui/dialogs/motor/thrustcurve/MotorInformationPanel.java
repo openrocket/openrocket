@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import net.sf.openrocket.util.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,7 +34,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.utils.StringUtils;
 
 @SuppressWarnings("serial")
 class MotorInformationPanel extends JPanel {
@@ -52,6 +52,7 @@ class MotorInformationPanel extends JPanel {
 	private ThrustCurveMotor selectedMotor;
 
 	private final JLabel designationLabel;
+	private final JLabel commonNameLabel;
 	private final JLabel totalImpulseLabel;
 	private final JLabel classificationLabel;
 	private final JLabel avgThrustLabel;
@@ -59,6 +60,7 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel burnTimeLabel;
 	private final JLabel launchMassLabel;
 	private final JLabel emptyMassLabel;
+	private final JLabel motorTypeLabel;
 	private final JLabel caseInfoLabel;
 	private final JLabel propInfoLabel;
 	private final JLabel dataPointsLabel;
@@ -82,6 +84,11 @@ class MotorInformationPanel extends JPanel {
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Designation")));
 			designationLabel = new JLabel();
 			this.add(designationLabel, "wrap");
+
+			//// Common name
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.CommonName")));
+			commonNameLabel = new JLabel();
+			this.add(commonNameLabel, "wrap");
 		
 			//// Total impulse:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Totalimpulse")));
@@ -116,6 +123,11 @@ class MotorInformationPanel extends JPanel {
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Emptymass")));
 			emptyMassLabel = new JLabel();
 			this.add(emptyMassLabel, "wrap");
+
+			//// Motor type
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Motortype")));
+			motorTypeLabel = new JLabel();
+			this.add(motorTypeLabel, "wrap");
 
 			//// case info:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Caseinfo")));
@@ -230,6 +242,7 @@ class MotorInformationPanel extends JPanel {
 		selectedMotor = null;
 		selectedMotorSet = null;
 		designationLabel.setText("");
+		commonNameLabel.setText("");
 		totalImpulseLabel.setText("");
 		totalImpulseLabel.setToolTipText(null);
 		classificationLabel.setText("");
@@ -239,6 +252,7 @@ class MotorInformationPanel extends JPanel {
 		burnTimeLabel.setText("");
 		launchMassLabel.setText("");
 		emptyMassLabel.setText("");
+		motorTypeLabel.setText("");
 		caseInfoLabel.setText("");
 		propInfoLabel.setText("");
 		compatibleCasesLabel.setText("");
@@ -262,6 +276,7 @@ class MotorInformationPanel extends JPanel {
 
 		// Update thrust curve data
 		designationLabel.setText(selectedMotor.getDesignation());
+		commonNameLabel.setText(selectedMotor.getCommonName());
 		double impulse = selectedMotor.getTotalImpulseEstimate();
 		MotorClass mc = MotorClass.getMotorClass(impulse);
 		totalImpulseLabel.setText(UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(impulse));
@@ -279,6 +294,7 @@ class MotorInformationPanel extends JPanel {
 				selectedMotor.getLaunchMass()));
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 				selectedMotor.getBurnoutMass()));
+		motorTypeLabel.setText(selectedMotor.getMotorType().getName());
 		caseInfoLabel.setText(selectedMotor.getCaseInfo());
 		propInfoLabel.setText(selectedMotor.getPropellantInfo());
 		compatibleCasesLabel.setText("<html>" + StringUtils.join(", ",selectedMotor.getCompatibleCases()) + "<html>");

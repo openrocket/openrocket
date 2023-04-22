@@ -35,7 +35,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -269,6 +269,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure.updateFigure();
 		else
 			figure3d.updateFigure();
+	}
+
+	/**
+	 * Updates the rulers of the rocket panel to the currently selected default unit.
+	 */
+	public void updateRulers() {
+		scrollPane.updateRulerUnit();
+		scrollPane.revalidate();
+		scrollPane.repaint();
 	}
 
 	private void go3D() {
@@ -646,7 +655,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 

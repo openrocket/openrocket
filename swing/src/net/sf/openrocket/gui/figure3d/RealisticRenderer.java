@@ -101,15 +101,15 @@ public class RealisticRenderer extends RocketRenderer {
 
 			render(gl, geom, Surface.INSIDE, innerApp, true, alpha);
 			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside()) {
-				render(gl, geom, Surface.EDGES, innerApp, true, alpha);
+				render(gl, geom, Surface.EDGES, innerApp, false, alpha);
 			}
 			else {
-				render(gl, geom, Surface.EDGES, app, true, alpha);
+				render(gl, geom, Surface.EDGES, app, false, alpha);
 			}
 		}
 	    else {
 			render(gl, geom, Surface.INSIDE, app, true, alpha);
-			render(gl, geom, Surface.EDGES, app, true, alpha);
+			render(gl, geom, Surface.EDGES, app, false, alpha);
 		}
 		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
 

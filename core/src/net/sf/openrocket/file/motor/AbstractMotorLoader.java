@@ -116,7 +116,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 * @param designation	the motor designation.
 	 * @return				the designation with a possible delay removed.
 	 */
-	protected static String removeDelay(String designation) {
+	public static String removeDelay(String designation) {
 		if (designation.matches(".*-([0-9]+|[pP])$")) {
 			designation = designation.substring(0, designation.lastIndexOf('-'));
 		}

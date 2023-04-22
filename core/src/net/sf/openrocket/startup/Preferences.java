@@ -53,7 +53,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
-	
+	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
+
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
@@ -73,18 +74,22 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
 	
 	// Node names
-	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
-	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "PreferredThrustCurveMotors";
+	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
+	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
+	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
 	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
+	private static final String SHOW_RASAERO_FORMAT_WARNING = "SHOW_RASAERO_FORMAT_WARNING";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
+	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 	
 	//Preferences related to 3D graphics
-	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
-	public static final String OPENGL_ENABLE_AA = "OpenGL_Antialiasing_Is_Enabled";
-	public static final String OPENGL_USE_FBO = "OpenGL_Use_FBO";
+	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
+	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 	
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
 	
@@ -223,6 +228,14 @@ public abstract class Preferences implements ChangeSource {
 	public final void setLaunchIntoWind(boolean check) {
 		this.putBoolean(LAUNCH_INTO_WIND, check);
 	}
+
+	public final boolean getShowRASAeroFormatWarning() {
+		return this.getBoolean(SHOW_RASAERO_FORMAT_WARNING, true);
+	}
+
+	public final void setShowRASAeroFormatWarning(boolean check) {
+		this.putBoolean(SHOW_RASAERO_FORMAT_WARNING, check);
+	}
 	
 	public final boolean getShowRockSimFormatWarning() {
 		return this.getBoolean(SHOW_ROCKSIM_FORMAT_WARNING, true);
@@ -231,7 +244,23 @@ public abstract class Preferences implements ChangeSource {
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
 	}
-	
+
+	public final boolean getExportUserDirectories() {
+		return this.getBoolean(EXPORT_USER_DIRECTORIES, false);
+	}
+
+	public final void setExportUserDirectories(boolean check) {
+		this.putBoolean(EXPORT_USER_DIRECTORIES, check);
+	}
+
+	public final boolean getExportWindowInformation() {
+		return this.getBoolean(EXPORT_WINDOW_INFORMATION, false);
+	}
+
+	public final void setExportWindowInformation(boolean check) {
+		this.putBoolean(EXPORT_WINDOW_INFORMATION, check);
+	}
+
 	public final double getDefaultMach() {
 		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
@@ -349,6 +378,13 @@ public abstract class Preferences implements ChangeSource {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
 			return;
 		this.putDouble(LAUNCH_ALTITUDE, altitude);
+
+		// Update the launch temperature and pressure if using ISA
+		if (getISAAtmosphere()) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -443,6 +479,13 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		}
 		this.putBoolean(LAUNCH_USE_ISA, isa);
+
+		// Update the launch temperature and pressure
+		if (isa) {
+			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
+			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+		}
+
 		fireChangeEvent();
 	}
 	
@@ -524,6 +567,22 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
+	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardSimulationConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling a simulation config operation.
+	 */
+	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
+	}
+
+	/**
 	 * Answer if the always open leftmost tab is enabled.
 	 *
 	 * @return true if the application should always open the leftmost tab in the component design panel.
@@ -587,6 +646,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final boolean isMatchAftDiameter() {
 		return this.getBoolean(MATCH_AFT_DIAMETER, true);
+	}
+
+	/**
+	 * Check whether to display the common name (false), or designation (true) in the motor selection table "Name" column
+	 * @return true to display designation, false to display common name
+	 */
+	public boolean getMotorNameColumn() {
+		return getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, true);
+	}
+
+	/**
+	 * Set whether to display the common name, or designation in the motor selection table "Name" column
+	 * @param value if true, display designation, if false, display common name
+	 */
+	public void setMotorNameColumn(boolean value) {
+		putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_NAME_COLUMN, value);
 	}
 
 	/**

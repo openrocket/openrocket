@@ -67,7 +67,8 @@ public class SwingStartup {
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
 
 		// Check JRE version
-		if (!checkJREVersion()) {
+		boolean ignoreJRE = System.getProperty("openrocket.ignore-jre") != null;
+		if (!ignoreJRE && !checkJREVersion()) {
 			return;
 		}
 		

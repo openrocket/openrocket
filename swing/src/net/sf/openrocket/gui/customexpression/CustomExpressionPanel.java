@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +111,7 @@ public class CustomExpressionPanel extends JPanel {
 						log.info(Markers.USER_MARKER, "Error opening document to import expressions from.");
 					}
 					updateExpressions();
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 				}
 			}
 		});

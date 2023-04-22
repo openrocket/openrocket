@@ -14,13 +14,12 @@ import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 public class RangeExpression extends CustomExpression {
 	private static final Logger log = LoggerFactory.getLogger(RangeExpression.class);
@@ -30,10 +29,10 @@ public class RangeExpression extends CustomExpression {
 	public RangeExpression(OpenRocketDocument doc, String startTime, String endTime, String variableType) {
 		super(doc);
 		
-		if (StringUtil.isEmpty(startTime)){
+		if (StringUtils.isEmpty(startTime)){
 			startTime = "0";
 		}
-		if (StringUtil.isEmpty(endTime)){
+		if (StringUtils.isEmpty(endTime)){
 			endTime = "t";
 		}
 		

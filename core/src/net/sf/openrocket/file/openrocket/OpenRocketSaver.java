@@ -8,10 +8,12 @@ import java.io.Writer;
 import java.util.*;
 
 import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
@@ -60,7 +62,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private Writer dest;
 	
 	@Override
-	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException {
+	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException {
 		
 		log.info("Saving .ork file");
 		
@@ -97,7 +99,7 @@ public class OpenRocketSaver extends RocketSaver {
 			if (!first)
 				writeln("");
 			first = false;
-			saveSimulation(s, options.getSimulationTimeSkip());
+			saveSimulation(s, options.getSaveSimulationData());
 		}
 		indent--;
 		writeln("</simulations>");
@@ -173,13 +175,12 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Size per flight data point
 		int pointCount = 0;
-		double timeSkip = options.getSimulationTimeSkip();
-		if (timeSkip != StorageOptions.SIMULATION_DATA_NONE) {
+		if (options.getSaveSimulationData()) {
 			for (Simulation s : doc.getSimulations()) {
 				FlightData data = s.getSimulatedData();
 				if (data != null) {
 					for (int i = 0; i < data.getBranchCount(); i++) {
-						pointCount += countFlightDataBranchPoints(data.getBranch(i), timeSkip);
+						pointCount += countFlightDataBranchPoints(data.getBranch(i));
 					}
 				}
 			}
@@ -317,11 +318,11 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-	private void saveSimulation(Simulation simulation, double timeSkip) throws IOException {
+	private void saveSimulation(Simulation simulation, boolean saveSimulationData) throws IOException {
 		SimulationOptions cond = simulation.getOptions();
 
 		Simulation.Status simStatus;
-		simStatus = timeSkip != StorageOptions.SIMULATION_DATA_NONE ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
+		simStatus = saveSimulationData ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
 
 		writeln("<simulation status=\"" + enumToXMLName(simStatus) + "\">");
 		indent++;
@@ -408,13 +409,11 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 			
 			// Check whether to store data
-			if (simulation.getStatus() == Simulation.Status.EXTERNAL) // Always store external data
-				timeSkip = 0;
-			
-			if (timeSkip != StorageOptions.SIMULATION_DATA_NONE) {
+			if ((simulation.getStatus() == Simulation.Status.EXTERNAL) || // Always store external data
+				saveSimulationData) {
 				for (int i = 0; i < data.getBranchCount(); i++) {
 					FlightDataBranch branch = data.getBranch(i);
-					saveFlightDataBranch(branch, timeSkip);
+					saveFlightDataBranch(branch);
 				}
 			}
 			
@@ -474,9 +473,8 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 	}
 	
-	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip)
+	private void saveFlightDataBranch(FlightDataBranch branch)
 			throws IOException {
-		double previousTime = -100000;
 		
 		if (branch == null)
 			return;
@@ -492,7 +490,6 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int i = 0; i < types.length; i++) {
 			data.add(branch.get(types[i]));
 		}
-		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
 		
 		// Build the <databranch> tag
 		StringBuilder sb = new StringBuilder();
@@ -540,25 +537,8 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write the data
 		int length = branch.getLength();
-		if (length > 0) {
-			writeDataPointString(data, 0, sb);
-			previousTime = timeData.get(0);
-		}
-		
-		for (int i = 1; i < length - 1; i++) {
-			if (timeData != null) {
-				if (Math.abs(timeData.get(i) - previousTime - timeSkip) < Math.abs(timeData.get(i + 1) - previousTime - timeSkip)) {
-					writeDataPointString(data, i, sb);
-					previousTime = timeData.get(i);
-				}
-			} else {
-				// If time data is not available, write all points
-				writeDataPointString(data, i, sb);
-			}
-		}
-		
-		if (length > 1) {
-			writeDataPointString(data, length - 1, sb);
+		for (int i = 0; i < length; i++) {
+			writeDataPointString(data, i, sb);
 		}
 		
 		indent--;
@@ -566,10 +546,8 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	/* TODO: LOW: This is largely duplicated from above! */
-	private int countFlightDataBranchPoints(FlightDataBranch branch, double timeSkip) {
+	private int countFlightDataBranchPoints(FlightDataBranch branch) {
 		int count = 0;
-		
-		double previousTime = -100000;
 		
 		if (branch == null)
 			return 0;
@@ -586,23 +564,8 @@ public class OpenRocketSaver extends RocketSaver {
 			return branch.getLength();
 		}
 		
-		// Write the data
-		int length = branch.getLength();
-		if (length > 0) {
-			count++;
-			previousTime = timeData.get(0);
-		}
-		
-		for (int i = 1; i < length - 1; i++) {
-			if (Math.abs(timeData.get(i) - previousTime - timeSkip) < Math.abs(timeData.get(i + 1) - previousTime - timeSkip)) {
-				count++;
-				previousTime = timeData.get(i);
-			}
-		}
-		
-		if (length > 1) {
-			count++;
-		}
+		// Count the data
+		count += branch.getLength();
 		
 		return count;
 	}

@@ -2,7 +2,7 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.document.Attachment;

@@ -3,11 +3,13 @@ package net.sf.openrocket.startup;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 
+import com.google.inject.Singleton;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.util.BugException;
 
+@Singleton
 public class MockPreferences extends Preferences {
 	
 	private final String NODENAME = "OpenRocket-test-mock";

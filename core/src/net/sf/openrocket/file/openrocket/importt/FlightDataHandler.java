@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -91,12 +91,6 @@ class FlightDataHandler extends AbstractElementHandler {
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-
-		// If no <databranch> tag in XML, then there is no sim data
-		if (dataHandler == null) {
-			data = null;
-			return;
-		}
 
 		if (branches.size() > 0) {
 			data = new FlightData(branches.toArray(new FlightDataBranch[0]));

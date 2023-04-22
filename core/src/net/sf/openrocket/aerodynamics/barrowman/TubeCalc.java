@@ -1,7 +1,7 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Tube;
 import net.sf.openrocket.util.MathUtil;

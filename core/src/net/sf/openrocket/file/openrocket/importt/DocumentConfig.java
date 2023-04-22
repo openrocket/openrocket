@@ -213,7 +213,7 @@ class DocumentConfig {
 			
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
-				Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
+				Reflection.findMethod(Transition.class, "setShapeType", Transition.Shape.class),
 				Transition.Shape.class));
 		setters.put("Transition:shapeclipped", new BooleanSetter(
 				Reflection.findMethod(Transition.class, "setClipped", boolean.class)));
@@ -389,7 +389,7 @@ class DocumentConfig {
 		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
-				Reflection.findMethod(MassObject.class, "setLengthNoAuto", double.class)));
+				Reflection.findMethod(MassObject.class, "setLength", double.class)));
 		setters.put("MassObject:packedradius", new DoubleSetter(
 				Reflection.findMethod(MassObject.class, "setRadius", double.class),
 				"auto", " ",
@@ -409,7 +409,7 @@ class DocumentConfig {
 				Reflection.findMethod(MassComponent.class, "setMassComponentType", MassComponent.MassComponentType.class),
 				MassComponent.MassComponentType.class));
 		/*		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
-						Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
+						Reflection.findMethod(Transition.class, "setShapeType", Transition.Shape.class),
 						Transition.Shape.class));*/
 		
 		// ShockCord

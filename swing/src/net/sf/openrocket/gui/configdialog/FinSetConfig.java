@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -104,32 +105,25 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Splitting " + component.getComponentName() + " into separate fins, fin count=" +
 						((FinSet) component).getFinCount());
-				
+
+				// This is a bit awkward, we need to store the listeners before closing the dialog, because closing it
+				// will remove them. We then add them back before the split and remove them afterwards.
+				List<RocketComponent> listeners = new ArrayList<>(component.getConfigListeners());
+
+				ComponentConfigDialog.disposeDialog();
+
 				// Do change in future for overall safety
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						RocketComponent parent = component.getParent();
-						int index = parent.getChildPosition(component);
-						int count = ((FinSet) component).getFinCount();
-						double base = ((FinSet) component).getBaseRotation();
-						if (count <= 1)
-							return;
-						
 						document.addUndoPosition("Split fin set");
-						parent.removeChild(index);
-						for (int i = 0; i < count; i++) {
-							FinSet copy = (FinSet) component.copy();
-							copy.setFinCount(1);
-							copy.setBaseRotation(base + i * 2 * Math.PI / count);
-							copy.setName(copy.getName() + " #" + (i + 1));
-							copy.setOverrideMass(((FinSet) component).getOverrideMass()/((FinSet) component).getFinCount());
-							parent.addChild(copy, index + i);
+						for (RocketComponent listener : listeners) {
+							component.addConfigListener(listener);
 						}
+						((FinSet) component).splitFins();
+						component.clearConfigListeners();
 					}
 				});
-				
-				ComponentConfigDialog.disposeDialog();
 			}
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);

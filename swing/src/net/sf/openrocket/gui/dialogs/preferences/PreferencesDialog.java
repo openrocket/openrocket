@@ -33,10 +33,14 @@ public class PreferencesDialog extends JDialog {
 	private final SwingPreferences preferences = (SwingPreferences) Application
 			.getPreferences();
 
+	private BasicFrame parentFrame;
+
 	private PreferencesDialog(BasicFrame parent) {
 		// // Preferences
 		super(parent, trans.get("pref.dlg.title.Preferences"),
 				Dialog.ModalityType.APPLICATION_MODAL);
+
+		this.parentFrame = parent;
 
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel", "[grow]",
 				"[grow][]"));
@@ -97,11 +101,16 @@ public class PreferencesDialog extends JDialog {
 				if (parent != null) {
 					parent.getRocketPanel().updateExtras();
 					parent.getRocketPanel().updateFigures();
+					parent.getRocketPanel().updateRulers();
 				}
 			}
 		});
 
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	public BasicFrame getParentFrame() {
+		return parentFrame;
 	}
 
 	// ////// Singleton implementation ////////

@@ -29,7 +29,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 	}
 	
 
-	protected JPanel generalTab(String outer, String inner, String thickness, String length) {
+	protected JPanel generalTab(String length, String outer, String inner, String thickness) {
 		JPanel primary = new JPanel(new MigLayout());
 
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
@@ -38,6 +38,24 @@ public class RingComponentConfig extends RocketComponentConfig {
 		DoubleModel od = null;
 
 		//// Attributes ----
+
+		//// Length
+		if (length != null) {
+			panel.add(new JLabel(length));
+
+			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+
+			spin = new JSpinner(m.getSpinnerModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			if (component instanceof ThicknessRingComponent) {
+				focusElement = spin;
+			}
+			panel.add(spin, "growx");
+			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+			panel.add(new UnitSelector(m), "growx");
+			panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		}
 
 		//// Outer diameter
 		if (outer != null) {
@@ -109,26 +127,6 @@ public class RingComponentConfig extends RocketComponentConfig {
 			
 			panel.add(new UnitSelector(m), "growx");
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
-		}
-		
-		
-		////  Inner tube length
-		if (length != null) {
-			panel.add(new JLabel(length));
-			
-			//// Length
-			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-			
-			spin = new JSpinner(m.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			if (component instanceof ThicknessRingComponent) {
-				focusElement = spin;
-			}
-			panel.add(spin, "growx");
-			order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-			
-			panel.add(new UnitSelector(m), "growx");
-			panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		}
 
 		primary.add(panel, "grow, gapright 40lp");

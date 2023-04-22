@@ -21,7 +21,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 
 import net.sf.openrocket.ServicesForTesting;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;

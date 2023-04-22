@@ -27,7 +27,7 @@ public class NoseConeSaver extends TransitionSaver {
 		super.addParams(c, elements);
 
 		if (noseCone.isBaseRadiusAutomatic())
-			elements.add("<aftradius>auto " + noseCone.getBaseRadiusNoAutomatic() + "</aftradius>");
+			elements.add("<aftradius>auto " + noseCone.getBaseRadius() + "</aftradius>");
 		else
 			elements.add("<aftradius>" + noseCone.getBaseRadius() + "</aftradius>");
 

@@ -2,6 +2,7 @@ package net.sf.openrocket.aerodynamics;
 
 import java.util.Map;
 
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.MathUtil;

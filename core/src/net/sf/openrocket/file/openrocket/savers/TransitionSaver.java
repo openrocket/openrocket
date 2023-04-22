@@ -31,7 +31,7 @@ public class TransitionSaver extends SymmetricComponentSaver {
 		super.addParams(c, elements);
 		net.sf.openrocket.rocketcomponent.Transition trans = (net.sf.openrocket.rocketcomponent.Transition) c;
 		
-		Transition.Shape shape = trans.getType();
+		Transition.Shape shape = trans.getShapeType();
 		elements.add("<shape>" + shape.name().toLowerCase(Locale.ENGLISH) + "</shape>");
 		if (shape.isClippable()) {
 			elements.add("<shapeclipped>" + trans.isClipped() + "</shapeclipped>");
@@ -46,12 +46,12 @@ public class TransitionSaver extends SymmetricComponentSaver {
 		}
 
 		if (trans.isForeRadiusAutomatic())
-			elements.add("<foreradius>auto " + trans.getForeRadiusNoAutomatic() + "</foreradius>");
+			elements.add("<foreradius>auto " + trans.getForeRadius() + "</foreradius>");
 		else
 			elements.add("<foreradius>" + trans.getForeRadius() + "</foreradius>");
 		
 		if (trans.isAftRadiusAutomatic())
-			elements.add("<aftradius>auto " + trans.getAftRadiusNoAutomatic() + "</aftradius>");
+			elements.add("<aftradius>auto " + trans.getAftRadius() + "</aftradius>");
 		else
 			elements.add("<aftradius>" + trans.getAftRadius() + "</aftradius>");
 		

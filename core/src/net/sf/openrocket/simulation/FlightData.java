@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Mutable;
 
@@ -273,7 +273,23 @@ public class FlightData {
 		return mutable.isMutable();
 	}
 	
-	
+	public FlightData clone() {
+		FlightData clone = new FlightData();
+		clone.warnings.addAll(warnings);
+		for (FlightDataBranch b : branches) {
+			clone.branches.add(b.clone());
+		}
+		clone.maxAltitude = maxAltitude;
+		clone.maxVelocity = maxVelocity;
+		clone.maxAcceleration = maxAcceleration;
+		clone.maxMachNumber = maxMachNumber;
+		clone.timeToApogee = timeToApogee;
+		clone.flightTime = flightTime;
+		clone.groundHitVelocity = groundHitVelocity;
+		clone.launchRodVelocity = launchRodVelocity;
+		clone.deploymentVelocity = deploymentVelocity;
+		return clone;
+	}
 
 	/**
 	 * Find the maximum acceleration before apogee.

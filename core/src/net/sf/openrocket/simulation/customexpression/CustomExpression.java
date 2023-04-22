@@ -11,7 +11,7 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.unit.FixedUnitGroup;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +227,7 @@ public class CustomExpression implements Cloneable {
 	}
 	
 	public boolean checkSymbol() {
-		if (StringUtil.isEmpty(symbol)) {
+		if (StringUtils.isEmpty(symbol)) {
 			return false;
 		}
 		
@@ -254,7 +254,7 @@ public class CustomExpression implements Cloneable {
 	}
 	
 	public boolean checkName() {
-		if (StringUtil.isEmpty(name)) {
+		if (StringUtils.isEmpty(name)) {
 			return false;
 		}
 		
@@ -304,7 +304,7 @@ public class CustomExpression implements Cloneable {
 	 * building the expression.
 	 */
 	public boolean checkExpression() {
-		if (StringUtil.isEmpty(expression)) {
+		if (StringUtils.isEmpty(expression)) {
 			return false;
 		}
 		
