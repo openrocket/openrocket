@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.simulation;
 
+import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -105,7 +106,8 @@ public class SimulationPlotPanel extends JPanel {
 	
 	
 	private int modifying = 0;
-	
+
+	private DescriptionArea simPlotPanelDesc;	
 	
 	public SimulationPlotPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
@@ -170,6 +172,14 @@ public class SimulationPlotPanel extends JPanel {
 				if (modifying > 0)
 					return;
 				FlightDataType type = (FlightDataType) domainTypeSelector.getSelectedItem();
+				if (type == FlightDataType.TYPE_TIME) {
+					simPlotPanelDesc.setVisible(false);
+					simPlotPanelDesc.setText("");
+				}
+				else {
+					simPlotPanelDesc.setVisible(true);
+					simPlotPanelDesc.setText(trans.get("simplotpanel.Desc"));
+				}
 				configuration.setDomainAxisType(type);
 				domainUnitSelector.setUnitGroup(type.getUnitGroup());
 				domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
@@ -193,9 +203,13 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		//// The data will be plotted in time order even if the X axis type is not time.
-		DescriptionArea desc = new DescriptionArea(trans.get("simplotpanel.Desc"), 2, -2f);
-		desc.setViewportBorder(BorderFactory.createEmptyBorder());
-		this.add(desc, "width 1px, growx 1, wrap unrel");
+		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
+		simPlotPanelDesc.setVisible(false);
+		simPlotPanelDesc.setForeground(Color.RED);
+		
+		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
+		this.add(simPlotPanelDesc, "width 1px, growx 1, wrap unrel");
+		
 		
 		
 		
