@@ -202,5 +202,15 @@ public class DescriptionArea extends JScrollPane {
 			editorPane.setFont(font);
 		}
 	}
+
+	public void setBackground(Color color) {
+		if (editorPane == null) return;
+		editorPane.setBackground(color);
+	}
+
+	public void setForeground(Color color) {
+		if (editorPane == null) return;
+		editorPane.setForeground(color);
+	}
 	
 }
