@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.simulation;
 
-import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,6 +40,7 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -205,8 +205,7 @@ public class SimulationPlotPanel extends JPanel {
 		//// The data will be plotted in time order even if the X axis type is not time.
 		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
 		simPlotPanelDesc.setVisible(false);
-		simPlotPanelDesc.setForeground(Color.RED);
-		
+		simPlotPanelDesc.setForeground(Color.DARK_RED.toAWTColor());
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(simPlotPanelDesc, "width 1px, growx 1, wrap unrel");
 		
