@@ -28,8 +28,10 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
@@ -71,6 +73,16 @@ public class SimulationPlotDialog extends JDialog {
 		//// Description text
 		JLabel label = new StyledLabel(trans.get("PlotDialog.lbl.Chart"), -2);
 		panel.add(label, "wrap");
+
+		// Add warning if X axis type is not time
+		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
+			// TODO: LOW: This translation message doesn't use the proper tense (simple future when it would be present)
+			// There is currently no translation message representing this dialog. 
+			// Such a message should be added, and this code should be updated to use it. 
+			JLabel msg = new StyledLabel(trans.get("simplotpanel.Desc"), -2);
+			msg.setForeground(Color.DARK_RED.toAWTColor());
+			panel.add(msg, "wrap");
+		}
 		
 		//// Show data points
 		final JCheckBox check = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
