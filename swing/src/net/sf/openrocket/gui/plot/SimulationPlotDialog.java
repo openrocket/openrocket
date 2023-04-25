@@ -76,10 +76,7 @@ public class SimulationPlotDialog extends JDialog {
 
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
-			// TODO: LOW: This translation message doesn't use the proper tense (simple future when it would be present)
-			// There is currently no translation message representing this dialog. 
-			// Such a message should be added, and this code should be updated to use it. 
-			JLabel msg = new StyledLabel(trans.get("simplotpanel.Desc"), -2);
+			JLabel msg = new StyledLabel(trans.get("simplotpanel.Warning"), -2);
 			msg.setForeground(Color.DARK_RED.toAWTColor());
 			panel.add(msg, "wrap");
 		}
