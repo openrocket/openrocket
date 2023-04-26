@@ -130,8 +130,8 @@ tasks.register('externalComponentsValidate') {
 }
 tasks.register('externalComponentsUpdate') {
     group = 'openrocket'
+    dependsOn 'externalComponentsInit'
     doLast {
-        dependsOn 'externalComponentsInit'
         exec {
             workingDir "../"
             executable 'git'
