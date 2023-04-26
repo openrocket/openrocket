@@ -76,7 +76,7 @@ public class SimulationPlotDialog extends JDialog {
 
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
-			JLabel msg = new StyledLabel(trans.get("simplotpanel.Warning"), -2);
+			JLabel msg = new StyledLabel(trans.get("PlotDialog.lbl.timeSeriesWarning"), -2);
 			msg.setForeground(Color.DARK_RED.toAWTColor());
 			panel.add(msg, "wrap");
 		}
